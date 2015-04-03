@@ -1,0 +1,424 @@
+Lexicographic rank of a string - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Lexicographic rank of a string Given a string, find its rank among all its permutations sorted lexicographically. For example, rank of “abc” is 1, rank of “acb” is 2, and rank of “cba” is 6. For simplicity, let us assume that the string does not contain any duplicated characters. One simple solution is to initialize rank as 1, generate all permutations in lexicographic order. After generating a permutation, check if the generated permutation is same as given string, if same, then return rank, if not, then increment the rank by 1. The time complexity of this solution will be exponential in worst case. Following is an efficient solution. Let the given string be “STRING”. In the input string, ‘S’ is the first character. There are total 6 characters and 4 of them are smaller than ‘S’. So there can be 4 * 5! smaller strings where first character is smaller than ‘S’, like following R X X X X X I X X X X X N X X X X X G X X X X X Now let us Fix S’ and find the smaller strings staring with ‘S’. Repeat the same process for T, rank is 4*5! + 4*4! +… Now fix T and repeat the same process for R, rank is 4*5! + 4*4! + 3*3! +… Now fix R and repeat the same process for I, rank is 4*5! + 4*4! + 3*3! + 1*2! +… Now fix I and repeat the same process for N, rank is 4*5! + 4*4! + 3*3! + 1*2! + 1*1! +… Now fix N and repeat the same process for G, rank is 4*5! + 4*4 + 3*3! + 1*2! + 1*1! + 0*0! Rank = 4*5! + 4*4! + 3*3! + 1*2! + 1*1! + 0*0! = 597 Since the value of rank starts from 1, the final rank = 1 + 597 = 598 
+#include <stdio.h>
+#include <string.h>
+
+// A utility function to find factorial of n
+int fact(int n)
+{
+    return (n <= 1)? 1 :n * fact(n-1);
+}
+
+// A utility function to count smaller characters on right
+// of arr[low]
+int findSmallerInRight(char* str, int low, int high)
+{
+    int countRight = 0, i;
+
+    for (i = low+1; i <= high; ++i)
+        if (str[i] < str[low])
+            ++countRight;
+
+    return countRight;
+}
+
+// A function to find rank of a string in all permutations
+// of characters
+int findRank (char* str)
+{
+    int len = strlen(str);
+    int mul = fact(len);
+    int rank = 1;
+    int countRight;
+
+    int i;
+    for (i = 0; i < len; ++i)
+    {
+        mul /= len - i;
+
+        // count number of chars smaller than str[i]
+        // fron str[i+1] to str[len-1]
+        countRight = findSmallerInRight(str, i, len-1);
+
+        rank += countRight * mul ;
+    }
+
+    return rank;
+}
+
+// Driver program to test above function
+int main()
+{
+    char str[] = "string";
+    printf ("%d", findRank(str));
+    return 0;
+}
+ Output 598 The time complexity of the above solution is O(n^2). We can reduce the time complexity to O(n) by creating an auxiliary array of size 256. See following code. 
+// A O(n) solution for finding rank of string
+#include <stdio.h>
+#include <string.h>
+#define MAX_CHAR 256
+
+// A utility function to find factorial of n
+int fact(int n)
+{
+    return (n <= 1)? 1 :n * fact(n-1);
+}
+
+// Construct a count array where value at every index
+// contains count of smaller characters in whole string
+void populateAndIncreaseCount (int* count, char* str)
+{
+    int i;
+
+    for( i = 0; str[i]; ++i )
+        ++count[ str[i] ];
+
+    for( i = 1; i < 256; ++i )
+        count[i] += count[i-1];
+}
+
+// Removes a character ch from count[] array
+// constructed by populateAndIncreaseCount()
+void updatecount (int* count, char ch)
+{
+    int i;
+    for( i = ch; i < MAX_CHAR; ++i )
+        --count[i];
+}
+
+// A function to find rank of a string in all permutations
+// of characters
+int findRank (char* str)
+{
+    int len = strlen(str);
+    int mul = fact(len);
+    int rank = 1, i;
+    int count[MAX_CHAR] = {0};  // all elements of count[] are initialized with 0
+
+    // Populate the count array such that count[i] contains count of 
+    // characters which are present in str and are smaller than i
+    populateAndIncreaseCount( count, str );
+
+    for (i = 0; i < len; ++i)
+    {
+        mul /= len - i;
+
+        // count number of chars smaller than str[i]
+        // fron str[i+1] to str[len-1]
+        rank += count[ str[i] - 1] * mul;
+
+        // Reduce count of characters greater than str[i]
+        updatecount (count, str[i]);
+    }
+
+    return rank;
+}
+
+// Driver program to test above function
+int main()
+{
+    char str[] = "string";
+    printf ("%d", findRank(str));
+    return 0;
+}
+ The above programs don’t work for duplicate characters. To make them work for duplicate characters, find all the characters that are smaller (include equal this time also), do the same as above but, this time divide the rank so formed by p! where p is the count of occurrences of the repeating character. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Suffix Tree Application 5 – Longest Common Substring Generalized Suffix Tree 1 Suffix Tree Application 4 – Build Linear Time Suffix Array Suffix Tree Application 3 – Longest Repeated Substring Suffix Tree Application 2 – Searching All Patterns Suffix Tree Application 1 – Substring Check Ukkonen’s Suffix Tree Construction – Part 6 Ukkonen’s Suffix Tree Construction – Part 5 Tags: MathematicalAlgo Tweet Writing code in comment? Please use ideone.com and share the link here. alien The logic for finding mul is very good.. codKaichu how is updateCount not O(n^2) and linear instead. It goes from i=ch to MaxArray for over n times Javed MAX_CHAR doesnt depend on the length of the input string, its a constant which is 256. So the complexity is O(n) only. ncrkpm why are we doing count[i]=count[i]+count[i-1] Anand Mohan Sinha to put number of elements smaller than i in count[i] Manish Kumar  
+Here is the algorithm, maintain to char arrays inputChars and strToBeFoundChars
+
+Sort the input string. 
+Initialize the rank to 1 and the pointer to 0.
+Initialize next to pointer + 1.
+While input string is not the same as the string to be found
+if ( inputChars[pointer] != strToBeFoundChars[pointer] )
+swap the current character with the next one.
+increment the next
+increment the rank by the factorial of (length – (pointer + 1))
+else
+increment the pointer
+next = pointer + 1
+return rank
+The code is as follows,
+
+
+public static int getRank(String inputStr, String strToFind) {
+
+// 1. Sort the inputStr - O(nlogn), where n is the number of inputStr character.
+char[] inputChars = inputStr.toCharArray();
+Arrays.sort(inputChars);
+
+// 2. Initialize the rank
+int rank = 1;
+int pointer = 0; // Keeps the location of the character we are comparing
+int length = inputStr.length();
+char[] strToFindChars = strToFind.toCharArray();
+
+// 3. while the inputStr is not the same as the strToFind.
+int next = pointer + 1;
+
+/*
+* Complexity
+*/
+while ( pointer != length ) {
+
+if ( inputChars[pointer] != strToFindChars[pointer] ) {
+
+// Swap the current character with the one after that
+char temp = inputChars[pointer];
+inputChars[pointer] = inputChars[next];
+inputChars[next] = temp;
+next++;
+
+// Increment the rank
+rank += getFactorialIter(length - (pointer + 1));
+
+} else {
+pointer++;
+next = pointer + 1;
+}
+}
+return rank;
+}
+
+private static int getFactorialIter(int n) {
+
+if ( n == 0 || n == 1 ) {
+return n;
+}
+
+int fact = 1;
+for ( int i = 1 ; i <= n ; i++ ) {
+fact *= i;
+}
+
+return fact;
+}
+
+private static int getFactorialRecur(int n) {
+
+// Base condition for the factorial.
+if ( n == 0 || n == 1 ) {
+return n;
+}
+
+return n*getFactorialRecur( n - 1 );
+}
+ bateesh @geeksforgeeks can we handle duplicates in 0(n).I have gone through the note that you have written regarding duplicates but not able to do it in 0 (n) .Although it can be done easily in 0(n^2). kaushik  
+
+//kaushik sahu
+
+#include<stdio.h>
+#include<string.h>
+
+int smaller(char *str)
+{
+    int i=0,count=0;
+    for(i=1;i<strlen(str);i++)    
+    {
+        if(*(str) > *(str+i))
+            count++;
+    }
+    return count;
+}
+
+int factorial(int k)
+{
+    if((k==0) || (k==1))
+        return 1;
+    else
+        return k*(factorial(k-1));    
+}
+
+
+int main()
+{
+    char *str = "string";
+    int num=0,rank = 1,i=0;
+    
+    
+    num = smaller(str);
+    for(i=strlen(str)-1;i>=1;i--)
+    {
+        rank += num*factorial(i);        
+        num = smaller(str+(strlen(str) - i));
+    }
+    
+    printf("The Lexicographical Rank of the word is %d",rank);
+    return 0;
+}
+
+ darkpassenger plz post the solution for the duplicate elements . rahul23 @vanki:- plz post code for repeating elements abhishek08aug Intelligent code_maker time complexity in auxilary array mtd should be o(n^2) rahul sundar Yea true …so even method 2 is o(n^2) or nlogn based on the techniq we use to populatecountarray  
+/* Paste your code here (You may delete these lines if not writing code) */
+ zyfo2 yeah, agreed. possibly nlgn Vin Below program checks the provided input i.e. “BAC” with the generated permutations and if input is valid, print the rank.  
+
+#include<stdio.h>
+#include<string.h>
+ 
+int fact(int len)
+{
+        if (len==0 || len==1)
+                return 1;
+        else
+                return len*fact(len-1);
+}
+    
+void permutLexico(char *str,char *dis,int index,char *check)    
+{
+        
+        static int rank=1;
+        
+        if(index == strlen(str))
+        {
+                // Compare Lexicographic generated string [i.e.dis] with the provided one [i.e.check]
+                if (strcmp(dis,check)==0)
+                {
+                        printf("Rank of %s is %d\n",check,rank);
+                        return;
+                }
+                
+                rank++;
+                
+                // Check if rank goes beyond the n! i.e. possible permutations of string
+                // i.e. Provided input is invalid
+                if(rank==(fact(strlen(str))+1))
+                {
+                        printf("Provided input %s is Invalid !!!",check);
+                        return;
+                }
+        }
+        
+        int i;
+        for(i=0;i<strlen(str);i++)
+        {
+                int j=0,var=1;
+                
+                for(;j < index;j++)
+                {
+                        if(dis[j]==str[i])
+                        {
+                                var=0;
+                                break;
+                        }
+                }
+                
+                if(var)
+                {
+                        dis[index]=str[i];
+                        permutLexico(str,dis,index+1,check);
+                }
+        }
+}
+    
+int main()
+{
+    char str[]="ABC";
+    int len=strlen(str);
+    
+    char *dis;
+    dis=(char *)calloc((len+1),sizeof(char));
+    dis[len]='\0';
+    
+    //String for which rank be to calculated
+    char *check="BAC";
+    
+    
+    permutLexico(str,dis,0,check);
+    getchar();
+    return 0;
+}
+ 
+ faizan ali THE FUNCTION BELOW GIVES RIGHT ANSWER EVEN IF STRING IS DUPLICATED(IN O(N)) DONT FORGET TO ADD ONE TO THE FINAL ANSWER(:-)  
+int rank(char * str)
+{
+    if(*str=='\0')
+    return(0);
+    int hash[26],i;
+    for(i=0;i<26;i++)
+    hash[i]=0;
+    int j,count=0,k;
+    for(j=1;j<strlen(str);j++)
+    {
+       if(str[j]<str[0])
+       count++;
+       
+    }
+    
+    j=(count)*(fact(strlen(str)-1));
+
+    for(i=0;i<strlen(str);i++)
+    hash[str[i]-97]++;
+
+    for(i=0;i<26;i++)
+    {
+      if(hash[i]!=0 && hash[i]!=1)
+      j/=fact(hash[i]);
+    }
+
+    k=rank(str+1);
+    return(j+k);
+}
+ faizan ali The fact function finds the factorial Kartheek J The Above Method is order is O(n^2) as every recursion step takes o(n) to find the fact and to count the smaller charechters on the right. Total Recursion Steps are n so order will be O(n^2).  
+/* Paste your code here (You may delete these lines if not writing code) */
+ matt This doesn’t work, doesn’t run, doesn’t make sense. rajesh kumar #include #include #include int fact(int n) { if(n==0) return 1; else if(n>1) return n*fact(n-1); } int findsmallestelement(char *str,int n) { int count=0; for(int i=1;i=str[i]) count++; } return count; } int findrank(char *str) { int rank=1; int len=strlen(str); int len1=len-1; int mul=0; int sele=0; for(int i=0;i<len;i++) { mul=fact(len1–); sele=findsmallestelement(str++,strlen(str)); rank=rank+(mul*sele); printf("selec=%d\tmul=%d",sele,mul); } return rank; } int main() { char str[90]; long rank; int n; clrscr(); printf("Enter your string\n"); scanf("%s",str); rank=findrank(str); printf("rank is=%ld",rank); getch(); return 0; } rajesh kumar  
+#include<stdio.h>
+#include<conio.h>
+#include<string.h>
+
+ int fact(int n)
+ {
+     if(n==0)
+       return 1;
+   else if(n>1)
+      return n*fact(n-1);
+ }
+
+  int  findsmallestelement(char *str,int n)
+  {
+       int count=0;
+
+      for(int i=1;i<n;i++)
+      {
+       if(str[0]>=str[i])
+	 count++;
+      }
+     return count;
+   }
+
+  int  findrank(char *str)
+  {
+     int rank=1;
+
+     int len=strlen(str);
+     int len1=len-1;
+     int mul=0;
+     int sele=0;
+       for(int i=0;i<len;i++)
+       {
+	   mul=fact(len1--);
+	   sele=findsmallestelement(str++,strlen(str));
+	   rank=rank+(mul*sele);
+	   printf("selec=%d\tmul=%d",sele,mul);
+       }
+
+    return rank;
+ }
+
+
+ int main()
+ {
+  char str[90];
+  long rank;
+  int n;
+  clrscr();
+   printf("Enter your string\n");
+    scanf("%s",str);
+     rank=findrank(str);
+   printf("rank is=%ld",rank);
+     getch();
+   return 0;
+ }
+
+
+
+
+
+
+ George A small mistake in the brute force solution. Time complexity will be factorial, not exponential. Rahul kr patel #include #include char data[18],ch; int smallest(char *copy) { int hash[60]={0,0}; unsigned long long fact[]={1,1,2,6,24,120,720,5040,40320,362880,3628800,39916800,479001600,6227020800,87178291200,1307674368000,20922789888000,355687428096000,6402373705728000}; int len=strlen(copy); int c=0,i=0,j=0,c1=0,sum=0; while(copy[i]!=”) { hash[copy[i]]++; j=i; while(data[j]!=”) { if(data[i]>data[j]) c++; j++; } int a=len-++c1; sum+=c*fact[a]; c=0; i++; } int s=0; /* for(int i=48;i1) { s+=fact[hash[i]]; } } s=++sum/s;*/ printf(“%dn”,sum); } int main() { int t; scanf(“%d”,&t); while(t–) { scanf(“%s”,data); smallest(data); } return 0; } Rahul kr patel only for non-repeated char Rahul kr patel #include #include #include using namespace std; char data[18],ch; int smallest(char *copy) { unsigned long int fact[]={1,1,2,6,24,120,720,5040,40320,362880,3628800,39916800,479001600,6227020800,87178291200}; int len=strlen(copy); int c=0,i=0,j=0,c1=0,sum=0; while(copy[i]!=”) { j=i; while(data[j]!=”) { if(data[i]>data[j]) c++; j++; } int a=len-++c1; sum+=c*fact[a]; c=0; i++; } cout<>data; smallest(data); } Rahul kr patel for only non-repeated char Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

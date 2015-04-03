@@ -1,0 +1,188 @@
+Delete a given node in Linked List under given constraints - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Delete a given node in Linked List under given constraints Given a Singly Linked List, write a function to delete a given node. Your function must follow following constraints: 1) It must accept pointer to the start node as first parameter and node to be deleted as second parameter i.e., pointer to head node is not global. 2) It should not return pointer to the head node. 3) It should not accept pointer to pointer to head node. You may assume that the Linked List never becomes empty. Let the function name be deleteNode(). In a straightforward implementation, the function needs to modify head pointer when the node to be deleted is first node. As discussed in previous post, when a function modifies the head pointer, the function must use one of the given approaches, we can’t use any of those approaches here. Solution We explicitly handle the case when node to be deleted is first node, we copy the data of next node to head and delete the next node. The cases when deleted node is not the head node can be handled normally by finding the previous node and changing next of previous node. Following is C implementation. 
+#include <stdio.h>
+#include <stdlib.h>
+
+/* structure of a linked list node */
+struct node
+{
+    int data;
+    struct node *next;
+};
+
+void deleteNode(struct node *head, struct node *n)
+{
+    // When node to be deleted is head node
+    if(head == n)
+    {
+        if(head->next == NULL)
+        {
+            printf("There is only one node. The list can't be made empty ");
+            return;
+        }
+
+        /* Copy the data of next node to head */
+        head->data = head->next->data;
+
+        // store address of next node
+        n = head->next;
+
+        // Remove the link of next node
+        head->next = head->next->next;
+
+        // free memory
+        free(n);
+
+        return;
+    }
+
+
+    // When not first node, follow the normal deletion process
+
+    // find the previous node
+    struct node *prev = head;
+    while(prev->next != NULL && prev->next != n)
+        prev = prev->next;
+
+    // Check if node really exists in Linked List
+    if(prev->next == NULL)
+    {
+        printf("\n Given node is not present in Linked List");
+        return;
+    }
+
+    // Remove node from Linked List
+    prev->next = prev->next->next;
+
+    // Free memory
+    free(n);
+
+    return; 
+}
+
+/* Utility function to insert a node at the begining */
+void push(struct node **head_ref, int new_data)
+{
+    struct node *new_node =
+        (struct node *)malloc(sizeof(struct node));
+    new_node->data = new_data;
+    new_node->next = *head_ref;
+    *head_ref = new_node;
+}
+
+/* Utility function to print a linked list */
+void printList(struct node *head)
+{
+    while(head!=NULL)
+    {
+        printf("%d ",head->data);
+        head=head->next;
+    }
+    printf("\n");
+}
+
+/* Driver program to test above functions */
+int main()
+{
+    struct node *head = NULL;
+
+    /* Create following linked list
+      12->15->10->11->5->6->2->3 */
+    push(&head,3);
+    push(&head,2);
+    push(&head,6);
+    push(&head,5);
+    push(&head,11);
+    push(&head,10);
+    push(&head,15);
+    push(&head,12);
+
+    printf("Given Linked List: ");
+    printList(head);
+
+    /* Let us delete the node with value 10 */
+    printf("\nDeleting node %d: ", head->next->next->data);
+    deleteNode(head, head->next->next);
+
+    printf("\nModified Linked List: ");
+    printList(head);
+
+    /* Let us delete the the first node */
+    printf("\nDeleting first node ");
+    deleteNode(head, head);
+
+    printf("\nModified Linked List: ");
+    printList(head);
+
+    getchar();
+    return 0;
+}
+
+ Output: 
+Given Linked List: 12 15 10 11 5 6 2 3
+
+Deleting node 10:
+Modified Linked List: 12 15 11 5 6 2 3
+
+Deleting first node
+Modified Linked List: 15 11 5 6 2 3
+ Please write comments if you find the above codes/algorithms incorrect, or find other ways to solve the same problem.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. kavi I understand that if the list contains only a SINGLE NODE, and we wish to delete it, it CANNOT BE DONE using this program. I can already see that statement , LIS “The list can’t be made empty” , But still wish to confirm, that IT IS IMPOSSIBLE if the list contains single node? Am I right? Please let me know if any other way if that single node can be deleted with the given constraint. Thanks. ashatm when the first node is to be deleted, you have copied the data of the second node into the first one and deleted the second node, but that actually does not delete the given node; also the constraint is not to return a pointer to head, how does that mean we can’t update head in the delete function(in case we delete the first node only and update head to the second node)? ashatm i get it… sorry for the silly doubt.. Nidhi How will the changes made in head pointer be maintained when its reference is not passed to us and neither are e returning head? Rakesh n = prev->next; This line is missing before prev->next = prev->next->next; abhishek  
+package sam;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class am {
+
+	public static void main(String[] args) {
+		//Generate linked list with 19->20->3->70->4->5
+		List<Integer> n = new ArrayList<Integer>();
+		n.add(19);
+		n.add(20);
+		n.add(3);
+		n.add(70);
+		n.add(4);
+		n.add(5);
+		LinkedList formed = generateLinkedList(n);
+		deleteNode(formed.next.next.next);
+		
+		
+	}
+	private static LinkedList generateLinkedList(List<Integer> n) {
+		LinkedList end = null;
+		for(int i = n.size()-1 ; i >= 0  ; i--) {
+			end = new LinkedList(n.get(i), end);
+		}
+		return end;
+	}
+	private static void deleteNode(LinkedList m) {
+		m.value = m.next.value;
+		m.next = m.next.next;
+	}
+}
+class LinkedList {
+	int value;
+	LinkedList next;
+	public LinkedList(int value, LinkedList next) {
+		this.value = value;
+		this.next = next;
+	}
+	
+}
+ jogi this question was asked in Oravle interview. http://ahmetalpbalkan.com ahmet alp balkan I think you should state that this linked list is singly-linked. GeeksforGeeks @ahmet alp balkan: Thaks for the suggestion. We have added Singly to the problem statement. trying_to_learn Hi, I understand the algorithm and tried to run it in Visual Studio and it runs well with the desired output but I do not understand this line in the deleteNode function. // store address of next node n = head->next; Followed by free(n). This means that n points to the next node which is 15 in this case and then we say free(n) which means free the memory to which n is pointing at i.e 15. The program correctly deletes the node 12 which is the head node but I did not understand how it deleted 12 instead of 15 Any help would be highly appreciated. Thank you, Best A  
+/* Paste your code here (You may delete these lines if not writing code) */
+ amitp49 @trying_to_learn Here the main logic is we can not change the head pointer. so we can not simply move head to next node. Rather what it does is it copy the data of next node to head. so now first and second both node have the same data as of second node. So in fact we reach to the state where we have deleted 12 logically but created 15 twice. Thats y it delete the second node to reach to final answer state. Hope it helps u…  
+/* Copy the data of next node to head */
+        head->data = head->next->data;
+ 
+        // store address of next node
+        n = head->next;
+ 
+        // Remove the link of next node
+        head->next = head->next->next;
+ 
+        // free memory
+        free(n);
+ 
+ Manish Need one help. If I copy the head node to some temp node and mode my head pointer to head->next, then my head is pointing to the second node in the linklist. Now I just have to set the temp->next = null to delete the previous head link. And If I am using C#, then since there is no ref to the prev node, memory will be reclaimed by GC whenever it is required. Node temp = head->next; head = head->next; temp->next = null; Can some one tell me what is wrong with the above lines?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Chummi interviewers generally do not mention it. If they say linked list they mean singly Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

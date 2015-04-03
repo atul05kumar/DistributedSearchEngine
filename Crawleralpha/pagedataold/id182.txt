@@ -1,0 +1,230 @@
+Dynamic Programming | Set 16 (Floyd Warshall Algorithm) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Dynamic Programming | Set 16 (Floyd Warshall Algorithm) The Floyd Warshall Algorithm is for solving the All Pairs Shortest Path problem. The problem is to find shortest distances between every pair of vertices in a given edge weighted directed Graph. Example: 
+Input:
+       graph[][] = { {0,   5,  INF, 10},
+                    {INF,  0,  3,  INF},
+                    {INF, INF, 0,   1},
+                    {INF, INF, INF, 0} }
+which represents the following graph
+             10
+       (0)------->(3)
+        |         /|\
+      5 |          |
+        |          | 1
+       \|/         |
+       (1)------->(2)
+            3       
+Note that the value of graph[i][j] is 0 if i is equal to j 
+And graph[i][j] is INF (infinite) if there is no edge from vertex i to j.
+
+Output:
+Shortest distance matrix
+      0      5      8      9
+    INF      0      3      4
+    INF    INF      0      1
+    INF    INF    INF      0 
+ Floyd Warshall Algorithm We initialize the solution matrix same as the input graph matrix as a first step. Then we update the solution matrix by considering all vertices as an intermediate vertex. The idea is to one by one pick all vertices and update all shortest paths which include the picked vertex as an intermediate vertex in the shortest path. When we pick vertex number k as an intermediate vertex, we already have considered vertices {0, 1, 2, .. k-1} as intermediate vertices. For every pair (i, j) of source and destination vertices respectively, there are two possible cases. 1) k is not an intermediate vertex in shortest path from i to j. We keep the value of dist[i][j] as it is. 2) k is an intermediate vertex in shortest path from i to j. We update the value of dist[i][j] as dist[i][k] + dist[k][j]. The following figure is taken from the Cormen book. It shows the above optimal substructure property in the all-pairs shortest path problem. Following is C implementation of the Floyd Warshall algorithm. 
+// Program for Floyd Warshall Algorithm
+#include<stdio.h>
+
+// Number of vertices in the graph
+#define V 4
+
+/* Define Infinite as a large enough value. This value will be used
+  for vertices not connected to each other */
+#define INF 99999
+
+// A function to print the solution matrix
+void printSolution(int dist[][V]);
+
+// Solves the all-pairs shortest path problem using Floyd Warshall algorithm
+void floydWarshell (int graph[][V])
+{
+    /* dist[][] will be the output matrix that will finally have the shortest 
+      distances between every pair of vertices */
+    int dist[V][V], i, j, k;
+
+    /* Initialize the solution matrix same as input graph matrix. Or 
+       we can say the initial values of shortest distances are based
+       on shortest paths considering no intermediate vertex. */
+    for (i = 0; i < V; i++)
+        for (j = 0; j < V; j++)
+            dist[i][j] = graph[i][j];
+
+    /* Add all vertices one by one to the set of intermediate vertices.
+      ---> Before start of a iteration, we have shortest distances between all
+      pairs of vertices such that the shortest distances consider only the
+      vertices in set {0, 1, 2, .. k-1} as intermediate vertices.
+      ----> After the end of a iteration, vertex no. k is added to the set of
+      intermediate vertices and the set becomes {0, 1, 2, .. k} */
+    for (k = 0; k < V; k++)
+    {
+        // Pick all vertices as source one by one
+        for (i = 0; i < V; i++)
+        {
+            // Pick all vertices as destination for the
+            // above picked source
+            for (j = 0; j < V; j++)
+            {
+                // If vertex k is on the shortest path from
+                // i to j, then update the value of dist[i][j]
+                if (dist[i][k] + dist[k][j] < dist[i][j])
+                    dist[i][j] = dist[i][k] + dist[k][j];
+            }
+        }
+    }
+
+    // Print the shortest distance matrix
+    printSolution(dist);
+}
+
+/* A utility function to print solution */
+void printSolution(int dist[][V])
+{
+    printf ("Following matrix shows the shortest distances"
+            " between every pair of vertices \n");
+    for (int i = 0; i < V; i++)
+    {
+        for (int j = 0; j < V; j++)
+        {
+            if (dist[i][j] == INF)
+                printf("%7s", "INF");
+            else
+                printf ("%7d", dist[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+// driver program to test above function
+int main()
+{
+    /* Let us create the following weighted graph
+            10
+       (0)------->(3)
+        |         /|\
+      5 |          |
+        |          | 1
+       \|/         |
+       (1)------->(2)
+            3           */
+    int graph[V][V] = { {0,   5,  INF, 10},
+                        {INF, 0,   3, INF},
+                        {INF, INF, 0,   1},
+                        {INF, INF, INF, 0}
+                      };
+
+    // Print the solution
+    floydWarshell(graph);
+    return 0;
+}
+ Output: 
+Following matrix shows the shortest distances between every pair of vertices
+      0      5      8      9
+    INF      0      3      4
+    INF    INF      0      1
+    INF    INF    INF      0
+ Time Complexity: O(V^3) The above program only prints the shortest distances. We can modify the solution to print the shortest paths also by storing the predecessor information in a separate 2D matrix. Also, the value of INF can be taken as INT_MAX from limits.h to make sure that we handle maximum possible value. When we take INF as INT_MAX, we need to change the if condition in the above program to avoid arithmatic overflow. 
+#include<limits.h>
+
+#define INF INT_MAX
+..........................
+if (dist[i][k] != INF && dist[k][j] != INF && dist[i][k] + dist[k][j] < dist[i][j])
+    dist[i][j] = dist[i][k] + dist[k][j];
+...........................
+ Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Vertex Cover Problem | Set 1 (Introduction and Approximate Algorithm) Snake and Ladder Problem Tarjan’s Algorithm to find Strongly Connected Components Shortest path with exactly k edges in a directed and weighted graph Count all possible walks from a source to a destination with exactly k edges Euler Circuit in a Directed Graph Given an array of strings, find if the strings can be chained to form a circle Given a sorted dictionary of an alien language, find order of characters Tags: Dynamic Programming, Graph Tweet Writing code in comment? Please use ideone.com and share the link here. Mohamad Hey guys, Here’s an implementation of Floyd-Warshall algorithm in C++ which finds the minimum weights along with the actual paths http://cs-and-design.blogspot.com/2014/04/floyd-warshall-algorithm.html nickpsar thanks guys!!! now with this example i can say that i finally managed to fill up all the blanks about floyd warshall algorithm. But…………hmm How can modify the code If i want in the solution graph to change all the distances up to 2 with 1 and all the other with 0 (sorry i forgot to say that my graph has weight 1 for each edge) ? Sanidhya Can you please code one to find the actual path taken by the above algorithm to calculate the shortest path, need it to implement Chinese Postman praveen can i get the path by this algorithm kartik Yes, you can get path. You need to maintain chosen k in a separate 2D array. viki Changing the loop as below also gives the same solution: for (i = 0; i < V; i++) { // Pick all vertices as source one by one for (j = 0; j < V; j++) { // Pick all vertices as destination for the // above picked source for (k = 0; k < V; k++) { // If vertex k is on the shortest path from // i to j, then update the value of dist[i][j] if (dist[i][k] + dist[k][j] < dist[i][j]) dist[i][j] = dist[i][k] + dist[k][j]; } } } rahul “The above program only prints the shortest distances. We can modify the solution to print the shortest paths also by storing the predecessor information in a separate 2D matrix.” Is there a difference between shortest path and shortest distance here? prashanth h r write a c program to check whether 2 words are anagrams using dynamic programming i.e. the words TEA and EAT are anagrams can any one solve this and post it here h that is just an LCS problem . find out LCS . if LCS== length of array. then anagram code1101  
+    public static int[][] getAllShortestPath(int[][] graph)  {
+        int N = graph.length;
+        for(int i=0; i<N; i++) {
+            for(int j=i+1; j<N; j++) {
+                // INF is a large value
+                if(graph[i][j] != INF) {
+                    for(int k=j+1; k<N; k++) {
+                        if(graph[i][k] > graph[i][j] + graph[j][k]) {
+                            graph[i][k] = graph[i][j] + graph[j][k];
+                        }
+                    }
+                }
+            }
+        }
+        return graph;
+    }
+ lohith  
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class FloydWarshallsAlgorithm {
+
+	public static int INF = 999;
+
+	public static void main(String str[]) {
+
+		int path[][] = { { 0, 5, INF, 10 }, { INF, 0, 3, INF },
+				{ INF, INF, 0, 1 }, { INF, INF, INF, 0 } };
+
+		ArrayList<Integer> visited = new ArrayList<Integer>();
+		
+		for(int i=0;i<4;i++){
+			for(int j=0;j<4;j++)
+				System.out.println(i+1+"  to  "+(j+1) +"  =  "+shortestPath(i,j,path,visited));
+		}
+	}
+
+	public static int shortestPath(int start, int dest, int[][] path,ArrayList<Integer> visited) {
+		
+		if(AlreadyCalculatedd.Has(start, dest)){
+			return AlreadyCalculatedd.get(start, dest);
+		}
+
+		if (start == dest)
+			return 0;
+		
+		int minimum = 999;
+		for (int i = 0; i < path[start].length; i++) {
+			
+			
+			if (path[start][i] != INF  && !visited.contains(new Integer(i)) ) {
+				
+				Integer in =new Integer(i);
+				visited.add(in);
+				int v = path[start][i] + shortestPath(i, dest, path,visited);
+				visited.remove(in);
+				if (minimum > v)
+					minimum = v;
+			}
+		}
+
+		AlreadyCalculatedd.put(start,dest,minimum);
+		return minimum;
+
+	}
+}
+
+
+
+
+class AlreadyCalculatedd{
+	
+	public static HashMap h = new HashMap();
+	
+	public static boolean Has(int start,int end){
+		
+	return	h.containsKey(""+start+""+end);
+		
+	}
+	
+	
+	public static int get(int start,int end){
+		
+		return (Integer) h.get(""+start+""+end);
+		
+	}
+	
+	
+	public static void put(int start,int end,int value){
+		h.put(""+start+""+end, value);
+	}
+}
+
+ lohith import java.util.ArrayList; import java.util.HashMap; public class FloydWarshallsAlgorithm { public static int INF = 999; public static void main(String str[]) { int path[][] = { { 0, 5, INF, 10 }, { INF, 0, 3, INF }, { INF, INF, 0, 1 }, { INF, INF, INF, 0 } }; ArrayList<Integer> visited = new ArrayList<Integer>(); for(int i=0;i<4;i++){ for(int j=0;j<4;j++) System.out.println(i+1+" to "+(j+1) +" = "+shortestPath(i,j,path,visited)); } } public static int shortestPath(int start, int dest, int[][] path,ArrayList<Integer> visited) { if(AlreadyCalculatedd.Has(start, dest)){ return AlreadyCalculatedd.get(start, dest); } if (start == dest) return 0; int minimum = 999; for (int i = 0; i < path[start].length; i++) { if (path[start][i] != INF && !visited.contains(new Integer(i)) ) { Integer in =new Integer(i); visited.add(in); int v = path[start][i] + shortestPath(i, dest, path,visited); visited.remove(in); if (minimum > v) minimum = v; } } AlreadyCalculatedd.put(start,dest,minimum); return minimum; } } class AlreadyCalculatedd{ public static HashMap h = new HashMap(); public static boolean Has(int start,int end){ return h.containsKey(""+start+""+end); } public static int get(int start,int end){ return (Integer) h.get(""+start+""+end); } public static void put(int start,int end,int value){ h.put(""+start+""+end, value); } } marti can you please explain why the k-loop is not the innermost out of the 3 loops? kartik If we make k-loop as the innermost loop, then the code will not follow the optimal substructure property shown in the diagram. The main idea for puttink k-loop outside is following: When we include vertex number k to the intermediate set, we must have shortest distance between every pair of vertex such that the shortest distances consider vertices from the set {0, 1, .. k-1} as intermediate vertices. If we make the k-loop innermost, then we won’t have the above mentioned values available before the start of a iteration. Let me know if you still have doubts. amrit okay , this is how i understand it. we are considering k=1 the first time, then k=1,2 then k=1,2,3 etc , this is the optimal substructure and hence the code…am i right?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

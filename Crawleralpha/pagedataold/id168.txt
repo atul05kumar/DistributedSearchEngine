@@ -1,0 +1,120 @@
+Dynamic Programming | Set 6 (Min Cost Path) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Dynamic Programming | Set 6 (Min Cost Path) Given a cost matrix cost[][] and a position (m, n) in cost[][], write a function that returns cost of minimum cost path to reach (m, n) from (0, 0). Each cell of the matrix represents a cost to traverse through that cell. Total cost of a path to reach (m, n) is sum of all the costs on that path (including both source and destination). You can only traverse down, right and diagonally lower cells from a given cell, i.e., from a given cell (i, j), cells (i+1, j), (i, j+1) and (i+1, j+1) can be traversed. You may assume that all costs are positive integers. For example, in the following figure, what is the minimum cost path to (2, 2)? The path with minimum cost is highlighted in the following figure. The path is (0, 0) –> (0, 1) –> (1, 2) –> (2, 2). The cost of the path is 8 (1 + 2 + 2 + 3). 1) Optimal Substructure The path to reach (m, n) must be through one of the 3 cells: (m-1, n-1) or (m-1, n) or (m, n-1). So minimum cost to reach (m, n) can be written as “minimum of the 3 cells plus cost[m][n]”. minCost(m, n) = min (minCost(m-1, n-1), minCost(m-1, n), minCost(m, n-1)) + cost[m][n] 2) Overlapping Subproblems Following is simple recursive implementation of the MCP (Minimum Cost Path) problem. The implementation simply follows the recursive structure mentioned above. 
+/* A Naive recursive implementation of MCP(Minimum Cost Path) problem */
+#include<stdio.h>
+#include<limits.h>
+#define R 3
+#define C 3
+
+int min(int x, int y, int z);
+
+/* Returns cost of minimum cost path from (0,0) to (m, n) in mat[R][C]*/
+int minCost(int cost[R][C], int m, int n)
+{
+   if (n < 0 || m < 0)
+      return INT_MAX;
+   else if (m == 0 && n == 0)
+      return cost[m][n];
+   else
+      return cost[m][n] + min( minCost(cost, m-1, n-1),
+                               minCost(cost, m-1, n), 
+                               minCost(cost, m, n-1) );
+}
+
+/* A utility function that returns minimum of 3 integers */
+int min(int x, int y, int z)
+{
+   if (x < y)
+      return (x < z)? x : z;
+   else
+      return (y < z)? y : z;
+}
+
+/* Driver program to test above functions */
+int main()
+{
+   int cost[R][C] = { {1, 2, 3},
+                      {4, 8, 2},
+                      {1, 5, 3} };
+   printf(" %d ", minCost(cost, 2, 2));
+   return 0;
+}
+ It should be noted that the above function computes the same subproblems again and again. See the following recursion tree, there are many nodes which apear more than once. Time complexity of this naive recursive solution is exponential and it is terribly slow. 
+mC refers to minCost()
+                                    mC(2, 2)
+                          /            |           \
+                         /             |            \             
+                 mC(1, 1)           mC(1, 2)             mC(2, 1)
+              /     |     \       /     |     \           /     |     \ 
+             /      |      \     /      |      \         /      |       \
+       mC(0,0) mC(0,1) mC(1,0) mC(0,1) mC(0,2) mC(1,1) mC(1,0) mC(1,1) mC(2,0) 
+ So the MCP problem has both properties (see this and this) of a dynamic programming problem. Like other typical Dynamic Programming(DP) problems, recomputations of same subproblems can be avoided by constructing a temporary array tc[][] in bottom up manner. 
+/* Dynamic Programming implementation of MCP problem */
+#include<stdio.h>
+#include<limits.h>
+#define R 3
+#define C 3
+
+int min(int x, int y, int z);
+
+int minCost(int cost[R][C], int m, int n)
+{
+     int i, j;
+
+     // Instead of following line, we can use int tc[m+1][n+1] or 
+     // dynamically allocate memoery to save space. The following line is
+     // used to keep te program simple and make it working on all compilers.
+     int tc[R][C];  
+
+     tc[0][0] = cost[0][0];
+
+     /* Initialize first column of total cost(tc) array */
+     for (i = 1; i <= m; i++)
+        tc[i][0] = tc[i-1][0] + cost[i][0];
+
+     /* Initialize first row of tc array */
+     for (j = 1; j <= n; j++)
+        tc[0][j] = tc[0][j-1] + cost[0][j];
+
+     /* Construct rest of the tc array */
+     for (i = 1; i <= m; i++)
+        for (j = 1; j <= n; j++)
+            tc[i][j] = min(tc[i-1][j-1], tc[i-1][j], tc[i][j-1]) + cost[i][j];
+
+     return tc[m][n];
+}
+
+/* A utility function that returns minimum of 3 integers */
+int min(int x, int y, int z)
+{
+   if (x < y)
+      return (x < z)? x : z;
+   else
+      return (y < z)? y : z;
+}
+
+/* Driver program to test above functions */
+int main()
+{
+   int cost[R][C] = { {1, 2, 3},
+                      {4, 8, 2},
+                      {1, 5, 3} };
+   printf(" %d ", minCost(cost, 2, 2));
+   return 0;
+}
+ Time Complexity of the DP implementation is O(mn) which is much better than Naive Recursive implementation. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: Dynamic Programming Tweet Writing code in comment? Please use ideone.com and share the link here. Swarup Mallick Here in the naive approach there is a condition like else if (m == 0 && n == 0) return cost[m][n]; It should be the sum of that row or column. If I will enter only one row or one column then the mentioned code will return the last element which is wrong. Please correct me if I am wrong ? dmr If we were allowed to traverse in all possible directions rather than the three allowed here, could we have still used DP ? Personally I think we can as still we would have optimal and overlapping subproblems. Paparao Veeragandham DP method does not work If you are allowed to Traverse all possible paths . Because it will be Infinity loop. All DP problems will be map to Short path from source to Dest. In above case it was not possible. prashant jha /* #include #define n 4 #define infinity 999999 using namespace std; int min(int a,int b) { return (a>b)?b:a; } int min(int a,int b,int c) { return min(min(a,b),c); } int fun(int a[n][n],int b[n][n],int s1,int s2,int v1,int v2) { if((s1==v1)&&(s2==v2)) return a[s1][s2]; if((s1>=n)||(s2>=n)) return infinity; if(b[s1][s2]!=-1) return b[s1][s2]; b[s1][s2]=(a[s1][s2]+min(fun(a,b,s1+1,s2,v1,v2),fun(a,b,s1,s2+1,v1,v2),fun(a,b,s1+1,s2+1,v1,v2))); return b[s1][s2]; } int main() { int a[n][n]={{1,2,4,5}, {4,8,2,6}, {1,5,3,9}, {2,7,3,4}}; int b[n][n]; for(int i=0;i<n;i++) { for(int j=0;j<n;j++) { b[i][j]=-1; } } int v1,v2; cout<>v1>>v2; cout<<fun(a,b,0,0,v1,v2); return 0; } */ Tanmay @9d60a411da580c8d7ce405a354164530:disqus: your memoization will not work becoz … look carefully dp[0,0] will store the shortest route to (2,2).. but we would want dp(2,2) to do that.. try running your code and print dp array Animesh Pratap Singh Sikarwar I dont find it correct…. as we copy the 0th row and 0th column, straight away..!! what if matrix is… 4 4 4 5 1 1 3 1 1 your t[][] will look like this 4 8 12 9 x x 12 x x so this algo will give wrong cost if destination d(m,n) liea in 0th row or 0thcolumn. giri the code is perfectly fine. check your algo again. Mojo I think what you are not taking into account is the fact that you are not allowed to move left or upwards. If you want to know the cost[2][0] the answer is and should be 12 and not 8 which you can get if you were allowed to move 4->1->3. Animesh Pratap Singh Sikarwar ohh yes….!! pavansrinivas I think this can also be solved using greedy technique……. Correct me if I am wrong.. Tulsi das khan #include #include #include using namespace std; int cost[100][100]; int m, n; int dp[100][100]; int minSumPath(int i, int j) { if(dp[i][j] != -1) return dp[i][j]; if(i== m-1 && j == n-1) { dp[i][j] = cost[i][j]; return cost[i][j]; } if(i>=m || j >=n) return INT_MAX; dp[i][j] = (cost[i][j] + min( minSumPath(i+1, j), min(minSumPath(i, j+1), minSumPath(i+1, j+1)))); return dp[i][j]; } int main() { memset(dp, -1, sizeof(dp)); cout<<"Enter rows and columns: "<>m>>n; cout<<"Enter matrix: "<<endl; for(int i=0; i<m; i++) { for(int j=0; j>cost[i][j]; } cout<<"Min cost is: "<<minSumPath(0, 0); } This is dp solution using memoization technique shdas Is this a DP soln?? #include #include int **dist; int min(int a, int b, int c){ if(a<b) return (a<c)?a:c; else return (b0) val = cost(mat,row,col,r,c-1)+mat[r]; else if(r>0 && c==0) val = cost(mat,row,col,r-1,c)+mat[r]; else if(r==0 && c==0) val = mat[r]; else val = min(cost(mat,row,col,r-1,c), cost(mat,row,col,r,c-1), cost(mat,row,col,r-1,c-1))+mat[r]; if(dist[r]==-1) dist[r] = val; printf(“nCost (%d,%d) calculated”, r, c); return val; } int main(){ int row, col, i, j, r, c, minCost; printf(“Row & column:”); scanf(“%d %d”, &row, &col); int **mat; mat = (int**)malloc(row*sizeof(int*)); for(i=0;i<row;i++) mat[i]=(int*)malloc(col*sizeof(int)); printf("nCost values:"); for(i=0;i<row;i++) for(j=0;j<col;j++) scanf("%d", &mat[i][j]); printf("nDestination cell:"); scanf("%d %d", &r, &c); dist = (int**)malloc(row*sizeof(int*)); for(i=0;i<row;i++) dist[i]=(int*)malloc(col*sizeof(int)); for(i=0;i<row;i++) for(j=0;j<col;j++) dist[i][j]=-1; dist[0][0]=mat[0][0]; minCost = cost(mat, row, col, r, c); printf("nMin cost: %d", minCost); } udit java solution: public class Min_Cost_Path { static int min(int x,int y,int z) { if(x<y) return (x<z)?x:z; else return (y<z)?y:z; } static int mincost(int cost[][],int m,int n) { int i,j; int tc[][]=new int[m+1][n+1]; tc[0][0]=cost[0][0]; //initailizsing first column for(i=1;i<=m;i++) tc[i][0]=tc[i-1][0]+cost[i][0]; //insitainzg first row for(j=1;j<=n;j++) tc[0][j]=tc[0][j-1]+cost[0][j]; //filling all other for(i=1;i<=m;i++) { for(j=1;j<=n;j++) { tc[i][j]=min(tc[i-1][j-1],tc[i][j-1],tc[i-1][j])+cost[i][j]; } } return tc[m][n]; } public static void main(String[] args) { int cost[][]={{1,2,3},{4,8,2},{1,5,3}}; System.out.println(mincost(cost,1,1)); } } Guduru Siva Reddy Java Solution ::: public class MinCost { public static int min(int a,int b){ if(a>b) return b; else return a; } public static int mincost(int [][]a){ int l=a.length; int min=0; int b[][]=new int[l][l]; for(int i=0;i<l;i++){ for(int j=0;j0&&j>0){ min=min(b[i-1][j-1],b[i][j-1]); min=min(min, b[i-1][j]); b[i][j]=min+a[i][j]; } } } return b[l-1][l-1]; } public static void main(String[] args) { int [][]a={{1,2,3},{4,8,2},{1,5,3}}; System.out.println(mincost(a)); } } nahar.abhishek9 Can you provide a solution if we can travel diagonally upwards as well. mani here memoisation works better.correct? sandy What if the array is as defined below:  
+/* Paste your code here (You may delete these lines if not writing code) */
+   int cost[R][C] = { {1, 2, 3},
+                      {4, 1, 2},
+                      {1, 5, 3} };
+ Then the path cost using the code below for the top row would be wrong as we have a shorter path (1,1,3) not (1,2,3)  
+/* Paste your code here (You may delete these lines if not writing code) */
+     /* Initialize first row of tc array */
+     for (j = 1; j <= n; j++)
+        tc[0][j] = tc[0][j-1] + cost[0][j];
+ bhuvi Sandy, Read this line “You can only traverse down, right and diagonally lower cells from a given cell, i.e., from a given cell (i, j), cells (i+1, j), (i, j+1) and (i+1, j+1) can be traversed” . I think now initializing 1st row an d 1st col makes sense  
+/* Paste your code here (You may delete these lines if not writing code) */
+ nikhil What if we can traverse diagonally upper cells..? What modification can be done in above solution to solve the problem…  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Anil Kag Will you really like to choose the upper diagonal while finding the min-cost path? Costs are assumed to be positive here. And you need to find path from (0,0) to (m,n), why would you like to go up diagonally? sneakysnoopy it will depend on the cost matrix , right ..imagine a cost matrix like this.. 1 8 9 9 9 9 1 9 9 9 9 9 1 9 9 9 9 9 1 1 1 1 1 1 1 1 1 1 1 1 In this , the optimal way to reach to a 9 of third row is go down and then come up , right ? kunal This is an straight forward application of : Maximum size square sub-matrix with all 1s . Simple_thinking You don’t really see the Dynamic programming solution don’t you ? jedimaster760 Provided that we have a 16×16 matrix, would this algorithm work? I was thinking of using this algorithm on 6 threads and then synchronizing them back which would yield the best path.. Am I wrong?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartikaditya In the question it is mentioned “… You may assume that all costs are positive integers.”. Do we need this assumption? Don’t the method work even with negative values since we have no cycles. Geek How can we print the entire path in addition to the min cost. plzz help anmol You guys rock. provide excellent free content so happy to find your site, many other costly prep books out there don’t even stand for what you provide free. GeeksforGeeks @anmol: Thanks for the nice comments. Keep visiting us and keep contributing. simon what if you can also go UP? What will it change the problem, and what is the time complexity of the naive recursion approach? kartik See this comment for time complexity. Considering that all costs are positive, would we ever go up (or back) if are allowed to? simon can you plz also expand to neg cost, and go up is possible? That will make the problem a lot more interesting. will the time complexity be exponential? kartik Sure, sounds interesting. One way to solve is to apply Bellman Ford algorithm. You can create a thread on forum (using the Ask a Question page) for more inputs from other geeks. praveen This is similar to Dijekstra’s shortest path algo. Isn’t it? kartik You can say similar as both are DP based and both are for min cost path, but Dijkstra is more complex than this. Dijkstra is for a any graph with non-negative edges. Let me know your thoughts. kartikaditya Adding to it, the time complexity if done using Dijkstra based on a Priority Queue would be O(E log V) => O(3*mn log mn), in the above case. Correct me if I’m wrong. http://geeksforgeeks.org/?page_id=2 Venki @praveen, It is more analogous to edit distance problem. For complete details review our Dynamic Programming problems list. kamal Good one. What is the time complexity of naive recursive solution? kartik Time complexity is O(3^n). The recursion tree is a complete ternary tree of height 3. kamal Thanks Kartik Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

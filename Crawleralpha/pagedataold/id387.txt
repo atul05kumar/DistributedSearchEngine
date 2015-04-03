@@ -1,0 +1,94 @@
+Find the Number Occurring Odd Number of Times - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find the Number Occurring Odd Number of Times Given an array of positive integers. All numbers occur even number of times except one number which occurs odd number of times. Find the number in O(n) time & constant space. Example: I/P = [1, 2, 3, 2, 3, 1, 3] O/P = 3 Algorithm: Do bitwise XOR of all the elements. Finally we get the number which has odd occurrences. Program:     
+#include <stdio.h>
+
+int getOddOccurrence(int ar[], int ar_size)
+{
+     int i;
+     int res = 0; 
+     for (i=0; i < ar_size; i++)     
+        res = res ^ ar[i];
+     
+     return res;
+}
+
+/* Diver function to test above function */
+int main()
+{
+     int ar[] = {2, 3, 5, 4, 5, 2, 4, 3, 5, 2, 4, 4, 2};
+     int n = sizeof(ar)/sizeof(ar[0]);
+     printf("%d", getOddOccurrence(ar, n));
+     return 0;
+}
+ Time Complexity: O(n)           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: Bit Magic Tweet Writing code in comment? Please use ideone.com and share the link here. groomnestle There is a similar post here (find the element that appeared once, method 2): http://www.geeksforgeeks.org/find-the-element-that-appears-once/ int getOddOccurrence(int ar[], int ar_size) { int result = 0; int x, sum; // Iterate through every bit for (int i = 0; i < ar_size; i++) { // Find sum of set bits at ith position in all // array elements sum = 0; x = (1 << i); for (int j=0; j< ar_size; j++ ) { if (ar[j] & x) sum++; } // The bits with sum not multiple of 2, are the // bits of element with odd occurrence. if (sum % 2) result |= x; } return result; } Amit Baghel Visited guest so u are marking all the posts as visited:p Pratik Sahoo We can also do it by Hash Map where the hash array would keep the no of occurrences of the element. O(n) Time Complexity Vinod @Pratik…In case of Hash map you are considering only the time complexity. How about space complexity? Pratik Sahoo Since there is no restriction on the Space… we can use it.. hookah The question mentions Find the number in O(n) time & constant space. Avinash Nigam public static int getOddOccuringElement(int[] arr) { int oddOccuringElement = 0; for (int i = 0; i < arr.length - 1; i = i + 2) { oddOccuringElement = oddOccuringElement + arr[i + 1] - arr[i]; } oddOccuringElement = oddOccuringElement + arr[arr.length - 1]; oddOccuringElement = Util.mod(oddOccuringElement); return oddOccuringElement; } Marsha Donna the prblm can be solved by subtractng elemnts of the array in sequence, in the end only the ele ocring odd no of times wil be left….pls corrct me if anything is wrong..see the follwing code #include #include int getOddOccurrence(int ar[], int ar_size) { int i; int res = 0; ar[ar_size]=0; for (i=0; i <= ar_size; i=i+2) res = ar[i+1]-ar[i]; return abs(res); } /* Diver function to test above function */ int main() { int ar[] = {55,77,44,55,77,44,44}; int n = sizeof(ar)/sizeof(ar[0]); printf("%d", getOddOccurrence(ar, n)); return 0; } siren09 This wont work as you are totally neglecting the initial calculated values of res variable in the loop…. for example, if ar[] = {1,2,1,2,0,2,1,2,0}, this gives output as ‘0’ , which is wrong ! Marsha Donna thanks i dint notice that case siren09 you are welcome Guest the prblm can be solved by subtractng elemnts of the array in sequence in the end only the ele ocring odd no of times wil be left….pls corrct me if anything is wrong #include #include int getOddOccurrence(int ar[], int ar_size) { int i; int res = 0; ar[ar_size]=0; for (i=0; i <= ar_size; i=i+2) res = ar[i+1]-ar[i]; return abs(res); } /* Diver function to test above function */ int main() { int ar[] = {55,77,44,55,77,44,44}; int n = sizeof(ar)/sizeof(ar[0]); printf("%d", getOddOccurrence(ar, n)); return 0; } Chinmaya Nice Question. Thanks.. Ujjwal yeah gud 1 but i guess its a standard problem so chances are that even the interviewers will know this.. dazer sorry i didn read the question properly i missed “other elements occuring even number of times ” any suggestion for finding out the odd occurence of element in o(n) time with no constraint of other elements occuring count ?? Ankit Sablok There we will have to use auxiliary memory in the form of a hashmap I suppose to get a guaranteed linear time performance.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ dazer i guess your algo doesnt work for input : {1,2,1,1} answer should be 1 but its giving 3 . so this algorithm works wrong  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ankit Sablok I think you didn’t read the question carefully it says all other elements occur even number of time in your case both 1 and 2 occur odd number of times. Nishant Kumar Please suggest me an algo in Time Complexity: O(n) and space Complexity: O(1) if the no of odd repeating no are large i.e instead of only one odd time repeating no if we have suppose 15 odd time repeating no (1 or 3 or 5 times repeating). if possible e.g – {2, 3, 5, 4, 5, 2, 3, 5, 2}; nick What is that you exactly want ? Do you want to print all the odd numbered element ? As you have said say we have 15 odd time repeating no so you want to store them and print it ?? Nishant @nick yes, i want to print all numbers occurring odd numbers of times geekyboy even i have the same question. How do we go about finding all the odd no of times occurring elements in that case xor won’t work and what if we want O(n) solution https://sites.google.com/site/nishantonl9/ Nishant Kumar @geekyboy if you don’t bother abt space Complexity: O(1) then you can solve it in O(n) using HashMap  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Saurabh @geeksForGeeks: I think your algo would n’t work for the sequence: int ar[] = {7, 3, 5, 4, 5, 2,2, 4, 3, 5, 2, 6, 6, 2,7}; please tell me if I am wrong. GeeksforGeeks Take a closer look at the algorithm. It’s a simple and standard algorithm. Should work for all cases. rohith Could you please explain the logic behind this algorithm. How does doing XOR of all the elements get me this result, not able to understand. Please reply. Thank you. Sumeet @Saurabh: It is working for this case also. Answer is 5. Take a closer look at the algo.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ abcd @saurabh: Its not working as 2,5 i.e. 2 nos. r there odd no. of time but as per the question only 1 should b there.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Shubham Lakhiwal  
+int main()
+{
+   int a[] ={2, 3, 5, 4, 4, 2, 4, 3, 5, 2, 4, 4, 2};  
+   int maj_index = 0, count = 0,i=0;
+   
+   while(count%2==0){
+       count = 0;
+       for(i = 0; i<13; i++){
+         if (a[maj_index] == a[i])
+           count++;
+       }
+       maj_index++;
+   }
+   printf("%d",a[maj_index-1]);
+
+    scanf("%d",&i);
+    return 0;
+}
+
+ Saurabh @Shubham Lakhiwal: I think your algo would n’t work for the sequence: int ar[] = {7, 3, 5, 4, 5, 2,2, 4, 3, 5, 2, 6, 6, 2,7}; please tell me if I am wrong. Mo Pu Correct algo, but time complexity is O(n^2)  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Anuj Bansal Here is another solution to this problem.  
+#include <stdio.h>
+#include<math.h>
+int getOddOccurrence(int ar[], int ar_size)
+{
+     int i,j,res;
+     i = 0; j = ar_size-1; res = 0;
+     while(i < ar_size/2)
+        res = res - ar[i++] + ar[j--];
+     res = res - ar[i];
+     return abs(res);
+}
+ 
+int main()
+{
+     int ar[] = {2, 3, 5, 4, 5, 2, 4, 3, 5, 2, 4, 4, 2};
+     printf("%d\n", getOddOccurrence(ar, 13));
+     getchar();
+}
+ Shashank The above solution mentioned in first comment is incorrect as for an array as simple as 2,2,3,3,3,4,4. however it would work if we change the distribution to 2,4,3,3,3,4,2. So the suggested algorithm would work only if elements before middle element and elements after middle element have similar distribution of numbers.correct me if im wrong. Ankita  
+// Just need a little bit correction in above code. But for that we need sorted array.. That's solved !!!
+    #include <stdio.h>
+    #include<math.h>
+    int getOddOccurrence(int ar[], int ar_size)
+    {
+         int i=0,res = 0;
+         while(i < ar_size)
+         {
+            (i%2==0)?(res = res + ar[i++]):(res = res - ar[i++]);
+            }
+          return res;
+    }
+    int main()
+    {
+         int a[] = {2,2,2,2,3,3,3,3,3,4,4,4,4};
+         int size=sizeof(a)/sizeof(a[0]);
+         printf("%d\n", getOddOccurrence(a, size));
+         getchar();
+    }
+
+ Lakshminarayana above solution is not working for { 7,3,5,4,5,2,2,4,3,5,2,6,6,2,7 }. Please correct me if I am wrong donbosio thanks but if the ques would ave been to find the even occuring element where all other occurs odd no of time then? Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

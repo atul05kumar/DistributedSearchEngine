@@ -1,0 +1,358 @@
+Find a Fixed Point in a given array - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find a Fixed Point in a given array Given an array of n distinct integers sorted in ascending order, write a function that returns a Fixed Point in the array, if there is any Fixed Point present in array, else returns -1. Fixed Point in an array is an index i such that arr[i] is equal to i. Note that integers in array can be negative. Examples: 
+  Input: arr[] = {-10, -5, 0, 3, 7}
+  Output: 3  // arr[3] == 3 
+
+  Input: arr[] = {0, 2, 5, 8, 17}
+  Output: 0  // arr[0] == 0 
+
+
+  Input: arr[] = {-10, -5, 3, 4, 7, 9}
+  Output: -1  // No Fixed Point
+ Asked by rajk Method 1 (Linear Search) Linearly search for an index i such that arr[i] == i. Return the first such index found. Thanks to pm for suggesting this solution. 
+int linearSearch(int arr[], int n)
+{
+    int i;
+    for(i = 0; i < n; i++)
+    {
+        if(arr[i] == i)
+            return i;
+    }
+
+    /* If no fixed point present then return -1 */
+    return -1;
+}
+
+/* Driver program to check above functions */
+int main()
+{
+    int arr[] = {-10, -1, 0, 3, 10, 11, 30, 50, 100};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    printf("Fixed Point is %d", linearSearch(arr, n));
+    getchar();
+    return 0;
+}
+ Time Complexity: O(n) Method 2 (Binary Search) First check whether middle element is Fixed Point or not. If it is, then return it; otherwise check whether index of middle element is greater than value at the index. If index is greater, then Fixed Point(s) lies on the right side of the middle point (obviously only if there is a Fixed Point). Else the Fixed Point(s) lies on left side. 
+int binarySearch(int arr[], int low, int high)
+{
+    if(high >= low)
+    {
+        int mid = (low + high)/2;  /*low + (high - low)/2;*/
+        if(mid == arr[mid])
+            return mid;
+        if(mid > arr[mid])
+            return binarySearch(arr, (mid + 1), high);
+        else
+            return binarySearch(arr, low, (mid -1));
+    }
+
+    /* Return -1 if there is no Fixed Point */
+    return -1;
+}
+
+/* Driver program to check above functions */
+int main()
+{
+    int arr[10] = {-10, -1, 0, 3, 10, 11, 30, 50, 100};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    printf("Fixed Point is %d", binarySearch(arr, 0, n-1));
+    getchar();
+    return 0;
+}
+ Algorithmic Paradigm: Divide & Conquer Time Complexity: O(Logn) Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: Divide and Conquer Tweet Writing code in comment? Please use ideone.com and share the link here. aspire The code fails for : {-10, -5, 3, 4, 4, 5}  
+/* Paste your code here (You may delete these lines if not writing code) */
+ aspire I am referring to the method 2 (Binary Search). The check (mid>arr[mid]) does not ensure that the fixed point is on the right side only. Similarly for (mid<arr[mid]) does not ensure fixed point is on the left hand side only. I suggest doing binary search for the left and right subarrays. int ind = binarySearch(a,0,(n/2)-1); if(ind==-1) ind2 = binarySearch(a,n/2,n-1); skulldude The question specifies that the array contains distinct integers. Your test case does not satisfy that condition. And, the second method fails, if there are duplicate elements. Hope it helps -Balasubramanian.N Jagdish For duplicates, solution from “Coding Interview” book. When we can not conclude on which side fixed point on, we can search both side by skipping few elements. Compare midIndex with Midvalue, if equals return midIndex. else search leftside from start to Min(MidIndex-1,midvalue) search rightside from max(midIndex+1,midValue It operates almost same if all elements are distinct  
+public static int fixedPoint(int[] array, int start, int end) {
+		if (end < start || start < 0 || end >= array.length) {
+			return -1;
+		}
+		int midIndex = start +(end-start)/ 2;
+		int midValue = array[midIndex];
+		if (midValue == midIndex) {
+			return midIndex;
+		}
+		/* Search left */
+		int leftIndex = Math.min(midIndex - 1, midValue);
+		int left = fixedPoint(array, start, leftIndex);
+		if (left >= 0) {
+			return left;
+		}
+		
+		/* Search right */
+		int rightIndex = Math.max(midIndex + 1, midValue);
+		int right = fixedPoint(array, rightIndex, end);
+		
+		return right;
+	}
+	
+	public static int fixedPoint(int[] array) {
+		return fixedPoint(array, 0, array.length - 1);
+	}
+
+ abhishek08aug  
+#include<stdio.h>
+
+int find_fixed_point(int array[], int start, int end) {
+  if(start<end) {
+    int mid = (start+end)/2;
+    if(array[mid]==mid){
+      return mid;
+    } else if(array[mid]<mid) {
+      return find_fixed_point(array, mid+1, end);
+    } else if(array[mid]>mid) {
+      return find_fixed_point(array, start, mid-1);
+    }
+  } else {
+    return -1;
+  }
+}
+
+int main(){
+  int array[]={-11, -2, 0, 2, 3, 5, 45};
+  int n=sizeof(array)/sizeof(array[0]);
+  printf("A fixed point in the array is %d", find_fixed_point(array, 0, n-1));
+  return 0;
+}
+ Ganesh You can find java code here: /** * Given an array of n distinct integers sorted in ascending order, write a function that returns * a Fixed Point in the array, if there is any Fixed Point present in array, else returns -1. * Fixed Point in an array is an index i such that arr[i] is equal to i. * Note that integers in array can be negative. * Input: arr[] = {-10, -5, 0, 3, 7} Output: 3 // arr[3] == 3 * @author GAPIITD * */ public class FixedPointInGivenArray { public static void main(String[] args) { int arr[] = {-10, -5, 0, 3, 7}; System.out.println(FindFixedPointInGivenArray(arr)); } private static int FindFixedPointInGivenArray(int[] arr) { int start = 0, end = arr.length – 1; while (start != end) { int mid = (start + end)/2; if (mid == arr[mid]) return mid; else if (mid > arr[mid]) start = mid + 1; else end = mid – 1; } if (start == end && arr[start] == start) return start; return -1; // No fixed point } } Yogesh Mani  
+#include <iostream>
+#include <conio.h>
+using namespace std;
+int findFixedPoint(int *arr,int leftIndex,int rightIndex) {
+  int mid = (leftIndex+rightIndex)/2;
+  if((leftIndex == rightIndex) && (arr[mid] != mid)) {
+    return -1;
+  }
+  if(mid == arr[mid]){
+    return mid;       
+  }
+  int fp = (mid >arr[mid])?findFixedPoint(arr,mid+1,rightIndex):
+                           findFixedPoint(arr,leftIndex,mid-1);
+  return fp;
+}
+
+int main(void) {
+//int arr[] = {-10, -5, 0, 3, 7};
+//int arr[] = {0, 2, 5, 8, 17};
+//int arr[] = {-10, -5, 3, 4, 7, 9};
+int arr[] = {-10, -5, 0, 3, 7};
+int size = sizeof(arr)/sizeof(arr[0]);
+int fixedPoint  = findFixedPoint(arr,0,size-1);
+cout<<" Fixed Point is " <<fixedPoint;
+getch();
+return 0;    
+}/
+ Anon The binary search method will not work in case of duplicate elements in the array, because we can’t eliminate one part of the array in each iteration. Sreenivas Doosa You are correct. But please read the problem statement. The input array is of distinct integers. Avi  
+#include<stdio.h>
+#include<conio.h>
+int main()
+{
+   int arr[] = {-10, -5, 3, 4, 7, 9};
+
+    int len = sizeof(arr)/sizeof(int);
+    static int flag;
+    int num = -1;
+    for(int i = 0; i<len; i++)
+    {
+        if(arr[i] == i)
+        {
+                  flag = 1;
+                  num = arr[i]; 
+                  break;
+                  
+        }
+            
+    }
+    printf("%d \n", num);
+    getch();
+
+}
+
+ PsychoCoder In the function this portion is fixed irrespective of the given data.  
+if(mid > arr[mid])
+  return binarySearch(arr, (mid + 1), high);
+else
+  return binarySearch(arr, low, (mid -1));
+ So, if my input is  
+int arr[10] = {-10, -1, 0, 6, 10, 11, 30, 50, 100, 9};
+ then 5(mid) < 11 (arr[mid]) so it will neglect right hand side the value ‘9’ which is placed at arr[9]. Yogesh Batra This is clearly given that sequence is in increasing order, find some other counter example for binary look up method. kartikaditya #include <iostream> #include <stdio.h> using namespace std; int getFixedPoint(int a[], int n) { int start = 0, end = n – 1, mid = 0; while (start <= end) { mid = (start + end) >> 1; if (a[mid] == mid) { return mid; } else if (a[mid] < mid) { start = mid + 1; } else { end = mid – 1; } } return -1; } int main() { int a1[] = {-10, -5, 0, 3, 7}; cout << getFixedPoint(a1, 5) << endl; int a2[] = {0, 2, 5, 8, 17}; cout << getFixedPoint(a2, 5) << endl; int a3[] = {-10, -5, 3, 4, 7, 9}; cout << getFixedPoint(a3, 6) << endl; int a4[] = {-10, 1, 2, 3, 10, 11, 30, 50, 100}; cout << getFixedPoint(a4, 9) << endl; return 0; } vijay_kansal An optimized algorithm for the case when elements can be repeated in the array :  
+
+int fixed_pt(int *a,int n)
+{
+ int l=0,h=n-1,m,i;
+ while(l<=h)
+ {
+  m=(l+h)/2;
+  if(a[m]>=0)
+   h=m-1;
+  else
+   l=m+1;
+ }// finding the 1st element(it will be a[l]) >=0
+
+ for(i=l;i<n;i=a[i])
+ {
+  if(a[i]==i)
+   return i;
+ }
+ return -1;
+}
+ The algo will return 1st element that is a fixed pt. vijay_kansal An error correction, Replace the if condition of while loop by :  
+if(a[m]>=m)
+ Nages public class FixedPointInArray { public static void main(String[] arg) { int arr[] = new int[] { -10, -5, 0, 3, 7 }; System.out.println(fixedPoint(arr)); arr = new int[] { 0, 2, 5, 8, 17 }; System.out.println(fixedPoint(arr)); arr = new int[] { -10, -5, 3, 4, 7, 9 }; System.out.println(fixedPoint(arr)); } public static int fixedPoint(int[] arr) { int pos = -1; for (int i = 0; i < arr.length;) { if (i == arr[i]) return i; else if (i < arr[i]) i = arr[i]; else ++i; } return pos; } } Karthick I think, the following code can find the first Fixed Point. It would be good if someone can check this code for correctness. int findFirstFixedPoint(int a[],int length) { if(length==0){ return -1; } int start=0,end=length-1,middle; while(start<=end) { middle=(start+end)/2; if(a[middle]==middle) { if(middle==start || a[middle-1]!=middle-1){ return middle; } end=middle-1; } else if(a[middle]<middle){ start=middle+1; } else{ end=middle-1; } } return -1; } Karthick Sorry for posting without the sourcecode tags  
+int findFirstFixedPoint(int length)
+{
+	if(length==0){ return -1; }
+	int start=0,end=length-1,middle;
+	while(start<=end)
+	{
+		middle=(start+end)/2;
+		if(a[middle]==middle)
+		{
+			if(middle==start || a[middle-1]!=middle-1){ return middle; }
+			end=middle-1;
+		}
+		else if(a[middle]<middle){ start=middle+1; }
+		else{ end=middle-1; }
+	}
+	return -1;
+}
+ kaka09  
+#include<stdio.h>
+int main
+{
+ 	int n,i,j,flag=-1,pos;
+ 	scanf("%d",&n);()
+ 	int a[n];
+ 	for(i=0;i<n;i++)
+ 					scanf("%d",&a[i]);
+    i=0;
+    while(a[i++]<0)
+    for(j=i;j<n;j++)
+    {
+	 				if(j==a[j])
+	 				{
+					 		   flag=0;
+					 		   pos=j;
+					 		   break;
+ 		            }
+    }
+    if(flag!=0)
+    		   printf("number not found!!");
+    else
+    		   printf("number found at index %d\n", pos);
+}
+
+ kaka09  
+#include<stdio.h>
+int main()
+{
+ 	int n,i,j,flag=-1,pos;
+ 	scanf("%d",&n);
+ 	int a[n];
+ 	for(i=0;i<n;i++)
+ 					scanf("%d",&a[i]);
+    i=0;
+    while(a[i++]<0)
+    for(j=i;j<n;j++)
+    {
+	 				if(j==a[j])
+	 				{
+					 		   flag=0;
+					 		   pos=j;
+					 		   break;
+ 		            }
+    }
+    if(flag!=0)
+    		   printf("number not found!!");
+    else
+    		   printf("number found at index %d\n", pos);
+}
+
+ punit for handling equal values like [-1, 0, 4, 4, 4, 4, 4] just tweak binary search as follows- int bs(vector v, int l, int r) { int m = (l+r)/2; if(l > r) return -1; if(v[m] == m) return m; if((v[m] > m) && (v[m] != v.at(m+1))) { return bs(v, l, m-1); } else return bs(v, m+1, r); } AG I think it fails for this test case:- [0, 2, 5, 5, 5, 6, 7]  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Yogesh Batra It’s working, I don’t think there is any problem with the above code. yogendra @Yogesh I checked the above code is failing in case of [0, 2, 5, 5, 6, 7] in first Itr l=0,r=5 => m=2; so a[2]>2 and here a[2]==a[3]==5 so l=3; in second Itr l=3,r=5 =>m=4; s0 a[4]>6 hence it will return -1; int next iter. punit /* Paste your code here (You may delete these lines if not writing code) */ [#include using namespace std; #include int bs(vector v, int l, int r) { int m = (l+r)/2; if(l > r) return -1; if(v[m] == m) return m; if(v[m] > m) { return bs(v, l, m-1); } else return bs(v, m+1, r); } void Fp(vector v, int l, int r) { int index; static int flag = true, Index = 0; index = r; while(1) { index = bs(v, l, index-1); if(index == -1) { if(flag == false) { cout<<"not found.\n"; return; } cout<<"found at index = "<<Index<<endl; break; } Index = index; flag = true; } } int main() { vector v; v.push_back(-1); v.push_back(0); v.push_back(2); v.push_back(5); Fp(v, 0, v.size()); return 0; }] Daniel The non-distinct case would be interesting. kartik I don’t think binary search can be applied in case of non-distict case. For example, {-1, 4, 4, 4, 4, 4, 4}. We go to middle index 3 and see value is greater then index. We can’t have a logic to look for left side or right side as array could be {-1, 0, 2, 4, 6, 8, 10} or {-1, 4, 4, 4, 5, 5, 5}. Let me know your thoughts. krishna The problem would be more interesting if we ask for the first Fixed Point instead of a Fixed Point. kartik @Krishna: Thanks for suggesting a more advanced version of the problem. The method 1 anyways finds the first FP. The method 2 can also be tweaked to find the first FP. http://geeksforgeeks.org/?page_id=2 Venki @krishna, Good question. Binary search is such a powerful technique, some times, we miss to note its power. Solution to your question is given below. Let me know if there are any corner cases.  
+int binarySearch(int A[], int l, int r)
+{
+    int mid;
+    int traced = -1;
+
+    while( (r - l) > 1 )
+    {
+        mid = l + (r - l)/2;
+
+        if( A[mid] == mid )
+            traced = mid;
+
+        // C/C++ smart enough to confuse
+        (mid <= A[mid] ? r : l) = mid;
+    }
+
+    if( A[l] == l )// Corner case : )
+        traced = l;
+
+    return traced;
+}
+ Jing For A=[-1, 0, 2], it seems to return -1 instead of 2, doesn’t it?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://geeksforgeeks.org/?page_id=2 Venki Driver code.  
+int main()
+{
+    int arr[] = {-10, 1, 2, 3, 10, 11, 30, 50, 100};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    printf("Fixed Point is %d", binarySearch(arr, 0, n-1));
+
+    return 0;
+}
+ http://geeksforgeeks.org/?page_id=2 Venki @Jing, thanks for pointing the error. Given below is updated one.  
+#include <stdio.h>
+
+int binarySearchLeft(int A[], int l, int r)
+{
+    int mid;
+    int traced = -1;
+
+    while( (r - l) > 1 )
+    {
+        mid = l + (r - l)/2;
+
+        if( A[mid] == mid ) traced = mid;
+
+        (mid <= A[mid] ? r : l) = mid;
+    }
+     
+    if( A[r] == r ) traced = r;
+    if( A[l] == l ) traced = l;
+
+    return traced;
+}
+
+int binarySearchRight(int A[], int l, int r)
+{
+    int mid;
+    int traced = -1;
+
+    while( (r - l) > 1 )
+    {
+        mid = l + (r - l)/2;
+
+        if( A[mid] == mid ) traced = mid;
+
+        (mid >= A[mid] ? l : r) = mid;
+    }
+
+    if( A[l] == l ) traced = l;
+    if( A[r] == r ) traced = r;
+
+    return traced;
+}
+
+int main()
+{
+    int arr[] = { 0, 1, 2 };
+
+    int n = sizeof(arr)/sizeof(arr[0]);
+    
+    printf("Fixed Point is %d\n", binarySearchLeft(arr, 0, n-1));
+    printf("Fixed Point is %d\n", binarySearchRight(arr, 0, n-1));
+
+    return 0;
+}
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

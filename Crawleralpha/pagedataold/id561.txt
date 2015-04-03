@@ -1,0 +1,578 @@
+Delete N nodes after M nodes of a linked list - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Delete N nodes after M nodes of a linked list Given a linked list and two integers M and N. Traverse the linked list such that you retain M nodes then delete next N nodes, continue the same till end of the linked list. Difficulty Level: Rookie Examples: 
+Input:
+M = 2, N = 2
+Linked List: 1->2->3->4->5->6->7->8
+Output:
+Linked List: 1->2->5->6
+
+Input:
+M = 3, N = 2
+Linked List: 1->2->3->4->5->6->7->8->9->10
+Output:
+Linked List: 1->2->3->6->7->8
+
+Input:
+M = 1, N = 1
+Linked List: 1->2->3->4->5->6->7->8->9->10
+Output:
+Linked List: 1->3->5->7->9 The main part of the problem is to maintain proper links between nodes, make sure that all corner cases are handled. Following is C implementation of function skipMdeleteN() that skips M nodes and delete N nodes till end of list. It is assumed that M cannot be 0. 
+// C program to delete N nodes after M nodes of a linked list
+#include <stdio.h>
+#include <stdlib.h>
+
+// A linked list node
+struct node
+{
+    int data;
+    struct node *next;
+};
+
+/* Function to insert a node at the beginning */
+void push(struct node ** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node = (struct node*) malloc(sizeof(struct node));
+
+    /* put in the data  */
+    new_node->data  = new_data;
+
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);
+
+    /* move the head to point to the new node */
+    (*head_ref)  = new_node;
+}
+
+/* Function to print linked list */
+void printList(struct node *head)
+{
+    struct node *temp = head;
+    while (temp != NULL)
+    {
+        printf("%d ", temp->data);
+        temp = temp->next;
+    }
+    printf("\n");
+}
+
+// Function to skip M nodes and then delete N nodes of the linked list.
+void skipMdeleteN(struct node  *head, int M, int N)
+{
+    struct node *curr = head, *t;
+    int count;
+
+    // The main loop that traverses through the whole list
+    while (curr)
+    {
+        // Skip M nodes
+        for (count = 1; count<M && curr!= NULL; count++)
+            curr = curr->next;
+
+        // If we reached end of list, then return
+        if (curr == NULL)
+            return;
+
+        // Start from next node and delete N nodes
+        t = curr->next;
+        for (count = 1; count<=N && t!= NULL; count++)
+        {
+            struct node *temp = t;
+            t = t->next;
+            free(temp);
+        }
+        curr->next = t; // Link the previous list with remaining nodes
+
+        // Set current pointer for next iteration
+        curr = t;
+    }
+}
+
+// Driver program to test above functions
+int main()
+{
+    /* Create following linked list
+      1->2->3->4->5->6->7->8->9->10 */
+    struct node* head = NULL;
+    int M=2, N=3;
+    push(&head, 10);
+    push(&head, 9);
+    push(&head, 8);
+    push(&head, 7);
+    push(&head, 6);
+    push(&head, 5);
+    push(&head, 4);
+    push(&head, 3);
+    push(&head, 2);
+    push(&head, 1);
+
+    printf("M = %d, N = %d \nGiven Linked list is :\n", M, N);
+    printList(head);
+
+    skipMdeleteN(head, M, N);
+
+    printf("\nLinked list after deletion is :\n");
+    printList(head);
+
+    return 0;
+}
+ Output: M = 2, N = 3
+Given Linked list is :
+1 2 3 4 5 6 7 8 9 10
+
+Linked list after deletion is :
+1 2 6 7 Time Complexity: O(n) where n is number of nodes in linked list. This article is contributed by Chandra Prakash. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List QuickSort on Doubly Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. Anand Solved using Recursion http://ideone.com/hbBoVM http://algorithmsandme.blogspot.in/ Jitendra Sangar Where did you free N nodes? AQS.com /*its follow all test cases……enjoy*/ #include #include // A linked list node struct node { int data; struct node *next; }; /* Function to insert a node at the beginning */ void push(struct node ** head_ref, int new_data) { /* allocate node */ struct node* new_node = (struct node*) malloc(sizeof(struct node)); /* put in the data */ new_node->data = new_data; /* link the old list off the new node */ new_node->next = (*head_ref); /* move the head to point to the new node */ (*head_ref) = new_node; } /* Function to print linked list */ void printList(struct node *head) { struct node *temp = head; while (temp != NULL) { printf(“%d “, temp->data); temp = temp->next; } printf(“n”); } void skipMdeleteN( node* head, int m, int n) { if(head==NULL ) {return ;} else { if(head->next==NULL && n>1) { printf(“nLinked list after deletion is :n”); printList(head); return ; }else if(head->next==NULL && m=2) { printf(“nLinked list after deletion is :n”); printList(head); return ; } else if(head->next==NULL && mnext; } if(s1->next==NULL && s1!=NULL) { printf(“nLinked list after deletion is :n”); printList(head); return ; } else { s=s1; count=0; while(s!=NULL) { if(count==n+1) { s2=s; break; }count++; s=s->next; // count++; } s1->next=s2; } //else } //else printf(“nLinked list after deletion is :n”); printList(head); }//else } int main() { /* Create following linked list 1->2->3->4->5->6->7->8->9->10 */ struct node* head = NULL; int M=2, N=3; push(&head, 10); push(&head, 9); push(&head, 8); push(&head, 7); push(&head, 6); push(&head, 5); /*push(&head, 4); push(&head, 3); push(&head, 2); push(&head, 1);*/ printf(“M = %d, N = %d nGiven Linked list is :n”, M, N); printList(head); skipMdeleteN(head, M, N); return 0; } Harsha Shetty Here’s a possible solution in Java – public static void deleteNNodesAfterMNodes(SLinkedList list, int m, int n) { Node save = list.getHead(); Node del = null; int mCounter = 0; int nCounter = 0; while (save != null) { mCounter = m; nCounter = n; while (mCounter-1 > 0) { save = save.getNext(); if (save != null) { mCounter–; } else { break; } } if (save != null) { del = save.getNext(); while (nCounter – 1 > 0 && del != null) { del = del.getNext(); if (del != null) { nCounter–; } else { break; } } } if (save != null && del != null) { save.setNext(del.getNext()); save = save.getNext(); } } } CoquitlamSJ struct node { int data; struct node *next; }; void skipMdeleteN(struct node *head, int M, int N) { struct node * cur; struct node * tmpNode1,*tmpNode2; cur = head; int a = M; int b = N; while(cur&cur->next) { if (a>0) { a–; tmpNode1 = cur; cur = cur->next; } else if(b>0 ) { b–; tmpNode2 = cur; cur = cur->next; delete(tmpNode2); } else { a = M; b = N; tmpNode1->next = cur; } } } Debojit Choudhury //Java program public class LinkedListProblemSet { public static void main(String[] args) { Node headerNode = new Node(1, createLinkedList()); display(headerNode, “Before operation : “); retainAndDeleteFromLinkedList(headerNode, 2, 1); display(headerNode, “After operation : “); } private static void retainAndDeleteFromLinkedList(Node headerNode, int retainNumber, int deleteNumber) { if (headerNode == null) { return; } for (int i = 0; headerNode != null && i < retainNumber – 1; i++) { headerNode = headerNode.nextNode; } Node temp = headerNode; for (int j = 0; headerNode != null && j “); headerNode = headerNode.nextNode; } System.out.println(headerNode.data); } private static class Node { private int data; private Node nextNode; private Node(int data, Node nextNode) { this.data = data; this.nextNode = nextNode; } } } Debojit Choudhury /*Given a linked list and two integers M and N. Traverse the linked list such that you retain M nodes then delete next N nodes, continue the same till end of the linked list.*/ public class LinkedListProblem { public static void main(String[] args) { Node headerNode = new Node(1, createLinkedList()); display(headerNode, “Before operation : “); retainAndDeleteFromLinkedList(headerNode, 1, 1); display(headerNode, “After operation : “); } private static void retainAndDeleteFromLinkedList(Node headerNode, int retainNumber, int deleteNumber) { if (headerNode == null) { return; } for (int i = 1; i < retainNumber; i++) { headerNode = headerNode.nextNode; } Node temp = headerNode; for (int j = 0; j “); headerNode = headerNode.nextNode; } System.out.println(headerNode.data); } private static class Node { private int data; private Node nextNode; private Node(int data, Node nextNode) { this.data = data; this.nextNode = nextNode; } } } Vivek typedef struct node { int data; struct node *next; }nd; void del_n_aft_m(nd **h1, int m,int n) /*delete n nodes after every m nodes*/ { int cnt1 =m,cnt2=n; while((*h1)->next!=NULL) { if(cnt1>1) { (*h1)=(*h1)->next; cnt1–; } else if(cnt2>0) { (*h1)->next=(*h1)->next->next; cnt2–; } else { (*h1)=(*h1)->next; cnt1=m; cnt2=n; } } } Arun Patidar #include struct demo { int val; struct demo *next; }; typedef struct demo NODE; NODE *push(NODE *); NODE *pop(NODE *); void display(NODE *); int main() { NODE *head=NULL; int i=1; char ch; while(i==1) { printf(“Enter your choice\n\t I for insert value\n\t P for delete value\n\t D for display\n\t”); fflush(stdin); ch=getchar(); switch(ch) { case ‘i': head=push(head); break; case ‘p': head=pop(head); break; case ‘d': display(head); break; default: printf(“\nYou Entered wrong choice\n”); } printf(“\nDo you want to continue(1/0)\n”); scanf(“%d”,&i); } return 0; } NODE *pop(NODE *temp) { int m,n,count=0; NODE *head,*temp2,*temp3; if(temp==NULL) { printf(“\nTheir is no element in linked list\n”); return temp;} printf(“\nEnter value the value of m(Node To Be leave) and n(Node To be Deleted) : “); scanf(“%d%d”,&m,&n); head=temp; while(head!=NULL) { count++;head=head->next; } if(count< (m+n)) { printf("\n Insuffcient node in linked list\n"); return temp; } if( n==0) { return temp; } /* if( m==0) { return NULL; } */ head=temp;count=1; while(count++ { temp=temp->next; } count=0; temp3=temp; while(count++< =n) { temp3=temp3->next; } temp->next=temp3; return head; } void display(NODE *temp) { if(temp==NULL) {printf(“\nTheir is no element in linked list\n”);return;} else { printf(“\nElement of linked list are\n\t”); printf(“%d”,temp->val); temp=temp->next; while(temp!=NULL) { printf(“->%d”,temp->val); temp=temp->next; } } return; } NODE *push(NODE *temp) { NODE *nn,*head=NULL,*temp1=NULL; int i=1; head=temp; while(temp!=NULL) { temp1=temp; temp=temp->next; } temp=temp1; while(i==1) { nn=(NODE*)malloc(sizeof(NODE)); nn->next=NULL; printf(“\nEnter your value to be insert : “); scanf(“%d”,&(nn->val)); printf(“\nvalue is %d\n”,nn->val); if(temp==NULL) { temp=nn; head=temp; } else { temp->next=nn; temp=nn; } printf(“\nvalue inserted : %d\n”,(nn->val)); printf(“\ndo you wanna insert more values press(1/0) : “); scanf(“%d”,&i); } return head; } prtk2329 #include struct node { int data; node *next; node() { next=NULL; } }; class prob1 { node *root,*tail; public: prob1() { root=tail=NULL; } void insert(int); void display(); void skip_m_del_n(int,int); }; void prob1 :: insert(int data) { node *temp=new node(); temp->data=data; if(!root) { root=temp; tail=temp; } else { tail->next=temp; tail=temp; } } void prob1 :: display() { if(!root) std::cout< <"List is empty"< else for(node *temp=root;temp!=NULL;temp=temp->next) std :: cout< data< } void prob1 :: skip_m_del_n(int m,int n) { node *prev=root; node *temp=root; while(temp!=NULL) { for(int i=0;i { if(!temp) break; prev=temp; temp=temp->next; } for(int i=0;i { if(!temp) break; node *f=temp; temp=temp->next; delete(f); } prev->next=temp; } display(); } int main() { prob1 obj; obj.insert(1); obj.insert(2); obj.insert(3); obj.insert(4); obj.insert(5); obj.insert(6); obj.insert(7); obj.insert(8); obj.insert(9); obj.display(); std::cout<<”Skip M nodes Delete N nodes”< int m=1; int n=1; obj.skip_m_del_n(m,n); return 0; } viking # include<iostream> # include<conio.h> using namespace std; class link { int data; link *next; public: link() { data=-1; next=NULL; } void create(); void print(); void skipMdelN(int,int); }; link *head=NULL; void link::create() { link *p; int n,i,val; cout<<"Enter the no of nodes:"; cin>>n; while(n–) { link *temp=new link; cout<<"Enter the data:"; cin>>val; if(head==NULL) { temp->data=val; p=head=temp; } else { p=p->next=temp; temp->data=val; } } } void link::print() { link *temp=head; while(temp) { cout<<temp->data; if(temp->next) cout<<"->"; temp=temp->next; } } void link::skipMdelN(int m,int n) { link *temp,*p,*q; int i=1; temp=head; while(temp) { i=1; while(i<m && temp->next) { temp=temp->next; i++; } i=1; if(temp==NULL) break; else if(temp->next) p=temp->next; else p=NULL; while(i<=n && p) { q=p; if(p->next) { p=temp->next=p->next; delete q; } else { delete q; temp->next=NULL; p=NULL; } i++; } temp=p; } } int main() { link *p=new link; int m,n; p->create(); p->print(); cout<<"Enter m and n:"; cin>>m>>n; p->skipMdelN(m,n); p->print(); delete p; _getch(); return 0; } viking # include # include using namespace std; class link { int data; link *next; public: link() { data=-1; next=NULL; } void create(); void print(); void skipMdelN(int,int); }; link *head=NULL; void link::create() { link *p; int n,i,val; cout< <"Enter the no of nodes:"; cin>>n; while(n–) { link *temp=new link; cout< <"Enter the data:"; cin>>val; if(head==NULL) { temp->data=val; p=head=temp; } else { p=p->next=temp; temp->data=val; } } } void link::print() { link *temp=head; while(temp) { cout< data; if(temp->next) cout< <"->“; temp=temp->next; } } void link::skipMdelN(int m,int n) { link *temp,*p,*q; int i=1; temp=head; while(temp) { i=1; while(inext) { temp=temp->next; i++; } i=1; if(temp==NULL) break; else if(temp->next) p=temp->next; else p=NULL; while(i< =n && p) { q=p; if(p->next) { p=temp->next=p->next; delete q; } else { delete q; temp->next=NULL; p=NULL; } i++; } temp=p; } } int main() { link *p=new link; int m,n; p->create(); p->print(); cout< <"Enter m and n:"; cin>>m>>n; p->skipMdelN(m,n); p->print(); delete p; _getch(); return 0; } devD Here is an O(n) solution–  
+/* struct node *delete(struct node *start,int m,int n)
+{
+	struct node *p,*tmp;
+	p=start;
+	int cnt;
+	while(p->link!=NULL)
+	{
+		cnt=1;
+		while(cnt<m&&p->link)
+		{
+			p=p->link;	
+			cnt++;
+		}
+		if(cnt==m) tmp=p;
+		else return start;
+		cnt=0;
+		while(cnt<=n&&p)
+		{
+			p=p->link;
+			tmp->link=p;			
+			cnt++;
+		}
+		if(p==NULL) return start;	
+	}
+	return start;
+} */
+ manish712 Another way of doing it  
+/void skipMdeleteN(struct node  *head, int M, int N)
+{
+    struct node* ptr = head;
+    struct node* preptr = NULL;
+    int i = 0;
+    while(ptr!=NULL)
+    {
+        if(i%(M+N)>=M)
+        {
+            preptr->next = ptr->next;
+        }
+        else
+        {
+            preptr = ptr;
+        }
+        ptr = ptr->next;
+        i++;
+    }
+
+}
+ aspire Here is a recursive solution.  
+#include<stdio.h>
+#include<stdlib.h>
+
+typedef struct node
+{
+    int data;
+    struct node *next;
+}*Node;
+
+void insertList(Node *s,int val)
+{
+    Node temp = (Node)malloc(sizeof(struct node));
+    temp->data=val;
+    temp->next=*s;
+    (*s)=temp;
+}
+
+struct node *newNode(int data)
+{
+    struct node *new_node = (struct node *) malloc(sizeof(struct node));
+    new_node->data = data;
+    new_node->next = NULL;
+    return new_node;
+}
+
+void deleteNodes(Node start,int m,int n)
+{
+    int a=m,b=n;
+    Node ptrNext;
+
+    while(--a&&start)
+        start=start->next;
+
+    if(!start)
+        return;
+
+    while(b--&&start->next)
+    {
+        ptrNext = start->next;
+        start->next=ptrNext->next;
+        free(ptrNext);
+    }
+
+    if(start->next)
+        deleteNodes(start->next,m,n);
+
+}
+
+
+void printList(Node s)
+{
+    while(s)
+    {
+        printf("%d->",s->data);
+        s=s->next;
+    }
+    printf("NULL\n");
+}
+
+int main()
+{
+    Node start=NULL;
+    int m=1,n=1;
+
+    insertList(&start,5);
+    insertList(&start,6);
+    printList(start);
+    deleteNodes(start,m,n);
+    printList(start);
+    return 0;
+}
+
+
+
+ rohit  
+node *func(node *head,int m,int n)
+{
+      int i;
+      node *p,*q;
+      p=head;
+      for(i=0;i<m-1;i++)/*retaining*/
+      p=p->next;
+      while(n>0)/*deletion*/
+      {
+           q=p->next;
+           p->next=p->next->next;
+           free(q);
+      }
+return head;
+}
+
+ Arnab Dutta @Rohit There is no need to decrement n ? – This is a basic objective of the question I suppose! Rohit Sorry forgot n– in the end.. ????  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Akshay Jindal  
+#include<stdio.h>
+#include<malloc.h>
+              
+struct node
+{
+ struct node *next;
+ int item;
+};
+typedef struct node Node;
+Node *p,*start,*q,*r,*rprev;
+int m,n;
+void push(data)
+{ 
+    p->next=(Node *)malloc(sizeof(Node)); 
+    p->next->item=data; 
+    p=p->next; 
+    p->next=NULL;
+}
+void display()
+{ 
+    q=start; 
+    if(q==NULL)printf("\nUnderflow"); 
+    else{ 
+    while(q!=NULL) 
+    { 
+	  printf("%d->",q->item); 
+	  q=q->next; 
+    } 
+  }
+} 
+void pop()
+{ 
+	int i,j;
+	r=start;rprev=start;
+	if(start==NULL)printf("\nUnderflow!!");
+	while(r!=NULL)
+	{ 
+	  j=0;		
+      while(j<m)
+      {
+		  rprev=r;
+		  r=r->next;
+		  j++;
+	  }
+	  i=0;
+	  while(i<n&&r!=NULL)
+	  {
+		  if(r==start)start=start->next;
+		  else{
+		  rprev->next=r->next;
+		  r=r->next;
+		  i++;
+	    }
+	  }
+	}
+}   
+
+int main()
+{
+	int num,choice,ch=1;
+	while(ch==1){
+	printf("****Linked list menu****");
+	printf("\n1.Push\n2.Pop\n3.Display");
+	printf("\nEnter your choice--->");
+	
+	scanf("%d",&choice);
+	
+	if(choice==1)
+	{
+	 if(start==NULL)
+	 {
+	  scanf("%d",&num);
+	  p=(Node *)malloc(sizeof(Node));
+	  p->item=num;
+	  p->next=NULL;
+	  start=p;
+	 }
+	 else
+	 {
+	  scanf("%d",&num);
+	  push(num);
+	 }
+	}
+	
+	else if(choice==2)
+	{
+	 printf("\nEnter m and n--->\n");
+	 scanf("%d %d",&m,&n);
+	 pop();
+	}
+	
+	else
+	 display();
+	printf("\nPress 1 if you want to repeat");
+	scanf("%d",&ch);
+ }	 
+    free(p);
+    free(start);
+    free(q);
+    free(r);
+    return 0;
+}
+	  
+ 
+ Vivek  
+#include<stdio.h>
+#include<malloc.h>
+ 
+struct node
+{
+    int data;
+    struct node *next;
+};
+typedef struct node NODE;
+ 
+int main()
+{
+
+int i,j,m,n;
+NODE *head,*first,*temp=0,*temp1;
+temp1=(NODE*)malloc(sizeof(NODE));
+first=0;
+int count=0;
+printf("ENTER THE ELEMENTS FOR THE LIST\n");
+ 
+while(1)
+{
+    head=(NODE*)malloc(sizeof(NODE));
+    scanf("%d",&i);
+    if(i !=101)
+    {
+        head->data=i;
+        if(first!=0)
+        {
+            temp->next=head;
+            temp=head;
+        }
+        else
+        {
+                
+                first=temp=head;
+        }
+    count++;
+    }
+    else
+        break;
+        
+}
+
+display(count,first);
+
+printf("ENTER THE M AND N VALUES\n");
+scanf("%d%d",&m,&n);
+temp=first;
+count=0;
+ 
+while(temp->next != 0)
+{
+    if(temp==first)
+    {
+        temp=temp->next;
+        count++;
+    }
+    else
+    {
+        for(i=0;i<m && temp->next !=0;i++)
+        {
+            temp=temp->next;
+            count++;
+        }
+    }
+        for(j=0;j<n && temp->next != 0;j++)
+        {
+            temp1=temp->next;
+            temp->next=temp1->next;
+            free(temp1);
+        }
+    }
+    
+    printf("AFTER OPERATION:\n");
+    display(count+1,first); 
+    
+}
+
+display(int count,NODE *first)
+{
+    int i;
+    NODE *temp;
+    temp=first;
+    for(i=0;i<count;i++)
+    {
+        if(temp->next !=0)
+        {
+            printf("%d->",temp->data);
+            temp=temp->next;
+        }
+        else
+        {
+            printf("%d\n",temp->data);
+        }
+    }
+}
+ rajeevkumarchail /* You can use recursion to do this task as the problem can be divided into: 1. Retaining the first m elements in link list. 2. Deleting next n elements in linked list. 3. Repeating process 1 and 2 for remaining list. Note: Boundary condition should be carefully handled. */ void deleteMNElement(node *head, int m, int n) { if(head==NULL) // if list is empty return; int n1=0; int n2=0; node *p=head; node *par=NULL; while(n1!=m) { n1++; par=p; p=p->next; if(p==NULL) return; } p=par->next; cout< data< while(n2!=n) { n2++; if(p==NULL) return; node * temp=p; par->next=p->next; delete(temp); p=par->next; } deleteMNElement(par->next,m,n); } jiaji A c# version /* Paste your code here (You may delete these lines if not writing code) */ public static void Delete(ListNode<int> root, int M,int N) { if (null == root || N < 0 || M < 0) return; ListNode<int> tNode = root; while (tNode != null) { int M1 = M; while (M1 > 1 && tNode != null) { tNode = tNode.Next; M1–; } if (tNode == null) return; int N1 = N; ListNode<int> delTNode = tNode; while (N1 >= 0 && delTNode != null) { delTNode = delTNode.Next; N1–; } if (delTNode == null) { tNode.Next = null; return; } else { tNode.Next = delTNode; delTNode.Previous = tNode; } tNode = tNode.Next; } } Ankit code will give wrong answer when M=0.It should have deleted all the elements but Code is designed to skip atleast 1 element. GeeksforGeeks @Ankit: Thanks for pointing this out. We have added a note about this. Handling M = 0 requires changes to the head pointer which means either pass double pointer or return the head pointer. We will soon update the code with M = 0 case. cpbcrec Actually the problem is when M=0 and N is non-zero or whatever it may be. Just handle this case explicitly if M=0 call deleteLinkedList(struct node **) which will delete all list.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Sambasiva http://effprog.wordpress.com/2013/06/13/delete-n-nodes-after-m-nodes-of-a-linked-list/ Ronny @Sambasiva I was expecting a recursive solution from the link, this is the stature you have earned. Nice efforts anyways. Deeps I wrote the module as below, but it gives a completely wrong list as output.. please let me know abt the errors  
+#include <stdio.h>
+#include <conio.h>
+#include <malloc.h>
+typedef struct node node;
+
+struct node{
+    int num;
+    node *next;
+};
+
+void create(node **p,int num)
+{
+    if((*p)==NULL)
+    {
+        node *temp;
+        temp=(node*)malloc(sizeof(node));
+        temp->num=num;
+        temp->next=NULL;
+        *p=temp;
+
+        printf("%d inserted",num);
+    }
+    else{
+        node *temp;
+        temp=*p;
+        node *new_node;
+        new_node=(node*)malloc(sizeof(node));
+        new_node->num=num;
+        new_node->next=NULL;
+        for(;temp->next;temp=temp->next){;}
+        temp->next=new_node;
+        printf("\n %d inserted",num);
+    }
+
+}
+
+void traverse(node **p)
+{
+    node *t1;
+    t1=(*p);
+    while((t1)!=NULL)
+    {
+        printf(" \t %d",t1->num);
+        t1=t1->next;
+    }
+}
+
+void process(node **p,int m,int n)
+{
+    int i;
+    node *temp1,*temp2;
+    temp1=*p;
+    while(temp1!=NULL)
+    {
+         i=0;
+         while(i<m&&temp1){
+            if(temp1==NULL){return;};
+            printf("\n %d",temp1->num);
+            temp1=temp1->next;i++;
+            }
+        printf("\niterated");
+        i=0;
+        temp2=temp1;
+        while(i<n&&(temp2!=NULL)){
+            if((temp2==NULL)||(temp2->next==NULL))
+            {
+                return;
+            }
+            node *free_bird;
+            free_bird=temp2->next;
+            temp2->next=free_bird->next;
+            free(free_bird);
+            temp2=temp2->next;
+            i++;
+        }
+        temp1->next=temp2;
+
+
+    }
+
+
+}
+int main()
+{
+    int i;
+    node *list;
+    list=(node*)malloc(sizeof(node));
+    list->num=1;
+    list->next=NULL;
+    for(i=2;i<=15;i++)
+    {
+        create(&list,i);
+    }
+
+printf("\n done");
+traverse(&list);
+process(&list,2,2);
+printf("\n");
+traverse(&list);
+getch();
+return 0;
+}
+
+
+
+ Bohemia Should the Complexity not be O(N+M) ? although N+M = O(n) …  
+/* Paste your code here (You may delete these lines if not writing code) */
+ himanshu the same question was asked in Microsoft Interview for internship and i answered the same The King #include #include typedef struct node { int d; struct node *n; }Node; void insert(Node **h, int v) { Node *t = (Node *) malloc(sizeof(Node)); t->d = v; t->n = *h; *h = t; } void dis(Node *h) { while(h) { printf(“\t %d”,h->d); h = h->n; } } void del(Node *h, int m , int n) { Node *c=h; Node *p=NULL; int count = m; int del = n; while(c) { if(count > 0) { p = c; c = c->n; count–; if(count == 0) del = n; } else { p->n = c->n; free(c); c = p->n; del–; if(del==0) count=m; } } } void main() { int i=0,n=0,n1=0; Node *head=NULL; printf(“Enter the number of nodes: -“); scanf(“%d”,&n1); for(i=0;i<n1;i++) { printf("Enter the value of the node:- "); scanf("%d",&n); insert(&head,n); } printf("\n The LL is:- "); dis(head); printf("\n Enter the value for the m and n:- "); scanf("%d %d", &n1, &n); del(head, n1 ,n); printf("\n The Final LL is:- "); dis(head); } /* Paste your code here (You may delete these lines if not writing code) */ rachit #include #include #include using namespace std; typedef struct list { list *next; int data; }; //list *head_main=NULL; void push1(list **head,int data) { list *node=(list*)malloc(sizeof(list)); node->data=data; node->next=*head; *head=node; } void print(list *head) { while(head) { printf(“%d -> “,head->data); head=head->next; } } list* delt(list *head,int m,int n) { list* current=head; int x,y; while(current) { x=m,y=n; list *p=(list*)malloc(sizeof(list)); while(–x) { current=current->next; } p=current->next; while(–y) { list *temp=p; //temp=p; p=p->next; free(temp); } current->next=p->next; current=current->next; free(p); } return head; } int main() { list *head=NULL; push1(&head,10); push1(&head,9); push1(&head,8); push1(&head,7); push1(&head,6); push1(&head,5); push1(&head,4); push1(&head,3); push1(&head,2); push1(&head,1); //print(head); // push1(&head,0); print(head); printf(“\n\n”); head=delt(head,1,1); print(head); return 0; } TCP Why this post does not appear in the Linked List category of questions? GeeksforGeeks Pages are served from cache. Once the cache is purged, this post will appear on Linked List page. Arnab Dutta Why is this a question of consideration -everyone will do the same way isn’t? Is there really anything special/complex about this topic – specially solved here by efficient algo/logic/or something? Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

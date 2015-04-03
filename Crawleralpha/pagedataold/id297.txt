@@ -1,0 +1,123 @@
+Lucky Numbers - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Lucky Numbers Lucky numbers are subset of integers. Rather than going into much theory, let us see the process of arriving at lucky numbers, Take the set of integers 1,2,3,4,5,6,7,8,9,10,11,12,14,15,16,17,18,19,…… First, delete every second number, we get following reduced set. 1,3,5,7,9,11,13,15,17,19,………… Now, delete every third number, we get 1, 3, 7, 9, 13, 15, 19,….…. Continue this process indefinitely…… Any number that does NOT get deleted due to above process is called “lucky”. Therefore, set of lucky numbers is 1, 3, 7, 13,……… Now, given an integer ‘n’, write a function to say whether this number is lucky or not. 
+    bool isLucky(int n)
+ Algorithm: Before every iteration, if we calculate position of the given no, then in a given iteration, we can determine if the no will be deleted. Suppose calculated position for the given no. is P before some iteration, and each Ith no. is going to be removed in this iteration, if P < I then input no is lucky, if P is such that P%I == 0 (I is a divisor of P), then input no is not lucky. Recursive Way: 
+#include <stdio.h>
+#define bool int
+
+/* Returns 1 if n is a lucky no. ohterwise returns 0*/
+bool isLucky(int n)
+{
+  static int counter = 2;
+
+  /*variable next_position is just for readability of
+     the program we can remove it and use n only */
+  int next_position = n;
+  if(counter > n)
+    return 1;
+  if(n%counter == 0)
+    return 0;      
+
+ /*calculate next position of input no*/
+  next_position -= next_position/counter;
+  
+  counter++;
+  return isLucky(next_position);
+}
+
+/*Driver function to test above function*/
+int main()
+{
+  int x = 5;
+  if( isLucky(x) )
+    printf("%d is a lucky no.", x);
+  else
+    printf("%d is not a lucky no.", x);
+  getchar();
+}
+ Example: Let’s us take an example of 19 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,15,17,18,19,20,21,…… 1,3,5,7,9,11,13,15,17,19,….. 1,3,7,9,13,15,19,………. 1,3,7,13,15,19,……… 1,3,7,13,19,……… In next step every 6th no .in sequence will be deleted. 19 will not be deleted after this step because position of 19 is 5th after this step. Therefore, 19 is lucky. Let’s see how above C code finds out: Current function call Position after this call Counter for next call Next Call isLucky(19 ) 10 3 isLucky(10) isLucky(10) 7 4 isLucky(7) isLucky(7) 6 5 isLucky(6) isLucky(6) 5 6 isLucky(5) When isLucky(6) is called, it returns 1 (because counter > n). Iterative Way: Please see this comment for another simple and elegant implementation of the above algorithm. Please write comments if you find any bug in the given programs or other ways to solve the same problem.           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: C Program for Lucky Numbers, isLucky, Lucky Number, Lucky Numbers, MathematicalAlgo, Print Lucky numbers, Program for lucky numbers, Programs for numbers Tweet Writing code in comment? Please use ideone.com and share the link here. shhrohan19 #include using namespace std; bool isLucky(int n){ int i = 1; int inc = 2; while(i<=n){ if(n-i == 0) return true; i+= inc; inc+=2; } return false;; } int main() { cout< return 0; } shhrohan19 This can also be tried…  
+#include <iostream>
+using namespace std;
+
+bool isLucky(int n){
+
+	int i = 1;
+	int inc = 2;
+	while(i<=n){
+		if(n-i == 0)
+			return true;
+		i+= inc;
+		inc+=2;
+	}
+	return false;;
+}
+
+
+
+int main() {
+	cout<<isLucky(1000001)<<endl;
+	return 0;
+}
+ http://jrahulroy.tk Rahul Jujarey Wikipedia Article http://en.wikipedia.org/wiki/Lucky_number defines that we the counter should be next surviving number, and not incrementing. anon  
+/* Paste your code here (You may delete these lines if not writing code) */
+bool isLucky(int n)
+{
+	int pos = n;
+	int del = 2;
+	while( pos >= del ){
+		if( pos%del == 0 )
+			return false;
+		pos = pos - pos/del;
+		del++;
+	}
+	return true;
+}
+ Kanhaiya #include <iostream> using namespace std; void lucky_num(int n) { int gap = 0; int l_num = 0; int i = 0; while(i < n) { int c_gap = 0; while(c_gap++ <= gap) i++; cout<<i<<" "; l_num++; if(i == n) { cout<<n<<" is lucky"; return; } if(gap <= l_num) { if(gap == 0)gap++; else gap+=2; } } cout<<n<<" is not lucky number"; } int main() { lucky_num(119); return 0; } Kanhaiya Assumption: we know that 1 is lucky. And want to test a number other than 1. aravind Thanks a lot for good code… TEST 25 is not lucky no. as written above. GeeksforGeeks @TEST: Thanks for pointing this out. We have removed 25 from the list. ravi this is iterative version .  
+void findlucky(int n)
+{
+   int i ;
+   for(i=2;n &gt;=i ; i++ )
+   {
+      if(n%i == 0)
+      {
+         print &quot;unlucky&quot; ;
+         return ;
+     }
+     n = n - n/i ;
+  }
+  print &quot;lucky&quot;
+  return ;
+}
+ http://www.ap7am.com manush Please give the source code and explanation for the Fibonacci series in an array. geeksforgeeks @Saravanan Mani: Thanks very much, nice implementation. We have included it in original post. Saravanan Mani  
+#include <stdio.h>
+#define bool int
+
+bool isLucky(int n)
+{
+  int next_pos = n, counter;
+  
+  for(counter=2; counter <= next_pos; ++counter)
+  {
+    if(next_pos%counter == 0)
+      return 0; 
+
+    /* Next position is (current position –
+      no of positions reduced in this iteration) */
+    next_pos -= next_pos/counter;
+  }
+   
+  /*If we have reached here then n is not deleted in any
+ of the deletion process. Therefore n is lucky number*/
+  return 1;    
+}
+
+/*Driver function to test above function*/
+int main()
+{
+  int x = 19;
+  if( isLucky(x) )
+    printf("%d is a lucky no.", x);
+  else
+    printf("%d is not a lucky no.", x);
+  getchar();
+}
+ geeksforgeeks @Minjie Zha: Thanks a lot for pointing out the issue, we have fixed it. Count should be incremented after the next position is calculated. Keep it up!! Minjie Zha I think there is some wrong with the recursive part, I test the function with 5, and it returns “true”. The recursive line should be: return isLucky(n-n/(counter-1)); Am I right? Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

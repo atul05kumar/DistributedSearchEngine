@@ -1,0 +1,910 @@
+Find the minimum distance between two numbers - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find the minimum distance between two numbers Given an unsorted array arr[] and two numbers x and y, find the minimum distance between x and y in arr[]. The array might also contain duplicates. You may assume that both x and y are different and present in arr[]. Examples: Input: arr[] = {1, 2}, x = 1, y = 2 Output: Minimum distance between 1 and 2 is 1. Input: arr[] = {3, 4, 5}, x = 3, y = 5 Output: Minimum distance between 3 and 5 is 2. Input: arr[] = {3, 5, 4, 2, 6, 5, 6, 6, 5, 4, 8, 3}, x = 3, y = 6 Output: Minimum distance between 3 and 6 is 4. Input: arr[] = {2, 5, 3, 5, 4, 4, 2, 3}, x = 3, y = 2 Output: Minimum distance between 3 and 2 is 1. Method 1 (Simple) Use two loops: The outer loop picks all the elements of arr[] one by one. The inner loop picks all the elements after the element picked by outer loop. If the elements picked by outer and inner loops have same values as x or y then if needed update the minimum distance calculated so far. 
+#include <stdio.h>
+#include <stdlib.h> // for abs()
+#include <limits.h> // for INT_MAX
+
+int minDist(int arr[], int n, int x, int y)
+{
+   int i, j;
+   int min_dist = INT_MAX;
+   for (i = 0; i < n; i++)
+   {
+     for (j = i+1; j < n; j++)
+     {
+         if( (x == arr[i] && y == arr[j] ||
+              y == arr[i] && x == arr[j]) && min_dist > abs(i-j))
+         {
+              min_dist = abs(i-j);
+         }
+     }
+   }
+   return min_dist;
+}
+
+/* Driver program to test above fnction */
+int main() 
+{
+    int arr[] = {3, 5, 4, 2, 6, 5, 6, 6, 5, 4, 8, 3};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    int x = 3;
+    int y = 6;
+
+    printf("Minimum distance between %d and %d is %d\n", x, y, 
+              minDist(arr, n, x, y));
+    return 0;
+}
+ Output: Minimum distance between 3 and 6 is 4 Time Complexity: O(n^2) Method 2 (Tricky) 1) Traverse array from left side and stop if either x or y are found. Store index of this first occurrrence in a variable say prev 2) Now traverse arr[] after the index prev. If the element at current index i matches with either x or y then check if it is different from arr[prev]. If it is different then update the minimum distance if needed. If it is same then update prev i.e., make prev = i. Thanks to wgpshashank for suggesting this approach. 
+#include <stdio.h>
+#include <limits.h>  // For INT_MAX
+
+int minDist(int arr[], int n, int x, int y)
+{
+   int i = 0;
+   int min_dist = INT_MAX;
+   int prev;
+
+   // Find the first occurence of any of the two numbers (x or y)
+   // and store the index of this occurence in prev
+   for (i = 0; i < n; i++)
+   {
+     if (arr[i] == x || arr[i] == y)
+     {
+       prev = i;
+       break;
+     }
+   }
+
+   // Traverse after the first occurence
+   for ( ; i < n; i++)
+   {
+      if (arr[i] == x || arr[i] == y)
+      {
+          // If the current element matches with any of the two then
+          // check if current element and prev element are different
+          // Also check if this value is smaller than minimm distance so far
+          if ( arr[prev] != arr[i] && (i - prev) < min_dist )
+          {
+             min_dist = i - prev;
+             prev = i;
+          }
+          else
+             prev = i;
+      }
+   }
+
+   return min_dist;
+}
+
+/* Driver program to test above fnction */
+int main()
+{
+    int arr[] ={3, 5, 4, 2, 6, 3, 0, 0, 5, 4, 8, 3};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    int x = 3;
+    int y = 6;
+
+    printf("Minimum distance between %d and %d is %d\n", x, y,
+              minDist(arr, n, x, y));
+    return 0;
+}
+
+ Output: Minimum distance between 3 and 6 is 1 Time Complexity: O(n) Please write comments if you find the above codes/algorithms incorrect, or find other ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. amazon_it_is #include #include using namespace std; int main(int argc, char *argv[]) { int a[]={3, 5, 4, 2, 6, 5, 6, 6, 5, 4, 8, 3}; int s=12; int n1=3; int n2=6; int index1=-1; int index2=-1; int q=10000; for(int i=0;i<s;i++){ if(a[i]==n1) { index1=i; } else if(a[i]==n2){ index2=i; } if(index1!=-1 && index2!=-1){ q=q<abs(index1-index2)?q:abs(index1-index2); } } cout<<q; system("PAUSE"); return EXIT_SUCCESS; } Code_Addict Nice solution. Thanks anonymous What if the array is : {3, 5, 4, 6, 5, 6, 3}, and elements are 3 and 6. Will the minimum be 1 or 3. My question is that does the relative order of the two matter? if 6 is considered before 3 while calculating, minimum comes out as 1. and 3 otherwise. guru int minimum(int _arr_size, int* _arr, int _a, int _b) { int i=0,j=0; int n=_arr_size,min=n,temp; while(i<n) { if(_arr[i]==_a) { j=i+1; while(j<n) { if(_arr[j]==_b) { temp=j-i-1; if(temp<min) min=temp; break; } else j++; } } else if(_arr[i]==_b) { j=i+1; while(j<n) { if(_arr[j]==_a) { temp=j-i-1; if(temp<min) min=temp; break; } else j++; } } i++; } return min; } Neha Garg your solution will not work for dup elements… If array is (1, 5, 3, 7, 2, 8, 3, 4, 5, 9, 9, 3, 1, 3, 2, 9) ,then min_distance(9,9) should be zero jackSparrow author has clearly specified “You may assume that both x and y are different and present in arr[]” jinzhi chen in that case, no point find min_distance, every min_distance is 0 Guest #include #include #include int min_num(int a,int b) { if(a<b) return a; else return b; } int min_dist(int arr[],int n,int a,int b) { int t1,i,j,ind1,mind=INT_MAX; for(i=0;i<n;i++) { if(arr[i]==a) { t1=a; ind1=i; break; } else if(arr[i]==b) { t1=b; ind1=i; break; } } for(j=i+1;j<n;j++) { if ((t1==a)&&(arr[j]==a)) { t1=a; ind1=j; } else if((t1==b)&&(arr[j]==b)) { t1=b; ind1=j; } else if((t1==a)&&(arr[j]==b)) { mind=min_num(mind,abs(ind1-j)); t1=b; ind1=j; } else if((t1==b)&&(arr[j]==a)) { mind=min_num(mind,abs(ind1-j)); t1=a; ind1=j; } } if(mind!=INT_MAX) return mind; else return -1; } void main() { int res; int arr[]={2, 5, 3, 5, 4, 4, 2, 3}; int n=sizeof(arr)/sizeof(arr[0]); if((res=min_dist(arr,n,3,2))!=-1) printf("mindist is %d",res); else printf("either of 2 nums doesnt exist in arrn"); } Guest could some1 pls validate the following code #include #include #include int min_num(int a,int b) { if(a<b) return a; else return b; } int min_dist(int arr[],int n,int a,int b) { int t1,i,j,ind1,mind=INT_MAX; for(i=0;i<n;i++) { if(arr[i]==a) { t1=a; ind1=i; break; } else if(arr[i]==b) { t1=b; ind1=i; break; } } for(j=i+1;j<n;j++) { if ((t1==a)&&(arr[j]==a)) { t1=a; ind1=j; } else if((t1==b)&&(arr[j]==b)) { t1=b; ind1=j; } else if((t1==a)&&(arr[j]==b)) { mind=min_num(mind,abs(ind1-j)); t1=b; ind1=j; } else if((t1==b)&&(arr[j]==a)) { mind=min_num(mind,abs(ind1-j)); t1=a; ind1=j; } } if(mind!=INT_MAX) return mind; else return -1; } void main() { int res; int arr[]={2, 5, 3, 5, 4, 4, 2, 3}; int n=sizeof(arr)/sizeof(arr[0]); if((res=min_dist(arr,n,3,2))!=-1) printf("mindist is %d",res); else printf("either of 2 nums doesnt exist in arrn"); } SudhanshuAnand Below is another solution in linear time  
+int min_dist(int a[], int size, int x, int y){
+	int minDist;
+	int ix, iy, i;
+	for(i=0;i<size;i++)
+		if(a[i] == x){
+			ix = i;
+			break;
+		}
+	for(i=0;i<size;i++)
+		if(a[i] == y){
+			iy = i;
+			break;
+		}
+	minDist = abs(ix - iy);
+	int start = max(ix, iy);
+	for(i=start;i<size;i++){
+		if(a[i] == x){
+			ix = i;
+			minDist = min(minDist, abs(ix-iy));
+		}else if(a[i] == y){
+			iy = i;
+			minDist = min(minDist, abs(ix-iy));
+		}
+	}
+	
+	return minDist;
+}
+ rajat6875  
+class ArrayDis{
+
+	public static int minDis(int arr[],int x,int y){
+		int start=-2,end=-1,minDis=Integer.MAX_VALUE;
+			boolean flag=true;
+			for(int i=0;i<arr.length;i++){
+				if((arr[i]==x||arr[i]==y)&&flag)
+				{
+					start=i;
+					flag=false;
+				}
+				else if((arr[i]==x||arr[i]==y)&&!flag)
+				{
+					end=i;
+					flag=true;
+				}
+				if(start>-1&&end>-1)
+					minDis=Math.min(minDis,Math.abs(end-start));
+			}
+			
+		
+			return minDis;
+	}
+	public static void main(String ar[]){
+		int arr[]={3,2,1,2,3,2,3,6,2,8,1,3,4,2,2,5};
+		
+		System.out.println("For {3,2,1,2,3,2,3,6,2,8,1,3,4,2,2,5} min dis : "+minDis(arr,2,2));
+	}
+
+
+}
+ rajat6875 i tried to implement it in java if somebody finds some error or wrong output for any case please tell me  
+class ArrayDis{
+
+	public static int minDis(int arr[],int x,int y){
+		int start=-2,end=-1,minDis=Integer.MAX_VALUE;
+			boolean flag=true;
+			for(int i=0;i<arr.length;i++){
+				if((arr[i]==x||arr[i]==y)&&flag)
+				{
+					start=i;
+					flag=false;
+				}
+				else if((arr[i]==x||arr[i]==y)&&!flag)
+				{
+					end=i;
+					flag=true;
+				}
+				if(start>-1&&end>-1)
+					minDis=Math.min(minDis,Math.abs(end-start));
+			}
+			
+		
+			return minDis;
+	}
+	public static void main(String ar[]){
+		int arr[]={3,2,1,2,3,2,3,6,2,8,1,3,4,2,2,5};
+		
+		System.out.println("For {3,2,1,2,3,2,3,6,2,8,1,3,4,2,2,5} min dis : "+minDis(arr,2,2));
+	}
+
+
+}
+ akshaykumar How to modify this program if x and y can be equal ? Akhil The code given above is quite complicated! Using LastX for last X found, and LastY for Last Y found: (assuming X and Y are the numbers to be found) We can keep the code quite simple and clear.  
+#include<stdio.h>
+#include<stdlib.h>
+int findMinimum(int a[], int size,int x, int y)
+{
+    int min = size;
+    int LastX = 4*size;
+    int LastY = 2*size,i;
+    // So that min doesnt change till both numbers have been       found atleast once.
+    for(i=0;i<size;i++)
+    {
+        if(a[i]==x)
+            LastX = i;
+        else if(a[i]==y)
+            LastY = i;
+        if(min>abs(LastY-LastX))
+            min = abs(LastY-LastX);
+    }
+    return min;
+}
+int main()
+{
+    int a[] = {3, 5, 4, 2, 6, 5, 6, 6, 5, 4, 8, 3};
+    int size = sizeof(a)/sizeof(a[0]);
+    printf("%d",findMinimum(a,size,2,5));
+    return 0;
+}
+
+ raghson  
+#include<stdio.h>
+#include<stdbool.h>
+#include <stdlib.h> // for abs()
+#include <limits.h> // for INT_MAX
+
+int minDist(int arr[], int n, int x, int y)
+{
+   int i, j;
+   int min_dist = INT_MAX;
+   for (i = 0; i < n; i++)
+   {
+       if(arr[i]!=x)
+         break;
+
+     for (j = 0; j < n; j++)
+     {
+         if( y == arr[j] && min_dist > abs(i-j))
+         {
+              min_dist = abs(i-j);
+         }
+         printf ("\n%d", j);
+
+         if((j-i)>min_dist)
+           break;
+     }
+   }
+   return min_dist;
+}
+
+/* Driver program to test above fnction */
+int main()
+{
+    int arr[] = {3, 5, 4, 2, 6, 5, 6, 6, 5, 4, 8, 3};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    int x = 3;
+    int y = 6;
+
+    printf("Minimum distance between %d and %d is %d\n", x, y,
+              minDist(arr, n, x, y));
+    return 0;
+}
+
+ Ganesh You can find java code here: /** * Given an unsorted array arr[] and two numbers x and y, find the minimum distance between x and y in arr[]. * The array might also contain duplicates. You may assume that both x and y are different and present in arr[]. * Example: * Input: arr[] = {1, 2}, x = 1, y = 2 * Output: Minimum distance between 1 and 2 is 1. * @author GAPIITD * */ public class MinimumDistanceBetweenTwoNumbers { public static void main(String[] args) { int arr[] = {3, 5, 4, 2, 6, 3, 0, 0, 5, 4, 8, 3}; System.out.println(MinDistance(arr, 3, 6)); } private static int MinDistance(int[] arr, int n1, int n2) { int i, prev = -1, min_dist = 10000; for (i = 0; i < arr.length; i++) { if (arr[i] == n1 || arr[i] == n2) { prev = i; break; } } for (int j = i+1; j < arr.length; j++) { if (arr[j] == n1 || arr[j] == n2) { if (arr[prev] != arr[j] && min_dist > j – prev) min_dist = j – prev; prev = j; } } return min_dist; } } Niks  
+#include<stdio.h>
+#include<stdlib.h>
+#include<algorithm>
+#include<string.h>
+using namespace std;
+
+int minDist(int arr[], int n, int x, int y)
+{
+	int st[2] = {-1,-1};
+	int ans = INT_MAX;
+
+	for(int i=0; i<n; i++)
+	{
+		if(arr[i] == x && st[1]!=-1)
+		{
+			ans = min(ans,i-st[1]);
+
+		}
+		else if(arr[i] == y && st[0]!=-1)
+		{
+			ans = min(ans,i-st[0]);
+		}
+		else if(st[1]==-1 && st[0]==-1)
+		{
+			if(arr[i] == x)
+				st[0] = i;
+			else if(arr[i] == y)
+				st[1] = i;
+		}
+	}
+
+	return ans;
+}
+
+/* Driver program to test above fnction */
+int main() 
+{
+    int arr[] = {3, 5, 6, 2, 6, 5, 6, 6, 5, 4, 8, 3};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    int x = 3;
+    int y = 6;
+ 
+    printf("Minimum distance between %d and %d is %d\n", x, y, 
+              minDist(arr, n, x, y));
+    return 0;
+}
+ http://www.nikoo28.blogspot.in nikoo28 Please correct the typo in this post… “Output: Minimum distance between 3 and 6 is 4″ The minimum distance is 1 and the code gives a correct answer… GeeksforGeeks @nikoo28: Thanks for pointing this out. We have updated the post. Keep it up! akshaykumar How to modify this program if x and y can be equal ? J I am getting the answer as one the distance between 6 and 3 ….  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://www.geeksforgeeks.org/archives/13128 deep ya both of code will give minimum distance as 1 between 3 & 6. if array taken is int arr[] ={3, 5, 4, 2, 6, 3, 0, 0, 5, 4, 8, 3}; becoz none of the above code distinguisgh between 3,6 and 6,3  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Tiger Why don’t we use something like finding the last occurance of x and first occurance of y and subtract the index positions returned… Finding the occurance can be done in O(logn).. Apoorv Array is unsorted, searching can’t be done in O(log n) time bartender Searching in an unodered array takes O(n) time complexity which is the time complexity of the algorithms in the post, os there is no harm in finding the last occurence of smaller number in O(n) time followed by first occurence of larger number in 0(n) time, making the overall complexity to be O(n), which is equivalent to time complexity of method 2 of the post. Venki I missed small part of code, here is correct version  
+void MinSampleAndHold(int &min, int exp) { if( min > exp ) min = exp; }
+
+int GetMinimumDistance(int A[], int size, int x, int y)
+{
+    int minDiff = INT_MAX;
+    int sum = x + y;
+    int i = 0;
+    int p; // previously traced element
+
+    // X and Y are present in the array
+    while( A[i] != x && A[i] != y )
+        ++i;
+
+    for( p = i, ++i; i < size; i++ )
+    {
+        if( sum - A[p] == A[i] )
+        {
+            MinSampleAndHold(minDiff, i-p);
+            p = i;
+            continue;
+        }
+
+        if( A[p] == A[i] ) p = i;
+    }
+
+        return minDiff;
+}
+ Venki The code can be improved. 1. We need to increment the i value before entering into second loop. Otherwise we compare elements unnecessarily. 2. We don’t need two comparisons inside if of second loop. Idea is same. Here is relatively simple code,  
+inline
+// usually second parameter is an expression
+void MinSampleAndHold(int &min, int exp) { if( min > exp ) min = exp; }
+
+int GetMinimumDistance(int A[], int size, int x, int y)
+{
+    int minDiff = INT_MAX;
+    int sum = x + y;
+    int i = 0;
+    int p; // previously traced element
+
+    // X and Y are present in the array
+    while( A[i] != x && A[i] != y )
+        ++i;
+
+    for( p = i, ++i; i < size; i++ )
+        if( sum - A[p] == A[i] ) {
+            MinSampleAndHold(minDiff, i-p);
+            p = i;
+        }
+
+    return minDiff;
+}
+ kartikaditya #include <iostream> #include <stdio.h> using namespace std; int getMinDistance(int a[], int n, int x, int y) { int posX = -1, posY = -1; int mini = (int)(((unsigned) 1 << 31) – 1); for (int i = 0; i < n; ++i) { if (a[i] == x) { posX = i; if (posY != -1) { if (posX – posY < mini) { mini = posX – posY; } } } if (a[i] == y) { posY = i; if (posX != -1) { if (posY – posX < mini) { mini = posY – posX; } } } } return mini; } int main() { int a1[] = {1, 2}; cout << getMinDistance(a1, 2, 1, 2) << endl; int a2[] = {3, 4, 5}; cout << getMinDistance(a2, 3, 3, 5) << endl; int a3[] = {3, 5, 4, 2, 6, 5, 6, 6, 5, 4, 8, 3}; cout << getMinDistance(a3, 12, 3, 6) << endl; int a4[] = {2, 5, 3, 5, 4, 4, 2, 3}; cout << getMinDistance(a4, 8, 3, 2) << endl; return 0; } prabhatlamba  
+#include<conio.h>
+#include<stdio.h>
+#define max 100
+void main ()
+{
+	clrscr();
+	int n,c=0,k=0,arr[max],x,y;
+	scanf("%d",&n);
+	int min=n;
+	for (int i=1;i<=n;i++)
+	{
+	scanf("%d",&arr[i]);
+	}
+
+	printf("\nenter the values of x and y ");
+	scanf("%d%d",&x,&y);
+	for(int m=1;m<=n;m++)
+	{
+
+		if(arr[m]==x)
+		{c=m; }
+		if(arr[m]==y)
+		{k=m;}
+		if(c!=0&&k!=0)
+		{
+			int r=k-c;
+			if (r <0)
+			r=(-r);
+
+		       if (min > r)
+			min=r;
+
+			c=0;
+			k=0;
+			m=m-1;
+		}
+	}
+	printf("\nvalue:%d",min);
+getch();
+}
+
+ Nagarjuna I think there is a bug in the actual ( main ) post – Test your code with the below instance array: 1 2 3 4 5 6 7 1 2 4, and no’s: 1 & 4. correct ans = 2; [ distance between last pair of 1 and 4 ] I guess your code would give 3. To fix it: I guess you have to update prev always – So in your for loop for ( ; i < n; i++) { ………………… ………………… if ( arr[prev] != arr[i] && (i – prev) < min_dist ) { min_dist = i – prev; } prev = i; // removing the else part and reset prev always. /* } else prev = i; */ } } kartik Dude, the porgam works fine for your input. The following driver program prints 2.  
+/* Driver program to test above fnction */
+int main()
+{
+    int arr[] ={1, 2, 3, 4, 5, 6, 7, 1, 2, 4};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    int x = 1;
+    int y = 4;
+
+    printf("Minimum distance between %d and %d is %d\n", x, y,
+              minDist(arr, n, x, y));
+    return 0;
+}
+ Nagarjuna My bad Karthik, your logic works fine.. Just a readability suggestion – I guess you don’t need an else here – if ( arr[prev] != arr[i]&&(i – prev) < min_dist ) { min_dist = i – prev; prev = i; } else prev = i; Instead — you can write if ( arr[prev] != arr[i]&&(i – prev) < min_dist ) { min_dist = i – prev; } prev = i; // update prev always. Anuj Bansal Here is a O(n) algorithm to solve the above problem  
+#include<stdio.h>
+#include<math.h>
+#define MAX 12
+
+int MinDis(int a[MAX],int x, int y) {
+        int i,min,posX,posY;
+        min = MAX, posX = -1, posY = -1;
+        for(i=0;i < MAX;i++) {
+                if(a[i] == x) {
+                        if(posX == -1)
+                                posX = i;
+                        else {
+                                if(posY != -1) 
+                                        min = min < abs(posX-posY) ? min: abs(posX-posY);
+                                else
+                                        posX = i;
+                        }
+                }
+                else if(a[i] == y) {
+                        if(posY == -1)
+                                posY = i;
+                        else {
+                                if(posX != -1)
+                                        min = min < abs(posX-posY) ? min: abs(posX-posY);
+                                else
+                                        posY = i;
+                        }
+                }
+        }
+        if(posX != -1 && posY != -1)
+                printf("%d\n",min);
+        else 
+                printf("One of the input not found in the array");
+}
+
+int main() {
+        int a[MAX]={3,5,4,2,6,5,6,6,5,4,8,3};
+        MinDis(a,3,6);
+        return 0;
+}
+ Anuj Bansal The above code gives incorrect result for some input. here is the corrected version.  
+#include<stdio.h>
+#include<math.h>
+#define MAX 12
+
+int MinDis(int a[MAX],int x, int y) {
+        int i, min, posX,posY;
+        min = MAX; posX = -1, posY = -1;
+        for(i=0 ; i < MAX;i++) {
+                if(a[i] == x) {
+                        if(posX != -1 && posY != -1 && min > abs(i-posY))
+                                min = abs(i-posY);
+                        posX = i;       
+                }
+                else if(a[i] == y) {
+                        if(posX != -1 && posY != -1 && min > abs(i-posX))
+                                min = abs(i-posX);
+                        posY = i;
+                }
+        }
+        if(posX != -1 && posY != -1)
+                printf("Minimum distance = %d\n",min);
+        else 
+                printf("One of the input not found in the array");
+}
+
+int main() {
+        int a[MAX]={3,5,4,2,6,5,6,6,5,6,8,3};
+        MinDis(a,3,6);
+        return 0;
+}
+ anujbansal  
+#include<stdio.h>
+#include<math.h>
+#define MAX 12
+
+int MinDis(int a[MAX],int x, int y) {
+        int i, min, posX,posY;
+        min = MAX; posX = -1, posY = -1;
+        for(i=0 ; i < MAX;i++) {
+                if(a[i] == x) {
+                        if(posY != -1 && min > abs(i-posY))              
+                                min = abs(i-posY);
+                        posX = i;
+                }
+                else if(a[i] == y) {
+                        if(posX != -1 && min > abs(i-posX))               
+                                min = abs(i-posX);
+                        posY = i;
+                }
+        }
+        if(posX != -1 && posY != -1)
+                printf("Minimum distance = %d\n",min);
+        else
+                printf("One of the input not found in the array\n");
+}
+
+int main() {
+        int a[MAX]={3,5,4,2,6,5,6,6,5,6,8,3};
+        MinDis(a,3,5);
+        return 0;
+}
+ amit @wgpshashank : The solution assumes that the minimum distance between elements x & y would always be between the first left element spotted in the input array & some other element. Check for input {3, 5, 4, 2, 6, 5, 6, 6, 5, 4, 8, 3} and let x=5 and y=6 According to the code, the solution would come out as 3 {x_pos=1 and y_pos=4} while it needs to be 1{x_pos= 5 and y_pos=4} kartik @amit: take a cloaser look at the program. It works fine for your input. See http://ideone.com/jtDY8 radhakrishna xpos = -1 ypos = -1 mindist = +infinity for i : 0 to n-1 do if a[i] == x || a[i] == y then if a[i] == x then xpos = i; else ypos = i; //valid positions found for x and y if xpos != -1 and ypos != -1 then diff = abs(xpos-ypos); if(mindist > diff) then mindist = diff; sekhar public class MinDistanceBetweenNumbers { /** * @param args */ public static void main(String[] args) { // TODO Auto-generated method stub int a[] = {2,3,3,3,3,3,6,8,9,0,5,3,5,4,4,2,7,7,8,9,3}; int minDistance = 0; int prev = -1; int x = 3; int y = 2; for(int i = 0; i<a.length;i++){ /* Index element is equal to any of the element in X and Y*/ if(a[i] == x || a[i] == y ){ /*If the first element index is not at found */ if(prev == -1){ prev = i; }else{ if(a[i] != a[prev]){ int diff = i – prev; if(minDistance == 0){ minDistance = diff; } else if(diff < minDistance){ minDistance = diff; } prev = i; } } } } System.out.println(" min Distance "+minDistance); } } radhakrishna public static int mindist(int[] a, int x, int y) { int i =0 ; int xpos = Integer.MAX_VALUE; int ypos = Integer.MAX_VALUE; int mindist= Integer.MAX_VALUE; while(i Math.abs(xpos-ypos)) { mindist = Math.abs(xpos-ypos); } i++; } return mindist; } Pandharinath int MinDist(int arr[], int len, int x,int y) { int vals[2]={-1,-1}; int mindist=len+1;; for(int i=0; i< len ; i++) { if(arr[i]== x) { if(vals[1] != -1 && (i-vals[1]) < mindist ) { mindist= i-vals[1]; } vals[0]=i; } else if(arr[i] == y) { if(vals[0] != -1 && (i-vals[0]) < mindist ) { mindist= i-vals[0]; } vals[1]=i; } } return mindist; } int _tmain(int argc, _TCHAR* argv[]) { int * arr=NULL; int len=0; int x,y; int mindist=0; printf("\nEnter the lengh"); scanf("%d",&len); arr= new int[len]; for(int i=0; i< len; i++) { scanf("%d",&arr[i]); } printf("\nEnter x y"); scanf("%d%d",&x,&y); mindist=MinDist(arr,len,x,y); printf("Mindist=%d",mindist); return 0; } Ankur int minDistance(int a[],int n,int x,int y){ int xindex=INT_MAX,yindex=0; int d = INT_MAX; for(int i=0;i<n;i++){ if(a[i]==x || a[i]==y){ if(a[i]==x) xindex=i; if(a[i]==y) yindex=i; d = min(d,abs(xindex-yindex)); } } return d; } Sravan Vurapalli int FindMinimumDistance(int a[], int size,int key1, int key2) { int previous = -1; int minimumDistance = INT_MAX; for(int i = 0; i < size; i++) { if(a[i] == key1 || a[i] == key2) { if(previous < 0 || a[i] == a[previous]) { previous = i; continue; } if(i – previous < minimumDistance) { minimumDistance = i – previous; } previous = i; } } return minimumDistance; } Sravan Vurapalli int FindMinimumDistance(int a[], int size,int key1, int key2) { int previous = -1; int minimumDistance = INT_MAX for(int i = 0; i < size; i++) { if(a[i] == key1 || a[i] == key2) { if(previous < 0 || a[i] == a[previous]) { previous = i; continue; } if(i – previous < minimumDistance) { minimumDistance = i – previous; previous = i; } } } return minimumDistance; } gauravkohli #include void main() { int arr[6]={1,2,3,4,4,1},i,pos1=0,pos4=0,diff=6,d=6; for(i=0;i<6;i++) printf("array is %d \n",arr[i]); for(i=0;ipos4 && pos1!=0 && pos4!=0) d=pos1-pos4 ; else if(pos4>1 && pos4!=0 && pos1!=0) d=pos4-pos1; if(d<diff) diff=d; } printf("\ndiffrence is : %d\n",diff); getch(); } gauravkohli #include void main() { int arr[6]={1,2,3,4,4,1},i,pos1=0,pos4=0,diff=6,d=6; for(i=0;i<6;i++) printf("array is %d \n",arr[i]); for(i=0;ipos4 && pos1!=0 && pos4!=0) d=pos1-pos4 ; else if(pos4>1 && pos4!=0 && pos1!=0) d=pos4-pos1; if(d<diff) diff=d; } printf("\ndiffrence is : %d\n",diff); getch(); } gauravkohli #include void main() { int arr[6]={1,2,3,4,4,1},i,pos1=0,pos4=0,diff=6,d=6; for(i=0;i<6;i++) printf("array is %d \n",arr[i]); for(i=0;ipos4 && pos1!=0 && pos4!=0) d=pos1-pos4 ; else if(pos4>1 && pos4!=0 && pos1!=0) d=pos4-pos1; if(d<diff) diff=d; } printf("\ndiffrence is : %d\n",diff); getch(); } Nitesh int minDist(int arr[], int n, int x, int y) { int i = 0; int min_dist = INT_MAX; int prev; // Find the first occurence of any of the two numbers (x or y) // and store the index of this occurence in prev for (i = 0; i < n; i++) { if (arr[i] == x || arr[i] == y) { prev = i; break; } }  i++; if u don’t put this statement then it will execute below loop one time more unnecessarily. // Traverse after the first occurence for ( ; i < n; i++) { if (arr[i] == x || arr[i] == y) { // If the current element matches with any of the two then // check if current element and prev element are different // Also check if this value is smaller than minimm distance so far if ( arr[prev] != arr[i] && (i – prev) < min_dist ) { min_dist = i – prev; prev = i; } else prev = i; } } return min_dist; } Bala 1) scan the array to store the first occurrences of both the elements 2) once both elements are found, take the absolute diff of indices and store the min distance, if it is. 3) continue the same for rest of the array /* Code snippet */  
+
+int x_index = -1;
+int y_index = -1;
+int min_dis = INT_MAX;
+
+for (i = 0; i < N; i++) {
+
+if (x == arr[i]) {
+x_index = i;
+} else if (y == arr[i]) {
+y_index = i;
+}
+
+if ((-1 == x_index) || (-1 == y_index)) {
+continue;
+}
+
+if (min_dis > abs(x_index - y_index)) {
+min_dis = abs(x_index - y_index);
+//store x_index, y_index if needed
+}
+
+}
+ priyanka in method 2 above.. for the program and input given… Shouldn’t the output be 1? Abhinav Kumar yes, it is. google #include using namespace std; int dis(int arr[],int x,int y,int n){ int min_dis=INT_MAX,prev=-1; for(int i=0;i<n;++i){ if(arr[i]==x || arr[i]==y){ if(prev!=-1 && arr[prev]!=arr[i] && i-prev<min_dis) min_dis=i-prev; prev=i; } } return min_dis; } int main() { int arr[] ={3, 5, 4, 2,9, 2, 0, 0, 5, 4, 8, 6}; int n = sizeof(arr)/sizeof(arr[0]); int x = 3; int y = 6; printf("Minimum distance between %d and %d is %d\n", x, y,dis(arr, x, y,n)); system("pause"); return 0; } google this is done using a single if ststement and value of prev is taken as -1 initially… Abhinav you need to update prev in both the cases of if statement… iamkrish Algorithm: int min_distance(int arr[], size, int p,int q) 1. int pprev=0; int qprev=0; First scan the elements of array and store the first occurrence of p,q in pprev and qprev. Break away from the loop the moment you get |pprev-qprev| >0. 2. Now run the loop for the second time and do the following int dcurrentmin=0; int d=0; while(i<size of array) if(arr[i]==p) update pprev else if(arr[i]==q) update qprev d=|pprev-qprev| if(dcurrentmin==0) dcurrentmin=d; if(d<dcurrentmin) dcurrentmin=d; if(dcurrentmin==1) break; return the dcurrentmin value; Complexity: O(N) sachin0382 correcting my code…..sorry.. for putting incomplete code.. try it and give ur views…  
+
+#include <stdio.h>
+#include <stdlib.h>// for abs()
+
+int main()
+{
+int i,a[20],j,t,n,n1,n2,dis=0,i1,i2;
+printf("Enter the no. of element:\n");
+scanf("%d",&n);
+printf("\nenter the number in array:\n");
+for(i=0;i<n;i++)
+{
+scanf("%d",&a[i]);
+}
+printf("Enter the 1st element:\n");
+scanf("%d",&n1);
+printf("Enter the 2nd element:\n");
+scanf("%d",&n2);
+if(n1==n2)
+{
+printf("minmum distace is %d\n",dis);
+return 0;
+}
+
+for(i=0;i<n;i++)
+{
+   if(a[i]==n1)
+     i1=i;
+   else if(a[i]==n2)
+     i2=i;
+
+t= abs(i1-i2);
+if(dis==0)
+  dis=t;
+else if(dis>t)
+  dis=t; 
+}
+printf("minmum distace is %d\n",dis);
+return 0;
+}
+ complexity= O(n) sachin0382   #include #include // for abs() #include int main() { int i,a[20],j,t,n,n1,n2,dis=0,i1,i2; printf(“Enter the no. of element:\n”); scanf(“%d”,&n); printf(“\nenter the number in array:\n”); for(i=0;i<n;i++) { scanf("%d",&a[i]); } printf("Enter the 1st element:\n"); scanf("%d",&n1); printf("Enter the 2nd element:\n"); scanf("%d",&n2); if(n1==n2) { printf("minmum distace is %d\n",dis); return 0; } for(i=0;it) dis=t; } printf(“minmum distace is %d\n”,dis); return 0; } complexity= O(n) sachin0382 #include #include // for abs() #include int main() { int i,a[20],j,t,n,n1,n2,dis=0,i1,i2; printf(“Enter the no. of element:\n”); scanf(“%d”,&n); printf(“\nenter the number in array:\n”); for(i=0;i<n;i++) { scanf("%d",&a[i]); } printf("\nunsorted array is:\n"); for(i=0;i<n;i++) { printf("%d\n",a[i]); } printf("Enter the 1st element:\n"); scanf("%d",&n1); printf("Enter the 2nd element:\n"); scanf("%d",&n2); if(n1==n2) { printf("minmum distace is %d\n",dis); return 0; } for(i=0;it) dis=t; } printf(“minmum distace is %d\n”,dis); return 0; } complexity= O(n) NoFear @arr=(1,2,4,4,2,6,7,2,1,6,7,89,3); $n=scalar(@arr); $x=1; $y=7; $min=0; $premin=2222; for($i=0;$i&lt;$n;$i++) { if($arr[$i]==$x) { ll: for($j=$i+1;$j&lt;$n;$j++) { $min=$min+1; if($arr[$j]==$y) { if($premin==2222) { $premin=$min; } elsif($premin&gt;$min) { $premin=$min; $min=0; $i=$j; goto ll; } } if($arr[$j]==$x) { $min=0; $i=$j; goto ll; } } } if($arr[$i]==$y) { ll: for($j=$i+1;$j&lt;$n;$j++) { $min=$min+1; if($arr[$j]==$x) { if($premin==2222) { $premin=$min; } elsif($premin&gt;$min) { $premin=$min; $min=0; $i=$j; goto ll; } } if($arr[$j]==$y) { $min=0; $i=$j; goto ll; } } } } if($premin==2222) { print &quot;Either x or y not found in array&quot;; } else { print &quot;MIn dis B/W $x and $y is $premin&quot;; } My code is working for all Testcases but its bit lengthy . Time Complexity is o(n) NoFear The Above is Wrong one Don’t go through ..Sorry… ll come back with new one Pls wait. NoFear  
+@arr=(76,1,3,4,4,2,4,4,87,2,6,99,7,2,1,6,7,89,3,45);
+$n=scalar(@arr);//Length of the array.
+
+$x=4;
+$y=2;
+$min=0;
+$premin=2222;#Assign some MAX value
+
+	for($i=0;$i&lt;$n;$i++)
+	{
+		
+		if($arr[$i]==$x)
+		{
+			for($j=$i+1;$j&lt;$n;$j++)
+			{
+				$min=$min+1;
+				if($arr[$j]==$y)
+				{
+					if($premin&gt;$min)
+					{
+						$premin=$min;
+						$min=0;
+						$t=$x;#Swaping
+						$x=$y;
+						$y=$t;
+						$i=$j;
+								
+					}
+					elsif($premin==$min)
+					{
+						$min=0;
+						$i=$j;
+																
+					}
+					
+					
+				}
+				
+				elsif($arr[$j]==$x)
+				{
+					$min=0;
+					$i=$j;
+					
+				}
+			}
+			
+		}
+		
+			
+		if($arr[$i]==$y)
+				{
+					
+					for($j=$i+1;$j&lt;$n;$j++)
+					{
+						$min=$min+1;
+						if($arr[$j]==$x)
+						{
+							if($premin&gt;$min)
+							{
+								$premin=$min;
+								$min=0;#Swaping
+								$t=$x;
+								$x=$y;
+								$y=$t;
+								$i=$j;
+								
+							}
+							elsif($premin==$min)
+							{
+								$min=0;
+								$i=$j;
+																		
+							}
+												
+							
+						}
+						
+						if($arr[$j]==$y)
+						{
+							$min=0;
+							$i=$j;
+							
+						
+						}
+					}
+					
+				}
+	
+	
+	}
+	
+	if($premin==2222)
+	{
+	print &quot;Either x or y not found in array&quot;;
+	}
+	else
+	{
+	print &quot;MIn dis B/W $x and $y is $premin&quot;;
+	}		 Friends Here is the Correct Script … This ll work for all Testcases Aditya public class MinimumDistance { public static void main(String[] args) { int[] a = { 3, 4, 5 }; int x = 3; int y = 5; int diff = findMinimumDistance(a, x, y); System.out.println(diff); } /** * @param a * @param x * @param y */ private static int findMinimumDistance(int[] a, int x, int y) { int xtemp = Integer.MAX_VALUE; int ytemp = Integer.MAX_VALUE; int xindex = Integer.MAX_VALUE; int yindex = Integer.MAX_VALUE; int diff = Integer.MAX_VALUE; for (int i = 0; i &lt; a.length; i++) { if (a[i] == x || a[i] == y) { if (a[i] == x) { xtemp = i; } if (a[i] == y) { ytemp = i; } if (Math.abs(xtemp – ytemp) &lt; diff) { xindex = xtemp; yindex = ytemp; diff = Math.abs(xtemp – ytemp); } } } return diff ; } } karthick public static void main(String[] args) { int a[]={3, 5, 4, 2, 6, 3, 0, 0, 5, 4, 8, 3}; final int x=3; final int y=6; int m = -1,n=-1,min=10; for(int i=0;i<a.length;i++) { if(a[i]==x) { m=i; if((n>=0)&&((Math.abs(m-n))<min)) { min=(Math.abs(m-n)); } } if(a[i]==y) { n=i; if((m>=0)&&((Math.abs(m-n))<=min)) { min=(Math.abs(m-n)); } } } System.out.println(min); } aditya  
+public class MinDistBtwn2ElementsInArray {
+	
+	static int FindMinDist(int a,int b,int[] a1)
+	{
+		int aptr = -1;
+		int bptr = -1;
+		int min_dist=100000;
+		for(int i=0;i<a1.length;i++)
+		{
+			if(a1[i]==a || a1[i]==b)
+			{
+				if(a1[i] == a)
+					aptr = i;
+				else if (a1[i]==b)
+					bptr = i;
+				if(aptr!= -1 && bptr != -1)
+				{
+					int k = Math.abs(aptr - bptr);
+					min_dist = k<min_dist?k:min_dist;
+				}
+			}
+		}
+		return min_dist;
+	}
+	
+	public static void main(String args[])
+	{
+		int arr[] = {3, 5, 4, 2, 6, 5, 6, 6, 5, 1, 1, 4, 3};
+		int x = 3;
+		int y = 6;
+		System.out.print(FindMinDist(x, y, arr));
+	}
+} ikhanm I think this would suffice public class CTest { public static void main(String[] args) throws InterruptedException{ int[] arr = new int[]{3, 5, 4, 2, 6, 5, 6, 6, 5, 4, 8, 3}; int x = 3, y = 6, xi = -1, yi = -1; for(int i = 0; i < arr.length; i++){ if( arr[i] == x && xi == -1 ) xi = i; if( arr[i] == y && yi == -1 ) yi = i; if( xi > -1 && yi > -1 ) break; } System.out.println( Math.abs(xi-yi) ); } } poorva could u plz explain ur code? radhe Your code doesn’t work for all test cases. Tahir Can you tell the erroneous Test case? RaviReddy void main() { int x =0,y =0, i=0, index =0, mini = 0, prev =-1, size = 0; int a[] = {3, 5, 4, 2, 6, 5, 6, 6, 5, 4, 8, 3}; printf(“enter x and y values \n”); scanf(“%d”, &x); scanf(“%d”, &y); printf(“values entered x = %d, y = %d \n”,x, y); size = sizeof(a)/sizeof(a[0]); printf(“values entered size = %d \n”,size); for(i=0;i(i – index)?(i – index):mini; printf(“values entered mini inside if loop = %d \n”,mini); } } prev = a[i]; index = i; } } printf(“Minimum distance = %d \n”,mini); } vicky  
+#include <iostream>
+
+using namespace std;
+
+void MinDistance(int *a, int N, int x, int y)
+{
+  int minDistance = 2*N;
+  int start = -1;
+  int end = -1;
+  for(int i = 0; i < N; ++i) {
+    if(a[i] == x or a[i] == y) {
+      if(start < 0) {
+        start = i;
+        if(x == y) { minDistance = 0; break; }
+        continue;
+      } else if(end  start and ((end - start) < minDistance)) 
+       minDistance = end - start;
+    }
+  }
+  if(minDistance != 2*N) {
+    cout << "Minimum Distance: "<< minDistance << endl;
+  } else {
+    cout << "One of the number not found" << endl;
+  }
+}
+
+int main()
+{
+  int a[100];
+  int N;
+  cout << "Enter Number of elements" <> N;
+  cout << "Enter "<< N <<" elements" << endl;
+  for(int i = 0; i > a[i];
+  }
+  int x, y;
+  cout << "Enter x and y"  <> x >> y;
+
+  MinDistance(a, N, x, y);
+}
+ iloveleilei  
+int find_min_dist(int a, int b, const vector& nums)
+{
+	int min = numeric_limits::max();
+	int dist = 0;
+	int last_a = -1;
+	int last_b = -1;
+
+#define Check(x, y) {\
+			if (last_##y != -1) \
+			{ \
+				dist = i - last_##y; \
+				if (dist < min) \
+					min = dist; \
+			} \
+			last_##x = i; }
+	
+	for (int i = 0; i < nums.size(); ++i)
+	{		
+		if (nums[i] == a) 
+			Check(a, b)
+		else if (nums[i] == b)
+			Check(b, a)
+	}
+	
+	return min;
+}
+ Neeraj Singh  
+public static int findMinDist(int[] data, int x, int y) {
+        int xPos = -1;
+        int yPos = -1;
+        for (int i = 0; i  Math.abs(yPos - i)) {
+                     xPos = i;
+                 }
+            }
+            if (data[i] == y) {
+                if (yPos == -1 || Math.abs(yPos - xPos) &gt; Math.abs(i - xPos)) {
+                    yPos = i;
+                }
+            }
+        }
+
+        if (xPos == -1 || yPos == -1) {
+            return 0;
+        } else {
+            return Math.abs(yPos - xPos);
+        }
+    }
+ Baban_Rathore O(n) solution; order of x and y is not important. public static int minDist(int[] a, int x, int y) { int mindist = Integer.MAX_VALUE, flag = 0, count = 0; for(int i = 0; i < a.length; i++) { if(flag == 0 && a[i] == x) { flag = y; count = i; } else if(flag == 0 && a[i] == y) { flag = x; count = i; } else if(flag == x && a[i] == x) { flag = y; System.out.println(i-count-1); if(mindist > i-count-1) { mindist = i-count-1; } count = i; } else if(flag == x && a[i] == y) { flag = x; count = i; } else if(flag == y && a[i] == y) { flag = x; if(mindist > i-count-1) { mindist = i-count-1; } count = i; } else if(flag == y && a[i] == x) { flag = x; count = i; } } return mindist; } fkrafi  
+#include&lt;stdio.h&gt;
+#include&lt;math.h&gt;
+
+int min(int a, int b){
+	return (a&lt;b)?a:b;
+}
+
+int main(){
+	int arr[] = {3, 5, 4, 2, 6, 3, 0, 0, 5, 4, 8, 3};
+	int len = 12;
+	int x = 3;
+	int y = 6;
+	int posX = -1;
+	int posY = -1;
+	int minDist = 999999;
+	for(int i=0; i&lt;12; i++){
+		if(arr[i]==x)posX = i;
+		else if(arr[i]==y)posY = i;
+		if( posX!=-1 &amp;&amp; posY!=-1 )
+			minDist = min(minDist, abs(posX-posY));
+	}
+	printf(&quot;%dn&quot;, minDist);
+	return 0;
+}
+ seeker7 I would appreciate if someone could please let me know the utility of finding the minimum distance between two numbers incorrectly i.e with methods which give 4 as answer when it should give 1 .. BTW for me method2 works well on paper kartik @seeker7: I think method 2 works fine for all the cases. There was a small issue which was fixed later. After the fix, it returns 1 for the case pointed out by @cherio. tyro Why to waste time(ours not computer’s) in obtaining first prev? Take prev = -1 initially and change the if…else code accordingly. cherio doesn’t work with method2 data int arr[] = {3, 5, 4, 2, 6, 3, 0, 0, 5, 4, 8, 3}; min dis=1 but ur code gives 4 Made modification please let me know if it works O(n) time  
+#include <stdio.h> 
+#include <limits.h>   // For INT_min   
+int minDist(int arr[], int n, int x, int y) 
+{    
+	int i = 0, j=0;   
+	int min_dist = INT_MAX;  
+	bool x_set=1; //assume x at higher index
+
+	for(i=0; i<n ; i++)
+	{
+		if(arr[i]==x)
+			break;
+	}
+	
+	for(j=0; jj)
+	{
+		x_set=1;
+		min_dist=i-j;
+	}
+	else
+	{
+		x_set=0;
+		min_dist=j-i;
+	}
+
+	while(i<n || j<n)
+	{
+		if(x_set)
+		{
+			while(j<=i)
+			{
+			if(j(i-j))
+						min_dist=i-j;
+				}
+				j++;
+			}
+			//cout << "j=" << j << "n";
+			for(; j<n ; j++)
+			{
+				if(arr[j]==y)
+					break;
+			}
+			if(j(j-i))
+					min_dist=j-i;
+
+			x_set=0;
+		}
+		else
+		{
+		if(i<n)
+			while(i(j-i))
+						min_dist=j-i;
+				}
+				i++;
+			}
+			//cout << "i=" << i << "n";
+			for(; i<n ; i++)
+			{
+				if(arr[i]==x)
+					break;
+			}
+			if(i(i-j))
+					min_dist=i-j;
+
+			x_set=1;
+
+		}
+	}
+
+
+	return min_dist; 
+}   
+
+/* Driver program to test above fnction */
+int main()
+{    
+        int a1[] = {3, 5, 4, 2, 6, 3, 0, 0, 5, 4, 8, 3};   
+	int n = sizeof(a1)/sizeof(a1[0]);
+	cout << "n=" << n << "n";
+	int x = 3;     
+	int y = 6;      
+	printf("Minimum distance between %d and %d is %dn", x, y, minDist(a1, n, x, y));  
+        return 0; 
+}
+ GeeksforGeeks @cherio: Thanks for pointing out this case. We have made modifications to handle same. damon #include // function minDist calculates the minimum distance between two elements. int minDist(int a[],int x,int y,int n){ int i,index=0,isLastX = 0,isLastY = 0; int dist=n-1; for(i=0;i(i-index)) dist=i-index; index=i; isLastX=1; isLastY=0; }else if(a[i]==y){ if(isLastX==1) if(dist>(i-index)) dist=i-index; index=i; isLastY=1; isLastX=0; } } return dist; } main(){ int arr[]={1,2,3,6,4,5,5,1}; int n=sizeof(arr)/sizeof(arr[0]); printf(“min dist:%d\n”,minDist(arr,4,1,n)); } damon   #include // function minDist calculates the minimum distance between two elements. int minDist(int a[],int x,int y,int n){ int i,index=0,isLastX = 0,isLastY = 0; int dist=n-1; for(i=0;i(i-index)) dist=i-index; index=i; isLastX=1; isLastY=0; }else if(a[i]==y){ if(isLastX==1) if(dist>(i-index)) dist=i-index; index=i; isLastY=1; isLastX=0; } } return dist; } main(){ int arr[]={1,2,3,6,4,5,5,1}; int n=sizeof(arr)/sizeof(arr[0]); printf(“min dist:%d\n”,minDist(arr,4,1,n)); } dean #include // function minDist calculates the minimum distance between two elements. int minDist(int a[],int x,int y,int n){ int i,index=0,isLastX = 0,isLastY = 0; int dist=n-1; for(i=0;i(i-index)) dist=i-index; index=i; isLastX=1; isLastY=0; }else if(a[i]==y){ if(isLastX==1) if(dist>(i-index)) dist=i-index; index=i; isLastY=1; isLastX=0; } } return dist; } main(){ int arr[]={1,2,3,6,4,5,5,1}; int n=sizeof(arr)/sizeof(arr[0]); printf(“min dist:%d\n”,minDist(arr,4,1,n)); }   santakdalai90 good one karthick public static void main(String[] args) { int a[]={3, 5, 4, 2, 6, 3, 0, 0, 5, 4, 8, 3}; final int x=3; final int y=6; int m = -1,n=-1,min=10; for(int i=0;i<a.length;i++) { if(a[i]==x) { m=i; if((n>=0)&&((Math.abs(m-n))<min)) { min=(Math.abs(m-n)); } } if(a[i]==y) { n=i; if((m>=0)&&((Math.abs(m-n))<=min)) { min=(Math.abs(m-n)); } } } System.out.println(min); } Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,478 @@
+AVL Tree | Set 1 (Insertion) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph AVL Tree | Set 1 (Insertion) AVL tree is a self-balancing Binary Search Tree (BST) where the difference between heights of left and right subtrees cannot be more than one for all nodes. Why AVL Trees? Most of the BST operations (e.g., search, max, min, insert, delete.. etc) take O(h) time where h is the height of the BST. The cost of these operations may become O(n) for a skewed Binary tree. If we make sure that height of the tree remains O(Logn) after every insertion and deletion, then we can guarantee an upper bound of O(Logn) for all these operations. The height of an AVL tree is always O(Logn) where n is the number of nodes in the tree (See this video lecture for proof). Insertion To make sure that the given tree remains AVL after every insertion, we must augment the standard BST insert operation to perform some re-balancing. Following are two basic operations that can be performed to re-balance a BST without violating the BST property (keys(left) < key(root) < keys(right)). 1) Left Rotation 2) Right Rotation 
+T1, T2 and T3 are subtrees of the tree rooted with y (on left side) 
+or x (on right side)           
+                y                               x
+               / \     Right Rotation          /  \
+              x   T3   – – – – – – – >        T1   y 
+             / \       < - - - - - - -            / \
+            T1  T2     Left Rotation            T2  T3
+Keys in both of the above trees follow the following order 
+      keys(T1) < key(x) < keys(T2) < key(y) < keys(T3)
+So BST property is not violated anywhere.
+ Steps to follow for insertion Let the newly nserted node be w 1) Perform standard BST insert for w. 2) Starting from w, travel up and find the first unbalanced node. Let z be the first unbalanced node, y be the child of z that comes on the path from w to z and x be the grandchild of z that comes on the path from w to z. 3) Re-balance the tree by performing appropriate rotations on the subtree rooted with z. There can be 4 possible cases that needs to be handled as x, y and z can be arranged in 4 ways. Following are the possible 4 arrangements: a) y is left child of z and x is left child of y (Left Left Case) b) y is left child of z and x is right child of y (Left Right Case) c) y is right child of z and x is right child of y (Right Right Case) d) y is right child of z and x is left child of y (Right Left Case) Following are the operations to be performed in above mentioned 4 cases. In all of the cases, we only need to re-balance the subtree rooted with z and the complete tree becomes balanced as the height of subtree (After appropriate rotations) rooted with z becomes same as it was before insertion. (See this video lecture for proof) a) Left Left Case 
+T1, T2, T3 and T4 are subtrees.
+         z                                      y 
+        / \                                   /   \
+       y   T4      Right Rotate (z)          x      z
+      / \          - - - - - - - - ->      /  \    /  \ 
+     x   T3                               T1  T2  T3  T4
+    / \
+  T1   T2
+ b) Left Right Case 
+     z                               z                           x
+    / \                            /   \                        /  \ 
+   y   T4  Left Rotate (y)        x    T4  Right Rotate(z)    y      z
+  / \      - - - - - - - - ->    /  \      - - - - - - - ->  / \    / \
+T1   x                          y    T3                    T1  T2 T3  T4
+    / \                        / \
+  T2   T3                    T1   T2
+ c) Right Right Case 
+  z                                y
+ /  \                            /   \ 
+T1   y     Left Rotate(z)       z      x
+    /  \   - - - - - - - ->    / \    / \
+   T2   x                     T1  T2 T3  T4
+       / \
+     T3  T4
+ d) Right Left Case 
+   z                            z                            x
+  / \                          / \                          /  \ 
+T1   y   Right Rotate (y)    T1   x      Left Rotate(z)   z      y
+    / \  - - - - - - - - ->     /  \   - - - - - - - ->  / \    / \
+   x   T4                      T2   y                  T1  T2  T3  T4
+  / \                              /  \
+T2   T3                           T3   T4
+ C implementation Following is the C implementation for AVL Tree Insertion. The following C implementation uses the recursive BST insert to insert a new node. In the recursive BST insert, after insertion, we get pointers to all ancestors one by one in bottom up manner. So we don’t need parent pointer to travel up. The recursive code itself travels up and visits all the ancestors of the newly inserted node. 1) Perform the normal BST insertion. 2) The current node must be one of the ancestors of the newly inserted node. Update the height of the current node. 3) Get the balance factor (left subtree height – right subtree height) of the current node. 4) If balance factor is greater than 1, then the current node is unbalanced and we are either in Left Left case or left Right case. To check whether it is left left case or not, compare the newly inserted key with the key in left subtree root. 5) If balance factor is less than -1, then the current node is unbalanced and we are either in Right Right case or Right Left case. To check whether it is Right Right case or not, compare the newly inserted key with the key in right subtree root. 
+#include<stdio.h>
+#include<stdlib.h>
+
+// An AVL tree node
+struct node
+{
+    int key;
+    struct node *left;
+    struct node *right;
+    int height;
+};
+
+// A utility function to get maximum of two integers
+int max(int a, int b);
+
+// A utility function to get height of the tree
+int height(struct node *N)
+{
+    if (N == NULL)
+        return 0;
+    return N->height;
+}
+
+// A utility function to get maximum of two integers
+int max(int a, int b)
+{
+    return (a > b)? a : b;
+}
+
+/* Helper function that allocates a new node with the given key and
+    NULL left and right pointers. */
+struct node* newNode(int key)
+{
+    struct node* node = (struct node*)
+                        malloc(sizeof(struct node));
+    node->key   = key;
+    node->left   = NULL;
+    node->right  = NULL;
+    node->height = 1;  // new node is initially added at leaf
+    return(node);
+}
+
+// A utility function to right rotate subtree rooted with y
+// See the diagram given above.
+struct node *rightRotate(struct node *y)
+{
+    struct node *x = y->left;
+    struct node *T2 = x->right;
+
+    // Perform rotation
+    x->right = y;
+    y->left = T2;
+
+    // Update heights
+    y->height = max(height(y->left), height(y->right))+1;
+    x->height = max(height(x->left), height(x->right))+1;
+
+    // Return new root
+    return x;
+}
+
+// A utility function to left rotate subtree rooted with x
+// See the diagram given above.
+struct node *leftRotate(struct node *x)
+{
+    struct node *y = x->right;
+    struct node *T2 = y->left;
+
+    // Perform rotation
+    y->left = x;
+    x->right = T2;
+
+    //  Update heights
+    x->height = max(height(x->left), height(x->right))+1;
+    y->height = max(height(y->left), height(y->right))+1;
+
+    // Return new root
+    return y;
+}
+
+// Get Balance factor of node N
+int getBalance(struct node *N)
+{
+    if (N == NULL)
+        return 0;
+    return height(N->left) - height(N->right);
+}
+
+struct node* insert(struct node* node, int key)
+{
+    /* 1.  Perform the normal BST rotation */
+    if (node == NULL)
+        return(newNode(key));
+
+    if (key < node->key)
+        node->left  = insert(node->left, key);
+    else
+        node->right = insert(node->right, key);
+
+    /* 2. Update height of this ancestor node */
+    node->height = max(height(node->left), height(node->right)) + 1;
+
+    /* 3. Get the balance factor of this ancestor node to check whether
+       this node became unbalanced */
+    int balance = getBalance(node);
+
+    // If this node becomes unbalanced, then there are 4 cases
+
+    // Left Left Case
+    if (balance > 1 && key < node->left->key)
+        return rightRotate(node);
+
+    // Right Right Case
+    if (balance < -1 && key > node->right->key)
+        return leftRotate(node);
+
+    // Left Right Case
+    if (balance > 1 && key > node->left->key)
+    {
+        node->left =  leftRotate(node->left);
+        return rightRotate(node);
+    }
+
+    // Right Left Case
+    if (balance < -1 && key < node->right->key)
+    {
+        node->right = rightRotate(node->right);
+        return leftRotate(node);
+    }
+
+    /* return the (unchanged) node pointer */
+    return node;
+}
+
+// A utility function to print preorder traversal of the tree.
+// The function also prints height of every node
+void preOrder(struct node *root)
+{
+    if(root != NULL)
+    {
+        printf("%d ", root->key);
+        preOrder(root->left);
+        preOrder(root->right);
+    }
+}
+
+/* Drier program to test above function*/
+int main()
+{
+  struct node *root = NULL;
+
+  /* Constructing tree given in the above figure */
+  root = insert(root, 10);
+  root = insert(root, 20);
+  root = insert(root, 30);
+  root = insert(root, 40);
+  root = insert(root, 50);
+  root = insert(root, 25);
+
+  /* The constructed AVL Tree would be
+            30
+           /  \
+         20   40
+        /  \     \
+       10  25    50
+  */
+
+  printf("Pre order traversal of the constructed AVL tree is \n");
+  preOrder(root);
+
+  return 0;
+}
+ Output: 
+  Pre order traversal of the constructed AVL tree is
+  30 20 10 25 40 50
+ Time Complexity: The rotation operations (left and right rotate) take constant time as only few pointers are being changed there. Updating the height and getting the balance factor also take constant time. So the time complexity of AVL insert remains same as BST insert which is O(h) where h is height of the tree. Since AVL tree is balanced, the height is O(Logn). So time complexity of AVL insert is O(Logn). The AVL tree and other self balancing search trees like Red Black are useful to get all basic operations done in O(Logn) time. The AVL trees are more balanced compared to Red Black Trees, but they may cause more rotations during insertion and deletion. So if your application involves many frequent insertions and deletions, then Red Black trees should be preferred. And if the insertions and deletions are less frequent and search is more frequent operation, then AVL tree should be preferred over Red Black Tree. Following are some previous posts that have used self-balancing search trees. Median in a stream of integers (running integers) Maximum of all subarrays of size k Count smaller elements on right side References: IITD Video Lecture on AVL Tree Introduction IITD Video Lecture on AVL Tree Insertion and Deletion Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tags: Advance Data Structures Tweet Writing code in comment? Please use ideone.com and share the link here. BATMAN getbalance method does not need this – if (N == NULL) return 0; Castle Age Should the insertion checks if the value of the node equals the key and just return the node? Rahul Bhawsar Very well written insert function, while climbing up it take cares of everything. great job. logesh kumar can u pls clear me why can’t be the if case replaced with if else case. i compiled using if else it worked well and even compilation time reduced about 3 times. is there any specific cases that does want only if case… satya I have a doubt that while rotating shouldn’t we consider parent pointer also? Abhi The diagram of right left case has a typo – the node “y” is wrongly marked as “x” GeeksforGeeks Thanks for pointing this out. We have corrected the typo Raj k Thanks alot TheJerryg Small typo in case (d) Right Left Case. I believe the child ‘X’ node should be ‘Y’. Not like it really makes a difference =p GeeksforGeeks Thanks for pointing this out. We have corrected the typo. imner i dont understand the height . if we have it 1 everytime then what is the height from root… how is it getting updated. pl explain Lee +1 to imner, How does the height of a node being updated in insert function? Lee I think this code does it. /* 2. Update height of this ancestor node */ node->height = max(height(node->left), height(node->right)) + 1; red node->height = 1; // new node is initially added at leaf height of node must be 0 not 1 shek8034  
+struct node *leftrotate(struct node *ptr)
+{
+   struct node *temp = ptr->right;
+   ptr->right = temp->left;
+   temp->left = ptr;
+   return temp; //return new root
+}
+
+struct node *rightrotate(struct node *ptr)
+{
+   struct node *temp = ptr->left;
+   ptr->left = temp->right;
+   temp->right = ptr;
+   return temp; //return new root
+}
+ shek8034 sorry.. i forgot to find the updated height. My mistake badri In left rotate , its written x->right = T2; , but basically we need to find the minimum in that path , like if(node->right == NULL) return NULL; struct __rbNode__* suc; suc = node->right; *prev = suc; while(suc->left !=NULL) { *prev = suc; suc = suc->left; } return suc; which returns the min element to be used for replacement. Am I right?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ abhishek08aug Intelligent nonu see http://code.google.com/p/self-balancing-avl-tree/ radheshyam i am getting some error(logical not syntax) in left rotate and right right rotate function named lrotate and rrotate please do tell me the error /*#include #include”malloc.h” #include struct node { int a,height; struct node *left,*right; }; int a[10][10],b[10]; void makeup() { int i,j; for(i=0;i<10;i++) { b[i]=0; for(j=0;j<10;j++) { a[i][j]=0; } } } void swap(struct node**,struct node**); void insert(struct node**,int); struct node* lrotate(struct node*); struct node* rrotate(struct node*); void inorder(struct node*); int getmax(int,int); void main() { int m,n,i,j; struct node *p; p=NULL; makeup(); printf("%d\n",getmax(2,3)); printf("enter the number of terms"); scanf("%d",&n); for(i=0;ia=a; temp->height=0; temp->left=temp->right=NULL; *p=temp; } else { if((*p)->a>a) { insert(&((*p)->left),a); } if((*p)->aright),a); } if((*p)->left==NULL&&(*p)->right!=NULL) (*p)->height=(*p)->right->height+1; if((*p)->left!=NULL&&(*p)->right==NULL) (*p)->height=(*p)->left->height+1; if((*p)->left!=NULL&&(*p)->right!=NULL) (*p)->height=getmax((*p)->left->height,(*p)->right->height)+1; temp=*p; if((*p)->height>=2) { if(temp->left==NULL) l=-1; else l=temp->left->height; if(temp->right==NULL) r=-1; else r=temp->right->height; //printf(“radhe”); if(l-r>=2) { if(temp->left->a>a) { printf(“a”); temp=rrotate(temp); } else { printf(“b”); temp->right=lrotate(temp->right); temp=rrotate(temp); } } if(l-rright->aleft=rrotate(temp->left); temp=lrotate(temp); } } } } } int getmax(int a,int b) { return(a>b?a:b); } struct node* lrotate(struct node *x) { struct node *y,temp1; y=x->right; x->right=y->left; y->left=x; y->height=y->height+1; y->right->height=y->right->height-1; return(y); } struct node* rrotate(struct node *p) { struct node *temp; temp=p->left; p->left=temp->right; temp->right=p; temp->height=temp->height+1; temp->left->height=temp->left->height-1; return(temp); } void inorder(struct node *p) { if(p==NULL) return; inorder(p->left); printf(“%d,%d\n”,p->a,p->height); //a[p->height][b[p->height]]=p->a; //b[p->height]=b[p->height]+1; inorder(p->right); } void swap(struct node **p,struct node **q) { struct node *a; a=*p; *p=*q; *q=a; } */ hedy It’s a nice tutorial. I’ve seen the hyper link of “IITD Video Lecture on AVL Tree Insertion and Deletion” in your reference part. But I have a question, how do you find the first unbalanced node from the new inserted node. In the insert function, it seems you only check the balance factor of one node. Do I miss something? Thanks in advance. anonymous Awesome  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Sankarshan Mridha sorry i have made somthing wrong. here is my code with a different approach taking help from book.  
+/* Paste your code here (You may delete these lines if not writing code) */
+#include<stdio.h>
+#include<stdlib.h>
+#include<math.h>
+#define true 1
+#define false 0
+#define log2(a) log((a))/log(2)
+
+typedef struct node* nodeptr;
+
+typedef struct node
+{
+        int val;
+        nodeptr leftchild;
+        nodeptr rightchild;
+        int bf;
+}node;
+
+void insert(nodeptr *parent,int *unbalanced,int key);
+void leftRotation(nodeptr *pparent,int *unbalanced);//..means if left subtree grows larger then rotate this left subtree
+void rightrotation(nodeptr *,int *);//................vice versa
+int height(node* node);
+void inorder(node *proot);
+
+int main(void)
+{
+    node *root,*cur;
+    root=NULL;
+    int balancedState=true;
+    //int num[]={1,2,3,4,5,6,8,9,10,7};//..input series..{8,7,2,9},{8,7,2,9,10},{8,7,2,9,10,11}
+    int num[]={10,9,8,7,6,5,3,2,1,4,15,14,16,12};
+    int size=sizeof(num)/sizeof(int);
+    int i=0;
+    for(i=0;i<size;i++)
+    {
+                   printf("\nheight before insertion of %d is %d\n",num[i],height(root)-1);    
+                   insert(&root,&balancedState,num[i]);
+                   printf("\n%d is inserted.\nHeight after insertion is: %d",num[i],height(root)-1);
+                   
+                   printf("\n\n****************************************************");
+    }
+    
+    printf("\n\nfinal height is: %d",height(root)-1);
+    printf("\nno of nodes are %d.\nAnd log2(%d) is %f.",size,size,log2(size));
+    printf("\nSo Height is almost equal to log2(%d))\n",size);
+    printf("\noutput<inorder traversal of tree: ");
+    if(root==NULL)
+                  printf("\nnull");
+    inorder(root);
+    getch();
+    //return 0;
+}
+
+void insert(nodeptr *parent,int *unbalanced,int key)
+{
+     if(!(*parent))
+     {
+                   //printf("mhere 1");
+          node *newnode;
+          newnode=(node *)malloc(sizeof(node));
+          newnode->leftchild=newnode->rightchild=NULL;
+          newnode->val=key;
+          newnode->bf=0;
+          *unbalanced=true;
+          *parent=newnode;
+          //printf("mhere 1");
+          //return newnode;
+     }
+     else if(key<(*parent)->val)
+     {
+          //printf("\nm here2");
+          insert(&(*parent)->leftchild,unbalanced,key);
+          if(*unbalanced)
+          {
+             switch((*parent)->bf)
+             {
+              case -1: (*parent)->bf=0;
+                       //printf("\nreset bf");
+                       *unbalanced=false;
+                       break;
+              case 0: (*parent)->bf=1;
+                      //printf("\nset bf");
+                       break;
+              case 1: leftRotation(parent,unbalanced);
+                      //printf("\n**LEFT ROTATION DONE**\n");
+                       break;////////////////////////////////////
+              }
+          }
+          
+     }
+     else if(key>(*parent)->val)
+     {
+          //printf("m here3");
+          insert(&(*parent)->rightchild,unbalanced,key);
+          //printf("m here4");
+          if(*unbalanced)
+          {
+           switch((*parent)->bf)
+           {
+              case 1: (*parent)->bf=0;
+                        *unbalanced=false;
+                        break;
+              case 0: (*parent)->bf=-1;
+                        break;
+              case -1: //printf("going to rightrOTATE");
+                       rightrotation(parent,unbalanced);
+                       //printf("\n**RIGHT ROTATION DONE**\n");
+                       break;
+           }
+        }
+        else
+        {
+            *unbalanced=false;
+            //printf("the key is already in the tree");
+        }
+     }
+}
+
+void leftRotation(nodeptr *pparent,int *unbalanced)
+{
+     nodeptr child,grandchild;
+     child=(*pparent)->leftchild;
+     if(child->bf==1)
+     {
+                     printf("\nsimple left rotation.");
+        (*pparent)->leftchild=child->rightchild;
+        child->rightchild=(*pparent);
+        (*pparent)->bf=0;
+        (*pparent)=child;
+     }
+     else
+     {
+         printf("\nDOUBLE leftROTATION");
+      grandchild=child->rightchild;
+      child->rightchild=grandchild->leftchild;
+      grandchild->leftchild=child;
+      (*pparent)->leftchild=grandchild->rightchild;
+      grandchild->rightchild=*pparent;
+      switch(grandchild->bf)
+        {
+             case 1:(*pparent )->bf=-1;child->bf=0;break;
+             case 0:(*pparent)->bf=child->bf=0;break;
+             case -1:(*pparent)->bf=0;
+                      child->bf=1;
+             break;
+        }
+        *pparent=grandchild;
+     }
+     (*pparent)->bf=0;
+     *unbalanced=false;
+     return;
+}
+
+void rightrotation(nodeptr *pparent,int *unbalanced)
+{
+     nodeptr child,grandchild;
+     child=(*pparent)->rightchild;
+     if(child->bf==-1)
+     {
+                      printf("\nSIMPLE RIGHTROTATION");
+         (*pparent)->rightchild=child->leftchild;
+         child->leftchild=*pparent;
+         (*pparent)->bf=0;
+         (*pparent)=child;
+     }
+     else
+     {
+         printf("\nDOUBLE rightROTATION.");
+         grandchild=child->leftchild;
+         child->leftchild=grandchild->rightchild;
+         grandchild->rightchild=child;
+         (*pparent)->rightchild=grandchild->leftchild;
+         grandchild->leftchild=*pparent;
+         switch(grandchild->bf){
+         case 1:(*pparent)->bf=-1;
+                 child->bf=0;
+                 break;
+         case 0: (*pparent)->bf=child->bf=0;
+                 break;
+         case -1:(*pparent)->bf=0;
+                  child->bf=1;break;
+         }
+         *pparent=grandchild;
+     }
+     (*pparent)->bf=0;
+     *unbalanced=false;
+     return;
+}
+
+int height(node* node) 
+{
+   if (node==NULL) 
+       return 0;
+   else
+   {
+       ///* compute the depth of each subtree 
+       int lDepth = height(node->leftchild);
+       int rDepth = height(node->rightchild);
+ 
+       ///* use the larger one 
+       if (lDepth > rDepth) 
+           return(lDepth+1);
+       else return(rDepth+1);
+   }
+} 
+
+void inorder(node *proot)
+{
+     if(proot==NULL)return;
+     inorder(proot->leftchild);
+     printf("\nkey:%3d\tbalancefactor:%3d",proot->val,proot->bf);
+     inorder(proot->rightchild);
+     
+}    
+ Sankarshan Mridha #include #include #include #define true 1 #define false 0 #define log2(a) log((a))/log(2) typedef struct node* nodeptr; typedef struct node { int val; nodeptr leftchild; nodeptr rightchild; int bf; }node; void insert(nodeptr *parent,int *unbalanced,int key); void leftRotation(nodeptr *pparent,int *unbalanced);//..means if left subtree grows larger then rotate this left subtree void rightrotation(nodeptr *,int *);//…………….vice versa int height(node* node); void inorder(node *proot); int main(void) { node *root,*cur; root=NULL; int balancedState=true; //int num[]={1,2,3,4,5,6,8,9,10,7};//..input series..{8,7,2,9},{8,7,2,9,10},{8,7,2,9,10,11} int num[]={10,9,8,7,6,5,3,2,1,4,15,14,16,12}; int size=sizeof(num)/sizeof(int); int i=0; for(i=0;i<size;i++) { printf("\nheight before insertion of %d is %d\n",num[i],height(root)-1); insert(&root,&balancedState,num[i]); printf("\n%d is inserted.\nHeight after insertion is: %d",num[i],height(root)-1); printf("\n\n****************************************************"); } printf("\n\nfinal height is: %d",height(root)-1); printf("\nno of nodes are %d.\nAnd log2(%d) is %f.",size,size,log2(size)); printf("\nSo Height is almost equal to log2(%d))\n",size); printf("\noutputleftchild=newnode->rightchild=NULL; newnode->val=key; newnode->bf=0; *unbalanced=true; *parent=newnode; //printf(“mhere 1″); //return newnode; } else if(keyval) { //printf(“\nm here2″); insert(&(*parent)->leftchild,unbalanced,key); if(*unbalanced) { switch((*parent)->bf) { case -1: (*parent)->bf=0; //printf(“\nreset bf”); *unbalanced=false; break; case 0: (*parent)->bf=1; //printf(“\nset bf”); break; case 1: leftRotation(parent,unbalanced); //printf(“\n**LEFT ROTATION DONE**\n”); break;//////////////////////////////////// } } } else if(key>(*parent)->val) { //printf(“m here3″); insert(&(*parent)->rightchild,unbalanced,key); //printf(“m here4″); if(*unbalanced) { switch((*parent)->bf) { case 1: (*parent)->bf=0; *unbalanced=false; break; case 0: (*parent)->bf=-1; break; case -1: //printf(“going to rightrOTATE”); rightrotation(parent,unbalanced); //printf(“\n**RIGHT ROTATION DONE**\n”); break; } } else { *unbalanced=false; //printf(“the key is already in the tree”); } } } void leftRotation(nodeptr *pparent,int *unbalanced) { nodeptr child,grandchild; child=(*pparent)->leftchild; if(child->bf==1) { printf(“\nsimple left rotation.”); (*pparent)->leftchild=child->rightchild; child->rightchild=(*pparent); (*pparent)->bf=0; (*pparent)=child; } else { printf(“\nDOUBLE leftROTATION”); grandchild=child->rightchild; child->rightchild=grandchild->leftchild; grandchild->leftchild=child; (*pparent)->leftchild=grandchild->rightchild; grandchild->rightchild=*pparent; switch(grandchild->bf) { case 1:(*pparent )->bf=-1;child->bf=0;break; case 0:(*pparent)->bf=child->bf=0;break; case -1:(*pparent)->bf=0; child->bf=1; break; } *pparent=grandchild; } (*pparent)->bf=0; *unbalanced=false; return; } void rightrotation(nodeptr *pparent,int *unbalanced) { nodeptr child,grandchild; child=(*pparent)->rightchild; if(child->bf==-1) { printf(“\nSIMPLE RIGHTROTATION”); (*pparent)->rightchild=child->leftchild; child->leftchild=*pparent; (*pparent)->bf=0; (*pparent)=child; } else { printf(“\nDOUBLE rightROTATION.”); grandchild=child->leftchild; child->leftchild=grandchild->rightchild; grandchild->rightchild=child; (*pparent)->rightchild=grandchild->leftchild; grandchild->leftchild=*pparent; switch(grandchild->bf){ case 1:(*pparent)->bf=-1; child->bf=0; break; case 0: (*pparent)->bf=child->bf=0; break; case -1:(*pparent)->bf=0; child->bf=1;break; } *pparent=grandchild; } (*pparent)->bf=0; *unbalanced=false; return; } int height(node* node) { if (node==NULL) return 0; else { ///* compute the depth of each subtree int lDepth = height(node->leftchild); int rDepth = height(node->rightchild); ///* use the larger one if (lDepth > rDepth) return(lDepth+1); else return(rDepth+1); } } void inorder(node *proot) { if(proot==NULL)return; inorder(proot->leftchild); printf(“\nkey:%3d\tbalancefactor:%3d”,proot->val,proot->bf); inorder(proot->rightchild); } Anurag Brilliant! Such easy explaination. Thanks. sparco How should the algo be modified for Deletion of node in Avl tree ?  
+
+ GeeksforGeeks @sparco: We will soon be publshing another post on deletion. In the mean time, you can refer video lectures in the reference section. sparco I have a doubt in the left rotate function .. Wouldnt T2-> height also be changed due to the rotation ???  
+/* Paste your code here (You may delete these lines if not writing code) */
+
+struct node *leftRotate(struct node *x)
+{
+    struct node *y = x->right;
+    struct node *T2 = y->left;
+ 
+    // Perform rotation
+    y->left = x;
+    x->right = T2;
+ 
+    //  Update heights
+    x->height = max(height(x->left), height(x->right))+1;
+    y->height = max(height(y->left), height(y->right))+1;
+ 
+    // Return new root
+    return y;
+}
+ 
+ sparco Thanks i got it clarified.. Since T2 ‘s left and right are undisturbed , the height remains the same Vimal Excellent tutorial.. Keep it up !! shareef nice material Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

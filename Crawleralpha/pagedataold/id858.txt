@@ -1,0 +1,476 @@
+The Celebrity Problem - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph The Celebrity Problem Another classical problem. In a party of N people, only one person is known to everyone. Such a person may be present in the party, if yes, (s)he doesn’t know anyone in the party. We can only ask questions like “does A know B? “. Find the stranger (celebrity) in minimum number of questions. We can describe the problem input as an array of numbers/characters representing persons in the party. We also have a hypothetical function HaveAcquaintance(A, B) which returns true if A knows B, false otherwise. How can we solve the problem, try yourself first. We measure the complexity in terms of calls made to HaveAcquaintance(). Graph: We can model the solution using graphs. Initialize indegree and outdegree of every vertex as 0. If A knows B, draw a directed edge from A to B, increase indegree of B and outdegree of A by 1. Construct all possible edges of the graph for every possible pair [i, j]. We have NC2 pairs. If celebrity is present in the party, we will have one sink node in the graph with outdegree of zero, and indegree of N-1. We can find the sink node in (N) time, but the overall complexity is O(N2) as we need to construct the graph first. Recursion: We can decompose the problem into combination of smaller instances. Say, if we know celebrity of N-1 persons, can we extend the solution to N? We have two possibilities, Celebrity(N-1) may know N, or N already knew Celebrity(N-1). In the former case, N will be celebrity if N doesn’t know anyone else. In the later case we need to check that Celebrity(N-1) doesn’t know N. Solve the problem of smaller instance during divide step. On the way back, we may find a celebrity from the smaller instance. During combine stage, check whether the returned celebrity is known to everyone and he doesn’t know anyone. The recurrence of the recursive decomposition is, T(N) = T(N-1) + O(N) T(N) = O(N2). You may try Writing pseudo code to check your recursion skills. Using Stack: The graph construction takes O(N2) time, it is similar to brute force search. In case of recursion, we reduce the problem instance by not more than one, and also combine step may examine M-1 persons (M – instance size). We have following observation based on elimination technique (Refer Polya’s How to Solve It book). If A knows B, then A can’t be celebrity. Discard A, and B may be celebrity. If A doesn’t know B, then B can’t be celebrity. Discard B, and A may be celebrity. Repeat above two steps till we left with only one person. Ensure the remained person is celebrity. (Why do we need this step?) We can use stack to verity celebrity. Push all the celebrities into a stack. Pop off top two persons from the stack, discard one person based on return status of HaveAcquaintance(A, B). Push the remained person onto stack. Repeat step 2 and 3 until only one person remains in the stack. Check the remained person in stack doesn’t have acquaintance with anyone else. We will discard N elements utmost (Why?). If the celebrity is present in the party, we will call HaveAcquaintance() 3(N-1) times. Here is code using stack. 
+#include <iostream>
+#include <list>
+using namespace std;
+
+// Max # of persons in the party
+#define N 8
+
+// Celebrities identified with numbers from 0 through size-1
+int size = 4;
+// Person with 2 is celebrity
+bool MATRIX[N][N] = {{0, 0, 1, 0}, {0, 0, 1, 0}, {0, 0, 0, 0}, {0, 0, 1, 0}};
+
+bool HaveAcquiantance(int a, int b) { return MATRIX[a][b]; }
+
+int CelebrityUsingStack(int size)
+{
+   // Handle trivial case of size = 2
+
+   list<int> stack; // Careful about naming
+   int i;
+   int C; // Celebrity
+
+   i = 0;
+   while( i < size )
+   {
+      stack.push_back(i);
+      i = i + 1;
+   }
+
+   int A = stack.back();
+   stack.pop_back();
+
+   int B = stack.back();
+   stack.pop_back();
+
+   while( stack.size() != 1 )
+   {
+      if( HaveAcquiantance(A, B) )
+      {
+         A = stack.back();
+         stack.pop_back();
+      }
+      else
+      {
+         B = stack.back();
+         stack.pop_back();
+      }
+   }
+
+   // Potential candidate?
+   C = stack.back();
+   stack.pop_back();
+
+   // Last candidate was not examined, it leads one excess comparison (optimise)
+   if( HaveAcquiantance(C, B) )
+      C = B;
+
+   if( HaveAcquiantance(C, A) )
+      C = A;
+
+   // I know these are redundant,
+   // we can simply check i against C
+   i = 0;
+   while( i < size )
+   {
+      if( C != i )
+      stack.push_back(i);
+      i = i + 1;
+   }
+
+   while( !stack.empty() )
+   {
+      i = stack.back();
+      stack.pop_back();
+
+      // C must not know i
+      if( HaveAcquiantance(C, i) )
+         return -1;
+
+      // i must know C
+      if( !HaveAcquiantance(i, C) )
+         return -1;
+   }
+
+   return C;
+}
+
+int main()
+{
+   int id = CelebrityUsingStack(size);
+   id == -1 ? cout << "No celebrity" : cout << "Celebrity ID " << id;
+   return 0;
+}
+ Output Celebrity ID 2 Complexity O(N). Total comparisons 3(N-1). Try the above code for successful MATRIX {{0, 0, 0, 1}, {0, 0, 0, 1}, {0, 0, 0, 1}, {0, 0, 0, 1}}. A Note: You may think that why do we need a new graph as we already have access to input matrix. Note that the matrix MATRIX used to help the hypothetical function HaveAcquaintance(A, B), but never accessed via usual notation MATRIX[i, j]. We have access to the input only through the function HaveAcquiantance(A, B). Matrix is just a way to code the solution. We can assume the cost of hypothetical function as O(1). If still not clear, assume that the function HaveAcquiantance accessing information stored in a set of linked lists arranged in levels. List node will have next and nextLevel pointers. Every level will have N nodes i.e. an N element list, next points to next node in the current level list and the nextLevel pointer in last node of every list will point to head of next level list. For example the linked list representation of above matrix looks like, L0 0->0->1->0
+             |
+L1           0->0->1->0
+                       |
+L2                     0->0->1->0
+                                 |
+L3                               0->0->1->0 The function HaveAcquanintance(i, j) will search in the list for j-th node in the i-th level. Out goal is to minimize calls to HaveAcquanintance function. Exercises: 1. Write code to find celebrity. Don’t use any data structures like graphs, stack, etc… you have access to N and HaveAcquaintance(int, int) only. 2. Implement the algorithm using Queues. What is your observation? Compare your solution with Finding Maximum and Minimum in an array and Tournament Tree. What are minimum number of comparisons do we need (optimal number of calls to HaveAcquaintance())? — Venki. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. vamos_sagar  
+package com.main;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
+public class CelebrityIdentifier {
+
+	/**
+	 * @param args
+	 */
+	
+	Stack<Member> membersStack = new Stack<Member>();
+	static Member noCelebrity = null;
+	
+	private static class Member{
+		private List<Member> acquintanceList = new ArrayList<Member>();
+		String name;
+
+		public List<Member> getAcquintanceList() {
+			return acquintanceList;
+		}
+
+		public void setAcquintanceList(List<Member> acquintanceList) {
+			this.acquintanceList = acquintanceList;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+	}
+	
+	public Member findCelebrity(){
+		while(membersStack.size() != 1){
+			Member m1 = membersStack.pop();
+			Member m2 = membersStack.pop();
+			Member contenderForCelebrity = hasAcquintance(m1,m2);
+			membersStack.push(contenderForCelebrity);
+		}
+		Member canBeCelebrity = membersStack.pop();
+		Boolean isCelebrity = checkIfCelebrity(canBeCelebrity);
+		if(isCelebrity)
+			return canBeCelebrity;
+		return noCelebrity;
+	}
+	
+	private Member hasAcquintance(Member m1,Member m2){
+		if(m1.getAcquintanceList().contains(m2))
+			return m2;
+		else
+			return m1;
+	}
+	
+	private Boolean checkIfCelebrity(Member canBeCelebrity){
+		if(canBeCelebrity.getAcquintanceList().size() == 0)
+			return true;
+		return false;
+	}
+	
+	public CelebrityIdentifier(){
+		Member A = new Member();
+		Member B = new Member();
+		Member C = new Member();
+		Member D = new Member();
+		
+		A.setName("A");
+		B.setName("B");
+		C.setName("C");
+		D.setName("D");
+		
+		List<Member> acquintanceListForA = new ArrayList<Member>();
+		List<Member> acquintanceListForB = new ArrayList<Member>();
+		List<Member> acquintanceListForD = new ArrayList<Member>();
+		acquintanceListForA.add(C);
+		acquintanceListForB.add(C);
+		acquintanceListForD.add(C);
+		
+		A.setAcquintanceList(acquintanceListForA);
+		B.setAcquintanceList(acquintanceListForB);
+		D.setAcquintanceList(acquintanceListForD);
+		
+		membersStack.push(A);
+		membersStack.push(B);
+		membersStack.push(C);
+		membersStack.push(D);
+	}
+	
+	public static void main(String[] args) {
+		CelebrityIdentifier ci = new CelebrityIdentifier();
+		Member celebrity = ci.findCelebrity();
+		
+		if(celebrity.equals(noCelebrity))
+			System.out.println("No celebrities!");
+		else
+			System.out.println("Celebrity is-->"+celebrity.getName());
+	}
+
+}
+
+ This is a solution in Java. Basically, for every Member, I store a List with all other members approachable from it. Please review. Ronny @GeeksforGeeks Shouldn’t N in the stack method be 4 since we have four persons in the party. Is it used deliberately such or is it a typo ?? frugal  
+It takes atmost 2n calls to the function HaveAcquaintance.
+in this the first loop checks for the candidate element for the celebrity. that element must know no one. and everybody must know him/her. 
+
+first loop ensures that all element after candidate+1 know candidate and second loop checks if all else 0 to candidate-1 knows or not..
+
+please tell me if anything is wrong in this approach.
+
+int celebrity(int a[],int size)
+{
+ candidate = 0;
+ for(int i = 0; i<size;i++){
+   if(!HaveAcquaintance(a[i],candidate)){
+        candidate = a[i];
+        index = i;
+   }
+ }
+
+for(int i= 0;i<index;i++){
+   if(!HaveAcquaintance(a[i],candidate))
+         return -1;
+}
+return candidate;
+}
+ oops it takes atmost 2n calls to the function HaveAcquaintance. in this the first loop checks for the candidate element for the celebrity. that element must know no one. and everybody must know him/her. first loop ensures that all element after candidate+1 know candidate and second loop checks if all else 0 to candidate-1 knows or not.. please tell me if anything is wrong in this approach. int celebrity(int a[],int size) { candidate = 0; for(int i = 0; i<size;i++){ if(!HaveAcquaintance(i,candidate)){ candidate = i; } } for(int i= 0;i<candidate-1;i++){ if(!HaveAcquaintance(i,candidate)) return -1; } return candidate; } frugal This can be done in 2n function calls here is the solution: we firstly find the candidate element for the celebrity. first loop takes care of this. after finding the candidate celebrity, we check if it is really the celebrity. The approach is that the element who denies to know other element can be the celebrity else if it know somebody then it can’t be. so we check through the array to find the same.this part takes atmost n call to the function. and now the second part checks the element before the candidate element, if they also know him/her, then it is the celebrity .. please tell me if it is wrong…!! boolean printCelebrity(int arr[], int size) { int candidate = 0; for(int i = 0; i<size; i++){ if(!HaveAcquaintance(i, candidate)){ candidate = i; } } for(int i=0;i<candidate;i++){ if(!HaveAcquaintance(i, candidate)) return false; } return true; } doom I don’t understand the use of auxiliary space for the above problem. The logic to handle top 2 person at a time is already mentioned in the code. So why not do this? keep celeb as index 0. run a loop from i=1 to n; if celeb knows i, update celeb to i and increment i; else increment i; Calls to acq are n-1. At the end of above iteration, we get a candidate for being celebrity. Now check if our celeb does not know anyone (calls to acq n-1) and everyone knows celeb (calls to acq n-1). If yes, return celeb else not found. Total number of calls are 3(n-1). Please help me to point out the flaw in this approach. Venki Your approach seems to be fine. I have used stack to easily explain the elimination criteria, and left direct solution without any data structures as an exercise. As it not trivial code, I would request you to provide the code. Our logic may look correct, but we get surprises while running code. Don’t forget that we are not interested in whether celebrity knew himself. doom Just to clarify.. Whether the celebrity knows himself or not is insignificant. For every person i, haveAcq(i,i) returns true. Are the above assumptions correct? doom http://ideone.com/titjR Here is the code. Mohammad Abuomar @Doom this won’t work since you’re only considering the forward acquaintance not the backward in your first iteration, thus missing potentially the right celebrity. Assume you’ve got 5 persons, where 3 knows 2 but doesn’t know 4 or 5 and 4 is the celebrity. your first loop will keep 3 as the candidate and will ignore 4 and 5. Then the final check will fail thus returning no success. Guddu sharma @Venki, can you please help me out? I am not able to find out why the following cases are needed. I have tried various test cases & they are working perfectly without using the below condition.  
+// Last candidate was not examined, it leads one excess comparison (optimise)
+   if( HaveAcquiantance(C, B) )
+      C = B;
+ 
+   if( HaveAcquiantance(C, A) )
+      C = A;
+ Can you give some test cases where above condition become relevant? Thank you. Venki @Guddu, the while loop runs till there is only one candidate left in the stack. The last candidate will not be examined as it will not enter the loop. But we will have either A or B as winner excluding the candidate in the stack (i.e. after while loop we will have pseudo winner). We need to compare this winner with the one left in the stack. Use a flag to discriminate between A and B, to keep track of who would be the last winner. Instead I have used one more excess comparison. The problem is, in the content I have explained to pop off two candidates and compare, but in the code I am popping off only one, and keeping tracking track of last winner by popping in the if-else clauses. If we pop off two candidates and push the winner back to stack, we don’t need these conditions. Take the input like the first candidate who will be pushed into stack as the celebrity or take input there is no celebrity. Guddu sharma Thanks, I got it. joker hey can someone suggest some test case’s #include #include using namespace std; bool HaveAcquaintance(int i, int j){ if(i==j) return 0; int knows[][4] = { {0,0,1,1}, {0,0,1,0}, {0,0,0,0}, {0,0,1,0} }; return knows[i][j]; } int Celibrity(int size) { int a,b; stack s; for(int i=0;i1) { a=s.top(); s.pop(); b=s.top(); s.pop(); if(!HaveAcquaintance(a,b)) s.push(a); if(!HaveAcquaintance(b,a)) s.push(b); } return s.top(); } main() { cout<<"Celibrity is : "<<Celibrity(4)<<endl; system("pause"); } Arnab sen Here is my code using stack which have O(n) time complexity.. Plz comment on my code  
+int findCeleb(int celeb[])
+{
+stack s;
+for(i=0;i<n;i++)
+{
+s.push(celeb[i]);
+}
+while(s.top>0)
+{
+a=stack.pop();
+b=stsck.pop();
+ab=HaveAcquaintance(a,b);
+ba=HaveAcquaintance(b,a);
+if(ab && !ba) s.push(b);
+else if(ba && !ab) s.push(a);
+else ;//nothing
+}
+
+return(s.pop());
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ Arnab sen Here is my code using stack which have O(n) time complexity.. Plz cpomment on my code  
+int findCeleb(int celeb[])
+{
+stack s;
+for(i=0;i<n;i++)
+{
+s.push(celeb[i]);
+}
+while(s.top>0)
+{
+a=stack.pop();
+b=stsck.pop();
+ab=HaveAcquaintance(a,b);
+ba=HaveAcquaintance(b,a);
+if(ab && !ba) s.push(b);
+else if(ba && !ab) s.push(a);
+else ;//nothing
+}
+
+return(s.pop());
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ mvsinquest @venki, according to your input celeb knows himself :-), so vipul code was falling, it needs a small change, see below. #include <iostream> using namespace std; int HaveAcquaintance(int i, int j) { int knows[][4] = { {0, 0, 1, 0}, {0, 0, 1, 0}, {0, 0, 1, 0}, {0, 0, 1, 0} }; return knows[i][j]; } int main(int argc, char **argv) { int celb = 0; int size = 4; for (int i = 0; i < size; i++) { if(HaveAcquaintance(celb, i)) { celb = i; } } for (int i = 0; i < size; i++) { if(i != celb && HaveAcquaintance(celb, i)) { cout << "No Celebrity." << endl; exit(0); } } cout << "Celebrity is at index: " << celb << endl; exit(0); } Venki Yeah, the celebrity will be known to himself, otherwise, for simplicity, you can include a check in the code to skip when i == j (as you did). It means we are not interested in “whether a person known to himself”. Check the code for the following input, {0, 0, 0, 0}, {0, 0, 1, 0}, {0, 0, 1, 0}, {0, 0, 1, 0} and {0, 0, 1, 0}, {0, 0, 1, 0}, {0, 0, 1, 0}, {0, 0, 0, 0} But do you encourage this kind of trial and error coding? I request to follow algorithmic approach and come to working code. In fact, to ensure correctness, we need to try all possible combinations of each person knowing every other person except the case of celebrity. (Better limit size to 3 persons to generate all possibilities). Or depend on induction to prove that the approach is right. For simplicity I took relatively simple example. The emphasis of post is on problem solving strategy rather than getting the right answer. That is why, I have provided hints to Graphs (brute force technique), Recursion (Reduction technique) and Intelligent Guess (Elimination technique). I am eager to know any other different approaches. Also, try to write pseudo code for all the approaches, check their correctness. Apologies if I hurt you. mvsinquest Argh, I should have written the code instead of copying it from here, anyway i changed the code. I prefer to follow algorithmic approach but try to keep things simple whenever possible instead of complicating.  
+#include <iostream>
+
+using namespace std;
+
+int HaveAcquaintance(int i, int j) {
+
+    int knows[][4] = { 
+                       {0, 0, 1, 0},
+                       {0, 0, 1, 0},
+                       {1, 0, 1, 0},
+                       {0, 1, 1, 1} 
+                    };
+
+    return knows[i][j];
+
+}
+                        
+int main(int argc, char **argv) {
+
+    int i, celb = 0;
+    int size = 4;
+
+    for (i = 0; i < size; i++) {
+        if(HaveAcquaintance(celb, i)) {
+             celb = i;
+        }
+    }
+
+    for (i = 0; i < size; i++) {
+        if(!HaveAcquaintance(i, celb))
+            break;
+    }
+
+    if(i == size) 
+        cout << "Celebrity is at index: " << celb << endl;
+    else 
+        cout << "No Celebrity." << endl;
+    exit(0);
+}
+
+ Venki Aaha moments… I am enjoying testing your code. Carefully check your matrix. It returns id 2, where as in the matrix it is obvious that person with id 2 knew person with id 0. This is what I mean by trial and error. I agree with you on simplicity, brevity and readability of code than cluttering it. One suggestion is, let us not interested in checking a person against himself. mvsinquest sorry my bad, didn’t notice that i removed existing check code. Thanks for testing. if(i != celb && HaveAcquaintance(celb, i)) { cout << "No Celebrity." << endl; exit(0); } /* Paste your code here (You may delete these lines if not writing code) */ Venki Try for the input. {0, 0, 1, 0}, {0, 0, 1, 0}, {0, 0, 0, 0}, {0, 1, 1, 1} or {0, 0, 1, 0}, {0, 0, 1, 0}, {0, 0, 1, 0}, {0, 1, 1, 1} Sorry dude, no more testing, it is not the way to design an algo. List down the steps. Identity corner cases, then code. You are missing one key aspect of algo. Never rush to code, it is of last importance. Our thought process and approach are critical. The code is neither trivial and not straight forward, so is an exercise for brainstorming. For more aha insights, design recursive approach, graph approach and attempt second exercise or atleast try pseudo code. I request to read the post again. mvsinquest The code is working perfectly, above mentioned code snippet (last comment) was missing in the my last but one comment.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Arnab sen Here is my code using stack which have O(n) time complexity.. Plz comment on my code  
+int findCeleb(int celeb[])
+{
+stack s;
+for(i=0;i<n;i++)
+{
+s.push(celeb[i]);
+}
+while(s.top>0)
+{
+a=stack.pop();
+b=stsck.pop();
+ab=HaveAcquaintance(a,b);
+ba=HaveAcquaintance(b,a);
+if(ab && !ba) s.push(b);
+else if(ba && !ab) s.push(a);
+else ;//nothing
+}
+
+return(s.pop());
+}
+
+
+
+ vipul This can be done in O(n) without using stack. One iteration is enough:  
+void printCelebrity(int arr[], int size) {
+ 
+int i = 0, celb = 0;
+for (;i<size;i++) {
+  if(HaveAcquaintance(celb, i)) {
+     celb = i;
+  }
+}
+for (i =0;i<size;i++) {
+  if(HaveAcquaintance(celb, i)) {
+     printf("No Celebrity.");
+     return;
+  }
+}
+printf("Celebrity is at index: " + celb);
+}
+ Venki @Vipul, It is not such trivial implementation. Please check the output for the matrix given in the linked list example. Rohit I made the same mistake as Vipul did. I missed to take into consideration that a non celeb would know celebrity and additionally would know other folks as well. Had that not been the case then I think Vipul’s code would have beeen perfect except for one scenario if the celeb is on the index 0. Which could be easily done using one simple if condition as i have appended below.  
+
+void printCelebrity(int arr[], int size) {
+ 
+int i = 0, celb = 0;
+for (;i<size;i++) {
+  if(HaveAcquaintance(celb, i)) {
+     celb = i;
+  }
+}
+//Appending the check for position 0
+if (celeb==0)
+{if(HaveAcquaintance(1, 0)) celeb=0; 
+else
+printf("No Celebrity");
+}
+// I am not sure if we even the below loop as i dont think the celeb would be knowing anyone as per the question.
+for (i =0;i<size;i++) {
+  if(HaveAcquaintance(celb, i)) {
+     printf("No Celebrity.");
+     return;
+  }
+}
+printf("Celebrity is at index: " + celb);
+}
+
+ mvsinquest I would say vipul is correct, it’s just based on a simple logic, if x knows y, we can eliminate x as celebrity otherwise eliminate y as celebrity. Thanks! Venki Please check the code for all possible scenarios. To simplify the test input range assume N = 3. As a sample, check the code against the matrix {0->0->1->0} {0->0->1->0} {0->0->1->0} {0->0->1->0} It should return ID 3 (location 2). saurabh Your solution is based on assumption that all(N-1) persons know celebrity but they don’t know themselves. Consider input { {0,0,1,1},{0,0,1,0},{0,0,0,0},{0,0,1,0}} ,your code will print “NO CELEBRITY” , But correct output is ID 2. So, Mathematical intuition behind the problem is : if C is celebrity than –>Matrix[j] = 0 for all j and Matrix[i] = 1 for all i except i=c.(We don’t need to bother about other inputs) saurabh Your solution is based on assumption that all(N-1) persons know celebrity but they don’t know themselves. Consider input { {0,0,1,1},{0,0,1,0},{0,0,0,0},{0,0,1,0}} ,your code will print “NO CELEBRITY” , But correct output is ID 2. So, Mathematical intuition behind the problem is : if C is celebrity than –>Matrix[j] = 0 for all j and Matrix[i] = 1 for all i except i=c.(We don’t need to bother about other inputs) Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

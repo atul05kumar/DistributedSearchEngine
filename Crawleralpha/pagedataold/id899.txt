@@ -1,0 +1,73 @@
+Radix Sort - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Radix Sort The lower bound for Comparison based sorting algorithm (Merge Sort, Heap Sort, Quick-Sort .. etc) is , i.e., they cannot do better than nLogn. Counting sort is a linear tine sorting algorithm that sort in O(n+k) time when elements are in range from 1 to k. What if the elements are in range from 1 to n2? We can’t use counting sort because counting sort will take O(n2) which is worse than comparison based sorting algorithms. Can we sort such an array in linear time? Radix Sort is the answer. The idea of Radix Sort is to do digit by digit sort starting from least significant digit to most significant digit. Radix sort uses counting sort as a subroutine to sort. The Radix Sort Algorithm 1) Do following for each digit i where i varies from least significant digit to the most significant digit. ………….a) Sort input array using counting sort (or any stable sort) according to the i’th digit. Example: Original, unsorted list: 170, 45, 75, 90, 802, 24, 2, 66 Sorting by least significant digit (1s place) gives: [*Notice that we keep 802 before 2, because 802 occurred before 2 in the original list, and similarly for pairs 170 & 90 and 45 & 75.] 170, 90, 802, 2, 24, 45, 75, 66 Sorting by next digit (10s place) gives: [*Notice that 802 again comes before 2 as 802 comes before 2 in the previous list.] 802, 2, 24, 45, 66, 170, 75, 90 Sorting by most significant digit (100s place) gives: 2, 24, 45, 66, 75, 90, 170, 802 What is the running time of Radix Sort? Let there be d digits in input integers. Radix Sort takes O(d*(n+b)) time where b is the base for representing numbers, for example, for decimal system, b is 10. What is the value of d? If k is the maximum possible value, then d would be . So overall time complexity is . Which looks more than the time complexity of comparison based sorting algorithms for a large k. Let us first limit k. Let k <= nc where c is a constant. In that case, the complexity becomes . But it still doesn’t beat comparison based sorting algorithms. What if we make value of b larger?. What should be the value of b to make the time complexity linear? If we set b as n, we get the time complexity as O(n). In other words, we can sort an array of integers with range from 1 to nc if the numbers are represented in base n (or every digit takes bits). Is Radix Sort preferable to Comparison based sorting algorithms like Quick-Sort? If we have bits for every digit, the running time of Radix appears to be better than Quick Sort for a wide range of input numbers. The constant factors hidden in asymptotic notation are higher for Radix Sort and Quick-Sort uses hardware caches more effectively. Also, Radix sort uses counting sort as a subroutine and counting sort takes extra space to sort numbers. Implementation of Radix Sort Following is a simple C++ implementation of Radix Sort. For simplicity, the value of d is assumed to be 10. We recommend you to see Counting Sort for details of countSort() function in below code. 
+// C++ implementation of Radix Sort
+#include<iostream>
+using namespace std;
+
+// A utility function to get maximum value in arr[]
+int getMax(int arr[], int n)
+{
+    int mx = arr[0];
+    for (int i = 1; i < n; i++)
+        if (arr[i] > mx)
+            mx = arr[i];
+    return mx;
+}
+
+// A function to do counting sort of arr[] according to
+// the digit represented by exp.
+void countSort(int arr[], int n, int exp)
+{
+    int output[n]; // output array
+    int i, count[10] = {0};
+
+    // Store count of occurrences in count[]
+    for (i = 0; i < n; i++)
+        count[ (arr[i]/exp)%10 ]++;
+
+    // Change count[i] so that count[i] now contains actual position of
+    // this digit in output[]
+    for (i = 1; i < 10; i++)
+        count[i] += count[i - 1];
+
+    // Build the output array
+    for (i = n - 1; i >= 0; i--)
+    {
+        output[count[ (arr[i]/exp)%10 ] - 1] = arr[i];
+        count[ (arr[i]/exp)%10 ]--;
+    }
+
+    // Copy the output array to arr[], so that arr[] now
+    // contains sorted numbers according to curent digit
+    for (i = 0; i < n; i++)
+        arr[i] = output[i];
+}
+
+// The main function to that sorts arr[] of size n using Radix Sort
+void radixsort(int arr[], int n)
+{
+    // Find the maximum number to know number of digits
+    int m = getMax(arr, n);
+
+    // Do counting sort for every digit. Note that instead of passing digit
+    // number, exp is passed. exp is 10^i where i is current digit number
+    for (int exp = 1; m/exp > 0; exp *= 10)
+        countSort(arr, n, exp);
+}
+
+// A utility function to print an array
+void print(int arr[], int n)
+{
+    for (int i = 0; i < n; i++)
+        cout << arr[i] << " ";
+}
+
+// Driver program to test above functions
+int main()
+{
+    int arr[] = {170, 45, 75, 90, 802, 24, 2, 66};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    radixsort(arr, n);
+    print(arr, n);
+    return 0;
+}
+ Output: 2 24 45 66 75 90 170 802 References: http://en.wikipedia.org/wiki/Radix_sort http://alg12.wikischolars.columbia.edu/file/view/RADIX.pdf MIT Video Lecture Introduction to Algorithms 3rd Edition by Clifford Stein, Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. ERROR for (i = n – 1; i >= 0; i–) { // YOU ARE RUNNNING OUT OF ARRAY … YOU KNOW output[count[ (arr[i]/exp)%10 ] – 1] = arr[i]; count[ (arr[i]/exp)%10 ]–; } YOU wrote it badli zzer here is a general version of radix sort, which you can choose any base you like #include #include using namespace std; const int base = 16; int get_max(int arr[],int n) { int max = arr[0]; for(int i = 1; i < n; i++) if(max < arr[i]) max = arr[i]; return max; } void count_sort(int arr[],int n,int exp,int output[]) { memset(output,0,sizeof(int)*n); int count[base]={0}; for(int i = 0; i < n;i++) count[(arr[i]/exp)%base]++; for(int i = 1; i = 0; i–) { output[count[(arr[i]/exp)%base]-1] = arr[i]; count[(arr[i]/exp)%base]–; } for(int i = 0; i 0; exp*= base) count_sort(arr,n,exp,output); delete []output; } int main() { srand(time(0)); const int n = 30; int arr[n]; for(int i = 0; i < n; i++) arr[i] = rand()%500; for(int i = 0; i < n; i++) cout << arr[i] << " "; cout << endl; radix_sort(arr,n); for(int i = 0; i < n; i++) cout << arr[i] << " "; cout << endl; return 0; } Sparsh I’m not sure if that has been said, but I think one clarification to add is that when describing the runtime of radix sort, it should be noted that the constant c in n^c should be O(1) ( although I understand a constant, c, could be taken for granted to be O(1) ) A nice explanation of radix sort is given here: http://courses.csail.mit.edu/6.006/spring11/exams/notes2-1.pdf Prasaanth http://pastie.org/8674341#8,11 Friends , please find my recursive java implementation above and give your comments and analysis at prasaanth07@gmail.com Hitesh Dude! don’t use built-in constructs like hashmap, etc in learning the basic algorithms! Hitesh int Maxdigits=3; It’s NOT a good practice. Your code should work for all the maximum possible input without any change. Guru #include #include #include #include using namespace std; #define BASE 10 int arr[] = {23, 145, 11, 90, 115, 39, 13, 256, 47, 71}; void printArray(int arr[], int n) { for(int i=0; i < n; i++) { cout<<arr[i]<<" "; } cout<<endl; } void radixsort(int arr[], int n) { int largest = INT_MIN; int digits = 0; for (int i=0; i largest) largest = arr[i]; } do { digits++; }while(largest/=10); vector bucket; vector< vector > v; for (int i = 0; i < BASE; i++) { v.push_back(vector()); // Add an empty row } for (int j=0;j < n; j++) { bucket.push_back(arr[j]); } int divisor = 1; int index; while(digits) { for (int j=0; j<n; j++) { index = (bucket[j]/divisor)%10; v[index].push_back(bucket[j]); } bucket.clear(); for (int i=0; i < v.size(); i++) { for (int j=0; j < v[i].size(); j++) { bucket.push_back(v[i][j]); } v[i].clear(); } cout<<endl; for (int k=0; k < bucket.size(); k++) { cout<<bucket[k]<<" "; } cout<<endl; digits–; divisor *= BASE; } } int main() { int n = sizeof(arr)/sizeof(arr[0]); printArray(arr, n); radixsort(arr, n); } Javed there is a typo….return type of countSort function should be void. Kartik Thanks for pointing this out. We have made the return type as void. Allen I understand the concept behind Radix sort thanks to your post. But how do I count the number of swaps which is made using this program? Silent why this sorting is giving garbage value at some indices??? it’s a simple counting sort.. void CountSort(int arr[],int size,int exp) { int temp[10] = {0},b[size]; int i = 0; while(i < size) { temp[(int)(arr[i] / pow(10,exp-1)) % 10]++; i++; } i = 1; while(i = 0) { x = (int)(arr[i] / pow(10,exp-1)) % 10; b[temp[x] – 1] = arr[i]; temp[x] = temp[x] – 1; i–; } cout << endl; i = 0; while(i < size) { arr[i] = b[i]; i++; } } sumit4iit First line. If the elements are in the range from 1 to n^2 then counting sort will take O(n^2) time agreed. But at the same time comparison based algorithm is going to take (n^2)lg(n^2) or O( n^2 * lg(n) ) time. Obviously counting sort is better. You can say that it will require more space complexity than that of comparison based algorithms, but saying that it has got more time complexity is incorrect. Anonymous Comparison based algorithm will take O(n.log(n)) Here n is the number of elements and any comparison based sorting only depends on the number of elements. Counting sort on the other hand depends on the value of the largest element, here n^2 and hence runtime is O(n^2) kumar Range != number of numbers that are to sorted. Range means the max and min value in the array of numbers which are to be sorted Amandeep Sharma #include #include int main() { int arr[5],i,j,k=0,p=0; int radix[5][10]; for(i=0;i<5;i++) { for(j=0;j<10;j++) { radix[i][j]=0; } } cout<<"Please enter three digit no.s only :n"; for(i=0;i<5;i++) { cout<<"Enter "<<i+1<>arr[i]; } cout<<"nEntered elements : "; for(i=0;i<5;i++) cout<<arr[i]<<" "; cout<<endl; for(p=0;p<3;p++) { k=0; for(i=0;i<5;i++) { j=int(arr[i]/pow(10,p))%10; radix[i][j]=arr[i]; } for(i=0;i<10;i++) { for(j=0;j<5;j++) { if(radix[j][i]) { arr[k]=radix[j][i]; k++; } } } cout<<"nElements after "<<p+1<< " pass : "; for(i=0;i<5;i++) { cout<<arr[i]<<" "; } for(i=0;i<5;i++) { for(j=0;j<10;j++) { radix[i][j]=0; } } } } Hiren Pandya I am sorry to bother you but I really can’t understand the lines given below, for (i = 1; i = 0; i–) { output[count[ (arr[i]/exp)%10 ] – 1] = arr[i]; count[ (arr[i]/exp)%10 ]–; } What exactly is being done over here.. I’ve tried on my own to under stand by placing cout statement after each loop but still no clearance of my doubt.. GeeksforGeeks The counting sort post may help you. Please see the following link. http://www.geeksforgeeks.org/counting-sort/ mritunjaya gupta http://algogururocks.blogspot.com public static void doBalanacePartition(int[] arr) { int sum = 0; for (int i : arr) { sum += i; } int num = sum / 2; int k = num; while (!findNumSetBySum(arr, k)) { k++; } int j = num; while (!findNumBySum(arr, j)) { j–; } } Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

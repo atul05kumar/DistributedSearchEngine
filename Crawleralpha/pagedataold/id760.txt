@@ -1,0 +1,783 @@
+Trie | (Insert and Search) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Trie | (Insert and Search) Trie is an efficient information retrieval data structure. Using trie, search complexities can be brought to optimal limit (key length). If we store keys in binary search tree, a well balanced BST will need time proportional to M * log N, where M is maximum string length and N is number of keys in tree. Using trie, we can search the key in O(M) time. However the penalty is on trie storage requirements. Every node of trie consists of multiple branches. Each branch represents a possible character of keys. We need to mark the last node of every key as leaf node. A trie node field value will be used to distinguish the node as leaf node (there are other uses of the value field). A simple structure to represent nodes of English alphabet can be as following, struct trie_node {     int value; /* Used to mark leaf nodes */     trie_node_t *children[ALPHABET_SIZE]; }; Inserting a key into trie is simple approach. Every character of input key is inserted as an individual trie node. Note that the children is an array of pointers to next level trie nodes. The key character acts as an index into the array children. If the input key is new or an extension of existing key, we need to construct non-existing nodes of the key, and mark leaf node. If the input key is prefix of existing key in trie, we simply mark the last node of key as leaf. The key length determines trie depth. Searching for a key is similar to insert operation, however we only compare the characters and move down. The search can terminate due to end of string or lack of key in trie. In the former case, if the value field of last node is non-zero then the key exists in trie. In the second case, the search terminates without examining all the characters of key, since the key is not present in trie. The following picture explains construction of trie using keys given in the example below,                        root
+                    /   \    \
+                    t   a     b
+                    |   |     |
+                    h   n     y
+                    |   |  \  |
+                    e   s  y  e
+                 /  |   |
+                 i  r   w
+                 |  |   |
+                 r  e   e
+                        |
+                        r In the picture, every character is of type trie_node_t. For example, the root is of type trie_node_t, and it’s children a, b and t are filled, all other nodes of root will be NULL. Similarly, “a” at the next level is having only one child (“n”), all other children are NULL. The leaf nodes are in blue. Insert and search costs O(key_length), however the memory requirements of trie is O(ALPHABET_SIZE * key_length * N) where N is number of keys in trie. There are efficient representation of trie nodes (e.g. compressed trie, ternary search tree, etc.) to minimize memory requirements of trie. 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define ARRAY_SIZE(a) sizeof(a)/sizeof(a[0])
+
+// Alphabet size (# of symbols)
+#define ALPHABET_SIZE (26)
+// Converts key current character into index
+// use only 'a' through 'z' and lower case
+#define CHAR_TO_INDEX(c) ((int)c - (int)'a')
+
+// trie node
+typedef struct trie_node trie_node_t;
+struct trie_node
+{
+    int value;
+    trie_node_t *children[ALPHABET_SIZE];
+};
+
+// trie ADT
+typedef struct trie trie_t;
+struct trie
+{
+    trie_node_t *root;
+    int count;
+};
+
+// Returns new trie node (initialized to NULLs)
+trie_node_t *getNode(void)
+{
+    trie_node_t *pNode = NULL;
+
+    pNode = (trie_node_t *)malloc(sizeof(trie_node_t));
+
+    if( pNode )
+    {
+        int i;
+
+        pNode->value = 0;
+
+        for(i = 0; i < ALPHABET_SIZE; i++)
+        {
+            pNode->children[i] = NULL;
+        }
+    }
+
+    return pNode;
+}
+
+// Initializes trie (root is dummy node)
+void initialize(trie_t *pTrie)
+{
+    pTrie->root = getNode();
+    pTrie->count = 0;
+}
+
+// If not present, inserts key into trie
+// If the key is prefix of trie node, just marks leaf node
+void insert(trie_t *pTrie, char key[])
+{
+    int level;
+    int length = strlen(key);
+    int index;
+    trie_node_t *pCrawl;
+
+    pTrie->count++;
+    pCrawl = pTrie->root;
+
+    for( level = 0; level < length; level++ )
+    {
+        index = CHAR_TO_INDEX(key[level]);
+        if( !pCrawl->children[index] )
+        {
+            pCrawl->children[index] = getNode();
+        }
+
+        pCrawl = pCrawl->children[index];
+    }
+
+    // mark last node as leaf
+    pCrawl->value = pTrie->count;
+}
+
+// Returns non zero, if key presents in trie
+int search(trie_t *pTrie, char key[])
+{
+    int level;
+    int length = strlen(key);
+    int index;
+    trie_node_t *pCrawl;
+
+    pCrawl = pTrie->root;
+
+    for( level = 0; level < length; level++ )
+    {
+        index = CHAR_TO_INDEX(key[level]);
+
+        if( !pCrawl->children[index] )
+        {
+            return 0;
+        }
+
+        pCrawl = pCrawl->children[index];
+    }
+
+    return (0 != pCrawl && pCrawl->value);
+}
+
+// Driver
+int main()
+{
+    // Input keys (use only 'a' through 'z' and lower case)
+    char keys[][8] = {"the", "a", "there", "answer", "any", "by", "bye", "their"};
+    trie_t trie;
+
+    char output[][32] = {"Not present in trie", "Present in trie"};
+
+    initialize(&trie);
+
+    // Construct trie
+    for(int i = 0; i < ARRAY_SIZE(keys); i++)
+    {
+        insert(&trie, keys[i]);
+    }
+
+    // Search for different keys
+    printf("%s --- %s\n", "the", output[search(&trie, "the")] );
+    printf("%s --- %s\n", "these", output[search(&trie, "these")] );
+    printf("%s --- %s\n", "their", output[search(&trie, "their")] );
+    printf("%s --- %s\n", "thaw", output[search(&trie, "thaw")] );
+
+    return 0;
+}
+ — Venki. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tags: Advance Data Structures Tweet Writing code in comment? Please use ideone.com and share the link here. Prasanth Manoharan Could anyone give me the same code in php? Milind nice work !! Leo Jefferson Cardoso Marinho In this part of the code: return (0 != pCrawl && pCrawl->value); 0 != pCrawl is UNNECESSARY This condition is ALWAYS TRUE! vj can any one help me to implement the trie in matlab. please help me with the code Priyanka Gupta Below is the recursive version of insert. Comments are appreciated. Break the recursion when position (iterator over input key) has exceeded key’s length. struct Node { Node (bool v) : isLeaf(v) {} bool isLeaf; Node* children[MAX_ALPHABET]; }; Node* insert (Node* node, string key, int pos) { // reached the end of key return a Node with ” to identify end if (key[pos] == ”) return new Node (true); char childIndex = CHAR_TO_INDEX(key[pos]); // if there is no child matching current char, create a new node if (node->children[childIndex] == nullptr) { node->children[childIndex] = new Node(false); } node->children[childIndex] = insert (node->children[childIndex], key, ++pos); return node; } Garet Claborn +1 using similar code with name ‘treesert’, =) will compare and comment soon Code_Addict Java version of insert and search functionality in Trie DS is provided here in a easy manner: http://www.geeksforgeeks.org/longest-prefix-matching-a-trie-based-solution-in-java/ Vijay Daultani In insert operation you performed the below line in last. pCrawl->value = pTrie->count; If we assign leaf node value the total number of nodes in the trie as value, Does this play any significant role because I am unable to figure out why this would be helpful anyway. Also we could have achieved the same thing by just using a bool in-spite of int if we just need to discriminate between leaf and non leaf. May be I am unable to figure out some cases where this could be useful. If yes please let me know. maverick I agree with you on these two improvements! jyotishkardey  
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include<malloc.h>
+#define ARRAY_SIZE(a) sizeof(a)/sizeof(a[0])
+
+// Alphabet size (# of symbols)
+#define ALPHABET_SIZE (26)
+// Converts key current character into index
+// use only 'a' through 'z' and lower case
+#define CHAR_TO_INDEX(c) ((int)c - (int)'a')
+static int test;
+// trie node
+typedef struct trie_node trie_node_t;
+struct trie_node
+{
+    int value;
+    trie_node_t *children[ALPHABET_SIZE];
+};
+
+// trie ADT
+typedef struct trie trie_t;
+struct trie
+{
+    trie_node_t *root;
+    int count;
+};
+
+// Returns new trie node (initialized to NULLs)
+trie_node_t *getNode(void)
+{
+    trie_node_t *pNode = NULL;
+
+    pNode = (trie_node_t *)malloc(sizeof(trie_node_t));
+    if(!pNode)
+    {
+        printf("\n\nMemory allocation failed!!");
+        return NULL;
+    }
+    if( pNode )
+    {
+        int i;
+
+        pNode->value = 0;
+
+        for(i = 0; i < ALPHABET_SIZE; i++)
+        {
+            pNode->children[i] = NULL;
+        }
+    }
+
+    return pNode;
+}
+
+// Initializes trie (root is dummy node)
+void initialize(trie_t *pTrie)
+{
+    pTrie->root = getNode();
+    pTrie->count = 0;
+}
+
+// If not present, inserts key into trie
+// If the key is prefix of trie node, just marks leaf node
+void insert(trie_t *pTrie, char key[])
+{
+    int level;
+    int length = strlen(key);
+    int index;
+    trie_node_t *pCrawl;
+
+    pTrie->count++;
+    pCrawl = pTrie->root;
+
+    for( level = 0; level < length; level++ )
+    {
+        index = CHAR_TO_INDEX(key[level]);
+        if( !pCrawl->children[index] )
+        {
+            pCrawl->children[index] = getNode();
+        }
+
+        pCrawl = pCrawl->children[index];
+    }
+
+    // mark last node as leaf
+    pCrawl->value = pTrie->count;
+}
+
+// Returns non zero, if key presents in trie
+int search(trie_t *pTrie, char key[])
+{
+    int level,i;
+    int length = strlen(key);
+    int index;
+    trie_node_t *pCrawl;
+
+    pCrawl = pTrie->root;
+
+    for( level = 0; level < length; level++ )
+    {
+        index = CHAR_TO_INDEX(key[level]);
+
+        if( !pCrawl->children[index] )
+        {
+            return 0;
+        }
+
+        pCrawl = pCrawl->children[index];
+    }
+
+    return (0 != pCrawl && pCrawl->value);
+}
+//after having the prefix traverse the sub tree of trie to fetch and print the suggestions
+void traverse(trie_node_t *pCrawl, char key[],int index)
+{
+   int i;
+   char *temp;
+
+   if(!pCrawl)
+   {
+
+       return ;
+   }
+   if(pCrawl->value!=0&&pCrawl!=NULL)
+   {
+       printf("%s\n",key);
+
+   }
+   for(i=0;i<26;i++)
+   {
+
+       temp=(char *)malloc(sizeof(char)*strlen(key)+2);
+       strcpy(temp,key);
+       temp[strlen(key)]=(char)(97+i);
+       temp[strlen(key)+1]='\0';
+       if(pCrawl->children[i]!=NULL)
+       traverse(pCrawl->children[i], temp,i);
+
+
+       free(temp);
+   }
+
+}
+//travel down the trie upto the prefix and then look for suggestion using traverse function
+int suggestions(trie_t *pTrie, char key[])
+{
+    int level,i;
+    int length = strlen(key);
+    int index;
+    trie_node_t *pCrawl;
+
+    pCrawl = pTrie->root;
+    if(strcmp(key,"")==0)
+    {
+        printf("The input is NULL!!");
+        return 0;
+    }
+
+    for( level = 0; level < length; level++ )
+    {
+        index = CHAR_TO_INDEX(key[level]);
+
+        if( !pCrawl->children[index] )
+        {
+
+        printf("Prefix is not present");
+            return 0;
+        }
+
+        pCrawl = pCrawl->children[index];
+    }
+traverse(pCrawl, key,index);
+}
+//checks whether the string contains lowercase only
+int check(char key[])
+{
+int i,status;
+i=0;
+status=-1;
+while(key[i]!='\0')
+	{
+		if(!(key[i]<='z'&&key[i]>='a'))
+		{	status=0;
+			return status;
+		}
+		i++;
+	}
+status =1;
+return 1;
+}
+
+
+// Driver
+int main()
+{
+
+    int i,status,prompt;
+    char inputString[30];
+    prompt=1;
+    trie_t trie;
+    initialize(&trie);
+while(prompt!='4')
+{
+    printf("\nPress 1 to insert a string into the database\n Press 2 to look for suggestions\nPress 3 to search a string\nPress 4 to exit\n");
+    scanf("%d",&prompt);
+
+    switch(prompt)
+    {
+        case 1 : printf("\nPlease enter the string\n");
+                   scanf("%s",inputString);
+		   if(strcmp(inputString,"")==0)
+			{
+				printf("Empty strings are not allowed");
+				break;
+			}
+		 if(check(inputString)==0)
+			{
+				printf("\nSorry Only lower case alphabets are allowed !!\n");
+				break;
+			}
+                   insert(&trie, inputString);
+                   strcpy(inputString,"");
+                   break;
+        case 2 : printf("\nPlease enter the pattern\n");
+                   scanf("%s",inputString);
+		   if(strcmp(inputString,"")==0)
+			{
+				printf("Empty strings are not allowed");
+				break;
+			}
+		   if(check(inputString)==0)
+			{
+				printf("\nSorry Only lower case alphabets are allowed !!\n");
+				break;
+			}
+		   printf("\nThe patterns are ::\n");
+                   suggestions(&trie,inputString);
+                   strcpy(inputString,"");
+                   break;
+        case 3 : printf("\nPlease enter the string to be searched\n");
+                   scanf("%s",inputString);
+		   if(strcmp(inputString,"")==0)
+			{
+				printf("Empty strings are not allowed");
+				break;
+			}
+		   if(check(inputString)==0)
+			{
+				printf("\nSorry Only lower case alphabets are allowed !!\n");
+				break;
+			}
+                   status=search(&trie,inputString);
+                   strcpy(inputString,"");
+			if(status==0)
+				printf("\nThe string you are looking is not present in the databse\n");
+			else
+				printf("The string is present in the database");
+
+                   break;
+
+	case 4 : return 0;
+        default: printf("Invalid option!!Please try again!!!!\n\n");
+                 break;
+    }
+
+}
+ 
+    return 0;
+}
+
+ fatal @venki very nicely explained. please tell me the use of “0!=pcrawl”…what is it and what it returns? abhishek08aug Intelligent Luas hi a very good compilation of trie.My question is with the statement in search function “return (0 != pCrawl && pCrawl->value);”. Is “0 != pCrawl”really required or can we do away with it ?Plz correct me if i am wrong. http://www.linkedin.com/in/ramanawithu Venki It is just a matter of style. Generally it returns bool type, not an integer. You can return ‘value’ in lieu of compared result. Aditya This is the deletion code.Haven’t used it yet,so please check the code before using it!  
+void delete(trie_t *tree,char key[])
+{int i,j;
+bool found;
+int index=strlen(key);
+trie_node_t *temp=tree->root;
+for(i=0;i<index;i++)
+{
+j=int(key[i])-int('a');
+if(!temp->children[j])
+{printf("not found");}
+else
+{
+for(int k=0;k<26;k++)
+{
+
+ if(k==j)
+{
+continue;
+}
+else if(temp->children[k])
+{
+found=true;
+temp=temp->children[j];
+break;
+}
+else
+{
+found=false;
+}
+
+}
+
+if(!found)
+{
+temp->children[j]=NULL;
+break;
+}
+}
+}
+}
+ Aditya Sorry,i have used the keyword delete as a function name to remove the node. Please change the name before using teja Informative thanx dfg     
+                       root
+                    /   \    \
+                    t   a     b
+                    |   |     |
+                    h  | n |<-- should'nt this be coloured in blue as it is a leaf node     y
+                    |   |  \  |
+                    e   s  y  e
+                 /  |   |
+                 i  r   w
+                 |  |   |
+                 r  e   e
+                        |
+                        r
+ http://www.linkedin.com/in/ramanawithu Venki I am not sure about which node do you referring? y and e are already leaf nodes. n is not leaf node. I agree ‘an’ is valid word, but it is not input to the current program. Hope it is clear. mayank How do we display all the names(not the tree in its format but the names we entered) stored in the tree. Consider the case cris, cristy. How we will ever know these are separate names. Pls give the algorithm. abhiroyg If we have entered cristy and cris (or in the reverse order) before, we would have made ‘y’ and ‘s’ as leaf nodes, so if we are searching for ‘cris’, since we marked ‘s’ as leaf node, we will stop there and return that we have found it. Hope it helps Tarun  
+/* Paste your code here (You may delete these lines if not writing code) */
+
+///===========================node.h==========================================
+#ifndef __NODE__H
+#define __NODE__H
+
+//node.h
+#include <string>
+#include <ostream>
+
+#define ARRAY_SIZE(a) sizeof(a)/sizeof(a[0])
+#define ALPHABET_SIZE 26
+#define index(c) ((int)c - (int)'a')
+
+
+
+
+class Node
+{
+private:
+    int m_count;
+    std::string m_data;
+    Node* child[ALPHABET_SIZE];
+public:
+    Node();
+    friend std::ostream& operator<<(std::ostream& _out, const Node& _node);
+    friend class Tries;
+};
+#endif //node.h
+///===========================end of node.h==========================================
+///===========================node.cpp==========================================
+#include "node.h"
+
+
+
+Node::Node()
+{
+    for(int i = 0; i < ALPHABET_SIZE; ++i)
+    {
+        child[i] = 0;
+    }
+}
+
+
+std::ostream& operator<<(std::ostream& _out, const Node& _node)
+{
+    if(!_node.m_data.empty())
+    {
+        _out<<_node.m_data<<",";
+    }
+    for(int i = 0; i < ALPHABET_SIZE; i++)
+    {
+        if(_node.child[i] == NULL)
+        {
+            continue;
+        }
+        _out<<*(_node.child[i]);
+    }
+    _out<<std::endl;
+}
+////===========================end of node.cpp==========================================
+
+///===========================tries.h==========================================
+#ifndef __TRIES__H
+#define __TRIES__H
+
+
+class Node;
+
+class Tries
+{
+public:
+    Tries();
+    void insert(char _key[]);
+    void search(char _key[]);
+private:
+    void init();
+    Node* m_head;
+};
+#endif //tries.h
+///===========================end of tries.h==========================================
+
+///===========================tries.cpp==========================================
+#include <iostream>
+#include "node.h"
+#include "tries.h"
+
+void Tries::init()
+{
+    if(NULL == m_head)
+    {
+        m_head = new Node();
+    }
+    m_head->m_count = 0;
+}
+
+Tries::Tries()
+{
+    init();
+}
+
+void Tries::insert(char _key[])
+{
+    if (NULL == _key)
+    {
+        return;
+    }
+    Node* temp = m_head;
+    int len = strlen(_key);
+
+    for(int i = 0; i < len; ++i)
+    {
+        int indx = index(_key[i]);
+        if(NULL == temp->child[indx])
+        {
+            temp->child[indx] = new Node();
+            temp = temp->child[indx];
+        }
+        else
+        {
+            temp = temp->child[indx];
+        }
+        temp->m_count++;
+    }
+    temp->m_data = _key;
+}
+
+void Tries::search(char _key[])
+{
+    if(NULL == m_head)
+    {
+        return;
+    }
+
+    int len = strlen(_key);
+    int i = 0;
+    Node* temp = m_head;
+
+    for(i = 0; i < len-1; i++)
+
+    for(i = 0; i < len-1; i++)
+    {
+        temp = temp->child[index(_key[i])];
+        if(NULL == temp)
+        {
+            return;
+        }
+        if(!temp->m_data.empty())
+        {
+            std::cout<<"data: <"<<temp->m_data<<">"<<std::endl;
+        }
+    }
+    temp = temp->child[index(_key[i])];
+    if(temp)
+    {
+        std::cout<<*temp;
+    }
+}
+///===========================end of tries.cpp==========================================
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  tries_test.cpp
+ *
+ *    Description:  main calls for testing of tries
+ *
+ *        Version:  1.0
+ *        Created:  Tue Feb 21 2012 05:52:50
+ *       Revision:  none
+ *       Compiler:  gcc
+ *
+ *         Author:  Tarun Kumar (1.1), tarun_kumar1@symantec.com
+ *        Company:  Symantec, Chennai
+ *
+ * =====================================================================================
+ */
+
+#include "tries.h"
+
+int main()
+{
+    char value[][8] = {"she", "sells", "sea", "shore", "the", "by", "sheer"};
+
+    Tries Tree;
+
+    for(int i = 0; i < 7; ++i)
+    {
+        Tree.insert(value[i]);
+    }
+
+    Tree.search("s");
+
+    return 0;
+}
+
+///===========================Makefile==========================================
+##Makefile
+
+GCC = g++ -g
+
+all: tries.exe
+
+OBJ =   node.o \
+        tries.o \
+        tries_test.o \
+
+
+tries.exe: $(OBJ)
+    $(GCC) $(OBJ) -o tries.exe
+    rm -f $(OBJ)
+
+tries.o: tries.cpp tries.h node.h node.cpp
+    $(GCC) -c tries.cpp
+
+node.o: node.cpp node.h
+    $(GCC) -c node.cpp
+
+tries_test.o: tries.o
+    $(GCC) -c tries_test.cpp
+
+
+# -- remove binary and executable
+
+clean:
+    rm -f $(OBJ) tries.exe
+///===========================end of Makefile==========================================
+ Pranav Hi Venki, Nice post. What if we want to search for “here” . How to change if we want the output to be true for “here” ? abhiroyg Simple answer is to insert ‘here’ beforehand. http://www.yourbitsandbytes.com sesha @venki, A few comments: 1) void insert(trie_t *pTrie, char key[]) int search(trie_t *pTrie, char key[]) “int length = strlen(key);” Instead of finding the string length and then traversing, we could also have the loop to traverse till we don’t encounter a NULL character. This would save one traversal of the given key (string) 2) Reg the below code: The following code checks if the a new node needs to be created or not and then move to its children’s index. ” if( pCrawl->children[index] ) { // Key current character already present // skip the node pCrawl = pCrawl->children[index]; } else { // Add new node pCrawl->children[index] = getNode(); pCrawl = pCrawl->children[index]; } ” As moving to children’s index is common, can we compress the code as follows: if(!pCrawl->children[index]) { // Add new node pCrawl->children[index] = getNode(); } pCrawl = pCrawl->children[index]; 3) Reg insert function: pCrawl->children[index] = getNode(); As getNode can return NULL when malloc fails, it’s safer to check the return value before doing the below assignment: pCrawl = pCrawl->children[index]; 4) It’s safer to validate the input arguments of the functions that are exposed to the callers. If any of the input arguments is NULL then dereferencing may cause access violation. http://geeksforgeeks.org/?page_id=2 Venki 1. Agreed. We will traverse the string twice if we calculate length. The intent is to provide ADT of tree. 2. Agreed. The optimization can be performed. I have updated code. 3. Memory management and error handling depends on application. When memory allocation fails, getNode() will do necessary action (we omitted, rather than cluttering code with exception handling or explicit error handling). 4. Yes, it is safer to validate NULL, these are limitations. These NULL checks depends on application. Usually the trie code will be part of library, application layer needs to ensure sending proper arguments. Do you think standard string library validates NULLs? http://www.yourbitsandbytes.com sesha I agree memory management/error handling depends on the application/client, but here I mentioned because the function insert is the client and better to check the return value. I see your point reg cluttering the code. Application layer needs to ensure the arguments validity and I mentioned this as it’s a good coding practice. STL implementation does not check for NULL and all as I have seen the complete implementation. As a another user mentioned it would be better if you update the insert code to handle duplicate insertion where count will get incremented incorrectly. http://www.yourbitsandbytes.com sesha @venki, Here’s the link to my TRIE article. Thought of sharing with other geeks to get some valuable inputs/comments. “http://yourbitsandbytes.com/viewtopic.php?f=443&t=3540″ I have implemented the following operations using C++: 1) Insert 2) Deletion 3) Search 4) Sorting 5) Prefix search useful in solving problems using backtracking 6) Auto completion & other real-time application including spell-check 7) Functions to compare the performance between TRIE and stl set/hash_set I have included images and screenshots of the memory state of TRIE through debugger where ever possible. Would appreciate comments on improving the article. Hope its useful. http://geeksforgeeks.org/?page_id=2 Venki @sesha, I had glanced your article in the above link, I appreciate your effort in writing your article. Good coverage of applications. But from reader perspective, I request to provide lucid and precise content, yet covers required details than elaborated content. It saves reader as well as writer time. Remember, as an engineer (not researchers :)) we should quickly pick data structure and implement it. It would be good to know Ternary search, compressed trie, and other verities of digital search trees. Keep it up. http://www.yourbitsandbytes.com sesha @venki, Thanks for taking the time to glance through the article. The intent in providing the elaborate content (in terms number of posts) as follows: We believe while talking about a new data structure (DS), one has to explain why a new DS is required when there are many existing DS, what is that and comparitive study with the other popular/basic DS in terms of the advantages/disadvantages. Also, provide sufficient tools (code) to compare the performance with other DS. We just don’t want to stop with the individual operations implementation and explanation around that as there is no value addition for the readers in this case. We’ll surely improve on the content reduction for each post. I agree to your statement reg Engineer, but to be an effective Engineer its better to have in-depth knowledge of DS to make smarter decision instead of just of know-how. We made it very elaborative to make sure any beginner to expert can learn one or two things out of it. We do have plans to write about the other Tress you have mentioned. Thanks a lot for your time. Milind awesome article…. thumbs up!!!! http://web.iiit.ac.in/~kalyan.npg08 Kalyan Nelluri Awesome way of doing it..good work Harish As a defensive step, we could increment the count (pTrie->count++) only after we insert the key into the trie just in case we pass the duplicate key. rishrt629 nice wrk..helped a lot a must thanks to you….. tunnu “plz give d code 4 deletion also” http://geeksforgeeks.org/?page_id=2 Venki @tunnu, These are planned for next series of posts. Here is pseudo code (you can write working code). First I am listing possible cases of input to delete function followed by pseudo code. 1. Key shoud present in Trie 2. Key can be prefix of longer key in trie (just unmark leaf node and return) 3. If key is not prefix key Delete nodes from leaf to root recursively till Either we encounter a leaf node of prefix key or We reach trie root DeleteTrieNode(Trie, Key) if Key present in trie invoke deleteHelper(Trie.root, Key, 0) deleteHelper(pTrieNode, Key, level) if(Key.lenght == level) delete leaf node else deleteHelper(pTrieNode.children[Key.char], Key, level+1) if( pTrieNode is empty && pTrieNode is not root ) delete pTrieNode http://www.yourbitsandbytes.com sesha tunnu, You can find code for deletion and other operations @ http://yourbitsandbytes.com/viewtopic.php?f=443&t=3540 tunnu hey give d code 4 deletion also…….asap…plz… http://www.krishnabharadwaj.info Krishna Bharadwaj Very Nice tutorial. Here’s my code which i wrote couple of years back: http://krishnabharadwaj.info/Trie/ thought of sharing it. http://geeksforgeeks.org/?page_id=2 Venki @Krishna Bharadwaj, thanks for the comment and link. Keep visiting geeksforgeeks. http://www.krishnabharadwaj.info Krishna Bharadwaj Sure venki. It is interesting to see that the same implementation gets very much simplified in a language like python. Check it out.. http://www.ideone.com/HB1Dd Dheeraj Gr8 Work Now.. donbosio  #include<stdio.h>
+#include<iostream.h>
+#include<conio.h>
+struct node
+{
+int value;
+struct node * child[26];
+};
+
+
+
+
+void insert(struct node**root,char*ch)
+{
+int i,k;
+struct node *temp;
+struct node *d;
+d=*root;
+for(i=0;ch[i]!='\0';i++)
+{
+if(d->child[ch[i]-'a']==NULL)
+{
+temp=(struct node*)malloc(sizeof(struct node));
+temp->value=0;
+for(k=0;k<=25;k++)
+{
+temp->child[k]=NULL;
+}
+d->child[ch[i]-'a']=temp;
+}
+if(ch[i+1]=='\0')
+d->child[ch[i]-'a']->value =1;
+d=d->child[ch[i]-'a'];
+}
+}
+
+
+int search(struct node**root,char*ch)
+{
+int i;
+struct node*temp;
+temp=*root;
+for(i=0;ch[i]!='\0';i++)
+{
+if(temp->child[ch[i]-'a']==NULL)
+return 0;
+temp=temp->child[ch[i]-'a'];
+}
+if(temp->value==1)
+return 1;
+else
+return 0;
+}
+
+
+int main()
+{char str[20];
+struct node * root;
+int i,n;
+root=(struct node*)malloc(sizeof(struct node));
+root->value=0;
+for(i=0;i<=25;i++)
+{
+root->child[i]=NULL;
+}
+printf("\nenter no of values to be inserted in a trie");
+scanf("%d",&n);
+for(i=0;i<=n-1;i++)
+{fflush(stdin);
+printf("\nenter %d value",i+1);
+scanf("%s",str);
+insert(&root,str);
+}
+char ch[20];
+printf("\nenter string to be searched in trie");
+fflush(stdin);
+scanf("%s",ch);
+cout<<"\n"<<search(&root,ch);
+getch();
+}
+ bsv ur algo takes O(n^2) for insert? http://geeksforgeeks.org/?page_id=2 Venki @Dheeraj and @RaviChandra, Added trie picture after its construction. Hope it helps. Dheeraj Nice tutorial..wud have been more understandable..if u have added some figures..or diagrams.. http://programmingtrails.wordpress.com/ RaviChandra It would nice if you include an image of the Trie Akhil Simple way of explaining a Trie. Good work. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

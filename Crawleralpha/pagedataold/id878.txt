@@ -1,0 +1,202 @@
+Pancake sorting - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Pancake sorting Given an an unsorted array, sort the given array. You are allowed to do only following operation on array. 
+flip(arr, i): Reverse array from 0 to i Unlike a traditional sorting algorithm, which attempts to sort with the fewest comparisons possible, the goal is to sort the sequence in as few reversals as possible. The idea is to do something similar to Selection Sort. We one by one place maximum element at the end and reduce the size of current array by one. Following are the detailed steps. Let given array be arr[] and size of array be n. 1) Start from current size equal to n and reduce current size by one while it’s greater than 1. Let the current size be curr_size. Do following for every curr_size ……a) Find index of the maximum element in arr[0..curr_szie-1]. Let the index be ‘mi’ ……b) Call flip(arr, mi) ……c) Call flip(arr, curr_size-1) See following video for visualization of the above algorithm. 
+/* A C++ program for Pancake Sorting */
+#include <stdlib.h>
+#include <stdio.h>
+
+/* Reverses arr[0..i] */
+void flip(int arr[], int i)
+{
+    int temp, start = 0;
+    while (start < i)
+    {
+        temp = arr[start];
+        arr[start] = arr[i];
+        arr[i] = temp;
+        start++;
+        i--;
+    }
+}
+
+/* Returns index of the maximum element in arr[0..n-1] */
+int findMax(int arr[], int n)
+{
+   int mi, i;
+   for (mi = 0, i = 0; i < n; ++i)
+       if (arr[i] > arr[mi])
+              mi = i;
+   return mi;
+}
+
+// The main function that sorts given array using flip operations
+int pancakeSort(int *arr, int n)
+{
+    // Start from the complete array and one by one reduce current size by one
+    for (int curr_size = n; curr_size > 1; --curr_size)
+    {
+        // Find index of the maximum element in arr[0..curr_size-1]
+        int mi = findMax(arr, curr_size);
+
+        // Move the maximum element to end of current array if it's not
+        // already at the end
+        if (mi != curr_size-1)
+        {
+            // To move at the end, first move maximum number to beginning 
+            flip(arr, mi);
+
+            // Now move the maximum number to end by reversing current array
+            flip(arr, curr_size-1);
+        }
+    }
+}
+
+/* A utility function to print an array of size n */
+void printArray(int arr[], int n)
+{
+    for (int i = 0; i < n; ++i)
+        printf("%d ", arr[i]);
+}
+
+// Driver program to test above function
+int main()
+{
+    int arr[] = {23, 10, 20, 11, 12, 6, 7};
+    int n = sizeof(arr)/sizeof(arr[0]);
+
+    pancakeSort(arr, n);
+
+    puts("Sorted Array ");
+    printArray(arr, n);
+
+    return 0;
+}
+ Output: Sorted Array
+6 7 10 11 12 20 23 Total O(n) flip operations are performed in above code. The overall time complexity is O(n^2). References: http://en.wikipedia.org/wiki/Pancake_sorting Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. Curious Wanderer I think Bill Gates came up with pancake sorting algorithm. rakitic @geeks…for each elements , we are considering two flips and one maximum…so , should’nt total time be O(n^4) ?? Ronny @rakitic But these are happening independent of each other. O(n)+O(n)+O(n) = O(n) O(n) for each of the element So complexity is O(n^2) only rakitic for each elements , we consider two flips and one maximum ..should’nt be total time = O(n^4) http://faltucodes.blogspot.in/ MITTAL My code is working as insertion sort and the complexity is O(n2).. if not able to follow the code plz comment.. /* if(arr[0]>arr[1]) { arr[0]^=arr[1]; arr[1]^=arr[0]; arr[0]^=arr[1]; } for(int i=2;i<arr.size();i++) { if(arr[i]<arr[i-1]) { flip(arr,i-1); flip(arr,i); flip(arr,i-1); flip(arr,i-2); i=i-2; } } */ Prateek Sharma Python Code…….  
+def flip(a,ArrayIndex):
+    reverseList =[]
+    for i in range(ArrayIndex,-1,-1):
+        reverseList.append(a[i])
+    for i in range(len(reverseList)):
+        a[i] = reverseList[i]    
+    
+def pancakeSorting(a):
+    arraylist =[]
+    while len(a)>1:
+        maxIndex = a.index(max(a))
+        flip(a,maxIndex)
+        flip(a,len(a)-1)
+        arraylist.insert(0,a[-1])
+        a.pop()
+    print arraylist    
+def main():
+    array= [45,7,3,89,123,56]
+    pancakeSorting(array)
+if __name__ == '__main__':
+    main()
+ Theopaul I think 2 flips are enough Array : 23, 10, 20, 11, 12, 6, 7 Consider the array sorted halfway. Sorted array for 3 elements 10 , 20 , 23 Now we have to insert 11. The binary search index will return position 1 (20) flip from 20 to end ie (23) The array becomes: 10 , 23 , 20 , 11 …. Now flip from 23 to 11. The resulting array would be: 10 , 11 , 20 , 23 similarly 12 comes we need to flip from 20 to 23 Array becomes: 10 , 11 , 23 , 20 , 12 Then flip from 23 to 12 The array becomes: 10 , 11 , 12 , 20 , 23 Then again flip from  
+/* Paste your code here (You may delete these lines if not writing code) */
+ gautam kumar Read the definition of flip carefully.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ viki @Kumar: Will you please write the solution you just have proposed…:D Kumar The above code runs in O(n^2) even after assuming that flip operation runs in O(1), otherwise it will run in O(n^3). Suppose flip operation runs in O(1) Can we do better ? Can we make the above code to be run in O(nlogn) ?? Yes, We need to think of insertion sort using binary search rather than selection sort. for(i=0;i<(a.size-1);i++) <—- O(n) { int key = a[i+1]; index = BinarySearch(a,key,0,i); <—- O(logn) /* now we can apply flip operation here, think about it */ /* hint there will be three flip operation */ /* Let me know if you won't get */ } Since all flip operation will take O(1) by assumption Total running time will be O(nlogn) kartik Goof question @Kumar, we will be publishing it as a separate post. saurabh Goof viki @Kumar: How r u thinking dude ? Pancake sort runs in O(n^2) time even after assuming flip operation to run in O(n) time in worst case. correct yourself…… Kumar I said, if we assume that flip operation runs in O(1) then sorting will be O(n^2) otherwise(if we assume flip operation takes O(n) time) then sort will run take O(n^3)…. please read my comment carefully… Regarding implementation, I’ll definitely send, let me code it first.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ gokul viki is correct on pointing it out… its O(n^2) even if flip takes O(n) Please you understand the code carefully  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik The problem mentioned by Kumar is different from the problem of this post. He clearly mentioned, imagine a hypothetical machine where flip takes O(1) time. Assuming that the flip operation takes O(1), you can actually sort the array in O(nLogn) time. rakitic two flips each time = n^2 , max each time = n , no of elements = n…….should’nt be total time n^4 ??? kartik I have written solution using 4 flips.  
+/* A C program for Pancake Sorting */
+#include <stdlib.h>
+#include <stdio.h>
+
+
+/* A Binary Search based function to get index of ceiling of x in arr[low..high]*/
+int ceilSearch(int arr[], int low, int high, int x)
+{
+  int mid;
+
+  /* If x is smaller than or equal to the first element,
+    then return the first element */
+  if(x <= arr[low])
+    return low;
+
+  /* If x is greater than the last element, then return -1 */
+  if(x > arr[high])
+    return -1;
+
+  /* get the index of middle element of arr[low..high]*/
+  mid = (low + high)/2;  /* low + (high - low)/2 */
+
+  /* If x is same as middle element, then return mid */
+  if(arr[mid] == x)
+    return mid;
+
+  /* If x is greater than arr[mid], then either arr[mid + 1]
+    is ceiling of x or ceiling lies in arr[mid+1...high] */
+  else if(arr[mid] < x)
+  {
+    if(mid + 1 <= high && x <= arr[mid+1])
+      return mid + 1;
+    else
+      return ceilSearch(arr, mid+1, high, x);
+  }
+
+  /* If x is smaller than arr[mid], then either arr[mid]
+     is ceiling of x or ceiling lies in arr[mid-1...high] */
+  else
+  {
+    if(mid - 1 >= low && x > arr[mid-1])
+      return mid;
+    else
+      return ceilSearch(arr, low, mid - 1, x);
+  }
+}
+
+void flip(int arr[], int i)
+{
+    int temp, start = 0;
+    while (start < i)
+    {
+        temp = arr[start];
+        arr[start] = arr[i];
+        arr[i] = temp;
+        start++;
+        i--;
+    }
+}
+
+/* A utility function to print an array of size n */
+void printArray(int arr[], int n)
+{
+    int i;
+    for (i = 0; i < n; ++i)
+        printf("%d ", arr[i]);
+}
+
+/* Function to sort an array using insertion sort*/
+void insertionSort(int A[], int size)
+{
+   int i, key, j;
+
+   for(i = 1; i < size; i++)
+   {
+       int j = ceilSearch(A, 0, i-1, A[i]);
+       if (j != -1)
+       {
+          if (j > 1)
+            flip(A, j-1);
+          flip(A, i-1);
+          flip(A, i);
+          flip(A, j);
+       }
+   }
+}
+
+/*Driver program to test insertion sort */
+int main()
+{
+    int A[] = {12, 3, 1, 11, 13, 5, 6};
+    int n = sizeof(A)/sizeof(A[0]);
+    insertionSort(A, n);
+    printArray(A, n);
+
+    return 0;
+}
+ Time complexity will be O(nLogn) assuming that the flip operation takes O(1) time on a hypothetical machine. itreallyismE Just a quick doubt. Doesn’t binary search work for sorted arrays? So how is it possible to use it in this case? itreallyismE Sorry about that. Got it. Kumar Thanks KArthik, I haven’t tested but I’m sure it will work, thanks for coding it. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

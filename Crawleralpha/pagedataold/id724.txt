@@ -1,0 +1,315 @@
+Merge two BSTs with limited extra space - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Merge two BSTs with limited extra space Given two Binary Search Trees(BST), print the elements of both BSTs in sorted form. The expected time complexity is O(m+n) where m is the number of nodes in first tree and n is the number of nodes in second tree. Maximum allowed auxiliary space is O(height of the first tree + height of the second tree). Examples: 
+First BST 
+       3
+    /     \
+   1       5
+Second BST
+    4
+  /   \
+2       6
+Output: 1 2 3 4 5 6
+
+
+First BST 
+          8
+         / \
+        2   10
+       /
+      1
+Second BST 
+          5
+         / 
+        3  
+       /
+      0
+Output: 0 1 2 3 5 8 10 
+ Source: Google interview question A similar question has been discussed earlier. Let us first discuss already discussed methods of the previous post which was for Balanced BSTs. The method 1 can be applied here also, but the time complexity will be O(n^2) in worst case. The method 2 can also be applied here, but the extra space required will be O(n) which violates the constraint given in this question. Method 3 can be applied here but the step 3 of method 3 can’t be done in O(n) for an unbalanced BST. Thanks to Kumar for suggesting the following solution. The idea is to use iterative inorder traversal. We use two auxiliary stacks for two BSTs. Since we need to print the elements in sorted form, whenever we get a smaller element from any of the trees, we print it. If the element is greater, then we push it back to stack for the next iteration. 
+#include<stdio.h>
+#include<stdlib.h>
+
+// Structure of a BST Node
+struct node
+{
+    int data;
+    struct node *left;
+    struct node *right;
+};
+
+//.................... START OF STACK RELATED STUFF....................
+// A stack node
+struct snode
+{
+    struct node  *t;
+    struct snode *next;
+};
+
+// Function to add an elemt k to stack
+void push(struct snode **s, struct node *k)
+{
+    struct snode *tmp = (struct snode *) malloc(sizeof(struct snode));
+
+    //perform memory check here
+    tmp->t = k;
+    tmp->next = *s;
+    (*s) = tmp;
+}
+
+// Function to pop an element t from stack
+struct node *pop(struct snode **s)
+{
+    struct  node *t;
+    struct snode *st;
+    st=*s;
+    (*s) = (*s)->next;
+    t = st->t;
+    free(st);
+    return t;
+}
+
+// Fucntion to check whether the stack is empty or not
+int isEmpty(struct snode *s)
+{
+    if (s == NULL )
+        return 1;
+
+    return 0;
+}
+//.................... END OF STACK RELATED STUFF....................
+
+
+/* Utility function to create a new Binary Tree node */
+struct node* newNode (int data)
+{
+    struct node *temp = new struct node;
+    temp->data = data;
+    temp->left = NULL;
+    temp->right = NULL;
+    return temp;
+}
+
+/* A utility function to print Inoder traversal of a Binary Tree */
+void inorder(struct node *root)
+{
+    if (root != NULL)
+    {
+        inorder(root->left);
+        printf("%d ", root->data);
+        inorder(root->right);
+    }
+}
+
+// The function to print data of two BSTs in sorted order
+void  merge(struct node *root1, struct node *root2)
+{
+    // s1 is stack to hold nodes of first BST
+    struct snode *s1 = NULL;
+
+    // Current node of first BST
+    struct node  *current1 = root1;
+
+    // s2 is stack to hold nodes of second BST
+    struct snode *s2 = NULL;
+
+    // Current node of second BST
+    struct node  *current2 = root2;
+
+    // If first BST is empty, then output is inorder
+    // traversal of second BST
+    if (root1 == NULL)
+    {
+        inorder(root2);
+        return;
+    }
+    // If second BST is empty, then output is inorder
+    // traversal of first BST
+    if (root2 == NULL)
+    {
+        inorder(root1);
+        return ;
+    }
+
+    // Run the loop while there are nodes not yet printed.
+    // The nodes may be in stack(explored, but not printed)
+    // or may be not yet explored
+    while (current1 != NULL || !isEmpty(s1) ||
+          current2 != NULL || !isEmpty(s2))
+    {
+        // Following steps follow iterative Inorder Traversal
+        if (current1 != NULL || current2 != NULL )
+        {
+            // Reach the leftmost node of both BSTs and push ancestors of
+            // leftmost nodes to stack s1 and s2 respectively
+            if (current1 != NULL)
+            {
+                push(&s1, current1);
+                current1 = current1->left;
+            }
+            if (current2 != NULL)
+            {
+                push(&s2, current2);
+                current2 = current2->left;
+            }
+
+        }
+        else
+        {
+            // If we reach a NULL node and either of the stacks is empty,
+            // then one tree is exhausted, ptint the other tree
+            if (isEmpty(s1))
+            {
+                while (!isEmpty(s2))
+                {
+                    current2 = pop (&s2);
+                    current2->left = NULL;
+                    inorder(current2);
+                }
+                return ;
+            }
+            if (isEmpty(s2))
+            {
+                while (!isEmpty(s1))
+                {
+                    current1 = pop (&s1);
+                    current1->left = NULL;
+                    inorder(current1);
+                }
+                return ;
+            }
+
+            // Pop an element from both stacks and compare the
+            // popped elements
+            current1 = pop(&s1);
+            current2 = pop(&s2);
+
+            // If element of first tree is smaller, then print it
+            // and push the right subtree. If the element is larger,
+            // then we push it back to the corresponding stack.
+            if (current1->data < current2->data)
+            {
+                printf("%d ", current1->data);
+                current1 = current1->right;
+                push(&s2, current2);
+                current2 = NULL;
+            }
+            else
+            {
+                printf("%d ", current2->data);
+                current2 = current2->right;
+                push(&s1, current1);
+                current1 = NULL;
+            }
+        }
+    }
+}
+
+/* Driver program to test above functions */
+int main()
+{
+    struct node  *root1 = NULL, *root2 = NULL;
+
+    /* Let us create the following tree as first tree
+            3
+          /  \
+         1    5
+     */
+    root1 = newNode(3);
+    root1->left = newNode(1);
+    root1->right = newNode(5);
+
+    /* Let us create the following tree as second tree
+            4
+          /  \
+         2    6
+     */
+    root2 = newNode(4);
+    root2->left = newNode(2);
+    root2->right = newNode(6);
+
+    // Print sorted nodes of both trees
+    merge(root1, root2);
+
+    return 0;
+}
+ Time Complexity: O(m+n) Auxiliary Space: O(height of the first tree + height of the second tree) Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. AlienOnEarth @Geeksforgeeks I have another recursive solution with o(m+n) time and o(log(m+n)) space complexity (for recursion). #include #include // Structure of a BST Node struct node { int data; struct node *left; struct node *right; }; int isPrinted = 0; /* Utility function to create a new Binary Tree node */ struct node* newNode (int data) { struct node *temp = (struct node*)malloc(sizeof(struct node)); temp->data = data; temp->left = NULL; temp->right = NULL; return temp; } /* A utility function to print Inoder traversal of a Binary Tree */ void inorder(struct node *root) { if (root != NULL) { inorder(root->left); printf(“%d–>”, root->data); inorder(root->right); } } // The function to print data of two BSTs in sorted order void merge(struct node *root1, struct node *root2, int *n1, int *n2) { // left subtrees if(root1->data data) if(root2->left) { –(*n2); merge(root1,root2->left,n1,n2); } if(root1->data > root2->data) if(root1->left) { –(*n1); merge(root1->left,root2,n1,n2); } // processing if(root1->data data) { printf(“%d–>”, root1->data); if(root1->right != NULL) { –(*n1); merge(root1->right,root2,n1,n2); } } else if(root1->data > root2->data) { printf(“%d–>”, root2->data); if(root2->right!=NULL) { –(*n2); merge(root1,root2->right,n1,n2); } } // If first BST is empty, then output is inorder // traversal of second BST if ((*n1)==1 && !isPrinted) { isPrinted = 1; inorder(root2); return; } // If second BST is empty, then output is inorder // traversal of first BST else if ((*n2) == 1 && !isPrinted) { inorder(root1); return ; } } int size(struct node* root) { if(root == NULL) return 0; return (1 + size(root->left) + size(root->right)); } void merger(struct node *root1, struct node *root2) { int n1= size(root1); int n2= size(root2); merge(root1, root2, &n1, &n2); } /* Driver program to test above functions */ int main() { struct node *root1 = NULL, *root2 = NULL; /* Let us create the following tree as first tree 6 / 3 8 4 */ root1 = newNode(6); root1->left = newNode(3); root1->left->right = newNode(4); root1->right = newNode(8); /* Let us create the following tree as second tree 7 / 5 9 10 */ root2 = newNode(7); root2->left = newNode(5); root2->right = newNode(9); root2->right->right = newNode(10); // Print sorted nodes of both trees merger(root1, root2); return 0; } This solution is quite easier than iterative solution. Please consider this. Guest why are we calling inorder(current1) in while loop if (isEmpty(s2)) { while (!isEmpty(s1)) { current1 = pop (&s1); current1->left = NULL; inorder(current1); } return ; } powerhu C# Code: public static void AddLeftNodes(Node node, Stack s) { while (node != null) { s.Push(node); node = node.left; } } public static void PopCurrentNode(Stack stack) { Node nd = stack.Pop(); Console.Write(nd.value + “t”); if (nd.right != null) { AddLeftNodes(nd.right, stack); } } public static void MergeTwoBST(Node a, Node b) { Stack astack = new Stack(); Stack bstack = new Stack(); AddLeftNodes(a, astack); AddLeftNodes(b, bstack); while (astack.Count > 0 && bstack.Count > 0) { if (astack.Peek().value > bstack.Peek().value) { PopCurrentNode(bstack); } else { PopCurrentNode(astack); } } if (astack.Count > 0) { while (astack.Count > 0) { PopCurrentNode(astack); } } if (bstack.Count > 0) { while (bstack.Count > 0) { PopCurrentNode(bstack); } } Console.WriteLine(); } Amit Bgl wow code bateesh @GeeksforGeeks Why Cant we apply 3rd method of previous post.Its 3rd step is just a merging two sorted DLLs.It depends upon the number of nodes in the list.It will be done in 0(n) regardless of balanced/unbalanced as we have converted it to DLL.The problem can be with step 1 where we convert the BST to DLL.Can you plz explain with one example that why 3rd method of previous post is not feasible here to do in o(m+n). saket Yes I agre with you. 3rd method of previous post is feasible and it does in o(m+n).  
+/* Paste your code here (You may delete these lines if not writing code) */
+ abhishek08aug Intelligent Arunkumar Convert the two BST’s to DLL inplace then insert the contents of second list into appropriate position of first list…thn convert it back to bst  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Rajneesh  
+/* Paste your code here (You may delete these lines if not writing code) */
+ rahul sundar The easiest approach is – Store in order traversal of 2 trees in 2 desperate arrays – Since the arrays are already sorted, print the smaller elements from both of the arrays until they exhaust. This is possible in order of m or n , whichever is greater. The last step ,mentioned above is just a problem of merging 2 sorted arrays!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Priso But, Maximum allowed auxiliary space is O(height of the first tree + height of the second tree). Here, the auxiliary space required would be more i.e., O(m+n)  
+/* Paste your code here (You may delete these lines if not writing code) */
+ sachin why the method 3 of previous post will not work in O(n) for unbalanced bst? yc Here is a pure iterative algorithm to merge 2 trees. No stack, not recursion. It is based on Morris Traversal (the getNext function is a tweak of the Morris algorithm). Note that since Morris algorithm modifies the tree in the process (but restores it after done), the code guards against the situation when the 2 trees are the same one. Another way is to simply copy trees before calling. int getNext(node* &cur,bool& set ){ int k=0; set=false; while(cur){ if(cur->left){ node *p=cur->left; while(p->right && (p->right != cur)) p=p->right; if(!p->right){ p->right=cur; cur=cur->left; }else{ p->right=0; k=cur->key; set=true; cur=cur->right; return k; } }else{ k=cur->key; set=true; cur=cur->right; return k; } } } void mergeTree(node *T1, node *T2){ node *cur1=T1, *cur2=T2; bool sametree= (cur1 == cur2); bool set1=false,set2=false; bool trigger1=true, trigger2=(sametree?false:true); int k1=0,k2=0; while( trigger1 || trigger2){ if(trigger1) k1=getNext(cur1,set1); if(trigger2) k2=getNext(cur2,set2); if(set1 && set2){ if(k1<k2){ printf(" %d ", k1); trigger1=true; trigger2=false; }else{ printf(" %d ", k2); trigger1=false; trigger2=true; } }else if(set1){ printf(" %d ", k1); if(sametree) printf(" %d ", k1); trigger1=true; trigger2=false; }else if(set2){ printf(" %d ", k2); trigger1=false; trigger2=true; }else{ trigger1=false; trigger2=false; } } printf("\n"); } titan Providing a slightly better coded version of the method that has been provided here.  
+void sortedprint(tree *first,tree *second)
+{
+	stack *s1=NULL,*s2=NULL;
+	tree *one,*two;
+	while(!isempty(s1)||!isempty(s2)||first||second)
+	{
+		while(first!=NULL)
+		{
+			s1=push(first,s1);
+			first=first->left;
+		}
+		while(second!=NULL)
+		{
+			s2=push(second,s2);
+			second=second->left;
+		}
+		if(!isempty(s1) &&isempty(s2))
+		{
+			one=top(s1);
+			printf("%d ",one->val);
+			s1=pop(s1);
+			first=one->right;
+		}
+		else if(isempty(s1) && !isempty(s2))
+		{
+			two=top(s2);
+			printf("%d ",two->val);
+			s2=pop(s2);
+			second=two->right;
+		}
+		else
+		{
+			one=top(s1);
+			two=top(s2);
+			if(one->val<=two->val)
+			{
+				printf("%d ",one->val);
+				s1=pop(s1);
+				first=one->right;
+			}
+			else
+			{
+				printf("%d ",two->val);
+				s2=pop(s2);
+				second=two->right;
+			}
+		}
+	}
+	printf("\n");
+}
+ srikanth it is better to use newnode function without any arguments.a Doom Given a node pointer of any node in a BST, we can write a method which returns nextInorderTraversalNode in O(1). Now start with the two BST’s root nodes and compare them. Follow the same procedure as we do in merge of MergeSort. To get the next element call the getNextInorderNode(currNode). We can print the values in O(m+n) with O(1) auxiliary space. Any flaws in this solution?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Doom Please ignore my last post. It won’t work. kamal  
+public static void inordermodif(Node root1,Node root2){
+        if(root1!=null && root2!=null){
+            inorderdisplay(root1.left);
+            inorderdisplay(root2.left);
+            if(root1.data<=root2.data){
+                System.out.println(root1.data);
+                System.out.println(root2.data);
+            }
+            else{
+               System.out.println(root2.data);
+               System.out.println(root1.data);
+            }
+            inorderdisplay(root1.right);
+            inorderdisplay(root2.right);
+        }
+    }
+ kamal sorry for the last post. It doesn’t work! Ila I think you should check if current-> right is not null before pushing it onto the stack. Ila ok got it. Kiran In your comment inside main: Let us create the following tree as second tree 2 / \ 4 6 This isn’t a BST.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks There was a typo in comment. Thanks for poitning this out. We have fixed it now. Keep it up!! rahul Recently found this site, great work, hope i will be able to crack some big company interview Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,430 @@
+Convert a given Binary Tree to Doubly Linked List | Set 2  - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Convert a given Binary Tree to Doubly Linked List | Set 2 Given a Binary Tree (BT), convert it to a Doubly Linked List(DLL). The left and right pointers in nodes are to be used as previous and next pointers respectively in converted DLL. The order of nodes in DLL must be same as Inorder of the given Binary Tree. The first node of Inorder traversal (left most node in BT) must be head node of the DLL. A solution to this problem is discussed in this post. In this post, another simple and efficient solution is discussed. The solution discussed here has two simple steps. 1) Fix Left Pointers: In this step, we change left pointers to point to previous nodes in DLL. The idea is simple, we do inorder traversal of tree. In inorder traversal, we keep track of previous visited node and change left pointer to the previous node. See fixPrevPtr() in below implementation. 2) Fix Right Pointers: The above is intuitive and simple. How to change right pointers to point to next node in DLL? The idea is to use left pointers fixed in step 1. We start from the rightmost node in Binary Tree (BT). The rightmost node is the last node in DLL. Since left pointers are changed to point to previous node in DLL, we can linearly traverse the complete DLL using these pointers. The traversal would be from last to first node. While traversing the DLL, we keep track of the previously visited node and change the right pointer to the previous node. See fixNextPtr() in below implementation. 
+// A simple inorder traversal based program to convert a Binary Tree to DLL
+#include<stdio.h>
+#include<stdlib.h>
+
+// A tree node
+struct node
+{
+    int data;
+    struct node *left, *right;
+};
+
+// A utility function to create a new tree node
+struct node *newNode(int data)
+{
+    struct node *node = (struct node *)malloc(sizeof(struct node));
+    node->data = data;
+    node->left = node->right = NULL;
+    return(node);
+}
+
+// Standard Inorder traversal of tree
+void inorder(struct node *root)
+{
+    if (root != NULL)
+    {
+        inorder(root->left);
+        printf("\t%d",root->data);
+        inorder(root->right);
+    }
+}
+
+// Changes left pointers to work as previous pointers in converted DLL
+// The function simply does inorder traversal of Binary Tree and updates
+// left pointer using previously visited node
+void fixPrevPtr(struct node *root)
+{
+    static struct node *pre = NULL;
+
+    if (root != NULL)
+    {
+        fixPrevPtr(root->left);
+        root->left = pre;
+        pre = root;
+        fixPrevPtr(root->right);
+    }
+}
+
+// Changes right pointers to work as next pointers in converted DLL
+struct node *fixNextPtr(struct node *root)
+{
+    struct node *prev = NULL;
+
+    // Find the right most node in BT or last node in DLL
+    while (root && root->right != NULL)
+        root = root->right;
+
+    // Start from the rightmost node, traverse back using left pointers.
+    // While traversing, change right pointer of nodes.
+    while (root && root->left != NULL)
+    {
+        prev = root;
+        root = root->left;
+        root->right = prev;
+    }
+
+    // The leftmost node is head of linked list, return it
+    return (root);
+}
+
+// The main function that converts BST to DLL and returns head of DLL
+struct node *BTToDLL(struct node *root)
+{
+    // Set the previous pointer
+    fixPrevPtr(root);
+
+    // Set the next pointer and return head of DLL
+    return fixNextPtr(root);
+}
+
+// Traverses the DLL from left tor right
+void printList(struct node *root)
+{
+    while (root != NULL)
+    {
+        printf("\t%d", root->data);
+        root = root->right;
+    }
+}
+
+// Driver program to test above functions
+int main(void)
+{
+    // Let us create the tree shown in above diagram
+    struct node *root = newNode(10);
+    root->left        = newNode(12);
+    root->right       = newNode(15);
+    root->left->left  = newNode(25);
+    root->left->right = newNode(30);
+    root->right->left = newNode(36);
+
+    printf("\n\t\tInorder Tree Traversal\n\n");
+    inorder(root);
+
+    struct node *head = BTToDLL(root);
+
+    printf("\n\n\t\tDLL Traversal\n\n");
+    printList(head);
+    return 0;
+}
+ Output: 
+                Inorder Tree Traversal
+
+        25      12      30      10      36      15
+
+                DLL Traversal
+
+        25      12      30      10      36      15 Time Complexity: O(n) where n is the number of nodes in given Binary Tree. The solution simply does two traversals of all Binary Tree nodes. This article is contributed by Bala. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. rahul @GeeksforGeeks admin please add the inorder traversal of inplace conversion solution as Set 3 as many mentioned in the comments. This solution is simple and elegant. void BinaryTree2DoubleLinkedList(TreeNode *root, TreeNode **head) { static TreeNode* prev = NULL; if(root == NULL) return; BinaryTree2DoubleLinkedList(root->left,head); if(prev == NULL) { //mark head *head = root; } else { root->left = prev; prev->right = root; } prev = root; BinaryTree2DoubleLinkedList(root->right,head); } GeeksforGeeks Thanks for suggesting this new and simpler approach. We have published this as a separate post. Please see http://www.geeksforgeeks.org/convert-given-binary-tree-doubly-linked-list-set-3/ Sandy The program misses to set the right link of last node in DLL to NULL. Prashanth The right link of the last node is already set to NULL when we create the tree . SO u don’t have to set to null explicitly when we convert to DLL Ankur DLL in Single Traversal . Take a look void DllUtil(node* root,node* &head,node* &prev,bool &b) { if(!root) return; DllUtil(root->left,head,prev,b); root->left = prev; if(b==false) { head = root; b = true; } if(prev){ root->left->right = root; } prev = root; DllUtil(root->right,head,prev,b); } // The main function that converts BST to DLL and returns head of DLL struct node *BTToDLL(struct node *root) { if(!root) return NULL; node* head = NULL; bool b = false; node* prev = NULL; DllUtil(root,head,prev,b); return head; } penhaunt Why to call another function in function. A single function is enough to do that job  
+struct node* fixPrevPtr(struct node *root)
+{
+    static struct node *pre = NULL,*head=NULL;
+    static int started=0;
+    if (root != NULL)
+    {
+        fixPrevPtr(root->left);
+        if(pre)pre->right=root;
+        root->left = pre;
+        pre = root;
+        if(!started)
+        {
+            started=1;
+            head=root;
+        }
+        fixPrevPtr(root->right);
+    }
+    return head;
+}
+
+ Aditya the sequence of assignment in function fixNextptr is wrong. It is.. while (root && root->left != NULL) { prev = root; root = root->left; root->right = prev; } it should be.. while (root && root->left != NULL) { root->right = prev; prev = root; root = root.left; } Let me know  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ubiquitous Below is the code which does not use global variables and O(N) solution. It creates a circular doubly linklist. Let me know if somebody has any issues. Thanks. static TreeNode convert(TreeNode t) { if(t == null) return null; TreeNode left = convert(t.left); TreeNode right = convert(t.right); t.left = t; t.right = t; left = append(left, t); left = append(left, right); return left; } private static TreeNode append(TreeNode a, TreeNode b) { if(a==null)return b; if(b == null)return a; TreeNode t1 = a.left; TreeNode t2 = b.left; t1.right = b; b.left = t1; t2.right = a; a.left = t2; return a; } Akshay Jindal In this question the catch is that for a node its next pointer will point to its inorder successor and prev to the inorder predecessor. so by exploiting the recursive inorder procedure we get  
+struct tree* node1;
+struct tree* node2;
+struct tree* inorder(struct tree* node)
+{
+ if(node == null)
+   return;
+ inorder(node->left);
+ node1 = inorder_successor(node);
+ if(node->next == null)
+  node->next=node1;
+ node1->prev = next;
+
+ node2 = inorder_predecessor(node);
+ if(node->prev == null)
+  node->prev = node2;
+ node2->next = node;
+
+ inorder(node->right);
+ node1 = inorder_successor(node);
+ if(node->next == null)
+  node->next=node1;
+ node1->prev = next;
+
+ node2 = inorder_predecessor(node);
+ if(node->prev == null)
+  node->prev = node2;
+ node2->next = node;
+}
+ Sayan Paul Can we just do inorder traversal of the tree and at the same insert the current node traversed in the DLL. We just need to write the DLL insert function and call insert function while traversing the tree using inorder. archit.mehta we don’t want to create new nodes (it wastes space), otherwise it is very easy gargsanjay can’t we fix both pointers simultaneously?? oid fixPtr(struct node *root, node **head) { static struct node *pre = NULL; if (root != NULL) { fixPrevPtr(root->left,head); root->left = head; head->right= root; *head = root; fixPrevPtr(root->right,head); } }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ gargsanjay it is fixte same function evrywhr archit.mehta i don’t know about your code but i think we can do that do simple inorder traversal and when you print a node keep track of that and when you print next node set pointer for both nodes simple O(n) – only single scan is needed shahid i request the admin of site to please LIST ALL ARTICLES UNDER THE ARCHIVE LINK some articles are not under archive link for eg. when we click the ARRAY link some of the articles are not listed in the http://www.geeksforgeeks.org/category/c-arrays/ so please make it visible rahul this solution wont work for skew tree archit.mehta it will work for any tree as far as it is binary tree , will work for skew tree for sure (because it is binary tree) Sanjay Agarwal This is a simple solution. Here “prev” is a global variable which points to the previously added node to the link list. Please feel free in case you have any queries/suggestions.  
+void BstToDll(tree *root, tree **head)
+{
+    if (root == NULL)
+        return;
+    
+    BstToDll(root->left, &(*head));    
+    
+    if ((*head) == NULL)
+    {
+        *head = root;
+        prev = root;
+    }
+    else
+    {
+        prev->right = root;
+        root->left = prev;
+        prev = root;
+    }
+    
+    BstToDll(root->right, &(*head));
+}
+ Anil  
+struct t_node{
+    int data;
+    struct t_node *next;
+};
+typedef struct t_node node;
+
+node* newNode(int data){
+    node *t = (node *)malloc(sizeof(node));
+    t->data = data;
+    t->next = 0;
+    return t;
+}
+node* insert(node *head, int data){
+    if(!head){
+        return newNode(data);
+    }
+    else{
+        head->next = insert(head->next, data);
+        return head;
+    }
+}
+void print(node *head){
+    if(head){
+        printf("%d ",head->data);
+        if(head->next) printf(" -> ");
+        print(head->next);
+    }
+}
+node* add(node *h1, node *h2){
+
+    int s = h1->data + h2->data;
+    node* ans = 0;
+    if(h1->next == 0){
+
+        if(s >= 10) ans = insert(ans,s/10);
+        ans = insert(ans,s%10);
+        return ans;
+    }
+    node *head_ans = 0;
+    h1 = h1->next , h2 = h2->next;
+    while(h1){
+        node *t1 = h1, *t2 = h2;
+
+        int l = 0;
+        while(t1){
+
+            int sum = t1->data + t2->data;
+            if(sum <= 8){
+                l = 1;
+                break;
+            }
+            else if(sum >= 10){
+                l = 2;
+                break;
+            }
+            t1 = t1->next ;
+            t2 = t2->next ;
+        }
+
+        if(l == 2) ++s;
+        if(head_ans == 0){
+            if(s >= 10) ans = insert(ans,s/10);
+            ans = insert(ans,s%10);
+            head_ans = ans;
+            if(s >= 10) ans = ans->next ;
+        }
+        else{
+            ans->data = s;
+        }
+        node *l1 = h1 , *l2 = h2;
+
+        if(l == 0 || l == 1){
+            while(l1){
+                int sum = l1->data + l2->data;
+                ans->next = newNode(sum);
+                ans = ans->next;
+                if(l1 == t1) break;
+                l1 = l1->next , l2 = l2->next;
+            }
+            if(!l1) return head_ans;
+            else l1 =  l1->next , l2 = l2->next;
+        }
+        else{
+            while(1){
+                if(l1 != t1){
+                    ans->next = newNode(0);
+                    ans = ans->next;
+                    l1 = l1->next , l2 = l2->next;
+                }
+                else{
+                    int sum = l1->data + l2->data;
+                    ans->next = newNode(sum%10);
+                    ans = ans->next;
+                    l1 = l1->next , l2 = l2->next;
+                    break;
+                }
+            }
+        }
+        h1 = l1 , h2 = l2;
+        s = ans->data;
+    }
+    return head_ans;
+    ///~
+}
+int main(){
+    int n1, n2, x;
+    node *list1, *list2;
+    list1 = list2 = 0;
+
+    scanf("%d%d",&n1,&n2);
+    while(n1--) scanf("%d",&x), list1=insert(list1, x);
+    while(n2--) scanf("%d",&x), list2=insert(list2, x);
+    puts("") ;print(list1);
+    puts("") ;print(list2);
+    puts("");
+    node *ans=add(list1,list2);
+
+    print(ans);
+    return 0;
+}
+
+ http://effprog.blogspot.com Sambasiva  
+#include <cstdio>
+
+struct TreeNode
+{
+	TreeNode *left, *right;
+	int el;
+
+	explicit TreeNode(int _el):el(_el), left(NULL), right(NULL) {}
+};
+
+typedef TreeNode* Tree;
+
+typedef TreeNode* Dll;
+
+
+Dll convert2Dll(Tree t, Dll *prev) 
+{
+	if (!t) return NULL;
+
+	Dll l = convert2Dll(t->left, prev);
+
+	if (!l) {
+		l = t;
+	}
+
+	t->left = *prev;
+
+	if (!*prev) {
+		*prev = t;
+	} else {
+		(*prev)->right = t;
+		*prev = t;
+	}
+
+	convert2Dll(t->right, prev);
+
+	return l;
+}
+ uv  
+void bin1_ddl(struct tnode **root)
+{
+ 
+     if(*root == NULL)
+     {
+             return;
+     }
+              
+     bin1_ddl(&(*root)->lwr);
+              
+     if(head == NULL)
+     {
+              tail = head = *root;
+     }
+               
+     else
+     {
+              tail->hghr = *root;
+              (*root)->lwr = tail;
+              tail = tail->hghr;
+     }
+                                 
+     bin1_ddl(&(*root)->hghr);
+              
+} 
+ This is function that converts the bt to dll Please correct this code , i have tried my best…,tail and head are global pointers Cracker  
+void bin_ddl(struct tnode **root)
+{
+ 
+     if(*root == NULL)
+     {
+             return;
+     }
+              
+     bin_ddl(&(*root)->lwr);
+              
+     if(head == NULL)
+     {
+              tail = head = *root;
+     }
+               
+     else
+     {
+              tail->hghr = *root;
+              (*root)->lwr = tail;
+              tail = tail->hghr;
+     }
+                                 
+     bin_ddl(&(*root)->hghr);
+              
+} 
+ This is function that converts the bt to dll Please correct this code , i have tried my best…,tail and head are global pointers Nitesh  
+node* createList(node *tree)
+{
+      node *lList;
+      node *rList;
+       if(tree == NULL)
+         return NULL;
+       lList = createList(tree->left);
+       rList = createList(tree->right);
+       tree->left = tree;
+       tree->right = NULL;
+       
+       if(lList == NULL ||  rList == NULL)
+          lList = tree;
+       else
+       {
+           lList->left->right = tree;
+           tree->right = rList;
+           lList->left = rList->left;
+       }
+       return lList;
+}
+
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,155 @@
+Equilibrium index of an array  - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Equilibrium index of an array Equilibrium index of an array is an index such that the sum of elements at lower indexes is equal to the sum of elements at higher indexes. For example, in an arrya A: A[0] = -7, A[1] = 1, A[2] = 5, A[3] = 2, A[4] = -4, A[5] = 3, A[6]=0 3 is an equilibrium index, because: A[0] + A[1] + A[2] = A[4] + A[5] + A[6] 6 is also an equilibrium index, because sum of zero elements is zero, i.e., A[0] + A[1] + A[2] + A[3] + A[4] + A[5]=0 7 is not an equilibrium index, because it is not a valid index of array A. Write a function int equilibrium(int[] arr, int n); that given a sequence arr[] of size n, returns an equilibrium index (if any) or -1 if no equilibrium indexes exist. Method 1 (Simple but inefficient) Use two loops. Outer loop iterates through all the element and inner loop finds out whether the current index picked by the outer loop is equilibrium index or not. Time complexity of this solution is O(n^2). 
+#include <stdio.h>
+
+int equilibrium(int arr[], int n)
+{
+  int i, j;
+  int leftsum, rightsum;
+
+  /* Check for indexes one by one until an equilibrium
+    index is found */
+  for ( i = 0; i < n; ++i)
+  {
+    leftsum = 0;  // initialize left sum for current index i
+    rightsum = 0; // initialize right sum for current index i
+
+    /* get left sum */
+    for ( j = 0; j < i; j++)
+      leftsum  += arr[j];
+
+    /* get right sum */
+    for( j = i+1; j < n; j++)
+      rightsum += arr[j];
+
+    /* if leftsum and rightsum are same, then we are done */
+    if (leftsum == rightsum)
+      return i;
+    }
+
+  /* return -1 if no equilibrium index is found */
+  return -1;
+}
+
+int main()
+{
+  int arr[] = {-7, 1, 5, 2, -4, 3, 0};
+  int arr_size = sizeof(arr)/sizeof(arr[0]);
+  printf("%d\n", equilibrium(arr, arr_size));
+
+  getchar();
+  return 0;
+}
+ Time Complexity: O(n^2) Method 2 (Tricky and Efficient) The idea is to get total sum of array first. Then Iterate through the array and keep updating the left sum which is initialized as zero. In the loop, we can get right sum by subtracting the elements one by one. Thanks to Sambasiva for suggesting this solution and providing code for this. 
+1) Initialize leftsum  as 0
+2) Get the total sum of the array as sum
+3) Iterate through the array and for each index i, do following.
+    a)  Update sum to get the right sum.  
+           sum = sum - arr[i] 
+       // sum is now right sum
+    b) If leftsum is equal to sum, then return current index. 
+    c) leftsum = leftsum + arr[i] // update leftsum for next iteration.
+4) return -1 // If we come out of loop without returning then
+             // there is no equilibrium index
+ 
+#include <stdio.h>
+
+int equilibrium(int arr[], int n)
+{
+   int sum = 0;      // initialize sum of whole array
+   int leftsum = 0; // initialize leftsum
+   int i;
+
+   /* Find sum of the whole array */
+   for (i = 0; i < n; ++i)
+        sum += arr[i];
+
+   for( i = 0; i < n; ++i)
+   {
+      sum -= arr[i]; // sum is now right sum for index i
+
+      if(leftsum == sum)
+        return i;
+
+      leftsum += arr[i];
+   }
+
+    /* If no equilibrium index found, then return 0 */
+    return -1;
+}
+
+int main()
+{
+  int arr[] = {-7, 1, 5, 2, -4, 3, 0};
+  int arr_size = sizeof(arr)/sizeof(arr[0]);
+  printf("First equilibrium index is %d\n", equilibrium(arr, arr_size));
+
+  getchar();
+  return 0;
+}
+ Time Complexity: O(n) As pointed out by Sameer, we can remove the return statement and add a print statement to print all equilibrium indexes instead of returning only one. Please write comments if you find the above codes/algorithms incorrect, or find better ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. plop instead of using steps a,b,c , you can use sum = sum -2*a[i] . You find the equilibrium when sum==0. at each step, it is equivalent to taking the element out of the sum, and then substracting it from the sum. plop instead of using steps a,b,c , you can use sum = sum -2*a[i] . You find the equilibrium when sum==0. at each step, it is equivalent to taking the element out of the sum, and then substracting it from the sum. rakeshbabu This is much simple: Find sum by cumulatively updating the array. Find for sum/2 in that. If you do not want to modify the array then. Find the index where it will make sum/2. This would reduce the no of operation, makes program faster. Guest #include int equi(int arr[],int n) { int i,j,lsum[7],rsum[7]; lsum[0]=0; for(i=1;i=0;j--) { rsum[j]=rsum[j+1]+arr[j+1]; } for(i=0;i<n;i++) { if(lsum[i]==rsum[i])return i; } return -1; } int main() { int arr[] = {-7, 1, 5, 2, -4, 3, 0}; int arr_size = sizeof(arr)/sizeof(arr[0]); printf("%dn", equi(arr, arr_size)); getchar(); return 0; } vishal In Method 2 there is no need for right sum It can be done as : for every index i check if leftsum = (arraysum – a[i+1])/2; if the condition is true the i is the equillibrium of array. please correct me if I am wrong.  
+
+ lakshay #include #include void addArray(int arr[], int n) { int i, temp = 0; /* Allocate memory for the product array */ int *add = (int *)calloc(n,sizeof(int)); /* In this loop, temp variable contains addition of elements on left side excluding arr[i] */ for(i=0; i=0; i–) { add[i] -= temp; temp += arr[i]; } /* look for the index */ for (i=1; i<n-1; i++) { if(add[i]==0) printf("%d ", i); } return; } /* Driver program to test above functions */ int main() { int arr[] = {-7, 1, 5, 2, -4, 3, 0}; int n = sizeof(arr)/sizeof(arr[0]); printf("The addition array is: \n"); addArray(arr, n); getchar(); } time compexity: O(n) Satish Python Script def equi(arr): n = len(arr) if n==0: return -1 Totalsum=0 i=0 while i=0: sumleft = Totalsum – sumright – arr[i] if sumright == sumleft: return i sumright += arr[i] i = i-1 return -1 val = equi([-7,1,5,2,-4,3,0]) if val == -1: print “It is not Equilibirum” else: print “Equilibirum occure at “+str(val)+” index” Ganesh You can find java code here for method2 /** * Equilibrium index of an array is an index such that the sum of elements at lower indexes is equal to * the sum of elements at higher indexes. * For example, in an array A: A[0] = -7, A[1] = 1, A[2] = 5, A[3] = 2, A[4] = -4, A[5] = 3, A[6]=0 * 3 is an equilibrium index, because: A[0] + A[1] + A[2] = A[4] + A[5] + A[6], 6 is also an equilibrium index. * * @author GAPIITD * */ public class EquilibriumIndexOfAnArray { public static void main(String[] args) { int arr[] = {-7, 1, 5, 2, -4, 3, 0}; equilibriumIndex(arr); } private static void equilibriumIndex(int[] arr) { int sum = 0, right = 0, left = 0; for (int i : arr) { sum += i; } right = sum; for (int i = 0; i < arr.length; i++) { right = right – arr[i]; if (left == right) System.out.println("equilibriumIndex: " + i); left += arr[i]; } } } Agniswar Hi,this is the way i solved it..pls tell me if the approach is wrong ! Link-http://ideone.com/hgxmv _naive_ whats the logic ??? please explain !!!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ legalroot Wrong code…check for this input “-3 2 0 2 -3″ it s returng ans s 1 bt ans s 2  
+/* Paste your code here (You may delete these lines if not writing code) */
+ A.R.R array is traversed only once http://ideone.com/Asp3s madhan hey dis s really good . .!! vinay i think its bit complex to understand , but unlike other programs , with just one traversal output s obtained . just keep posting . karthik i never know this could be solved even without computing sum of the array, cool method . BlackMath Wrong code. Never gives correct output.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ _naive_ whats the logic ???? explain plzz Arjun Another method: Take two empty arrays b and c. b[i] stores left sums up to a[i] c[i] stores right sum up to a[i] Now, the answer is the index in which both b and c have same value. Arjun Space complexity: O(n) Time Complexity: O(n) Pandharinath Hi, I think is does not require to cal sum. better option is start i=0 and j=n-1; leftsum+=arr[i] & rightsum+=arr[j] if(leftsum == rightsum ) { if(j-i >1) i++; else return i; } else if(leftsum < rightsum) j–; else i++; ajay doesnt work at all  
+/* Paste your code here (You may delete these lines if not writing code) */
+ asd One more Method: first calculate cumulative sum at every index i.e if array given is {1,2,3,4} then it’s cumulative array would be {1,3,6,10} and say you put it in cumArr integer array. Then do the following for ( int i = 0; i < n; i++ ) { rightsum = cumArr[length(arr) – 1] – cumArr[i] if ( i != 0 ) { leftsum = cumArr[i-1] } else { leftsum = 0 } if ( leftsum == rightsum ) { print i } } you wouldn't require any extra space of O(n) if you put the cumulative Array elements in the input array itself. abcd in the original post how could 6 be an equilibrium index when there are no elements on its right side ? shanky check this:  
+	for(i=0;i<n;i++)
+		sum+=arr[i];
+		
+	for(i=0;i<n;i++)
+	{
+		sumeqb+=arr[i]/2;
+		if(sumeqb==(sum/2))
+			printf("%d   ",i);
+			
+			sumeqb+=arr[i]/2;		
+	}
+ KKM what about “equal average on both sides” rather than “equal sum”? http://shoutz.in kevindra then there will be minor change in condition: leftSum == rightSum to leftSum * (elements in right part) == rightSum * (elements in left part);  int leftSum = 0, rightSum = totalSum;
+
+for(int i=0; i<n; i++){
+  leftSum += a[i];
+  rightSum -= a[i];
+
+  if(leftSum*(n-i-1) == rightSum*(i+1)) return i;
+}
+return -1;  Sameer Don’t you think, instead of ‘returning’ the position it should be just printing it. There can be more than one equilibrium index. So printing can be better option to find all such indexes. GeeksforGeeks @Sameer: Yes, we could do that. In the solution, we are strictly following the question as question says print an equilibrium index. But we have modified the post and added a note for your suggestion. Prateek Caire  
+R(i)
+	if(i == n)
+		return 0
+	if(r[i] != I)
+		return r[i]
+	r[i] = R(i+1) + a[i+1]
+	return r[i]
+
+L(i)
+	if(i == 0)
+		return 0
+	if(l[i] != I)
+		return l[i]
+	l[i] = l[i-1] + a[i-1]
+	return l[i]
+	
+int EI()
+	for each i from 0 to n-1
+		if(l[i] == r[i])
+			return i
+
+main
+	L(n-1)
+	R(0)
+	i = EI()
+ abc In reference to method 2, it gives incorrect result for the array: {11,2,3,4,2}. Sandeep @abc Both methods print -1 for your input. And -1 seems to be the correct output. abc I don’t understand why -1 would be a correct output? Shouldn’t it be 1? “sum of elements at lower indexes” => arr[0] = 11 and “sum of elements at higher index” => arr[1] + arr[2] + arr[3] + arr[4] = 11 So isn’t 1 the equilibrium index? Pls correct me if I am wrong. Thanks Sandeep Please take a closer look at the definition of Equilibrium index. For index = 1, sum of elements at higher indexes is 9, not 11. wannabecoder Sum of higher indices will not include the element at the current index so “sum of elements at higher index” => arr[2] + arr[3] + arr[4] = 9 abc Ya I missed that! Thanks guys http://effprog.blogspot.com Sambasiva ` Hi, By changing second line below, we can reduce n subtractions.  
+    for( i = 0; i < n; ++i)
+    {
+        sum -= a[i];
+
+        if(leftsum == sum)
+            return i;
+
+        leftsum += a[i];
+    }
+ GeeksforGeeks @Sambasiva: Thanks for suggesting the optimization. We have updated the post with the suggested changes. Keep it up!! gunjan Take Two array called left and right and initialize in one iteration for(int i = 0,j=a.length;i<a.length;i++,j–) { if(i>0) { left[i]= a[i-1]+left[i-1]; } if(j<a.length) { right[j-1]= a[j]+right[j]; } } for(int i =0;i<a.length;i++) { if(left[i]==right[i]) { System.out.println("Equilibrium Index:"+i); } } } kartik @gunjan: good one! This approach also looks good. This is also O(n), but when compared to method2, it takes O(n) extra space. Mallik How does it work for first iteration?. left[0], right[0] are not initialized!. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

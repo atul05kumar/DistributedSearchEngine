@@ -1,0 +1,465 @@
+Maximum difference between two elements such that larger element appears after the smaller number - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Maximum difference between two elements such that larger element appears after the smaller number Given an array arr[] of integers, find out the difference between any two elements such that larger element appears after the smaller number in arr[]. Examples: If array is [2, 3, 10, 6, 4, 8, 1] then returned value should be 8 (Diff between 10 and 2). If array is [ 7, 9, 5, 6, 3, 2 ] then returned value should be 2 (Diff between 7 and 9) Method 1 (Simple) Use two loops. In the outer loop, pick elements one by one and in the inner loop calculate the difference of the picked element with every other element in the array and compare the difference with the maximum difference calculated so far. 
+#include<stdio.h>
+
+/* The function assumes that there are at least two
+   elements in array.
+   The function returns a negative value if the array is
+   sorted in decreasing order. 
+   Returns 0 if elements are equal */
+int maxDiff(int arr[], int arr_size)
+{     
+  int max_diff = arr[1] - arr[0];
+  int i, j;
+  for(i = 0; i < arr_size; i++)
+  {
+    for(j = i+1; j < arr_size; j++)
+    {        
+      if(arr[j] - arr[i] > max_diff)   
+         max_diff = arr[j] - arr[i];
+    }    
+  }          
+  return max_diff;
+}    
+
+/* Driver program to test above function */
+int main()
+{
+  int arr[] = {1, 2, 90, 10, 110};
+  printf("Maximum difference is %d",  maxDiff(arr, 5));
+  getchar();
+  return 0;
+}
+ Time Complexity: O(n^2) Auxiliary Space: O(1) Method 2 (Tricky and Efficient) In this method, instead of taking difference of the picked element with every other element, we take the difference with the minimum element found so far. So we need to keep track of 2 things: 1) Maximum difference found so far (max_diff). 2) Minimum number visited so far (min_element). 
+#include<stdio.h>
+
+/* The function assumes that there are at least two
+   elements in array.
+   The function returns a negative value if the array is
+   sorted in decreasing order.
+   Returns 0 if elements are equal  */
+int maxDiff(int arr[], int arr_size)
+{
+  int max_diff = arr[1] - arr[0];
+  int min_element = arr[0];
+  int i;
+  for(i = 1; i < arr_size; i++)
+  {       
+    if(arr[i] - min_element > max_diff)                               
+      max_diff = arr[i] - min_element;
+    if(arr[i] < min_element)
+         min_element = arr[i];                     
+  }
+  return max_diff;
+}    
+
+/* Driver program to test above function */
+int main()
+{
+  int arr[] = {1, 2, 6, 80, 100};
+  int size = sizeof(arr)/sizeof(arr[0]);
+  printf("Maximum difference is %d",  maxDiff(arr, size));
+  getchar();
+  return 0;
+}
+ Time Complexity: O(n) Auxiliary Space: O(1) Method 3 (Another Tricky Solution) First find the difference between the adjacent elements of the array and store all differences in an auxiliary array diff[] of size n-1. Now this problems turns into finding the maximum sum subarray of this difference array. Thanks to Shubham Mittal for suggesting this solution. 
+#include<stdio.h>
+
+int maxDiff(int arr[], int n)
+{
+    // Create a diff array of size n-1. The array will hold
+    //  the difference of adjacent elements
+    int diff[n-1];
+    for (int i=0; i < n-1; i++)
+        diff[i] = arr[i+1] - arr[i];
+
+    // Now find the maximum sum subarray in diff array
+    int max_diff = diff[0];
+    for (int i=1; i<n-1; i++)
+    {
+        if (diff[i-1] > 0)
+            diff[i] += diff[i-1];
+        if (max_diff < diff[i])
+            max_diff = diff[i];
+    }
+    return max_diff;
+}
+
+/* Driver program to test above function */
+int main()
+{
+    int arr[] = {80, 2, 6, 3, 100};
+    int size = sizeof(arr)/sizeof(arr[0]);
+    printf("Maximum difference is %d",  maxDiff(arr, size));
+    return 0;
+}
+ Output: 98 This method is also O(n) time complexity solution, but it requires O(n) extra space Time Complexity: O(n) Auxiliary Space: O(n) We can modify the above method to work in O(1) extra space. Instead of creating an auxiliary array, we can calculate diff and max sum in same loop. Following is the space optimized version. 
+int maxDiff (int arr[], int n)
+{
+    // Initialize diff, current sum and max sum
+    int diff = arr[1]-arr[0];
+    int curr_sum = diff;
+    int max_sum = curr_sum;
+
+    for(int i=1; i<n-1; i++)
+    {
+        // Calculate current diff
+        diff = arr[i+1]-arr[i];
+
+        // Calculate current sum
+        if (curr_sum > 0)
+           curr_sum += diff;
+        else
+           curr_sum = diff;
+
+        // Update max sum, if needed
+        if (curr_sum > max_sum)
+           max_sum = curr_sum;
+    }
+
+    return max_sum;
+}
+ Time Complexity: O(n) Auxiliary Space: O(1) Please write comments if you find any bug in above codes/algorithms, or find other ways to solve the same problem           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. Zheng Luo The 3 optimized method is amazing!!! How smart should that candidate be !!! alien Method 2 is wrong. It assumes that the input is sorted. o(nlong) Just-a-Beginner Isn’t method 2 wrong? For 6, 150, 12, 1, 100 the ans displayed is 144 instead of 149. I would suggest modifying it to : if(arr[i] < min_element){ max_diff+=(min_element-arr[i]); min_element = arr[i]; } GeeksforGeeks Please take a closer look at the problem statement. The pair (150, 1) is not a valid pair. GeeksforGeeks We have changed the title of post so that there is no confusion for future readers. Aditya Joshi Sorry for the previous post, the code wasn’t formatted properly. Here is the solution http://ideone.com/y5eGtY Aditya Joshi This is a simple O(n) time and O(n) space solution. Vaibhav another solution with O(n) time and O(1) might be: if we get min and max in o(n) time and get the difference of both please correct me if I its not better solution. Nitish Garg This can also be solved using this apporach : Start traversing the array from right and keep track of just the maximum element .If the current element is less than the maximum element and the difference is bigger than maximum diff then initialize difference with the new maximum difference. At last return bigger and we will have our solution. guest can someone explain the logic behind the method 3 that is how the problem got converted to sum contigous array Raj1084 Look ar the comment by Pushkar.. He has explained it. Alien I was wondering can we find max and min from the array an take absolute difference of that? wouldn’t that give us maximum difference? Alien I will only take o(n) time. Rahul It would be wrong because the larger element should come after the smaller element and by finding min and max of array you are ignoring their locations. Guest can sum1 please validate the following code #include void maxdiff(int arr[],int size) { int min=arr[0],max=arr[1],minind=0,maxind=1,i; for(i=2;i<size;i++) { if(arr[i]max) { max=arr[i]; maxind=i; } if(maxind<=minind) { maxind++; max=arr[maxind]; } } printf("the min ele =%dnthe max ele is=%dnn",arr[minind],arr[maxind]); } void main() { int arr[]={23,50,1,13,22}; int arr2[]={1,22,56,13,70,90}; maxdiff(arr,5); maxdiff(arr2,6); } Guest please can sumone validate the following code soon #include void maxdiff(int arr[],int size) { int min=arr[0], max=arr[1], minind=0, maxind=1,i; for(i=2;i<size;i++) { if(arr[i]max) { max=arr[i]; maxind=i; } if(maxind<=minind) { maxind++; max=arr[maxind]; } } printf("the min ele =%dnthe max ele is=%dnn",arr[minind],arr[maxind]); } void main() { int arr[]={23,50,1,13,22}; int arr2[]={1,22,56,13,70,90}; maxdiff(arr,5); maxdiff(arr2,6); } Guest pls can someone validate the following code #include void maxdiff(int arr[],int size) { int min=arr[0],max=arr[1],minind=0,maxind=1,i; for(i=2;i<size;i++) { if(arr[i]max) { max=arr[i]; maxind=i; } if(maxind<=minind) { maxind++; max=arr[maxind]; } } printf("the min ele =%dnthe max ele is=%dnn",arr[minind],arr[maxind]); } void main() { int arr[]={23,50,1,13,22}; int arr2[]={1,22,56,13,70,90}; maxdiff(arr,5); maxdiff(arr2,6); } Sumit Monga Sorry in the for loop ,the if condition should be (new_max!=arr[i]) and not (max_val!=arr[i]). The first one can be ok if we don’t take new_max and put max(max_val,arr[i]) into max_val straight away so no need to take another variable new_max.Sorry for the mistake. Sumit Monga A very easy solution by transversing the array from right to left ,keeping track of the maximum value encountered at the right side and continuing only if the maximum is not the current element in process. here is the code: int max(int a,int b) { return (a > b)?a:b; } int max_diff(int arr[], int n) { int diff = INT_MIN; int flag = 0; /*checks if the given condition is true which fails if the array is sorted in decreasing order*/ int new_max; int max_val = arr[n-1]; if(n > 1) //more than one element { for(int i = n-2; i>=0; i–) { new_max = max(arr[i],max_val); if(max_val!=arr[i]) //perform the inner step only if left element is smaller { if(diff < (max_val -arr[i])) diff = max_val – arr[i]; flag = 1; //set the flag so that maximum difference can be returned. } max_val = new_max; } if(flag) return diff; else return -1; // no right element is greater than the left element. } return -1; //if only 1 element return -1. } Time Complexity: O(n) Space Complexity: O(1) saksham Super simple and efficient  
+int main()
+{
+	int arr[] = {-7,0,1,3,9,4,7,-3};
+	int max = INT_MIN;
+	int min = INT_MAX;
+	int negMax = INT_MIN;
+	for(int i = 0;i<8;i++)
+	{
+		if(arr[i]<min&&arr[i]>=0)
+		{
+			min = arr[i];
+		}
+		if(arr[i]>negMax&&arr[i]<0)
+		{
+			negMax = arr[i];
+		}
+		if(arr[i]>max)
+		{
+			max = arr[i];
+		}
+	}
+	cout<<((min>=0)?max-min:max-negMax);
+	cin.ignore();
+}
+ Balasubramanian Can someone enlighten me on the correctness of Method-3 ie. How is it that running Kadane after finding the adjacent differences gives the maximum difference possible? I tried with some examples and it produced the correct result. But I am not able to understand why is it that it is giving the correct answer? Thanks, Balasubramanian  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Pushkar Hey here the diff[] array is used as the input for the kadane theorem. now if the previous element is postie then the current element is added to it and then compared to the maxdiff if it is greater than maxdiff, maxdiff is updated. In the meanwhile diff[] array is also get updated with the contiguous sum of the diff[] array elements until a negative sum is encountered then the continuity breaks and we start considering another subarray. Now why it works..??? let the input is 2,3,10 and there difference is 1,7 respectively stored in diff[] array. here 1 indicates difference between 2 and 3 and 7 indicates difference between 3 and 10 so when we add these two to find maximum sum contiguous subarray we are actually calculating the difference between 2 and 10.diff[] array is updated to {1,8} and maxdiff is updated to 8. now for {2,3,10,6} diff[] is{1,7,-4} so when these 3 are added we actually find difference between 2 and 6. maxdiff remains 8. diff[] array becomes {1,8,4}. and so on. I have tried to explain it..If i am getting it right.. Jitendera Pratap Singh try this: {80,10,180,50,1} it is giving 170 instead of 179 Aditya Joshi A simple python implementation with time complexity O(n) and space complexity of O(n) def max_diff(list): minimum = list[0] curr_diff = {} curr_diff[minimum] = 0 for x in range(1,len(list)): if list[x] < minimum: minimum = list[x] curr_diff[minimum] = 0 else: if curr_diff[minimum] < (list[x] – minimum): curr_diff[minimum] = list[x] – minimum else: pass return max(curr_diff.values()) Jatin @GeeksforGeeks : Merge Sort Implementation of the following question. This uses the merge sort comparison stage as the basis for calculating max difference. diff is a global variable here. #include #include #include #include #define MAX 50 using namespace std; int diff=INT_MIN; void mergeSort(int [],int,int,int); void partitionMerge(int a[],int l,int h) { int mid; if(l<h) { mid=(l+h)/2; partitionMerge(a,l,mid); partitionMerge(a,mid+1,h); mergeSort(a,l,mid,h); } } void mergeSort(int a[],int low,int mid,int high) { int i=low,j=mid+1,k=low; int temp[MAX]; while(i<=mid&&j<=high) { if(a[i]<=a[j]) { printf("%d %d\n",a[j]-a[i],diff); diff=max(a[j]-a[i],diff); temp[k++]=a[i++]; } else temp[k++]=a[j++]; } while(i<=mid) temp[k++]=a[i++]; while(j<=high) temp[k++]=a[j++]; for(i=low;i<=high;i++) a[i]=temp[i]; } void maxDifference(int a[],int n) { partitionMerge(a,0,n-1); } int main() { int a[]={4,5,2,8,0,10,-27},n; n=sizeof(a)/sizeof(a[0]); maxDifference(a,n); printf("The maximum difference is %d\n",diff); return 0; } Time = O(nlogn) The resulting array is sorted! vhajela  
+
+int find_max_diff ( int a[] ) {
+ n = length of array
+ int i = 0 , j = n-1;
+max =0;
+while ( i ! = j) {
+
+if ( a[i] <= a[j] )
+j--;
+else {
+if ( max < (a[i]-a[j])) {
+max= a[j]-a[i];
+i++;
+}
+
+}//else ends
+
+} // while ends
+
+return max;
+
+}
+
+
+ jiaji just another solution using recursion. Time complexity is nlog(n) /* Paste your code here (You may delete these lines if not writing code) */ public static int find(int[] arr, int s, int e) { //find min //find max //if the position of min is less than the position of max, then return max-min //else Math.max(find(arr, s, the position of max), find(arr,(the position of max) +1,e)) if (e <= s) return -1; int minP = s; int maxP = s; int min = arr[s]; int max = arr[s]; for (int i = s; i <= e; i++) { if (arr[i] > max) { maxP = i; max = arr[i]; } else if (arr[i] < min) { minP = i; min = arr[i]; } } if (maxP > minP) return max – min; else return Math.Max(find(arr, s, maxP), find(arr, maxP + 1, e)); } ramu i think there is misprinting in you examples. if you are asking max diff between any two elements then it should be 9 for first case(10 and 1).and 7 for second case (2 and 9). and if i am wrong then please explain ur examples again… me.abhinav Didn’t you read the text in bolds? …”such that larger element appears after the smaller number”… me.abhinav One more solution: Complexity: O(n) time and O(n) space. Maintain another array ‘maxAtRightOf[i]’, such that maxAtRightOf[i] contains ‘maximum element at the right of ith element’ (i is between 0 and n-1, where n is the size of array). This array can be initialized in O(n) time (see code). Now: .Set maxSum = 0 .For each ‘i’ in range(0, n-1): . maxSum = max(maxSum, maxAtRightOf[i] – a[i]) .Return maxSum #include <iostream> #define SIZ 100 #define MAX(a, b) (a>b)?a:b using namespace std; int main() { int a[] = {9,8,3,7,2,1,6,10,5,4}; int n = sizeof(a)/sizeof(a[0]); int maxAtRightof[SIZ]; int i, sum = 0; maxAtRightof[n-1] = -1; for(i=n-2 ; i>=0 ; i–){ maxAtRightof[i] = MAX(a[i+1], maxAtRightof[i+1]); } sum = 0; for(i=0 ; i<n-1 ; i++){ if(maxAtRightof[i]-a[i] > sum) sum = maxAtRightof[i] – a[i]; } cout<<"Maximum Sum: "<<sum<<"\n\n"; return 0; } Deepak Singhal A O(n) solution using O(n) space. Time Complexity: O(n) Auxiliary Space: O(n) #include #include #include #include #include using namespace std; const int MAX=40; int n; int arr[]={2, 3, 10, 6, 4, 8, 1}; int RMax[MAX]; int solve() { int i, res=0; int rmax=RMax[n-1]=arr[n-1]; for(i=n-2; i>=0; i–) { rmax=max(rmax, arr[i]); RMax[i]=rmax; } for(i=0; i<n; i++) { res=max(res, (RMax[i]-arr[i])); } return res; } int main() { n=sizeof(arr)/sizeof(arr[0]); int res=solve(); cout<<"ans: "<<res; } pritybhudolia I think this will work on all test cases. In the first scan MAX element can be found, and its index can be stored. In second pass, we search for a MIN element from start til the index of max element. If the index of max element is 0 and all elements in the array are not same, then it will return -1. Finally, the difference of MAX and MIN is returned. #include #include int maxDiff(int arr[], int size) { int max=0,i,start=0,end,min=1000; for(i=0;i { if(arr[i]>max) { max=arr[i]; end=i; } } for(i=0;i<=end;i++) { if(arr[i] { min=arr[i]; } } if(end==0 && max!=min) return -1; return(max-min); } int main() { // int arr[] = {1, 2, 90, 10, 110}; //printf(“Maximum difference is %d”, maxDiff(arr, 5)); // int arr[] = {7, 15, 9, 1, 3}; // printf(“\nMaximum difference is %d”, maxDiff(arr, 5)); int arr[] = {20, 20, 20, 20, 20}; printf(“\nMaximum difference is %d”, maxDiff(arr, 5)); getch(); return 0; } ramu your algorithm is wrong. take a case 7 9 2 6 3 5 according to your algorithm it will return 2 as answer but ans shuld be 4(6-2) so….try again…to corect it. pritybhudolia @ramu thanks. prity I think this will work on all test cases. In the first scan MAX element can be found, and its index can be stored. In second pass, we search for a MIN element from start til the index of max element. If the index of max element is 0 and all elements in the array are not same, then it will return -1. Finally, the difference of MAX and MIN is returned.  
+
+#include<stdio.h>
+#include<conio.h>
+int maxDiff(int arr[], int size)
+{
+    int max=0,i,start=0,end,min=1000;
+    for(i=0;i<size;i++)
+    {
+                       if(arr[i]>max)
+                       {
+                                     max=arr[i];
+                                     end=i;
+                       }
+    }
+    
+    for(i=0;i<=end;i++)
+    {
+                      
+                      if(arr[i]<min)
+                      {
+                                    min=arr[i];
+                      }
+    }
+    
+   if(end==0 && max!=min) return -1;
+    return(max-min);
+}
+int main()
+{
+ // int arr[] = {1, 2, 90, 10, 110};
+  //printf("Maximum difference is %d",  maxDiff(arr, 5));
+ //  int arr[] = {7, 15, 9, 1, 3};
+ // printf("\nMaximum difference is %d",  maxDiff(arr, 5));
+   int  arr[] = {20, 20, 20, 20, 20};
+ printf("\nMaximum difference is %d",  maxDiff(arr, 5));
+  
+   getch();
+    return 0;
+    
+}
+
+ Nagesh Ayyagari can be solved in logarithmic O(nlogn) complexity with divide-n-conquer approach.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ varun jain method 3 is not working properly..if suppose we have sequence-100,2,6,3,80 then it gives wrong output i.e. 78. GeeksforGeeks Seems to be working fine. The following produced 180 as output.  
+#include<stdio.h>
+
+int maxDiff (int arr[], int n)
+{
+    // Initialize diff, current sum and max sum
+    int diff = arr[1]-arr[0];
+    int curr_sum = diff;
+    int max_sum = curr_sum;
+
+    for(int i=1; i<n-1; i++)
+    {
+        // Calculate current diff
+        diff = arr[i+1]-arr[i];
+
+        // Calculate current sum
+        if (curr_sum > 0)
+           curr_sum += diff;
+        else
+           curr_sum = diff;
+
+        // Update max sum, if needed
+        if (curr_sum > max_sum)
+           max_sum = curr_sum;
+    }
+
+    return max_sum;
+}
+
+/* Driver program to test above function */
+int main()
+{
+    int arr[] = {-100,2,6,3,80};
+    int size = sizeof(arr)/sizeof(arr[0]);
+    printf("Maximum difference is %d",  maxDiff(arr, size));
+    return 0;
+}
+
+ varun jain this code is not giving right answer 100,2,6,3,80..as input.. kartik The program prints 78 which is correct output. Read the question carefully. Ganesh You can find java code here for method 2 /** * Given an array arr[] of integers, find out the difference between any two elements such that * larger element appears after the smaller number in arr[]. * Examples: If array is [2, 3, 10, 6, 4, 8, 1] then returned value should be 8 (Diff between 10 and 2). * If array is [ 7, 9, 5, 6, 3, 2 ] then returned value should be 2 (Diff between 7 and 9) * @author GAPIITD * */ public class MaximumDifferenceBetweenTwoElements { public static void main(String[] args) { int arr[] = {2, 3, 10, 6, 4, 8, 1}; System.out.println(maximumDifferenceBetweenTwoElements(arr)); } private static int maximumDifferenceBetweenTwoElements(int[] arr) { int min = arr[0], max_diff = arr[1] – arr[0]; for (int i = 1; i < arr.length; i++) { if (arr[i] – min > max_diff) max_diff = arr[i] – min; if (min > arr[i]) min = arr[i]; } return max_diff; } } aygul My friend got a question in Microsoft interview which can be reduced to this one. He is asked for the days to buy and sell a stock with an array given the price for each day. So this is basically finding the indexes of max diff in this question. In first method 2 ( @geeksforgeeks there are two method 2 ) we can easily trace indexes which gives the max diff. GeeksforGeeks @aygul: Thanks for pointing this out. We have renamed last method as method 3. Baahu This can be solved in a simpler way by first finding the max element and then finding the min element till the index-1th location of the max element. For eg:[2, 3, 10, 6, 4, 8, 1] first pass would find 10(3rd element) as the max.second pass would search for min element between 1st and 2nd ..so min is 2. So the answer is 10-2=8 . Theoretically this requires 2 passes, but requires lesser calculations.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ aygul Not that easy that would not find the desired diff. For eg:[4, 3, 10, 6, 1, 9, 1] Your aswer would be 7 with that approach. but it is 9 – 1 = 8. baahu Oh yeah… You are right.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ pefullarton In Method 2 (Tricky and Efficient) their would be 2n comparisons. This problem is same as finding the smallest and largest element in array which can be done in 3n/2 comparisons using tournament method. Please correct me if i’m wrong. GeeksforGeeks @pefullarton: Please take a closer look. It is a different problem. pefullarton Got it. The indexes of max n min number would matter. I didn’t see that specified in problem. Thanks GeeksforGeeks. vishal Method 2 (Another Tricky Solution) doent work for array{2,8,6,15,18,20}  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Shubham Mittal @vishal : Isn’t the answer for this array 18? I checked it and it’s giving correct output.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ mohitk Hi all, My solution to work for the same. This can be used when we care about which values were selected to come upto the max differnce value. Algorithm: Use 3 different variables, curr_Min, min & max. max : Max element so far. min : Min element before the max. curr_Min : Contains either the above min element or the min element seen so far Initialization : All variables above are initialized to 0. 1. Traverse through the array (1 to n – 1). 2. Compare the ith element with max, if greater: a. max = i; b. min = curr_Min; 3. In the same iteration, compare the i element with the curr_Min, if smaller or equal: a. curr_Min = i; Finally: 1. If min == max,[means repeated value, print -2] 2. If curr_Min < max [ return the difference]. 3. else return the difference of max & min. public int correct_Max_Diff(int[] array) { if (array == null || array.length < 2) return -1; int curr_Min = 0, max = 0, min = 0; for (int i = 1; i < array.length ; i++) { if (array[i] >= array[max]) { max = i; min = curr_Min; } if (i != 1 && array[i – 1] <= array[curr_Min]) curr_Min = i-1; } if (min == max) return -2; if (curr_Min < max) return (array[max] – array[curr_Min]); return (array[max] – array[min]); } Balasubramanian.N Similar to the second solution, instead of keeping track of the minimum element, we can keep track of the maximum element so far from the end. So, the procedure would be as follows: If the current element is greater the maxSoFar, then just update maxSoFar. Else Check if the diff between the maxSoFar and the current element is greater than the current max answer. Code:  
+int findAns(int* a,int len)
+{
+	//printf("The len is %d\n",len);
+	int ans=INT_MIN;
+	int curMax=a[len-1];
+	for(int i=len-2;i>=0;--i)
+	{
+		if(a[i]>curMax){ curMax=a[i]; }
+		else{ ans=max(ans,curMax-a[i]); }
+	}
+	return ans;
+}
+ Please comment if you find anything wrong here. Thanks, Balasubramanian.N A This is the best solution lomash goyal  
+/* Paste your code here (You may delete these lines if not writing code) */
+ // geeksforfeeks.cpp : Defines the entry point for the console application. // #include “stdafx.h” #include “conio.h” #include “string.h” int findmaxdiff(int arr[],int size) { int maxdif=0,min=arr[0],max=arr[0],minindex=0,maxindex=0; for(int i=0;i=arr[i]) { min=arr[i]; minindex=i; } else { if(arr[i]>max) { max=arr[i]; maxindex=i; } } if(maxindex>minindex) { maxdif=arr[maxindex]-arr[minindex]; } } return maxdif; } int _tmain(int argc, _TCHAR* argv[]) { int arr[]={4,7, 3, 10, 8, 9 }; //int length=strlen(arr); int x=findmaxdiff(arr,6); printf(“%d”,x); getch(); return 0; } please let me know if m wrong anywhere.. suyash #include #include #include using namespace std; int main() { int a[] = {1,2,90,10,110}; int maxdiff ; int min,max,j=0; vector v1,v2; //summing up the current and previous number of array and pushing into vector v1 for(int i=0;i< (sizeof(a)/sizeof(int));i++) if(v1.empty()) v1.push_back(a[i]); else v1.push_back(a[i]+a[i-1]); //pushing the elements after the subtraction of original value with the sum value of all the elements in vetor v2 for(int i = 0 ; i < v1.size();i++) v2.push_back(v1[v1.size()-1] – a[i]); if (a[j] < a[j+1]) min = a[j],max = a[j+1]; else min = a[j+1] , max = a[j]; int index1 = 0 , index2 = 1; //finding the minimum and the maximum element in v2 and their indexes respectively for(j = 2 ; j < v2.size() ; j++) { if(a[j] max) max = a[j] , index2 = j; } //getting the maximum difference b/w two numbers if (a[index1] < a[index2]) maxdiff = a[index2] – a[index1]; else maxdiff = a[index1] – a[index2]; cout << maxdiff << endl; return 0; } //runtime: O(n) //suggest corrections . kartik @suyash: Please post your code between two sourcecode tags. suyash yeah, I am sorry about that. I did it for the first time. will take care about that in future. suyash #include #include #include using namespace std; int main() { int a[] = {1,2,90,10,110}; int maxdiff ; int min,max,j=0; vector v1,v2; //summing up the current and previous number of array and pushing into vector v1 for(int i=0;i< (sizeof(a)/sizeof(int));i++) if(v1.empty()) v1.push_back(a[i]); else v1.push_back(a[i]+a[i-1]); //pushing the elements after the subtraction of original value with the sum value of all the elements in vetor v2 for(int i = 0 ; i < v1.size();i++) v2.push_back(v1[v1.size()-1] – a[i]); if (a[j] < a[j+1]) min = a[j],max = a[j+1]; else min = a[j+1] , max = a[j]; int index1 = 0 , index2 = 1; //finding the minimum and the maximum element in v2 and their indexes respectively for(j = 2 ; j < v2.size() ; j++) { if(a[j] max) max = a[j] , index2 = j; } //getting the maximum difference b/w two numbers if (a[index1] < a[index2]) maxdiff = a[index2] – a[index1]; else maxdiff = a[index1] – a[index2]; cout << maxdiff << endl; return 0; } runtime: O(n) suggest corrections . suyash #include #include #include using namespace std; int main() { int a[] = {1,2,90,10,110}; int maxdiff ; int min,max,j=0; vector v1,v2; //summing up the current and previous number of array and pushing into vector v1 for(int i=0;i< (sizeof(a)/sizeof(int));i++) if(v1.empty()) v1.push_back(a[i]); else v1.push_back(a[i]+a[i-1]); //pushing the elements after the subtraction of original value with the sum value of all the elements in vetor v2 for(int i = 0 ; i < v1.size();i++) v2.push_back(v1[v1.size()-1] – a[i]); if (a[j] < a[j+1]) min = a[j],max = a[j+1]; else min = a[j+1] , max = a[j]; int index1 = 0 , index2 = 1; //finding the minimum and the maximum element in v2 and their indexes respectively for(j = 2 ; j < v2.size() ; j++) { if(a[j] max) max = a[j] , index2 = j; } //getting the maximum difference b/w two numbers if (a[index1] < a[index2]) maxdiff = a[index2] – a[index1]; else maxdiff = a[index1] – a[index2]; cout << maxdiff << endl; return 0; } Yamuna What about this solution? The complexity is O(n). public static void LargestDiff(int[] arr) { int i = 0; int j = 0; int temp = -1; int diff = -1; for (int x = 1; x < arr.Length; x++) { if (arr[x – 1] <= arr[x]) { if (temp != -1 && (diff < (arr[x] – arr[temp]))) { i = temp; j = x; diff = arr[j] – arr[i]; } else if (diff <= arr[x] – arr[i]) { j = x; diff = arr[j] – arr[i]; } } else temp = x; } Console.WriteLine("Diff :" + (diff == -1 ? "Not Found" : diff.ToString())); } Prasad we can use a stack for this problem 1)we push the elements into the stack as long as the previously pushed elements are less than the current element so in this array [2, 3, 10, 6, 4, 8, 1] stack 2->3->10 2)We now popout elements with the first element being max and the second one being min so during first time max = 10 ,min = 3 next time we pop out 2 and compare it with min AND update min so max=10 and min =2 so we can print out the diffrence Correct me if i am wronf Saurya why do you need extra stack,when it can be done without it.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Algorithmus Hi all, My code is as follow…  
+#include<stdio.h>
+#include<malloc.h>
+
+struct num
+{
+	int info;
+	int index;
+};
+typedef struct num num;
+
+int main()
+{
+	int *arr,i,size;
+	num max,min;
+
+	printf("Enter the size of array: ");
+	scanf("%d",&size);
+
+	arr=(int*)calloc(size,sizeof(int));
+
+	printf("Enter the elements of array: \n");
+
+	for(i=0;i<size;i++)
+		scanf("%d",&arr[i]);
+
+	max.info=min.info=arr[0];
+	max.index=min.index=0;
+
+	for(i=1;i<size;i++)
+	{
+		if(min.info>arr[i] && max.index>i)
+		{
+			min.info=arr[i];
+			min.index=i;
+		}
+
+		if(max.info<arr[i] && min.index<i)
+		{
+			max.info=arr[i];
+			max.index=i;
+		}
+
+	}
+
+	printf("\nThe two such numbers are: %d   %d\n",max.info,min.info);
+	printf("The difference is: %d\n\n",max.info-min.info);
+
+	return 0;
+} Let me know if I am wrong… vijayk The solution does not satisfy some test cases if input array is arr[] = {1,0} we can’t get difference with the conditions given in the question. so the program should indicate the same. Here is my solution:  
+#include<stdio.h>
+
+typedef enum bool{false,true}bool;
+
+void maxDiff(int a[],int n)
+{
+	int small = a[0],maxDiff,diff,i;
+	bool flag = false;
+	for(i=1;i<n;i++)
+	{
+		if(small > a[i])
+			small = a[i];
+		else
+		{
+			if(!flag)
+			{
+				maxDiff = a[i]- small;
+				flag = true;
+			}
+			else
+			{
+			diff = a[i]-small;
+			if(diff > maxDiff)
+				maxDiff = diff;
+			}
+		}
+	}
+	
+	if(!flag)
+		printf("no suitable difference exists\n");
+	else
+		printf("Max. Diff %d\n",maxDiff);
+	
+}
+int main()
+{
+	int a[] = {2, 3, 10, 6, 4, 8, 1};
+	int size = sizeof(a)/sizeof(a[0]);
+	maxDiff(a,size);
+	return 0; 
+}
+ comments are welcome. thanks kartik Why do you say so? The solution works fine for [1, 0]. Output should be -1 for this array and following program prints -1.  #include<stdio.h>
+ 
+/* The function assumes that there are at least two
+   elements in array.
+   The function returns a negative value if the array is
+   sorted in decreasing order.
+   Returns 0 if elements are equal  */
+int maxDiff(int arr[], int arr_size)
+{
+  int max_diff = arr[1] - arr[0];
+  int min_element = arr[0];
+  int i;
+  for(i = 1; i < arr_size; i++)
+  {
+    if(arr[i] - min_element > max_diff)
+      max_diff = arr[i] - min_element;
+    if(arr[i] < min_element)
+         min_element = arr[i];
+  }
+  return max_diff;
+}    
+ 
+/* Driver program to test above function */
+int main()
+{
+  int arr[] = {1, 0};
+  int size = sizeof(arr)/sizeof(arr[0]);
+  printf("Maximum difference is %d",  maxDiff(arr, size));
+  getchar();
+  return 0;
+}
+ kartik @vijayk: Ok, I got your point. The question says that the larger element must appear after the smaller element. I think, having a simple check before returning would do.  
+/* The function assumes that there are at least two
+   elements in array.
+   The function returns a negative value if the array is
+   sorted in decreasing order.
+   Returns 0 if elements are equal  */
+int maxDiff(int arr[], int arr_size)
+{
+  int max_diff = arr[1] - arr[0];
+  int min_element = arr[0];
+  int i;
+  for(i = 1; i < arr_size; i++)
+  {
+    if(arr[i] - min_element > max_diff)
+      max_diff = arr[i] - min_element;
+    if(arr[i] < min_element)
+         min_element = arr[i];
+  }
+  if(max_diff < 0)
+  {
+    printf("no such pair exists");
+    return -1; //some error code
+  }  
+  return max_diff;
+}     rohit I would like to modify “method 2″ a little bit. /* If max_diff = 0, i.e. elements are in non decreasing order so according to question, no such maxDiff is possible.*/  
+int maxDiff(int arr[], int size)
+{
+    int max_diff = 0;
+    int min_elem = arr[0];
+    for(int i =1; i 0 && d > max_diff)
+          max_diff = d;
+       if(arr[i] < min_elem)
+          min_elem = arr[i];
+    }
+    if(max_diff == 0) return -1;
+    else return max_diff;
+}
+
+int main()
+{
+    int arr[] = {8,19, 4, 7, 5};
+    printf("%d",maxDiff(arr, 5));
+    getchar();
+    return 0;
+}
+ http://sachingupta.tk sachin gupta //FIND MAX AND MIN AND RETURN DIFF MAX,MIN //COMPLEXITY O(1)  
+int max_diff(int a[],int size)
+{
+    int i,max,min;
+    max=min=a[0];
+    for(i=1;imax)
+    max=a[i];
+    else if(a[i]<min)
+    min=a[i];
+    }
+    return (max-min);
+    }
+
+main()
+{
+    int a[5]={23,1,44,5,6};
+    printf("\n max diff:%d",max_diff(a,5));
+}
+ NKS no. in this case . If array is [ 7, 9, 5, 6, 3, 2 ] then returned value should be 2 (Diff between 7 and 9) not 5!!! Venki From the explanation of question it looks that the required difference is Max(array) – array[0]. If that is the case, we can search for max in O(n). If the required difference is between MAX and MIN we can found it simply by adjacent comparisons for MAX and MIN which approximately takes 3n/2 comparisons. Gauri If I give the array input as the descending integer list ;say {92, 83 ,73,64,55,46,37,28,19,10} is this program expected to return 0 or the negative difference ? According to the code snippet , the minimum value is updated prior to calculating the maximum difference we end up subtracting the same array elements resulting in maximum difference to be zero ,which might not be desired as per the problem statement(it asks for difference between two numbers). The same can be averted by updating the minimum element after calculating the maximum difference. GeeksforGeeks @Gauri: Nice suggestion!! We have incorporated the suggested change. Keep it up! http://web.iiit.ac.in/~singh_parmar devendraiiit sorry i havent read problem correctly. http://web.iiit.ac.in/~singh_parmar devendraiiit Can we simply take two variables Max and Min Then in one loop we can find Max and Min value of array. Then just take difference of that. O(n) time and O(1) space Nithish Yes devendraiiit that also is an optimal solution. It would have been the best solution for a question like – “Given an array arr[] of unsorted integers, find out the difference between any two elements in arr[]” Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

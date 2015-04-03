@@ -1,0 +1,73 @@
+Write a program to reverse an array - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Write a program to reverse an array Iterative way: 1) Initialize start and end indexes. start = 0, end = n-1 2) In a loop, swap arr[start] with arr[end] and change start and end as follows. start = start +1; end = end – 1 
+/* Function to reverse arr[] from start to end*/
+void rvereseArray(int arr[], int start, int end)
+{
+  int temp;
+  while(start < end)
+  {
+    temp = arr[start];   
+    arr[start] = arr[end];
+    arr[end] = temp;
+    start++;
+    end--;
+  }   
+}     
+
+/* Utility that prints out an array on a line */
+void printArray(int arr[], int size)
+{
+  int i;
+  for (i=0; i < size; i++)
+    printf("%d ", arr[i]);
+
+  printf("\n");
+} 
+
+/* Driver function to test above functions */
+int main() 
+{
+  int arr[] = {1, 2, 3, 4, 5, 6};
+  printArray(arr, 6);
+  rvereseArray(arr, 0, 5);
+  printf("Reversed array is \n");
+  printArray(arr, 6);
+  getchar();
+  return 0;
+}
+ Time Complexity: O(n) Recursive Way: 1) Initialize start and end indexes start = 0, end = n-1 2) Swap arr[start] with arr[end] 3) Recursively call reverse for rest of the array. 
+/* Function to reverse arr[] from start to end*/
+void rvereseArray(int arr[], int start, int end)
+{
+   int temp;
+   if(start >= end)
+     return;
+   temp = arr[start];   
+   arr[start] = arr[end];
+   arr[end] = temp;
+   rvereseArray(arr, start+1, end-1);   
+}     
+
+/* Utility that prints out an array on a line */
+void printArray(int arr[], int size)
+{
+  int i;
+  for (i=0; i < size; i++)
+    printf("%d ", arr[i]);
+
+  printf("\n");
+} 
+
+/* Driver function to test above functions */
+int main() 
+{
+  int arr[] = {1, 2, 3, 4, 5};
+  printArray(arr, 5);
+  rvereseArray(arr, 0, 4);
+  printf("Reversed array is \n");
+  printArray(arr, 5);
+  getchar();
+  return 0;
+}
+ Time Complexity: O(n) Please write comments if you find any bug in the above programs or other ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: array Tweet Writing code in comment? Please use ideone.com and share the link here. kalyan yashwanth For example if a is an array of integers with three elements such that a[0] = 1 a[1] = 2 a[2] = 3 Then on reversing the array will be a[0] = 3 a[1] = 2 a[0] = 1 We copy the elements of array a into array b in reverse and then copy the array b elements into array a which will be in reverse order. We can also reverse the array without using additional memory. Please see the link for more details http://www.fixoncloud.com/Home/LoginValidate/OneProblemComplete_Detailed.php?problemid=318 Can Eryavuz Thanks, dude! slackware thanks for the tutorial. i like to mention a small point. in the second function, the recursive way, it’s not really necessary to check if start ist bigger equal end (start >= end ), it’s enough to check if start is bigger than end (start > end), and the reason is bcoz we start from 0. If i miss some point over here please correct me. Thanks again for the tutorial. moonlight I don’t think your 1st method will be o(n) it will be o(lg n). you don’t loop over every element. we also could make it easier as follows: int temp =0; for(int I=0;i<n/2;i++) { temp=arr[I]; arr[I]=arr[n-I-1]; arr[n-I-1]=temp; } /* Paste your code here (You may delete these lines if not writing code) */ Ujjwal guys is the code written by @moonlight correct.?? To me it seems fine..plz reply.. shek8034 @moonlight: Your code is absolutely correct, since we only have to traverse half of the array(like the way you are doing). Because at that point, start index either crosses the end index (even length case) or they are just equal (odd length case) and all the elements are reversed till now. Same thing is done by the author in his post. Complexity is O(n), not O(log n) [Correction for moonlight]. anonymous Your code is correct, but you are traversing half of the array. The complexity of such a code is O(n/2) or O(n) It would have been O(log n), if you were dividing the array into 2 parts after every step. Ankur can u just elaborate Anunay If there is an additional requirement where you cannot use a temp variable, then you can use following variation of the recursive algorithm //Driver RecursiveArrayReverseWithoutTempCharacter( arr, 0, arr.Length -1, arr[0], arr[arr.Length -1]); public void RecursiveArrayReverseWithoutTempCharacter (int[] arr, int start, int end, int left, int right) { if (start > end) return; arr[start++] = right; arr[end–] = left; RecursiveArrayReverseWithoutTempCharacter(arr, start, end, arr[start], arr[end]); } Note: this will work for array of any data type. sharat If temp is not to be used, use the XOR mechanism to swap, not this way, This is more inefficient than using temp, This will two extra variables to each new function stack space.(each new function stack corresponding to a recursive call.) neham To swap two variables w/o using third can be done by simple arithmetic too:- a = a + b; b = a – b; a = a – b;  
+/* Paste your code here (You may delete these lines if not writing code) */
+ anonymous why so much trouble? You are passing two additional variables everytime when you recurse. In a way, using extra space. There is a pretty standard to swap without using the third (temp) variable, 1.) a=a*b; 2.) b=a/b; 3.) a=a/b; Note: This will work for both positive and negative integers. But for large integers, may cause an overflow, in which case, either switch to long long or use + instead of * and – instead of /. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

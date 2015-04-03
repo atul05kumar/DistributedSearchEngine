@@ -1,0 +1,97 @@
+Find four elements that sum to a given value | Set 1 (n^3 solution) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find four elements that sum to a given value | Set 1 (n^3 solution) Given an array of integers, find all combination of four elements in the array whose sum is equal to a given value X. For example, if the given array is {10, 2, 3, 4, 5, 9, 7, 8} and X = 23, then your function should print “3 5 7 8″ (3 + 5 + 7 + 8 = 23). Sources: Find Specific Sum and Amazon Interview Question A Naive Solution is to generate all possible quadruples and compare the sum of every quadruple with X. The following code implements this simple method using four nested loops 
+#include <stdio.h>
+
+/* A naive solution to print all combination of 4 elements in A[]
+  with sum equal to X */
+void findFourElements(int A[], int n, int X)
+{
+  // Fix the first element and find other three
+  for (int i = 0; i < n-3; i++)
+  {
+    // Fix the second element and find other two
+    for (int j = i+1; j < n-2; j++)
+    {
+      // Fix the third element and find the fourth
+      for (int k = j+1; k < n-1; k++)
+      {
+        // find the fourth
+        for (int l = k+1; l < n; l++)
+           if (A[i] + A[j] + A[k] + A[l] == X)
+              printf("%d, %d, %d, %d", A[i], A[j], A[k], A[l]);
+      }
+    }
+  }
+}
+
+// Driver program to test above funtion
+int main()
+{
+    int A[] = {10, 20, 30, 40, 1, 2};
+    int n = sizeof(A) / sizeof(A[0]);
+    int X = 91;
+    findFourElements (A, n, X);
+    return 0;
+}
+ Output: 20, 30, 40, 1 Time Complexity: O(n^4) The time complexity can be improved to O(n^3) with the use of sorting as a preprocessing step, and then using method 1 of this post to reduce a loop. Following are the detailed steps. 1) Sort the input array. 2) Fix the first element as A[i] where i is from 0 to n–3. After fixing the first element of quadruple, fix the second element as A[j] where j varies from i+1 to n-2. Find remaining two elements in O(n) time, using the method 1 of this post Following is C implementation of O(n^3) solution. 
+# include <stdio.h>
+# include <stdlib.h>
+
+/* Following function is needed for library function qsort(). Refer
+   http://www.cplusplus.com/reference/clibrary/cstdlib/qsort/ */
+int compare (const void *a, const void * b)
+{  return ( *(int *)a - *(int *)b ); }
+
+/* A sorting based solution to print all combination of 4 elements in A[]
+   with sum equal to X */
+void find4Numbers(int A[], int n, int X)
+{
+    int l, r;
+
+    // Sort the array in increasing order, using library
+    // function for quick sort
+    qsort (A, n, sizeof(A[0]), compare);
+
+    /* Now fix the first 2 elements one by one and find
+       the other two elements */
+    for (int i = 0; i < n - 3; i++)
+    {
+        for (int j = i+1; j < n - 2; j++)
+        {
+            // Initialize two variables as indexes of the first and last 
+            // elements in the remaining elements
+            l = j + 1;
+            r = n-1;
+
+            // To find the remaining two elements, move the index 
+            // variables (l & r) toward each other.
+            while (l < r)
+            {
+                if( A[i] + A[j] + A[l] + A[r] == X)
+                {
+                   printf("%d, %d, %d, %d", A[i], A[j],
+                                           A[l], A[r]);
+                   l++; r--;
+                }
+                else if (A[i] + A[j] + A[l] + A[r] < X)
+                    l++;
+                else // A[i] + A[j] + A[l] + A[r] > X
+                    r--;
+            } // end of while
+        } // end of inner for loop
+    } // end of outer for loop
+}
+
+/* Driver program to test above function */
+int main()
+{
+    int A[] = {1, 4, 45, 6, 10, 12};
+    int X = 21;
+    int n = sizeof(A)/sizeof(A[0]);
+    find4Numbers(A, n, X);
+    return 0;
+}
+ Output: 1, 4, 6, 10 Time Complexity: O(n^3) This problem can also be solved in O(n^2Logn) complexity. We will soon be publishing the O(n^2Logn) solution as a separate post. Please write comments if you find any of the above codes/algorithms incorrect, or find other ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. Messe Hello please tell me how to extend from 4 combination to 5 or 6 abhishek08aug Intelligent  
+/* Paste your code here (You may delete these lines if not writing code) */
+ pallavi711 what if the question is to find all possible combinations of numbers from the given array that sum to X. how to proceed for it? eg A[] = {1,2,4,6,7,8} and X=7 ans would be 1,6;1,2,4;7 http://www.facebook.com Nishant O(n^2logn): void find_result ( int32_t array[] , int32_t sum , int32_t count , int32_t number ) { if (number>=max || sum<0 ) return; if (sum==0 && count==4) { print ( count ); count–; sum=sum-array[number]; } find_result ( array , sum , count , number+1 ); temp_array[count++]=array[number]; sum=sum-array[number]; find_result ( array , sum , count , number+1 ); } http://www.facebook.com Nishant Mittal code of O(n^2logn) #define max 100 int32_t temp_array[max]; void print ( int32_t c ) { int32_t i=0; for (i=0; i=max || sum<0 ) { return; } if (sum==0) { print ( count ); count–; sum=sum-array[number]; } find_result ( array , sum , count , number+1 ); temp_array[count++]=array[number]; sum=sum-array[number]; find_result ( array , sum , count , number+1 ); } int32_t main ( void ) { srand((unsigned)time(NULL)); int32_t array[max]={0}; int32_t i=0; for (i=0; i<max; i++) { array[i]=rand()%100; printf("%d\t",array[i]); } int32_t sum=0; printf("\n enter the sum to be made\t"); scanf("%d",&sum); find_result ( array , sum , 0 , 0 ); } http://www.facebook.com Nishant Mittal sorry some problem with pasting /* ignore the above code */ suresh very helpful thanks….. for this post Rajat There are a couple of clarifications I wanted to add to the problems. (1) As par the problem description we need to print ALL combinations that sum up to X. But in the example given in problem ({10, 2, 3, 4, 5, 9, 7, 8} and X=23), the expected output is only “3,5,7,8”. We can see that “10,4,9,7” is also correct. Consider rewriting the example with correct and complete expected output. (2) It seems that there is an implicit assumption, that the numbers in the array are distinct. Consider adding it explicitly. And if there can be duplicates, then the solution given above can print same combination more than once. shanky HI Can u please post O(N^2logn)  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

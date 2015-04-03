@@ -1,0 +1,288 @@
+Find the repeating and the missing | Added 3 new methods  - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find the repeating and the missing | Added 3 new methods Given an unsorted array of size n. Array elements are in range from 1 to n. One number from set {1, 2, …n} is missing and one number occurs twice in array. Find these two numbers. Examples:   arr[] = {3, 1, 3}
+  Output: 2, 3   // 2 is missing and 3 occurs twice 
+
+  arr[] = {4, 3, 6, 2, 1, 1}
+  Output: 1, 5  // 5 is missing and 1 occurs twice 
+ Method 1 (Use Sorting) 1) Sort the input array. 2) Traverse the array and check for missing and repeating. Time Complexity: O(nLogn) Thanks to LoneShadow for suggesting this method. Method 2 (Use count array) 1) Create a temp array temp[] of size n with all initial values as 0. 2) Traverse the input array arr[], and do following for each arr[i] ……a) if(temp[arr[i]] == 0) temp[arr[i]] = 1; ……b) if(temp[arr[i]] == 1) output “arr[i]” //repeating 3) Traverse temp[] and output the array element having value as 0 (This is the missing element) Time Complexity: O(n) Auxiliary Space: O(n) Method 3 (Use elements as Index and mark the visited places) Traverse the array. While traversing, use absolute value of every element as index and make the value at this index as negative to mark it visited. If something is already marked negative then this is the repeating element. To find missing, traverse the array again and look for a positive value. 
+#include<stdio.h>
+#include<stdlib.h>
+
+void printTwoElements(int arr[], int size)
+{
+    int i;
+    printf("\n The repeating element is");
+
+    for(i = 0; i < size; i++)
+    {
+        if(arr[abs(arr[i])-1] > 0)
+            arr[abs(arr[i])-1] = -arr[abs(arr[i])-1];
+        else
+            printf(" %d ", abs(arr[i]));
+    }
+
+    printf("\nand the missing element is ");
+    for(i=0; i<size; i++)
+    {
+        if(arr[i]>0)
+            printf("%d",i+1);
+    }
+}
+
+/* Driver program to test above function */
+int main()
+{
+    int arr[] = {7, 3, 4, 5, 5, 6, 2};
+    int  n = sizeof(arr)/sizeof(arr[0]);
+    printTwoElements(arr, n);
+    return 0;
+}
+ Time Complexity: O(n) Thanks to Manish Mishra for suggesting this method. Method 4 (Make two equations) Let x be the missing and y be the repeating element. 1) Get sum of all numbers. Sum of array computed S = n(n+1)/2 – x + y 2) Get product of all numbers. Product of array computed P = 1*2*3*…*n * y / x 3) The above two steps give us two equations, we can solve the equations and get the values of x and y. Time Complexity: O(n) Thanks to disappearedng for suggesting this solution. This method can cause arithmetic overflow as we calculate product and sum of all array elements. See this for changes suggested by john to reduce the chances of overflow. Method 5 (Use XOR) Let x and y be the desired output elements. Calculate XOR of all the array elements.      xor1 = arr[0]^arr[1]^arr[2].....arr[n-1] XOR the result with all numbers from 1 to n      xor1 = xor1^1^2^.....^n In the result xor1, all elements would nullify each other except x and y. All the bits that are set in xor1 will be set in either x or y. So if we take any set bit (We have chosen the rightmost set bit in code) of xor1 and divide the elements of the array in two sets – one set of elements with same bit set and other set with same bit not set. By doing so, we will get x in one set and y in another set. Now if we do XOR of all the elements in first set, we will get x, and by doing same in other set we will get y. 
+#include <stdio.h>
+#include <stdlib.h>
+
+/* The output of this function is stored at *x and *y */
+void getTwoElements(int arr[], int n, int *x, int *y)
+{
+  int xor1;   /* Will hold xor of all elements and numbers from 1 to n */
+  int set_bit_no;  /* Will have only single set bit of xor1 */
+  int i;
+  *x = 0;
+  *y = 0;
+
+  xor1 = arr[0];
+
+  /* Get the xor of all array elements elements */
+  for(i = 1; i < n; i++)
+     xor1 = xor1^arr[i];
+
+  /* XOR the previous result with numbers from 1 to n*/
+  for(i = 1; i <= n; i++)
+     xor1 = xor1^i;
+
+  /* Get the rightmost set bit in set_bit_no */
+  set_bit_no = xor1 & ~(xor1-1);
+
+  /* Now divide elements in two sets by comparing rightmost set
+   bit of xor1 with bit at same position in each element. Also, get XORs
+   of two sets. The two XORs are the output elements.
+   The following two for loops serve the purpose */
+  for(i = 0; i < n; i++)
+  {
+    if(arr[i] & set_bit_no)
+     *x = *x ^ arr[i]; /* arr[i] belongs to first set */
+    else
+     *y = *y ^ arr[i]; /* arr[i] belongs to second set*/
+  }
+  for(i = 1; i <= n; i++)
+  {
+    if(i & set_bit_no)
+     *x = *x ^ i; /* i belongs to first set */
+    else
+     *y = *y ^ i; /* i belongs to second set*/
+  }
+
+  /* Now *x and *y hold the desired output elements */
+}
+
+/* Driver program to test above function */
+int main()
+{
+  int arr[] = {1, 3, 4, 5, 5, 6, 2};
+  int *x = (int *)malloc(sizeof(int));
+  int *y = (int *)malloc(sizeof(int));
+  int  n = sizeof(arr)/sizeof(arr[0]);
+  getTwoElements(arr, n, x, y);
+  printf(" The two elements are %d and %d", *x, *y);
+  getchar();
+}
+ Time Complexity: O(n) This method doesn’t cause overflow, but it doesn’t tell which one occurs twice and which one is missing. We can add one more step that checks which one is missing and which one is repeating. This can be easily done in O(n) time. Please write comments if you find the above codes/algorithms incorrect, or find other ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. Vivek for i=0 to n-1 arr[ (arr[i]-1)%n] + = n; for i=0 to n-1 if(arr[i]>2n) (i+1) is the repeated no if(arr[i] < n) (i+1) is the missing no Robert let x1 = xor all the elements in array. let x2 = xor elements 1-n let xr = x1 xor x2. repeated element = xr xor x2. missing element = xr xor x1 wasseypuriyan According to your formula repeated elem = xr xor x2 = (x1 xor x2) xor x2 = x1 which is xor of all elements in array not the repeated element. On very similar lines I can say that your formula won’t work for missing element either. srinivas #include int main() { int i,n,sum=0,actual_sum,twise; int a[]={1,2,5,5,4}; n=sizeof(a)/sizeof(int); actual_sum=(n*(n+1))/2; for(i=0;i(2*n+2)) twise=a[i]%(n+1); } printf(“twise=%d,mis=%d”,twise,twise+(actual_sum-sum)); return 0; } Ravish I think there is no need for the last for loop in 5th method.*x and *y already have the desired value.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ganesh You can find java code here: /** * Given an unsorted array of size n. Array elements are in range from 1 to n. * One number from set {1, 2, …n} is missing and one number occurs twice in array. Find these two numbers. * Example: arr[] = {3, 1, 3} * Output: 2, 3 // 2 is missing and 3 occurs twice * * @author GAPIITD * */ public class FindTheRepeatingAndTheMissing { public static void main(String[] args) { int arr[] = {1, 3, 4, 5, 5, 6, 2}; FindRepeatingAndMissing(arr); } private static void FindRepeatingAndMissing(int[] arr) { for (int i = 0; i < arr.length; i++) { int index = Math.abs(arr[i]) – 1; if (index < arr.length) { if (arr[index] > 0) arr[index] = -arr[index]; else System.out.println("Repeated: " + (index + 1)); } } for (int i = 0; i < arr.length; i++) { if (arr[i] > 0) System.out.println("Missing: " + (i+1)); } } } ramdas hey geeks here is a problem statment:- search a particular no. in a given array ( return with how many times and with positions)….array can be any size and the no. inside array also any……. nit_d Are elements sorted?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://algorithmsea.blogspot.com Vikky Code for the logic given by me : http://www.geeksforgeeks.org/archives/11946#comment-9618  
+#include<stdio.h>
+
+/*
+ This program assumes that array elements are given according to problem statement.
+ * ie. from 1..n
+ */
+
+int main(){
+    
+    int arr[]={1,2,3,4,5,3};
+    int len=sizeof(arr)/sizeof(arr[0]);    
+    
+    int sum1=0,sum3=0;
+    int sum=((len+1)*len)/2;
+    for(int i=0;i<len;i++)
+        sum1+=arr[i];
+    int eq1=sum-sum1;   //  (x-y)
+        
+    for(int i=0;i<len;i++)
+        sum3+=(arr[i]*arr[i]);    
+    
+    int sum2=((len)*(len+1)*(2*len+1))/6;   //sum of squares (n)(n+1)(2n+1)/6
+    int eq2=sum2-sum3;   // (x^2-y^2) or (x+y)*(x-y)
+    
+    int val=eq2/eq1; // will give (x+y)    
+    
+    printf("Missing Number is:%d\n",(eq1+val)/2);  // Print x
+    printf("Repeated Number is:%d\n",(val-eq1)/2); // Print y 
+    
+    return 0;
+}
+ cracker How could method 5 be extended if there are more than one repeating and missing numbers.. could anyone please post your ideas on this.. BlackMath This is a java code and is inspired by a similar post, but there the method did not get selected. This is a nice solution with Time complexity O(n), but we traverse the array thrice.  
+/* Paste your code here (You may delete these lines if not writing code) */
+public class FindRepeatingAndMissing
+{
+  public static void main (String args[])
+  {
+    int arr[] = new int[] {4,2,1,6,5,6};
+    int size = 6;
+    
+    for (int i = 0; i < size; i++)
+      if (arr[i] != i+1)
+    {
+      int tmp = arr[arr[i]-1];
+      arr[arr[i]-1] = arr[i];
+      arr[i] = tmp;
+    }
+    
+    for (int i = 0; i < size; i++)
+      if (arr[i] != i+1)
+    {
+      int tmp = arr[arr[i]-1];
+      arr[arr[i]-1] = arr[i];
+      arr[i] = tmp;
+    }
+    
+    for (int i = 0; i < size; i++)
+      if (arr[i] != i+1)
+    {
+      System.out.println ("The repeating no is : " + arr[i]);
+      System.out.println ("The missing no is : " + (i+1));
+    }
+  }
+}
+ Nages  
+public class ArrayDuplicate {
+
+	public static void main(String[] args) {
+
+		int a[] = new int[] { 3, 5, 1, 6, 4, 7, 5 };
+
+		int len = a.length;
+
+		int sum = 0;
+		int sum2 = 0;
+
+		for (int i = 0; i < len; ++i) {
+			sum += a[i];
+			sum2 += a[i] * a[i];
+		}
+
+		int asum = (len * (len + 1)) / 2;
+		int asum2 = (len * (len + 1) * (2 * len + 1)) / 6;
+
+		int missDiff = asum - sum; // x -y
+		int missDiff2 = asum2 - sum2; // x^2 - y^2 = (x+y) * (x-y)
+		int missSum = missDiff2 / missDiff;
+
+		System.out.println("Missing number : " + (missDiff + missSum) / 2);
+		System.out.println("Duplicated number : " + (missSum - missDiff) / 2);
+	}
+}
+
+ PsychoCoder In method 5 : we can detect two desired results. But can we find which one is missing and which one is repeating. I mean with traversing the array for another time to detect which one is missing or repeating!! GeeksforGeeks Yes, we can add a postprocessing step to figure out which one is missing and which one is repeating. We have added a note for the same. Venkatesh correct me if i am wrong. seems like method 3 overruns array. for ex: my input is 5 4 3 2. arr[abs(arr[i])-1] = arr[4] which is overrun. isn’t it? for(i = 0; i 0) arr[abs(arr[i])-1] = -arr[abs(arr[i])-1]; else printf(” %d “, abs(arr[i])); } Venkatesh http://www.c-sharpcorner.com/Blogs/7036/find-the-missing-and-repeating-number-in-an-array.aspx Venkatesh what does following means #include&amp;amp;lt;stdio.h&amp;amp;gt; #include&amp;amp;lt;stdlib.h&amp;amp;gt; GeeksforGeeks This has been Fixed. Please check now. http://www.geekyportal.com/ GeekyPortal.com I think 2nd one is the easiest among all. http://www.nitinkumar.wordpress.com Nitin Kumar But in case n is too large… then creating an array of that size is not possible. and How come the complexity of method 5 is just O(n) ?? kartik Time complexity of Method 5 is O(n) only. There are no nested loops. Why do you think that it is more than O(n)? http://www.nitinkumar.wordpress.com Nitin Kumar Ok I got it.. O(n)!! Satyarth I have another approach to solve this problem.  #include<stdio.h>
+#include<stdlib.h>
+
+void swap(int *x, int *y)
+{
+	int t;
+	t = *x;
+	*x = *y;
+	*y = t;
+}
+
+void find_missing(int A[],int n){
+	int i;
+	for(i=1;i<=n;++i){
+		while(A[i]!=i && A[i]!=A[A[i]]){
+			swap(&A[i],&A[A[i]]);
+		}
+	}
+	for(i=1;i<=n;i++){
+		if(A[i]!=i){
+			printf("%d is missing and %d is repeated\n",i,A[i]);
+		}
+	}
+}
+
+int main(){
+	int n,x,i;
+	scanf("%d",&n);
+	int A[n+1];
+	for(i=0;i<n;i++){
+		scanf("%d",&A[i+1]);
+	}
+	find_missing(A,n);
+	return 0;
+}
+ Time – O(n) Space – O(1) Kindly let me know if something fails or is missing. Mritiyunjay Easiest and fastest way using sum and sum of squares formula.. Assume the array is 1 to n and sum of the numbers in shuffled array(with one repeating and one missing number) be S. Let a be the repeated number and b be the missing number. so, s(actual sum of numbers) = n*(n+1)/2 + a -b ……(1) s'(actual sum of squares of numbers) = {n*(n+1)*(2n+1)/6} + a^2 – b^2 ….(2) by (2)/(1) get value of a+b …(3) Now, solve for a and b from equation (1) and (3) CaesiumX how about this…  
+void tofind(int a[],int size)
+{
+	int i,j,cnt;
+	for(i=1;i<=size;i++)
+	{
+		for(cnt=0,j=0;j<size;j++)
+		{
+			if(i==a[j])
+				cnt++;
+		}
+		if(cnt>1)
+			printf("Repeating:%d\n",i);
+		else if(cnt==0)
+			printf("Missing:%d\n",i);
+	}
+}
+ not sure if this is covered in the methods posted. Kindly let me know if something fails or is missing Regards http://www.geeksuper.com/ Faisy I think Method 5 is the easiest. http://geeksforgeeks.org/ Sandeep @Manish Mishram, @disappearedng, @john and @LoneShadow: Thanks for your contribution. We have added the suggested methods to the original post. Keep it up!! LoneShadow Another obvious solution I didnt see, but nlogn. Sort and walk the array. asd This gives the rightmost set bit set_no_bits = (xor1&-xor1) + 1 The one given in the code doesn’t work… http://geeksforgeeks.org/ Sandeep @asd: could you please provide an example for which the logic given in post didn’t work? raman We can find the repeating element in O(n) by negating each element method. then compute the sum of given array and compare with n*(n+1) find the difference the abs(difference)will be the missing element. Manish Mishra how about this..  
+void printRepeating(int arr[], int size)
+{
+  int i;
+
+  printf("\n The repeating element is");
+
+  for(i = 0; i < size; i++)
+  {
+    if(arr[abs(arr[i])-1] > 0)
+      arr[abs(arr[i])-1] = -arr[abs(arr[i])-1];
+    else
+      printf(" %d ", abs(arr[i]));
+  }
+ printf("\nand the missing element is ");
+ for(i=0;i<size;i++)
+ {
+ if(arr[i]>0)
+  printf("%d",i+1);
+ }
+}
+ This is same as the logic used in two of the previous questions.. Correct me if the above code fails in any of the test cases.. http://geeksforgeeks.org/ Sandeep @Manish Mishra: Thanks for suggesting a new method. The method seems to be working. We will analyze and test it further and add to the original post. Gaurav /* Get the rightmost set bit in set_bit_no */ set_bit_no = xor1 & ~(xor1-1); Please explain this line. john disappearedng’s method can be improved to reduce the chance of overflow by replacing the multiplcations of all numbers with 1^2 + 2^2 + 3^2 + …. + n^2 = n(n+1)(2n+1)/6. So we have A. n(n+1)/2 – duplicate + missing = sum_of_the_array B. n(n+1)(2n+1)/6 -duplicate^2 + missing^2 = sum_of_array_square We can solve the system to find the duplicate and missing in O(n) time and O(1) space. The chance of overflow can be reduced further in coding. Below is the Java implementation:  
+public void findMissionAndDuplicate(int[] arr) {
+	long sum1 = 0;
+	long sum2 = 0;
+	for (int i = 0; i < arr.length; i++) {
+		sum1 += i + 1 - arr[i];
+		sum2 += (i + 1 - arr[i]) * (i + 1 + arr[i]);
+	}
+	long d_minus_m = sum1;
+	long d_plus_m = sum2 / d_minus_m;
+	long m = (d_plus_m + d_minus_m) / 2;
+	long d = (d_plus_m - d_minus_m) / 2;
+
+	System.out.println(Arrays.toString(arr));
+	System.out.println("Missing number: " + m);
+	System.out.println("Duplicated number: " + d);
+}
+ atul how did you solve these equations using these technique..i didnt get the idea.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ disappearedng Actually, I think rather than writing code, let’s step back and do some math. Given 1…n, 1 missing and 1 repeated, let x be missing and y be repeated. We have: n(n+1)/2 – x + y = { sum of array computed } 1*2*3*…*n * y / x = { multiplication of all elements } Then you have two equations and you can solve. You can code this up, but coding a solution for this might be a little tricky. time: O(n) space: O(1) This is easier to understand GeeksforGeeks @disappearedng: Thanks for suggesting a new method. This is another method with O(n) time complexity and O(1) extra space. Following are the points to note when this method is compared with the XOR method given in post. (a) This method also tells which one is repeating and which one is missing, XOR method doesn’t provide this info. (b) This method can cause airthmatic overflow which is not possible in XOR method. We will analyze this further and add to the original post. Eatesh i guess time complexity of the suggested code is O(1) as we need to evaluate just an equation. Correct me if i am wrong. GeeksforGeeks @Eatesh: O(n) is the correct time complexity. We need to do O(n) operations to add all numbers and multiply all numbers. Eatesh Thanks, interpreted it wrongly. http://algorithmsea.blogspot.com Vikky Hi, Rather than multiplying the elements we can use sum of squares for finding out the solution,as follows: Lets say missing number is x and repeating number is y. 1) First get the sum of all the numbers,lets say it sum and get sum from formula n(n+1)/2 lets say it sum1, now subtract from (sum1-sum) we will get (x-y) – equation(1). 2) Now using sum of squares get another result n(n+1)(2*n+1)/6 lets say it sum2 and get square of all the numbers and add it lets say it sum3, now getting (sum2-sum3) we will get (x^2-y^2) – equation(2). Now from equation 1 and 2 we can easily get x and y as equation 2 could be broken as (x+y)(x-y) and using value from equation 1 we get value of (x+y), now using this value and value from equation 1 again get the value of x and similarly value for y. Hope this helps.! aman i did not understand the logic of XOR method. can anyone please explain? Sandeep @aman: The approach used here is similar to the method 4 of this post and method 2 of this post. Uttam The logic given for XOR will not work for the set {1,2,3} and input array 3,1,3.. it will give output 2 and 2. But Actual output is 2 and 3. GeeksforGeeks The code works fine for {3, 1, 3} and prints 2 and 3. Could you please post the code that you tried? diver99 “So if we take any set bit (We have chosen the rightmost set bit in code) of xor1 and divide the elements of the array in two sets – one set of elements with same bit set and other set with same bit not set. By doing so, we will get x in one set and y in another set.” Let’s say 1 was missing and 3 was repeated. Input = {2,3,3} When you partition the elements would’nt 1 and 3 end up in the same set? Sandeep @diver99: Please take a closer look. Wnen we do XOR of all array elements and numbers from 1 to n, we get XOR of the two required numbers. For your example, XOR would be 1^3 which is 2 (0010). Now we take a set bit from this XOR and divide in two sets, so 1 and 3 become part of different sets. slimshady this is cool..thanks for posting Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

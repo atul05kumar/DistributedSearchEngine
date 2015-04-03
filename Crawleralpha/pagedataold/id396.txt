@@ -1,0 +1,31 @@
+Count number of bits to be flipped to convert A to B - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Count number of bits to be flipped to convert A to B Suggested by Dheeraj Question: You are given two numbers A and B. Write a program to count number of bits needed to be flipped to convert A to B. Solution: 
+  1. Calculate XOR of A and B.      
+        a_xor_b = A ^ B
+  2. Count the set bits in the above calculated XOR result.
+        countSetBits(a_xor_b)
+ XOR of two number will have set bits only at those places where A differs from B. Example: 
+   A  = 1001001
+   B  = 0010101
+   a_xor_b = 1011100
+   No of bits need to flipped = set bit count in a_xor_b i.e. 4
+ To get the set bit count please see another post on this portal http://geeksforgeeks.org/?p=1176           Related Topics: Check if binary representation of a number is palindrome Swap two nibbles in a byte How to turn off a particular bit in a number? Check if a number is multiple of 9 using bitwise operators How to swap two numbers without using a temporary variable? Divide and Conquer | Set 4 (Karatsuba algorithm for fast multiplication) Find position of the only set bit Swap all odd and even bits Tags: Bit Magic Tweet Writing code in comment? Please use ideone.com and share the link here. archit #include using namespace std; int count_bits(unsigned int x,unsigned int y) { int count=0; while(x||y) { count =count + (x&1)^(y&1); x>>=1; y>>=1; } return count; } int main() { cout<<count_bits(5,100); return 0; } pavansrinivas code in JAVA.. void numOfFlips(int a, int b){ int x = a^b; int c = 0; int count = 0; while(c<32){ int i = 1<0){ count++; } c++; } System.out.print(count); } Kapil Agarwal int count_bit(int a,int b) { int c=a^b; int count=0 while(c!=0) { c&=(c-1); count++; } return count; } Satish #include void main() { int a=10; int b=20; b=(a^b)^b; printf(“a=%d b=%d”,a,b); getch(); } out put :- a=10 b=10 Satish another metho b=(a*b)/b… loosy This one is more compact answer.  
+int bit_swaps_required( int a, int b ) {
+    unsigned int count = 0;
+    for( int c = a ^ b; c != 0; c = c >> 1 ) {
+        count += c & 1;
+    }
+    return count;
+}
+ http://www.mytechinterviews.com/bit-swaps Arpit #include using namespace std; int main() { int x,y,i,c=0,n; n=sizeof(int)*8; cin>>x>>y; for(i=0;i<n-1;i++) { if( (x&(1<<i))^(y&(1<<i)) ) c++; } cout<<c; return 0; } Swapna a = x ^ y count = 0 while ( a != 0 ) { if (a | 1 == a) count++ ; a >> 2 ; } cout << count; http://androidshashank.blogspot.com wgpshashank  
+void swap(int a,int b)
+{
+   int count=0;
+  for(int c=a^b ;c!=0;c>>=1)
+  {
+
+     count+=c&1;
+
+  }
+
+}
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

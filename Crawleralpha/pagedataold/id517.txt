@@ -1,0 +1,238 @@
+Write a C function to print the middle of a given linked list - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Write a C function to print the middle of a given linked list Method 1: Traverse the whole linked list and count the no. of nodes. Now traverse the list again till count/2 and return the node at count/2. Method 2: Traverse linked list using two pointers. Move one pointer by one and other pointer by two. When the fast pointer reaches end slow pointer will reach middle of the linked list. 
+#include<stdio.h>
+#include<stdlib.h>
+
+/* Link list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+
+/* Function to get the middle of the linked list*/
+void printMiddle(struct node *head)
+{
+    struct node *slow_ptr = head;
+    struct node *fast_ptr = head;
+
+    if (head!=NULL)
+    {
+        while (fast_ptr != NULL && fast_ptr->next != NULL)
+        {
+            fast_ptr = fast_ptr->next->next;
+            slow_ptr = slow_ptr->next;
+        }
+        printf("The middle element is [%d]\n\n", slow_ptr->data);
+    }
+}
+
+void push(struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node =
+        (struct node*) malloc(sizeof(struct node));
+
+    /* put in the data  */
+    new_node->data  = new_data;
+
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);
+
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+// A utility function to print a given linked list
+void printList(struct node *ptr)
+{
+    while (ptr != NULL)
+    {
+        printf("%d->", ptr->data);
+        ptr = ptr->next;
+    }
+    printf("NULL\n");
+}
+
+/* Drier program to test above function*/
+int main()
+{
+    /* Start with the empty list */
+    struct node* head = NULL;
+    int i;
+
+    for (i=5; i>0; i--)
+    {
+        push(&head, i);
+        printList(head);
+        printMiddle(head);
+    }
+
+    return 0;
+}
+ Output: 5->NULL
+The middle element is [5]
+
+4->5->NULL
+The middle element is [5]
+
+3->4->5->NULL
+The middle element is [4]
+
+2->3->4->5->NULL
+The middle element is [4]
+
+1->2->3->4->5->NULL
+The middle element is [3] Method 3: Initialize mid element as head and initialize a counter as 0. Traverse the list from head, while traversing increment the counter and change mid to mid->next whenever the counter is odd. So the mid will move only half of the total length of the list. Thanks to Narendra Kangralkar for suggesting this method. 
+#include<stdio.h>
+#include<stdlib.h>
+
+/* Link list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+
+/* Function to get the middle of the linked list*/
+void printMiddle(struct node *head)
+{
+    int count = 0;
+    struct node *mid = head;
+
+    while (head != NULL)
+    {
+        /* update mid, when 'count' is odd number */
+        if (count & 1)
+            mid = mid->next;
+
+        ++count;
+        head = head->next;
+    }
+
+    /* if empty list is provided */
+    if (mid != NULL)
+        printf("The middle element is [%d]\n\n", mid->data);
+}
+
+
+void push(struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node =
+        (struct node*) malloc(sizeof(struct node));
+
+    /* put in the data  */
+    new_node->data  = new_data;
+
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);
+
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+// A utility function to print a given linked list
+void printList(struct node *ptr)
+{
+    while (ptr != NULL)
+    {
+        printf("%d->", ptr->data);
+        ptr = ptr->next;
+    }
+    printf("NULL\n");
+}
+
+/* Drier program to test above function*/
+int main()
+{
+    /* Start with the empty list */
+    struct node* head = NULL;
+    int i;
+
+    for (i=5; i>0; i--)
+    {
+        push(&head, i);
+        printList(head);
+        printMiddle(head);
+    }
+
+    return 0;
+}
+ Output: 
+5->NULL
+The middle element is [5]
+
+4->5->NULL
+The middle element is [5]
+
+3->4->5->NULL
+The middle element is [4]
+
+2->3->4->5->NULL
+The middle element is [4]
+
+1->2->3->4->5->NULL
+The middle element is [3] Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. prakashyaji Method 2 and 3 are essentially the same. You are using two different pointers where you increment faster pointer (head) twice and slower pointer (mid) once. Sonu Lamba Function to get the middle of the linked list*/ void printMiddle(struct node *head) { struct node *slow_ptr = head; struct node *fast_ptr = head; if (head!=NULL) { while (fast_ptr != NULL && fast_ptr->next != NULL) { fast_ptr = fast_ptr->next->next; slow_ptr = slow_ptr->next; } printf(“The middle element is [%d]nn”, slow_ptr->data); } /****While condition should be while (fast_ptr != NULL && fast_ptr->next->next != NULL) Lokesh Is there any cpp compiler property that can be used in this problem? Please Refer to http://tinyurl.com/oe7dxqo Madhan Raj all works on time complexity O(n) i prefer first method as the space complexity is less compared with other methods . GeeksforGeeks @All: We have updated the programs so that the output of both methods matches in case of even elements. We have also added more test cases in main(). Thanks for your comments and views. darkpassenger plz correct the 3rd method its not working in case of 2 elements…… GeeksforGeeks It works for a list with two elements, please see http://ideone.com/gk8zC6 darkpassenger it should print 4 in your test case but its printing 20 so its wrong.u can check your second method for the same case its printing 4 so method 3 is wrong. darkpassenger since we have to print mid=(n/2) in case n is even so its wrong according to this. sam The condition in while loop should be while (fast_ptr.next != NULL && fast_ptr->next.next != NULL) Srb 3rd method fail when their are only 2 number in linked list…….it is missing corner cases plz update this GeeksforGeeks It seems to be working. Please see http://ideone.com/gk8zC6 Srb u r storing linked list as 4->20->NULL and so for this case output should be 4 not 20(as it is showing here http://ideone.com/gk8zC6 )..plz correct me if i m wrong GeeksforGeeks When linked list is 4->20->NULL, we consider it as a list of two elements, 4 and 20. srb plz elaborate this….according to me if their is 2 element in the list and we have to find middle element then answer should be first number..not second number…so for this list answer should be (4->20->NULL) 4. or is their case that when we have even no. of element ,we can consider mid and mid+1 both as middle element….reply soon asap Ankit Malhotra Simpler implementation.  
+node * mid (node * ptr)
+{
+ node * mptr = ptr;
+ while (ptr && ptr->next)
+ {
+   mid = mid->next;
+   ptr = (ptr->next)->next;
+ }
+ return mid;
+}
+ Ankit Malhotra Replace mptr with mid above to avoid compile error http://mahajanneha.blogspot.com/ neham Method2 and Method3 seems similar to me. In both the methods, we r keeping two pointers, one moves alternatively while other actually points to middle element when other reaches end. If I am wrong..can you please point out the exact difference between both methods? anonymous Even though in case of even length linked list,you can print either of the two middle elements, But you should maintain consistency in all the methods provided. In case of 1->2->3->4 2nd method would output 2 and the third method would output 3 We should use ( head->next!=NULL )in 3rd method. Tony Thank you for sharing your info. I really appreciate your efforts and I will be waiting for your next post thank you once again. pradeep gupta If a linked list has even number of nodes, which element we should consider as middle element ? Kartik Any of the middle two elements can be considered as middle. In case both of them are needed, the above programs can easily modified to print both. novice  
+/* this code will print the middle elements/element of link list whether it is having even or odd number of nodes 
+ 
+void disp_mid(struct node *q)
+{
+     struct node *first , *second; 
+     first = q;
+     second = q;
+     int flag=0;
+     while(first->link!=NULL)
+     {
+          first=first->link;
+          if(first->link==NULL)
+            {
+              printf("\t%d\t%d",second->data,second->link->data);
+              flag=1;
+              break;
+            }
+          second=second->link;
+          if(first->link!=NULL)
+             first=first->link;                         
+     }    
+     if(flag==0)
+       printf("\t%d",second->data);
+}
+
+*/
+ http://www.nikoo28.blogspot.com nikoo28 this is the same approach as above, you are incrementing pointer ‘first’ twice and ‘second’ only once…is there any advantage using the function this way?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Prashant Tiwari  
+Type& findMiddleNode()
+{
+    int check = 0;
+    nodeType *current;
+    nodeType *mid;
+ 
+    current = first;
+    mid = first;
+ 
+    while (current != NULL)
+    {
+        current = current->link;
+        check = (check + 1) % 2;
+ 
+        if (check == 0)
+            mid = mid->link;
+    }
+ 
+    return mid->info;
+} 
+ Narendra Kangralkar Find the middle of linked list using single pointer. void print_middle(node_t *head) { node_t *middle = NULL; int i; for (i = 1; head != NULL; head = head -> next, ++i) { if (i == 1) middle = head; else if (i & 1) middle = middle -> next; } printf(“middledle of list: %d\n”, middle -> data); } mahesh Isn’t it you are using head also a pointer ? i mean to say both head and middle are the pointer. what are we achieving here  
+/* Paste your code here (You may delete these lines if not writing code) */
+ rocky { slow = head; fast = head->next->next; while(fast->next!=NULL) { slow = slow->next; fast = fast->next; } cout <data << endl; } Gowrishankar I am not sure if the fast method is actually fast as it is generally portrayed to be… the fast pointer has to traverse the entire list once and the slower one, half of it… thus the total number of nodes visited is the same 1.5N GeeksforGeeks @Gowrishankar: Thanks for pointing this out. We have updated the posts. SSR Isnt the fast pointer travelling at the rate of two nodes at a time skipping one alternate node everytime. So isnt it that its actually faster?? satya482 What is the middle of even length linkedlist? Sandeep @satya482 The above implementation prints the first middle element in that case. For example, if given linked list is 1->2->3->4->5->6, then printMiddle() prints 3. You can modify it as per your retirements. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

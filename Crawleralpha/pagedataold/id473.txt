@@ -1,0 +1,122 @@
+Ford-Fulkerson Algorithm for Maximum Flow Problem - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Ford-Fulkerson Algorithm for Maximum Flow Problem Given a graph which represents a flow network where every edge has a capacity. Also given two vertices source ‘s’ and sink ‘t’ in the graph, find the maximum possible flow from s to t with following constraints: a) Flow on an edge doesn’t exceed the given capacity of the edge. b) Incoming flow is equal to outgoing flow for every vertex except s and t. For example, consider the following graph from CLRS book. The maximum possible flow in the above graph is 23. 
+Ford-Fulkerson Algorithm 
+The following is simple idea of Ford-Fulkerson algorithm:
+1) Start with initial flow as 0.
+2) While there is a augmenting path from source to sink. 
+           Add this path-flow to flow.
+3) Return flow. Time Complexity: Time complexity of the above algorithm is O(max_flow * E). We run a loop while there is an augmenting path. In worst case, we may add 1 unit flow in every iteration. Therefore the time complexity becomes O(max_flow * E). How to implement the above simple algorithm? Let us first define the concept of Residual Graph which is needed for understanding the implementation. Residual Graph of a flow network is a graph which indicates additional possible flow. If there is a path from source to sink in residual graph, then it is possible to add flow. Every edge of a residual graph has a value called residual capacity which is equal to original capacity of the edge minus current flow. Residual capacity is basically the current capacity of the edge. Let us now talk about implementation details. Residual capacity is 0 if there is no edge between to vertices of residual graph. We can initialize the residual graph as original graph as there is no initial flow and initially residual capacity is equal to original capacity. To find an augmenting path, we can either do a BFS or DFS of the residual graph. We have used BFS in below implementation. Using BFS, we can find out if there is a path from source to sink. BFS also builds parent[] array. Using the parent[] array, we traverse through the found path and find possible flow through this path by finding minimum residual capacity along the path. We later add the found path flow to overall flow. The important thing is, we need to update residual capacities in the residual graph. We subtract path flow from all edges along the path and we add path flow along the reverse edges We need to add path flow along reverse edges because may later need to send flow in reverse direction (See following video for example). http://www.youtube.com/watch?v=-8MwfgB-lyM Following is C++ implementation of Ford-Fulkerson algorithm. To keep things simple, graph is represented as a 2D matrix. 
+// C++ program for implementation of Ford Fulkerson algorithm
+#include <iostream>
+#include <limits.h>
+#include <string.h>
+#include <queue>
+using namespace std;
+
+// Number of vertices in given graph
+#define V 6
+
+/* Returns true if there is a path from source 's' to sink 't' in
+  residual graph. Also fills parent[] to store the path */
+bool bfs(int rGraph[V][V], int s, int t, int parent[])
+{
+    // Create a visited array and mark all vertices as not visited
+    bool visited[V];
+    memset(visited, 0, sizeof(visited));
+
+    // Create a queue, enqueue source vertex and mark source vertex
+    // as visited
+    queue <int> q;
+    q.push(s);
+    visited[s] = true;
+    parent[s] = -1;
+
+    // Standard BFS Loop
+    while (!q.empty())
+    {
+        int u = q.front();
+        q.pop();
+
+        for (int v=0; v<V; v++)
+        {
+            if (visited[v]==false && rGraph[u][v] > 0)
+            {
+                q.push(v);
+                parent[v] = u;
+                visited[v] = true;
+            }
+        }
+    }
+
+    // If we reached sink in BFS starting from source, then return
+    // true, else false
+    return (visited[t] == true);
+}
+
+// Returns tne maximum flow from s to t in the given graph
+int fordFulkerson(int graph[V][V], int s, int t)
+{
+    int u, v;
+
+    // Create a residual graph and fill the residual graph with
+    // given capacities in the original graph as residual capacities
+    // in residual graph
+    int rGraph[V][V]; // Residual graph where rGraph[i][j] indicates 
+                     // residual capacity of edge from i to j (if there
+                     // is an edge. If rGraph[i][j] is 0, then there is not)  
+    for (u = 0; u < V; u++)
+        for (v = 0; v < V; v++)
+             rGraph[u][v] = graph[u][v];
+
+    int parent[V];  // This array is filled by BFS and to store path
+
+    int max_flow = 0;  // There is no flow initially
+
+    // Augment the flow while tere is path from source to sink
+    while (bfs(rGraph, s, t, parent))
+    {
+        // Find minimum residual capacity of the edhes along the
+        // path filled by BFS. Or we can say find the maximum flow
+        // through the path found.
+        int path_flow = INT_MAX;
+        for (v=t; v!=s; v=parent[v])
+        {
+            u = parent[v];
+            path_flow = min(path_flow, rGraph[u][v]);
+        }
+
+        // update residual capacities of the edges and reverse edges
+        // along the path
+        for (v=t; v != s; v=parent[v])
+        {
+            u = parent[v];
+            rGraph[u][v] -= path_flow;
+            rGraph[v][u] += path_flow;
+        }
+
+        // Add path flow to overall flow
+        max_flow += path_flow;
+    }
+
+    // Return the overall flow
+    return max_flow;
+}
+
+// Driver program to test above functions
+int main()
+{
+    // Let us create a graph shown in the above example
+    int graph[V][V] = { {0, 16, 13, 0, 0, 0},
+                        {0, 0, 10, 12, 0, 0},
+                        {0, 4, 0, 0, 14, 0},
+                        {0, 0, 9, 0, 0, 20},
+                        {0, 0, 0, 7, 0, 4},
+                        {0, 0, 0, 0, 0, 0}
+                      };
+
+    cout << "The maximum possible flow is " << fordFulkerson(graph, 0, 5);
+
+    return 0;
+}
+ Output: The maximum possible flow is 23 The above implementation of Ford Fulkerson Algorithm is called Edmonds-Karp Algorithm. The idea of Edmonds-Karp is to use BFS in Ford Fulkerson implementation as BFS always picks a path with minimum number of edges. When BFS is used, the worst case time complexity can be reduced to O(VE2). The above implementation uses adjacency matrix representation though where BFS takes O(V2) time, the time complexity of the above implementation is O(EV3) (Refer CLRS book for proof of time complexity) This is an important problem as it arises in many practical situations. Examples include, maximizing the transportation with given traffic limits, maximizing packet flow in computer networks. Exercise: Modify the above implementation so that it that runs in O(VE2) time. References: http://www.stanford.edu/class/cs97si/08-network-flow-problems.pdf Introduction to Algorithms 3rd Edition by Clifford Stein, Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Vertex Cover Problem | Set 1 (Introduction and Approximate Algorithm) Snake and Ladder Problem Tarjan’s Algorithm to find Strongly Connected Components Shortest path with exactly k edges in a directed and weighted graph Count all possible walks from a source to a destination with exactly k edges Euler Circuit in a Directed Graph Given an array of strings, find if the strings can be chained to form a circle Given a sorted dictionary of an alien language, find order of characters Tags: Graph Tweet Writing code in comment? Please use ideone.com and share the link here. xylophone Why will the algorithm always find the max flow? Can you give an idea for the proof? xylophone Why will the algorithm always find the max flow? Can you give an idea for the proof? newone Hello, This code solved half of my problem.Now this is giving a static input ,but can we do the same for dynamic input..I am trying it but have no idea about how to do it.I will be grateful if someone can help me in this. Thanks gourav pathak main() { int n; cin>>n; int *arr[n]; for(int i=0;i<n;i++) arr[i]=(int *)malloc(n*sizeof(int)); for(int i=0;i<n;i++) for(int j=0;j>arr[i][j]; int s,t; cin>>s>>t; FordFulkerson(arr,n,s,t); } //function prototype int FordFulkerson(int *arr[],int n,int s,int t); msy how do we send two dimensional array as a parameter without using pointer gourav pathak It is possible to send two dimensional array as a parameter without using pointers only if you know its dimensions…otherwise you have to use pointers(e.g void bfs(arr[][9]))………You might also store the 2-D array as a 1-D array where X[i*col+j]=arr[i][j]…then you simply pass the 1-D array and the dimensions Ram COMPLEXITY OF BFS IS V2..AND INSIDE LOOP WE ARE TRAVERSING ALL EDGEES ,SO ISNT IT BE E*(V^2) gourav pathak Yes, you are correct…but if you use adjacency list representation it will be O(E*max_flow) sumit well thanks for the article , but i think it would have been great if the article had discussed on what is augmenting paths first and then delved in Ford-Fulks ago . The alos it self is easy to understand if explained properly , unfortunately the materica journals above are cryptic , i rather say listen to the below video to understand the Algo and concept and code above for a completeness http://www.youtube.com/watch?v=J0wzih3_5Wo myk I tried using the graph from Sedgewick’s lecture from the link you provided, and it returns “25” for me, though “28” is expected. It seems “push-back” logic doesn’t work. The matrix I used: int[][] graph = { {0, 10, 5, 15, 0, 0, 0, 0}, {0, 0, 4, 0, 9, 15, 0, 0}, {0, 0, 0, 4, 0, 8, 6, 0}, {0, 0, 0, 0, 0, 0, 16, 0}, {0, 0, 0, 0, 0, 15, 0, 10}, {0, 0, 0, 0, 0, 0, 15, 10}, {0, 0, 0, 0, 0, 0, 0, 10}, {0, 0, 0, 0, 0, 0, 0, 0} }; Can someone please verify this input on using the source provided in the article, as I used java? myk Found a mistake in my input graph. Output is as expected. http://code-away.tumblr.com/ Olayinka According to Wikipedia, this is Edmonds-Karp algorithm since you use a BFS. GeeksforGeeks Thanks for your inputs. We have updated the post. Appreciate your contribution. Nitin How can we be sure that BFS will select different path each time from source to sink? vijay because everytime when rGraph[u][v] -= path_flow; rGraph[v][u] += path_flow; executes, the graph changes atul why we are doing below code ?  
+rGraph[v][u] += path_flow;
+ Suppose there is path from u->v in original graph that does not mean that there could be any path from v->u , but we are updating value for path v->u .. I didn’t get this. please explain http://www.sudshekhar.blogspot.com sudhanshu Because we only consider edges with +ve weight, so one of v-u is definitely an edge. So we subtract path_flow from it. At the same time, adding path_flow to the reverse path [u-v](which may or may not exist), is to allow for the possibility of reverse flow. (i.e. this path would most prob not be used, and the loop where it is used will actually be nullifying the v-u flow and providing input from some other vertex) http://www.sudshekhar.blogspot.com sudhanshu also, adding to both sides, ensures that the flow entering the node is same as the one leaving it! #flow property Anonymous Can anyone please tell me how max flow of the above graph is coming 23. I was going through Introduction to Algorithm by cormen, and they have also taken the same example, but their max flow is coming 14 instead of 23 for the same graph. Please correct me If I am wrong. kartik Looks like you didn’t read the book carefully. See the final diagram in second column, there are two arcs with flow 19 and 4 toward t. xxmajia Below is a java version, 2 improvements 1) return true immediately, when BFS to t 2) dont need to maintain the “backward” edge, instead we use “Exhaustion” /* Paste your code here (You may delete these lines if not writing code) */ public static boolean BFS(int[][] matrix, int[] parent, int s, int t) { // reinit parent for each BFS for (int i = 0; i < parent.length; i++) { parent[i] = -1; } boolean[] isVisited = new boolean[parent.length]; Queue<Integer> queue = new LinkedList<Integer>(); queue.add(s); parent[s] = -1; isVisited[s] = true; while (!queue.isEmpty()) { int cur = queue.poll(); for (int i = 0; i < parent.length; i++) { if (!isVisited[i] && matrix[cur][i] > 0) { isVisited[i] = true; parent[i] = cur; // improvement 1 if (i == cur) { return true; } queue.add(i); } } } return isVisited[t]; } public static int maxFlow(int[][] graph, int s, int t) { int max = 0; int length = graph.length; int[][] matrix = new int[length][length]; for (int i = 0; i < length; i++) { for (int j = 0; j < length; j++) { matrix[i][j] = graph[i][j]; } } int[] parent = new int[length]; while (BFS(matrix, parent, s, t)) { int flow = Integer.MAX_VALUE; int d = t; while (d != s) { flow = Math.min(flow, matrix[parent[d]][d]); d = parent[d]; } max += flow; // generate resigual matrix d = t; while (d != s) { matrix[parent[d]][d] -= flow; // improvement 2: //matrix[d][parent[d]] += flow; d = parent[d]; } } return max; } Viky Awesome Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

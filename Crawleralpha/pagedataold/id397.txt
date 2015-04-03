@@ -1,0 +1,436 @@
+Next Power of 2 - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Next Power of 2 Write a function that, for a given no n, finds a number p which is greater than or equal to n and is a power of 2. 
+    IP 5
+    OP 8     
+
+    IP 17
+    OP 32     
+
+    IP 32
+    OP 32     
+ There are plenty of solutions for this. Let us take the example of 17 to explain some of them. Method 1(Using Log of the number) 
+    1.  Calculate Position of set bit in p(next power of 2):
+        pos =  ceil(lgn)  (ceiling of log n with base 2)
+    2.  Now calculate p:
+        p   = pow(2, pos) 
+ Example 
+    Let us try for 17
+            pos = 5
+            p   = 32    
+ Method 2 (By getting the position of only set bit in result ) 
+    /* If n is a power of 2 then return n */
+    1  If (n & !(n&(n-1))) then return n 
+    2  Else keep right shifting n until it becomes zero 
+        and count no of shifts
+        a. Initialize: count = 0
+        b. While n ! = 0
+                n = n>>1
+                count = count + 1
+
+     /* Now count has the position of set bit in result */
+    3  Return (1 << count)  
+ Example: 
+    Let us try for 17
+                 count = 5
+                 p     = 32   
+ 
+unsigned int nextPowerOf2(unsigned int n)
+{
+  unsigned count = 0;
+
+  /* First n in the below condition is for the case where n is 0*/
+  if (n && !(n&(n-1)))
+    return n;
+
+  while( n != 0)
+  {
+    n  >>= 1;
+    count += 1;
+  }
+
+  return 1<<count;
+}
+
+/* Driver program to test above function */
+int main()
+{
+  unsigned int n = 0;
+  printf("%d", nextPowerOf2(n));
+
+  getchar();
+  return 0;
+}
+ Method 3(Shift result one by one) Thanks to coderyogi for suggesting this method . This method is a variation of method 2 where instead of getting count, we shift the result one by one in a loop. 
+unsigned int nextPowerOf2(unsigned int n)
+{
+    unsigned int p = 1;
+    if (n && !(n & (n - 1)))
+        return n;
+
+    while (p < n) {
+        p <<= 1;
+    }
+    return p;
+}
+
+/* Driver program to test above function */
+int main()
+{
+  unsigned int n = 5;
+  printf("%d", nextPowerOf2(n));
+
+  getchar();
+  return 0;
+}
+ Time Complexity: O(lgn) Method 4(Customized and Fast) 
+    1. Subtract n by 1
+       n = n -1
+
+    2. Set all bits after the leftmost set bit.
+
+    /* Below solution works only if integer is 32 bits */
+                n = n | (n >> 1);
+                n = n | (n >> 2);
+                n = n | (n >> 4);
+                n = n | (n >> 8);
+                n = n | (n >> 16);
+    3. Return n + 1
+ Example: 
+Steps 1 & 3 of above algorithm are to handle cases 
+of power of 2 numbers e.g., 1, 2, 4, 8, 16,
+
+    Let us try for 17(10001)
+    step 1
+       n = n - 1 = 16 (10000)  
+    step 2
+       n = n | n >> 1
+       n = 10000 | 01000
+       n = 11000
+       n = n | n >> 2
+       n = 11000 | 00110
+       n = 11110
+       n = n | n >> 4
+       n = 11110 | 00001
+       n = 11111
+       n = n | n >> 8
+       n = 11111 | 00000
+       n = 11111
+       n = n | n >> 16
+       n = 11110 | 00000
+       n = 11111    
+
+    step 3: Return n+1
+     We get n + 1 as 100000 (32)
+ Program:       
+    # include <stdio.h>
+
+    /* Finds next power of two for n. If n itself
+       is a power of two then returns n*/
+
+    unsigned int nextPowerOf2(unsigned int n)
+    {
+        n--;
+        n |= n >> 1;
+        n |= n >> 2;
+        n |= n >> 4;
+        n |= n >> 8;
+        n |= n >> 16;
+        n++;
+        return n;
+    }
+
+    /* Driver program to test above function */
+    int main()
+    {
+        unsigned int n = 5;
+        printf("%d", nextPowerOf2(n));
+
+        getchar();
+        return 0;
+
+    }
+ Time Complexity: O(lgn) References: http://en.wikipedia.org/wiki/Power_of_2           Related Topics: Check if binary representation of a number is palindrome Swap two nibbles in a byte How to turn off a particular bit in a number? Check if a number is multiple of 9 using bitwise operators How to swap two numbers without using a temporary variable? Divide and Conquer | Set 4 (Karatsuba algorithm for fast multiplication) Find position of the only set bit Swap all odd and even bits Tweet Writing code in comment? Please use ideone.com and share the link here. KB #include using namespace std; void nextpow2(int n) { int ans=1; while(ans<n) {ans=ans<<1;} cout<<ans<<" "; } int main() { nextpow2(1503); nextpow2(2); nextpow2(3); nextpow2(7); nextpow2(16); return 0; } Gajendra Khatri Please explain the working of 4th method? Ivan Povalyukhin 2 ** (Math.log2 N).ceil arnie How do I get the closest power of 2 below a given number? Example. Input: 2 3 7 16 Output: 2 2 4 16 Manoj Kumar Regar I improved the same concept…you will get it:) #include unsigned int nextPowerOf2(unsigned int n) { unsigned count = 0; /* First n in the below condition is for the case where n is 0*/ if (!(n&(n-1))) return n; while( n != 0) { n >>= 1; count += 1; } return 1<<(count-1); } /* Driver program to test above function */ int main() { //n should not be zero unsigned int n; scanf("%u",&n); if(n!=0) printf("%d", nextPowerOf2(n)); getchar(); return 0; } rupam 2*(n&n+1) Amit Kumar Also n&(n-1) ==0; Amit Kumar void main() { int value=19,i=1; while (i<value){ i=i<<1; } printf(" value: %d", i); } Raghav Agrawal This method gets the result in (no. of bits set) steps. It first checks if the number is itself a power of 2. Otherwise, it gets the most significant bit and shifts it by 1 to get the next higher power of 2. public static int nextPowerOf2(int n) { if(n 0″); if (getLeastSignificantBit(n) == n) return n; //check if n is itself power of 2 return getMostSignificantBit(n) << 1; } private static int getLeastSignificantBit(int n) { if(n 0″); return n&(~(n-1)); } private static int getMostSignificantBit(int n) { if(n 0″); int temp = n; while(temp != 0) { n = temp; temp = temp^(getLeastSignificantBit(temp)); } return n; } Shiva Shankar Anumula An another solution for this.. int count =1; //No of Left shifts required while(x >1) { x>>=1;count ++; } x<<=count; chandni add the following check to it so that If n itself is a power of two then returns n! if (x&& !(x&(x-1))) { printf (“%d”,x); return; } also, your solution fails for x=0. add if (!x) x++; before bit shifting x in the final stmt. So, here’s your darn little program: int count =1; //No of Left shifts required int x; if (x&& !(x&(x-1))) { printf (“%d”,x); return; } while(x >1) { x>>=1;count ++; } if (!x) x++; printf (“%d”,x<<=count); } chandni ignore the last closing brace for main() Ankita  
+// Keep it Simple !!!!
+#include<stdio.h>
+#include<conio.h>
+#include<math.h>
+int main()
+{
+    int i=0,result=1,num=23;
+    if(num<0)
+             return 1;
+    while(result<num)
+    result=(pow(2,i++));
+    printf(" aSF :: %d",result);
+    getch();
+    return 0;
+}
+
+ jugal complexity of method 4 is not log(n). because we are performing constant operations on every input. so it is constant time. please check. ministar  
+int getNext2Power(unsigned num){
+	int count=0,c=0; //count : contains no.of bits of given number ; c : contains no.of zero bits in the given number
+	for(;num;count++,c+=!(num%2),num/=2);
+	if(c==(count-1)) return 1<<c;
+	return 1<<count;
+}
+
+int main(){
+	printf("%d\n",getNext2Power(17));
+	printf("%d\n",getNext2Power(32));
+	return 0;
+}
+//O(logn) time
+ Varun Kumar  
+int main()
+{
+    int i,p=0;
+    for(i=0;p>>=1;i++); // shifting the number to the right till it is zero
+
+     int ans= pow((double)2,(double)(i+1));
+      printf("%d",ans);
+    return 0;
+}
+ randeep hooda  
+/* 
+i think sandeep is right....
+sandeep keep it up...
+haryana k lagte ho.. 
+ */
+ Hanish Bansal Method 4 does not work for n=0. Hanish How is the complexity of method 4 O(log n) ?? Since there are fixed no. of instructions, should it not be O(1) ?? Abhi If 4 is considered as O(1) then 3 must also be considered as O(1) since we will get answer within a limited number of shifts(since there is a limit on number of bits) Nishant Kumar works with GCC compiler.  
+#include<stdio.h>
+int nextPow2(int x){
+    if(x == 0)
+        return 1;
+    if(x & x-1)
+        return 1 << (sizeof(x)*8-__builtin_clz(x));
+    else
+        return x;
+}
+ 
+int main(){
+    int x = 1071741824;
+    printf("%d",nextPow2(x));
+}
+ 
+ Nishant Kumar I think it will be little bit faster than others in some cases as it iterates only upto no of set bit in a no.  
+int x = new Scanner(System.in).nextInt();
+int count = 0;
+int tmp = x;
+while(x > 0){
+tmp = x;
+x&=x-1;
+count++;
+}
+if(count == 1)
+System.out.println(tmp);
+else if(tmp == 0)
+System.out.println("1");
+else
+System.out.println(tmp << 1);
+ RAUNAK can we do it by counting the no of bits and the ans will be 1 followed by count no bits example :for 17 no of bits in 17 will be 10001 so the ans will be 100000  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Sourabh Goyal In method 2: if (n & !(n&(n-1))) return n; It does seem to be working at all.The if statement always return false whether the input number is multiple of 2 or not. What is the use of this portion of code.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kafee This code if (n & !(n&(n-1))) return n; Which is used for determining exact power of 2 is not correct, it should be if(!(n&(n-1))) return n;  
+/* Paste your code here (You may delete these lines if not writing code) */
+ anurag (n & !(n&(n-1))) should be (n && !(n&(n-1))) see the method 4 of http://www.geeksforgeeks.org/archives/535  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Hanish Bansal (y) Ankita  
+I am not getting the purpose of using this chunk of code. Could u plz let me knw by some example.. 
+if (n && !(n & (n - 1)))
+        return n;
+ swati this is to check if n is power of 2.. if yes return the number else check for it swati this is to check if n is power of 2.. if yes return the number else check for it Bohemia Basically it sets the right most 1-bit to 0 So a power of two only has one 1-Bit , and if it is set to 0 ,thus n&&!(n-1))) should become zero,if it is zero, then n was a power of 2,else not Manoj Kumar Regar if n is a power of 2 (in binary 10,100,1000…) , we should return n….to determine this !n&(n-1) is used…how this is working …let us see with 8 (1000):- 8 : 1000 (8-1): 111 8&(8-1) :0000 !8&(8-1) :1111 if statement encounters true and returns true.. here n&& ! n&(n-1) also determines whether n is zero or not…if(n is zero) if will not execute…. and while will not execute…finaly returns 1<<0 which is 1..left shifting 1 by zero digits… That's it Dhaval Patel public class NextPowerOf2 { public static void main(String[] args) { int input = 32; int output = 1; for (int i=0;i<input;i++) { output = output << 1; if (output >= input) { break; } } System.out.println(output); } } crazypro #include #include int findnextpow2(int); int main() { int num; int nextnum; printf(“Enter the number whose next power of 2 number is to be find..\n”); scanf(“%d”,&num); nextnum = findnextpow2(num); printf(“next power of two of the given nunmber %d is %d\n”,num,nextnum); getch(); return 0; } int findnextpow2(int num) { int count=0; int temp; temp=num; if(!(temp&(temp-1))) return temp; while(num) { count++; num=num>>1; } //count++; int x=1; x=x<<count; return x; } saurabh  
+#include<stdio.h>
+#include<conio.h>
+#include<math.h>
+int main()
+{
+int a,i=1;
+printf("NEXT POWER OF 2\n");
+printf("Enter NO. :");
+scanf("%d",&a);
+if(a==0)
+printf("1");
+else
+{
+while( ((int)pow(2,i)) <= a)
+{  
+i++;
+}
+printf("NEXT POWER of 2 : %d",(int)pow(2,i));
+}
+getch();
+}
+
+ saurabh above code Method 4 does not work well for 1 as inp kartik @saurabh: It works fine. It produces 1 as output which is correct as 2 raise to the power 0 is 1.  
+# include <stdio.h>
+
+/* Finds next power of two for n. If n itself
+   is a power of two then returns n*/
+
+unsigned int nextPowerOf2(unsigned int n)
+{
+    n--;
+    n |= n >> 1;
+    n |= n >> 2;
+    n |= n >> 4;
+    n |= n >> 8;
+    n |= n >> 16;
+    n++;
+    return n;
+}
+
+/* Driver program to test above function */
+int main()
+{
+    unsigned int n = 1;
+    printf("%d", nextPowerOf2(n));
+
+    getchar();
+    return 0;
+
+}
+
+ saurabh int i=1; while( ((int)pow(2,i)) < inp) { i++; } printf("NEXT POWER of 2 : %d",(int)pow(2,i)); abhishek Get the first set bit of number n then left shift to get the result or, if the number is itself is power of 2 return number itself  
+int count = 0;
+while(n != 0)
+{
+  //to get the last set bit
+  x = n & (~n+1);
+  //unset last bit
+  n = n & (n-1);
+  count++;
+}
+//if n is power of 2 
+if(count == 1) return x;
+else 
+ //otherwise left shift the first set bit of n
+ return x = x<<1;
+ Please let me know about my approach. Abhirup Ghosh  
+int next_2_power (int n)
+{
+  return 1<<((int)log2(n)+1);
+}
+ puneet saraswat  
+int next_power_of2(int n)
+{
+    if (!(n & (n - 1)))
+    {
+        return n;
+    }
+    
+    while(n & (n - 1))
+    {
+        n &= n-1;
+    }
+    return n << 1;
+}
+ Raghu An Easier solution would be ,  
+
+int power(int i){
+        int count=0;
+        int previ=0;
+        previ=i;
+        while(i!=1) // making all the bits zero except the last
+        {
+                i>>=1;
+                count++;
+        }
+        if((previ & (previ-1))==0)// if i is a power of 2 just left shift by count else left shift by count+1
+                i<<=count;
+        else
+                i<<=(count+1);
+
+         return i;
+}
+ http://wemeanourthoughts.blogspot.com/ Venki There is another way. The number will be power of 2 if there only leftmost bit is set. Otherwise there will be some leading zeros in the bit pattern of the number. Assume we have a function to count these leading zeros (Some architectures like ARM provides direct instruction to count leading zeros). We can simply set the left most significant bit using this leading zeros count. An example is given, x = 0x12345678 In binary we can write it as 00010010001101000101011001111000 We will get number of leading zero count as 3. To get next higher power of 2 we need to set the (32 – 3 + 1 = 30) bit and reset all other bits. This can be achieved easily, 1 << (32 – leadingZeros(x)) However, we need to check that x is not exact power of 2, in which case the result is x itself. This test can be done easily (x & (x-1)). http://effprog.blogspot.com Sambasiva Complete Solution…  
+int nextpow2(int n)
+{
+        int m;
+
+        if(!n) return 1;
+
+        int sign = (n < 0) ? (n = -n), -1 : 1;
+
+        if(!(n & n-1))
+                return sign * n;
+
+        while(m = n, n &= n-1);
+
+        return sign * (m<<1);
+}
+ Sambasiva  
+int nextpow2(int n)
+{
+        int m;
+
+        if(!( n & n-1))
+                return n;
+        while(n)
+        {
+                m = n;
+                n = n & n-1;
+        }
+        return m<<1;
+}
+ geek4u I think you missed some brackets in your code. The code should be.  
+int nextpow2(int n)
+{
+        int m;
+
+        if(!( n & (n-1)))
+                return n;
+        while(n)
+        {
+                m = n;
+                n = n & (n-1);
+        }
+        return m<<1;
+}  Sambasiva Bitwise operators have less precedence than arithmatic operators. So brackets are optional.. Shekhu Sambasiva’ s solution doesn’t work for n = 0. I guess initializing m = 1 would resolve the problem.  # include <stdio.h>
+# include <conio.h> 
+
+int nextpow2(int n)
+{
+        int m;
+
+        if(!( n & n-1))
+                return n;
+        while(n)
+        {
+                m = n;
+                n = n & n-1;
+        }
+        return m<<1;
+}
+
+
+/* Driver program to test above functions */
+int main()
+{  
+   printf(" %d", nextpow2(0));
+   getchar();
+   return 0;
+}
+ GeeksforGeeks @coderyogi: Thanks for suggesting a new approach. We have added it to the original post. coderyogi  
+int my_first_fun_here(int n)
+{
+    int p = 1;
+    if (n & !(n & (n - 1)))
+        return n;
+    while (p < n) {
+        p <<= 1;
+    }
+    return p;
+}
+ Space complexity : O(1) Time complexity : O(lgn) I guess there's no 32 bit size restriction here. http://srini156.blogspot.com Srinivas Iyengar There seems to be some mistake in the solution given by me. http://srini156.blogspot.com Srinivas Iyengar  
+//Well, We can do try out the following code.
+
+int return_powerof2(int n)
+{
+  if(n==0)
+      return 1;
+  else if(n&!(n&n-1))
+      return n;
+  else 
+      return (n|(n-1))+1;
+}
+ //Do let me know in case I am missing something. ashi @Srinivas: how is your code working? because when the number is not the power of 2, all the bits left set by n|n-1 and addition of 1 will only make right most bit difference. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

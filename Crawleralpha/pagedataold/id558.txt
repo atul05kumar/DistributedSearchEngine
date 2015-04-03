@@ -1,0 +1,1020 @@
+Sort a linked list of 0s, 1s and 2s - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Sort a linked list of 0s, 1s and 2s Given a linked list of 0s, 1s and 2s, sort it. Source: Microsoft Interview | Set 1 Following steps can be used to sort the given linked list. 1) Traverse the list and count the number of 0s, 1s and 2s. Let the counts be n1, n2 and n3 respectively. 2) Traverse the list again, fill the first n1 nodes with 0, then n2 nodes with 1 and finally n3 nodes with 2. 
+// Program to sort a linked list 0s, 1s or 2s
+#include<stdio.h>
+#include<stdlib.h>
+
+/* Link list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+
+// Function to sort a linked list of 0s, 1s and 2s
+void sortList(struct node *head)
+{
+    int count[3] = {0, 0, 0};  // Initialize count of '0', '1' and '2' as 0
+    struct node *ptr = head;
+
+    /* count total number of '0', '1' and '2'
+     * count[0] will store total number of '0's
+     * count[1] will store total number of '1's
+     * count[2] will store total number of '2's  */
+    while (ptr != NULL)
+    {
+        count[ptr->data] += 1;
+        ptr = ptr->next;
+    }
+
+    int i = 0;
+    ptr = head;
+
+    /* Let say count[0] = n1, count[1] = n2 and count[2] = n3
+     * now start traversing list from head node,
+     * 1) fill the list with 0, till n1 > 0
+     * 2) fill the list with 1, till n2 > 0
+     * 3) fill the list with 2, till n3 > 0  */
+    while (ptr != NULL)
+    {
+        if (count[i] == 0)
+            ++i;
+        else
+        {
+            ptr->data = i;
+            --count[i];
+            ptr = ptr->next;
+        }
+    }
+}
+
+/* Function to push a node */
+void push (struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node =
+        (struct node*) malloc(sizeof(struct node));
+
+    /* put in the data  */
+    new_node->data  = new_data;
+
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);
+
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+/* Function to print linked list */
+void printList(struct node *node)
+{
+    while (node != NULL)
+    {
+        printf("%d  ", node->data);
+        node = node->next;
+    }
+    printf("\n");
+}
+
+/* Drier program to test above function*/
+int main(void)
+{
+    struct node *head = NULL;
+    push(&head, 0);
+    push(&head, 1);
+    push(&head, 0);
+    push(&head, 2);
+    push(&head, 1);
+    push(&head, 1);
+    push(&head, 2);
+    push(&head, 1);
+    push(&head, 2);
+
+    printf("Linked List Before Sorting\n");
+    printList(head);
+
+    sortList(head);
+
+    printf("Linked List After Sorting\n");
+    printList(head);
+
+    return 0;
+}
+ Output: Linked List Before Sorting
+2  1  2  1  1  2  0  1  0
+Linked List After Sorting
+0  0  1  1  1  1  2  2  2 Time Complexity: O(n) Auxiliary Space: O(1) This article is compiled by Narendra Kangralkar. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. zoom simpler solution is to keep three pointers.. zeros, ones and twos. keep removing nodes and adding them to the appropriate linked lists.. and just combine them at the end.. you are done Eshwar Hi All Please check the following solution. Also this logic will traverse only once struct node* sort(struct node *head) { struct node *zero_list,*one_list,*two_list; zero_list=one_list=two_list=NULL; while(head != NULL) { if(head->data == 0){ if(zero_list == NULL) zero_list = head; else zero_list->next = head; } else if(head->data == 1){ if(one_list == NULL) one_list = head; else one_list->next = head; } else if (head->data == 2){ if(two_list == NULL) two_list = head; else two_list->next = head; } head = head->next; } zero_list->next = one_list; one_list->next = two_list; two_list->next = NULL; head = zero_list; return head; } progs hey guys we can use bucket sort Create 3 bucket as 0,1,2 than just travers Linked List and put it into bucket then connect Buckets Harshit Gupta if we are not allowed to change data of nodes then we have to manipulate linklist. Other algo- 1. traverse link list. 2.if 0 is found push it in start of link list. 3.if 1 is found skip it. 4.if 2 is found push it on another head pointer and also delete it from original list.we cant push it to last bcoz it will create a infinite loop. 5. when temp reaches to null . then temp->next=head2; /* #include #include #include /* Link list node */ struct node { int data; struct node* next; }; void push (struct node** head, int data) { /* allocate node */ struct node* new_node = (struct node*) malloc(sizeof(struct node)); /* put in the data */ new_node->data = data; /* link the old list off the new node */ new_node->next = *head; /* move the head to point to the new node */ *head = new_node; } void printList(struct node *node) { while (node != NULL) { printf(“%d “, node->data); node = node->next; } printf(“n”); } struct node * sortlist(struct node * head,struct node * head2) { struct node *cur = head; struct node *temp = NULL; struct node *prev = NULL; //skipping sorted part while(cur->data==0 && cur->next != NULL) { prev=cur; cur=cur->next; } while(cur != NULL) { temp=cur->next; if(cur->data == 0) { if(prev == NULL) { prev=cur; cur=temp; } else { prev->next=temp; cur->next=head; head=cur; cur=temp; } } else if(cur->data == 2) { if(prev == NULL) {head=temp;} else {prev->next=temp;} if(head2==NULL) {head2=cur; cur->next=NULL;} else {cur->next=head2; head2=cur;} cur=temp; } else { prev=cur; cur=temp; } } if(prev == NULL ) {head=head2;} else prev->next=head2; printf(“head n”); printList(head); printf(“head 2 n”); printList(head2); return head; } int main(void) { struct node *head = NULL; // struct node *head0 = NULL; struct node *head2 = NULL; push(&head, 0); push(&head, 2); push(&head, 0); push(&head, 2); push(&head, 0); push(&head, 2); // push(&head, 2); // push(&head, 2); // push(&head, 1); printf(“Linked List Before Sortingn”); printList(head); head=sortlist(head,head2); printList(head); getch(); return 0; } */ pankaj singh negi /* Paste your code here (You may delete these lines if not writing code) */ SortList(Node n) { pivot1=n; pivot2=n; node prev=null; while(n!=null) { if(n.data==0 && n!=pivot1) movebefore(n,pivot1); if(n.data==1 && n!=pivot2) movebefore(n,pivot2); n=n.next; } } movebefore(byref Node n,byref Node pivot) { int dat=pivot.data; pivot.data=n.data; n.data=dat; n.next=pivot.next; pivot.next=n; } Jitendra.BITS  
+void sortList(struct node **head)
+{
+	struct node *current=*head;
+	struct node *prev=NULL;
+	struct node *last=*head;
+	struct node *oldcurrent=NULL;
+	struct node *oldlast=NULL;
+	int k=1;
+	int count=0;
+		while (last->next)
+		{
+			k++;	
+			last=last->next;
+		}
+		oldlast=last;
+	for (count=0;count<k;)
+		{
+		switch(current->data)
+		{
+		case 0:
+				oldcurrent=current;
+				prev->next=current->next;
+				current=prev->next;
+				oldcurrent->next=*head;
+				*head=oldcurrent;
+			count++;
+			break;
+		case 1:
+			prev=current;
+			current=current->next;
+			count++;
+			break;
+		case 2:
+			if (current==*head)
+			{
+				*head=current->next;
+				oldcurrent=current;
+				current=current->next;
+				last->next=oldcurrent;
+				last=last->next;
+				last->next=NULL;
+			}
+			else
+			{
+				oldcurrent=current;
+				prev->next=current->next;
+				current=prev->next;
+				last->next=oldcurrent;
+				last=last->next;
+				last->next=NULL;
+			}
+			count++;
+			break;
+		}
+	}
+}
+ Priyanka K  
+//logic : separate lists being maintained for 0, 1 and 2 and later on the lists are linked together
+void sortList(Node **head){
+     //new[][] -1st col represents the first node while 2nd col      //the last node inserted to the list of 0's,1's,or 2's
+     Node *h=*head,*t,*new[3][2]={0};
+     while(h){
+              if(!new[h->data][0])
+                               new[h->data][0]=h;
+              else
+                               new[h->data][1]->next=h;
+              new[h->data][1]=h;
+              t=h->next;
+              h->next=NULL;
+              h=t;
+     }
+     if(new[0][0])
+          *head=new[0][0];
+     else if(new[1][0])
+          *head=new[1][0];
+     else if(new[2][0])
+          *head=new[2][0];
+     else
+          *head=NULL;
+     if(new[0][1]){
+        if(new[1][0])
+          new[0][1]->next=new[1][0];
+        else
+          new[0][1]->next=new[2][0];
+     }
+     if(new[1][1])
+          new[1][1]->next=new[2][0];
+}
+ Star_Trek store the linked list in an array and sort it..and copy it 2 the linked list…..  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Gates No other better solution?? geekInTown A better solution that requires 2 traversals: Just have a head pointer and a tail pointer. Traverse once to reach tail pointer. Then whenever you encounter a node with value 2, append the node to tail, and when a node with value 0 comes, make it head, and append. Need not to do anything to nodes that have value 1. Rajesh I cleared the round just coz I wrote this approach ….else othr approaches they didn’t consider.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Gates which apporach?? Rajesh of moving 2 at the end and 0’s at the beginning  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Amateur_coder well my approach is a bit lengthy as all the gud 1s have been mentioned above….. traverse the linked list and store it in array….and replace the original linked list by the array data… time complexity to sort-O(nlogn); space complexity-O(n)  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Abhishek Mishra Can you explain what will be your end condition. How will this approach work if the input list ends with many 2s  
+/* Paste your code here (You may delete these lines if not writing code) */
+ jjts @Abhishek Mishra count the no. of nodes also during the first traversal and then run a loop for no. of nodes. Poorna Durga Yeddu  
+#include<stdio.h>
+struct node {
+       int data;
+       struct node *next;
+       };
+
+struct node *create_ll(struct node *);
+struct node *count(struct node *);
+struct node *sort(struct node *);
+struct node *display(struct node *);
+struct node *start= NULL; /*start always points to starting of a linked list*/
+int count0,count1,count2; /*count0 counts no. of 0's,count1 counts no. of 1's and count2 counts no. of 2's in a linked list*/
+int main(){
+    printf("Enter -1 to exit :\n");
+    start=create_ll(start);
+    printf("\nLinked list is created");
+    printf("\nLInked LIst before sorting:\n");
+    start=display(start);
+    start=count(start);
+    printf("\n\tcount0=%d\tcount1=%d\tcount2=%d",count0,count1,count2);
+    start=sort(start);
+    printf("\ngiven list is sorted\n");
+    start=display(start);
+    getch();
+    }
+    
+/**/
+struct node *create_ll(struct node *start){
+       struct node *new_node,*ptr;
+       int num;
+       printf("\nEnter 0||1||2 only :");
+       scanf("%d",&num);
+       while(num!=-1){
+                     new_node=malloc(sizeof(struct node*));
+                     new_node->data=num;
+                     if(start==NULL){
+                                     new_node->next=NULL;
+                                     start=new_node;
+                                     }
+                     else{
+                          new_node->next=start;
+                          start=new_node;
+                          }
+                     printf("\nEnter 0||1||2 only :");
+                     scanf("%d",&num);
+                     }
+       return start;
+       
+       }
+       
+/**/
+struct node *count(struct node *start){
+       struct node *ptr;
+       ptr=start;
+       while(ptr != NULL) {
+                 if(ptr->data ==0){
+                              count0++;
+                              ptr=ptr->next;
+                              }
+                 else if(ptr->data == 1){
+                      count1++;
+                      ptr=ptr->next;
+                      }
+                 else{
+                      count2++;
+                      ptr=ptr->next;
+                      }
+                 
+                 }
+       return start;
+        }
+        
+/**/
+struct node *sort(struct node *start){
+       struct node *ptr;
+       ptr=start;
+       int n=1;
+       while(ptr != NULL && n<=(count0+count1+count2)){
+                       if(n<=count0){
+                                     ptr->data=0;
+                                     ptr=ptr->next;
+                                     n++;
+                                     }
+                       else if(n>count0&&n<=count1+count0){
+                                                   ptr->data=1;
+                                                   ptr=ptr->next;
+                                                   n++;
+                                                   }
+                       else{
+                            ptr->data=2;
+                            ptr=ptr->next;
+                            n++;
+                            }
+                       }
+       return start;
+       }        
+
+/**/
+struct node *display(struct node *start){
+       struct node *ptr;
+       ptr=start;
+       while(ptr!=NULL){
+                        printf("\t%d",ptr->data);
+                        ptr=ptr->next;
+                        }
+       return start;
+       }
+ C lover One solution is to have 3 linked lists(zero, one, two). It will need only one traversal. Save the address of the starting node of all the three linked lists. While traversing the input, depending on the number found, add one node to the respective linked list. When the input linked list gets exhausted, point end of ‘zero’ to the start of ‘one’ and so on. Space complexity is also zero. Before adding a node to the respective linked list, delete the one in the input. harry why not add the number of 0’s and 1’s and 2’s and built a linked list???? is this correct ARINDAM #include #include #include struct node{ int info; struct node *link; }; struct node * addtoempty(struct node *,int); struct node * addtoend(struct node *,int); void display(struct node *); struct node * sort(struct node *); void main(){ clrscr(); struct node *start=NULL; int n,d; printf(“\n Enter the number of nodes…”); scanf(“%d”,&n); printf(“\nenter the elements….”); scanf(“%d”,&d); start=addtoempty(start,d); for(int i=2;iinfo=d; temp->link=NULL; start=temp; return start; } struct node *addtoend(struct node *start,int d){ struct node *p=start; struct node *temp=(struct node *)malloc(sizeof(struct node)); temp->info=d; while(p->link!=NULL) p=p->link; p->link=temp; temp->link=NULL; return start; } void display(struct node *start){ printf(“\ndisplaying the elements…..”); struct node *p=start; while(p!=NULL) { printf(“%3d”,p->info); p=p->link; } } struct node *sort(struct node *start){ struct node *p,*q,*end; for(end=NULL;end!=start->link;end=q){ for(p=start;p->link!=end;p=p->link){ q=p->link; if(p->info>q->info){ int temp=p->info; p->info=q->info; q->info=temp; } } } return start; } Rakesh Chandra #include<iostream> #include<conio.h> using namespace std; typedef struct Node{ int data; Node* next; }; Node* Sort(Node* head) { Node *temp, *temp1, *Two, *end = head; if(head==NULL ||head->next == NULL) return head; while(end->next != NULL) end = end->next; Two = end; while(head->data==2) { Two->next = head; head = head->next; Two = Two->next; Two->next = NULL; } temp = head; do { if(temp->next->data==0) { temp1 = temp->next->next; temp->next->next = head; head = temp->next;temp->next = temp1; } else if(temp->next->data==2) { temp1 = temp->next->next; Two->next = temp->next; Two = Two->next; Two->next = NULL; temp->next = temp1; } else temp = temp->next; }while(temp!= end); return head; } Node* createNode(int data) { Node* temp = (Node*)malloc(sizeof(Node)); temp->data = data; temp->next = NULL; } void display(Node* head) { Node* temp = head; while(temp!=NULL) { cout<<temp->data<<" "; temp = temp->next; } cout<<endl; } int main() { Node* head = createNode(2); Node* temp = head; temp->next = createNode(1); temp = temp->next; temp->next = createNode(0); temp = temp->next; temp->next = createNode(2); temp = temp->next; temp->next = createNode(0); temp = temp->next; temp->next = createNode(1); temp = temp->next; temp->next = createNode(2); temp = temp->next; temp->next = createNode(1); temp = temp->next; cout<<"Before Sorting :"; display(head); head = Sort(head); cout<<"After Sorting :"; display(head); getch(); } kuldeep singh /* nice.. */ kuldeep singh but your procedure is not actually sorting the number present in the link list…. akshat gupta simple implementation of “counting sort”.. Pushpendra Node * SortLinkedList_0_1_2(Node *head) { Node *temp = head; Node *p1 , *p2 , *p3; p1 = p2 = p3 = Null; Node *SwapPointer; // Traverse the Linked List and Swap a zero with one Pointer , 1 with two Pointer while(Temp != Null) { SwapPointer == Temp; if(Temp -> data == 0) { if(p2 == NUll && p3 == NULL) p1 = Temp; else if(p2 == NUll && p3 != NULL) { SwapPointer = p3; } else SwapPointer = p2; } else if(Temp -> data == 1) { if(p2 == NUll) p2 = Temp; else if(p3 != Null) { SwapPointer = p3; } } else if(p3 == Null) p3 = Temp; // Swapping Done Here !! if(SwapPointer != Temp) { if(SwapPointer == p2) p2 = p2 -> next; else if(SwapPointer == p3) p3 = p3 -> next; int T = Temp->data; Temp->data = SwapPointer->data; } SwapPointer -> data = T; Temp = Temp -> next; } return head; } Pushpendra  
+
+
+
+Node * SortLinkedList_0_1_2(Node *head)
+{
+   	Node *temp = head;
+	Node *p1 , *p2 , *p3;
+	p1 = p2 = p3 = Null;
+
+	Node *SwapPointer;
+	
+	// Traverse the Linked List and Swap a zero with one Pointer , 1 with two Pointer
+	while(Temp != Null)
+	{
+		SwapPointer == Temp;
+		if(Temp -> data == 0)
+ 		{
+			if(p2 == NUll && p3 == NULL)
+ 				p1 = Temp;
+			else if(p2 == NUll && p3 != NULL)	
+			{
+			 	SwapPointer = p3;
+			}
+			else
+			   SwapPointer = p2;	
+			
+		}
+		else if(Temp -> data == 1)
+		{
+			if(p2 == NUll)
+ 				p2 = Temp;
+			else if(p3 != Null)
+			{
+			 	SwapPointer = p3;
+			}
+		}
+		else if(p3 == Null)
+			p3 = Temp;		
+
+		// Swapping Done Here !!
+		if(SwapPointer  != Temp)
+		{
+			if(SwapPointer == p2) p2 = p2 -> next;
+			else if(SwapPointer == p3) p3 = p3 -> next;
+
+			int T = Temp->data;
+			Temp->data = SwapPointer->data;
+		}	SwapPointer -> data = T;
+			
+		
+		Temp = Temp -> next;
+	}
+
+	return head;
+}
+
+
+ prity  
+#include<stdio.h>
+#include<conio.h>
+#include<stdlib.h>
+typedef struct Node
+{
+       int data;
+       struct Node *next;
+}node;
+int insert(node **p,int val)
+{
+     node *temp,*r;
+     temp=*p;
+     r=(node*)malloc(sizeof(node));
+     r->data=val;
+     if(*p==NULL || ((*p)->data>val))
+     {
+     *p=r;
+     (*p)->next=temp;
+     }
+     else
+     {
+         while(temp!=NULL)
+         {
+                          if((temp->data<=val)&&((temp->next==NULL)||(temp->next->data>val)))
+                          {
+                             
+                              r->next=temp->next; 
+                              temp->next=r;
+                              return 1;
+                          }
+                          temp=temp->next;
+         }
+     }
+}
+
+void display(node *p)
+{
+     if(p==NULL)
+     printf("\n NO ITEMS ARE FOUND ARE IN THE LIST.");
+     while(p!=NULL)
+     {
+                   printf("%d\t",p->data);
+                   p=p->next;
+     }
+}
+
+ bin01 This can also be solved by the following algorithm Begin traversing the linked list: 1) If the node value is 2, move to the end of the list 2) If the node value is 0, move to the beginning of the list 3) If the node value is 1, leave it as it is. At the end of the traversal, the Linked List should be sorted psycofeast +1 vikas But the problem with your solution is that it will be an infinite loop. e.g 0->1->2->2 It will keep on adding 2 at the end and the same node will be processed again and added to the end.Moreover for the 1st time to add a node to the end of the list you have to traverse the list once.So you will need two traversals atleast.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ bin01 @Vikas: Thats a good point. I totally missed that. But, I suppose we can avoid infinite loop by saving the reference to the head and tail as a point of reference before sorting. Also, I assumed that we have the pointer to head and tail, so that we can sort in single traversal Chintu Here is a piece of code with 6 pointers approach (not so well tested)  
+#include <iostream>
+
+typedef struct node {
+       int data;
+       struct node* next;
+}NODE;
+
+NODE *HEAD;
+const int count = 3;
+NODE *heads[count];
+NODE *tails[count];
+
+using namespace std;
+
+void insert (int data) {
+     
+     if (HEAD == NULL) {
+        HEAD = (NODE*) calloc(sizeof(NODE), 1);
+        HEAD->data = data;
+        HEAD->next = NULL;
+     }
+     else {
+          NODE *ptr = (NODE*) calloc(sizeof(NODE), 1);
+          ptr->data = data;
+          ptr->next = HEAD;
+          HEAD = ptr;
+     }
+}
+
+void print() {
+     
+     NODE *ptr = HEAD;
+     while (ptr != NULL) {
+           cout << ptr->data << endl;
+           ptr = ptr->next;
+     }
+}
+
+void sort() {
+     NODE *ptr = HEAD;
+    // Create 3 sublists inside of while loop
+     while (ptr != NULL) {           
+           if (heads[ptr->data] == NULL) {
+              heads[ptr->data] = tails[ptr->data] = ptr;
+              ptr = ptr->next;
+           }
+           else {
+                NODE *temp = ptr;
+                ptr = ptr->next;
+                tails[temp->data]->next = temp; 
+                tails[temp->data] = temp;
+                tails[temp->data]->next = NULL;                
+           }           
+     }
+     // Attach the head of one sublist to the tail of the mext
+     HEAD = heads[0];
+     tails[0]->next = heads[1];
+     tails[1]->next = heads[2];
+}
+int main(int argc, char* argv[]) {
+    insert(2);
+    insert(1);
+    insert(2);
+    insert(1);
+    insert(0); 
+    insert(1);    
+    insert(2);
+    insert(1);
+    insert(1);
+    insert(2);
+    insert(1);
+    insert(0);   
+    sort();
+    print();   
+    return 0;
+}
+
+ Mohitk Hi all, I tried to generalize the problem where we can sort a linked-list with ‘k’ different types of element. i.e. k = 4. i/p : 0->1->2->3->2->1->X o/p : 0->1->1->2->2->3->X Same code can be used for the above problem with k = 3, where values can be 0, 1 or 2. Time Complexity : O(n) Space Complexity : O(1), as all that is used is reference variables. I am not 100% sure about complexity, so please correct me if wrong.  
+
+public LinkedListNode sort_LL(LinkedListNode node, int k)
+	{
+		LinkedListNode[] head = new LinkedListNode[k], tail = new LinkedListNode[k];
+
+		if (node == null || node.next == null)
+			return node;
+
+		for(int i = 0;i < k; i++)
+		{
+			head[i] = null;
+			tail[i] = null;
+		}
+
+		return sort_LL(node, head, tail, k);
+	}
+
+	private LinkedListNode sort_LL(LinkedListNode node, LinkedListNode[] head, LinkedListNode[] tail, int k)
+	{
+		if (node != null)
+		{
+			int data = node.data;
+			if(head[data] == null)
+			{
+				head[data] = node;
+				tail[data] = node;
+			}
+			else
+			{
+				tail[data].next = node;
+				tail[data] = node;
+			}
+			return sort_LL(node.next, head, tail, k);
+		}
+		else
+		{
+			int j = -1;
+			LinkedListNode headLL = null;
+
+			for(int i = 0; i < k; i++)
+			{
+				if(tail[i] != null)
+				{
+					if(headLL == null)
+						headLL = head[i];
+					if(j != -1)
+						tail[j].next = head[i];
+					j = i;
+				}
+			}
+			tail[j].next = null;
+			return headLL;
+		}
+	}
+
+ saurabh  
+#include<iostream>
+#include<cstdio>
+#include<stack>
+#include<stdlib.h>
+using namespace std;
+
+struct node
+{ int data;
+  struct node *next;
+};
+typedef struct node List;
+void push(List **head,int data)
+{
+     List *new_node = (List *)malloc(sizeof(List));
+     new_node->data = data;
+     
+     if(*(head)==NULL)
+     { *(head)=new_node;
+         new_node->next=NULL;}
+     else
+     {
+         List *temp=*(head);
+         while(temp->next!=NULL)
+         { temp=temp->next;}
+         temp->next=new_node;
+         new_node->next=NULL;
+     }
+}
+void print_list(List *head)
+{
+     List *curr = head;
+     while(curr!=NULL)
+     {
+        printf("%d->",curr->data);
+        curr=curr->next;
+     }
+     printf("NULL");
+}
+void modify(List **head)
+{
+ int one=0,two=0,zero=0;
+ List *curr=*(head);
+ while(curr!=NULL)
+ { if(curr->data==0)
+   zero++;
+   else if(curr->data==1)
+   one++;
+   else
+   two++;
+  curr=curr->next;
+ }
+
+   curr=*(head);  
+   for(int i=0;i<zero;i++)
+   { curr->data=0;
+     curr=curr->next; }
+   for(int j=0;j<one;j++)
+   {  curr->data=1;
+      curr=curr->next;}
+   for(int k=0;k<two;k++)
+   {curr->data=2;
+     curr=curr->next;}
+}     
+int main()
+{
+    List *head =NULL;
+    push(&head,2);
+    push(&head,1);
+    push(&head,0);
+    push(&head,0);
+    push(&head,1);
+    push(&head,2);
+    print_list(head);
+    printf("\n");
+    modify(&head);
+    print_list(head);
+    getchar();
+    return 0;
+}
+ http://pnadityalabs.com/ Aditya In Java  
+package solved;
+
+/* 
+ * Sort a linked list of 0s, 1s and 2s 
+ */
+
+public class SortLL {
+    
+    	class Node{
+                Node link;
+		int data;
+        }	
+	
+	Node node;
+	public SortLL(){
+		node = null;
+	}
+	
+	public void append(int da){
+	
+               Node temp,two;
+		
+		if(node == null){
+			node = new Node();
+			node.link = null;
+			node.data = da;
+			return ;
+		}
+		two = node;
+		while(two.link!=null)
+			two = two.link;	
+				
+		temp = new Node();
+		temp.link = null;
+		temp.data = da;
+		two.link = temp;
+		
+	}
+	
+	public void display(){
+		
+		Node t;
+		t = node;
+		while(t!=null){
+			System.out.println(t.data);
+			t = t.link;
+		}
+		
+	}
+        
+        public void sort(){
+		Node one,two,temp;
+		temp= null;
+		for(one=node;one!=null;one=one.link){
+		     for(two=node;two!=null;two=two.link){
+			   if(one.data<=two.data){
+				temp = new Node();
+				temp.data = one.data;
+				one.data = two.data;
+				two.data = temp.data;
+			     }
+			}
+		
+		}
+	}
+	public static void main(String args[]){
+		SortLL list = new SortLL();
+		list.append(0);
+		list.append(1);
+		list.append(2);
+                list.append(2);
+                list.append(1);
+                list.append(0);
+                
+                list.sort();
+   		list.display();		
+	}    
+}
+
+
+ Vipin What is the complexity involved in this?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ neha here is the working function to sort the list with one traversal  
+/* Paste your code here (You may delete these lines if not writing code) */
+node *sortll(node *head)
+{
+	node *temp = head;
+	node *a=NULL,*b=NULL,*c=NULL;
+	node *astart=NULL,*bstart=NULL,*cstart=NULL;
+	while(temp)
+	{
+		if(temp->val == 0)
+		{
+			if(a==NULL)
+			{
+				a=temp;
+				astart=a;
+			}
+			else
+			{
+				a->next=temp;
+				a=temp;
+			}
+		}
+		else if(temp->val ==1)
+		{
+			if(b==NULL)
+			{
+				b=temp;
+				bstart=b;
+			}
+			else
+			{
+				b->next=temp;
+				b=temp;
+			}
+		}
+		else if(temp->val ==2)
+		{
+			if(c==NULL)
+			{
+				c=temp;
+				cstart=c;
+			}
+			else
+			{
+				c->next=temp;
+				c=temp;
+			}
+		}
+		temp=temp->next;
+	}
+	a->next=bstart;
+	b->next=cstart;
+	c->next = NULL;
+	return astart;
+}
+ Jay The code may not work when there are no 1s, or no 0s Examples 0 2 2 0 1 1 2 Rediff We can add the edge cases in this code at the end. Venki Log ago, I wrote code to split a list at a pivot element. Little tweak works here.  
+// *** Follow the logic and try your own code ***
+#include <iostream>
+using namespace std;
+
+struct Node {
+    int key;
+    Node *next;
+
+    Node(int data = 0) : key(data), next(NULL) {}
+};
+
+typedef Node *List;
+
+Node *GetNode(int k) { return new Node(k); }
+
+// To know how pointers can surprise you, write code on your own
+void AppendAndMoveForward(List &pEnd, List &pNode) {
+    pEnd->next = pNode;
+    pNode = pNode->next;
+    pEnd = pEnd->next;
+    pEnd->next = NULL;
+}
+
+// Three different lists, and dummy nodes
+// We move forward along with increasing lists
+// Finally join them
+Node *SortSpecialList(Node *pHead, int pivot) {
+    if( pHead ) {
+        Node *pCrawl = pHead;
+
+        // The hold initial positions of each list
+        Node sameDummy;
+        Node lowerDummy;
+        Node higherDummy;
+
+        // These pointers move forward
+        Node *pSameEnd = &sameDummy;
+        Node *pLowerEnd = &lowerDummy;
+        Node *pHigherEnd = &higherDummy;
+
+        // Divide
+        while( pCrawl ) {
+            if( pCrawl->key == pivot ) {
+                AppendAndMoveForward(pSameEnd, pCrawl);
+                continue;
+            }
+
+            if( pCrawl->key < pivot )
+                AppendAndMoveForward(pLowerEnd, pCrawl);
+            else
+                AppendAndMoveForward(pHigherEnd, pCrawl);
+        }
+
+        // Combine
+        pLowerEnd->next = sameDummy.next;
+        pSameEnd->next = higherDummy.next;
+
+        return lowerDummy.next;
+    }
+
+    return NULL;
+}
+
+void PrintList(Node *p) {
+    while( p ) {
+        cout << p->key << " ";
+        p = p->next;
+    }
+
+    cout << endl;
+}
+
+int main() {
+    List p = GetNode(1);
+
+    p->next = GetNode(0);
+    p->next->next = GetNode(1);
+    p->next->next->next = GetNode(1);
+    p->next->next->next->next = GetNode(2);
+    p->next->next->next->next->next = GetNode(1);
+    p->next->next->next->next->next->next = GetNode(0);
+    p->next->next->next->next->next->next->next = GetNode(2);
+    p->next->next->next->next->next->next->next->next = GetNode(1);
+    p->next->next->next->next->next->next->next->next->next = GetNode(0);
+
+    PrintList(p);
+    p = SortSpecialList(p, 1);
+    PrintList(p);
+
+    return 0;
+}
+ Rajesh Yadav In this code if 1 is absent output will be wrong, so we’ll have to modify if block within sortList() function like:- if(count[i]==0) { ++i; continue; }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Kartik @Rajesh Yadav: Thanks for pointing this out. We have made changes to handle this case. GeeksforGeeks @Daniel & @GeeksFollower: Thanks for suggesting new methods. We will analyze these methods further and to the original post. Daniel This can be done in-place with out an extra space for counting in linear time . This problem is a variation of Dutch National Flag problem http://en.wikipedia.org/wiki/Dutch_national_flag_problem  
+
+#include<stdio.h>
+
+void swap(int *px,int *py){
+    int t;
+    t=*px;
+    *px=*py;
+    *py=t;
+}
+void flagSort(int data[],int size,int low,int high){
+    int p=-1;
+    int q=size;
+    int i=0;
+    while(i<q){
+        if(data[i]<low){
+            swap(&data[i],&data[++p]);
+            i++;
+        }
+        else if(data[i]>=high){
+            swap(&data[i],&data[--q]);
+        }
+        else{
+            i++;
+        }
+    }
+}
+void printArray(int arr[], int arr_size)
+{
+  int i;
+  for (i = 0; i < arr_size; i++)
+    printf("%d ", arr[i]);
+  printf("\n");
+}
+
+
+int main()
+{
+  int arr[] = {0, 1, 1, 0, 1, 2, 1, 2, 0, 0, 0, 1};
+  int size = sizeof(arr)/sizeof(arr[0]);
+  int i;
+
+  flagSort(arr,size,1,2);
+
+  printf("array after segregation ");
+  printArray(arr, size);
+
+
+  return 0;
+}
+
+
+
+ Kartik If we apply Dutch National Flag Algorithm for linked list, then also we have to traverse the list two times, once for counting the number of nodes and then to traverse the list and segregate 0s, 1s and 2s. Please correct me if i am wrong. Palash No, you just need to traverse once. Kartik Yes, looks like we can change the while condition to check for NULL and do it with single traversal, right? Lokesh i don’t think, Dutch National flag is better and can sort in single pass. The parameter ‘high’ in your code must be initialized to last node. To find the last node, you must traverse the list. Vikash Dutch National Flag will not work. How will we traverse from last node towards head? ashish Traverse the linklist.If we get 0,insert the node to the beginning.If we get 2 do nothing.If we get 3 insert the node to the end.Save the address of the 1st node with value 3 .Now do the above process and traverse the whole list until we get the node’s address equal to the address of the node saved ,else it will keep on traversing forever.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ashish sory typo..its 1 instead of 2 and 2 instead of 3  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Karan To insert a node containing 2 at the end of the linked list, we need the tail pointer. And getting that would require an extra traversal. This means that you are doing 2 traversals in the linked list, 1 for getting the tail pointer and 1 for implementing the algorithm, right? Please correct me if I am wrong. Vikash We cannot use Dutch National Flag algo with Linked List. How will we traverse from last node towards head?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ankush no need to move towards head…as ashish said Save the address of the 1st node with value 2 after adding it to the end of the list and keep incrementing your tail pointer to right.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksFollower Take 3 pointer. *ptr1, *ptr2, *ptr3.. link all nodes having value 1 in ptr1 link list link all nodes having value 2 in ptr2 link list link all nodes having value 3 in ptr3 link list merge these 3 link list Kartik Thanks for suggesting a new method. This method can be useful when 0, 1 and 2 are keys in nodes and we have more data associated with the keys. Also, this method seems to sort the list using a single traversal. We can simply merge lists by connecting end of first list to beginning of second list and end of second list to beginning of third list. vikash We will need six pointer. we need to know both head and tail of all three sublist. prakash Yes…with six pointers we can take care of satellite data in linear time without extra space  
+/* Paste your code here (You may delete these lines if not writing code) */
+ PG 6 pointers??  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Chintamani here is a sample implementation – I have not tested it thoroughly, so please point out the bugs.  
+#include <iostream>
+
+typedef struct node {
+       int data;
+       struct node* next;
+}NODE;
+
+NODE *HEAD;
+const int count = 3;
+NODE *heads[count];
+NODE *tails[count];
+
+using namespace std;
+
+void insert (int data) {
+     
+     if (HEAD == NULL) {
+        HEAD = (NODE*) calloc(sizeof(NODE), 1);
+        HEAD->data = data;
+        HEAD->next = NULL;
+     }
+     else {
+          NODE *ptr = (NODE*) calloc(sizeof(NODE), 1);
+          ptr->data = data;
+          ptr->next = HEAD;
+          HEAD = ptr;
+     }
+}
+
+void print() {
+     
+     NODE *ptr = HEAD;
+     while (ptr != NULL) {
+           cout << ptr->data << endl;
+           ptr = ptr->next;
+     }
+}
+
+void sort() {
+     NODE *ptr = HEAD;
+    // Create 3 sublists inside of while loop
+     while (ptr != NULL) {           
+           if (heads[ptr->data] == NULL) {
+              heads[ptr->data] = tails[ptr->data] = ptr;
+              ptr = ptr->next;
+           }
+           else {
+                NODE *temp = ptr;
+                ptr = ptr->next;
+                tails[temp->data]->next = temp; 
+                tails[temp->data] = temp;
+                //tails[temp->data]->next = NULL;                
+           }           
+     }
+     // Attach the head of one sublist to the tail of the mext
+     HEAD = heads[0];
+     tails[0]->next = heads[1];
+     tails[1]->next = heads[2];
+}
+int main(int argc, char* argv[]) {
+    insert(2);
+    insert(1);
+    insert(2);
+    insert(1);
+    insert(0); 
+    insert(1);    
+    insert(2);
+    insert(1);
+    insert(1);
+    insert(2);
+    insert(1);
+    insert(0);
+    insert(1);
+    insert(0);
+    insert(0);
+    insert(0);
+    insert(2); 
+    /*insert(2);    
+    insert(2);
+    insert(0);
+    insert(1);
+    insert(2);
+    insert(1);
+    insert(1);*/
+    sort();
+    print();   
+    return 0;
+}
+
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

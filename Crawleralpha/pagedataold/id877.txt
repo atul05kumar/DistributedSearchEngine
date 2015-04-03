@@ -1,0 +1,346 @@
+Arrange given numbers to form the biggest number - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Arrange given numbers to form the biggest number Given an array of numbers, arrange them in a way that yields the largest value. For example, if the given numbers are {54, 546, 548, 60}, the arrangement 6054854654 gives the largest value. And if the given numbers are {1, 34, 3, 98, 9, 76, 45, 4}, then the arrangement 998764543431 gives the largest value. A simple solution that comes to our mind is to sort all numbers in descending order, but simply sorting doesn’t work. For example, 548 is greater than 60, but in output 60 comes before 548. As a second example, 98 is greater than 9, but 9 comes before 98 in output. So how do we go about it? The idea is to use any comparison based sorting algorithm. In the used sorting algorithm, instead of using the default comparison, write a comparison function myCompare() and use it to sort numbers. Given two numbers X and Y, how should myCompare() decide which number to put first – we compare two numbers XY (Y appended at the end of X) and YX (X appended at the end of Y). If XY is larger, then X should come before Y in output, else Y should come before. For example, let X and Y be 542 and 60. To compare X and Y, we compare 54260 and 60542. Since 60542 is greater than 54260, we put Y first. Following is C++ implementation of the above approach. To keep the code simple, numbers are considered as strings, and vector is used instead of normal array. 
+// Given an array of numbers, program to arrange the numbers to form the
+// largest number
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+// A comparison function which is used by sort() in printLargest()
+int myCompare(string X, string Y)
+{
+    // first append Y at the end of X
+    string XY = X.append(Y);
+
+    // then append X at the end of Y
+    string YX = Y.append(X);
+
+    // Now see which of the two formed numbers is greater
+    return XY.compare(YX) > 0 ? 1: 0;
+}
+
+// The main function that prints the arrangement with the largest value.
+// The function accepts a vector of strings
+void printLargest(vector<string> arr)
+{
+    // Sort the numbers using library sort funtion. The function uses
+    // our comparison function myCompare() to compare two strings.
+    // See http://www.cplusplus.com/reference/algorithm/sort/ for details
+    sort(arr.begin(), arr.end(), myCompare);
+
+    for (int i=0; i < arr.size() ; i++ )
+        cout << arr[i];
+}
+
+// driverr program to test above functions
+int main()
+{
+    vector<string> arr;
+
+    //output should be 6054854654
+    arr.push_back("54");
+    arr.push_back("546");
+    arr.push_back("548");
+    arr.push_back("60");
+    printLargest(arr);
+
+    // output should be 777776
+    /*arr.push_back("7");
+    arr.push_back("776");
+    arr.push_back("7");
+    arr.push_back("7");*/
+
+    //output should be 998764543431
+    /*arr.push_back("1");
+    arr.push_back("34");
+    arr.push_back("3");
+    arr.push_back("98");
+    arr.push_back("9");
+    arr.push_back("76");
+    arr.push_back("45");
+    arr.push_back("4");
+    */
+
+   return 0;
+}
+ Output: 6054854654 This article is compiled by Ravi Chandra Enaganti. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. Deepak Shrivastava my solution in java import java.util.Arrays; import java.util.Comparator; public class Sol { public static void main(String[] args) { Integer a[] = { 1, 34, 3, 98, 9, 76, 45, 4 }; Arrays.sort(a, new Comparator() { @Override public int compare(Integer o1, Integer o2) { return (o2 + “” + o1).compareTo(o1 + “” + o2); } }); String result = “”; for (int i : a) { result += i; } System.out.println(result); } } Sriharsha g.r.v may i know why my code is getting clumgy while copying here and others i is doing fine? thanq manisha another solution could be: 1.find the max number of digits a number has in an array 2.make every other number in the array to have the same number of digits by recurring the last digit of the number,let it be stored in an array brr 3.sort the new array now,here brr 4.print the numbers in the original array according to the positions of the new array. e.g: 60,548,546,54 brr={600,548,546,544} largest number is now:6054854654 Aravindan B It wont work for 1, 2, 10, 3, 4 your ans : 101234 actual ans may be like : 432110 Divanshu Aravindan .. Sorry his solution will work for thsi test case as well .. a = {1,2,10,3,4} ar = {11,22,10,33,44} Sort (Ar) = {44,33,22,11,10) so number will be 432110 Guest thanq and here is the code #include #include int a[20][20],reach[20],n; int len[4]; int maxlen; int temp[4]; int main() { int i; int arr[]={54,546,548,60}; maxlen=getmaxdigits(arr); appendall(arr); printf(“maxlen is %d n”,maxlen ); for(i=0;i<4;i++) printf("%d ",temp[i] ); printf("n"); for(i=0;i<4;i++) printf("%d ",arr[i] ); printf("n"); } getmaxdigits(int*arr) { int i,factor,count,max=-99; for(i=0;i<4;i++) { count=0; factor=1; while(arr[i]/factor) { count++; factor=factor*10; } len[i]=count; if(max<count) max=count; printf("count is %d n",count ); } return max; } appendall(int*arr) { int i,lastdigit,j; for(i=0;i<4;i++) { temp[i]=arr[i]; if(len[i]!=maxlen) { for(j=0;j<maxlen-len[i];j++) { temp[i]=temp[i]*10; } printf("%d is made to %dn",arr[i],temp[i] ); lastdigit=arr[i]%10; for(j=0;j<maxlen-len[i]-1;j++) { lastdigit=lastdigit*10+lastdigit; } temp[i]=temp[i]+lastdigit; printf("temp[%d]=%d n",i,temp[i] ); } } } Guest thanq and here is the code #include #include int a[20][20],reach[20],n; int len[4]; int maxlen; int temp[4]; int main() { int i; int arr[]={54,546,548,60}; maxlen=getmaxdigits(arr); appendall(arr); printf(“maxlen is %d n”,maxlen ); for(i=0;i<4;i++) printf("%d ",temp[i] ); printf("n"); for(i=0;i<4;i++) printf("%d ",arr[i] ); printf("n"); } getmaxdigits(int*arr) { int i,factor,count,max=-99; for(i=0;i<4;i++) { count=0; factor=1; while(arr[i]/factor) { count++; factor=factor*10; } len[i]=count; if(max<count) max=count; printf("count is %d n",count ); } return max; } appendall(int*arr) { int i,lastdigit,j; for(i=0;i<4;i++) { temp[i]=arr[i]; if(len[i]!=maxlen) { for(j=0;j<maxlen-len[i];j++) { temp[i]=temp[i]*10; } printf("%d is made to %dn",arr[i],temp[i] ); lastdigit=arr[i]%10; for(j=0;j<maxlen-len[i]-1;j++) { lastdigit=lastdigit*10+lastdigit; } temp[i]=temp[i]+lastdigit; printf("temp[%d]=%d n",i,temp[i] ); } } } Sriharsha g.r.v thanq and here is code #include #include int len[4]; int maxlen; int temp[4]; int main() { int i; int arr[]={54,546,548,60}; maxlen=getmaxdigits(arr); appendall(arr); printf(“maxlen is %d n”,maxlen ); for(i=0;i<4;i++) printf("%d ",temp[i] ); printf("n"); for(i=0;i<4;i++) printf("%d ",arr[i] ); printf("n"); } getmaxdigits(int*arr) { int i,factor,count,max=-99; for(i=0;i<4;i++) { count=0; factor=1; while(arr[i]/factor) { count++; factor=factor*10; } len[i]=count; if(max<count) max=count; printf("count is %d n",count ); } return max; } appendall(int*arr) { int i,lastdigit,j; for(i=0;i<4;i++) { temp[i]=arr[i]; if(len[i]!=maxlen) { for(j=0;j<maxlen-len[i];j++) { temp[i]=temp[i]*10; } printf("%d is made to %dn",arr[i],temp[i] ); lastdigit=arr[i]%10; for(j=0;j<maxlen-len[i]-1;j++) { lastdigit=lastdigit*10+lastdigit; } temp[i]=temp[i]+lastdigit; printf("temp[%d]=%d n",i,temp[i] ); } } } vamshi great… Suryabhan Singh compare function for numbers bool compare(int a,int b) { int count=0; int z=a; int x=b; while(z) { z/=10; count++; } z=(b*pow(10,count))+a; count=0; while(x) { x/=10; count++; } x=(a*pow(10,count))+b; return(x>=z); } Guest compare function for numbers- bool compare(int a,int b) { int count=0; int z=a; int x=b; while(z) { z/=10; count++; } z=(b*pow(10,count))+a; count=0; while(x) { x/=10; count++; } x=(a*pow(10,count))+b; //cout<<x<<" "<<z<=z); } sesame Solution in C: #include #include #include int cmpfunc(const void *a, const void *b) { int x= *(int*)a; int y= *(int*)b; int digitsX=0, digitsY=0; int xy, yx; while(x>0) { x=x/10; ++digitsX; } while(y>0) { y=y/10; ++digitsY; } x= *(int*)a; y= *(int*)b; xy = pow(10,digitsY)*x+y; yx = pow(10,digitsX)*y+x; return (yx-xy); } int main() { int values[]={1, 34, 3, 98, 9, 76, 45, 4}; int n=0,i; n= sizeof(values)/sizeof(values[0]); qsort(values, n, sizeof(int), cmpfunc); printf(“n”); for(i=0;i<n;i++) printf("%d",values[i]); return 0; } Soumya Sengupta here’s a simple solution….. we scan d array and pick out the elemnts with greatest dgreatest digit on the left…. so if we take the array [1, 34, 3, 98, 9, 76, 45, 4] the elements to be picked will be,9 and 98 among 9 and 98 the elemnt to b placed in d greates position can be decided by forming concatenation of XY and YX as given in explanation and found out….. den the largest and secnd largst positioned elemnts can be placed on the 1st and 2nd position f d array by swapping dem wd d elemnts in dose 1st and secnd positions…. This process will again continue from start+2’th position as the first 2 positions already contain the largest possible elemnts….. this process continues until the array is exhausted…. Soumya Sengupta sorry… a lil typo missd….after the swapping of 9 and 98 wuth d 0’th and 1’st position f d array we incremnt the position for the process to start by 2(start1=start+2) because we have already decided wr to place d 2 elemnts(9 and 98) out f d n elements in d aray…. in the next iteratn if there is only 1 elemt with the largest left didgit value then we will swap it with the 3 rd position f d array nd start the process from Start1+1(start +3)……………..so depending on d number of already decided position of elemnts we increment. vikasnitt Soumya you are doing the same as the algo given above. booyakasha In C. Compiles without any errors on GCC 4.4.3-4. Compiler options used: -Wall.  
+#define CH_MAX 10
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+void arrangeForLargest(int[], int);
+int funkyCompare(const void *, const void *);
+
+int main(int argc, char *argv[]) {
+	int r[] = {54, 546, 548, 60};	/* replace this with an array of your choice */
+	arrangeForLargest(r, sizeof(r) / sizeof(r[0]));
+	return 0;
+}
+
+int funkyCompare(const void *x, const void *y) {
+	char *s = malloc(CH_MAX * sizeof(char) + 1);
+	char *t = malloc(CH_MAX * sizeof(char) + 1);
+	sprintf(s, "%d", * (int*) x);
+	sprintf(t, "%d", * (int*) y);
+	int a = strlen(s) + strlen(t);
+	char *v = malloc(a * sizeof(char) + 1);
+	char *w = malloc(a * sizeof(char) + 1);
+	strcpy(v, s);
+	strcat(v, t);
+	strcpy(w, t);
+	strcat(w, s);
+	return strcmp(v, w) >= 0 ? 0 : 1;
+}
+
+void arrangeForLargest(int r[], int s) {
+	int a;
+	qsort(r, s, sizeof(int), funkyCompare);
+	for(a = 0; a < s; ++a)
+		printf("%d", r[a]);
+	printf("\n");
+}
+ Dnyaneshwar  
+/* //This program 
+#include<stdio.h>
+main()
+{
+  int n=5,a[n],i,b[n],max=0,val,pos=0,k=0;
+  printf("Enter the five Number ");
+  
+  for(i=0;i<n;i++)
+    scanf(" %d" ,&a[i]);
+ 
+  for(i=0;i<n;i++)
+    {
+      b[i]=length(a[i]);
+      
+    }
+     max=maxarray(b,n);
+     for(i=0;i<n;i++)
+     {
+       b[i]=max-b[i];
+     }
+   
+    for(i=0;i<n;i++) 
+      { 
+       val=b[i]; 
+       b[i]=a[i];
+        while(val!=0) 
+    	 { 
+    	   a[i]=a[i]*10; 
+    	   val--; 
+    	 } 
+      } 
+   printf("\nMaximum Number from given array=>\t");
+   while(k!=5)
+     {
+        max=0;
+  
+       for(i=0;i<n;i++)
+	 {
+	   if(a[i]>max)
+	     {
+	       max=a[i];
+	       pos=i;
+	     }
+	 }
+       a[pos]=0;
+       printf("%d",b[pos]);
+       k++;
+   }
+   printf("\n");
+}
+int length(int n) //It will find the length of all array element 
+{
+  int i=0;
+  while(n!=0)
+    {
+      ++i;
+      n=n/10;
+    }
+  return i; 
+}
+int maxarray(int b[],int n) // It will find the length of max array element 
+{
+  int i=0;
+  int max=b[i];
+  for(i=1;i<n;i++)
+    {
+      if(b[i]>max)
+	max=b[i];
+    }
+  return max;
+} */
+ anonymous  
+#include<stdio.h>
+#include<conio.h>
+#include<stdlib.h>
+#include<string.h>
+void swap ( int* a, int* b )
+{
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
+int pivote(int a[],int start,int end){
+    int p = a[end];
+    int i=start,j=start-1;
+    char b[5];
+    char pi[5];
+    char str1[6];
+    char str2[6];
+    memset (pi,'\0',sizeof(b));
+    itoa(p,pi,10);
+    for(i=start;i<=end-1;i++){
+              memset (b,'\0',sizeof(b));
+              memset (str1,'\0',sizeof(str1));
+              memset (str2,'\0',sizeof(str2));
+              itoa(a[i],b,10);
+              strcat(str1,pi);
+              strcat(str1,b);
+              strcat(str2,b);
+              strcat(str2,pi);
+              if(strcmp(str2,str1)>=0){
+                                  j++;
+                                  swap(&a[i],&a[j]);
+                                  
+              }       
+    }
+    swap(&a[j+1],&a[end]);
+    return j+1;
+}
+void findmax(int a[],int start,int end){
+    if(start>end){
+                  return;
+    }
+    
+    int p= pivote(a,start,end);
+    findmax(a,start,p-1);
+    findmax(a,p+1,end);                
+}
+int main(){
+    int a[] = {54,546,548,60};
+    int size = sizeof(a)/sizeof(a[0]);
+    findmax(a,0,size-1);
+    for(int i=0;i<size;i++){
+            printf("%d",a[i]);
+    }
+    getch();
+}
+ Niks  
+// Given an array of numbers, program to arrange the numbers to form the
+// largest number
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+vector<string> store;
+int len = 0;
+string res = "";
+
+void printLargest(int mask,string temp)
+{
+	if(mask == 0)
+	{
+		res = max(res,temp);
+		return;
+	}
+
+	for(int i=0; i<len; i++)
+	{
+		if(mask & (1<<i))
+		{	
+			printLargest(mask ^(1<<i),temp+store[i]);
+		}
+	}
+	return;
+}
+
+
+// driverr program to test above functions
+int main()
+{
+    vector<string> arr;
+ 
+    //output should be 6054854654
+    arr.push_back("54");
+    arr.push_back("546");
+    arr.push_back("548");
+    arr.push_back("60");
+
+	store = arr;
+	len = arr.size();
+    printLargest((1<<len)-1,"");
+	printf("%s", res);
+ 
+	arr.clear();
+	res.clear();
+	// output should be 777776
+    arr.push_back("7");
+    arr.push_back("776");
+    arr.push_back("7");
+    arr.push_back("7");
+
+	store = arr;
+	len = arr.size();
+    printLargest((1<<len)-1,"");
+	printf("%s", res);
+
+	arr.clear();
+	res.clear(); 
+    //output should be 998764543431
+    arr.push_back("1");
+    arr.push_back("34");
+    arr.push_back("3");
+    arr.push_back("98");
+    arr.push_back("9");
+    arr.push_back("76");
+    arr.push_back("45");
+    arr.push_back("4");
+
+	store = arr;
+	len = arr.size();
+    printLargest((1<<len)-1,"");
+	printf("%s", res);
+    
+ 
+   return 0;
+}
+ Rahul wouldn’t a variation of radix sort work? By keeping in mind the most significant digit till comparisons end for each numbered place. arunaami haha  
+/* Paste your code here (You may delete these lines if not writing code) */
+ skeptic import java.util.*; import java.io.*; public class intut{ public static void main(String []args) { String A[]={"43","44","12","324","90","9","88","89"}; String B; int i=0,j; //find the largest number formed by the numbers in the array Arrays.sort(A); while(i < A.length){ System.out.println(A[i]); ++i; } j = A.length; B = A[j-1]; System.out.println(B); i = A.length-1; while (i > 0){ String XY = (B+A[i-1]); String YX = (A[i-1]+B); String D[]={XY,YX}; Arrays.sort(D); B = D[1]; –i; } System.out.println(B); } } AJAY MITTAL I got a simple solution jst use itoa conversion for all no.’s and store all the strings in an array and sort them in descending lexicographical order and jst print all the string from the starting of the array. manoj thats simple and effective anonymous @AJAY sorry but i think we can’t choose digits from a number we have to choose a whole number .. Binayak void sortWithSpecificComparision(int *arr,int n) { int i,j,temp,t1,t2,t3,t4,c1=0,c2=0,k; for(i=0;i <= (n-1) ;i++) { for(j=i+1;j 0) { t1 = t1/10; c1++; } while(t2 > 0) { t2 = t2/10; c2++; } t3 = arr[i] * pow(10,c2) + arr[j]; t4 = arr[j] * pow(10,c1) + arr[i]; if( t3 < t4) { temp = arr[i]; arr[i]=arr[j]; arr[j] = temp; } } } } spiderman The given solution is cool and simple solution with sorting! Keep it up!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ganesh P Hi, You can find java code here: import java.util.Arrays; import java.util.Comparator; /** * Given an array of numbers, arrange them in a way that yields the largest * value. For example, if the given numbers are {54, 546, 548, 60}, the * arrangement 6054854654 gives the largest value. * * @author GAPIITD * */ public class ArrangeGivenNumbersToFormTheBiggestNumber { /** * @param args */ public static void main(String[] args) { Integer nos[] = new Integer[]{54,546,60,548}; for (int i : nos) { System.out.println(i); } Arrays.sort(nos, new comp()); System.out.println("sorted array: "); for (int i : nos) { System.out.println(i); } System.out.println("BiggestNumber: "); for (int i : nos) { System.out.print(i); } } } class comp implements Comparator<Object> { @Override public int compare(Object arg1, Object arg2) { Integer i1 = (Integer)arg1; Integer i2 = (Integer)arg2; String st1 = (String.valueOf(i1).concat(String.valueOf(i2))); String st2 = (String.valueOf(i2).concat(String.valueOf(i1))); System.out.println("st1= " + st1 + " st2 = " + st2); if (Integer.parseInt(st1) > Integer.parseInt(st2)) return -1; return 1; } } ctrl /* Paste your code here (You may delete these lines if not writing code) */ return Integer.valueOf(st1) – Integer.valueOf(st2); if condition is not required. one more way to do is public int compare(Object arg1, Object arg2) { Integer i1 = (Integer) arg1; Integer i2 = (Integer) arg2; return (i1.intValue()+"").compareTo(i2.intValue()+""); } Sumit Wouldn’t it be sufficient to get each digit in the array and sort them in ascending sort and concatenate them to get the greatest number.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Sumit Sorry for the last comment, it won’t work. ss You only need to get the greatest first digits first and when there are two or more, use compare function to find out which has to be place before the other jayanth the compare function could be modified as int myCompare(string X, string Y) { return (X[0]-‘0′) > (Y[0]-‘0′) ? 1 : 0; } because ultimately wt ur code does is just comparing the first digit of the two numbers nd returns the one which has the greatest first digit….. jayanth sorry…the above case fails when both the numbers have the same first digit….  
+/* Paste your code here (You may delete these lines if not writing code) */
+ sagar2693 sorry the above code wasn’t correctly uploaded…. plz let me know if the code below falters somewhere  
+#include<map>
+#include<iostream>
+using namespace std;
+int main(){
+int n,i;
+cin>>n;
+map<string,int> mp;
+string num;
+for(i=0;i<n;i++){
+cin>>num;
+mp[num]++;
+}
+map<string,int> ::reverse_iterator it;
+for(it=mp.rbegin();it!=mp.rend();it++){
+if(it->second!=1){
+while(it->second--)
+cout<<it->first;
+}
+else cout<<it->first;
+}
+return 0;
+}
+ mopurizwarriors Very good problem and a simple neat solution  
+/* Paste your code here (You may delete these lines if not writing code) */
+ sagar2693 #include #include using namespace std; int main(){ int t,n,i; cin>>t; while(t–){ cin>>n; map mp; string s; for(i=0;i cin>>s; mp[s]++; } map ::reverse_iterator it; for(it=mp.rbegin();it!=mp.rend();it++){ if(it->second!=1){ while(it->second–) cout< first; } else cout< first; } cout< } return 0; } Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,543 @@
+Add two numbers represented by linked lists | Set 1 - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Add two numbers represented by linked lists | Set 1 Given two numbers represented by two lists, write a function that returns sum list. The sum list is list representation of addition of two input numbers. Example 1 
+Input:
+  First List: 5->6->3  // represents number 365
+  Second List: 8->4->2 //  represents number 248
+Output
+  Resultant list: 3->1->6  // represents number 613
+ Example 2 
+Input:
+  First List: 7->5->9->4->6  // represents number 64957
+  Second List: 8->4 //  represents number 48
+Output
+  Resultant list: 5->0->0->5->6  // represents number 65005
+ Solution Traverse both lists. One by one pick nodes of both lists and add the values. If sum is more than 10 then make carry as 1 and reduce sum. If one list has more elements than the other then consider remaining values of this list as 0. Following is C implementation of this approach. 
+#include<stdio.h>
+#include<stdlib.h>
+
+/* Linked list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+
+/* Function to create a new node with given data */
+struct node *newNode(int data)
+{
+    struct node *new_node = (struct node *) malloc(sizeof(struct node));
+    new_node->data = data;
+    new_node->next = NULL;
+    return new_node;
+}
+
+/* Function to insert a node at the beginning of the Doubly Linked List */
+void push(struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node = newNode(new_data);
+
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);
+
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+/* Adds contents of two linked lists and return the head node of resultant list */
+struct node* addTwoLists (struct node* first, struct node* second)
+{
+    struct node* res = NULL; // res is head node of the resultant list
+    struct node *temp, *prev = NULL;
+    int carry = 0, sum;
+
+    while (first != NULL || second != NULL) //while both lists exist
+    {
+        // Calculate value of next digit in resultant list. 
+        // The next digit is sum of following things
+        // (i)  Carry
+        // (ii) Next digit of first list (if there is a next digit)
+        // (ii) Next digit of second list (if there is a next digit)
+        sum = carry + (first? first->data: 0) + (second? second->data: 0);
+
+        // update carry for next calulation
+        carry = (sum >= 10)? 1 : 0;
+
+        // update sum if it is greater than 10
+        sum = sum % 10;
+
+        // Create a new node with sum as data
+        temp = newNode(sum);
+
+        // if this is the first node then set it as head of the resultant list
+        if(res == NULL)
+            res = temp;
+        else // If this is not the first node then connect it to the rest.
+            prev->next = temp;
+
+        // Set prev for next insertion
+        prev  = temp;
+
+        // Move first and second pointers to next nodes
+        if (first) first = first->next;
+        if (second) second = second->next;
+    }
+
+    if (carry > 0)
+      temp->next = newNode(carry);
+
+    // return head of the resultant list
+    return res;
+}
+
+// A utility function to print a linked list
+void printList(struct node *node)
+{
+    while(node != NULL)
+    {
+        printf("%d ", node->data);
+        node = node->next;
+    }
+    printf("\n");
+}
+
+/* Drier program to test above function */
+int main(void)
+{
+    struct node* res = NULL;
+    struct node* first = NULL;
+    struct node* second = NULL;
+
+    // create first list 7->5->9->4->6
+    push(&first, 6);
+    push(&first, 4);
+    push(&first, 9);
+    push(&first, 5);
+    push(&first, 7);
+    printf("First List is ");
+    printList(first);
+
+    // create second list 8->4
+    push(&second, 4);
+    push(&second, 8);
+    printf("Second List is ");
+    printList(second);
+
+    // Add the two lists and see result
+    res = addTwoLists(first, second);
+    printf("Resultant list is ");
+    printList(res);
+
+   return 0;
+}
+ Output: 
+  First List is 7 5 9 4 6
+  Second List is 8 4
+  Resultant list is 5 0 0 5 6 Time Complexity: O(m + n) where m and n are number of nodes in first and second lists respectively. Please write comments if you find the above codes/algorithms incorrect, or find other ways to solve the same problem.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. Vishal I have tried as well… the simplest logic ode *AddTwoList(Node *head, Node *head2) { Node *i = head; Node *j = head2; int decimal = 1; int sum1 =0; int sum2 =0; while(i || j) { if(i){ sum1 = sum1 +(i->info)*decimal; i = i->next; } if(j){ sum2 = sum2 +(j->info)*decimal; j = j->next; } decimal = decimal*10; } sum1 = sum1+sum2; Node *temp = NULL; Node *temphead = new Node; temphead->next=NULL; temp = temphead; temphead->info = sum1%10; sum1 = sum1/10; while(sum1) { Node *q = new Node; q->info = sum1%10; sum1 = sum1/10; temphead->next = q; q->next = NULL; temphead = q; } return temp; } Vishal this program will work only for single digit numbers……… ???? Mohaan Raja Hi I have a solution. Please give your comments… // Getting the actual number from the list for two lists // Adding the numbers directly and getting the sum. // Then creating the resultant list from the sum. struct node { int data; struct node *next ; }; struct node * AddTwoList(struct node* a, struct node * b) { if(a==null) return b; if(b==null) return a; int num1 = GetNum(a); int num2 = GetNum(b); int num3 = num1+num2; struct node * result = FormList(num3); return result; } int GetNum(struct node *a) { int num=0, multiplier = 1; while(a!= null) { num += (a->data)*multiplier; multiplier *= 10; a= a->next; } return num; } FormList(int num) { struct node * result; while(num > 0) { int quo = num%10; struct node* temp = (struct node*)malloc(sizeof(struct node)); temp->data= quo; temp->next = null; if(result==null) { result = temp; } result->next = temp; num = num/10; } return result; } } } } Jayanth An even more simpler and neat solution ListNode *addTwoNumbers(ListNode *l1, ListNode *l2) { if(l1 == NULL && l2==NULL) return NULL; else if(l1 == NULL) return l2; else if(l2 == NULL) return l1; return add(l1,l2,0); } ListNode *add(ListNode *l1,ListNode *l2,int carry) { if(l1 == NULL && l2 == NULL && carry == 0) return NULL; int ldata =0 ,rdata=0; if(l1 != NULL) ldata = l1->val; if(l2!=NULL) rdata = l2->val; ListNode *newnode = (ListNode *)malloc(sizeof(ListNode)); newnode->val = (ldata+rdata+carry)%10; newnode->next = add(l1?l1->next:NULL,l2?l2->next:NULL,(ldata+rdata+carry)/10); return newnode; } yeefoo Pretty neat, thanks! One comment, you can create a dummy node for result to avoid unnecessary branches. The code looks more cleaner that way in my opinion. Guest On a similar note, how do you solve this when your LL pointer points to the MSB, and you are asked to subtract two large linked lists without reversing them? Rajdeep - One easy solution is like the one being used to print Link List in reverse direction and create the numbers from the two list – Then add the two lists number.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Rajdeep Only printing the sum and not creating the sum list: Please find the code for the above algo:  
+
+long FindNumInList(struct node *head)
+{
+   long num=0;
+
+   if(!head)
+         return;
+
+   while(head)
+   {
+      num = 10*num + head->data;
+      head = head->next;
+   }
+
+   return num;
+}
+
+long addTwoLists(struct node *list1, struct node *list2)
+{
+    return FindNumInList(list1) + FindNumInList(list2);
+}
+
+/* Drier program to test above function */
+int main(void)
+{
+    struct node* first = NULL;
+    struct node* second = NULL;
+    long res=0;
+ 
+    // create first list 7->5->9->4->6
+    push(&first, 6);
+    push(&first, 4);
+    push(&first, 9);
+    push(&first, 5);
+    push(&first, 7);
+    printf("First List is ");
+    printList(first);
+ 
+    // create second list 8->4
+    push(&second, 4);
+    push(&second, 8);
+    printf("Second List is ");
+    printList(second);
+ 
+    // Add the two lists and see result
+    res = addTwoLists(first, second);
+    printf("Result is %ld", res);
+ 
+   return 0;
+}
+ :w Amateur_coder simple and smart….  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://www.nikoo28.blogspot.com nikoo28 can there be an efficient way to multiply to numbers represented by linked lists..?? i mean like 3->6->4->7->3 (multiplied by) 5->2->7->1->1->7 if anyone can..please help me..as the carry can be anything here except 0 or 1..also we need to add up results..please help.. Ankit Malhotra You can make a function to multiply a linked list with a single digit extracted from the other list. You can add 0 to the result according to the place value of the digit in the list. You then need to add all the results using the addition solution given in this page. bhavneet using recursion  
+struct node* add(struct node* list1, struct node* list2)
+{
+        int sum=0;
+        static int carry=0;
+        struct node* temp;
+        if(list1==NULL && list2==NULL && carry==0)
+                return NULL;
+        if(list1!=NULL)
+                {
+                        sum+=list1->info;
+                        list1=list1->next;
+
+                }
+         if(list2!=NULL)
+                {
+                        sum+=list2->info;
+                        list2=list2->next;
+                }
+
+        sum+=carry;
+
+        temp=(struct node*) malloc(sizeof(struct node));
+        temp->info=sum%10;
+        carry=sum/10;
+        temp->next=add(list1,list2);
+        return temp;
+
+}
+
+ fender bender new_node, free_list and print_list are generic fns, and i haven’t shown them here for conciseness.  
+void addition_list (node_t *lista, node_t *listb)
+{
+    node_t *result = NULL;
+    node_t *new = NULL;
+    int carry = 0;
+    int sum = 0;
+
+    while (lista != NULL || listb != NULL) {
+        sum = 0;
+
+        if (lista != NULL) {
+            sum = lista->data;
+            lista = lista->next;
+        }
+
+        if (listb != NULL) {
+            sum = sum + listb->data;
+            listb = listb->next;
+        }
+
+        sum = sum + carry;
+        carry = (sum < 10)? 0:1; // for next round
+        sum = sum % 10;
+
+        if (result == NULL) {
+            result = new = new_node(sum);
+        } else {
+            new->next = new_node(sum);
+            new = new->next;
+        }
+    }
+
+    /*
+     * result list can be 1 longer than longest input list
+     */
+    if (carry) {
+       new->next = new_node(carry);
+    }
+
+    print_list(&result, FALSE);
+
+    free_node(result);
+}
+ # a.out (8)->(3)->(7)->(4)->END (5)->(6)->(5)->END (3)->(0)->(3)->(5)->END # a.out (9)->(9)->(9)->(9)->END (1)->(1)->(1)->END (0)->(1)->(1)->(0)->(1)->END ANSHUM AGARWAL #include #include using namespace std; typedef list l; int main() { l l1; l l2; l l3; l::iterator it1; l::iterator it2; l::iterator it3; int n,m,i,j,t,k,l; cout<>n; cout<<"\nenter the no:\n"; for(i=0;i>t; l1.push_front(t); } cout<>m; cout<<"\nenter the no:\n"; for(i=0;i>t; l2.push_front(t); } cout<m)?(n-m):(m-n);cout<<"dif="<<dif<m) { for(j=0;j<dif;j++) l2.push_back(0); } else if(n<m) { for(j=0;jm)?n:m; for(l=0;l<grt-1;l++) { cout<<"it1="<<*it1<<"\tit2="<<*it2<<endl; s=(*it1 + *it2)%10; prv=(*it2 + *it1); it1++; it2++; *it2=*it2 + prv/10; l3.push_back(s); } cout<<"\nit1="<<*it1<<"\tit2="<<*it2<<endl; s=(*it1 + *it2); l3.push_back(s); for(it3=l3.begin();it3!=l3.end();it3++) { cout<<(*it3)<<" "; } system("pause"); return 0; } ANSHUM AGARWAL #include #include using namespace std; typedef list l; int main() { l l1; l l2; l l3; l::iterator it1; l::iterator it2; l::iterator it3; int n,m,i,j,t,k,l; cout<>n; cout<<"\nenter the no:\n"; for(i=0;i>t; l1.push_front(t); } cout<>m; cout<<"\nenter the no:\n"; for(i=0;i>t; l2.push_front(t); } cout<m)?(n-m):(m-n);cout<<"dif="<<dif<m) { for(j=0;j<dif;j++) l2.push_back(0); } else if(n<m) { for(j=0;jm)?n:m; for(l=0;l<grt-1;l++) { cout<<"it1="<<*it1<<"\tit2="<<*it2<<endl; s=(*it1 + *it2)%10; prv=(*it2 + *it1); it1++; it2++; *it2=*it2 + prv/10; l3.push_back(s); } cout<<"\nit1="<<*it1<<"\tit2="<<*it2<<endl; s=(*it1 + *it2); l3.push_back(s); for(it3=l3.begin();it3!=l3.end();it3++) { cout<<(*it3)<“; } system(“pause”); return 0; } Venkata Krishna int sum (struct node *head) { int count = 0, sum = 0; struct node *temp = head; while(teamp!=NULL) { sum = sum + (temp->data * 10 ^ count); temp = temp->next; count++; } return sum; } use above function for two lists and both return sums. I hope it will solve the problem well. Any one let me know the complexity of the above program.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ anuj  
+#include<stdio.h>
+#include<stdlib.h>
+
+struct node {
+	int data;
+	struct node * next;
+};
+
+void push(struct node ** href, int data) {
+	struct node * newnode = (struct node *) malloc (sizeof(struct node));
+	newnode -> data = data;
+	newnode -> next = *href;
+	*href = newnode;
+}
+
+void printList(struct node * head) {
+	while(head != NULL){
+		printf("%d ", head->data);
+		head = head->next;
+	}
+	printf("\n");
+}
+
+struct node * addLists(struct node *list1, struct node *list2){
+	int res;
+	int carry = 0;
+	struct node *result = NULL;
+
+	while(list1 != NULL || list2 != NULL){
+		res = (list1? list1->data:0) + (list2? list2->data:0) + carry;
+		carry = res/10;
+		push(&result, res%10);
+
+//		printf("Output: %d Carry : %d\n", res%10, carry);
+		if(list1)
+			list1 = list1->next;
+		if(list2)
+			list2 = list2->next;
+	}
+	if(carry == 1){
+		push(&result, 1);
+	}
+
+	return result;
+
+}
+
+int main() {
+
+	struct node * head1 = NULL;
+	struct node * head2 = NULL;
+	struct node * result = NULL;
+
+	push(&head1, 9);
+	push(&head1, 9);
+	push(&head1, 9);
+	push(&head1, 5);
+	push(&head1, 7);
+	printList(head1);
+
+	push(&head2, 4);
+	push(&head2, 8);
+	printList(head2);
+	
+	result = addLists(head1, head2);
+	
+	printList(result);
+
+}
+
+
+
+ amitp49 For order linked list, we can add them without reversing them too using recursive approach by maintaining reverse carry(rc) which will be return back from previous calls… Here is the function for running code.. Please let me know if any case it won’t work…  
+/* Paste your code here (You may delete these lines if not writing code) */
+
+
+struct node* addTwoLists_order_rec(struct node* first, struct node* second,int fc,int sc,int *rc)
+{
+	if(first == NULL && second == NULL)
+	{	
+		*rc = 0;
+		return NULL;
+	}
+
+	struct node *res = newNode(0);
+	struct node *more = newNode(0);
+	int value=0;
+	if(fc == sc)
+	{
+		more = addTwoLists_order_rec(first->next,second->next,fc-1,sc-1,rc);
+		value = ( ( first?first->data:0 ) +
+			      ( second?second->data:0 ) + 
+			        *rc );
+	}
+	else
+	{
+		more = addTwoLists_order_rec(first->next,second,fc-1,sc,rc);
+		value = ( (first?first->data:0) +
+				*rc );
+	}
+
+	res->next = more;
+	res->data = value%10;	
+	*rc =( (value >= 10) ? 1 : 0);
+
+	return res;				
+}
+struct node* addTwoLists_order(struct node* first, struct node* second)
+{
+	struct node * res = NULL;
+	//count no of node in both lists
+	int fc = countList(first);
+	int sc = countList(second);
+	int rc=0;
+	if(fc>=sc)
+		res =  addTwoLists_order_rec(first,second,fc,sc,&rc);
+	else
+		res =  addTwoLists_order_rec(second,first,sc,fc,&rc);
+	if(rc)
+	{
+		struct node *carryNode = newNode(1);
+		carryNode->next = res;
+		res = carryNode;
+	}
+	return res;
+}
+
+ atul very nice soln  
+/* Paste your code here (You may delete these lines if not writing code) */
+ amitp49 Recursive approach to Add two numbers represented by linked lists….  
+
+struct node* addTwoLists (struct node* first, struct node* second,int carry)
+{
+	if(first == NULL && second == NULL)
+		return NULL;
+	struct node *res = newNode(0);
+	int value=0;
+	value = ( ( first?first->data:0 ) + ( second?second->data:0 ) + carry );
+	res->data = value%10;	
+	struct node *more = addTwoLists(first!=NULL ? first->next:NULL,
+					second!=NULL ? second->next:NULL,
+					value>=10 ? 1:0);
+	res->next = more;
+	return res;				
+}
+ Param Your code will give wrong answer if two linked lists arent of same size (two numbers with diff no of digits) eg: for 3-4-1 and 3-4 , your code gives 6-8-1 (MSD is the head of the LL) But the correct answer is 3-7-5 amitp49 @Param Given code is for LSD representing head of LL(reverse order number in LL). For MSD as head of LL(order number in LL), please refer code http://www.geeksforgeeks.org/archives/15194#comment-7457 malvika @amit nice solution! tuhin i just have one thing to ask i do comprehend to your code my code gave absolutely correct output ,for creating the two given linked list i used insert before which is analogous to reversing a list and i did print the list in reverse order got the correct answer but just the case if the order is mantained as in 1->2->3 + 4->5->6 = 5->7->9 for this In that case we just have to add two additional steps before the above code. 1) Reverse first list 2) Reverse second list And one step after the code. 1) Reverse the resultant list is a cost effective method i mean isnt there a better solution tuhin@jucse if there is then please upload . this is a freaking imp problem Valentino 1.- I added a function to print the list in the correct order 2.- Modify the addTwoLists method 3.- Let me know your thoughts  
+/* Paste your code here (You may delete these lines if not writing code) */
+
+// A utility function to print a linked list
+void printListInOrder(struct node *node)
+{
+	if (node == NULL)
+		return;
+
+	printListInOrder(node->next);
+
+	printf("%d ", node->data);
+}
+
+
+// A utility function to print a linked list
+void printList(struct node *node)
+{
+	printListInOrder(node);
+
+	 printf("\n");
+}
+
+/* Adds contents of two linked lists and return the head node of resultant list */
+struct node* addTwoLists (struct node* first, struct node* second)
+{
+	if (first == NULL)
+        return second;
+    if (second == NULL)
+        return first;
+
+    struct node* new_node  =  newNode(0);
+    struct node* rootNode = new_node;
+    bool mustCarry = false;
+    int result = 0;
+
+    do
+    {
+        result = (first != NULL? first->data : 0 ) + (second != NULL? second->data : 0) + (mustCarry ? 1 : 0);
+        mustCarry = result > 9;
+        new_node->data = mustCarry ? result - 10 : result;
+        first = first == NULL ? NULL :  first->next;
+        second = second == NULL ? NULL : second->next;
+
+        if ((first != NULL || second != NULL) ||(first == NULL && second == NULL && mustCarry))
+            new_node = new_node->next = newNode(0);
+
+    } while ((first != NULL || second != NULL) ||(first == NULL && second == NULL && mustCarry)) ;
+
+    return rootNode;
+}
+
+
+
+
+ Atul yup..that will work..almost similar approach  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://geeksforgeeks.org/?page_id=2 Venki I have few points to share, 1. There is mistake in code. In case of decimal system carry can be more than 1. The calculation of carry should be carry = sum\10; Code needs modification. 2. We can avoid checking whether added node is first node of resultant list, by adding a dummy node even before we enter into while loop. Just before returning from function, delete the dummy node. It is not good practice to include too many ‘if’ (conditional execution) conditions. 3. Conditional execution stalls the processor. We can improve the performance by splitting the code into multiple loops. See code below,  
+typedef struct node ListNode;
+
+ListNode *addTwoNumbers(ListNode *list_1, ListNode *list_2) {
+
+    if( !(list_1 || list_2) )
+        return NULL;
+
+    if( list_1 && !list_2 )
+        return list_1;
+
+    if( !list_1 && list_2 )
+        return  list_2;
+
+    int carry = 0;
+    int sum = 0;
+    ListNode *list_3 = new ListNode(0); // Dummy node
+    ListNode *pCrawl = list_3;
+
+    while( list_1 && list_2 )
+    {
+        sum = list_1->val + list_2->val + carry;
+        carry = sum/10;
+        sum = sum%10;
+
+        list_1 = list_1->next;
+        list_2 = list_2->next;
+
+        pCrawl->next = new ListNode(sum);
+        pCrawl = pCrawl->next;
+    }
+
+    while( list_1 )
+    {
+        sum = list_1->val + carry;
+        carry = sum/10;
+        sum = sum%10;
+
+        list_1 = list_1->next;
+
+        pCrawl->next = new ListNode(sum);
+        pCrawl = pCrawl->next;
+    }
+
+    while( list_2 )
+    {
+        sum = list_2->val + carry;
+        carry = sum/10;
+        sum = sum%10;
+
+        list_2 = list_2->next;
+
+        pCrawl->next = new ListNode(sum);
+        pCrawl = pCrawl->next;
+    }
+
+    if( carry )
+        pCrawl->next = new ListNode(carry);
+
+    pCrawl = list_3->next;
+    delete list_3;
+
+    return pCrawl;
+}
+ http://geeksforgeeks.org/forum/profile/sandeep/ Sandeep @venki: I think carry is always 1 or 0. Could you provide an example where carry is more than 1. http://geeksforgeeks.org/?page_id=2 Venki Agreed. It was my impression. We get max carry of 1 (9 + 9 = 18 —> carry 1). http://geeksforgeeks.org/forum/profile/sandeep/ Sandeep About points 2 and 3: Agreed, the code given in post does few extra steps, but the idea is to keep code simple and precise. Does it matter much to have some extra condition checks if the time complexity is same? http://geeksforgeeks.org/?page_id=2 Venki Yeah, very well. Say in the present code, we have check for whether first node is empty or not. We need to verify it every iteration of loop. With the dummy node we can completely get rid of the check. While calculating sum, we are checking whether any list is empty. It can also be avoided completely with little code repetition. Similarly, while increment to next node, we need to check whether either of list is empty, otherwise move forward. This ‘if’ also can be avoided, if we can repeat code. Carry calculation can be done with simple division operation, I guess it is better than ‘if’. All those above points are within the loop. Note that present day processors are having upto 5 level (or even more) pipeline execution. Introducing an ‘if’ can break the instruction stall if the branch prediction fails. May be the programmer may not think at this level. However, we need to keep performance also as key goal. It won’t change the complexity. It would be more quantitative if we can use a timer to check the execution speeds of above two approaches. Ace Shouldn’t the time complexity be.. O(Max(m,n)) ?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik @ace: O(Max(m,n)) and O(m+n) are same aditya This is cool. But the problem will be more interesting if the LL pointer points to the MSB of the number. LL -> 5 -> 8 -> 1 LL -> 3 -> 4 581 + 34 = 615  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik In that case we just have to add two additional steps before the above code. 1) Reverse first list 2) Reverse second list And one step after the code. 1) Reverse the resultant list hongping lin and don’t forget to reverse first list and second list in order to recover the input lists before returning the function.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Atul int convert(node *LL) { int num=0; while(LL!=NULL) { num=num * 10 + LL->data; LL=LL->next; } } we above function to convert LL 1 to a number num1=581; similarly convert LL 2 to a number num2=34; result=num1+num2; insert(int result) { insert(result/10); createLinkList(result%10); }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Saurya @Atul what you have mentioned is fine for this example. It will work but if suppose we have a linked list with 100 elements, your method will fail the sole purpose of having linked list and add is long addition.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

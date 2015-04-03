@@ -1,0 +1,641 @@
+Find a sorted subsequence of size 3 in linear time - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find a sorted subsequence of size 3 in linear time Given an array of n integers, find the 3 elements such that a[i] < a[j] < a[k] and i < j < k in 0(n) time. If there are multiple such triplets, then print any one of them. Examples: 
+Input:  arr[] = {12, 11, 10, 5, 6, 2, 30}
+Output: 5, 6, 30
+
+Input:  arr[] = {1, 2, 3, 4}
+Output: 1, 2, 3 OR 1, 2, 4 OR 2, 3, 4
+
+Input:  arr[] = {4, 3, 2, 1}
+Output: No such triplet
+ Source: Amazon Interview Question Hint: Use Auxiliary Space Solution: 1) Create an auxiliary array smaller[0..n-1]. smaller[i] should store the index of a number which is smaller than arr[i] and is on left side of arr[i]. smaller[i] should contain -1 if there is no such element. 2) Create another auxiliary array greater[0..n-1]. greater[i] should store the index of a number which is greater than arr[i] and is on right side of arr[i]. greater[i] should contain -1 if there is no such element. 3) Finally traverse both smaller[] and greater[] and find the index i for which both smaller[i] and greater[i] are not -1. 
+#include<stdio.h>
+
+// A function to fund a sorted subsequence of size 3
+void find3Numbers(int arr[], int n)
+{
+   int max = n-1; //Index of maximum element from right side
+   int min = 0; //Index of minimum element from left side
+   int i;
+
+   // Create an array that will store index of a smaller
+   // element on left side. If there is no smaller element
+   // on left side, then smaller[i] will be -1.
+   int *smaller = new int[n];
+   smaller[0] = -1;  // first entry will always be -1
+   for (i = 1; i < n; i++)
+   {
+       if (arr[i] <= arr[min])
+       {
+          min = i;
+          smaller[i] = -1;
+       }
+       else
+          smaller[i] = min;
+   }
+
+   // Create another array that will store index of a
+   // greater element on right side. If there is no greater
+   // element on right side, then greater[i] will be -1.
+   int *greater = new int[n];
+   greater[n-1] = -1;  // last entry will always be -1
+   for (i = n-2; i >= 0; i--)
+   {
+       if (arr[i] >= arr[max])
+       {
+          max = i;
+          greater[i] = -1;
+       }
+       else
+          greater[i] = max;
+   }
+
+   // Now find a number which has both a greater number on
+   // right side and smaller number on left side
+   for (i = 0; i < n; i++)
+   {
+       if (smaller[i] != -1 && greater[i] != -1)
+       {
+          printf("%d %d %d", arr[smaller[i]],
+                 arr[i], arr[greater[i]]);
+          return;
+       }
+   }
+
+   // If we reach number, then there are no such 3 numbers
+   printf("No such triplet found");
+
+   // Free the dynamically alloced memory to avoid memory leak
+   delete [] smaller;
+   delete [] greater;
+
+   return;
+}
+
+// Driver program to test above function
+int main()
+{
+    int arr[] = {12, 11, 10, 5, 6, 2, 30};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    find3Numbers(arr, n);
+    return 0;
+}
+ Output: 
+5 6 30 Time Complexity: O(n) Auxliary Space: O(n) Source: How to find 3 numbers in increasing order and increasing indices in an array in linear time Exercise: 1. Find a subsequence of size 3 such that arr[i] < arr[j] > arr[k]. 2. Find a sorted subsequence of size 4 in linear time Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. xxmajia for finding any length of sequence, we can just sort the array using O(nlgn) time based on the INDEX, then just run a LIS on it Sumit Monga for doing it for 4 numbers , i < j < k < l such that arr[i] < arr[j] < arr[k] < arr[l],we can find smaller for j and greater for k and then between iterate for j and k in between using a list(serving purpose of a stack),see the code if you can understand it: void find4Numbers(int arr[], int n) { int max = n-1; //Index of maximum element from right side for k int min = 0; //Index of minimum element from left side for j int i; // Create an array that will store index of a smaller // element on left side. If there is no smaller element // on left side, then smaller[i] will be -1. int *smaller = new int[n]; smaller[0] = -1; // first entry will always be -1 for (i = 1; i < n; i++) { if (arr[i] = 0; i–) { if (arr[i] >= arr[max]) { max = i; greater[i] = -1; } else greater[i] = max; } // Now find a number which has both a greater number on // right side and smaller number on left side //now preprocessing the k part from the back listl; for(i = n-2; i >= 1; i–) // k can be atmost n-2 and minimum 2, 1 also included //as j can start from 1. { if(greater[i] == -1) //ignore this element continue; if(!l.empty()) { while(!l.empty() && arr[i] > arr[l.front()]) l.pop_front(); if(!l.empty() && smaller[i] != -1) printf(“n An example: %d %d %d %d”,arr[smaller[i]],arr[i],arr[l.front()],arr[greater[l.front()]]); } l.push_front(i); } // Free the dynamically alloced memory to avoid memory leak delete [] smaller; delete [] greater; } ` Sumit Monga for doing it for 4 numbers , i < j < k < l such that arr[i] < arr[j] < arr[k] < arr[l],we can find smaller for j and greater for k and then between iterate for j and k in between using a list(serving purpose of a stack),see the code if you can understand it: void find4Numbers(int arr[], int n) { int max = n-1; //Index of maximum element from right side for k int min = 0; //Index of minimum element from left side for j int i; // Create an array that will store index of a smaller // element on left side. If there is no smaller element // on left side, then smaller[i] will be -1. int *smaller = new int[n]; smaller[0] = -1; // first entry will always be -1 for (i = 1; i < n; i++) { if (arr[i] = 0; i–) { if (arr[i] >= arr[max]) { max = i; greater[i] = -1; } else greater[i] = max; } // Now find a number which has both a greater number on // right side and smaller number on left side //now preprocessing the k part from the back listl; //list::iterator it; for(i = n-2; i >= 1; i–) // k can be atmost n-2 and minimum 2, 1 also included //as j can start from 1. { if(greater[i] == -1) //ignore this element continue; if(!l.empty()) { while(!l.empty() && arr[i] > arr[l.front()]) l.pop_front(); if(!l.empty() && smaller[i] != -1) printf(“n An example: %d %d %d %d”,arr[smaller[i]],arr[i],arr[l.front()],arr[greater[l.front()]]); } l.push_front(i); } // Free the dynamically alloced memory to avoid memory leak delete [] smaller; delete [] greater; } ` asunel Can be done using only one extra array !!! See http://ajscodeblog.blogspot.in/2013/10/sorted-subsequence-of-size-3-in-on-time.html nishant08  
+plz tell me if there is a problem
+#include<stdio.h>
+main()
+{
+	int arr[10],i,j=0,n,t[3];
+	printf("enter no. of elements- ");
+	scanf("%d", &n);
+	for(i=0;i<n;i++)
+	{
+		printf("enter data- ");
+		scanf("%d", &arr[i]);
+	}
+	for(i=0;i<n;i++)
+	{
+		if(j==0)		
+		t[j]=arr[i];
+		
+		if(arr[i]<arr[i+1])
+		{
+			j++;
+			t[j]=arr[i+1];
+			if(j==2)
+			{
+				for(i=0;i<=2;i++)
+				printf("%d ", t[i]);
+				break;
+			}
+		}
+		else  if(i==n-2)
+		break;
+	}
+}
+
+ http://stackoverflow.com/users/1737817/nikunj-banka Nikunj Banka see this: http://stackoverflow.com/questions/17654673/find-a-sorted-subsequence-of-size-4-in-an-array-in-linear-time aspire I have a solution with O(n) time complexity and O(1) space. Please correct me if i am wrong.  
+#include<stdio.h>
+
+int find3Size(int a[],int n)
+{
+    int mn=0,mx=n-1,i=1,j=n-2;
+    if(n<3)
+        return -1;
+
+    while(j>=i)
+    {
+        if(a[j]>=a[mx])
+            mx=j--;
+        else
+            j--;
+        if(a[i]<=a[mn])
+            mn=i++;
+        else
+            i++;
+
+        if(a[i]>a[mn]&&a[i]<a[mx])
+        {
+            printf("%d %d %d\n",a[mn],a[i],a[mx]);
+            return 1;
+        }
+        else if(a[j]>a[mn]&&a[j]<a[mx])
+        {
+            printf("%d %d %d\n",a[mn],a[j],a[mx]);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int main()
+{
+    int a[]={4, 3, 2, 1},n;
+    n=sizeof(a)/sizeof(a[0]);
+    if(find3Size(a,n))
+        printf("Triplet exists\n");
+    else
+        printf(" NO Triplet exists\n");
+    return 0;
+}
+
+ This runs for all the above test cases and some additional test cases that i checked. Sourabh Yes you are missing Half of the range to check.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ skulldude In the above code, I think it is not necessary to check whether the first and last elements have smaller and larger elements as it will always be -1. Below is the code to solve the problem.  
+
+// minLeft[i] - Minimum element from a[0] to a[i]
+// maxRight[i] - Maximum element from a[len-1] to a[i]
+
+void find3Numbers(int a[],int len){
+	if(!a || len<=2){
+		printf("Invalid\n");
+		return;
+	}
+	
+	int *minLeft=new int[len],*maxRight=new int[len];
+	minLeft[0]=a[0],maxLeft[len-1]=a[len-1];
+	
+	for(int i=1;i<len;++i){
+		minLeft[i]=min(minLeft[i-1],a[i]);
+		maxRight[len-i-1]=max(maxRight[len-i],a[len-i-1]);
+	}
+	
+	for(int i=1;i<len-1;++i){
+		if(minLeft[i-1]<a[i] && a[i]<maxRight[i+1]){
+                        // we have found the solution
+			printf("%d %d %d\n",minLeft[i-1],a[i],maxRight[i+1]);
+			return;
+		}
+	}
+	
+	printf("No such sequence found\n");
+	return;
+}
+	
+ Please comment, if you find any bugs in the code. -Balasubramanian.N aspire I have a solution with O(n) time complexity and O(1) space. Please correct me if i am wrong.  
+#include<stdio.h>
+
+int find3Size(int a[],int n)
+{
+    int mn=0,mx=n-1,i=1,j=n-2;
+    if(n<3)
+        return -1;
+
+    while(j>=i)
+    {
+        if(a[j]>=a[mx])
+            mx=j--;
+        else
+            j--;
+        if(a[i]<=a[mn])
+            mn=i++;
+        else
+            i++;
+
+        if(a[i]>a[mn]&&a[i]<a[mx])
+        {
+            printf("%d %d %d\n",a[mn],a[i],a[mx]);
+            return 1;
+        }
+        else if(a[j]>a[mn]&&a[j]<a[mx])
+        {
+            printf("%d %d %d\n",a[mn],a[j],a[mx]);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int main()
+{
+    int a[]={4, 3, 2, 1},n;
+    n=sizeof(a)/sizeof(a[0]);
+    if(find3Size(a,n))
+        printf("Triplet exists\n");
+    else
+        printf(" NO Triplet exists\n");
+    return 0;
+}
+
+ This runs for all the above test cases and some additional test cases that i checked. Ganesh You can find java code here: /** * Given an array of n integers, find the 3 elements such that a[i] < a[j] < a[k] and i < j < k in 0(n) time. * If there are multiple such triplets, then print any one of them. * Example: Input: arr[] = {12, 11, 10, 5, 6, 2, 30} Output: 5, 6, 30 * @author GAPIITD * */ public class SortedSubsequenceOfSize3 { public static void main(String[] args) { int arr[] = {12, 11, 10, 5, 6, 2, 30}; int small[] = new int[arr.length]; int large[] = new int[arr.length]; small[0] = large[arr.length – 1] = -1; int min = arr[0], max = arr[arr.length – 1]; // Create an array that will store index of a smaller element on left side. // If there is no smaller element on left side, then smaller[i] will be -1. for (int i = 1; i < arr.length; i++) { if (arr[i] < min) { small[i] = -1; min = arr[i]; } else small[i] = min; } // Create another array that will store index of a greater element on right side. // If there is no greater element on right side, then greater[i] will be -1. for (int i = arr.length – 2; i > 0; i–) { if (arr[i] > max) { large[i] = -1; max = arr[i]; } else large[i] = max; } // Now find a number which has both a greater number on right side and smaller number on left side for (int i = 0; i < arr.length; i++) { if (small[i] != -1 && large[i] != -1) { System.out.println(small[i] + " " + arr[i] + " " + large[i]); } } } } azee Can’t we user longest increasing subsequence logic for this problem. And using longest subsequence problem we print all subsequences with length more than or equal to 3. In this way we get all combinations of sorted subsequence of size 3. If I am wrong, please let me know where this logic might go wrong. Paparao Veeragandham It will take O(nlogn) time.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Paparao Veeragandham Please post solution for sorted sequence of size 4 in linear time VikasG I think this will work. Let me know if you can spot any issues.  
+void printSubSequence3(int array[], int n) {
+    //error checking
+    assert( n >= 3 );
+
+    int p = -1; // index of min0
+    int q = -1; // index of min1
+    int r = -1; // index of min2
+
+    for (int i = 1; i < n ; i++) {
+        //compare i with i - 1
+        if (array[i] > array[i-1]) { //found increasing subSequence
+            if ( p == -1 && q == -1) {
+                //Our new subSequence is array[i-1], array[i], ?
+                q = i;
+                p = i - 1;
+            } else {
+                assert ( p != -1);
+                assert ( q != -1);
+                if (array[i] > array[q]) { // case I
+                    //Our subSequence is array[p], array[q], array[i]
+                    cout << array[p] << "," << array[q] << "," << array[i] << endl;
+                    return;
+                } else if (array[i] < array[q]) {
+                    if (array[i] > array[p]) { //case 3
+                        //we have new element for q. Our new subSequence is array[p], array[i], ?
+                        q = i;
+                    } else if (array[i] < array[p]) { //case 4
+                        //Our new subSequence is array[i-1], array[i], ?
+                        q = i;
+                        p = i - 1;
+                    }
+                }
+            }
+        } 
+    }
+}
+ Amandeep Gautam I think that this algorithm will also work. If any mistakes please point out. // initialize four variables to 0. int i=0, j=0, k=0, counter=0 //start parsing the array. while ( a[i] j if ( a[counter] > a[j] ) { //print the answer break; } else if ( a[counter] > a[i] && a[counter] < a[j] ) { j=counter; if ( k!=0 ) { i=k; k=0; } } else if ( (a[counter] < a[i]) || (a[counter]< a[k]) ) { k=counter; } Amandeep Gautam The above algorithm is o(n) time and O(1) space. http://ideone.com/oLETc lfenjoy9  
+        // find the first adjacent elements in ascending order and continue find the next adjacent elements
+        // compare the two pairs of adjacent elements
+        // A[x] > A[i] => i, x, x + 1
+        // A[x+1] > A[j] => i, j, x + 1
+        // set i to x and j to x + 1 and otherwise continue 
+        public void find(int[] A)
+        {
+                int i = -1;
+                int j = -1;
+                int k = -1;
+                int x = 0;
+                int l = A.length;
+                while(x < l - 2 && A[x+1] <= A[x]) x++;
+                if(x < l - 2) {
+                        i = x;
+                        j = x + 1;
+                        x++;
+                        while(x < l - 1) {
+                                if(A[x+1] > A[x]) {
+                                        if(A[x] > A[i]) {
+                                                j = x;
+                                                k = x + 1;
+                                                break;
+                                        } else if(A[x+1] > A[j]) {
+                                                k = x + 1;
+                                                break;
+                                        } else {
+                                                i = x;
+                                                j = x + 1;
+                                        }
+                                }
+                                x++;
+                        }
+                }
+                if(-1 < i && i < j && j < k && k < l) System.out.println(String.format("%d %d %d", A[i], A[j], A[k]));
+ 
+        }
+ space complexity O(1) time complexity O(n) Nirdesh Your soluation will not work for input : { 1,12, 11, 2, -2,-5,10 } where expected result is : 1,2,10 but your program prints nothings. nitin gupta iitian   /* Paste your code here (You may delete these lines if not writing code) */ [@geeksforgeeks Its very easy dud it like a maximum and minimum problem Logic is very simple actually we have to first find the minimum value .once we encounter minimum value at index i we need to find greater value greater than previous value {12, 11, 10, 5, 6, 2, 30,5,3,32,2,40}; first we found minimum value 11 then 10 then 5 (since 6 > 5 ) now we find greater value’s which is greater to previous one we have 5 now next is 6 next is 30 next is 32 and 40 EASY NA! I DON’T KNOW WHY YOU NEED TWO ARRAY ? ] andrew this will be wrong in case: {12, 11, 10, 5, 6, 2, 3, 4}  
+/* Paste your code here (You may delete these lines if not writing code) */
+ NITIN GUPTA IITIAN @geeksforgeeks Its very easy dud it like a maximum and minimum problem simplest Logic is actually we have to first find the minimum value .once we encounter minimum value at index i we need to find greater value greater than previous value {12, 11, 10, 5, 6, 2, 30,5,3,32,2,40}; first we found minimum value 11 then 10 then 5 (since 6 > 5 ) now we find greater value’s which is greater to previous one we have 5 now next is 6 next is 30 next is 32 and 40 EASY NA!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ lohith  
+import java.util.ArrayList;
+
+
+public class subsequence3 {
+	
+	
+	public static int array[] = {5,2,6,3,4};
+	
+	public static void main(String str[]){
+		
+		ArrayList<Integer> inn = new ArrayList<Integer>();
+		for(int i=0;i<array.length;i++){
+			inn.add(i);
+		}
+
+		ArrayList<Integer> resu = Subsequence(inn,0);
+		
+		for(int i=0;i<resu.size();i++){
+			System.out.println(array[resu.get(i)]);
+		}
+		
+	}
+
+	
+	private static ArrayList<Integer> Subsequence(ArrayList<Integer> arr,int foundIndex) {
+	
+		
+		
+		if(foundIndex<3 && arr!=null  && !arr.isEmpty()){
+			
+			
+			for(int i=0;i<arr.size();i++){
+				int curr =  array[arr.get(i)];
+				ArrayList<Integer> temp = new ArrayList<Integer>();
+				for(int j=i+1;j<arr.size();j++){
+					if(curr < array[arr.get(j)]){
+						temp.add(arr.get(j));
+					}
+				}
+				
+				ArrayList<Integer> temp1 = Subsequence(temp,foundIndex+1);
+				if(temp1.size() == (3-(foundIndex+1))){
+			    ArrayList<Integer> answer = new ArrayList<Integer>();
+				answer.add(arr.get(i));
+				answer.addAll(temp1);
+				return answer;
+ 
+				}
+			}
+			
+			
+			
+		}
+
+		return arr;
+	}
+
+}
+
+ lei build auxiliary array will be o(n*n); so average it is not o(n) ashu you can build your auxillary array using stack. it will take o(n) time.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ashu you can build auxiliary array using stack in o(n) time.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ashu I think approach for 4 increasing sorted sub-sequence is same , you need to store indexes of next bigger element of a[i] in greater[i] and last smaller element of a[i] in smaller[i]. then for every index you can check if for index i , (smaller[i]!=-1 and smaller[smaller[i]] != -1 and greater[i]!=-1) or( smaller[i]!=-1 and greater[i]!=-1 and greater[greater[i]])  
+/* Paste your code here (You may delete these lines if not writing code) */
+ souvik O(n) time O(1) space for the 3 element problem  
+void find(int x[],int n)
+{
+ int i=0,j=n,k=n,l;
+ if(n<3)
+  {
+     printf("Not enough elements");
+     return;
+  }
+  for(l=1;l<n;l++)
+  {
+    if(j==n)
+      {
+        if(x[l]>x[i])
+           j=l;
+         else
+           i=l;
+      }
+     else
+       {
+         if(x[l]>x[j])
+         {
+            printf("%d %d %d",i,j,l);
+            return; 
+         }
+        else
+         {
+          if(k==n)
+            k=l;
+          else
+           {
+             if(x[l]<=x[k])
+               k=l;
+             else
+             {
+               i=k;
+               j=l;
+               k=n;
+             }
+           }
+         }
+       }  
+    }
+     printf("No such subsequence found");
+}
+ anonymous @souvik You should always put comments in your code so that one can understand what’s going on inside the code Anurag Singh Exercise 1: Find a subsequence of size 3 such that arr[i] arr[k] Here we will calculate two smaller arrays, say smaller1 and smaller2. smaller1 array will be exactly same as smaller array in solution of original problem (store the index of a smaller number on the left side) smaller2 will be opposite, it will store the index of a smaller number in right side. Now traverse smaller1 and smaller2 arrays, find an index i where smaller1[i] != -1 && smaller2[i] != -1 And then expected output will be: arr[smaller1[i]], arr[i], arr[smaller2[i]] Aadarsh Pretty simple. Liked it. We can also have a third auxialiary array which will store the second max or second min(whichever the case maybe) for every index.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Anurag Singh Exercise 2: Find a sorted subsequence of size 4 in linear time Here we will calculate greater and smaller arrays as is. Now if at all, there is an sorted subsequence of size 4, then there will be two different index i and j (i < j) such that smaller[i] != -1 && greater[i] != -1, also smaller[j] != -1 && greater[j] != -1 i and j can be found by traversing forward and backward in same loop. and then 4 sorted subsequences will be arr[smaller[i]], arr[i], arr[j], arr[greater[j]] if no such i and j found, then there is no sorted subsequence of size 4. Game Apparently you have not free’d the memory you new’d. geeksforgeeks @game: Thanks for pointing this out. We have added code to delete dynamically allocated memory. Keep it up! Ankush Any approach in linear time to size 4 increasing sorted sub-sequence problem? Ashu I think approach for 4 increasing sorted sub-sequence is same , you need to store indexes of next bigger element of a[i] in greater[i] and last smaller element of a[i] in smaller[i]. then for every index you can check if for index i , (smaller[i]!=-1 and smaller[smaller[i]] != -1 and greater[i]!=-1) or( smaller[i]!=-1 and greater[i]!=-1 and greater[greater[i]])  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ankush Any approach to the sorted sub-sequence of size 4 problem?? Nicam O(n) solution with O(1) space  
+    public ArrayList<Integer> find3Numbers (int[] a) {
+    	if (a == null || a.length < 3) return null;
+    	int i = -1, j = -1;
+    	ArrayList<Integer> ans = new ArrayList<Integer>(3);
+    	
+    	for (int k = 1; k < a.length; ++k) {
+    		if (i != -1 && j != -1 && a[k] > a[j]) {   			
+    			ans.add(a[i]);
+    			ans.add(a[j]);
+    			ans.add(a[k]);
+    			return ans;
+    		} else if (a[k] > a[k-1]) {
+    			if (i != -1 && j != -1) {
+    				i = (a[k-1] < a[i]) ? k-1 : i;
+    				j = (a[k] < a[j]) ? k : j;
+    			} else {
+    				i = k-1;
+    				j = k;
+    			}
+    		}
+    	}
+    	
+    	return ans;
+    }
+ Nicam Corrected one logic bug, the code wasn’t working on {5,2,6,3,4}, now should be okay  
+    public ArrayList<Integer> find3Numbers (int[] a) {
+    	if (a == null || a.length < 3) return null;
+    	int i = -1, j = -1;
+    	ArrayList<Integer> ans = new ArrayList<Integer>(3);
+    	
+    	for (int k = 1; k < a.length; ++k) {
+    		if (i != -1 && j != -1 && a[k] > a[j]) {   			
+    			ans.add(a[i]);
+    			ans.add(a[j]);
+    			ans.add(a[k]);
+    			return ans;
+    		} else if (a[k] > a[k-1]) {
+    			if (i != -1 && j != -1) {
+    				i = (a[k-1] < a[i]) ? k-1 : i;
+    				j = (a[k] < a[j]) ? k : j;
+    			} else {
+    				i = k-1;
+    				j = k;
+    			}
+    		} else if (i != -1 && j != -1) {
+    			if (a[k] > a[i] && a[k] < a[j]) j = k;
+    		}
+    	}
+    	
+    	return ans;
+    }
+ Prem @Nicam Can u pls explain ur logic? Ram says simple doom Any ideas for exercise 2: Find a sorted subsequence of size 4 in linear time? Hamid I think your original code is not taking care of “equal to” condition properly. for example, it will print a sequence on following input: 8 8 8 8 8 8 8 I believe that you should <= instead of just < in following statement while filling up smaller array: if (arr[i] < arr[min]) and similar logic needs to be followed while filling up greater array as well. geeksforgeeks @Hamid: Thanks for pointing this out. We have changed the condition. Keep it up! abc Just thought an algo with only one stack, for i = 0 to N and stack.size a[i], if yes then replace top with a[i], otherwise we have found an increasing subsequence add a[i], and set found = 1; 3. if found is 1 and a[i] a[top-1] replace top with a[i] in the end if size of stack is 3 we have found one of the subsequence. Sample run for arr[] = {12, 11, 10, 5, 6, 2, 30} s = 12 s= 11 ( since a[i] < a[top] ) s = 10 s = 5 s = 5,6 ( a[i] < a[top], found = 1 ) s= 5,6 ( 2 is not added since, 6 2 s = 5,6,30 ( output ) Please comment and let me know cases for which this approach fails. anonymous does not work for.. {12,11,10,5,6,2,3,4} manish This is not working, i think the…solution should contain for arr[] = {1,2,3,4} output = {1,2,3},{1,3,4},{1,2,4}and {2,3,4} #include <cstdio> #include <iostream> using namespace std; void find3Numbers(int arr[],int n); int main() { int arr[] = {1,2,3,4}; int arr1[] = {12,11,10,5,6,2,30}; find3Numbers(arr,sizeof(arr)/sizeof(arr[0])); find3Numbers(arr1,sizeof(arr1)/sizeof(arr1[0])); return 0; } void find3Numbers(int arr[],int n) { int max = n-1; int min = 0; int i; int *smaller = new int[n]; smaller[0] = -1; for (i = 1; i < n; i++) { if(arr[i] < arr[min]) { min = i; smaller[i] = -1; } else { smaller[i] = min; } } int *greater = new int[n]; greater[n-1] = -1; for(i = n-2; i>=0; i–) { if(arr[i] > arr[max]) { max = i; greater[i] = -1; } else { greater[i] = max; } } for (i = 0; i < n; i++) { if(smaller[i] != -1 && greater[i] != -1) { printf("%d %d %d\n",arr[smaller[i]],arr[i],arr[greater[i]]); } } return; } GeeksforGeeks @manish: Please take a closer look at the problem statement. It says print any of the triplets. The program given in post prints {1, 2, 4} for your input which looks correct. @geeksforgeeks thank you…i got it Saravan Solutions to find first occurrence in passed array!  
+public class FindTriplets {  
+  public static void main(String[] args) {
+    int [] arr1 = {12, 11, 10, 5, 6, 2, 30};
+    int [] arr2 = {1, 2, 3, 4};
+    int [] arr3 = {4, 3, 2, 1};
+    solution1(arr1);
+    solution1(arr2);
+    solution1(arr3);
+    
+    solution2(arr1);
+    solution2(arr2);
+    solution2(arr3);
+  }
+  
+  private static void solution2(int [] arr) {
+    int i = 0;
+    int j = i + 1;
+    int counter = 0;
+    boolean found = false;
+    for (;counter < arr.length - 1;counter ++) {
+      if (arr[i] < arr[j]) {
+        found = true;
+        break;
+      } else {
+        i = j;
+        j = j + 1;
+      }
+    }
+    
+    int k = j + 1;
+    if (found) {
+      for (;counter < arr.length - 1;counter ++) {
+        if (arr[j] < arr[k]) {
+          found = true;
+          break;          
+        } else {
+          k++;
+          found = false;
+        }
+      }
+    }
+    
+    if (found) {
+      System.out.println("Positions are: " + i + ", " + j + ", " + k);
+      System.out.println("Values are: " + arr[i] + ", " + arr[j] + ", " + arr[k]);
+    } else {
+      System.out.println("No expected sequence found!");
+    }
+  }
+  
+  private static void solution1(int [] arr) {
+    int i = 0;
+    int j = i + 1;
+    int k = j + 1;
+    int counter = 0;
+    boolean iLessJDone = false;
+    boolean jLessKDone = false;
+    for (;counter < arr.length - 2;counter ++) {
+      if (arr[i] < arr[j]) {
+        k = j + 1;
+        iLessJDone = true;
+      } else if (!iLessJDone) {
+        i = j;
+        j = j + 1;
+      }
+      
+      if (iLessJDone && (arr[j] < arr[k])) {
+        jLessKDone = true;
+        break;
+      } else if (!jLessKDone) {
+        k++;
+      }
+    }
+    
+    if (k >= arr.length) {
+      System.out.println("No expected sequence found!");
+    } else {
+      System.out.println("Positions are: " + i + ", " + j + ", " + k);
+      System.out.println("Values are: " + arr[i] + ", " + arr[j] + ", " + arr[k]);
+    }
+  }
+}
+ deepesh your code doesnot work for { 10,12,1,2,3}; any sequence which is first find element in increasing order arr[i] < arr[j] but after that it doesnt not find k which is greater then arr[i] and arr[j] but their is still a seqeunce of increasing order /* Paste your code here (You may delete these lines if not writing code) */ Pramod I thought of converting the list in binary tree, then realize the objective is to find the triplets. Therefore changed logic to print all triplets found in the given array. public class FindTripplets { // A function to find a sorted subsequence of size 3 public void findAnyOneTriplet(int arr[], int n) { List triplets = new ArrayList(); Triplet l = new Triplet(); l.addNode(arr[0]); triplets.add(l); for (int i =1 ; i < arr.length; i++){ int cnt= triplets.size(); int value = arr[i]; //get the node from array for (int c= 0; c <cnt; c++){ Triplet triplet =triplets.get(c); //check if the current value can be added if(triplet.getCount() < 3 && triplet.getCurrentValue() < value){ triplet.addNode(value); } if(! isExist(triplets, value)){ //not , then create triplet and add to the linked list Triplet t = new Triplet(); t.addNode(value); triplets.add(t); } } } boolean found =false; for (Triplet triplet : triplets){ if(triplet.getCount() == 3){ triplet.printList(); found = true; } } if(!found) { // If we reach number, then there are no such 3 numbers System.out.println("No such triplet found"); } } private boolean isExist(List triplets, int value) { for (Triplet triplet : triplets){ if(triplet.getHeadValue() == value){ return true; } } return false; } private class Triplet{ Node head; int count; Node lastNode; public Triplet(){ } public int getCount(){return count;} public int getHeadValue(){ return head.value; } public int getCurrentValue(){ return lastNode.value; } public void addNode(int value){ if(head == null){ head = new Node(value); lastNode = head; }else{ Node n = new Node(value); lastNode.setNext(n); lastNode = n; } ++count; } public void printList(){ Node n = head; while(n != null){ System.out.print(n.getValue() + ” ” ); n = n.next; } System.out.println(); } } private class Node{ int value; Node next = null; public Node( int value){ this.value = value; } public int getValue(){ return value;} public Node getNext() { return next; } public void setNext(Node next) { this.next = next; } } public static void main(String[] args){ int arr[] = {12, 11, 10, 5, 6, 2, 30}; FindTripplets findTripplets = new FindTripplets(); findTripplets.findAnyOneTriplet(arr, arr.length); arr = new int[]{1,2,3,4}; findTripplets.findAnyOneTriplet(arr, arr.length); arr = new int[]{4,3,2,1}; findTripplets.findAnyOneTriplet(arr, arr.length); } } Guddu sharma Exercise 2 Find three elements as per above approach. After finding check the following two cases: 1.search for an element el,from i+1 to j-1,such that el>ar[p] && elar[p] && el<ar[p] if yes,o/p the numbers /* Paste your code here (You may delete these lines if not writing code) */ Camster Guddu Sharma, Suppose there are multiple triplets and you select the one that cannot be extended to a quartet. The only sure way to select the correct triplet to extend to a quartet is to try all triplets which costs O( n * n ) time. Thank you camster.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Nitin I propose a O(1) space logic for the same.Please point out if there is any mistake in this. Maintain a stack of size 3.I assume that all the elements of the stack are directly accessible (like using array or something similar) 1) push first element in the stack.iterate through the array. Following conditions can occur: a). Element(next) is smaller than the only element in the stack. -> Pop the stack and push this element. b). Element is greater than this element. -> Push this element onto the stack. C). ( When size of stack is 2 )Element is lesser than the top element but greater than the first (bottom) element of the stack -> Pop the stack and push this new element. d). (size of stack is 2)Element is greater than top element. -> Print the three elements. e). (size of stack is 2) Element is smaller than the first element. -> Store the top.Pop all the elements.Push the new element.Now if this situation occurs more than one time, store the minimum of the two such top elements (say MIN2). And if while traversing through the array you find any element greater than this MIN2, then you’ve got those numbers.(Traverse again to find the first number) In fact stack is not necessary just keeping track of four variables is sufficient. Hamid I do not understand your point e), can you elaborate more with example? I do not think that your code will work on following input (unless i am missing something in point e): 8 10 7 8 6 9 Gang The following code is along the line suggested by Nitin, with O(n) time and O(1) space.  
+bool FindSortedTriplet(int const A[], int const N, int& x, int& y, int& z)
+{
+  if (A != nullptr && N > 2) 
+  {
+    int a = numeric_limits<int>::max();
+    int b = a;
+    for (int i = 0; i < N; ++i)
+    {
+      if (A[i] > b)
+      {
+        z = A[i];
+        return true;
+      }        
+      else if (A[i] > a)
+      {
+        x = a;
+        y = b = A[i];
+      }
+      else
+      {
+        a = A[i];
+      }
+    }
+  }
+    
+  return false; 
+}
+
+void testSortedTriplet()
+{
+  {
+    int a, b, c;
+    int const H[] = {12, 11, 10, 5, 6, 2, 30};
+    assert(FindSortedTriplet(H, ARRAY_LENGTH(H), a, b, c));
+    assert(a == 5);
+    assert(b == 6);
+    assert(c == 30);
+  }
+
+  {
+    int a, b, c;
+    int const H[] = {1, 2, 3, 4};
+    assert(FindSortedTriplet(H, ARRAY_LENGTH(H), a, b, c));
+    assert(a == 1);
+    assert(b == 2);
+    assert(c == 3);
+  }
+
+  {
+    int a, b, c;
+    int const H[] = {4, 3, 2, 1};
+    assert(!FindSortedTriplet(H, ARRAY_LENGTH(H), a, b, c));
+  }
+
+  {
+    int a, b, c;
+    int const H[] = {8, 10, 7, 8, 6, 9};
+    assert(FindSortedTriplet(H, ARRAY_LENGTH(H), a, b, c));
+    assert(a == 7);
+    assert(b == 8);
+    assert(c == 9);
+  }  
+}
+ Nitin I’ll explain you using the example you suggested. 8 : push to stack; stack : 8 _ _ 10: push stack : 8 10 _ 7 : according to point e, pop all elements and store max element i.e. 10 stack : 7 _ _ 8 : stack : 7 8 _ 6 : store min of 10,8 i.e. 8 stack : 6 _ _ 9 : now 9 is > 8 i.e. two elements must’ve come before 9 that are less than 9, hence the triplet is 7 8 9 Ashu But where did you store “7” . you removed already 7 from the stack. so how did you know in last triplet is 7 8 9 ???  
+/* Paste your code here (You may delete these lines if not writing code) */
+ atul just a typo mistake …. you can correct it if you want… In second part where greater[] is calculated.. // Create another array that will store the index of a // greater element on left(right) side. If there is no smaller(greater) // element on left(right) side, then smaller[i](greater[i]) will be -1.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks @atul: Thanks for pointing this out. We have corrected the typo. We always want to correct our errors/mstakes. raja Exercise 1. Two smaller arrays are needed: one from left side and other from right side. raja sweet and simple. G4G continue to rock Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

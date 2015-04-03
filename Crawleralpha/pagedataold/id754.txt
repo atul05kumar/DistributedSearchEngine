@@ -1,0 +1,69 @@
+Memory efficient doubly linked list - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Memory efficient doubly linked list Asked by Varun Bhatia. Question: Write a code for implementation of doubly linked list with use of single pointer in each node. Solution: This question is solved and very well explained at http://www.linuxjournal.com/article/6828. We also recommend to read http://en.wikipedia.org/wiki/XOR_linked_list           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. Dark Protocol Beautifully Answered!!! Dark Protocol Beautifully Answered!!! Sajal Sharma use xor link list…. abhishek08aug Intelligent nandu #include #include using namespace std; class dlist { struct node { int data; node *link; }; node *head,*tail; public: dlist(){head=tail=NULL;} ~dlist() { node *prev,*current,*temp; prev=NULL; current=head; while(current) { temp=current; current=(node*)((int)prev^(int)current->link); prev=temp; delete temp; } } void insertAtBegin(int item) { node *ptr=new node; ptr->data=item; if(head==NULL) //List is empty. { ptr->link=NULL; head=tail=ptr; } else { ptr->link=head; head->link=(node*)((int)head->link^(int)ptr); head=ptr; } } void insertAtEnd(int item) { node *ptr=new node; ptr->data=item; if(head==NULL) //List is empty. { ptr->link=NULL; head=tail=ptr; } else { ptr->link=tail; tail->link=(node*)((int)tail->link^(int)ptr); tail=ptr; } } void insertAsc(int item) { node *ptr=new node; ptr->data=item; if(head==NULL) //List is empty. { ptr->link=NULL; head=tail=ptr; } else { node *prev,*current,*temp; prev=NULL; current=head; while(current && current->datalink); prev=temp; } if(current==head) //Add as first node. { ptr->link=head; head->link=(node*)((int)head->link^(int)ptr); head=ptr; } else if(current==NULL) //Add as last node. { ptr->link=tail; tail->link=(node*)((int)tail->link^(int)ptr); tail=ptr; } else { ptr->link=(node*)((int)prev^(int)current); prev->link=(node*)((int)prev->link^(int)current^(int)ptr); current->link=(node*)((int)current->link^(int)prev^(int)ptr); } } } void display() { node *prev,*current,*temp; prev=NULL; current=head; while(current) { cout<data<link); prev=temp; } } void rdisplay() { node *prev,*current,*temp; prev=NULL; current=tail; while(current) { cout<data<link); prev=temp; } } }; int main() { dlist dl; dl.insertAsc(500); dl.insertAsc(50); dl.insertAsc(5000); dl.insertAsc(5); dl.insertAsc(58); dl.display(); cout<<endl; dl.rdisplay(); return EXIT_SUCCESS; } nandu #include #include using namespace std; class dlist { struct node { int data; node *link; }; node *head,*tail; public: dlist(){head=tail=NULL;} ~dlist() { node *prev,*current,*temp; prev=NULL; current=head; while(current) { temp=current; current=(node*)((int)prev^(int)current->link); prev=temp; delete temp; } } void insertAtBegin(int item) //insert at the beginning. { node *ptr=new node; ptr->data=item; if(head==NULL) //List is empty. { ptr->link=NULL; head=tail=ptr; } else { ptr->link=head; head->link=(node*)((int)head->link^(int)ptr); head=ptr; } } void insertAtEnd(int item) //insert at the end. { node *ptr=new node; ptr->data=item; if(head==NULL) //List is empty. { ptr->link=NULL; head=tail=ptr; } else { ptr->link=tail; tail->link=(node*)((int)tail->link^(int)ptr); tail=ptr; } } void insertAsc(int item) //insert in ascending order. { node *ptr=new node; ptr->data=item; if(head==NULL) //List is empty. { ptr->link=NULL; head=tail=ptr; } else { node *prev,*current,*temp; prev=NULL; current=head; while(current && current->datalink); prev=temp; } if(current==head) //Add as first node. { ptr->link=head; head->link=(node*)((int)head->link^(int)ptr); head=ptr; } else if(current==NULL) //Add as last node. { ptr->link=tail; tail->link=(node*)((int)tail->link^(int)ptr); tail=ptr; } else { ptr->link=(node*)((int)prev^(int)current); prev->link=(node*)((int)prev->link^(int)current^(int)ptr); current->link=(node*)((int)current->link^(int)prev^(int)ptr); } } } void display() //forward display. { node *prev,*current,*temp; prev=NULL; current=head; while(current) { cout<data<link); prev=temp; } } void rdisplay() // display in reverse order. { node *prev,*current,*temp; prev=NULL; current=tail; while(current) { cout<data<link); prev=temp; } } }; //Driver program. int main() { dlist dl; dl.insertAsc(500); dl.insertAsc(50); dl.insertAsc(5000); dl.insertAsc(5); dl.insertAsc(58); dl.display(); cout<<endl; dl.rdisplay(); return EXIT_SUCCESS; } rajx  
+#include
+#include
+
+typedef struct nod
+{
+   int data;
+   struct nod * next;
+}node;
+
+
+void insert( node ** head , int data , node ** tail)
+{
+   node * temp = (node*)malloc( sizeof(node) );
+   temp->data = data;
+   temp->next = NULL;
+
+   if ( !(*head))
+   {
+      *head = temp;
+      return ;
+   }
+   node * pre = NULL;
+   node * cur = * head;
+   node * nxt = NULL;
+   
+   while( cur->next != pre)
+   {
+      nxt = (node*)((unsigned int)cur->next ^(unsigned int)pre);
+      pre = cur;
+      cur = nxt;
+   }
+
+   cur->next = (node*)((unsigned int)cur->next^(unsigned int)temp);
+   temp->next = cur ;
+   *tail = temp ;
+   return;
+}
+
+void print( node * head )
+{
+   node * pre = NULL;
+   node * cur = head;
+   node * nxt = NULL;
+   while( cur )
+   {
+      printf(" %d ",cur->data);
+      nxt = (node*)((unsigned int)cur->next ^(unsigned int)pre);
+      pre = cur;
+      cur = nxt;
+   }
+   printf("NULL\n");
+   return;
+}
+
+int main()
+{
+   node * head = NULL;
+   node * tail = NULL;
+   insert(&head,3,&tail);
+   insert(&head,5,&tail);
+   insert(&head,7,&tail);
+   insert(&head,11,&tail);
+   insert(&head,13,&tail);
+   print( head );
+   print( tail );
+   return 0;
+}
+ Let me know if there some error/bug. suresh kumar mahawar @rajx there is a case miss for single node. here is your code with modification http://ideone.com/vErgLZ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

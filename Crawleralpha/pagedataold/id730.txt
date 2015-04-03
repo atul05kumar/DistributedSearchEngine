@@ -1,0 +1,470 @@
+In-place conversion of Sorted DLL to Balanced BST - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph In-place conversion of Sorted DLL to Balanced BST Given a Doubly Linked List which has data members sorted in ascending order. Construct a Balanced Binary Search Tree which has same data members as the given Doubly Linked List. The tree must be constructed in-place (No new node should be allocated for tree conversion) Examples: 
+Input:  Doubly Linked List 1 <--> 2 <--> 3
+Output: A Balanced BST 
+     2   
+   /  \  
+  1    3 
+
+
+Input: Doubly Linked List 1 <--> 2 <-->3 <--> 4 <-->5 <--> 6 <--> 7
+Output: A Balanced BST
+        4
+      /   \
+     2     6
+   /  \   / \
+  1   3  4   7  
+
+Input: Doubly Linked List 1 <--> 2 <--> 3 <--> 4
+Output: A Balanced BST
+      3   
+    /  \  
+   2    4 
+ / 
+1
+
+Input:  Doubly Linked List 1 <--> 2 <--> 3 <--> 4 <--> 5 <--> 6
+Output: A Balanced BST
+      4   
+    /   \  
+   2     6 
+ /  \   / 
+1   3  5   
+ The Doubly Linked List conversion is very much similar to this Singly Linked List problem and the method 1 is exactly same as the method 1 of previous post. Method 2 is also almost same. The only difference in method 2 is, instead of allocating new nodes for BST, we reuse same DLL nodes. We use prev pointer as left and next pointer as right. Method 1 (Simple) Following is a simple algorithm where we first find the middle node of list and make it root of the tree to be constructed. 
+1) Get the Middle of the linked list and make it root.
+2) Recursively do same for left half and right half.
+       a) Get the middle of left half and make it left child of the root
+          created in step 1.
+       b) Get the middle of right half and make it right child of the
+          root created in step 1.
+
+ Time complexity: O(nLogn) where n is the number of nodes in Linked List. Method 2 (Tricky) The method 1 constructs the tree from root to leaves. In this method, we construct from leaves to root. The idea is to insert nodes in BST in the same order as the appear in Doubly Linked List, so that the tree can be constructed in O(n) time complexity. We first count the number of nodes in the given Linked List. Let the count be n. After counting nodes, we take left n/2 nodes and recursively construct the left subtree. After left subtree is constructed, we assign middle node to root and link the left subtree with root. Finally, we recursively construct the right subtree and link it with root. While constructing the BST, we also keep moving the list head pointer to next so that we have the appropriate pointer in each recursive call. Following is C implementation of method 2. The main code which creates Balanced BST is highlighted. 
+#include<stdio.h>
+#include<stdlib.h>
+
+/* A Doubly Linked List node that will also be used as a tree node */
+struct Node
+{
+    int data;
+
+    // For tree, next pointer can be used as right subtree pointer
+    struct Node* next;
+
+    // For tree, prev pointer can be used as left subtree pointer
+    struct Node* prev;
+};
+
+
+// A utility function to count nodes in a Linked List
+int countNodes(struct Node *head);
+
+struct Node* sortedListToBSTRecur(struct Node **head_ref, int n);
+
+/* This function counts the number of nodes in Linked List and then calls
+   sortedListToBSTRecur() to construct BST */
+struct Node* sortedListToBST(struct Node *head)
+{
+    /*Count the number of nodes in Linked List */
+    int n = countNodes(head);
+
+    /* Construct BST */
+    return sortedListToBSTRecur(&head, n);
+}
+
+/* The main function that constructs balanced BST and returns root of it.
+       head_ref -->  Pointer to pointer to head node of Doubly linked list
+       n  --> No. of nodes in the Doubly Linked List */
+struct Node* sortedListToBSTRecur(struct Node **head_ref, int n)
+{
+    /* Base Case */
+    if (n <= 0)
+        return NULL;
+
+    /* Recursively construct the left subtree */
+    struct Node *left = sortedListToBSTRecur(head_ref, n/2);
+
+    /* head_ref now refers to middle node, make middle node as root of BST*/
+    struct Node *root = *head_ref;
+
+    // Set pointer to left subtree
+    root->prev = left;
+
+    /* Change head pointer of Linked List for parent recursive calls */
+    *head_ref = (*head_ref)->next;
+
+    /* Recursively construct the right subtree and link it with root
+      The number of nodes in right subtree  is total nodes - nodes in
+      left subtree - 1 (for root) */
+    root->next = sortedListToBSTRecur(head_ref, n-n/2-1);
+
+    return root;
+}
+
+/* UTILITY FUNCTIONS */
+/* A utility function that returns count of nodes in a given Linked List */
+int countNodes(struct Node *head)
+{
+    int count = 0;
+    struct Node *temp = head;
+    while(temp)
+    {
+        temp = temp->next;
+        count++;
+    }
+    return count;
+}
+
+/* Function to insert a node at the beginging of the Doubly Linked List */
+void push(struct Node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct Node* new_node =
+            (struct Node*) malloc(sizeof(struct Node));
+
+    /* put in the data  */
+    new_node->data  = new_data;
+
+    /* since we are adding at the begining,
+      prev is always NULL */
+    new_node->prev = NULL;
+
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);
+
+    /* change prev of head node to new node */
+    if((*head_ref) !=  NULL)
+      (*head_ref)->prev = new_node ;
+
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+/* Function to print nodes in a given linked list */
+void printList(struct Node *node)
+{
+    while(node!=NULL)
+    {
+        printf("%d ", node->data);
+        node = node->next;
+    }
+}
+
+/* A utility function to print preorder traversal of BST */
+void preOrder(struct Node* node)
+{
+    if (node == NULL)
+        return;
+    printf("%d ", node->data);
+    preOrder(node->prev);
+    preOrder(node->next);
+}
+
+/* Drier program to test above functions*/
+int main()
+{
+    /* Start with the empty list */
+    struct Node* head = NULL;
+
+    /* Let us create a sorted linked list to test the functions
+     Created linked list will be 7->6->5->4->3->2->1 */
+    push(&head, 7);
+    push(&head, 6);
+    push(&head, 5);
+    push(&head, 4);
+    push(&head, 3);
+    push(&head, 2);
+    push(&head, 1);
+
+    printf("\n Given Linked List ");
+    printList(head);
+
+    /* Convert List to BST */
+    struct Node *root = sortedListToBST(head);
+    printf("\n PreOrder Traversal of constructed BST ");
+    preOrder(root);
+
+    return 0;
+}
+ Time Complexity: O(n) Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. alien Excellent SwaS How is method 1 different from method 2 ? Both algo work in the same fashion.. Using the recursion properly we can achieve O(n), which is done in method 2. Implementation of method 1 is not provided ..I think the author intends to update the pointers(left node n right node) for current node before making recursive calls for left & right subtrees. Then the complexity wud be O(nlg n) . If we use recursion properly and return the root node at each level we dont need to traverse and calculate mid node at each level. We get these value as sub probs in deeper levels of recursion are solved. So the complexity reduces to O(n). Arpit Baheti For method 1: #include #include using namespace std; /* sample input: 9 10 5 14 1 8 7 11 16 13 */ typedef struct tree { int data; struct tree *left; struct tree *right; struct tree *parent; } tree; tree* BSTtoDLL(tree *root) { static tree *pre = NULL; static int started =0; static tree *head = NULL; if(root!=NULL) { BSTtoDLL(root->left); if(pre) pre->right = root; root->left = pre; pre = root; if(!started) { started =1; head = root; } BSTtoDLL(root->right); } return head; } tree* FindMiddle(tree* head) { tree* slowPtr=head,*fastPtr=head; while(fastPtr&&slowPtr) { fastPtr = fastPtr->right; if(!fastPtr) return slowPtr; fastPtr = fastPtr->right; if(!fastPtr) return slowPtr; slowPtr = slowPtr->right; } return slowPtr; } tree* DLLtoBST(tree *head) { tree *temp,*q; if(!head||!head->right) return head; temp = FindMiddle(head); if(head==temp) { if(head->right!=NULL){ head->left =NULL; head->right->left = NULL; return temp; } else return temp; } if(temp->left) temp->left->right = NULL; else return temp; q = temp->right; q->left = NULL; temp->left =NULL; temp->left = DLLtoBST(head); temp->right = DLLtoBST(q); return temp; } tree* makenode(int d) { tree *t = new tree; t->data =d; t->left =NULL; t->right =NULL; t->parent =NULL; return t; } void tree_insert(tree *t,tree *z) { tree *x,*y; y = NULL; x = t; while(x!=NULL) { y = x; if(x->data>z->data) x = x->left; else x = x->right; } z->parent = y; if(z->datadata) y->left = z; else y->right =z; } void printDLL(tree *head) { tree *ptr = head; tree *pr; while(ptr) { pr = ptr; cout<data<right; } } void preorder_walk(tree *t) { if(t==NULL) return; cout<data<left); preorder_walk(t->right); } int main() { int i,n,data; cin>>n; tree *t,*x,*root; cin>>data; root = makenode(data); tree *newNode; for(i=1;i>data; newNode = makenode(data); tree_insert(root,newNode); } tree *head = BSTtoDLL(root); cout<<"nBST to doubly link list : "; printDLL(head); cout<<endl<<"Doubly link list to BST(preorder print) : "; root = DLLtoBST(head); preorder_walk(root); return 0; } Apurvkagrawal I think there is a bug in this. When you go to make the right subtree, it will change root to point to the next element and that will reflect in the callee function too. After you return from this recursive call to right subtree, you cannot set root->next = sortedListToBSTRecur(head_ref, n-n/2-1); because root has already been incremented. So I guess we need to store it a temp and then change that temp? Ayush Jain Even if head_ref is stored in a temp, it will not work because they pointing to same location (in java).They going to refer same list and once root->next is null list is also modified and there will be a Null Pointer exception.Correct me if i’m wrong. abhishek08aug Intelligent ajinkya  
+#include <iostream>
+#include <conio.h>
+
+using namespace std;
+
+struct DLinkList
+{
+	int data ;
+	DLinkList *pPrev;
+	DLinkList *pNext;
+};
+
+DLinkList* FindMiddleElement( DLinkList *pStart , DLinkList **p1 , DLinkList **p2 )
+{
+	DLinkList *pTemp = pStart , *pFast = NULL ;
+
+	if(NULL == pTemp)
+	{
+		return NULL;
+	}
+	else if( NULL == pTemp->pNext )
+	{
+		pTemp->pPrev = NULL;
+		*p1 = NULL;
+		*p2 = NULL;
+		return pTemp;
+	}
+	else if( pTemp->pNext->pNext ==  NULL )
+	{
+		pTemp->pPrev = NULL;
+		*p1 = NULL;
+		*p2 = pTemp->pNext;
+		pTemp->pNext->pPrev = NULL;
+		pTemp->pNext = NULL;
+		
+
+	}
+	else
+	{
+		pFast = pTemp;
+		while( NULL != pFast )
+		{
+			pFast = pFast->pNext;
+
+			if( NULL != pFast )
+			{
+				pTemp = pTemp->pNext;
+				pFast = pFast->pNext;
+			}
+		}
+
+		*p1 = pStart;
+		*p2 = pTemp->pNext;
+		pTemp->pPrev->pNext = NULL;
+		pTemp->pNext = NULL;
+		pTemp->pPrev = NULL;
+		return pTemp;
+	}
+	
+}
+
+DLinkList* ConvertFromDoublytoTree(DLinkList* pHead1)
+{
+	DLinkList *pTemp = pHead1 , *p1 = NULL , *p2 = NULL , *p3 = NULL ;
+
+	 p3 = FindMiddleElement(pTemp,&p1,&p2);
+	
+	 if(NULL == p3)
+		 return NULL;
+	
+	 p3->pNext = ConvertFromDoublytoTree(p2);
+
+	p3->pPrev = ConvertFromDoublytoTree(p1);
+
+	return p3;
+	_getch();
+}
+
+int main()
+{
+	DLinkList *pHead1 = (DLinkList*)calloc(1,sizeof(DLinkList));
+	DLinkList *pHead2 = (DLinkList*)calloc(1,sizeof(DLinkList));
+	DLinkList *pHead3 = (DLinkList*)calloc(1,sizeof(DLinkList));
+	DLinkList *pHead4 = (DLinkList*)calloc(1,sizeof(DLinkList));
+	DLinkList *pHead5 = (DLinkList*)calloc(1,sizeof(DLinkList));
+	DLinkList *pHead6 = (DLinkList*)calloc(1,sizeof(DLinkList));
+	DLinkList *pHead7 = (DLinkList*)calloc(1,sizeof(DLinkList));
+	//-------------------------------------------------------------//
+
+	pHead1->data = 10;
+	pHead2->data = 20;
+	pHead3->data = 30;
+	pHead4->data = 40;
+	pHead5->data = 50;
+	pHead6->data = 60;
+	pHead7->data = 70;
+	//-------------------------------------------------------------//
+
+	pHead1->pNext = pHead2;
+	pHead2->pNext = pHead3;
+	pHead3->pNext = pHead4;
+	pHead4->pNext = pHead5;
+	pHead5->pNext = pHead6;
+	pHead6->pNext = pHead7;
+	//-------------------------------------------------------------//
+
+	pHead1->pPrev = NULL;
+	pHead2->pPrev = pHead1;
+	pHead3->pPrev = pHead2;
+	pHead4->pPrev = pHead3;
+	pHead5->pPrev = pHead4;
+	pHead6->pPrev = pHead5;
+	pHead7->pPrev = pHead6;
+	//-------------------------------------------------------------//
+
+	pHead1 = ConvertFromDoublytoTree(pHead1);
+
+
+	_getch();
+	return 0;
+}
+
+
+ Ankit Gupta O(N * log N) public Node createBST(Node head, Node rear) { if (head == rear) { head.left = head.right = null; return head; } Node mid = getMidNode(head, rear); Node L = null; if (head != mid) { L = createBST(head, mid.left); } mid.left = L; Node R = null; if (rear != mid) { R = createBST(mid.right, rear); } mid.right = R; return mid; } public Node getMidNode(Node head, Node rear) { Node it1, it2; it1 = it2 = head; while (it2 != rear && it2.right != rear) { it1 = it1.right; it2 = it2.right.right; } return it1; } BlackMath Hi all, I tried implementing the method 2 in java. I have written the same code i think. But things not working as they should be. My input list is {1->2->3->4->5->6}. I am pasting my code here. Please could anyone tell me whats wrong.  
+/* Paste your code here (You may delete these lines if not writing code) */
+import java.util.*;
+
+class DLListNode
+{
+  int value;
+  DLListNode next;
+  DLListNode prev;
+  
+  DLListNode (int val)
+  {
+    value = val;
+  }
+}
+
+class TNode
+{
+  int value;
+  TNode left;
+  TNode right;
+  
+  TNode (int val)
+  {
+    value = val;
+  }
+}
+
+public class DoublyLinkedListToBST
+{
+  public static int countNodes (DLListNode head)
+  {
+    int count = 0;
+    DLListNode tmp = head;
+    while (tmp != null)
+    {
+      count++;
+      tmp = tmp.next;
+    }
+    return count;
+  }
+  
+  public static TNode sortedListToBST (DLListNode head, int n)
+  {
+    if (n <= 0)
+      return null;
+    
+    // System.out.println(n + "  " + head.value);
+    TNode left = sortedListToBST (head, n/2);
+    // System.out.println("left " + n + "  " + left.value);
+    TNode root = new TNode (head.value);
+    root.left = left;
+    
+    head = head.next;
+    // System.out.println("right " + (n-n/2-1) + "  " + head.value);
+    root.right = sortedListToBST (head, n-n/2-1);
+    System.out.println("root " + root.value);
+    return root;
+  }
+  
+  public static void preOrder (TNode root)
+  {
+    if (root == null)
+      return;
+    
+    preOrder (root.left);
+    System.out.print(root.value + "   ");
+    preOrder (root.right);
+  }
+  
+  public static void main (String args[])
+  {
+    DLListNode a = new DLListNode(1);
+    DLListNode b = new DLListNode(2);
+    DLListNode c = new DLListNode(3);
+    DLListNode d = new DLListNode(4);
+    DLListNode e = new DLListNode(5);
+    DLListNode f = new DLListNode(6);
+    a.next = b;
+    b.next = c;
+    c.next = d;
+    d.next = e;
+    e.next = f;
+    DLListNode head = a;
+    
+    int n = countNodes (head);
+    TNode root = sortedListToBST (head, n);
+    preOrder (root);
+    System.out.println();
+  }
+}
+ sasuke Java is not pass by reference.the linked list head you are passing through recursion is not being modified. you can do it with “ref” keyword in C#.i don’t know if there are other alternative ways in java to do it.And its not In place code btw.you created new TNodes. archit What about conversion of BST in to sorted DLL aur conversion of binary tree in to DLL using ZIg-Zag order traversal in the binary tree? Avinash Implementation of Method1  
+/* Paste your code here (You may delete these lines if not writing code) */
+struct node *ConvertTreefromDll(struct node *head)
+{
+	If (head==NULL || head->next == NULL) return head;
+	struct node *p,*q, *temp;
+	
+	temp=FindMiddle(head);
+	
+	p=head;
+	while(p->next!=temp) p=p->next;
+	p->next=NULL;
+	
+	q=temp->next;
+	temp->next=NULL;
+	temp->prev=ConvertTreefromDll(head);
+	temp->next=ConvertTreefromDll(q);
+	
+	return temp;
+}
+ Pranav Optimised method1  
+/* Paste your code here (You may delete these lines if not writing code)
+struct node *ConvertTreefromDll(struct node *head) 
+{     
+If (head==NULL || head->next == NULL) 
+    return head;     
+struct node *q, *temp;       
+temp=FindMiddle(head);   
+    
+temp->prev->next=NULL;
+
+q=temp->next;     
+temp->next=NULL;     
+temp->prev=ConvertTreefromDll(head);     
+temp->next=ConvertTreefromDll(q);       
+return temp; 
+} 
+ */
+ kartikaditya  
+Node* toBalancedBst(Node** node, int size) {
+    if (size == 0) {
+        return NULL;
+    }
+
+    // Distribute elments across left and right sub-trees
+    int lsize = 0, rsize = 0;
+    int assorted = 0, levelSize = 1;
+    for (int i = size >> 1; i != 1; i = i >> 1) {
+        lsize += levelSize;
+        rsize += levelSize;
+        levelSize = levelSize << 1;
+        assorted += levelSize;
+    }
+    if (size - 1 - assorted >= levelSize) {
+        lsize += levelSize;
+        rsize += size - 1 - assorted - levelSize;
+    } else {
+        lsize += size - 1 - assorted;
+    }
+
+    (*node)->left = toBalancedBst(node, lsize);
+    Node* currRoot = *node;
+    *node = (*node)->right;
+    currRoot->right = toBalancedBst(node, rsize);
+    return currRoot;
+}
+ kartikaditya Node* toBalancedBst(Node** node, int size) { if (size == 0) { return NULL; } // Distribute elments across left and right sub-trees int lsize = 0, rsize = 0; int assorted = 0, levelSize = 1; for (int i = size >> 1; i != 1; i = i >> 1) { lsize += levelSize; rsize += levelSize; levelSize = levelSize << 1; assorted += levelSize; } if (size – 1 – assorted >= levelSize) { lsize += levelSize; rsize += size – 1 – assorted – levelSize; } else { lsize += size – 1 – assorted; } (*node)->left = toBalancedBst(node, lsize); Node* currRoot = *node; *node = (*node)->right; currRoot->right = toBalancedBst(node, rsize); return currRoot; } vkjk89 Can somebody please explain about the time complexity of method1 ? How its O(nlogn) ? GeeksforGeeks See the explanation given on below link of a previous post: http://www.geeksforgeeks.org/archives/17063/comment-page-1#comment-7125 vkjk89 Hi .. Thanks Got it .. saurabh \Round5 | Q2 : Suppose, Amazon have a Logging system Like This: They Track all logs daily basis, stored in separate log file.Log contains a collection of tuples of Customer ID and Page ID. The length of Customer ID and Page ID is L1 and L2. Suppose We have a log of D-days , and size of each log fine can be Order of n , where n be the number of customer. In a most generalized situation, you can assume that a customer can visit the same page multiple times in a day or any number of days. We are interested to find out the number of Distinct customer visited at-least p distinct pages within exactly T days. Propose a Data Structure to be use to solve this problem efficiently . Design an Algorithm to solve this problem and Find out the complexity of the algorithm. {Hints:- Double Hashing/ {Hashing +Tries/BST }} kartik @saurabh: Thanks for sharing the question. I have posted the question in interview corner Dumanshu somebody please explain by taking an example for method 2.. kartik @Dumanshu: Please read the explanation provided before the C code. Let me know if any specific thing is not clear in code. Dumanshu From the method 2: After left subtree is constructed, we allocate memory for root and link the left subtree with root. Finally, we recursively construct the right subtree and link it with root. Don’t you think its same as of method 1? Please correct me. Lets say I have list as 1,2,3,4,5,6 Method2: First recursively construct left sub tree which would be 2 1 3 at the end of recursive calls. Same is for the right subtree like 5 6 4 is the root how is it different from method 1? kartik Yes, it is similar to method 1. But in method 1, we first find the middle node by linearly traversing the linked list. And this linear searching makes the time complexity O(nLogn). In method 2, we link tree nodes in same order as they appear in linked list. This is how we construct the tree in O(n)time complexity only. Dumanshu Yes.. thanks a lot!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ayush I still dun knw how its O(n) and not O(n Logn) i mean in nlogn one u r finding the middle using some linear approach and then trying the recursion on left and right sub tree ryt? so in O(n) u r finding the middle and then applying the recursion on the remaining left and right and then joining it with the root ….so where z the difference? Guest Every node in DLL is visited once so O(n). Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

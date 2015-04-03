@@ -1,0 +1,191 @@
+Find depth of the deepest odd level leaf node - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find depth of the deepest odd level leaf node Write a C code to get the depth of the deepest odd level leaf node in a binary tree. Consider that level starts with 1. Depth of a leaf node is number of nodes on the path from root to leaf (including both leaf and root). For example, consider the following tree. The deepest odd level node is the node with value 9 and depth of this node is 5. 
+       1
+     /   \
+    2     3
+  /      /  \  
+ 4      5    6
+        \     \
+         7     8
+        /       \
+       9         10
+                 /
+                11 We strongly recommend you to minimize the browser and try this yourself first. The idea is to recursively traverse the given binary tree and while traversing, maintain a variable “level” which will store the current node’s level in the tree. If current node is leaf then check “level” is odd or not. If level is odd then return it. If current node is not leaf, then recursively find maximum depth in left and right subtrees, and return maximum of the two depths. 
+// C program to find depth of the deepest odd level leaf node
+#include <stdio.h>
+#include <stdlib.h>
+
+// A utility function to find maximum of two integers
+int max(int x, int y) { return (x > y)? x : y; }
+
+// A Binary Tree node
+struct Node
+{
+    int data;
+    struct Node *left, *right;
+};
+
+// A utility function to allocate a new tree node
+struct Node* newNode(int data)
+{
+    struct Node* node = (struct Node*) malloc(sizeof(struct Node));
+    node->data = data;
+    node->left = node->right = NULL;
+    return node;
+}
+
+// A recursive function to find depth of the deepest odd level leaf
+int depthOfOddLeafUtil(Node *root,int level)
+{
+    // Base Case
+	if (root == NULL)
+		return 0;
+
+    // If this node is a leaf and its level is odd, return its level
+	if (root->left==NULL && root->right==NULL && level&1)
+		return level;
+
+    // If not leaf, return the maximum value from left and right subtrees
+	return max(depthOfOddLeafUtil(root->left, level+1),
+               depthOfOddLeafUtil(root->right, level+1));
+}
+
+/* Main function which calculates the depth of deepest odd level leaf.
+  This function mainly uses depthOfOddLeafUtil() */
+int depthOfOddLeaf(struct Node *root)
+{
+    int level = 1, depth = 0;
+    return depthOfOddLeafUtil(root, level);
+}
+
+// Driver program to test above functions
+int main()
+{
+    struct Node* root = newNode(1);
+    root->left = newNode(2);
+    root->right = newNode(3);
+    root->left->left = newNode(4);
+    root->right->left = newNode(5);
+    root->right->right = newNode(6);
+    root->right->left->right = newNode(7);
+    root->right->right->right = newNode(8);
+    root->right->left->right->left = newNode(9);
+    root->right->right->right->right = newNode(10);
+    root->right->right->right->right->left = newNode(11);
+
+    printf("%d is the required depth\n", depthOfOddLeaf(root));
+    getchar();
+    return 0;
+}
+
+ Output: 5 is the required depth Time Complexity: The function does a simple traversal of the tree, so the complexity is O(n). This article is contributed by Chandra Prakash. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. Mohaan Raja Why can’t we just find the height of the tree and return the height if it is odd or return the height-1 if it is even. #include #include // A utility function to find maximum of two integers int max(int x, int y) { return (x > y)? x : y; } // A Binary Tree node struct Node { int data; struct Node *left, *right; }; // A utility function to allocate a new tree node struct Node* newNode(int data) { struct Node* node = (struct Node*) malloc(sizeof(struct Node)); node->data = data; node->left = node->right = NULL; return node; } int getHeight(struct Node* node) { if (node==NULL) return 0; else { /* compute the depth of each subtree */ int lDepth = getHeight(node->left); int rDepth = getHeight(node->right); /* use the larger one */ if (lDepth > rDepth) /* use the larger one */ if (lDepth > rDepth) return(lDepth+1); else return(rDepth+1); } } /* Main function which calculates the depth of deepest odd level leaf. This function mainly uses depthOfOddLeafUtil() */ int depthOfOddLeaf(struct Node *root) { int height= getHeight(root); return ( return(lDepth+1); else return(rDepth+1); } } /* Main function which calculates the depth of deepest odd level leaf. This function mainly uses depthOfOddLeafUtil() */ int depthOfOddLeaf(struct Node *root) { int height= getHeight(root); return ((height&1)?height:height-1); } // Driver program to test above functions int main() { struct Node* root = newNode(1); root->left = newNode(2); root->right = newNode(3); root->left->left = newNode(4); root->right->left = newNode(5); root->right->right = newNode(6); root->right->left->right = newNode(7); root->right->right->right = newNode(8); root->right->left->right->left = newNode(9); root->right->right->right->right = newNode(10); root->right->right->right->right->left = newNode(11); printf(“%d is the required depthn”, depthOfOddLeaf(root)); getchar(); return 0; } Uma Trika void depthUtil(struct Node *root, int h, int *max) { if(root == NULL) return; if((h>*max) && (h&1) && !root->left && !root->right) { *max = h; printf(“Node: %d is at %dn”, root->data,*max); } depthUtil(root->left, h+1, max); depthUtil(root->right, h+1, max); } dazer void findoddnode(node *root,int count,int *c ) { if(root== NULL) return; if(*c left == NULL && root->right == NULL){ *c = count; //to keep track of level .. } } findoddnode(root->left,count+1,c) ; findoddnode(root->right,count+1,c); } Mukesh Solution has some bug with the complete binary tree on level 4. it returns 0. Add this condition when we check left==null && right==null if (root->left==NULL && root->right==NULL) if(level&1) return level; else return level-1; Patil Here is my solution: int depthOfOddLeaf(mynode *root, int level) { static int depthOddLevel; int l,r; if(root == NULL) return 0; if(root->left == NULL && root->right == NULL) { if(level % 2) { if(depthOddLevel left, level+1); r = depthOfOddLeaf(root->right, level+1); return (l>r) ? l : r; } Birendra Kumar Static int s = 0; Static int value=0; Void oddleavemax(struct node* root,int level) { If(root==NULL) Return; If(root->left==root->right==NULL) { If(level%2!=0 && sdata; } } oddleavemax(root->left,level+1); oddleavemax(root->right,level+1); } Void main() { oddleavemax(root,1); Print(“%d,%d”,value,s); } din pls validate me…. din Using Level Order Traversal in Java int deepoddleaf() { int req = 0; int level = 1; int x =-1; Node temp = root; Queue q = new LinkedList(); q.add(temp); q.add(null); while (!q.isEmpty()) { temp = q.remove(); if (temp == null) { if (!q.isEmpty()) { q.add(null); } level++; } else { if(level%2==1 && temp.leftChild==null && temp.rightChild==null){ if(x==-1){ req = level; x++; }else{ if(level>req){ req = level; } } } if (temp.leftChild != null) { q.add(temp.leftChild); } if (temp.rightChild != null) { q.add(temp.rightChild); } } } return req; } Coder How can we achieve this using Level Order Traversal or the iterative version CoderKnowledge “The deepest odd level node is the node with value 9 and depth of this node is 5.” —> i think 11 is the deepest odd node if 9 is deepest node we should get 4 as depth right? please correct if i am wrong. pradeep int depth (struct node *root) { if (root==NULL) return 0; else return 1+max (depth(root->left),depth(root->right)); } tgh can anybody tell me how me kept track of the level of the node??? rht Why shouldn’t we go for level order traversing????? Wouldn’t that be easier???? Vijay Apurva //we can get level of the max odd element as well as value of maximum element // if anything wrong please correct me void oddroot(struct node * q ,int currlevel ,int *maxv,int *maxlevel){ if(q==NULL) return ; if(q->left==NULL&&q->right==NULL&& (currlevel%2)!=0){ if(currlevel>*maxlevel){ *maxv=q->data; *maxlevel=currlevel; } if(currlevel==*maxlevel) *maxv=(q->data > *maxv)?(q->data):(*maxv) ; } oddroot(q->left,currlevel+1,maxv,maxlevel); oddroot(q->right,currlevel+1,maxv,maxlevel); } //we can get level of the max odd element as well as value of maximum element int maxv=root->data; int maxlevel=1; oddroot(root,1,&maxv,&maxlevel); printf(” n max odd value at level = %d and the value is…= %d n”,maxlevel,maxv); // if anything wrong please correct me Vijay Apurva //we can get level of the max odd element as well as value of maximum element // if anything wrong please correct me void oddroot(struct node * q ,int currlevel ,int *maxv,int *maxlevel){ if(q==NULL) return ; if(q->left==NULL&&q->right==NULL&& (currlevel%2)!=0){ if(currlevel>*maxlevel){ *maxv=q->data; *maxlevel=currlevel; } if(currlevel==*maxlevel) *maxv=(q->data > *maxv)?(q->data):(*maxv) ; } oddroot(q->left,currlevel+1,maxv,maxlevel); oddroot(q->right,currlevel+1,maxv,maxlevel); } //we can get level of the max odd element as well as value of maximum element int maxv=root->data; int maxlevel=1; oddroot(root,1,&maxv,&maxlevel); printf(” n max odd value at level = %d and the value is…= %d n”,maxlevel,maxv); // if anything wrong please correct me atiq Well done….gfg!!! atiq Well done….gfg!!! Coder001  
+#include<cstdio>
+#include<cstdlib>
+#include<vector>
+#include<iostream>
+#include<climits>
+using namespace std;
+typedef struct node
+{
+    int data;
+    struct node *left;
+    struct node *right;
+}node;
+void dfs(node *root,int level,int *maxlevel)
+{
+    if(root==NULL)
+        return;
+    if(level%2 && !root->right && !root->left)
+        *maxlevel=max(*maxlevel,level);
+    dfs(root->left,level+1,maxlevel);
+    dfs(root->right,level+1,maxlevel);
+}
+node *newnode(int data)
+{
+    node *N=(node *)calloc(1,sizeof(node));
+    N->data=data;
+    N->left=NULL;
+    N->right=NULL;
+    return N;
+}
+int main()
+{
+    node *root=newnode(1);
+    root->right=newnode(3);
+    root->left=newnode(2);
+    root->left->left=newnode(4);
+    root->right->right=newnode(6);
+    root->right->left=newnode(5);
+    root->right->right->right=newnode(8);
+    root->right->left->right=newnode(7);
+    root->right->left->right->left=newnode(9);
+    root->right->right->right->right=newnode(10);
+    root->right->right->right->right->left=newnode(11);
+    int x=INT_MIN;
+    dfs(root,1,&x);
+    cout<<x<<"\n";
+    return 0;
+}
+
+ sdream node *max_node; //global variables int max=0; //global variables  
+
+void odd_height(node *root,int depth)
+{
+   if(root != NULL)
+   {
+      if(root->left == NULL && root->right == NULL && depth%2   != 0 && max<depth )
+{
+   max = depth;
+   max_node = root;
+}
+   odd_height(root->left , depth);
+   odd_height(root->right,depth);
+
+   }
+}
+
+ Ramchand Sending the root,root’s height and two variables (m&d)finds the answer m holds the height of the deepest odd level node d holds its data void d_node(struct tree *root,int c,int *m,int *d) { if(root->left) d_node(root->left,c+1,m,d); if(root->right) d_node(root->right,c+1,m,d); if((c>*m)&&(c%2==1)) {*d=root->data; *m=c; } } Will there be any bugs in this?? Vibhu Tiwari @GeeksForGeeks: Instead of maintaining two variables this problem can be solved by maintaining only one variable which is height whose value is first initialized to 1.  
+#include <stdio.h>
+#include <malloc.h>
+typedef struct tree tree_t;
+struct tree
+{
+	int data;
+	tree_t *left;
+	tree_t *right;
+};
+tree_t *newNode(int data)
+{
+	tree_t *n=(tree_t *)malloc(sizeof(tree_t));
+	n->data=data;
+	n->left=n->right=NULL;
+	return n;
+}
+int max(int a,int b)
+{
+	return (a>b?a:b);
+}
+int depthOddLevel(tree_t *root,int h)
+{
+	if(root==NULL)
+		return 0;
+	if(root->left==NULL&&root->right==NULL&&h%2==1)
+		return h;
+	else
+		return max(depthOddLevel(root->left,h+1),depthOddLevel(root->right,h+1));
+}
+int main()
+{
+	tree_t *root=newNode(1);
+	root->left = newNode(2);
+    root->right = newNode(3);
+    root->left->left = newNode(4);
+    root->right->left = newNode(5);
+    root->right->right = newNode(6);
+    root->right->left->right = newNode(7);
+    root->right->right->right = newNode(8);
+    root->right->left->right->left = newNode(9);
+    root->right->right->right->right = newNode(10);
+    root->right->right->right->right->left = newNode(11);
+	printf(" %d ",depthOddLevel(root,1));
+}
+ GeeksforGeeks Thanks for suggesting a simpler solution. We have updated the original post to with this simpler logic. Random When did you guys switch to diqus? o_o GeeksforGeeks Yesterday. Hope you liked it. GeeksforGeeks Yesterday. Hope you liked it. Random I like how the old comments are still there. I love the change! Congrats on the successful migration. Vivekz @GeeksforGeeks: I thinj there is a bug in your solution. Your solution returns the first leaf found at an odd level as the deepest one, but there might be more leafs deeper in the tree at an odd level. Kindly correct if my inference is wrong Kartik Could your provide an example tree for which the above approach won’t work? Vivekz Consider a binary tree as 1 / 2 5 / / 3 6 / 8 / 9. Wouldnt the above code return 3 for node 3 rather than 5 for node 9? edit : the formatting is bad but 6,8 and 9 are children of 5 chandu /* Utility function to check whether the list contains leaf node or not */ bool CheckLeafNode(list l) { list::iterator i; i = l.begin(); bool flag=false; while(i!=l.end()) { struct node *temp = *i; if(temp->left==NULL && temp->right==NULL) { flag = true; break; } i++; } return flag; } /* Required function */ int Depth_of_DeepestOddLevelLeaf_Node(struct node *root) { if(root==NULL) return 0; else if(root->left==NULL && root->right==NULL) return 1; list q; q.push_back(root); struct node *end_node = root; int level=1; int max_depth=0; while(!q.empty()) { struct node *temp = q.front(); cout<data<left) q.push_back(temp->left); if(temp->right) q.push_back(temp->right); if(end_node == temp) { level++; end_node = q.back(); if(level%2) { if(CheckLeafNode(q)) max_depth = level; } } } return max_depth; } /* Tested for most of the corner cases and code’s giving correct o/p */ blacklisted1973 #include<queue> #include<iostream> #include<stdio.h> #include<stdlib.h> using namespace std; typedef struct tree Node; struct tree { int data; Node *left; Node *right; }; Node *newNode(int data) { Node *temp=(Node*)malloc(sizeof(Node)); temp->data=data; temp->left=temp->right=NULL; return temp; } int levelOrderTraversal(Node *root) { if(root==NULL) return 0; int level=1,sumO,sumE; sumO=sumE=0; Node *temp; queue<Node*> s; s.push(root); s.push(NULL); cout<<"LevelOrderTraversal :"; while(!s.empty()) { temp=s.front(); s.pop(); if(temp==NULL) { level++; if(!s.empty()) s.push(NULL); } else { printf("%d ",temp->data); if(level&1) sumO+=temp->data; else sumE+=temp->data; if(temp->left) s.push(temp->left); if(temp->right) s.push(temp->right); } } return (sumO-sumE); } int main() { Node *root = newNode(5); root->left = newNode(2); root->right = newNode(6); root->left->left = newNode(1); root->left->right = newNode(4); root->left->right->left = newNode(3); root->right->right = newNode(8); root->right->right->right = newNode(9); root->right->right->left = newNode(7); int diff=levelOrderTraversal(root); cout<<"\nDifference :"<<diff; return 0; } Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

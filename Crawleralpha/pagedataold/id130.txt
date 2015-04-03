@@ -1,0 +1,498 @@
+Merge Sort for Linked Lists - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Merge Sort for Linked Lists Merge sort is often preferred for sorting a linked list. The slow random-access performance of a linked list makes some other algorithms (such as quicksort) perform poorly, and others (such as heapsort) completely impossible. Let head be the first node of the linked list to be sorted and headRef be the pointer to head. Note that we need a reference to head in MergeSort() as the below implementation changes next links to sort the linked lists (not data at the nodes), so head node has to be changed if the data at original head is not the smallest value in linked list. 
+MergeSort(headRef)
+1) If head is NULL or there is only one element in the Linked List 
+    then return.
+2) Else divide the linked list into two halves.  
+      FrontBackSplit(head, &a, &b); /* a and b are two halves */
+3) Sort the two halves a and b.
+      MergeSort(a);
+      MergeSort(b);
+4) Merge the sorted a and b (using SortedMerge() discussed here) 
+   and update the head pointer using headRef.
+     *headRef = SortedMerge(a, b);
+ 
+#include<stdio.h>
+#include<stdlib.h>
+ 
+/* Link list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+
+/* function prototypes */
+struct node* SortedMerge(struct node* a, struct node* b);
+void FrontBackSplit(struct node* source,
+          struct node** frontRef, struct node** backRef);
+
+/* sorts the linked list by changing next pointers (not data) */
+void MergeSort(struct node** headRef)
+{
+  struct node* head = *headRef;
+  struct node* a;
+  struct node* b;
+
+  /* Base case -- length 0 or 1 */
+  if ((head == NULL) || (head->next == NULL))
+  {
+    return;
+  }
+
+  /* Split head into 'a' and 'b' sublists */
+  FrontBackSplit(head, &a, &b); 
+
+  /* Recursively sort the sublists */
+  MergeSort(&a);
+  MergeSort(&b);
+
+  /* answer = merge the two sorted lists together */
+  *headRef = SortedMerge(a, b);
+}
+
+/* See http://geeksforgeeks.org/?p=3622 for details of this 
+   function */
+struct node* SortedMerge(struct node* a, struct node* b)
+{
+  struct node* result = NULL;
+
+  /* Base cases */
+  if (a == NULL)
+     return(b);
+  else if (b==NULL)
+     return(a);
+
+  /* Pick either a or b, and recur */
+  if (a->data <= b->data)
+  {
+     result = a;
+     result->next = SortedMerge(a->next, b);
+  }
+  else
+  {
+     result = b;
+     result->next = SortedMerge(a, b->next);
+  }
+  return(result);
+}
+
+/* UTILITY FUNCTIONS */
+/* Split the nodes of the given list into front and back halves,
+     and return the two lists using the reference parameters.
+     If the length is odd, the extra node should go in the front list.
+     Uses the fast/slow pointer strategy.  */
+void FrontBackSplit(struct node* source,
+          struct node** frontRef, struct node** backRef)
+{
+  struct node* fast;
+  struct node* slow;
+  if (source==NULL || source->next==NULL)
+  {
+    /* length < 2 cases */
+    *frontRef = source;
+    *backRef = NULL;
+  }
+  else
+  {
+    slow = source;
+    fast = source->next;
+
+    /* Advance 'fast' two nodes, and advance 'slow' one node */
+    while (fast != NULL)
+    {
+      fast = fast->next;
+      if (fast != NULL)
+      {
+        slow = slow->next;
+        fast = fast->next;
+      }
+    }
+
+    /* 'slow' is before the midpoint in the list, so split it in two
+      at that point. */
+    *frontRef = source;
+    *backRef = slow->next;
+    slow->next = NULL;
+  }
+}
+
+/* Function to print nodes in a given linked list */
+void printList(struct node *node)
+{
+  while(node!=NULL)
+  {
+   printf("%d ", node->data);
+   node = node->next;
+  }
+}
+
+/* Function to insert a node at the beginging of the linked list */
+void push(struct node** head_ref, int new_data)
+{
+  /* allocate node */
+  struct node* new_node =
+            (struct node*) malloc(sizeof(struct node));
+ 
+  /* put in the data  */
+  new_node->data  = new_data;
+ 
+  /* link the old list off the new node */
+  new_node->next = (*head_ref);    
+ 
+  /* move the head to point to the new node */
+  (*head_ref)    = new_node;
+} 
+ 
+/* Drier program to test above functions*/
+int main()
+{
+  /* Start with the empty list */
+  struct node* res = NULL;
+  struct node* a = NULL;
+ 
+  /* Let us create a unsorted linked lists to test the functions
+   Created lists shall be a: 2->3->20->5->10->15 */
+  push(&a, 15);
+  push(&a, 10);
+  push(&a, 5); 
+  push(&a, 20);
+  push(&a, 3);
+  push(&a, 2); 
+ 
+  /* Sort the above created Linked List */
+  MergeSort(&a);
+ 
+  printf("\n Sorted Linked List is: \n");
+  printList(a);           
+ 
+  getchar();
+  return 0;
+}
+ Time Complexity: O(nLogn) Sources: http://en.wikipedia.org/wiki/Merge_sort http://cslibrary.stanford.edu/105/LinkedListProblems.pdf Please write comments if you find the above code/algorithm incorrect, or find better ways to solve the same problem.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. Aditya Chhilwar FrontBackSplit will be called for every partition. For n elements for first call to this function will traverse n nodes (order of n), for second it will be called two times n/2+n/2 = n and so on. How the time complexity is order of nlogn? Aditya Chhilwar FrontBackSplit will be called for every partition. For n elements for first call to this function will traverse n nodes (order of n), for second it will be called two times n/2+n/2 = n and so on. How the time complexity is order of nlogn? guest11 can anyone explain why slow->next has been set to null http://www.ankitstar.blogspot.com Ankit better understandable code … #include #include struct node { int data; struct node *next; }; struct node * createNode(int value) { struct node * N=(struct node *)malloc(sizeof(struct node)); N->next=NULL; N->data=value; return N; }; struct node *FindMid(struct node *head) // auxilary method required { struct node *p=head,*q=head; if(p&&p->next) { p=p->next->next; q=q->next; } return q; }; // auxilary method required struct node * mergeSortedList(struct node *a,struct node *b) { if(!a) return b; if(!b) return a; struct node *result=NULL; if(a->datadata) { result=a; result->next=mergeSortedList(a->next,b); } else { result=b; result->next=mergeSortedList(a,b->next); } return result; }; struct node *mergeSort(struct node *head) { if(!head) return NULL; if(head->next==NULL) return head; else if(head->next->next==NULL) { struct node *p=head; if(p->data>p->next->data) { head=head->next; p->next=NULL; head->next=p; return head; } else return head; } else { struct node *mid=FindMid(head); struct node *SHalf=mid->next; mid->next=NULL; struct node *head1=mergeSort(head); struct node *head2=mergeSort(SHalf); return mergeSortedList(head1,head2); } }; void main() { struct node *head=createNode(25); head->next=createNode(10); head->next->next=createNode(15); head->next->next->next=createNode(30); head->next->next->next->next=createNode(5); head->next->next->next->next->next=NULL; printf("LINKED LIST TO BE SORTEDnn"); struct node *a=head; while(a!=NULL) { printf("%d-->",a->data); a=a->next; } a=mergeSort(head); printf("nnSORTED LINKED LIST ISnn"); while(a!=NULL) { printf("%d-->",a->data); a=a->next; } } Himanshu Dagar Merge sort whole in recursive way is at below link http://ideone.com/Wacpan Anil kumar I hope best way to join sorted list is : list merge_sorted_lists(list a, list b) { list result, result2; if(a->data data) { result = a; a = a->next; } else { result = b; b = b->next; } result2 = result; while((a != NULL) && (b!= NULL)) { if(a->data data) { result->next = a; a = a->next; } else { result->next = b; b = b->next; } result = result->next; } if(a == NULL) result->next = b; if(b == NULL) result->next = a; return result2; } J This only gives me one half of the list nutcoder y has not struct node **a been used as parameter in sorted merge function?? Deepak bcz we are returning the result list… sush  
+void SortedMerge(struct node**h,struct node* a, struct node* b)
+{
+ 
+	if(a==NULL)
+	{
+		*h=b;
+		return;
+	}
+	if(b==NULL)
+	{
+		*h=a;
+		return;
+	}
+	if(a->data <= b->data)
+	{
+		*h=a;
+		SortedMerge(&((*h)->next),a->next,b);
+	}
+	else
+	{	
+		*h=b;
+		SortedMerge(&((*h)->next),a,b->next);
+	}
+}
+
+
+/* sorts the linked list by changing next pointers (not data) */
+void MergeSort(struct node** h)
+{
+	if(*h ==NULL || (*h)->next==NULL)
+		return;
+  struct node* slow=*h;
+  struct node* fast=*h;
+ 
+ 
+  /* Split head into 'a' and 'b' sublists */
+  while(fast->next && fast->next->next)
+  {
+	  slow=slow->next;
+	  fast=fast->next;
+  }
+  struct node* h1=*h;
+  struct node* h2=slow->next;
+  slow->next=NULL;
+  MergeSort(&h1);
+  MergeSort(&h2);
+ SortedMerge(h,h1,h2);
+  /* answer = merge the two sorted lists together */
+}
+
+ Ramesh.Mxian I think we can count the number of elements in the list before starting the Merge start and pass the count also as a parameter to merge sort function. This count can be used to split the list into two parts without having fast and slow pointers. For example: assume there are 10 elements in the list. So main function will call merge sort with MergeSort(Head,10). We can easily split this list by finding mid = count/2; //10/2 =5 then traverse the list 5 nodes to find the head of the second part and call merge as merge(head,mid) merge(secondHead,count-mid) everything else will work as usuall Priyanka  
+I think it should be like this
+/* Advance 'fast' two nodes, and advance 'slow' one node */
+    while (fast != NULL)
+    {
+      fast = fast->next;
+      if (fast_next != NULL)
+      {
+        slow = slow->next;
+        fast = fast->next;
+      }
+    }
+ kartik @Priyanka: I think the code given is correct. Any reason for this change? What is ‘fast_next’ in your code? priyankasingh.136 Sorry, it’s fast-> next not fast_next. if we check for if (fast != NULL), slow will point to middle of the linked list. But as you said, slow should point to one node before the middle. So we should check for if (fast->next != NULL). Please let me know if it’s wrong. vishanything Can’t we just store the addresses of each node in an array and then sort the whole thing on the basis of the data present in those addresses? Ankit Gupta T(n) = T(n/2) + a * (n/2) + b * n Where a * (n/2) for computing mid-point (or partitioning) and b * n for merge step. So O(n log n) Node mergeSort(Node head, Node rear) { if (head == rear) { head.next = null; return head; } Node mid = getMidNode(head, rear); Node right = mergeSort(mid.next, rear); // Compute right half first Node left = mergeSort(head, mid); // Compute left return mergeList(left, right); } Node getMidNode(Node head, Node rear) { Node it1, it2; it1 = it2 = head; while (it2 != rear && it2.next != rear) { it1 = it1.next; it2 = it2.next.next; } return it1; } Node mergeList(Node p, Node q) { if (p == null) return q; if (q == null) return p; Node N; if (p.info <= q.info) { N = p; N.next = mergeList(p.next, q); } else { N = q; N.next = mergeList(p, q.next); } return N; } chandeepsingh85 Could you please explain why here ” while (it2 != rear && it2.next != rear) ” && is used? I am unable to grasp the logic. Chiranjeev Kumar  
+/* Paste your code here (You may delete these lines if not writing code)
+// Selection Sort
+#include<stdio.h>
+typedef struct node
+{
+    int value;
+    struct node *next;
+}mynode;
+void add(mynode **head,int data)
+{
+    mynode *temp = (mynode *)malloc(sizeof(struct node));
+    temp->value = data;
+    temp->next = NULL;
+    mynode *t = *head;
+    if(!t)
+    {
+        printf("..............Creating SLL.......\n");
+        *head = temp;
+        return;
+    }
+    temp->next = t;
+    *head = temp;
+}
+int print(mynode *head)
+{
+    int c = 0;
+    if(!head)
+    {
+        printf("Empty!\n");
+        return 0;
+    }
+    printf("\n");
+    while(head)
+    {
+        printf("%d  ",head->value);
+        c++;
+        head = head->next;
+    }
+    printf("--|NULL|");
+    return c;
+}
+int count(mynode *head)
+{
+    int c=0;
+    if(!head) return 0;
+    while(head)
+    {
+        head = head->next;
+        c++;
+    }
+    return c;
+}
+void Selection_sort(mynode **head,int n)
+{
+    if(!(*head) || (*head)->next==NULL)
+    {
+        //printf("Empty!\n");
+        return;
+    }
+    printf("\nSorted elements using selection sort are ::");
+    mynode *p1,*p2,*p3,*p4,*t,*a;
+    p1=*head;
+    p2=p1->next;
+    p3=p1;
+    while(p1)
+    {
+        p2=p1->next;
+        while(p2)
+        {
+            if(p1->value>p2->value)
+            {
+                if(p1==*head && p1->next==p2)   // starting node
+                {
+                    p1->next = p2->next;
+                    p2->next = p1;
+                    *head = p2;
+                }
+                else if(p1==*head && p1->next != p2)
+                {
+                    t = p1->next;
+                    p1->next = p2->next;
+                    p2->next = t;
+                    p4->next = p1;
+                    *head = p2;
+                }
+                else if(p1 != *head && p1->next==p2)
+                {
+                    p3->next = p2;
+                    p1->next = p2->next;
+                    p2->next = p1;
+                }
+                else
+                {
+                    p3->next = p2;
+                    p4->next = p1;
+                    t = p2->next;
+                    p2->next = p1->next;
+                    p1->next =t;
+                }
+                a=p1;p1=p2;p2=a;
+            }
+            p4=p2;
+            p2 = p2->next;
+            //print(*head);
+        }
+        p3=p1;
+        p1 = p1->next;
+    }
+
+}
+int main()
+{
+    int n=11,i;
+    mynode *head=NULL;
+    add(&head,10);add(&head,1);add(&head,5);
+    add(&head,7);add(&head,4);add(&head,0);
+    add(&head,15);add(&head,0);add(&head,11);
+    add(&head,22);add(&head,101);add(&head,61);
+    print(head);
+    printf("\nNumber of elements is :: %d",count(head));
+    Selection_sort(&head,count(head));
+    print(head);
+    printf("\n\n\n");
+}
+ */
+ Rushi Agrawal Great code. Very lucid. Would have been better had an explanation on the use of pointers to pointers was given. tuhin i just wished to know if it meant insitu merging rka143 I believe in solution 1 should have following condition in place of written one: Now: if (fast != NULL) { slow = slow->next; fast = fast->next; } Correct: if (fast != NULL && fast->next != NULL) { slow = slow->next; fast = fast->next; } Reason: In the case of 2 nodes, it will continue to split the list in infinite loop. Where one part is NULL and other part has 2 nodes. Please let me know if somebody have differnet thought or need more clarification. trinadh How about this?  
+/* Merge two sorted linked lists */
+Node * merge(Node *first, Node *second) {
+    Node head; //dummy Node which points to merged list
+    Node *last_sorted = &head; //points to last Node of sorted list
+
+    while (first != NULL && second != NULL) {
+        if (first->data < second->data) {
+            last_sorted->next = first;
+            last_sorted = first;
+            first = first->next;
+        }
+        else {
+            last_sorted->next = second;
+            last_sorted = second;
+            second = second->next;
+        }
+    }
+
+    if (first == NULL)
+        last_sorted->next = second;
+    else
+        last_sorted->next = first;
+
+    return head.next;
+}
+
+/* Get the head node of the splitted linked-list */
+Node * get_midPoint(Node *cur) {
+    Node *mid_pt = cur;
+    Node *itr = cur;
+
+    if (cur == NULL || cur->next == NULL)
+        return NULL;
+
+    /*
+     * when there are only 2 elements in the list, there will be a dead-lock.
+     * Avoid that
+     */
+    if (cur->next->next == NULL) {
+        mid_pt = cur->next;
+        cur->next = NULL;
+        return mid_pt;
+    }
+
+    while (cur != NULL && cur->next != NULL) {
+        itr = itr->next;
+        cur = cur->next->next;
+    }
+
+    mid_pt = itr->next;
+    itr->next = NULL;
+
+    return mid_pt;
+}
+
+void merge_sort(Node *&cur) {
+    Node* middle = get_midPoint(cur);
+
+    if (cur != NULL && cur->next != NULL)
+        merge_sort(cur);
+    if (middle != NULL && middle->next != NULL)
+        merge_sort(middle);
+
+    cur = merge(cur, middle);
+}
+ Richa Thanks for the flawless code. Very simple and easily understandable. Thanks a lot. Ken  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Is there a way to get the two lists out of this code? for instance the values on either side of mid_pt seperated into 2 lists? Trinadh Ken, You can get two separate lists which are sorted. But it is not guaranteed that the over-all list is sorted. For ex: If you give the following list for sorting: 32–>3–>13–>93–>21–>66–>87–>46–>50–>1–>NULL You will get the following 2 lists. #1 3–>13–>21–>32–>66–>93–>NULL (sorted) #2 1–>46–>50–>87–>NULL (sorted) The above 2 lists are merged cur = merge(cur, middle); . May be you can use some control variable (static bool) to get the above lists In case you are expecting the following: (splitting the completely sorted-list) #1 1–>3–>13–>21–>32–>46–>NULL #2 50–>66–>87–>93–>NULL You need to write your own functionality. gantashala venki trinadh i think ur merge function is better because it avoids recursion in merge function….which will prevent stack over flow in the case of large data.:)  
+/* Paste your code here (You may delete these lines if not writing code) */
+ gagan in the SortMerge function there will be replication of data in the merged list if the lists a and b contains similar values tech.login.id2 I think SortedMerge should also take a parameter length so that it merges only the sorted parts. For example, at the leaf-1 level of recursion, SortedMerge is expected to merge only two nodes. But it is merging all the way upto NULL which is incorrect (and can even lead to infinite loops). A non-recursive version of SortedMerge is as follows:  
+struct node* SortedMerge(struct node* a, struct node* b, int count)
+{
+    struct node *head = null;
+    struct node *prev = null;
+    int c1 = count;
+    int c2 = count;
+
+    while (c1 && c2 && a && b) {
+        if (a && a->data data && c1) {
+            while (a && a->data data && c1) {
+                if (!head) head = a;
+                prev = a;
+                a = a->next;
+                c1--;
+            }
+            prev->next = b;
+        }
+        if (b && b->data data && c2) {
+            while (b && b->data data && c2) {
+                if (!head) head = b;
+                prev = b;
+                b = b->next;
+                c2--;
+            }
+            prev->next = a;
+        }
+    }
+    return head;
+}
+ Ankul This solution is O(n^2logn) for sure.. each time for partitioning the linked list, we are iterating over the list in O(n)… Shekhu I think it is O(nLogn) only. In this case the recurrence relation is. T(n) = T(n/2) + an + bn an –> For partitioning bn –> For merging. So overall the relation becomes T(n) = T(n/2) + O(n) which is noting but O(nLogn) kp101090 @Shekhu and All I am somewhat good in coding..i think i understand all other phenomenas of coding…but i really never understood the concept of complexity..and never understood steps to be followed to calculate the complexity of given program..can you pls suggest me some good books to be read so that my basic concepts of time and space complexity would be clear??? any online tutorial would be most welcome… Shri I think the recurrence relation is T(n) = T(n/2) + an + T(n/2) an –> for merging T(n/2) –> for partitioning. If you look closely you are calling partition each time you call merge sort. And in partition you traverse link list almost 3n/2 times. Shri rahul.jainz I think its complexity should be o(n^2) instead of nlogn, as the division/splitting of link list is itself an o(n) operation, rather than o(1) as in arrays ????? Anunay Wouldn’t Insertion Sort be a better way to sort the linked list? Following is C# code  
+public void SortLinkList(Node headReference)
+{
+    Node curr = headReference;
+
+    Node result = null;
+    Node temp = null;
+    while (curr != null)
+    {
+        temp = curr;
+        curr = curr.Next;
+        temp.Next = null;
+        insertSorted(ref result, temp);
+    }
+    headReference = result;
+}
+        
+public void insertSorted(ref Node head, Node node)
+{
+    Node curr = head;
+
+    //insertion at front
+    if (head == null || node.Value  node.Value)
+        {
+            node.Next = curr.Next;
+            curr.Next = node;
+            break;
+        }
+
+        curr = curr.Next;
+    }
+
+    // Insertion at the end
+    if (curr.Next == null)
+    {
+        curr.Next = node;
+    }
+}
+ kartik Insertion sort can be better for linked lists compared to arrays as we don’t have to move elements in Linked list, but when compared to Merge Sort, Merge Sort is definitely better as time complexity of Insertion Sort is O(n*n) and time complexity of Merge Sort is O(nLogn) Chiranjeev Kumar Time complexity of merge sort is n^2 in case of linked list. Don’t make a blunder kartik Time complexity of merge sort for linked list is O(nLogn). See this for reference. Merging two sorted linked lists of size n/2 takes O(n) time. So recursion for time complexity for linked list is same as arrays. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

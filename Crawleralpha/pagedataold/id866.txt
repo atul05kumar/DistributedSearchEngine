@@ -1,0 +1,162 @@
+Dynamic Programming | Set 20 (Maximum Length Chain of Pairs) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Dynamic Programming | Set 20 (Maximum Length Chain of Pairs) You are given n pairs of numbers. In every pair, the first number is always smaller than the second number. A pair (c, d) can follow another pair (a, b) if b < c. Chain of pairs can be formed in this fashion. Find the longest chain which can be formed from a given set of pairs. Source: Amazon Interview | Set 2 For example, if the given pairs are {{5, 24}, {39, 60}, {15, 28}, {27, 40}, {50, 90} }, then the longest chain that can be formed is of length 3, and the chain is {{5, 24}, {27, 40}, {50, 90}} This problem is a variation of standard Longest Increasing Subsequence problem. Following is a simple two step process. 1) Sort given pairs in increasing order of first (or smaller) element. 2) Now run a modified LIS process where we compare the second element of already finalized LIS with the first element of new LIS being constructed. The following code is a slight modification of method 2 of this post. 
+#include<stdio.h>
+#include<stdlib.h>
+
+// Structure for a pair
+struct pair
+{
+  int a;
+  int b;
+};
+
+// This function assumes that arr[] is sorted in increasing order
+// according the first (or smaller) values in pairs.
+int maxChainLength( struct pair arr[], int n)
+{
+   int i, j, max = 0;
+   int *mcl = (int*) malloc ( sizeof( int ) * n );
+
+   /* Initialize MCL (max chain length) values for all indexes */
+   for ( i = 0; i < n; i++ )
+      mcl[i] = 1;
+
+   /* Compute optimized chain length values in bottom up manner */
+   for ( i = 1; i < n; i++ )
+      for ( j = 0; j < i; j++ )
+         if ( arr[i].a > arr[j].b && mcl[i] < mcl[j] + 1)
+            mcl[i] = mcl[j] + 1;
+
+   // mcl[i] now stores the maximum chain length ending with pair i
+
+   /* Pick maximum of all MCL values */
+   for ( i = 0; i < n; i++ )
+      if ( max < mcl[i] )
+         max = mcl[i];
+
+   /* Free memory to avoid memory leak */
+   free( mcl );
+
+   return max;
+}
+
+
+/* Driver program to test above function */
+int main()
+{
+    struct pair arr[] = { {5, 24}, {15, 25},
+                          {27, 40}, {50, 60} };
+    int n = sizeof(arr)/sizeof(arr[0]);
+    printf("Length of maximum size chain is %d\n",
+           maxChainLength( arr, n ));
+    return 0;
+}
+ Output: Length of maximum size chain is 3 Time Complexity: O(n^2) where n is the number of pairs. The given problem is also a variation of Activity Selection problem and can be solved in (nLogn) time. To solve it as a activity selection problem, consider the first element of a pair as start time in activity selection problem, and the second element of pair as end time. Thanks to Palash for suggesting this approach. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: Dynamic Programming Tweet Writing code in comment? Please use ideone.com and share the link here. smith what is need of sorting first shiwakant.bharti Here is Java adaptation as requested by Omar. Note: This is just contents which can be included inside any class.  
+    static class Pair implements Comparable<Pair> {
+        /**
+         * @param a
+         * @param b
+         */
+        public Pair(int a, int b) {
+            super();
+            this.a = a;
+            this.b = b;
+        }
+
+        public int a, b;
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see java.lang.Comparable#compareTo(java.lang.Object)
+         */
+        @Override
+        public int compareTo(Pair o) {
+            return Integer.compare(a, this.a);
+        }
+    }
+
+    /**
+     * This is an adaptation from the best LIS code(geeksforgeeks) which finally
+     * matches with the geeksforgeeks :)
+     * 
+     * One shot correct :) :) :)
+     * 
+     * @param arr
+     * @param n
+     * @return
+     * @complexity O()
+     * @space O()
+     */
+    public static int maxChainLength(Pair[] arr, int n) {
+        // 1) Sort given pairs in increasing order of first (or smaller)
+        // element.
+        Arrays.sort(arr);
+
+        /*
+         * 2) Now run a modified LIS process where we compare the second element
+         * of already finalized LIS with the first element of new LIS being
+         * constructed.
+         */
+
+        int i, j;
+
+        int[] solutionDP = new int[n];
+
+        // Initialize the solution with 1
+        for (i = 0; i < n; i++) {
+            solutionDP[i] = 1;
+        }
+
+        // Pass 1 - Find the max solution ending here(considering this element).
+        // Outer loop is for solution ending here
+        /* Compute optimized LIS values in bottom up manner */
+        for (i = 1; i < n; i++) {
+            for (j = 0; j < i; j++) {
+                // Math a if newly calculated with b of already finalized
+                if (arr[j].b < arr[i].a && solutionDP[j] + 1 > solutionDP[i]) {
+                    solutionDP[i] = 1 + solutionDP[j];
+                }
+            }
+        }
+
+        // Pass 2
+        // Note the max solution may lie anywhere in 'i' ending here.
+        int max = 0;
+        for (i = 0; i < n; i++) {
+            if (solutionDP[i] > max) {
+                max = solutionDP[i];
+            }
+        }
+
+        return max;
+    }
+
+    public static void main(String[] args) {
+        Pair[] arr = new Pair[4];
+
+        arr[0] = new Pair(5, 24);
+        arr[1] = new Pair(15, 25);
+        arr[2] = new Pair(27, 40);
+        arr[3] = new Pair(50, 60);
+
+        int n = 4;
+        System.out.println(maxChainLength(arr, n));
+        // 3, and the chain is {{5, 24}, {27, 40}, {50, 60}}
+    }
+ shiwakant.bharti Admin: Looks like there is some formatting problem here, kindly copy it to eclipse to see the proper code and comments. I used the language=”Java” do I need type in “java” or “JAVA” instead? Krum Bakalsky I think that this is simply solved in O(n) time, because it is an instance of the longest-path-in-DAG problem, which can be solved in O(V + E) time. Silent i guess we can simply do it using greedy approach by sorting int the increasing order of second elements.. plz reply fast?? gargsanjay after sorting…. step 1) pick the pair with smallest b value. step 2)among the pairs with a value greater than b value of previous node in mcl, choose the one with least b value. what abt this algorithm.. abhishek08aug Intelligent  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Napster Dont you think ,with activity selection algo,order of pairs would be depleted.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Arun I believe that the above question can be easily solved using this approach: 1. Sort the pairs based in the increasing order of second values, e.g. (5,24), (15, 28), (27, 40), (39, 60) and (50, 90) 2. Now add the first pair to the list. 3. Start with i = 0; and check if y(i) < x(i+1), then add x(i+1)(i+1) to the list, else discard it and move on to next pair. 4. Continue iterating over the list till i == size of the given pairs…. Done !!! VikasG I think you have misunderstood the problem. You are not allowed to change the order of the pairs in the input. By sorting, you are solving the problem for a different input. yesminister Arun: You are right. In fact that’s exactly the method employed in the activity selection algorithm linked in the explanation above. makeit What if the given pairs are (1, 100),5,24), (15, 28), (27, 40), (39, 60) and (50, 90)? 1.sort the list, 2. add the first one first. 3. then the result is 1, 4. not good or else: for each pair in the list, consider it as the first pair in the list. In this case, the overall run time is still o(n**2)  
+/* Paste your code here (You may delete these lines if not writing code) */
+ rahul Why sorting??  
+/* Paste your code here (You may delete these lines if not writing code) */
+ zoe Yeah can’t understand why we need sorting here… Can be done using LIS method exactly without sorting…  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Meng Zhu It confused me too at first. But then I realized the result is constructed from a given set of pairs, not a subsequence. Palash Isn’t this the standard job scheduling problem and can be done in NlogN by greedy approach, by selecting the one with nearest end time at each step ? kartik @Paiash: Thanks for sharing your thoughts. This in fact looks similar to activity selection problem Abhinav Exactly! Thats what I thought!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Palash Isn’t this, job scheduling problem, and can be done in nlogn, by greedy ?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ anonymous is it not simple? just sort them based on the second values pick the next one which has first value greater than the current one’s second value  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

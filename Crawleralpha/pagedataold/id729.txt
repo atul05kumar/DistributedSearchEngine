@@ -1,0 +1,141 @@
+Convert a BST to a Binary Tree such that sum of all greater keys is added to every key GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Convert a BST to a Binary Tree such that sum of all greater keys is added to every key Given a Binary Search Tree (BST), convert it to a Binary Tree such that every key of the original BST is changed to key plus sum of all greater keys in BST. Examples: 
+Input: Root of following BST
+              5
+            /   \
+           2     13
+
+Output: The given BST is converted to following Binary Tree
+              18
+            /   \
+          20     13
+ Source: Convert a BST Solution: Do reverse Inoorder traversal. Keep track of the sum of nodes visited so far. Let this sum be sum. For every node currently being visited, first add the key of this node to sum, i.e. sum = sum + node->key. Then change the key of current node to sum, i.e., node->key = sum. When a BST is being traversed in reverse Inorder, for every key currently being visited, all keys that are already visited are all greater keys. 
+// Program to change a BST to Binary Tree such that key of a node becomes
+// original key plus sum of all greater keys in BST
+#include <stdio.h>
+#include <stdlib.h>
+
+/* A BST node has key, left child and right child */
+struct node
+{
+    int key;
+    struct node* left;
+    struct node* right;
+};
+
+/* Helper function that allocates a new node with the given key and
+   NULL left and right  pointers.*/
+struct node* newNode(int key)
+{
+    struct node* node = (struct node*)malloc(sizeof(struct node));
+    node->key = key;
+    node->left = NULL;
+    node->right = NULL;
+    return (node);
+}
+
+// A recursive function that traverses the given BST in reverse inorder and
+// for every key, adds all greater keys to it
+void addGreaterUtil(struct node *root, int *sum_ptr)
+{
+    // Base Case
+    if (root == NULL)
+        return;
+
+    // Recur for right subtree first so that sum of all greater
+    // nodes is stored at sum_ptr
+    addGreaterUtil(root->right, sum_ptr);
+
+    // Update the value at sum_ptr
+    *sum_ptr = *sum_ptr + root->key;
+
+    // Update key of this node
+    root->key = *sum_ptr;
+
+    // Recur for left subtree so that the updated sum is added
+    // to smaller nodes
+    addGreaterUtil(root->left, sum_ptr);
+}
+
+// A wrapper over addGreaterUtil().  It initializes sum and calls
+// addGreaterUtil() to recursivel upodate and use value of sum
+void addGreater(struct node *root)
+{
+    int sum = 0;
+    addGreaterUtil(root, &sum);
+}
+
+// A utility function to print inorder traversal of Binary Tree
+void printInorder(struct node* node)
+{
+    if (node == NULL)
+        return;
+    printInorder(node->left);
+    printf("%d ", node->key);
+    printInorder(node->right);
+}
+
+// Driver program to test above function
+int main()
+{
+    /* Create following BST
+              5
+            /   \
+           2     13  */
+    node *root = newNode(5);
+    root->left = newNode(2);
+    root->right = newNode(13);
+
+    printf(" Inorder traversal of the given tree\n");
+    printInorder(root);
+
+    addGreater(root);
+
+    printf("\n Inorder traversal of the modified tree\n");
+    printInorder(root);
+
+    return 0;
+}
+ Output:  Inorder traversal of the given tree
+2 5 13
+ Inorder traversal of the modified tree
+20 18 13 Time Complexity: O(n) where n is the number of nodes in given Binary Search Tree. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tags: Amazon, BST Tweet Writing code in comment? Please use ideone.com and share the link here. Suryabhan Singh void addgreatorsum(struct node *s) { static int pre=0; if(!s) return ; else { addgreatorsum(s->r); s->data+=pre; pre=s->data; addgreatorsum(s->l); } } ubiquitous i feel pointer to primitive type here it’s int is similar to static variable. So we can get rid of this by simple saying that node.value= node.value+right(here right is the sum of the values greater than this node’s value) atlast return left value Please refer to the code below. int changeToBinaryTree(TreeNode t, int sum) { if(t==null) { return sum; } int right = changeToBinaryTree(t.right, sum); t.val = right + t.val; int left = changeToBinaryTree(t.left, t.val); return left; } kush  
+tree *sum(tree *root)
+{
+	static int su=0;
+	if(!root)return NULL;
+	root->right=sum(root->right);
+	su+=root->data;
+	root->data=su;
+	root->left=sum(root->left);
+	return root;
+}
+ abhishek08aug Intelligent sush Easy implementation  
+//returns sum of all nodes in tree rooted at "root"
+int addGreater(struct node *root)
+{
+	if(root==NULL)
+	return 0;
+	root->key+=addGreater(root->right);
+	return root->key+addGreater(root->left);
+}
+
+ Gopal //where root is root of Binary Search Tree //method call addAllGreaterKeys(root, 0); public static int addAllGreaterKeys(Node node,int value) { if(node == null) return 0; if(node.right == null && node.left == null) { node.n += value; return node.n; } int rightSum = addAllGreaterKeys(node.right,value); int leftSum = addAllGreaterKeys(node.left, rightSum + node.n); node.n += rightSum; return leftSum; } go4gold void addtilllarge(node *p) { static int sum; if(p==NULL) return; else { addtilllarge(p->right); sum+=p->data; p->data=sum; addtilllarge(p->left); } }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Naren I think the below code will work.. alterNode(Node root, Node Parent,int leftorright) { if (root ==null) return 0; sum = root->data; a = alterNode(root->right,root,1); sum = sum + a; if (leftorright==0) sum = sum+parent->data; root->data = sum; b = alterNode(root->left,root,0); if (b!=0) return b; else return sum; } alterNode(root,null,1); Ankush The above code is not working forme.Here are some modification(Java code). public class Test { static class Node { int data; Node left; Node right; } public static Node newNode(int data) { Node node = new Node(); node.data = data; node.left = null; node.right = null; return (node); } public static void printInorder(Node root) { if (root == null) return; printInorder(root.left); System.out.println(root.data); printInorder(root.right); } public static void main(String[] args) { Node root = newNode(5); root.left = newNode(2); root.right = newNode(13); printInorder(root); System.out.println("\n\n"); TraverseForSum(root,0); printInorder(root); System.out.println("\n\n"); } private static int TraverseForSum(Node root,int sum) { if (root == null) { return sum; } sum = TraverseForSum(root.right,sum); sum += root.data; root.data = sum; sum = TraverseForSum(root.left,sum); return sum; } } Kartik sum is passed by value in your code. You need to pass it by reference. Parameters are passed by value in Java Gopal Correct me if I am wrong, everything looks great, however, in your code you are not adding root.data value to your left nodes. vamshi  
+/* Paste your code here (You may delete these lines if not writing code) */
+This should also generate correct output,If I understand the question correctly
+
+public void alterNode(){
+		alterNode( root);
+	}
+	private int alterNode(BSTNode root){
+		if (root == null)
+			return 0;
+		int lval=alterNode(root.left);
+		int rval=alterNode(root.right);
+		int sum=lval+rval+ root.key;
+		root.key=root.key+rval;
+		return sum;
+			
+	}
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,611 @@
+Intersection of two Sorted Linked Lists - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Intersection of two Sorted Linked Lists Given two lists sorted in increasing order, create and return a new list representing the intersection of the two lists. The new list should be made with its own memory — the original lists should not be changed. For example, let the first linked list be 1->2->3->4->6 and second linked list be 2->4->6->8, then your function should create and return a third list as 2->4->6. Method 1 (Using Dummy Node) The strategy here uses a temporary dummy node as the start of the result list. The pointer tail always points to the last node in the result list, so appending new nodes is easy. The dummy node gives tail something to point to initially when the result list is empty. This dummy node is efficient, since it is only temporary, and it is allocated in the stack. The loop proceeds, removing one node from either ‘a’ or ‘b’, and adding it to tail. When we are done, the result is in dummy.next. 
+#include<stdio.h>
+#include<stdlib.h>
+ 
+/* Link list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+
+void push(struct node** head_ref, int new_data);
+
+/*This solution uses the temporary dummy to build up the result list */
+struct node* sortedIntersect(struct node* a, struct node* b)
+{
+  struct node dummy;
+  struct node* tail = &dummy;
+  dummy.next = NULL;
+ 
+  /* Once one or the other list runs out -- we're done */
+  while (a != NULL && b != NULL)
+  {
+    if (a->data == b->data)
+    {
+       push((&tail->next), a->data);
+       tail = tail->next;
+       a = a->next;
+       b = b->next;
+    }
+    else if (a->data < b->data) /* advance the smaller list */      
+       a = a->next;
+    else
+       b = b->next;
+  }
+  return(dummy.next);
+}
+
+/* UTILITY FUNCTIONS */
+/* Function to insert a node at the beginging of the linked list */
+void push(struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node =
+            (struct node*) malloc(sizeof(struct node));
+ 
+    /* put in the data  */
+    new_node->data  = new_data;
+ 
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);    
+ 
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+/* Function to print nodes in a given linked list */
+void printList(struct node *node)
+{
+  while (node != NULL)
+  {
+   printf("%d ", node->data);
+   node = node->next;
+  }
+}
+ 
+/* Drier program to test above functions*/
+int main()
+{
+  /* Start with the empty lists */
+  struct node* a = NULL;
+  struct node* b = NULL;
+  struct node *intersect = NULL;
+ 
+  /* Let us create the first sorted linked list to test the functions
+   Created linked list will be 1->2->3->4->5->6 */
+  push(&a, 6);
+  push(&a, 5);
+  push(&a, 4);
+  push(&a, 3);
+  push(&a, 2);
+  push(&a, 1);                                   
+ 
+  /* Let us create the second sorted linked list 
+   Created linked list will be 2->4->6->8 */
+  push(&b, 8);
+  push(&b, 6);
+  push(&b, 4);
+  push(&b, 2);                                    
+ 
+  /* Find the intersection two linked lists */
+  intersect = sortedIntersect(a, b);
+ 
+  printf("\n Linked list containing common items of a & b \n ");
+  printList(intersect);           
+ 
+  getchar();
+}
+ Time Complexity: O(m+n) where m and n are number of nodes in first and second linked lists respectively. Method 2 (Using Local References) This solution is structurally very similar to the above, but it avoids using a dummy node Instead, it maintains a struct node** pointer, lastPtrRef, that always points to the last pointer of the result list. This solves the same case that the dummy node did — dealing with the result list when it is empty. If you are trying to build up a list at its tail, either the dummy node or the struct node** “reference” strategy can be used 
+#include<stdio.h>
+#include<stdlib.h>
+ 
+/* Link list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+
+void push(struct node** head_ref, int new_data);
+
+/* This solution uses the local reference */
+struct node* sortedIntersect(struct node* a, struct node* b)
+{
+  struct node* result = NULL;
+  struct node** lastPtrRef = &result;
+ 
+  /* Advance comparing the first nodes in both lists.
+    When one or the other list runs out, we're done. */
+  while (a!=NULL && b!=NULL)
+  {
+    if (a->data == b->data)
+    {
+      /* found a node for the intersection */
+      push(lastPtrRef, a->data);
+      lastPtrRef = &((*lastPtrRef)->next);
+      a = a->next;
+      b = b->next;
+    }
+    else if (a->data < b->data)
+      a=a->next;       /* advance the smaller list */    
+    else    
+      b=b->next;    
+  }
+  return(result);
+}
+
+/* UTILITY FUNCTIONS */
+/* Function to insert a node at the beginging of the linked list */
+void push(struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node =
+            (struct node*) malloc(sizeof(struct node));
+ 
+    /* put in the data  */
+    new_node->data  = new_data;
+ 
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);    
+ 
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+/* Function to print nodes in a given linked list */
+void printList(struct node *node)
+{
+  while(node != NULL)
+  {
+   printf("%d ", node->data);
+   node = node->next;
+  }
+}
+ 
+/* Drier program to test above functions*/
+int main()
+{
+  /* Start with the empty lists */
+  struct node* a = NULL;
+  struct node* b = NULL;
+  struct node *intersect = NULL;
+ 
+  /* Let us create the first sorted linked list to test the functions
+   Created linked list will be 1->2->3->4->5->6 */
+  push(&a, 6);
+  push(&a, 5);
+  push(&a, 4);
+  push(&a, 3);
+  push(&a, 2);
+  push(&a, 1);                                   
+ 
+  /* Let us create the second sorted linked list 
+   Created linked list will be 2->4->6->8 */
+  push(&b, 8);
+  push(&b, 6);
+  push(&b, 4);
+  push(&b, 2);                                    
+ 
+  /* Find the intersection two linked lists */
+  intersect = sortedIntersect(a, b);
+ 
+  printf("\n Linked list containing common items of a & b \n ");
+  printList(intersect);           
+ 
+  getchar();
+}
+ Time Complexity: O(m+n) where m and n are number of nodes in first and second linked lists respectively. Method 3 (Recursive) Below is the recursive implementation of sortedIntersect(). 
+#include<stdio.h>
+#include<stdlib.h>
+
+/* Link list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+
+struct node *sortedIntersect(struct node *a, struct node *b)
+{
+    /* base case */
+    if (a == NULL || b == NULL)
+        return NULL;
+
+    /* If both lists are non-empty */
+
+    /* advance the smaller list and call recursively */
+    if (a->data < b->data)
+        return sortedIntersect(a->next, b);
+
+    if (a->data > b->data)
+        return sortedIntersect(a, b->next);
+
+    // Below lines are executed only when a->data == b->data
+    struct node *temp = (struct node *)malloc(sizeof(struct node));
+    temp->data = a->data;
+
+    /* advance both lists and call recursively */
+    temp->next = sortedIntersect(a->next, b->next);
+    return temp;
+}
+
+/* UTILITY FUNCTIONS */
+/* Function to insert a node at the beginging of the linked list */
+void push(struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node = (struct node*) malloc(sizeof(struct node));
+
+    /* put in the data  */
+    new_node->data  = new_data;
+
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);
+
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+/* Function to print nodes in a given linked list */
+void printList(struct node *node)
+{
+    while (node != NULL)
+    {
+        printf("%d ", node->data);
+        node = node->next;
+    }
+}
+
+/* Drier program to test above functions*/
+int main()
+{
+    /* Start with the empty lists */
+    struct node* a = NULL;
+    struct node* b = NULL;
+    struct node *intersect = NULL;
+
+    /* Let us create the first sorted linked list to test the functions
+     Created linked list will be 1->2->3->4->5->6 */
+    push(&a, 6);
+    push(&a, 5);
+    push(&a, 4);
+    push(&a, 3);
+    push(&a, 2);
+    push(&a, 1);
+
+    /* Let us create the second sorted linked list
+     Created linked list will be 2->4->6->8 */
+    push(&b, 8);
+    push(&b, 6);
+    push(&b, 4);
+    push(&b, 2);
+
+    /* Find the intersection two linked lists */
+    intersect = sortedIntersect(a, b);
+
+    printf("\n Linked list containing common items of a & b \n ");
+    printList(intersect);
+
+    return 0;
+}
+ Time Complexity: O(m+n) where m and n are number of nodes in first and second linked lists respectively. Please write comments if you find the above codes/algorithms incorrect, or find better ways to solve the same problem. References: cslibrary.stanford.edu/105/LinkedListProblems.pdf           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. Mohit In method 2 instead of /* found a node for the intersection */ push(lastPtrRef, a->data); lastPtrRef = &((*lastPtrRef)->next); it should be /* found a node for the intersection */ push(&lastPtrRef, a->data); lastPtrRef = &((*lastPtrRef)->next); What say ?? Himanshu Dagar another recursive way can be this also http://ideone.com/zce7ps Marsha Donna struct node* intersection_of_two_sorted_list(struct node *head1,struct node *head2) { struct node *head3=NULL,*temp3=NULL; struct node *new_node=NULL; if(head1!=NULL&& head2!=NULL) { while(head1!=NULL&&head2!=NULL) { if(head1->data==head2->data) { new_node=(struct node*)malloc(sizeof(struct node)); new_node->data=head1->data; new_node->link=NULL; head1=head1->link; head2=head2->link; if(head3==NULL) {head3=new_node; temp3=new_node; } else { temp3->link=new_node; temp3=temp3->link; } } else if(head2->data>head1->data) head1=head1->link; else head2=head2->link; } temp3->link=NULL; } return head3; } nehamahajan I have another solution by using Maps. Its complexity is also O(m+n) http://mahajanneha.blogspot.com/2013/09/to-find-intersection-of-two-sorted.html Hanish Bansal In method 3 (recursive) , passing result as an argument is totally redundant. Here is the simplified function : struct node *sortedIntersect(struct node *a, struct node *b) { if(a == NULL || b == NULL) return NULL; if(a->data data) return sortedIntersect(a->next, b); else if(a->data > b->data) return sortedIntersect(a, b->next); else if(a->data == b->data) { struct node *temp = (struct node *)malloc(sizeof(struct node)); temp->data = a->data; temp->next = sortedIntersect(a->next, b->next); return temp; } } Ronny @Hanish Bansal great observation. @GeeksforGeeks I guess you should definitely look into this and add it to the main post. It’s much easier and understandable. GeeksforGeeks @Hanish Bansal: Thanks for suggesting a simpler solution. @Ronny: Thanks for bringing to this to notice. We have updated the post. Ronny @GeeksforGeeks Another thing complexity of this algorithm is O(m+n) rather than ” O(n) where n is the number of nodes in shorter list”. Since the algorithm is dependent on the values of the nodes in the link rather than the size of the link. for example LISTA = {1,2,3,4,5,6,7,8,9,10,11}and LISTB = {9,10,11,12} However LISTB is smaller in size but when above algorithm is run LISTA will be exhausted first. So there is no co-relation between running time and size of the linked list. It depends upon the values in the linked list. Therefore any of the linked list can be exhausted first irrespective of its size. Hence the complexity is O(m+n). GeeksforGeeks @Ronny: Thanks for pointing this out. We have updated time complexity. Keep it up! Prateek Sharma Recursive Solution with o(n+m) time complexity…..  
+#include<conio.h>
+#include<stdio.h>
+#include<stdlib.h>
+struct Node {
+       int value;
+       struct Node *next;
+       };
+int insertAtEnd(struct Node *node,int val) {
+    struct Node *temp;
+    struct Node *ne;
+    temp = node;
+    while(temp->next!= NULL) {
+          temp = temp->next;
+}
+    ne = (struct Node *) malloc(sizeof(struct Node));
+    ne->value = val;
+    ne->next = NULL;
+    temp->next = ne;    
+    return 0;                          
+}         
+struct Node* intersection(struct Node *node1,struct Node *node2,struct Node *node3){
+    struct Node *temp1,*temp2,*prev1,*prev2,*second;
+    static struct Node * head = node3;
+    static struct Node * tail = node3;
+    temp1 = prev1 =node1;
+    temp2 = prev2 =node2;
+    while(temp1->next != NULL){
+          temp1 = temp1->next;}
+    if (prev1 ->next != NULL){
+       while(prev1->next != temp1){
+          prev1 = prev1->next;}}                   
+    while(temp2->next != NULL){
+          temp2 = temp2->next;}
+    if (prev2 ->next != NULL){
+       while(prev2->next != temp2){
+          prev2 = prev2->next;}}      
+    if (temp1->value > temp2->value){
+       if(prev1->next == NULL)
+          {return node3;}              
+          prev1->next = NULL;
+          intersection(node1,node2,node3);}
+    if (temp1->value < temp2->value){
+        if(prev2->next == NULL)
+          {return node3;}                 
+          prev2->next =  NULL;
+          intersection(node1,node2,node3);}
+    else {
+         if (tail->value == 0)
+         {tail->value = temp1->value;}
+         else{
+          second = (struct Node *) malloc(sizeof(struct Node));
+          second->value = temp1->value;
+          second->next = NULL;
+          tail->next = second;
+          tail = second;
+          }
+          if (prev1->next == NULL or prev2->next == NULL)
+              {return node3;}            
+          prev2->next = NULL;
+          prev1->next = NULL;
+          intersection(node1,node2,node3);}
+    return node3;}     
+                            
+                
+                                            
+int main() {
+   int n,s1,s2,i =1; 
+   struct Node *node1,*node2,*node3,*temp;
+   node1 = (struct Node *) malloc(sizeof(struct Node));
+   printf("enter size of linked list1");
+   scanf("%d",&s1);
+   printf("enter value of root node1:\n");
+   scanf("%d",&n);
+   node1->value = n;
+   node1->next = NULL;
+   while(i<=s1-1) {
+   printf("enter next element of linked list1\n");
+   scanf("%d",&n);
+   insertAtEnd(node1,n);
+   i++;} 
+   node2 = (struct Node *) malloc(sizeof(struct Node));
+   printf("enter size of linked list2");
+   scanf("%d",&s2);
+   printf("enter value of root node2:\n");
+   scanf("%d",&n);
+   node2->value = n;
+   node2->next = NULL;
+   i= 1;
+   while(i<=s2-1) {
+   printf("enter next element of linked list2\n");
+   scanf("%d",&n);
+   insertAtEnd(node2,n);
+   i++;}
+   node3 = (struct Node *) malloc(sizeof(struct Node));
+   node3->value = 0;
+   node3->next = NULL;
+   temp = intersection(node1,node2,node3);
+   printf("Intersection Linked List is\n");
+   while(temp != NULL) {
+       printf("%d",temp->value);
+       temp = temp->next;
+}
+getch();
+return 0;
+}                   
+   
+   
+
+ Hanish Bansal The time complexity should be O(m+n) not O(n) where n is length of smaller list. Consider the case : List a : 1->2->3->4->5->6 List b : 11->12->13 Here, m=6,n=3 But List a will die out first. So the complexity does not depend on the smaller of n and m. It should be O(m+n) varun jain hanish bansal :;)…agreed! Devarshi If the short list dies out then why would you continue?? just terminate the process and give the result. do correct me if i am wrong. Hanish We will terminate after one of the lists die out. By short here,I refer the length of the list not the values contained. So any of the lists,shorter or longer(in length) can die out first as I have shown in the example. So,it can be O(m) or O(n) and that is expressed as O(m+n) lotus An edge case is missing in all the methods. IF the input is 2->2 for one list and 2->2 for the other list, output will be 2->2. We can keep the last inserted number in a variable and add the next number to the result list only if it is not equal to the last inserted number. kartik If two linked list contain (2, 2) as common elements, then output should be (2, 2). I don’t see anything wrong with it. lotus I got confused, thinking duplicates should be removed and result should be {2}. Thanks. Shan Can anyone explain how this algorithm is O(N)?. I figure in worst case it has to be O(N+M) considering N is the length of the smallest list and M is the length of the longest list. In worst case where the last element of the smaller list is also the last element of the larger list. Am I missing something? priso The recursive solution does not seem to work, as in the last else part you are changing the result to temp and returning the result. According to my understanding result should always point to the head of the new list created. priso @geeksforgeeks: I am very sorry for so many comments of mine. There was some problem when I was trying to post. Can you please delete the repeated comments. Thanks  
+/* Paste your code here (You may delete these lines if not writing code) */
+ priso The correct code would be :  
+struct node *sortedIntersect(struct node *a, struct node *b, 
+                                      struct node *result)
+{
+  /* base case */
+  if(a == NULL || b == NULL)
+  {
+    return NULL;
+  }  
+   
+  /* If both lists are non-empty */
+ 
+  /* advance the smaller list and call recursively */
+  if(a->data < b->data)
+  {
+    return sortedIntersect(a->next, b, result);
+  }
+  else if(a->data > b->data)
+  {
+    return sortedIntersect(a, b->next, result);
+  }  
+  else if(a->data == b->data)
+  {
+    /* If same data is found then allocate memory */
+    struct node *temp = (struct node *)malloc(sizeof(struct node));
+    temp->data = a->data;
+  
+    /* If the first node is being added to resultant list */
+    if(result == NULL)
+    {
+      result = temp;
+    }
+    
+    /* Else change the next of result and move result to next */
+    else
+    {     
+      result->next = temp;      
+    }
+     
+    /* advance both lists and call recursively */
+    /*temp->next can be populated through recursion, not result->next; if we are doing result = temp; result->next = sortedInsert(..), then we can not return result. */ 
+    temp->next = sortedIntersect(a->next, b->next, result);
+
+  }
+  
+  return result;
+}
+
+
+ Correct me If I am wrong. hmmm a simpler to understand recursive code.  
+
+struct node* sortedintersect(struct node *a,struct node *b)
+{
+struct node *t;
+if(a==NULL || b==NULL)
+return NULL;
+if(a->data==b->data)
+{
+t=(struct node *)malloc(sizeof(struct node));
+t->data=a->data;
+t->next=sortedintersect(a->next,b->next);
+return t;
+}
+else if(a->data > b->data)
+return sortedintersect(a,b->next);
+else
+return sortedintersect(a->next,b);
+}
+ Avinash Srikantan 1) The idea is to select a random list and insert its nodes in a hashmap. 2) Traverse the list and see if the node already exists in the hashmap. 3) If there is a match return the node. Time complexity is o(n) + o(m) = o(n+m)  
+/* Paste your code here (You may delete these lines if not writing code) */
+struct node *FindIntersection(node *List1, struct node *List2)
+{
+	If (List1==NULL || List2==NULL) return NULL;
+	struct node *current=List1;
+	struct node *current2=List2;
+	hash_map<struct node*,int> my_hasMap;
+	hash_map<struct node*,int>::iterator it1;
+	pair<struct node*,int> myPair;
+	while(current!=NULL)
+	{
+		my_hashMap.insert(myPair<struct node*,int>(current,1));
+		current=current->next;
+	}
+	while(current2!=NULL)
+	{
+		it1=my_hashMap.find(current2);
+		if(it1!=my_hashMap.end()) //If there is a match then it1 will not be equal to end
+		{
+			return current2;
+		}
+		current2=current2->next;
+	}
+	
+	return NULL //no match
+}
+ seeker7 For the recursive method ,there is a typo in code : it should be: temp->next=result; result=temp; foobar Another solution would be one pointer for each list and iterate them as if you are merging them, if you see the same elements that s an intersection, save it in the new list. wittywoman what about unsorted linked list intersection? Does anyone have a O(N) solution? Mike I am working on a code for linked lists and part of it is to have the intersection of 2 linked lists. I have a code that works fine, but I am trying to get the runtime down, since originally my intersection and merge functions ran on quadratic time. I guess what my question is is how can I do it the above way if the function is void since you can’t return anything? http://effprog.blogspot.com Sambasiva  
+
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node
+{
+        int data;
+        struct Node *next;
+        struct Node *arb;
+};
+
+typedef struct Node Node;
+typedef Node* list;
+
+Node *appendNode(list l, int elm);
+
+list intersect(list l1, list l2)
+{
+        list l3 = NULL;
+        while(l1 && l2)
+        {
+                if(l1->data < l2->data)
+                        l1 = l1->next;
+                else if(l1->data > l2->data)
+                        l2 = l2->next;
+                else
+                {
+                        l3 = appendNode(l3, l1->data);
+                        l1 = l1->next;
+                        l2 = l2->next;
+                }
+        }
+
+        return l3;
+}
+
+
+//Utility functions
+
+Node *appendNode(list l, int elm)
+{
+        Node *p;
+        Node *temp = calloc(sizeof(Node), 1);
+        temp->data = elm;
+
+        if(!l)
+                return temp;
+        for(p = l;p->next; p = p->next);
+        p->next = temp;
+        return l;
+}
+
+void print(list l)
+{
+        for(; l ; l = l->next)
+                printf("%d\n", l->data);
+}
+
+int main()
+{
+        list l1 = NULL;
+        list l2 = NULL;
+        int i;
+
+        for(i = 0; i < 10; ++i)
+        {
+                l1 = appendNode(l1,i);
+        }
+        for(i = 5; i < 10; ++i)
+        {
+                l2 = appendNode(l2,i);
+        }
+
+        printf("list 1: \n");
+        print(l1);
+        printf("list 2: \n");
+        print(l2);
+        list l3 = intersect(l1, l2);
+        printf("intersect: \n");
+        print(l3);
+}
+ veera reddy This not good method , because for each insertion you have to travel the linked list till the end and then insert new node . So it takes more time ajayreddy  list intersect(list l1, list l2)
+{
+        list l3 = NULL;
+        list head = NULL;
+        list tail = NULL;
+        while(l1 && l2)
+        {
+                if(l1->data < l2->data)
+                        l1 = l1->next;
+                else if(l1->data > l2->data)
+                        l2 = l2->next;
+                else
+                {
+                        temp = (Node *)malloc(sizeof(Node));
+                        temp->data = l1->data;
+                        if(!head) {
+                               head = temp;
+                        }
+                        if (!tail) {
+                               tail = temp;
+                        }
+                       
+                        tail->next = temp;
+                        tail = tail->next;
+                        l1 = l1->next;
+                        l2 = l2->next;
+                }
+        }
+ 
+        return head;
+}
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

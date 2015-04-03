@@ -1,0 +1,80 @@
+Little and Big Endian Mystery - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Little and Big Endian Mystery What are these? Little and big endian are two ways of storing multibyte data-types ( int, float, etc). In little endian machines, last byte of binary representation of the multibyte data-type is stored first. On the other hand, in big endian machines, first byte of binary representation of the multibyte data-type is stored first. Suppose integer is stored as 4 bytes (For those who are using DOS based compilers such as C++ 3.0 , integer is 2 bytes) then a variable x with value 0x01234567 will be stored as following. Memory representation of integer ox01234567 inside Big and little endian machines How to see memory representation of multibyte data types on your machine? Here is a sample C code that shows the byte representation of int, float and pointer. 
+#include <stdio.h>
+
+/* function to show bytes in memory, from location start to start+n*/
+void show_mem_rep(char *start, int n) 
+{
+    int i;
+    for (i = 0; i < n; i++)
+         printf(" %.2x", start[i]);
+    printf("\n");
+}
+
+/*Main function to call above function for 0x01234567*/
+int main()
+{
+   int i = 0x01234567;
+   show_mem_rep((char *)&i, sizeof(i));
+   getchar();
+   return 0;
+}
+ When above program is run on little endian machine, gives “67 45 23 01″ as output , while if it is run on endian machine, gives “01 23 45 67″ as output. Is there a quick way to determine endianness of your machine? There are n no. of ways for determining endianness of your machine. Here is one quick way of doing the same. 
+#include <stdio.h>
+int main() 
+{
+   unsigned int i = 1;
+   char *c = (char*)&i;
+   if (*c)    
+       printf("Little endian");
+   else
+       printf("Big endian");
+   getchar();
+   return 0;
+}
+ In the above program, a character pointer c is pointing to an integer i. Since size of character is 1 byte when the character pointer is de-referenced it will contain only first byte of integer. If machine is little endian then *c will be 1 (because last byte is stored first) and if machine is big endian then *c will be 0. Does endianness matter for programmers? Most of the times compiler takes care of endianness, however, endianness becomes an issue in following cases. It matters in network programming: Suppose you write integers to file on a little endian machine and you transfer this file to a big endian machine. Unless there is little andian to big endian transformation, big endian machine will read the file in reverse order. You can find such a practical example here. Standard byte order for networks is big endian, also known as network byte order. Before transferring data on network, data is first converted to network byte order (big endian). Sometimes it matters when you are using type casting, below program is an example. 
+#include <stdio.h>
+int main()
+{
+    unsigned char arr[2] = {0x01, 0x00};
+    unsigned short int x = *(unsigned short int *) arr;
+    printf("%d", x);
+    getchar();
+    return 0;
+}
+ In the above program, a char array is typecasted to an unsigned short integer type. When I run above program on little endian machine, I get 1 as output, while if I run it on a big endian machine I get 256. To make programs endianness independent, above programming style should be avoided. What are bi-endians? Bi-endian processors can run in both modes little and big endian. What are the examples of little, big endian and bi-endian machines ? Intel based processors are little endians. ARM processors were little endians. Current generation ARM processors are bi-endian. Motorola 68K processors are big endians. PowerPC (by Motorola) and SPARK (by Sun) processors were big endian. Current version of these processors are bi-endians. Does endianness effects file formats? File formats which have 1 byte as a basic unit are independent of endianness e..g., ASCII files . Other file formats use some fixed endianness forrmat e.g, JPEG files are stored in big endian format. Which one is better — little endian or big endian The term little and big endian came from Gulliver’s Travels by Jonathan Swift. Two groups could not agree by which end a egg should be opened -a-the little or the big. Just like the egg issue, there is no technological reason to choose one byte ordering convention over the other, hence the arguments degenerate into bickering about sociopolitical issues. As long as one of the conventions is selected and adhered to consistently, the choice is arbitrary.           Related Topics: A Problem in Many Binary Search Implementations Analysis of Algorithms | Set 4 (Analysis of Loops) Analysis of Algorithms | Set 3 (Asymptotic Notations) NP-Completeness | Set 1 (Introduction) Static and Dynamic Libraries | Set 1 The Ubiquitous Binary Search | Set 1 Reservoir Sampling Analysis of Algorithms | Set 2 (Worst, Average and Best Cases) Tags: Articles, Big Endian, Bit Magic, Endianness, Little Endian, Tutorial Tweet Writing code in comment? Please use ideone.com and share the link here. bonnyswan Thanks for sharing. I was looking to find some clear explanation with examples and I found it here. That was useful! http://www.cprogramto.com/ akshay Thank you. Nicely explained the concept of Endianness. BackBencher @All: if i take num = 256 it will print Big Endian, Please explain me why this, i am bit confuse to endiness of machine GeeksforGeeks @abhishek08aug and @amitp49: Thanks for pointing this out. We have fixed the explanation. abhishek08aug Are not the definitions here for both big and little endian exactly same? In little endian machines, last byte of binary representation of the multibyte data-type is stored first. On the other hand, in big endian machines, first byte of binary representation of the multibyte data-type is stored last. Please fix it as below: In little endian machines, last byte of binary representation of the multibyte data-type is stored first. On the other hand, in big endian machines, first byte of binary representation of the multibyte data-type is stored “first”.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ amitp49 I think there is typo error in definition… “Little and big endian are two ways of storing multibyte data-types ( int, float, etc). In little endian machines, last byte of binary representation of the multibyte data-type is stored first. On the other hand, in big endian machines, first byte of binary representation of the multibyte data-type is stored last.” It should be.. “Little and big endian are two ways of storing multibyte data-types ( int, float, etc). In little endian machines, last byte of binary representation of the multibyte data-type is stored first. On the other hand, in big endian machines, last byte of binary representation of the multibyte data-type is stored last.” Correct me if i am wrong… KK123 Thats not called as typo ha ha… anyway thats bearable as compared to quality and maintainance of ur site Algoseekar What Little-Endian and Big-Endian? How can I determine whether a machine’s byte order is big-endian or little endian? How can we convert from one to a First of all, Do you know what Little-Endian and Big-Endian mean? Little Endian means that the lower order byte of the number is stored in memory at the lowest address, and the higher order byte is stored at the highest address. That is, the little end comes first. For example, a 4 byte, 32-bit integer Byte3 Byte2 Byte1 Byte0 will be arranged in memory as follows: Base_Address+0 Byte0 Base_Address+1 Byte1 Base_Address+2 Byte2 Base_Address+3 Byte3 Intel processors use “Little Endian” byte order. “Big Endian” means that the higher order byte of the number is stored in memory at the lowest address, and the lower order byte at the highest address. The big end comes first. Base_Address+0 Byte3 Base_Address+1 Byte2 Base_Address+2 Byte1 Base_Address+3 Byte0 Motorola, Solaris processors use “Big Endian” byte order. In “Little Endian” form, code which picks up a 1, 2, 4, or longer byte number proceed in the same way for all formats. They first pick up the lowest order byte at offset 0 and proceed from there. Also, because of the 1:1 relationship between address offset and byte number (offset 0 is byte 0), multiple precision mathematic routines are easy to code. In “Big Endian” form, since the high-order byte comes first, the code can test whether the number is positive or negative by looking at the byte at offset zero. Its not required to know how long the number is, nor does the code have to skip over any bytes to find the byte containing the sign information. The numbers are also stored in the order in which they are printed out, so binary to decimal routines are particularly efficient. Here is some code to determine what is the type of your machine  
+int num = 1;
+if(*(char *)&amp;num == 1)
+{
+  printf(&quot;nLittle-Endiann&quot;);
+}
+else
+{
+  printf(&quot;Big-Endiann&quot;);
+}
+ And here is some code to convert from one Endian to another.  
+int myreversefunc(int num)
+{
+int byte0, byte1, byte2, byte3;
+
+byte0 = (num &amp; x000000FF) &gt;&gt; 0 ;
+byte1 = (num &amp; x0000FF00) &gt;&gt; 8 ;
+byte2 = (num &amp; x00FF0000) &gt;&gt; 16 ;
+byte3 = (num &amp; xFF000000) &gt;&gt; 24 ;
+
+return((byte0 &lt;&lt; 24) | (byte1 &lt;&lt; 16) | (byte2 &lt;&lt; 8) | (byte3 &lt;&lt; 0));
+}
+ Patil @Algoseeker : if i take num = 256 it will print Big Endian, Please explain me why this, i am bit confuse to endiness of machine  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Venki All the examples cited above tell endian-ness during runtime. Is there any way to find endian order at compile time? Felipe Pena A bit late, but see http://unixpapa.com/incnote/byteorder.html sankalp  
+#include<stdio.h>
+int main()
+{
+    unsigned char arr[2] = {0x01, 0x00};
+    unsigned short int x = *(unsigned short int *) arr;
+    printf("%d", x);
+    getchar();
+    return 0;
+}
+ In this question output in big endian system should be 256 instead of 512 GeeksforGeeks @sankalp: Thanks for pointing this out, we have corrected the typo. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

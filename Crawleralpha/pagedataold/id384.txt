@@ -1,0 +1,66 @@
+Find the two non-repeating elements in an array of repeating elements - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find the two non-repeating elements in an array of repeating elements Asked by SG Given an array in which all numbers except two are repeated once. (i.e. we have 2n+2 numbers and n numbers are occurring twice and remaining two have occurred once). Find those two numbers in the most efficient way. Method 1(Use Sorting) First sort all the elements. In the sorted array, by comparing adjacent elements we can easily get the non-repeating elements. Time complexity of this method is O(nLogn) Method 2(Use XOR) Let x and y be the non-repeating elements we are looking for and arr[] be the input array. First calculate the XOR of all the array elements. 
+     xor = arr[0]^arr[1]^arr[2].....arr[n-1]
+ All the bits that are set in xor will be set in one non-repeating element (x or y) and not in other. So if we take any set bit of xor and divide the elements of the array in two sets – one set of elements with same bit set and other set with same bit not set. By doing so, we will get x in one set and y in another set. Now if we do XOR of all the elements in first set, we will get first non-repeating element, and by doing same in other set we will get the second non-repeating element. 
+Let us see an example.
+   arr[] = {2, 4, 7, 9, 2, 4}
+1) Get the XOR of all the elements.
+     xor = 2^4^7^9^2^4 = 14 (1110)
+2) Get a number which has only one set bit of the xor.   
+   Since we can easily get the rightmost set bit, let us use it.
+     set_bit_no = xor & ~(xor-1) = (1110) & ~(1101) = 0010
+   Now set_bit_no will have only set as rightmost set bit of xor.
+3) Now divide the elements in two sets and do xor of         
+   elements in each set, and we get the non-repeating 
+   elements 7 and 9. Please see implementation for this   
+   step.
+ Implementation: 
+#include <stdio.h>
+#include <stdlib.h>
+
+/* This finction sets the values of *x and *y to nonr-epeating
+ elements in an array arr[] of size n*/
+void get2NonRepeatingNos(int arr[], int n, int *x, int *y)
+{
+  int xor = arr[0]; /* Will hold xor of all elements */
+  int set_bit_no;  /* Will have only single set bit of xor */
+  int i;
+  *x = 0;
+  *y = 0;
+
+  /* Get the xor of all elements */
+  for(i = 1; i < n; i++)
+   xor ^= arr[i];
+
+  /* Get the rightmost set bit in set_bit_no */
+  set_bit_no = xor & ~(xor-1);
+
+  /* Now divide elements in two sets by comparing rightmost set
+   bit of xor with bit at same position in each element. */
+  for(i = 0; i < n; i++)
+  {
+    if(arr[i] & set_bit_no)
+     *x = *x ^ arr[i]; /*XOR of first set */
+    else
+     *y = *y ^ arr[i]; /*XOR of second set*/
+  }
+}
+
+/* Driver program to test above function */
+int main()
+{
+  int arr[] = {2, 3, 7, 9, 11, 2, 3, 11};
+  int *x = (int *)malloc(sizeof(int));
+  int *y = (int *)malloc(sizeof(int));
+  get2NonRepeatingNos(arr, 8, x, y);
+  printf("The non-repeating elements are %d and %d", *x, *y);
+  getchar();
+}
+ Time Complexity: O(n) Auxiliary Space: O(1)           Related Topics: Check if binary representation of a number is palindrome Swap two nibbles in a byte How to turn off a particular bit in a number? Check if a number is multiple of 9 using bitwise operators How to swap two numbers without using a temporary variable? Divide and Conquer | Set 4 (Karatsuba algorithm for fast multiplication) Find position of the only set bit Swap all odd and even bits Tags: Bit Magic Tweet Writing code in comment? Please use ideone.com and share the link here. rohit_90 By using method1(using sorting), we can also find more than two non repeating elements(all the elements which are not repeating) that’s not possible with XOR method. Am I correct…? Time complexity of method1 is O(nlogn), so to reduce it to O(n) we can solve this problem using HashMap but it will cost extra memory of O(n)… but in sorting if we use merge sort then it will also cost a space complexity of O(n)… Mihir Sathe We can also use a hashtable and get O(n) wasseypuriyan But in that case memory used will also be O(n) Guest Maybe we can use a HashSet and add an element hen we see it for the first time and remove it when we see it for the second time. I’m not sure if it will change the worst case complexity but will be much better on average case. bhavya In order to obtain the 1st non repeating we will need a LinkedHashMap cammie Why is this O(n) time complexity when both for loops run up to the size n times ??  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ajay this is O(n)+O(n),second loop runs after the first ,it is not an inner loop,that is why O(n).  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Varadh Can someone please give me a clear explanation of this??? kartik See this comment. Algorithmus Hi all, just check the output of above code with the following inputs… int arr[] = {2, 3,2 ,7, 9, 11, 2, 3, 11}; int arr[] = {2,3,3 ,7, 9, 11, 2, 3, 11}; This give wrong results… Sandeep Please take a closer look at the problem statement. It says “all numbers except two are repeated once”. In your example1, 2 is repeated twice and in example2, 3 is repeated twice. nn can some1 explain me the logical part of how it works…i find it difficult to analyse it Sandeep XOR of two same numbers results in 0(000..00) XOR of two different numbers x and y results in a number which contains set bits at the places where x and y differ. So if x and y are 10…0100 and 11…1001, then result would be 01…1101. So the idea is to XOR all the elements in set. In the result xor, all repeating elements would nullify each other. The result would contain the set bits where two non-repeating elements differ. Now, if we take any set bit of the result xor and again do XOR of the subset where that particular bit is set, we get the one non-repeating element. And for other non-repeating element we can take the subset where that particular bit is not set. We have chosen the rightmost set bit of the xor as it is easy to find out. saurabh That’s a clear explanation …Thank’s Zongjun /* Get the rightmost set bit in set_bit_no */ set_bit_no = xor & ~(xor-1); Now, if we take any set bit of the result xor and again do XOR of the subset where that particular bit is set, we get the one non-repeating element. And for other non-repeating element we can take the subset where that particular bit is not set. How come by XOR on one bit and we can get the whole number back?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ aygul It does not XOR on one bit, but it does an AND on one bit that is different in two target numbers. So some of the same numbers will go to if part and some of the same numbers will go to else part BUT one of the non repeating number will go to if part the other will go to else part. Now in if part and else part seperately you XOR some same numbers and A non-repeating number, which gives the non-repeating number. Is it clear now ?? ultimate_coder Excellent ! ! ! This explanation should be in the main article.. Vikram N Nice explanation!!! Understood by reading this. dd what about the following prob: Given an array of integers where some numbers repeat 1 time, some numbers repeat 2 times and only one number repeats 3 times, how do you find the number that repeat 3 times http://thebestbusinessdeal.blogspot.com/ Pankaj Chopra Hi, We can easily find it by 1. Sorting the elements in an array. Assume the sorted array {3,3,4,4,6,6,6,8,8,8,9,9,9,9,9}. 2. Then comparing each element with 3rd next element, as there is only 1 number which is repeating 3 times. This will give the solution in n-3 comparisons. Nikhil Agrawal @dd Since XORing same number odd number of times yield that number and XORing same number even number of times yield 0, so answer to ur question is: Step1: Find XOR of all elements Step2: Try to find any bit position in the XOR sum calculated above Step3: Maintain one set in which all element would be having same bit value at set bit position,and another set having position bit value at set bit position. Step4: Take any value as calculated above and browse the array. If considered value is repeated only 1 time then the other value would be ur answer otherwise vice-versa. Answer: One set will contain element repeated 1 time and other set have element repeated 3 times.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ SG … awesome buddy … … It works perfectly . KSK Excellent logic !! Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

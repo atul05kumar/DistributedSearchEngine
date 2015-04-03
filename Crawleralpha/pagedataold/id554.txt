@@ -1,0 +1,973 @@
+Rotate a Linked List - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Rotate a Linked List Given a singly linked list, rotate the linked list counter-clockwise by k nodes. Where k is a given positive integer. For example, if the given linked list is 10->20->30->40->50->60 and k is 4, the list should be modified to 50->60->10->20->30->40. Assume that k is smaller than the count of nodes in linked list. To rotate the linked list, we need to change next of kth node to NULL, next of last node to previous head node, and finally change head to (k+1)th node. So we need to get hold of three nodes: kth node, (k+1)th node and last node. Traverse the list from beginning and stop at kth node. Store pointer to kth node. We can get (k+1)th node using kthNode->next. Keep traversing till end and store pointer to last node also. Finally, change pointers as stated above. 
+// Program to rotate a linked list counter clock wise
+#include<stdio.h>
+#include<stdlib.h>
+
+/* Link list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+
+// This function rotates a linked list counter-clockwise and updates the head.
+// The function assumes that k is smaller than size of linked list. It doesn't
+// modify the list if k is greater than or equal to size
+void rotate (struct node **head_ref, int k)
+{
+     if (k == 0)
+       return;
+
+    // Let us understand the below code for example k = 4 and
+    // list = 10->20->30->40->50->60.
+    struct node* current = *head_ref;
+
+    // current will either point to kth or NULL after this loop.
+    //  current will point to node 40 in the above example
+    int count = 1;
+    while (count < k && current != NULL)
+    {
+        current = current->next;
+        count++;
+    }
+
+    // If current is NULL, k is greater than or equal to count
+    // of nodes in linked list. Don't change the list in this case
+    if (current == NULL)
+        return;
+
+    // current points to kth node. Store it in a variable.
+    // kthNode points to node 40 in the above example
+    struct node *kthNode = current;
+
+    // current will point to last node after this loop
+    // current will point to node 60 in the above example
+    while (current->next != NULL)
+        current = current->next;
+
+    // Change next of last node to previous head
+    // Next of 60 is now changed to node 10
+    current->next = *head_ref;
+
+    // Change head to (k+1)th node
+    // head is now changed to node 50
+    *head_ref = kthNode->next;
+
+    // change next of kth node to NULL
+    // next of 40 is now NULL
+    kthNode->next = NULL;
+}
+
+/* UTILITY FUNCTIONS */
+/* Function to push a node */
+void push (struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node =
+        (struct node*) malloc(sizeof(struct node));
+
+    /* put in the data  */
+    new_node->data  = new_data;
+
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);
+
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+/* Function to print linked list */
+void printList(struct node *node)
+{
+    while (node != NULL)
+    {
+        printf("%d  ", node->data);
+        node = node->next;
+    }
+}
+
+/* Drier program to test above function*/
+int main(void)
+{
+    /* Start with the empty list */
+    struct node* head = NULL;
+
+    // create a list 10->20->30->40->50->60
+    for (int i = 60; i > 0; i -= 10)
+        push(&head, i);
+
+    printf("Given linked list \n");
+    printList(head);
+    rotate(&head, 4);
+
+    printf("\nRotated Linked list \n");
+    printList(head);
+
+    return (0);
+}
+ Output: Given linked list
+10  20  30  40  50  60
+Rotated Linked list
+50  60  10  20  30  40 Time Complexity: O(n) where n is the number of nodes in Linked List. The code traverses the linked list only once. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. Himanshu Dagar Can refer to below link For the above question http://ideone.com/Q3CQDS neelabhsingh void rotateBY_K_node(struct node * *root,int k) { struct node * start,*end,*temp; int k; start=end=*root; // using end read end of the linked list while(end->next!=NULL) { end=end->next; } // Now remove the starting node from the root and put at it in the end while(inext=start; end=start; start=start->next; end->next=NULL } *head=*start } Time complexity -O(n) space Complexity- O(1) Antariksh Srivastava Runs in O(n) linear time. Please check for any optimization. void rotate(struct node **q,int num) { int i=0; struct node *temp=*q; struct node *r; for(i=1;ilink; } r=temp->link; temp->link=NULL; temp=*q; *q=r; while(r->link!=NULL) { r=r->link; } r->link=temp; } Nitin Pallindrome void rotate_list_acw(struct list** head,int k)// COUNTER CLOCK WISE { struct list* tail; struct list* temp; int i=1; tail=(*head); while(tail->next) { tail=tail->next; } for(;inext; temp->next=NULL; tail->next=temp; tail=temp; } } AND FOR CLOCKWISE K-TIMES –ROTATE ANTI CLOCK N-K TIMES WHERE N IS THE LENGHT OF THE LIST….. Vivek #include “stdio.h” #include “stdlib.h” typedef struct node { int data; struct node* next; }nd; void rotate(nd **head, int k) { nd *cur = *head, *tail; while(cur->next ) cur=cur->next; tail = cur; tail->next = *head; while(k>0) { (*head)=(*head)->next; tail=tail->next; k–; } tail->next=NULL; } denial @geeksforgeeks Here is a little improvement to your code. My code traverses the list only once and finds both tail & kth node together.  
+// Program to rotate a linked list counter clock wise
+#include <stdio.h>
+#include <stdlib.h>
+/* Link list node */
+struct lnode
+{
+	int data;
+	struct lnode *next;
+};
+typedef struct lnode node;
+/* function to create new linked list node */
+node *newNode(int data)
+{
+	node *temp=(node *)malloc(sizeof(node));
+	temp->data=data;
+	temp->next=NULL;
+	return temp;
+}
+/* Function to insert new node to linked list */
+void insert(node **head,int data)
+{
+	if(*head==NULL)
+		*head=newNode(data);
+	// new node is added to front of the list
+	else
+	{
+		node *temp=newNode(data);
+		temp->next=(*head);
+		*head=temp;
+	}
+}
+/* Function to print linked list */
+void print(node *head)
+{
+	node *temp=head;
+	while(temp)
+	{
+		printf("%d ",temp->data);
+		temp=temp->next;
+	}
+}
+// function to roate a linked list counter-clock 
+void rotatekNode(node **head,int k)
+{
+	// if k=0 then no need to change
+	if(k==0)
+		return;
+		
+	node *kthNode=(*head),*tail=(*head);
+	
+	//traverse the list for getting tail and kth node
+	for(int i=1;tail->next&&kthNode;i++)
+	{
+		if(i<k)
+			kthNode=kthNode->next;
+		tail=tail->next;
+	}
+	
+	// if k is equal or less then list's length
+	if(kthNode==NULL||kthNode->next==NULL)
+		return;
+
+	// Store head of original list		
+	node *oldHead=(*head);
+	// Updata head of list to point to (k+1)th node
+	*head=kthNode->next;
+	// point tail of original list to point original head of the list
+	tail->next=oldHead;
+	// updata kth node's next pointer to NULL
+	kthNode->next=NULL;
+	
+}
+int main()
+{
+	/* Start with the empty list */
+	node *head=NULL;
+	/* Create list */
+	insert(&head,18);
+	insert(&head,6);
+	insert(&head,4);
+	insert(&head,9);
+	insert(&head,11);
+	insert(&head,2);
+	insert(&head,3);
+	insert(&head,12);
+	// printing the list
+	printf("Given linked list \n");
+	print(head);
+	
+	// Calling rotate function
+	int k=3;
+	rotatekNode(&head,k);
+	
+	// Print list after rotation
+	printf("\n\nRotated List\n");
+	print(head);
+	return 0;
+}
+ denial Sorry ! my bad. Your solution also does the same. denial @geeksforgeeks Just little improvement to your solution. Here is my solution which traverse the list only once and finds tail and kth node.  
+// Program to rotate a linked list counter clock wise
+#include <stdio.h>
+#include <stdlib.h>
+/* Link list node */
+struct lnode
+{
+	int data;
+	struct lnode *next;
+};
+typedef struct lnode node;
+/* function to create new linked list node */
+node *newNode(int data)
+{
+	node *temp=(node *)malloc(sizeof(node));
+	temp->data=data;
+	temp->next=NULL;
+	return temp;
+}
+/* Function to insert new node to linked list */
+void insert(node **head,int data)
+{
+	if(*head==NULL)
+		*head=newNode(data);
+	// new node is added to front of the list
+	else
+	{
+		node *temp=newNode(data);
+		temp->next=(*head);
+		*head=temp;
+	}
+}
+/* Function to print linked list */
+void print(node *head)
+{
+	node *temp=head;
+	while(temp)
+	{
+		printf("%d ",temp->data);
+		temp=temp->next;
+	}
+}
+// function to roate a linked list counter-clock 
+void rotatekNode(node **head,int k)
+{
+	// if k=0 then no need to change
+	if(k==0)
+		return;
+		
+	node *kthNode=(*head),*tail=(*head);
+	
+	//traverse the list for getting tail and kth node
+	for(int i=1;tail->next&&kthNode;i++)
+	{
+		if(i<k)
+			kthNode=kthNode->next;
+		tail=tail->next;
+	}
+	
+	// if k is equal or less then list's length
+	if(kthNode==NULL||kthNode->next==NULL)
+		return;
+
+	// Store head of original list		
+	node *oldHead=(*head);
+	// Updata head of list to point to (k+1)th node
+	*head=kthNode->next;
+	// point tail of original list to point original head of the list
+	tail->next=oldHead;
+	// updata kth node's next pointer to NULL
+	kthNode->next=NULL;
+	
+}
+int main()
+{
+	/* Start with the empty list */
+	node *head=NULL;
+	/* Create list */
+	insert(&head,18);
+	insert(&head,6);
+	insert(&head,4);
+	insert(&head,9);
+	insert(&head,11);
+	insert(&head,2);
+	insert(&head,3);
+	insert(&head,12);
+	// printing the list
+	printf("Given linked list \n");
+	print(head);
+	
+	// Calling rotate function
+	int k=3;
+	rotatekNode(&head,k);
+	
+	// Print list after rotation
+	printf("\n\nRotated List\n");
+	print(head);
+	return 0;
+}
+ Balthazar #include<iostream> using namespace std; class node { node *next; int data; public: void insert(); void display(); void rotate(); node() { next=NULL; data=0; } }*start,*end,*temp; void node::insert() { int n; cout<<"Enter size of linked list"<<endl; cin>>n; while(n!=0) { n–; temp=new node(); cout<<"enter value"<<endl; cin>>temp->data; temp->next=NULL; if(start==NULL) { start=temp; end=temp; } else { end->next=temp; end=end->next; } } } void node::display() { temp=start; while(temp!=NULL) { cout<<temp->data<<endl; temp=temp->next; } } void node:: rotate() { int n; cout<<"ENTER N TO ROTATE:\n"; cin>>n; end->next=start; while(n!=0) { end=end->next; start=start->next; n–; } end->next=NULL; } int main() { node p; p.insert(); cout<<endl<<endl<<"YOU ENTERED"<<endl; p.display(); cout<<endl<<"ROTATING NOW"<<endl; p.rotate(); p.display(); return 0; } Kush Pandey this program is running fine  
+#include<stdio.h>
+#include<conio.h>
+#include<stdlib.h>
+struct linked
+{
+    int data;
+    struct linked *next;
+};
+typedef struct linked node;
+void insert(node *start,int no);
+void display(node *start);
+node *deletion(node *start);
+node *search(node *start,int del);
+node *rotate(node *start);
+ node *start=0;
+void main()
+{
+ int choice,num;
+
+ do
+ {
+ printf("\nWhat would you like to do ?\n");
+ printf("1- Insertion\n2- Deletion\n3- Display\n4-Rotate\n5- Quit\n");
+ scanf("%d",&choice);
+ if(choice==1)
+ {
+     printf("Enter the numbers\nTo finish entering the numbers enter the number -1\n");
+     while(1)
+     {
+      scanf("%d",&num);
+      if (num==-1)
+      break;
+
+     if(start!=0)
+        insert(start,num);
+
+     else
+     {
+        start=(node*)malloc(sizeof(node));
+        start->data=num;
+        start->next=0;
+     }
+     }
+ }
+     else if(choice==2)
+         start=deletion(start);
+     else if(choice==3)
+     display(start);
+     else if(choice==4)
+     start=rotate(start);
+     else if(choice==5)
+     exit(0);
+     else
+     printf("Invalid choice\n");
+ }while(choice!=5);
+}
+void insert(node*start,int entry)
+{
+    if(start->next==0)
+    {
+    start->next=(node*)malloc(sizeof(node));
+    start->next->data=entry;
+    start->next->next=0;
+    return ;
+    }
+    else
+        insert(start->next,entry);
+
+}
+void display(node *start)
+{
+    if(start!=0)
+    {
+        printf("%d ",start->data);
+        display(start->next);
+    }
+    return;
+}
+node *deletion(node *start)
+{
+    node *temp,*loc;
+    int del;
+    printf("Enter the number to be deleted\n");
+    scanf("%d",&del);
+    if(start->data==del)
+    {
+        temp=start->next;
+        free(start);
+        start=temp;
+    }
+    else
+    {
+        loc=search(start,del);
+        if(loc==0)
+        printf("Number to be deleted is not present\n");
+        else
+        {
+            temp=loc->next->next;
+            free(loc->next);
+            loc->next=temp;
+        }
+    }
+    return(start);
+}
+node *search(node *start,int del)
+{
+    if(start->next->data==del)
+    return(start);
+    else if(start->next->next==0)
+    return(0);
+    else
+    search(start->next,del);
+
+}
+node  *rotate(node *start)
+{
+    int rot,c=0;
+    node *cur=start,*temp,*ptr=start;
+    printf("In rotate");
+    printf("How much rotation do you want to have?\n");
+    scanf("%d",&rot);
+    while(ptr->next!=0)
+    {
+    //    printf("%d",ptr->data);
+        ptr=ptr->next;
+    }
+  //  printf("%d",ptr->data);
+    ptr->next=start;
+
+    while(cur!=0)
+    {
+        c++;
+        if(c==rot)
+        break;
+        cur=cur->next;
+
+    }
+    temp=cur->next;
+    cur->next=0;
+    start=temp;
+    return(start);
+}
+
+ viru #include struct node { int info; struct node *link; }; struct node *beg(struct node *start ,int data) { struct node *tmp; tmp=(struct node *)malloc(sizeof(struct node)); tmp->info=data; tmp->link=start; start=tmp; return start; } struct node *end(struct node *start ,int data) { struct node *tmp,*p; tmp=(struct node *)malloc(sizeof(struct node)); tmp->info=data; p=start; while(p->link!=NULL) p=p->link; tmp->link=p->link; p->link=tmp; return start; } void dis(struct node *start) { struct node *tmp; tmp=start; while(tmp!=NULL) { printf(“%d “,tmp->info); tmp=tmp->link; } } struct node* rot(struct node *start,int k) { struct node *p,*q,*tmp; p=start; while(–k&&p!=NULL) p=p->link; printf(“current = %d\n”,p->info); tmp=p->link; q=tmp; p->link=NULL; while(q->link!=NULL) q=q->link; q->link=start; start=tmp; } main() { int ch,data,n,d,k; struct node *start=NULL; while(1){ printf(“enter choice\n”); scanf(“%d”,&ch); { switch(ch) { case 1: { printf(“enter data\n”); scanf(“%d”,&data); start = beg(start,data); break; } case 2: { printf(“enter data\n”); scanf(“%d”,&data); start = end(start,data); break; } case 3: { dis(start); break; } case 9: { printf(“enter key\n”); scanf(“%d”,&k); start = rot(start,k); break; } }}} }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Shubham Sharma  
+#include <stdio.h>
+#include <stdlib.h>
+ 
+struct state {
+	state * next;
+	int n;
+};
+
+void push(state ** root,state** last, int n) {
+	if(!(*root)) {
+		(*root) = (state *) malloc(sizeof(state));
+		(*root)->next = NULL;
+		(*root)->n = n;
+		*last = *root;
+	} else {
+		(*last)->next = (state *) malloc(sizeof(state));
+		(*last) = (*last)->next;
+		(*last)->n = n;
+		(*last)->next = NULL;
+	}
+}
+int countNodes(state *root) {
+	int cnt = 0;
+	while(root) {
+		cnt++;
+		root = root->next;
+	}
+	return cnt;
+}
+void traverse(state *root) {
+	while(root) {
+		printf("%d ", root->n);
+		root = root->next;
+	}
+	printf("\n");
+}
+void rotate(state** root, state** last, int k) {
+	int n = countNodes(*root);
+	state *ptr = *root;
+
+	if(k == 0)
+		return;
+
+	if(k > n) 
+		k = k%n;
+
+	
+	for (int i = 1;i < k; i++) 
+		ptr = ptr->next;
+
+	(*last)->next = *root;
+
+	(*root) = ptr->next;
+
+	ptr->next = NULL;
+
+
+
+}
+int main() 
+{
+	state *root = NULL, *last = NULL;
+	push(&root,&last,  1);
+	push(&root,&last, 2);
+	push(&root,&last, 3);
+	push(&root,&last, 4);
+	push(&root,&last, 5);
+	push(&root,&last, 6);
+	
+	traverse(root);
+	rotate(&root, &last, 0);
+	traverse(root);
+}
+ kaushik  
+
+//kaushik sahu
+
+#include<stdio.h>
+
+typedef struct linklist
+{
+      int num;
+      struct linklist * next;      
+}node;  
+
+node *insert(node * head,int data)
+{
+    node * temp,*p;
+    temp = (node *)malloc(sizeof(node));
+    temp->num = data;
+    temp->next = NULL;
+    p = head;
+    if(head == NULL)
+        return temp;
+    else
+    {
+        while(p->next != NULL)
+            p = p->next;
+        p->next = temp;
+        return head;
+    }     
+}
+
+void display(node * head)
+{
+    if(head == NULL){} 
+   
+    else
+    {
+        printf("  %d",head->num);
+        display(head->next);    
+    }     
+}
+
+node *rotate(node *head,int k)
+{
+    node *p;
+    int count=1,i=1;
+    p = head;
+    
+    while(p->next != NULL)
+    {
+        p = p->next;
+        count++;
+    }
+    p->next = head;
+    
+    while(i++ < count-k)
+        head = head->next;
+    p = head->next;
+    head->next = NULL;
+    return p;
+}
+
+int main (void) 
+{
+    
+    node * head = NULL;
+    head = insert(head,5);
+    head = insert(head,0);
+    head = insert(head,2);
+    head = insert(head,4);
+    head = insert(head,8);
+    head = insert(head,1);
+    head = insert(head,7);
+    head = insert(head,6);
+    printf("\n Before Shifting :: \n\n");
+    display(head);
+    
+    head = rotate(head,5);
+    printf("\n\n After Shifting :: \n\n");
+    display(head);
+    
+    
+    return 0;
+}
+
+ zyzz my logic  
+
+#include<stdio.h>
+#include<stdlib.h>
+/*rotate a list counter clockwise 10 20 30 40 50 60
+k=1  20 30 40 50 60 10
+k=2  30 40 50 60 10 20
+k=4  50 60 10 20 30 40
+*/
+struct node{
+int data;
+struct node *next;
+}*head,*temp,*newhead,*n5;
+
+
+// insertion
+void add(int n){
+if(head==NULL){
+head=(struct node*)malloc(sizeof(struct node))  ;
+head->data=n;
+head->next=NULL;
+temp=head;
+}
+
+else{
+
+
+  temp->next=(struct node*)malloc(sizeof(struct node))  ;
+  temp=temp->next;
+    temp->data=n;
+    temp->next=NULL;
+}
+}
+// end insertion
+//start display
+void display(struct node *mov){
+
+while(mov!=NULL){
+    // printf("add is = %u \n",mov);  //to dispaly address of linked list
+
+    printf("%d->",mov->data);
+    mov=mov->next;
+}
+
+printf("\n");
+}
+//end display
+int len(struct node *t){
+int count=0;
+while(t!=NULL){
+
+  count++;
+  t=t->next;
+}
+return count;
+}
+
+void rotate(struct node *t,int k){
+
+struct node *p,*end;
+int i;
+p=head;
+for(i=1;i<k;i++){
+ p=p->next;
+}
+printf("p->data%d\n",p->data);
+end=head;
+for(i=1;i<len(head);i++){
+ end=end->next;
+}
+printf("end->data%d\n",end->data);
+newhead=p->next;
+end->next=t;
+p->next=NULL;
+
+}
+
+int main(){
+    int n,n1,n2;
+int ch;
+printf("enter 1 to add\n");
+scanf("%d",&ch);
+   while(ch==1){
+   printf("enter no to be entered \n");
+           scanf("%d",&n);
+         add(n);
+         printf("enter 1 to add\n");
+scanf("%d",&ch);
+   }
+  display(head);
+
+printf("enter k to rotate \n");
+scanf("%d",&n1);
+
+
+rotate(head,n1);
+printf("after rotating \n");
+display(newhead);
+return 0;}
+
+
+
+
+
+ hunter void rotatektimes(struct node *first,int k) { int i; struct node *p,*q,*r; p=first; if(k==0); else { for(i=0;inext; } r=p; if(p==NULL); else{ while(p->next) p=p->next; p->next=first; q->next=NULL; first=r;}} //display(first); } Jup How does the solution handle a case like “10 20 30 40 50 60 70″ k=4? 70->next = 10 head_ref = 50 40->next = NULL where did 60 go? rajasuba  
+/* Paste your code here (You may delete these lines if not writing code) */
+ #include #include using namespace std; struct list { int data; struct list *next; }*head=NULL; int ins(int n) { struct list *temp,*temp1; if(!head) { head=new list; head->data=n; head->next=NULL; } else { temp=head; while(temp->next!=NULL) temp=temp->next; temp1=new list; temp1->data=n; temp->next=temp1; temp1->next=NULL; } return 0; } int display() { struct list *temp=head; while(temp) { printf(” %d”,temp->data); temp=temp->next; } return 0; } int rotate_counterclockwise(int k) { struct list *temp=head,*next; while(–k) temp=temp->next; next=temp->next; temp->next=NULL; temp=next; while(temp->next) temp=temp->next; temp->next=head; head=next; return 0; } int main() { int i,k,n; printf(“enter the number of values to be inserted in the list:\n”); scanf(“%d”,&n); for(i=0;i<n;i++) { scanf("%d",&k); ins(k); } printf("enter the k value:\n"); scanf("%d",&k); rotate_counterclockwise(k); display(); return 0; } ritesh kasat #include #include typedef struct node { int data; struct node* next; }NODE; NODE* mknode(int data) { NODE* node=(NODE*)malloc(sizeof(NODE)); node->data=data; return node; } void print(NODE* head) { while(head!=NULL) { printf(” %d “,head->data); head=head->next; } } void transform(int k,NODE** head) { NODE* temp1=*head; NODE* temp2=*head; NODE* temp3=*head; int i; while(temp3->next!=NULL) {temp3=temp3->next;} //to reach end of original node temp3->next=temp2; //to connect end of node to intial head for(i=0;inext;}//to shift head pointer to new position printf(“head data=%d”,(*head)->data); for(i=1;inext;}//to make previous pointer null temp1->next=NULL; } int main() { NODE* head=mknode(10); NODE* n2=mknode(20); NODE* n3=mknode(30); NODE* n4=mknode(40); NODE* n5=mknode(50); NODE* n6=mknode(60); head->next=n2; n2->next=n3; n3->next=n4; n4->next=n5; n5->next=n6; n6->next=NULL; int k; printf(“enter value for k:\n”); scanf(“%d”,&k); print(head); transform(k,&head); printf(“\nhead data in main=%d\n”,head->data); print(head); } Arindam #include #include #include struct node{ int info; struct node *link; }; struct node * addtoempty(struct node *,int); struct node * addtoend(struct node *,int); void display(struct node *); struct node *rotate(struct node*,int,int); void main(){ clrscr(); struct node *start=NULL; int n,d,k; printf(“\n Enter the number of nodes…”); scanf(“%d”,&n); printf(“\nenter the elements….”); scanf(“%d”,&d); start=addtoempty(start,d); for(int i=2;iinfo=d; temp->link=NULL; start=temp; return start; } struct node *addtoend(struct node *start,int d){ struct node *p=start; struct node *temp=(struct node *)malloc(sizeof(struct node)); temp->info=d; while(p->link!=NULL) p=p->link; p->link=temp; temp->link=NULL; return start; } void display(struct node *start){ printf(“\ndisplaying the elements…..”); struct node *p=start; while(p!=NULL) { printf(“%3d”,p->info); p=p->link; } } struct node *rotate(struct node*start,int k,int n){ struct node *p=start,*temp=start,*q; int i=1; while(p!=NULL && i<k && klink; i++; } if(p->link!=NULL){ start=p->link; p->link=NULL; q=start; while(q->link!=NULL) q=q->link; q->link=temp; } return start; } Subash Why don’t we make the list to be the circular linked list, and traverse to (n – k)th position from the root node and make the node->right to be the root node and make node->right = NULL ?? Does it change the complexity ?? Subash Its not (n-k)th node, its kth node.. The only change is making the list circular linked list.. Amol Simple yet powerful approach to rotate an array, given in Programming Pearls could be used here.  
+void rotate(Node** list, int k) {
+    reverse(list);
+    Node* rest = NULL;
+    split(list, k, &rest);
+    reverse(list); reverse(rest);
+    append(list, rest);
+}
+
+ YB Another method:- Reverse the linklist from 1 to K Reverse the linklist from K+1 to N And then reverse the whole Linklist.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Amateur_coder very gud algo  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Animesh Pratap Singh IDK y u ppl have so long code….  
+#include "linked_list_library.c"
+
+struct node* rotate(struct node *head, int a)
+{
+    int i=0,k;
+    struct node*mover=head, *prev;
+    while(mover!=NULL)
+    {
+        i++;
+        mover=mover->next;
+    }
+    printf("hello-%d",i);
+    k=i;
+    k=i-a-1;
+    mover=head;
+    while(k--)
+    {
+        mover=mover->next;
+    }
+    prev=mover;
+    mover=mover->next;
+    prev->next=NULL;
+    prev=mover;
+    while(mover->next!=NULL)
+    {
+        mover=mover->next;
+    }
+    mover->next=head;
+    head=prev;
+    return head;
+}
+
+int main()
+{
+    struct node* head= insert(1,NULL);
+    insert(2,head);
+    insert(3,head);
+    insert(4,head);
+    insert(5,head);
+    insert(6,head);
+    display(head);
+    head=rotate(head,5);
+    display(head);
+    return 0;
+}
+
+ vai Does it fail when list length = k? Kartik No, it doesn’t. steve4699 Not sure why everyone’s solution is so long…  
+Node *RotateK(Node *node, int nodeNum, int k)
+{
+   if (node->next == NULL)
+   {
+      node->next = head;
+      return NULL;
+   }
+
+   RotateK(node->next, nodeNum + 1, k);
+
+   if (nodeNum == k)
+      head = node;
+   else if (nodeNum == k - 1)
+      node->next = NULL;
+
+   return head;
+}
+ steve4699 In reading the answer, one difference is that I’m assuming head is a global. Otherwise I can pass it in as a double pointer. Guest can u just give the solution using double pointer.. it will be really help full.. Surendra Good Solution. Raktim #include #include struct node { int data; struct node *next; }; typedef struct node NODE; NODE* rotate(NODE *head,int k) { struct node *ptr,*p; p=head; while(p->next!=NULL) p=p->next; while(k–) { ptr=head; head=head->next; p->next=ptr; ptr->next=NULL; p=p->next; } return head; } void show(NODE *ptr) { while(ptr!=NULL){ printf(” %d”,ptr->data); ptr=ptr->next; } } NODE* insert(int info) { NODE *nw; nw=(struct node*)malloc(sizeof(struct node)); nw->data=info; nw->next=NULL; return nw; } void main() { NODE *head; head=insert(10); head->next=insert(20); head->next->next=insert(30); head->next->next->next=insert(40); head->next->next->next->next=insert(50); head->next->next->next->next->next=insert(60); printf(“\n BEFORE ROTATION..\n”); show(head); printf(“\nAfter Rotation\n”); head=rotate(head,4); show(head); } Shivam midha This code gives wrong answer for k=0. suppose we have a linked list 1->2->3->4. Answer should be 1->2->3->4. But it gives 2->3->4->1.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Kartik Thanks for pointing this out. We have updated the code to handle this case. shivi //shivi testing environment #include using namespace std; class LinkList { private: struct Node { int item; Node *next; Node (int i,Node *x) { item=i; next=x; } }; Node *start; public: LinkList() {start=NULL;} void Add(int k) { Node *p=new Node(k,start); start=p; } void Use(Node *x,int arr[]) { for(int j=0;j<=2;++j) for(int i=0;iitem=j; x=x->next; } } void Sort() { int arr[3]={0}; Node *x=start; while(x!=NULL) { if(x->item==0) arr[0]++; else if(x->item==1) arr[1]++; else if(x->item==2) arr[2]++; x=x->next; } cout<<endl<<arr[0]<<arr[1]<<arr[2]<<endl; x=start;int i; Use(x,arr); } void Print() { Node *x=start; while(x!=NULL) { cout<item<next; } } void rotate(int k) { Node *x=start,*y,*z; for(int i=0;inext; y=x->next;z=x->next; x->next=NULL; while(y->next!=NULL) y=y->next; y->next=start; start=z; } }; int main() { LinkList l; l.Add(60); l.Add(50); l.Add(40); l.Add(30); l.Add(20); l.Add(10); l.Print(); cout<<endl; l.rotate(2); l.Print() ; } Aishwarya There is a bug in rotate function null is being assigned to head pointer. In function rotate, the following lines:  
+.
+.
+.
+
+// change next of kth node to NULL
+    // next of 40 is now NULL
+    kthNode->next = NULL;
+ 
+    // Change head to (k+1)th node
+    // head is now changed to node 50
+    *head_ref = kthNode->next;
+}
+ should be swapped and be like this:  
+
+    // Change head to (k+1)th node
+    // head is now changed to node 50
+    *head_ref = kthNode->next;
+
+// change next of kth node to NULL
+    // next of 40 is now NULL
+    kthNode->next = NULL;
+ 
+}
+
+ GeeksforGeeks @Aishwarya: Thanks for pointing out the bug. The bug was introduced while changing the post to use double pointer as suggested by @anonymous234. We have fixed the bug now. rakeshiiita #include using namespace std; struct node { int info; struct node *next; }*start; void insert(struct node **head,int x) { struct node *p=new node; p->info=x; p->next=(*head); (*head)=p; } void rotate(struct node *head,int k) { struct node *p,*q; p=head; while(–k) p=p->next; q=p->next; start=q; p->next=NULL; while(q->next!=NULL) q=q->next; q->next=head; } void display() { struct node *temp=start; while(temp!=NULL) { cout<info; temp=temp->next; if(temp) cout<“; } } int main() { start=NULL; int k; insert(&start,60); insert(&start,50); insert(&start,40); insert(&start,30); insert(&start,20); insert(&start,10); display(); cout<>k; rotate(start,k); display(); getchar(); return 0; } rakeshiiita #include using namespace std; struct node { int info; struct node *next; }*start; void insert(struct node **head,int x) { struct node *p=new node; p->info=x; p->next=(*head); (*head)=p; } void rotate(struct node *head,int k) { struct node *p,*q; p=head; while(–k) p=p->next; q=p->next; start=q; p->next=NULL; while(q->next!=NULL) q=q->next; q->next=head; } void display() { struct node *temp=start; while(temp!=NULL) { cout<info; temp=temp->next; if(temp) cout<“; } } int main() { start=NULL; int k; insert(&start,60); insert(&start,50); insert(&start,40); insert(&start,30); insert(&start,20); insert(&start,10); display(); cout<>k; rotate(start,k); display(); getchar(); return 0; } anonymous234 Since we are modifying the head of the list, shouldn’t the function signature be  
+/* Paste your code here (You may delete these lines if not writing code) */
+struct node *rotate (struct node **head, int k)
+ instead ? Chiranjeev Kumar  
+/* Paste your code here (You may delete these lines if not writing code) */
+// SumLink
+#include<stdio.h>
+typedef struct node
+{
+    int digit;
+    struct node *next;
+}nodeptr;
+nodeptr* add(nodeptr **head,int n)
+{
+    nodeptr *newnode = malloc(8);
+    newnode->digit=n;
+    newnode->next=NULL;
+    if(!*head)
+    {
+        *head = newnode;
+        return newnode;
+    }
+    nodeptr *temp=*head;
+    while(temp->next)temp=temp->next;
+    temp->next = newnode;
+    return newnode;
+}
+void print(nodeptr *head)
+{
+    while(head)
+    {
+        printf("%d->",head->digit);
+        head = head->next;
+    }
+    printf("NULL\n");
+}
+
+void addition(nodeptr *list1,nodeptr *list2,nodeptr **sum)
+{
+    nodeptr *head = *sum,*next1,*next2,*pre1,*pre2,*pre,*p,*x,*y;
+    head = malloc(8);
+    head->digit =0;
+    head->next=NULL;*sum=head;
+    int a,b,c,s=0,carry=0;
+    while(list1)
+    {
+        if(list1->next)
+        {
+            next1 = list1->next;
+            next2 = list2->next;
+
+        }
+        if(!list1->next)
+        {
+            carry =0;
+            add(sum,(list1->digit+list2->digit)%10);
+            return;
+        }
+        a=list1->digit;
+        b=list2->digit;
+        c=a+b;
+        if(next1->digit+next2->digit<9)
+        {
+            p = add(sum,c%10);
+
+        }
+        else if(next1->digit+next2->digit > 9)
+        {
+            c+=1;
+
+            p=add(sum,c%10);
+            if(!head->next)
+            {
+                head->next = *sum;printf("%d\n",*sum);
+                *sum=head;
+                if(c>9)
+                head->digit=1;
+            }
+        }
+        else
+        {
+            pre1=list1->next;
+            pre2=list2->next;
+            p=add(sum,c%10);
+            pre=p;
+            if(!pre1->next)
+               {
+                   add(sum,9);return;
+               }
+            if(pre1->digit +pre2->digit==9)
+            {
+                while(pre1->digit +pre2->digit==9)
+                {
+                //pre->digit = (pre->digit+1)%10;
+                p=add(sum,9);
+                if(pre1->next==NULL)
+                {
+                    list1=pre1;
+                    list2=pre2;
+                     break;
+                }
+                x=pre1;
+                y=pre2;
+                pre2=pre2->next;
+                pre1=pre1->next;
+
+                }
+                if(pre1->next && pre1->digit +pre2->digit<9)
+                {
+                    list1=x;
+                    list2=y;
+                }
+                else
+                {
+                    while(pre!=p->next)
+                    {
+                        pre->digit = (pre->digit+1)%10;
+                        pre=pre->next;
+                    }
+                    if((*sum)->next->digit==0) (*sum)->digit=1;
+                    list1=x;
+                    list2=y;
+                }
+
+            }
+        }
+        list1=list1->next;
+        list2=list2->next;
+    }
+}
+int main()
+{
+    int n;
+    nodeptr *list1=NULL,*list2=NULL,*sum=NULL;
+    add(&list1,2);add(&list1,6);add(&list1,4);
+    add(&list1,8);add(&list1,7);add(&list1,5);
+    printf("List1::\t");
+    print(list1);
+    add(&list2,7);add(&list2,3);add(&list2,5);
+    add(&list2,1);add(&list2,6);add(&list2,4);
+    printf("List2::\t");
+    print(list2);
+    addition(list1,list2,&sum);
+    printf("Sum::\t");
+    print(sum);
+}
+
+ P K Jana Nice code… Chiranjeev..  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Guest Guyz my program too runs in O(n) linear time.. Only one traversal of the list… Please check for any optimization. void rotate(struct node **q,int num) { int i=0; struct node *temp=*q; struct node *r; for(i=1;ilink; } r=temp->link; temp->link=NULL; temp=*q; *q=r; while(r->link!=NULL) { r=r->link; } r->link=temp; } Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

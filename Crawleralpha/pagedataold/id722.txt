@@ -1,0 +1,360 @@
+Check if each internal node of a BST has exactly one child - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Check if each internal node of a BST has exactly one child Given Preorder traversal of a BST, check if each non-leaf node has only one child. Assume that the BST contains unique entries. Examples 
+Input: pre[] = {20, 10, 11, 13, 12}
+Output: Yes
+The give array represents following BST. In the following BST, every internal
+node has exactly 1 child. Therefor, the output is true.
+        20
+       /
+      10
+       \
+        11
+          \
+           13
+           /
+         12
+ In Preorder traversal, descendants (or Preorder successors) of every node appear after the node. In the above example, 20 is the first node in preorder and all descendants of 20 appear after it. All descendants of 20 are smaller than it. For 10, all descendants are greater than it. In general, we can say, if all internal nodes have only one child in a BST, then all the descendants of every node are either smaller or larger than the node. The reason is simple, since the tree is BST and every node has only one child, all descendants of a node will either be on left side or right side, means all descendants will either be smaller or greater. Approach 1 (Naive) This approach simply follows the above idea that all values on right side are either smaller or larger. Use two loops, the outer loop picks an element one by one, starting from the leftmost element. The inner loop checks if all elements on the right side of the picked element are either smaller or greater. The time complexity of this method will be O(n^2). Approach 2 Since all the descendants of a node must either be larger or smaller than the node. We can do following for every node in a loop. 1. Find the next preorder successor (or descendant) of the node. 2. Find the last preorder successor (last element in pre[]) of the node. 3. If both successors are less than the current node, or both successors are greater than the current node, then continue. Else, return false. 
+#include <stdio.h>
+
+bool hasOnlyOneChild(int pre[], int size)
+{
+    int nextDiff, lastDiff;
+
+    for (int i=0; i<size-1; i++)
+    {
+        nextDiff = pre[i] - pre[i+1];
+        lastDiff = pre[i] - pre[size-1];
+        if (nextDiff*lastDiff < 0)
+            return false;;
+    }
+    return true;
+}
+
+// driver program to test above function
+int main()
+{
+    int pre[] = {8, 3, 5, 7, 6};
+    int size = sizeof(pre)/sizeof(pre[0]);
+    if (hasOnlyOneChild(pre, size) == true )
+        printf("Yes");
+    else
+        printf("No");
+    return 0;
+}
+ Output:  Yes Approach 3 1. Scan the last two nodes of preorder & mark them as min & max. 2. Scan every node down the preorder array. Each node must be either smaller than the min node or larger than the max node. Update min & max accordingly. 
+#include <stdio.h>
+
+int hasOnlyOneChild(int pre[], int size)
+{
+    // Initialize min and max using last two elements
+    int min, max;
+    if (pre[size-1] > pre[size-2])
+    {
+        max = pre[size-1];
+        min = pre[size-2]):
+    else
+    {
+        max = pre[size-2];
+        min = pre[size-1];
+    }
+
+
+    // Every element must be either smaller than min or
+    // greater than max
+    for (int i=size-3; i>=0; i--)
+    {
+        if (pre[i] < min)
+            min = pre[i];
+        else if (pre[i] > max)
+            max = pre[i];
+        else
+            return false;
+    }
+    return true;
+}
+
+// Driver program to test above function
+int main()
+{
+    int pre[] = {8, 3, 5, 7, 6};
+    int size = sizeof(pre)/sizeof(pre[0]);
+    if (hasOnlyOneChild(pre,size))
+        printf("Yes");
+    else
+        printf("No");
+    return 0;
+}
+ Output: Yes Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. saransh cant we just solve it using a queue? bool one_child(node *root,queue q) if(root==NULL) return false else addqueue(root); int t=0; while(sizequeue(q)-t==1&&p!=NULL){ t=sizequeue(q); p->left?addqueue(p->left),p=p->left:addqueue(p->right),p=p->right;} if(sizequeue(q)-t!=1) return false; else return true; Bharath Here is one of the simple method using pre-order traversal int hasOnlyOneChild(struct node * root) { if (root == NULL) return true; if ( root->left != NULL && root->right != NULL) return false; int lres = hasone(root->left); int rres = hasone(root->right); return (lres && rres); } Jayanth U r given the preorder traversal of the BST in an array….Not the root of the tree Vijay Apurva if no of height is equal to no of nodes then return true Sourabh Upadhyay Perform level order traversing and if the number of levels is equal to the number of nodes then return true else false. vanathi In Method 3 fails when I give PreOrder input as [8,19,21,20] It return true instead of false. Correct me if I wrong.  
+for(int i=size-3; i>=0; i--)
+    {
+        if (pre[i] < min)
+            min = pre[i];
+        else if (pre[i] > max)
+            max = pre[i];
+        else
+            return false;
+    }
+    return true;
+ coder It should return true and that’s what it is giving. your tree would be- 8 \ 19 \ 21 / 20 vanathi Thanks you so much . got it. aspire  
+#include<stdio.h>
+#include<stdlib.h>
+#include<stdbool.h>
+#include<queue>
+using namespace std;
+typedef struct tree
+{
+    int data;
+    struct tree *left,*right;
+} *Node;
+
+bool hasOneChild(int a[],int n)
+{
+    if(n<3)
+        return true;
+    int i;
+    for(i=0;i<=n-3;i++)
+    {
+        if(a[i]>a[i+1]&&a[i]<a[i+2])
+            return false;
+    }
+    return true;
+
+}
+
+int main()
+{
+    Node root=NULL;
+    int pre[] = {8, 3, 5,7,6};
+    int size = sizeof(pre)/sizeof(pre[0]);
+
+    if(hasOneChild(pre,size))
+        printf("True\n");
+    else
+        printf("False\n");
+
+    return 0;
+}
+
+ aspire I am comparing the current array element to the next two array elements. Please correct me if i am wrong. I am able to get through all the test cases possible.  
+#include<stdio.h>
+#include<stdlib.h>
+#include<stdbool.h>
+#include<queue>
+using namespace std;
+typedef struct tree
+{
+    int data;
+    struct tree *left,*right;
+} *Node;
+
+bool hasOneChild(int a[],int n)
+{
+    if(n<3)
+        return true;
+    int i;
+    for(i=0;i<=n-3;i++)
+    {
+        if(a[i]<a[i+1]&&a[i]>a[i+2])
+            return false;
+    }
+    return true;
+
+}
+
+int main()
+{
+    Node root=NULL;
+    int pre[] = {8, 3, 5,7,6};
+    int size = sizeof(pre)/sizeof(pre[0]);
+
+    if(hasOneChild(pre,size))
+        printf("True\n");
+    else
+        printf("False\n");
+
+    return 0;
+}
+
+ darkpassenger clearly method-2 is not working for many cases like int pre[] = {20, 10, 21, 13, 12}; its printing “YES” but o/p should be “NO”. plz remove that. kartik The example given by you is not even a valid preorder traversal of BST. Try to construct the BST from given preorder traversal. Please correct me if I am wrong. pranjalgupta A better solution would be to update range after traversing each element of an array. 20, 10, 11, 13, 12 range: int_min and int_max Index 0: since next element is smaller than 20, new range is int_min and 20. Index 1: since next element is larger than 10, r: 10 and 20. and so on.. if any element falls outside the derived range, the ans is no. The proof of the algo given by g4g is not clear yet.. logic_bomber In second approach the loop should run only n-1 times since you are accessing adjacent element in each iteration.(In this case in last iteration it would refer to pre[size] which is invalid) GeeksforGeeks @logic_bomber: Thanks for pointing this out. We have updated the loop termination condition. Keep it up! rohit @admin:check out the 2nd approach its wrong..!! consider for input= pre[]={20,10,21,12} its giving yes.. Ankit Because this is not valid preorder traversal… read the problem statement …  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Aadarsh 20,10,11,13,12 start at 20. check for i+! and i+2th element. If both greater or both less than current (20) then continue with next element(10) and check for the same, else break and print “No” O(n) complexity, O(1) space.  
+void checkIfInternalNodeIsBST(int *arr,int size)
+{
+    int i,flag=0;
+    for(i=0;i<size-2;i++)
+    {
+        if((arr[i+1] >=arr[i] && arr[i+2] >= arr[i]) || (arr[i+1] <= arr[i] && arr[i+2] <= arr[i])) continue;
+        else {flag=1;break;}
+    }
+    if(flag == 1) cout <<"No" << endl;
+    else cout << "Yes" << endl;
+}
+/* Paste your code here (You may delete these lines if not writing code) */
+ zoom i wonder why cant we just take the height of the tree and compare it with number of nodes…  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Aadarsh I guess approach is correct, but that would include the time complexity for building the tree with the given elements, which would be O(nlogn). It can be solved by traversal of the array in O(n) time. aygul Here is an easy to follow c# solution. Any Comments ?  
+public static bool IsBSTOneChilded(int[] preOrder)
+{
+    //a BST  upto two nodes is considered as single childed
+    if (preOrder.Length <= 2) return true;
+
+    int curMax = int.MaxValue, curMin = int.MinValue;
+    for (int i = 1; i < preOrder.Length; i++)
+    {
+        //if previous node was grater, this must be a left child.
+        //remaining elements must be less than the previous element.
+        if (preOrder[i] < preOrder[i - 1])
+            curMax = preOrder[i - 1];
+        //else previous node was less, this must be a right child.
+        //remaining elements must be grater than the previous element.
+        else
+            curMin = preOrder[i - 1];
+        //if current element is not in found range return false 
+        if (!(curMin < preOrder[i] && preOrder[i] < curMax))
+            return false;
+    }
+    return true;
+}
+ Aadarsh  
+/* Paste your code here (You may delete these lines if not writing code) */
+bool check(int *arr, int n)
+{
+    if(n == 1 || n ==2) return true;
+    int flag = 0;
+    for(i=0;i<n-2;i++)
+    {
+        val = arr[i];
+        val1 = arr[i+1];
+        val2 = arr[i+2];
+        if(val1 > val && val2 > val) continue;
+        else if(val1<val && val2 < val) continue;
+        else {flag = 1;break;}
+    }
+    if(flag == 1) return false;
+    else return true
+ Amit 1. Take Inorder traversal which is the sorted order. Loop int i over pre-order array if(pre[i].value == inorder[i].value)|| (pre[i].value == inorder[length-1].value) remove element from inorder and preorder continue; else return not BST with single child; aygul even if you can run your loop somehow, sorting the given preorder array and keeping it would require O(n*log (n)) running time and O(n) space. This is far away from optimal solution Rishabh Shukla 20,10,11,13,12 x,y,z if, x>y && z>y && z>x then return false… Run this window for all triplets… time comlpexity: O(n) rahul sihag  
+int hasOnlyOneChild(int *a,int n)
+{
+
+        int small=-1,big=-1,i;
+        for(i=0;i<n;i++)
+        {
+                if(a[i]>big && big!=-1 || a[i]<small && small!=-1)
+                        return 0;
+                if(a[i+1]<a[i])
+                        big=a[i];
+                else if(a[i+1]>a[i])
+                        small=a[i];
+        }
+        return 1;
+
+}
+
+ Dipesh Can this be done if only inorder traversal of a tree is given? iictarpit Values:20 10 11 13 12 Max: +inf 20 20 20 13 Min: -inf -inf 10 11 11 We just need to maintain the max and min value at all the times. We will start with +infinity and -infinity in the start. if we see decrease in value, we know that new node has formed the left child so we will update max value. if we see increase in value we will update min value. At any point of time new value must lie between max and min. Psycho What if the tree contains duplicate value in its right sub-tree. Maverick  
+int check(int k)
+{
+	if(a[k]>a[k+1])
+	{
+		i[k]=0;
+		d[k]=1;
+	}
+	else
+	{
+		i[k]=1;
+		d[k]=0;
+	}
+	if(k>0)
+	{
+		for(int t=0;t<k;t++)
+		{
+			if(i[t]==0)
+			{
+				if(a[k]<a[t])
+					continue;
+				else
+					return 0;
+			}
+			else
+			{
+				if(a[k]>a[t])
+					continue;
+				else
+					return 0;
+			}
+		}
+	}
+	if(k==n-1)
+		return 1;
+	else
+		return check(k+1);
+}
+
+1 is returned if each internal node of BST has exactly one child else 0 is returned.
+ Dipanjan sorry its approach 2 not true Dipanjan Aashish Barnwal your approach true doesn’t work for {8, 3, 10, 7, 6} it returns true while it should return false Aashish Barnwal A BST is not possible with the given preorder[] by you. Try to draw a BST & it will violate the property of BST. Let me know if i am missing anything. Dipanjan  
+i couldn't get the notion why we cannot have a bst with that array, i believe we can have bst with any sequence
+ Dipanjan Sorry i missed the preorder traversal part. Maverick  
+int check(node *temp)
+{
+	if(temp->lchild==NULL && temp->rchild==NULL)
+		return 1;
+	if(temp->lchild!=NULL && temp->rchild!=NULL)
+		return -1;
+	else
+	{
+		if(temp->lchild!=NULL && temp->rchild==NULL)
+		{
+			return check(temp->lchild);
+		}
+		else
+		{
+			return check(temp->rchild);
+		}
+	}
+}
+
+1 is returned if every internal node has one child else -1 will be returned.
+ Maverick Sorry guys…didn’t read the question and just coded randomly Pandharinth int HasOnlyOnlyOneChild(int * arr,int length) { int p = 0,gp=0; for (int i=0; i<length; i++) { if(!( (arr[i] < gp && p gp && p>= gp)) ) { return -1; } gp=p; p=arr[i]; } return 1; } sankarshan modified inorder traversal  
+void singlenode(nodeptr head,int *check)
+{
+     if(head)
+     {
+       singlenode(head->left,check);
+       if(head->left && head->right)
+       *check=1;
+       singlenode(head->right,check);
+       
+     }
+}
+int main(void)
+{
+    struct node *root;
+   int check=0;
+    /*build tree*/
+   singlenode(root,&check);
+  if(!check)printf("has exactly one child.");
+   else printf("doesn't have exactly one child.");
+ sankarshan the solution i gave doesn’t fit with the given question. i have misinterpreted the question. i didn’t consider the i/p is in preordered array. mistake Water int oneChild(Tree *head) { if(head==NULL) return 1; else if(head->left!=NULL && head->right!=NULL) return 0; int n1=oneChild(head->left); if(n1==0) return 0; int n2=oneChild(head->right); if(n2==0) return 0; return 1; } Water int oneChild(Tree *head) { if(head==NULL) return 1; else if(head->left!=NULL && head->right!=NULL) return 0; int n1=oneChild(head->left); if(n1==0) return 0; int n2=oneChild(head->right); if(n2==0) return 0; return 1; } //IF this function return 1=>all internal have one child //IF this function return 0=> not all internal have one child shark123  
+/* Paste your code here (You may delete these lines if not writing code) */
+void preorder(struct node *root,int a[],int i)
+{
+ if(root!=NULL)
+ {
+  a[i]=root->val;
+  if(root->left==NULL && root->right==NULL)
+  {
+    if(root->left!=NULL)
+     preorder(root->left,a,i++);
+    if(root->right!=NULL)
+     preorder(root->right,a,i++);
+  }
+ }
+}
+ Compare both arrays, pre[] and a[], if both are same, then each node have one child only. Srikanth  
+bool hasOnlyOneChild( int pre[], int size )
+{
+    for( int i=0; i<size-2; i++ )
+        if( pre[i+1] < pre[i] && pre[i] < pre[size-1] )
+            return false;
+    return true;
+}
+/* Paste your code here (You may delete these lines if not writing code) */
+ shek8034 Nice code…. Smart work Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

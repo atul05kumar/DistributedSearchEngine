@@ -1,0 +1,206 @@
+Dynamic Programming | Set 5 (Edit Distance) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Dynamic Programming | Set 5 (Edit Distance) Continuing further on dynamic programming series, edit distance is an interesting algorithm. Problem: Given two strings of size m, n and set of operations replace (R), insert (I) and delete (D) all at equal cost. Find minimum number of edits (operations) required to convert one string into another. Identifying Recursive Methods: What will be sub-problem in this case? Consider finding edit distance of part of the strings, say small prefix. Let us denote them as [1…i] and [1…j] for some 1< i < m and 1 < j < n. Clearly it is solving smaller instance of final problem, denote it as E(i, j). Our goal is finding E(m, n) and minimizing the cost. In the prefix, we can right align the strings in three ways (i, -), (-, j) and (i, j). The hyphen symbol (-) representing no character. An example can make it more clear. Given strings SUNDAY and SATURDAY. We want to convert SUNDAY into SATURDAY with minimum edits. Let us pick i = 2 and j = 4 i.e. prefix strings are SUN and SATU respectively (assume the strings indices start at 1). The right most characters can be aligned in three different ways. Case 1: Align characters U and U. They are equal, no edit is required. We still left with the problem of i = 1 and j = 3, E(i-1, j-1). Case 2: Align right character from first string and no character from second string. We need a deletion (D) here. We still left with problem of i = 1 and j = 4, E(i-1, j). Case 3: Align right character from second string and no character from first string. We need an insertion (I) here. We still left with problem of i = 2 and j = 3, E(i, j-1). Combining all the subproblems minimum cost of aligning prefix strings ending at i and j given by E(i, j) = min( [E(i-1, j) + D], [E(i, j-1) + I],  [E(i-1, j-1) + R if i,j characters are not same] ) We still not yet done. What will be base case(s)? When both of the strings are of size 0, the cost is 0. When only one of the string is zero, we need edit operations as that of non-zero length string. Mathematically, E(0, 0) = 0, E(i, 0) = i, E(0, j) = j Now it is easy to complete recursive method. Go through the code for recursive algorithm (edit_distance_recursive). Dynamic Programming Method: We can calculate the complexity of recursive expression fairly easily. T(m, n) = T(m-1, n-1) + T(m, n-1) + T(m-1, n) + C The complexity of T(m, n) can be calculated by successive substitution method or solving homogeneous equation of two variables. It will result in an exponential complexity algorithm. It is evident from the recursion tree that it will be solving subproblems again and again. Few strings result in many overlapping subproblems (try the below program with strings exponential and polynomial and note the delay in recursive method). We can tabulate the repeating subproblems and look them up when required next time (bottom up). A two dimensional array formed by the strings can keep track of the minimum cost till the current character comparison. The visualization code will help in understanding the construction of matrix. The time complexity of dynamic programming method is O(mn) as we need to construct the table fully. The space complexity is also O(mn). If we need only the cost of edit, we just need O(min(m, n)) space as it is required only to keep track of the current row and previous row. Usually the costs D, I and R are not same. In such case the problem can be represented as an acyclic directed graph (DAG) with weights on each edge, and finding shortest path gives edit distance. Applications: There are many practical applications of edit distance algorithm, refer Lucene API for sample. Another example, display all the words in a dictionary that are near proximity to a given word\incorrectly spelled word. 
+// Dynamic Programming implementation of edit distance
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+// Change these strings to test the program
+#define STRING_X "SUNDAY"
+#define STRING_Y "SATURDAY"
+
+#define SENTINEL (-1)
+#define EDIT_COST (1)
+
+inline
+int min(int a, int b) {
+   return a < b ? a : b;
+}
+
+// Returns Minimum among a, b, c
+int Minimum(int a, int b, int c)
+{
+    return min(min(a, b), c);
+}
+
+// Strings of size m and n are passed.
+// Construct the Table for X[0...m, m+1], Y[0...n, n+1]
+int EditDistanceDP(char X[], char Y[])
+{
+    // Cost of alignment
+    int cost = 0;
+    int leftCell, topCell, cornerCell;
+
+    int m = strlen(X)+1;
+    int n = strlen(Y)+1;
+
+    // T[m][n]
+    int *T = (int *)malloc(m * n * sizeof(int));
+
+    // Initialize table
+    for(int i = 0; i < m; i++)
+        for(int j = 0; j < n; j++)
+            *(T + i * n + j) = SENTINEL;
+
+    // Set up base cases
+    // T[i][0] = i
+    for(int i = 0; i < m; i++)
+        *(T + i * n) = i;
+
+    // T[0][j] = j
+    for(int j = 0; j < n; j++)
+        *(T + j) = j;
+
+    // Build the T in top-down fashion
+    for(int i = 1; i < m; i++)
+    {
+        for(int j = 1; j < n; j++)
+        {
+            // T[i][j-1]
+            leftCell = *(T + i*n + j-1);
+            leftCell += EDIT_COST; // deletion
+
+            // T[i-1][j]
+            topCell = *(T + (i-1)*n + j);
+            topCell += EDIT_COST; // insertion
+
+            // Top-left (corner) cell
+            // T[i-1][j-1]
+            cornerCell = *(T + (i-1)*n + (j-1) );
+
+            // edit[(i-1), (j-1)] = 0 if X[i] == Y[j], 1 otherwise
+            cornerCell += (X[i-1] != Y[j-1]); // may be replace
+
+            // Minimum cost of current cell
+            // Fill in the next cell T[i][j]
+            *(T + (i)*n + (j)) = Minimum(leftCell, topCell, cornerCell);
+        }
+    }
+
+    // Cost is in the cell T[m][n]
+    cost = *(T + m*n - 1);
+    free(T);
+    return cost;
+}
+
+// Recursive implementation
+int EditDistanceRecursion( char *X, char *Y, int m, int n )
+{
+    // Base cases
+    if( m == 0 && n == 0 )
+        return 0;
+
+    if( m == 0 )
+        return n;
+
+    if( n == 0 )
+        return m;
+
+    // Recurse
+    int left = EditDistanceRecursion(X, Y, m-1, n) + 1;
+    int right = EditDistanceRecursion(X, Y, m, n-1) + 1;
+    int corner = EditDistanceRecursion(X, Y, m-1, n-1) + (X[m-1] != Y[n-1]);
+
+    return Minimum(left, right, corner);
+}
+
+int main()
+{
+    char X[] = STRING_X; // vertical
+    char Y[] = STRING_Y; // horizontal
+
+    printf("Minimum edits required to convert %s into %s is %d\n",
+           X, Y, EditDistanceDP(X, Y) );
+    printf("Minimum edits required to convert %s into %s is %d by recursion\n",
+           X, Y, EditDistanceRecursion(X, Y, strlen(X), strlen(Y)));
+
+    return 0;
+}
+ — Venki. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: Dynamic Programming Tweet Writing code in comment? Please use ideone.com and share the link here. prashantjha /* int fun(char st1[],char st2[],int i,int j,int h1,int h2) { if((i>h1)&&(j>h2)) return 0; if(i>h1) return (h2-j+1); if(j>h2) return (h1-i+1); if(st1[i]==st2[j]) return (fun(st1,st2,i+1,j+1,h1,h2)); else return min((1+fun(st1,st2,i+1,j,h1,h2)), (1+fun(st1,st2,i,j+1,h1,h2)), (1+fun(st1,st2,i+1,j+1,h1,h2))); } */ prashantjha http://ideone.com/xPfiVA Rushikesh Hi, Here is the code that I could come up with to solve this problem: public class StringTest { public static void main(String[] args) { String str1 = args[0]; String str2 = args[1]; int num = minOper(str1, str2); System.out.println(“Minimum Operations = “+num); } public static int minOper(String str1, String str2) { int len1 = str1.length(); int len2 = str2.length(); int nInsert = 0; int nDelete = 0; int nMod = 0; String small = null; String big = null; if(len1 < len2) { nInsert = len2 – len1; small = str1; big = str2; } else { nDelete = len1 – len2; small = str2; big = str1; } int highestMatchingChars = 0; int matchingChars = 0; char[] smallChars = new char[small.length()+1]; small.getChars(0, small.length(), smallChars, 0); for(int i=0;i<=(nInsert+nDelete);i++) { matchingChars = 0; char[] bigChars = new char[small.length()+1]; big.getChars(i, i+small.length(), bigChars, 0); for(int j=0;j<small.length();j++) { if(smallChars[j] == bigChars[j]) { System.out.println("Small char = "+smallChars[j]+"tBig char = "+bigChars[j]); matchingChars++; } } if(highestMatchingChars < matchingChars) highestMatchingChars = matchingChars; } nMod = small.length()-highestMatchingChars; return (nInsert + nDelete + nMod); } } Please comment if anything missing in the algorithm/code here? hello if same cost for R,D,I operation then output is maximum of given two string lengths – length of longest common subsequence of given two strings. i think so… ? me.deeiip How is it D.P. if recursion is not memoized? what’s in the name Actually in bottom up manner only those table entries are queried which have already been entered. Hence it isn’t called memoization in true terms which is for top down manner. *(T + (i)*n + (j)) = Minimum(leftCell, topCell, cornerCell); This line makes entry to the table for future use . Shimpu Can anyone please elaborate clearly the alignment thing and how the code it working?? Nitesh The Recursive code checks for left and right even when X[m-1]==Y[n-1] , it should simply call the next corner case instead of left and right , will that miss any special case?? Recursive code : # include # include # include # include # include using namespace std; string a,b; int m,n; int minimum(int a, int b, int c) { return(min(min(a,b),c)); } int edist(int i, int j, int count) { if(i==m||j==n) return count; if(a[i]==b[j]) { return(edist(i+1,j+1,count)); } else { int a=edist(i+1,j,count+1); int b=edist(i+1,j+1,count+1); int c=edist(i,j+1,count+1); return(minimum(a,b,c)); } } int main() { a=”SUNDAY”; b=”SATURDAY”; m=a.length(); n=b.length(); printf(“%d”,edist(0,0,0)); } anon This is very bad,lossy description provided here.Its like first written in Chinese and then translated into english.Not expected from the team.There must be some IMAGES showing what you are trying to say. Kaidul Islam Sazal The Dynamic programming portion is buggy. This is the right implementation int EditDistanceDP(char X[], char Y[], int lenX, int lenY) { // T[m][n] int T[lenX + 1][lenY + 1]; for(int i = 0; i <= lenX; i++) T[i][0] = i; for(int i = 0; i <= lenY; i++) T[0][i] = i; for(int i = 1; i <= lenX; i++) { for(int j = 1; j <= lenY; j++) { if (X[i - 1] == Y[j - 1]) T[i][j] = T[i - 1][j - 1]; else T[i][j] = Minimum(T[i - 1][j], T[i][j - 1], T[i - 1][j - 1]) + 1; } } return T[lenX][lenY]; } Chandan Mittal Please tell what does ‘align’ means in the 3 cases above? adit  
+/* Short Implementation */
+
+int EditDistanceDP(char X[], char Y[])
+{
+	        int lx=strlen(X),ly=strlen(Y);
+	        int edit[lx+1][ly+1];
+
+	        for(int i=0;i<=lx;++i)
+	    		edit[i][0]=i;
+		for(int i=0;i<=ly;++i)
+	    		edit[0][i]=i;
+		for(int i=1;i<=lx;++i)
+			for(int j=1;j<=ly;++j)
+				edit[i][j]=min(edit[i-1][j-1]+!(X[i-1]==Y[j-1]),min(edit[i][j-1],edit[i-1][j])+1);
+
+return edit[lx][ly];  
+}
+
+ adit sorry guys for so many posts ! posting for the first time ! aaditt  
+/* Short Implementation */
+
+int EditDistanceDP(char X[], char Y[])
+{
+	        int lx=strlen(X),ly=strlen(Y);
+	        int edit[lx+1][ly+1];
+
+	        for(int i=0;i<=lx;++i)
+	    		edit[i][0]=i;
+		for(int i=0;i<=ly;++i)
+	    		edit[0][i]=i;
+		for(int i=1;i<=lx;++i)
+			for(int j=1;j<=ly;++j)
+				edit[i][j]=min(edit[i-1][j-1]+!(X[i-1]==Y[j-1]),min(edit[i][j-1],edit[i-1][j])+1);
+
+return edit[lx][ly];  
+}
+
+ aaditt  
+/* Short Implementation */
+int EditDistanceDP(char X[], char Y[])
+{
+	        int lx=strlen(X),ly=strlen(Y);
+	        int edit[lx+1][ly+1];
+
+	        for(int i=0;i<=lx;++i)
+	    		edit[i][0]=i;
+		for(int i=0;i<=ly;++i)
+	    		edit[0][i]=i;
+		for(int i=1;i<=lx;++i)
+			for(int j=1;j<=ly;++j)
+				edit[i][j]=min(edit[i-1][j-1]+!(X[i-1]==Y[j-1]),min(edit[i][j-1],edit[i-1][j])+1);
+
+return edit[lx][ly];  
+}
+ aaditt int EditDistanceDP(char X[], char Y[]) { int lx=strlen(X),ly=strlen(Y); int edit[lx+1][ly+1]; for(int i=0;i<=lx;++i) edit[i][0]=i; for(int i=0;i<=ly;++i) edit[0][i]=i; for(int i=1;i<=lx;++i) for(int j=1;j<=ly;++j) edit[i][j]=min(edit[i-1][j-1]+!(X[i-1]==Y[j-1]),min(edit[i][j-1],edit[i-1][j])+1); return edit[lx][ly]; } t_thirupathi A small correction in the sentence – “Given strings SUNDAY and SATURDAY. We want to convert SUNDAY into SATURDAY with minimum edits. Let us pick i = 2 and j = 4 i.e. prefix strings are SUN and SATU respectively (assume the strings indices start at 1). The right most characters can be aligned in three different ways.” Instead of “i = 2 and j = 4″, shouldn’t it be “i = 3 and j = 4″? Nagaraju It is i=2 only and their logic follows this, but mistake here is they wrote “SUN” instead of “SU”  
+/* Paste your code here (You may delete these lines if not writing code) */
+ rahul23 @venki In DP implementation:- // T[i][j-1] leftCell = *(T + i*n + j-1); leftCell += EDIT_COST; // deletion // T[i-1][j] topCell = *(T + (i-1)*n + j); topCell += EDIT_COST; // insertion Deletion should be insertion and insertion shoud be deletion Like if we have A in X and Y is C then A->Y delete will say delete A…we need to find cost for NULL->Y which will be given by [i-1][j] and insertion is given by [i][j-1] as if A->Y we will insert Y and find cost to A->NULL [i][j-1] Plz update it if m ryt,otherwise correct me.w8ing for ur response rahul23 @venki Inthe recursive sifinition of fxn the following line int corner = EditDistanceRecursion(X, Y, m-1, n-1) + (X[m] != Y[n]); should be changed to int corner = EditDistanceRecursion(X, Y, m-1, n-1) + (X[m-1] != Y[n-1]); For eg. if we have X=”A” and Y=”X”;then min should be 1. But your function will compare m and n index value(1 and 1 index)as m and n contains 1 which is NULL and considering these equal and replacement cost is 0 and it calls for m-1 and n-1 which will be 0..so 0+0 will become 0…Kindly update in corner variable m-1 and n-1. harshieee program giving wrong output for s1 = “hello” s2 = “hellooo” output is cuming: Minimum edits required to convert hello into hellooo is 2 Minimum edits required to convert hello into hellooo is 5 by recursion Swapnil R Mehta There is a problem in “Minimum” function, thus answers are coming different with dp and recursive approach. Please make it as follows:  
+int Minimum(int a, int b, int c)
+{
+    int min;
+    if( a < b && a < c ) min = a;
+    else if( b < a && b < c ) min = b;
+    else min = c;
+    return min;
+}
+ http://www.linkedin.com/in/ramanawithu Venki Thanks both of you for pointing the error. Code is updated. sobhan #include using namespace std; T[i][j]=min(leftcell,min(cornercell,topcell)); shine can we think of applying these oprations in certain conditions…like insert or delete can give min cost if l1l2 delete or replace may be beneficial…plz do reply Alka What if we convert “SATURDAY” to “SUNDAY”? Results in both the methods used above are different. wgpshashank Yes , its should be and it will. wgpshashank Yes , it should be and it will. sreeram i think in the base cases E(i,0) it should be like i*EDIT_COST instead of i http://www.geeksforgeeks.org Venki Yes. In the current program we took all edit operations of same cost. Manak Correct me if I am wrong, but can this question be solved by first finding the largest common sub-sequence and then subtracting it from the length of the greater string? Venki No, that will not always lead to optimum alignment. Manak Can you specify an example? I cannot get my head around this. Venki Manak, you can take another example given in the content. Consider the words exponential – ponil = exent polynomial – ponil = lyom But the ED(exponential, polynomial) != ED(exent, lyom), here ED stands for Edit Distance. Practice with few examples, if still not clear, let me know. I would need some time for detailed explanation. zyfo2 Don’t get it. Can you give a more detailed example including how to edit? Thank you. zyfo2 get it. the example is like abcd cde LCS=2 “cd” but edit distance is 3 zyfo2 In face if only deletion and insertion are possible. then LCS can be applied here Silent I guess we can do it by LCS..we would have to compare longest common subsequence with both the strings a character at a time.. correct me if i am wrong?? bhuvi The following line should be changed  
+ cornerCell += (X[i-1] != Y[j-1]);
+ to  
+ cornerCell += (X[i] != Y[j]);
+ since we are at i,j we should be comparing x[i] and y[j]. What say? Venki Thanks for comment. The indexing is not an error. Please read the content. We use table of size m+1 x n+1. The indices i and j and one step ahead of the string location, so we need to subtract 1. Saurabh Jain /* Paste your code here (You may delete these lines if not writing code) */ import java.util.Scanner; /** * * @author saurabh */ public class EditDistanceDPP { char[] s1,s2; public EditDistanceDPP() { Scanner sc = new Scanner(System.in); s1 = sc.nextLine().toCharArray(); s2 = sc.nextLine().toCharArray(); System.out.println("Edit distance is : "+editDistance(s1,s2)); } private int editDistance(char[] st1, char[] st2) { int[][] s = new int[s1.length+1][s2.length+1]; for(int i=0; i<=s1.length; i++) { for(int j=0; j<=s2.length; j++) { if(i==0) s[i][j]=j; else if(j==0) s[i][j]=i; else s[i][j] = min(s[i-1][j-1]+(st1[i-1]==st2[j-1]?0:1),s[i-1][j]+1,s[i][j-1]+1); } } return s[s1.length][s2.length]; } int min(int a, int b, int c) { return(a<b?a<c?a:c:b<c?b:c); } public static void main(String[] args) { EditDistanceDPP edd = new EditDistanceDPP(); } } This is a quite simple Dynamic Programming approach with time complexity as O(m*n) and space complexity also as O(m*n)…. Saurabh Jain Correct me..if anything is wrong in the above code…thanks…. SAM your code is working fine!! did anyone pointed some mistakes in it?? robin singh kindly quote some references to this problem so that it becomes more clear. thankyou  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Venki Algorithms by Das Guptha is good reference. Jatin In function display the below changes should be made–> //(base + r * col)1 should be replaced by *(base + r * col + c) Venki @Jatin, thanks. It was typo during post update. I have updated the post. Jatin  
+//(base + r * col)1 should be replaced by *(base + r * col + c)
+ PsychoCoder In the documentation of the table inside the program : leftCell = table[i][j-1] ; and topCell = table[i-1][j] ; It should be, leftCell = table[i-1][j] ; and topCell = table[i][j-1] ; http://www.youtube.com/watch?v=CB425OsE4Fo Venkatesh this link may be helpful Venkatesh http://www.youtube.com/watch?v=CB425OsE4Fo Ratan “Given strings SUNDAY and SATURDAY. We want to convert SUNDAY into SATURDAY with minimum edits. Let us pick i = 2 and j = 4 i.e. prefix strings are SUN and SATU respectively” in this line change i=3 or prefix as ‘SU’. Doom Usually the costs D, I and R are not same. In such case the problem can be represented as an acyclic directed graph (DAG) with weights on each edge, and finding shortest path gives edit distance. How to construct this graph? could you plz give some basic steps? just the logic. Evgenia http://en.wikipedia.org/wiki/Levenshtein_distance. The improvement of levenshtein text distance is http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance Anonymous  int EDIT[100][100];
+int solve_edit( string a, string b) {
+    for (int j=0;j<=b.size();j++) {
+        EDIT[0][j]=j;
+    }
+    for (int i=1;i<=a.size();i++) {
+        EDIT[i][0]=i;
+        for (int j=1;j<=b.size();j++) {
+            EDIT[i][j]= min( min( EDIT[i][j-1]+1,EDIT[i-1][j]+1),  EDIT[i-1][j-1]+ (int)(a[i-1]!=b[j-1]));
+        }
+    }
+
+    return EDIT[a.size()][b.size()];
+}
+ rajcools in description its written — Combining all the subproblems minimum cost of aligning prefix strings ending at i and j given by E(i, j) = min( [E(i-1, j) + D], [E(i, j-1) + I], [E(i-1, j-1) + I if i,j characters are not same] ) in —[E(i-1, j-1) + I if i,j characters are not same] ) shouldnt here be replace(R) instead of Insert(I) else it would be two operations [E(i-1, j-1) + I +D … we insert one char from target string and delete from original string http://www.linkedin.com/in/ramanawithu Venki @rajcools, thanks. It should be replace. I will update. iitr.ankur Instead of Using DAG, can’t we simply define 3 different Edit Costs: Edit_Insert(ex. 1), Edit_Delete(2), Edit_Remove(5) and use these in the 3 cases?? Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

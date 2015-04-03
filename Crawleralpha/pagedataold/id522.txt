@@ -1,0 +1,292 @@
+Write a C function to detect loop in a linked list - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Write a C function to detect loop in a linked list Below diagram shows a linked list with a loop Following are different ways of doing this Use Hashing: Traverse the list one by one and keep putting the node addresses in a Hash Table. At any point, if NULL is reached then return false and if next of current node points to any of the previously stored nodes in Hash then return true. Mark Visited Nodes: This solution requires modifications to basic linked list data structure.  Have a visited flag with each node.  Traverse the linked list and keep marking visited nodes.  If you see a visited node again then there is a loop. This solution works in O(n) but requires additional information with each node. A variation of this solution that doesn’t require modification to basic data structure can be implemented using hash.  Just store the addresses of visited nodes in a hash and if you see an address that already exists in hash then there is a loop. Floyd’s Cycle-Finding Algorithm: This is the fastest method. Traverse linked list using two pointers.  Move one pointer by one and other pointer by two.  If these pointers meet at some node then there is a loop.  If pointers do not meet then linked list doesn’t have loop. Implementation of Floyd’s Cycle-Finding Algorithm: 
+#include<stdio.h>
+#include<stdlib.h>
+
+/* Link list node */
+struct node
+{
+  int data;
+  struct node* next;
+};
+
+void push(struct node** head_ref, int new_data)
+{
+  /* allocate node */
+  struct node* new_node =
+  (struct node*) malloc(sizeof(struct node));
+
+  /* put in the data  */
+  new_node->data  = new_data;
+
+  /* link the old list off the new node */
+  new_node->next = (*head_ref);
+
+  /* move the head to point to the new node */
+  (*head_ref)    = new_node;
+}
+
+int detectloop(struct node *list)
+{
+  struct node  *slow_p = list, *fast_p = list;
+
+  while(slow_p && fast_p &&
+          fast_p->next )
+  {
+    slow_p = slow_p->next;
+    fast_p  = fast_p->next->next;
+    if (slow_p == fast_p)
+    {
+       printf("Found Loop");
+       return 1;
+    }
+  }
+  return 0;
+}
+
+/* Drier program to test above function*/
+int main()
+{
+  /* Start with the empty list */
+  struct node* head = NULL;
+
+  push(&head, 20);
+  push(&head, 4);
+  push(&head, 15);
+  push(&head, 10);
+
+  /* Create a loop for testing */
+  head->next->next->next->next = head;
+  detectloop(head);
+
+  getchar();
+}
+ Time Complexity: O(n) Auxiliary Space: O(1) References: http://en.wikipedia.org/wiki/Cycle_detection http://ostermiller.org/find_loop_singly_linked_list.html           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tags: Linked Lists, loop Tweet Writing code in comment? Please use ideone.com and share the link here. Suyash Soni What does that condition inside while loop while(slow_p && fast_p && fast_p->next ) mean? Please tell me that when will this loop stop? Kevin Alex Mathews I think we can use Depth First Search graph for the problem. In the DFS spanning tree, if there is any back edge, then that points to the presence of loop in the linked list. Time complexity of O(n+e) is comparable to Floyd’s cycle detection algorithm’s O(n), where n is the number of nodes in the list and e is the number of pointers. Himanshu Dagar I think that there is no need of checking slow_p condition in the while loop (It will even work without this condition) Himanshu Dagar Floyd’s Cycle Finding algorithm (we can not remove that loop from the linked list with the help of this algo.) neelabhsingh suppose there is node which pointing to itself then is there is loop or not. Obviously this node is last node in the linked list. Instead point to NULL it is pointing to itself ? Please clear it.. swebdev Ofcourse there is loop.. The double pointer and single-pointer will point to same node at the beginning and also after one unit of movement, thus they will point to same node, returning true. ABHILASHA31 node * loop(node*head) { node *p,*q; p=q=head; int flag=0; while(q!=NULL) { if(q->next==q) flag=1; else { while(p!=q) { { if(p!=q->next) p=p->next; else flag=1; } } } p=head; q=q->next; } if(flag==1) { q->next=NULL; } return head; }} wats wrng wid d abv piece f code. emcompasses bth detection nd removal Karshit My code for Cycle detection and Removal… HOpe you guys find it useful. #include <iostream> using namespace std; struct node { int data; node *next; }; void print(node *head) { while (head != NULL) { cout << head -> data << " "; head = head -> next; } } void removeLoop(node *head) { node *slow = head; node *fast = head; bool flag = false; while (slow && fast && fast -> next) { slow = slow -> next; fast = fast -> next -> next; if (slow == fast) { flag = true; cout << "Cycle Detected…..\nRemoval in Progress\n"; break; } } if (!flag) // no cycle return; /*procedure for removal of loop*/ fast = fast -> next; int a = 0; while (fast != slow) { // a = number of nodes in loop a++; fast = fast -> next; } for (int i = 0; i <= a; i++) { slow = slow -> next; } slow -> next = NULL; } int main() { node *head = NULL, *temp; /*making a linklist with a loop*/ head = new node(); head -> data = 1; node *head1 = head; head1 -> next = new node(); head1 = head1 -> next; head1 -> data = 2; temp = head1; //loop creation head1 -> next = new node(); head1 = head1 -> next; head1 -> data = 3; head1 -> next = new node(); head1 = head1 -> next; head1 -> data = 4; head1 -> next = new node(); head1 = head1 -> next; head1 -> data = 5; head1 -> next = temp; removeLoop(head); print(head); cout << "\n"; return 0; } its_dark sorting takes O(nlogn). We are doing here in O(n) Vibhu Tiwari I think a loop in a linked list can just be determined by first sorting the linked list and then determining if any node’s value is less than the previous one.If yes then there is a loop in a linked list. Mohammad Azfar What will be your terminating condition when you are sorting the list? mayank199317 int HasLoop(Node* head) { Node* rhead=head->next; if(head==NULL) return 0; if(rhead==head ) return(1); while(rhead!=NULL) { Node *temp=head; while(temp != rhead) { if(rhead->next==temp) return 1; else temp=temp->next; } if((rhead->next) == temp) return (1); rhead=rhead->next; } return 0; } please find where am i getting wrong answer. Thank you. Vicky 1st method which is use Hashing: How I can implement hashtable in c? Is there is any article regarding this on geeksandgeeks?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://..com Sreenivas Have a look at this:: http://ideone.com/Hl2xat .. Animesh Pratap Singh here is simple explanation…. http://stackoverflow.com/questions/10275587/finding-loop-in-a-singly-linked-list  
+#include "linked_list_library.c"
+void detect_loop(struct node* head)
+{
+    struct node *slow=head, *fast=head->next, *c;
+    while(slow!=fast)
+    {
+        slow=slow->next;
+        fast=fast->next->next;
+        printf("%d ",fast->info);
+    }
+    c=head;
+    fast=fast->next;
+    while(c!=fast)
+    {
+        while(slow!=fast)
+        {
+            if(c==fast->next)
+            {
+                fast->next=NULL;
+                return;
+            }
+            fast=fast->next;
+        }
+        c=c->next;
+        fast=fast->next;
+    }
+
+}
+
+int main()
+{
+    struct node* head=insert(1,NULL), *mover;
+    insert(2,head);
+    insert(3,head);
+    insert(4,head);
+    insert(5,head);
+    insert(6,head);
+    insert(7,head);
+    insert(8,head);
+    insert(9,head);
+    mover=head;
+    while(mover->next!=NULL)
+    {
+        mover=mover->next;
+    }
+    mover->next=head->next->next->next;
+    detect_loop(head);
+    display(head);
+    return 0;
+}
+
+ learner Why are we checking the condition for fast_p->next ? We are moving the fast pointer 2 hops at a time. Hence a check for fast_p->next->next is the one that is needed right. Please enlighten me. http://www.nikoo28.blogspot.com nikoo28 suppose you are on the last node and there is no loop in the original list….the statement “fast_p->next->next” can lead to a segmentation fault…since the next of last is NULL and there is no next to NULL. this is why the condition check is necessary. candis why do we always have fast pointer moving only twice faster than the slow pointer…..what if we move it with thrice the speed….they will meet even then too… plz check me if I m wrong with an example…. Aparna What is the point of that? If anything, it will make more passes in the loop until it meets the first pointer. Gaurav pruthi Exactly +1. http://www.geeksforgeeks.org Venki Yes, we can make the pointer to skip by arbitrary number of positions. It is not guaranteed that loop will always present. Note that if you hop by k nodes, you need k checks to ensure the intermediate nodes are not null in the while loop (in case if there is no loop). More over, quantitatively it is more interesting to see at what node these slow and fast pointers meet, given that there are M nodes in loop, fast pointer hops by K nodes in every iteration and the fast pointer offset by F nodes by that time slow pointer enters into the loop. Try it… check benefits, what should be optimal value of K (hopping length) based on inputs M and F. It is somewhat related to wheel rotations in mechanical systems :). abc A faster code using Brent’s algorithm would be:  
+bool findLoop(struct node* head)
+{
+    if (head == NULL)
+        return false;
+    struct node* slow = head;
+    struct node* fast = head;
+    int i = 0;
+    int k = 1;
+    
+    while (slow != NULL)
+    {
+        slow = slow->next;
+        i++;
+        if (slow == fast)
+            return true;
+        if (i == k)
+        {
+            fast = slow;
+            k*= 2;
+        }
+    }
+    return false;
+}
+ Algoseekar @abc hi can u explain whats the brent algo..in wiki it saying that we ahve tp find smallest power of 2 that is greater then both u,lembda can u explain what is the U &m lembda in floyed cycle algo & brent algo are..?? plz help Plz reply asap Thanks Algoseekar Algoseekar @abc an u explain whats the brent algo..in wiki it saying that we ahve tp find smallest power of 2 that is greater then both u,lembda can u explain what is the U &m lembda in floyed cycle algo & brent algo are..?? plz help Plz reply asap Thanks Algoseekar ska lambda = length of the cycle; mu = length of extra nodes before the cycle begins. If i is the total distance traveled, length of the linked list = lambda + mu Clearly the two pointers can only meet if the traveled distance i > mu. Now in this particular algorithm, since we move the slower pointer to the faster pointer’s location directly, once when the slower pointer is inside the loop, the faster pointer can catch up with it only if the smallest power of 2 is greater than the loop length lambda. If that is not the case, then we move the slower pointer to the faster pointer’s location and increase the power of 2. The above code is slightly confusing because we are moving the slow pointer instead of the fast. It might also not completely comply with the Brent’s algorithm given on wiki, and might take more powers of two because we need to make i=0 each time the condition i==k gets satisfied. Note: If i is made zero each time, then i = lambda by the end of the function. maverick how can we find out the starting position of the loop? vinit first find the length of the loop. traverse the list from head by count elements. lets say it is pointing in between somewhr ptr p. again start traversing from head as well as from ptr p. where ever they’ll meet, that is the starting point of the loop. Correct me if i m wrong. cyber I was wondering if this would work too.. take two pointers and run one at speed one and the other at twice the speed. So eventually they will meet and loop would be detected ! ? please correct me if am wrong cyber ohh..sorry for that..wrote that comment before even reading/analysing the code.. And I didn’t know that is named as Flyod’s algo.. thanks wav  
+while(slow_p && fast_p &&
+          slow_p->next &&------->why r we doing this             
+          fast_p->next &&
+          fast_p->next->next )
+
+why r we checking so many conditions..
+
+shouldn't it be 
+while(slow_p&&fast_p &&fast_p->next&&fast_p->next->next) only
+ vipulkv Yes this condition will suffice. Basically fast pointer would always have traversed the node which slow pointer is going to traverse. Vamsi I think much simpler would be  
+fP = list;
+while( !fP && !fP->next ) {
+  if ( (list = list->next) == (fP=fP->next->next))
+    return TRUE;
+}
+return FALSE; GeeksforGeeks @wav, @vipulkv and @vamsi: Thanks for providng the inputs, we have updated the post and removed unnecessary conditions. martin @geeksforgeeks..can you please post the Brent algorithm of cycle detection thats also good one Shubham Saxena what if we have more than 1 loop in a linked list? http://avidullu.wordpress.com Avi Brent’s Algorithm is much better than Floyd’s Algorithm and equally simple to implement. http://androidshashank.blogspot.com/ WgpShashank here is The Code to Detect & remove the loop from The Linked List..Hope GeeksForGeeks Will Include it in original Post  
+
+
+#include<stdio.h>
+#include<stdlib.h>
+ 
+/* Link list node */
+struct Node
+{
+  int value;
+  struct Node* next;
+};
+ 
+void push(struct Node** head_ref, int new_data)
+{
+  /* allocate node */
+  struct Node* new_node =
+  (struct Node*) malloc(sizeof(struct Node));
+ 
+  /* put in the data  */
+  new_node->value= new_data;
+ 
+  /* link the old list off the new node */
+  new_node->next = (*head_ref);
+ 
+  /* move the head to point to the new node */
+  (*head_ref)    = new_node;
+}
+ 
+void removeloop(struct Node *head)
+{
+ 
+  struct Node *p1 = NULL, *p2 = NULL;
+ 
+         while(head)
+        {
+                if (p1 == NULL && p2 == NULL)
+                {
+                // 1. Two pointers start from head
+ 
+                p1 = head;
+                p2 = head;
+                }
+                else
+                {
+                 // 2 If two pointers meet, there is a loop
+ 
+                 if (p1 == p2)
+                 break;
+                }
+ 
+                // 3 If pointer reachs the end, there is no loop
+                if (p2->next == NULL || p2->next->next == NULL)
+                {
+                        printf("There is no loop in the list.\n");
+                        return ;
+                }
+ 
+                // 4. One pointer advances one while the other advances two.
+                p1 = p1->next;
+                p2 = p2->next->next;
+        }
+ 
+        // 5. Find out how many nodes in the loop, say k.
+ 
+        unsigned int k = 1;
+        p2 = p2->next;
+        while (p1 != p2)
+        {
+                p2 = p2->next;
+                k++;
+        }
+        printf("There are %d nodes in the loop of the list.\n", k);
+ 
+        // 6. Reset one pointer to the head, and the other pointer to head + k.
+        p1 = head;
+        p2 = head;
+ 
+        for (unsigned int i = 0; i next;
+ 
+        // 7. Move both pointers at the same pace, they will meet at loop starting node
+        while(p1 != p2)
+        {
+                p1 = p1->next;
+                p2 = p2->next;
+        }
+ 
+        printf("node %d is the loop starting node.\n", p1->value);
+ 
+        // 8. Move one of the pointer till its next node is the loop starting node.
+        // It's the loop ending node
+        p2 = p2->next;
+        while(p2->next != p1)
+        p2 = p2->next;
+ 
+        printf("node %d is the loop ending node.\n", p2->value);
+        // 9. Set the next node of the loop ending node to fix the loop
+        p2->next = NULL;
+ 
+}
+ 
+/* Utility function to print a linked list */
+void printList(struct Node *head)
+{
+     while(head!=NULL)
+     {
+        printf("%d ",head->value);
+        head=head->next;
+     }
+     printf("\n");
+}
+ 
+int main()
+{
+/* Start with the empty list */
+  struct Node *head = NULL;
+ 
+  push(&head, 5);
+  push(&head, 4);
+  push(&head, 3);
+  push(&head, 2);
+  push(&head, 1);
+ 
+  head->next->next->next->next->next=head->next->next;
+ 
+  removeloop(head);
+ 
+  printList(head);
+ 
+        printf("\n");
+}
+
+
+ http://www.linkedin.com/in/ramanawithu Venki @Shashank, nice work. Guduru Sivareddy @shashank best and simple solution I have ever seen.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

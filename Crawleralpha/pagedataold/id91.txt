@@ -1,0 +1,603 @@
+Sorted Linked List to Balanced BST - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Sorted Linked List to Balanced BST Given a Singly Linked List which has data members sorted in ascending order. Construct a Balanced Binary Search Tree which has same data members as the given Linked List. Examples: 
+Input:  Linked List 1->2->3
+Output: A Balanced BST 
+     2   
+   /  \  
+  1    3 
+
+
+Input: Linked List 1->2->3->4->5->6->7
+Output: A Balanced BST
+        4
+      /   \
+     2     6
+   /  \   / \
+  1   3  4   7  
+
+Input: Linked List 1->2->3->4
+Output: A Balanced BST
+      3   
+    /  \  
+   2    4 
+ / 
+1
+
+Input:  Linked List 1->2->3->4->5->6
+Output: A Balanced BST
+      4   
+    /   \  
+   2     6 
+ /  \   / 
+1   3  5   
+ Method 1 (Simple) Following is a simple algorithm where we first find the middle node of list and make it root of the tree to be constructed. 
+1) Get the Middle of the linked list and make it root.
+2) Recursively do same for left half and right half.
+       a) Get the middle of left half and make it left child of the root
+          created in step 1.
+       b) Get the middle of right half and make it right child of the
+          root created in step 1.
+
+ Time complexity: O(nLogn) where n is the number of nodes in Linked List. See this forum thread for more details. Method 2 (Tricky) The method 1 constructs the tree from root to leaves. In this method, we construct from leaves to root. The idea is to insert nodes in BST in the same order as the appear in Linked List, so that the tree can be constructed in O(n) time complexity. We first count the number of nodes in the given Linked List. Let the count be n. After counting nodes, we take left n/2 nodes and recursively construct the left subtree. After left subtree is constructed, we allocate memory for root and link the left subtree with root. Finally, we recursively construct the right subtree and link it with root. While constructing the BST, we also keep moving the list head pointer to next so that we have the appropriate pointer in each recursive call. Following is C implementation of method 2. The main code which creates Balanced BST is highlighted. 
+#include<stdio.h>
+#include<stdlib.h>
+
+/* Link list node */
+struct LNode
+{
+    int data;
+    struct LNode* next;
+};
+
+/* A Binary Tree node */
+struct TNode
+{
+    int data;
+    struct TNode* left;
+    struct TNode* right;
+};
+
+struct TNode* newNode(int data);
+int countLNodes(struct LNode *head);
+struct TNode* sortedListToBSTRecur(struct LNode **head_ref, int n);
+
+
+/* This function counts the number of nodes in Linked List and then calls
+   sortedListToBSTRecur() to construct BST */
+struct TNode* sortedListToBST(struct LNode *head)
+{
+    /*Count the number of nodes in Linked List */
+    int n = countLNodes(head);
+
+    /* Construct BST */
+    return sortedListToBSTRecur(&head, n);
+}
+
+/* The main function that constructs balanced BST and returns root of it.
+       head_ref -->  Pointer to pointer to head node of linked list
+       n  --> No. of nodes in Linked List */
+struct TNode* sortedListToBSTRecur(struct LNode **head_ref, int n)
+{
+    /* Base Case */
+    if (n <= 0)
+        return NULL;
+
+    /* Recursively construct the left subtree */
+    struct TNode *left = sortedListToBSTRecur(head_ref, n/2);
+
+    /* Allocate memory for root, and link the above constructed left 
+       subtree with root */
+    struct TNode *root = newNode((*head_ref)->data);
+    root->left = left;
+
+    /* Change head pointer of Linked List for parent recursive calls */
+    *head_ref = (*head_ref)->next;
+
+    /* Recursively construct the right subtree and link it with root 
+      The number of nodes in right subtree  is total nodes - nodes in 
+      left subtree - 1 (for root) which is n-n/2-1*/
+    root->right = sortedListToBSTRecur(head_ref, n-n/2-1);
+
+    return root;
+}
+
+
+
+/* UTILITY FUNCTIONS */
+
+/* A utility function that returns count of nodes in a given Linked List */
+int countLNodes(struct LNode *head)
+{
+    int count = 0;
+    struct LNode *temp = head;
+    while(temp)
+    {
+        temp = temp->next;
+        count++;
+    }
+    return count;
+}
+
+/* Function to insert a node at the beginging of the linked list */
+void push(struct LNode** head_ref, int new_data)
+{
+    /* allocate node */
+    struct LNode* new_node =
+        (struct LNode*) malloc(sizeof(struct LNode));
+    /* put in the data  */
+    new_node->data  = new_data;
+
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);
+
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+/* Function to print nodes in a given linked list */
+void printList(struct LNode *node)
+{
+    while(node!=NULL)
+    {
+        printf("%d ", node->data);
+        node = node->next;
+    }
+}
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct TNode* newNode(int data)
+{
+    struct TNode* node = (struct TNode*)
+                         malloc(sizeof(struct TNode));
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+
+    return node;
+}
+
+/* A utility function to print preorder traversal of BST */
+void preOrder(struct TNode* node)
+{
+    if (node == NULL)
+        return;
+    printf("%d ", node->data);
+    preOrder(node->left);
+    preOrder(node->right);
+}
+
+/* Drier program to test above functions*/
+int main()
+{
+    /* Start with the empty list */
+    struct LNode* head = NULL;
+
+    /* Let us create a sorted linked list to test the functions
+     Created linked list will be 1->2->3->4->5->6->7 */
+    push(&head, 7);
+    push(&head, 6);
+    push(&head, 5);
+    push(&head, 4);
+    push(&head, 3);
+    push(&head, 2);
+    push(&head, 1);
+
+    printf("\n Given Linked List ");
+    printList(head);
+
+    /* Convert List to BST */
+    struct TNode *root = sortedListToBST(head);
+    printf("\n PreOrder Traversal of constructed BST ");
+    preOrder(root);
+
+    return 0;
+}
+ Time Complexity: O(n) Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. Abhishek Awesome solution Gaurav Baingalia can some one help me in this code ..>> having prblm in sorting out the error..>> #include #include #include using namespace std; int i=0; struct lnode { int item; struct lnode* next; }; struct tnode { int info; struct tnode* left; struct tnode* right; }; typedef struct lnode* ndptr; typedef struct tnode* tndptr; ndptr lgetnode() { ndptr new_node=(ndptr)malloc(sizeof(ndptr)); return new_node; } tndptr tgetnode() { tndptr p=(tndptr)malloc(sizeof(tndptr)); return p; } void push_node(ndptr &head,int x) { ndptr new_node; new_node=lgetnode(); new_node->item=x; new_node->next=head; head=new_node; } tndptr maketree(int x) { tndptr p=tgetnode(); p->info=x; p->left=NULL; p->right=NULL; return p; } tndptr list2BST(ndptr &head,int n) { if(nitem); root->left=left_tree; head=head->next; root->right=list2BST(head,n-n/2-1); return root; } void pre_trav(tndptr tree) { if(tree!=NULL) { cout<info; pre_trav(tree->left); pre_trav(tree->right); } } int countnode(ndptr head) { int count=0; while(head!=NULL) { count++; head=head->next; } return count; } void print_list(ndptr head) { while(head!=NULL) { cout<item; head=head->next; if(head!=NULL) cout<“; } } int main() { ndptr head=NULL; int num=0,count; while(num!=-1) { cout<>num; if(num!=-1) push_node(head,num); } cout<<"nthe list is :n"; print_list(head); cout<<"nthe no of nodes in list is :"; count=countnode(head); cout<<count; tndptr root=list2BST(head,count); cout<info; cout<<"nthe preorder traversal of tree is :n"; pre_trav(root); return 0; } BePositive Method 2 is also wrong based on the same logic as told in earlier comment. BePositive Method 1 is wrong. It doesn’t work for 9 elements 1,2,….,9 In order to make it right, we first need to find the number of elements which are required to make a complete balanced BST. And then only, we can apply method 1 to those. Let’s say n be the number of elements. And x be the number of elements less than n which can make a complete balanced BST (e.g. 1 or 3 or 7), then, x = pow(2, ceil( log2(n) )) – 1. e.g. for n = 9, x = 7. n = 5, x = 3 Now we need to create complete balanced BST using these x elements (using method 1 as specified above). And then need to add the (n – x) elements to the leaf nodes, using post order traversal of the tree. BePositive Order of the first solution should be O(N2) and not O(nlogn) as we are not discarding one half part of the list. Guest Yes, had the list been doubly linked list, complexity is O(nlogn)else it is O(n^2+nlogn) which is nothing but O(n^2)…. Swastik Sahu How is the complexity of first method O(n log n) ? If we create a hash of pointers to each node, i.e- hash[1] = pointer to 1st node, hash[2] = pointer to 2nd node..so on. Then it can be done in O(n). Swastik Sahu How is the complexity of first method O(n log n) ? If we create a hash of pointers to each node, i.e- hash[1] = pointer to 1st node, hash[2] = pointer to 2nd node..so on. Then it can be done in O(n). Himanshu  
+/* Method 1 Implementation */
+#include<stdio.h>
+#include<stdlib.h>
+struct LNode
+{
+    int data;
+    struct LNode* next;
+};
+
+
+struct TNode
+{
+    int data;
+    struct TNode* left;
+    struct TNode* right;
+};
+
+struct TNode* newNode(int data);
+int countLNodes(struct LNode *head);
+struct TNode* sortedListToBSTRecur(struct LNode **head_ref, int n);
+
+
+
+struct TNode* sortedListToBST(struct LNode *head)
+{
+
+    int n = countLNodes(head);
+
+
+    return sortedListToBSTRecur(&head, n);
+}
+
+
+struct TNode* sortedListToBSTRecur(struct LNode **head_ref, int n)
+{
+
+    int mid;
+    if(n<=0)
+        return NULL;
+    if(n%2!=0)
+        mid=n/2+1;
+    else
+        mid=n/2;
+    struct LNode *temp=*head_ref;
+    /* to find the middle of linked list*/
+    int i=1;
+    while(i<mid && temp!=NULL)
+    {
+        temp=temp->next;
+        i++;
+    }
+
+    /*allocate node for root*/
+    struct TNode * node=(struct Tnode*)malloc(sizeof(struct      TNode));
+    node->data=temp->data;
+    /*attach left and right subtrees*/
+    node->left=sortedListToBSTRecur(head_ref,mid-1);
+    node->right=sortedListToBSTRecur(&(temp->next),n-mid );
+
+
+    return node;
+}
+
+
+
+
+int countLNodes(struct LNode *head)
+{
+    int count = 0;
+    struct LNode *temp = head;
+    while(temp)
+    {
+        temp = temp->next;
+        count++;
+    }
+    return count;
+}
+
+
+void push(struct LNode** head_ref, int new_data)
+{
+
+    struct LNode* new_node =
+        (struct LNode*) malloc(sizeof(struct LNode));
+
+    new_node->data  = new_data;
+
+
+    new_node->next = (*head_ref);
+
+
+    (*head_ref)    = new_node;
+}
+
+
+void printList(struct LNode *node)
+{
+    while(node!=NULL)
+    {
+        printf("%d ", node->data);
+        node = node->next;
+    }
+}
+
+
+struct TNode* newNode(int data)
+{
+    struct TNode* node = (struct TNode*)
+                         malloc(sizeof(struct TNode));
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+
+    return node;
+}
+
+
+void preOrder(struct TNode* node)
+{
+    if (node == NULL)
+        return;
+    printf("%d ", node->data);
+    preOrder(node->left);
+    preOrder(node->right);
+}
+
+
+int main()
+{
+
+    struct LNode* head = NULL;
+
+    /* Let us create a sorted linked list to test the functions
+     Created linked list will be 1->2->3->4->5->6->7 */
+    push(&head, 7);
+    push(&head, 6);
+    push(&head, 5);
+    push(&head, 4);
+    push(&head, 3);
+    push(&head, 2);
+    push(&head, 1);
+
+    printf("\n Given Linked List ");
+    printList(head);
+
+
+    struct TNode *root = sortedListToBST(head);
+    printf("\n PreOrder Traversal of constructed BST ");
+    preOrder(root);
+
+    return 0;
+}
+
+ hsg92 Below I have coded Method-2 in Java, but it gives different definitely incorrect as compared to Method-1. Whats wrong?  
+/* Paste your code here (You may delete these lines if not writing code) */
+	private TreeNode listTotreeBottomUp(Node start, int n){
+		if ( n <= 0 ) return null;
+		TreeNode left = listTotreeBottomUp(start, n/2);
+		TreeNode root = new TreeNode(start.data);
+		root.left = left;
+		start = start.next;
+		root.right = listTotreeBottomUp(start, n-n/2-1);
+		return root;
+	}
+	public void listTotreeBottomUp(){
+		TreeNode root = listTotreeBottomUp(head, length(head));
+		System.out.println("\nBottomUp\nInorder: ");
+		inorder(root);
+		System.out.println("\nPreorder: ");
+		
+ Linuxwc I have not seen your implementation but it seems that pointers are being used when you need pointers to pointers. The C++ code that corresponds your Java code uses *head_ref as an argument to the subroutine when **head_ref should be used. Each activation of your subroutine Makes a left subtree that starts from the node “start” (and puts its data in the root node of that subtree) Makes a root node that again has the data of the node “start” Makes a right subtree that starts from the node next to “start” (and possibly uses it several times, and that node may already be in the left subtree) So the original start-node of your tree or subtree may be in the tree several times, and the same may be true for the next node and so on. One solution is to use a pointer “startptr” as a class variable, initialize it to the beginning of the list, and use it as in the code below  
+TreeNode listTotreeBottomUp(Node start, int n){
+        if ( n <= 0 ) return null;
+        int leftsize = sizeofleft(n);
+        TreeNode left = listTotreeBottomUp(start, leftsize);
+        TreeNode root = new TreeNode(startptr.data);
+        root.left = left;
+        startptr = startptr.next;
+        start=startptr;
+        root.right = listTotreeBottomUp(start, n-leftsize-1);
+        return root;
+    }
+ About the variable “leftsize”, see my previous comment (to kunalgupta1991 on Feb 27, 2013). “Complete binary tree” is defined in http://en.wikipedia.org/wiki/Binary_tree abhishek08aug Intelligent Ankit Jain In above code, in the recursive calls instead of passing head_ref we need to pass &head_ref since the signature of the method has a double pointer as its first argument.. Pavan In the posted program, don’t we need to include another base case as if((*head_ref) == NULL) return NULL; Please comment if this becomes a redundant base case. Thanks Faisal #include<iostream> using namespace std; class Node { public:int key; Node* next; Node(int k,Node* n = 0) { key = k; next = n; } }; class Tnode { public:int data; Tnode* left; Tnode* right; Tnode(int d,Tnode* l = 0,Tnode* r = 0) { data = d; left = l; right = r; } }; void add(Node*& head,int x) { if(head == NULL) { head = new Node(x); } else { Node* p = new Node(x); p->next = head; head = p; } } void showlist(Node* head) { if(head == NULL) { return; } else { Node* p = head; while(p) { cout<<p->key<<endl; p = p->next; } } } Node* middle(Node* head) { if(head==NULL) { return NULL; } else if(head->next == NULL) { Node* p = head; return p; } else { Node* h = NULL; Node* f = head; Node* s = head; while(f->next!= NULL && f->next->next!=NULL) { h = s; s = s->next; f = f->next->next; } h->next = 0; return s; } } void treefromll(Node* head,Tnode*& root) { if(head == NULL) { return; } else { if(head->next == NULL) { root = new Tnode(head->key); return; } else if(head->next->next == NULL) { root = new Tnode(head->key); root->right = new Tnode(head->next->key); return; } else { Node* p = middle(head); root = new Tnode(p->key); treefromll(p->next,root->right); treefromll(head,root->left); return; } } } void inorder(Tnode* head) { if(head == NULL) { return; } else { inorder(head->left); cout<<head->data<<endl; inorder(head->right); } } int main() { Node* head = new Node(7); add(head,6); add(head,5); add(head,4); add(head,3); add(head,2); add(head,1); Tnode* root = NULL; treefromll(head,root); inorder(root); system("pause"); return 0; } Ankit Gangal I think the complexity for solution 1 is O(n) where n is the size of the linked list. For a linked list of size n one has to go through n-1 recursive function calls and 1 call to the first function that starts the recursion. A total of n calls .. In merge sort we have all the n elements on each of log(n) levels .. so in that case the complexity is O(n log(n)) .. here we have 2^(h-1) elements on each 1 of h = log(n) levels … so it is not the same as merge sort. Please tell me if i m wrong.. venu gopal Can you please show me a code which doesnot uses pointer to a pointer ** ie. struct node **head Chiranjeev Kumar  
+/* Paste your code here (You may delete these lines if not writing code) */
+// Selection Sort
+#include<stdio.h>
+typedef struct node
+{
+    int value;
+    struct node *next;
+}mynode;
+void add(mynode **head,int data)
+{
+    mynode *temp = (mynode *)malloc(sizeof(struct node));
+    temp->value = data;
+    temp->next = NULL;
+    mynode *t = *head;
+    if(!t)
+    {
+        printf("..............Creating SLL.......\n");
+        *head = temp;
+        return;
+    }
+    temp->next = t;
+    *head = temp;
+}
+int print(mynode *head)
+{
+    int c = 0;
+    if(!head)
+    {
+        printf("Empty!\n");
+        return 0;
+    }
+    printf("\n");
+    while(head)
+    {
+        printf("%d  ",head->value);
+        c++;
+        head = head->next;
+    }
+    printf("--|NULL|");
+    return c;
+}
+int count(mynode *head)
+{
+    int c=0;
+    if(!head) return 0;
+    while(head)
+    {
+        head = head->next;
+        c++;
+    }
+    return c;
+}
+void Selection_sort(mynode **head,int n)
+{
+    if(!(*head) || (*head)->next==NULL)
+    {
+        //printf("Empty!\n");
+        return;
+    }
+    printf("\nSorted elements using selection sort are ::");
+    mynode *p1,*p2,*p3,*p4,*t,*a;
+    p1=*head;
+    p2=p1->next;
+    p3=p1;
+    while(p1)
+    {
+        p2=p1->next;
+        while(p2)
+        {
+            if(p1->value>p2->value)
+            {
+                if(p1==*head && p1->next==p2)   // starting node
+                {
+                    p1->next = p2->next;
+                    p2->next = p1;
+                    *head = p2;
+                }
+                else if(p1==*head && p1->next != p2)
+                {
+                    t = p1->next;
+                    p1->next = p2->next;
+                    p2->next = t;
+                    p4->next = p1;
+                    *head = p2;
+                }
+                else if(p1 != *head && p1->next==p2)
+                {
+                    p3->next = p2;
+                    p1->next = p2->next;
+                    p2->next = p1;
+                }
+                else
+                {
+                    p3->next = p2;
+                    p4->next = p1;
+                    t = p2->next;
+                    p2->next = p1->next;
+                    p1->next =t;
+                }
+                a=p1;p1=p2;p2=a;
+            }
+            p4=p2;
+            p2 = p2->next;
+            //print(*head);
+        }
+        p3=p1;
+        p1 = p1->next;
+    }
+
+}
+int main()
+{
+    int n=11,i;
+    mynode *head=NULL;
+    add(&head,10);add(&head,1);add(&head,5);
+    add(&head,7);add(&head,4);add(&head,0);
+    add(&head,15);add(&head,0);add(&head,11);
+    add(&head,22);add(&head,101);add(&head,61);
+    print(head);
+    printf("\nNumber of elements is :: %d",count(head));
+    Selection_sort(&head,count(head));
+    print(head);
+    printf("\n\n\n");
+}
+
+ Mady  
+//1. Let pointer s be the middle of the list. find using fast,slow 
+//left = head; 
+// right = s;
+
+void list_2_BST(struct node *left,struct node **right){
+     
+    if(left == NULL)
+       return;
+     
+     if(left == s){
+       createTree(left);
+       return ;
+     }
+     list_2_BST(left->next,right);
+     *right = (*right)->next;
+     createTree(left);
+     createTree(right);
+}
+ shiv y this code is not working if i take a global *head and call function sortListToBSTrecure(head,n)and prototype is struct TNode* sortedListToBSTRecur(struct LNode *head_ref, int n)and also modifyng the body by (*head_ref)->data as head->data…i have done all the progrms by taking head as global y it is not working in this case kartik Please post the code that your tried. shiv here is my code #include #include #include struct node{ int data; struct node *next; }*head=NULL; struct tree{ int data; struct tree *left; struct tree *right; }*root=NULL; int i=1; struct node *build() { int n; struct node *temp,*temp1,*head=NULL; printf(“Enter the data\n”); scanf(“%d”,&n); while(n!=-999) { temp=(struct node*)malloc(sizeof(struct node)); if(head==NULL){ temp->data=n; temp->next=NULL; head=temp; temp1=temp;} else { temp->data=n; temp->next=NULL; temp1->next=temp; temp1=temp1->next; } printf(“Enter the data\n”); scanf(“%d”,&n); } return head; } struct tree *srtedlisttobst(struct node *head,int n) { if(ndata=head->data; root->left=left; head=head->next; root->right=srtedlisttobst(head,n-n/2-1); return root; } int count(struct node *head) { int count=0; while(head!=NULL) { count++; head=head->next; } return count; } void preorder(struct tree *root) { if(root==NULL) return; printf(“%d “,root->data); preorder(root->left); preorder(root->right); } int main() { int n,no,co,nt; //struct node *head=NULL; printf(“Enter the operation\n”); scanf(“%d”,&n); while(n!=-1) { switch(n) { case 1: printf(“Enter -999 to stop\n”); //scanf(“%d”,&no); head=build(); break; case 5: co=count(head); printf(“%d\n”,co); break; case 6: root=srtedlisttobst(head,co); break; case 7: preorder(root); break; } printf(“Enter the operation”); scanf(“%d”,&n); } return 0; } shiv above root->left=left is……… if(ndata=head->data; sorry by mistake it was copd wrongly saniaz I think in method2 base case should be /* Base Case */ if (n == 0) return NULL; instead of /* Base Case */ if (n <= 0) return NULL; Correct me if I am wrong. saniaz Type error!! Input: Linked List 1->2->3->4->5->6->7 Output: A Balanced BST 4 / \ 2 6 / \ / \ 1 3 4 7 It should be Input: Linked List 1->2->3->4->5->6->7 Output: A Balanced BST 4 / \ 2 6 / \ / \ 1 3 5 7 avinash  
+I think there is no need of allocating using new for root, since there could be memory leakage. instead we could use
+   /* Allocate memory for root, and link the above constructed left
+       subtree with root */
+    struct TNode *root = *head_ref;
+    root->left = left;
+ 
+    /* Change head pointer of Linked List for parent recursive calls */
+    *head_ref = (*head_ref)->next;
+I tried it & it worked
+ Ravi Method 2 – Awesome. abbie i tried the second method, but every time it is giving one node less in the corresponding tree. Like if i am giving i/p as – 1->2->3->4->5->6 i am getting o/p as- 3 2 1 5 4 (this is preorder) but 6 is missing in the tree. please check the code and clarify me whether i am making a mistake or this code is skipping the last node.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik There is no problem in the code. See this run. Going forward, please check your programs before posting a comment like this. That saves everybody’s time. abbie thanx  
+/* Paste your code here (You may delete these lines if not writing code) */
+ naveen your solution is wrong…. as in linked list we can not use binary search or strictly speaking we can not jump to any element at one… we need to traverse the linked list.. also we can not go back in linked list…..how come the complexity is o(nlogn) ?? GeeksforGeeks @naveen: Please take a closer look at algorithm. It doesn’t use Binary Search. See this comment for details of time complexity calculation. pb what if we need to do the task for doubly list that too in place i.e. converting next and prev pointer to left and right pointers….any thoughts?? GeeksforGeeks @pb: This has been published as separate post. Please see In-place conversion of Sorted DLL to Balanced BST kunalgupta1991 @ I found second method wrong… for 1,2,3,4,5 it will construct. 3 / \ 2 4 / / 1 5 which is not a bst this is because we always focus on constructing left subtree first please correct if i am wrong. Avinash @kunal: I think u misunderstood the algorithm. It will construct following tree in preorder for 1,2,3,4,5:- Preorder:- 3,2,1,5,4 Please check on the algorithm once again. Advice:- Always dry run an algorithm to understand better.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Linuxwc If you want a complete tree (other levels full and nodes in the last level as far left as possible), the size of the left subtree is not always n/2. See the recursive calls in the sortedListToBSTRecur-function below. The function sizeofleft(int) below to calculate the left subtree is probably not optimal.  
+include <math.h>  add this line
+int sizeofleft (int treesize) { 
+    // Size of left subtree in a complete tree
+    
+    if (treesize<=1) return(0);  
+    // If at most 1 node, there is no left subtree
+    
+    int levelsabovelast = floor(log(treesize)/log(2));
+    // At least 1
+
+    int firstinlastlevel = pow(2,levelsabovelast);
+    /* Other left nodes in the last level:
+     if n >= nodes in the previous levels + 1 + half of the maximum number of nodes in the last level
+     then previous power of two - 1 (-1 since the first already included)
+     else rest of the nodes in the level since all of them are in the left subtree */
+    int otherleftnodes = (treesize>= firstinlastlevel*3/2) ? firstinlastlevel/2-1 : treesize-firstinlastlevel;
+    return(firstinlastlevel / 2 + otherleftnodes);
+}
+ 
+
+// Modified
+/* The main function that constructs balanced BST and returns root of it.
+       head_ref -->  Pointer to pointer to head node of linked list
+       n  --> No. of nodes in Linked List */
+struct TNode* sortedListToBSTRecur(struct LNode **head_ref, int n)
+{
+
+    /* Base Case */
+    if (n <= 0)
+        return NULL;
+    /* Recursively construct the left subtree */
+    /* If we want to make a complete tree, we cannot 
+     just divide by 2 */
+    int leftsize=sizeofleft(n);
+ 
+//    struct TNode *left = 
+// sortedListToBSTRecur(head_ref, n/2);
+    struct TNode *left = sortedListToBSTRecur(head_ref, leftsize);
+ 
+    /* Allocate memory for root, and link the above constructed left
+       subtree with root */
+    struct TNode *root = newNode((*head_ref)->data);
+    root->left = left;
+ 
+    /* Change head pointer of Linked List for parent recursive calls */
+    *head_ref = (*head_ref)->next;
+ 
+    /* Recursively construct the right subtree and link it with root
+      The number of nodes in right subtree  is total nodes - nodes in
+      left subtree - 1 (for root) which is n-n/2-1*/
+/*    root->right = sortedListToBSTRecur(head_ref, n-n/2-1); */
+//    The same here
+      root->right = sortedListToBSTRecur(head_ref, n-leftsize-1); 
+ 
+    return root;
+}
+ 
+  Aaman I agree wid kunal, trying hard to dry run but right subtree seems wrong  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Karthick Method 2 is cool. Took me a long time to understand it. Code,written beautifully. Thanks.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ geeky Guys, You are doing good job. But if you can provide tutorials on how to find the complexity of programs and recurrence relation then it will really helpful for the beginners like me. Also please suggest some books on algorithm and maths to get started with it  
+/* Paste your code here (You may delete these lines if not writing code) */
+ randy Introduction to Algorithms and Concrete Mathematics randy method 2, beautiful code! aayush kumar hey first method has time O(n^2) because of O(n) for finding mid of linked list.. plzz correct if i m wrong.. kartik @aayush kumar: The recurrance relation for method 1 would be T(n) = 2*T(n/2) + Theta(n) 2*T(n/2) ————–> For two sublists Theta(n) ——————-> For splitting the list in two halves and inserting in the BST. The solution of above recurrence is O(nLogn) aayush kumar @karthik yup u r right each level of recursive call requires a total of N/2 traversal steps in the list, and there are a total of lg N number of levels (ie, the height of the balanced tree). aayush kumar can any 1 post some good question on application of BFS. problem includes min. no of steps required to convert frm one state to other. this can be done by BFS.plzzz post solutions to these types of question gogo Method 2 is cool. Can we implement it without recursion? Jing Right, can we? Want to know too. Jing Is it true that the only way we can do it with loops is to simulate a stack ourselves (which basically does not make too much sense in terms of code writing)? Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

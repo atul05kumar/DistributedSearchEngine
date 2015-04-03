@@ -1,0 +1,118 @@
+Find next right node of a given key - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find next right node of a given key Given a Binary tree and a key in the binary tree, find the node right to the given key. If there is no node on right side, then return NULL. Expected time complexity is O(n) where n is the number of nodes in the given binary tree. For example, consider the following Binary Tree. Output for 2 is 6, output for 4 is 5. Output for 10, 6 and 5 is NULL. 
+                  10
+               /      \
+	      2         6
+           /   \         \ 
+	 8      4          5 We strongly recommend you to minimize the browser and try this yourself first. Solution: The idea is to do level order traversal of given Binary Tree. When we find the given key, we just check if the next node in level order traversal is of same level, if yes, we return the next node, otherwise return NULL. 
+/* Program to find next right of a given key */
+#include <iostream>
+#include <queue>
+using namespace std;
+
+// A Binary Tree Node
+struct node
+{
+    struct node *left, *right;
+    int key;
+};
+
+// Method to find next right of given key k, it returns NULL if k is
+// not present in tree or k is the rightmost node of its level
+node* nextRight(node *root, int k)
+{
+    // Base Case
+    if (root == NULL)
+        return 0;
+
+    // Create an empty queue for level order tarversal
+    queue<node *> qn; // A queue to store node addresses
+    queue<int> ql;   // Another queue to store node levels
+
+    int level = 0;  // Initialize level as 0
+
+    // Enqueue Root and its level
+    qn.push(root);
+    ql.push(level);
+
+    // A standard BFS loop
+    while (qn.size())
+    {
+        // dequeue an node from qn and its level from ql
+        node *node = qn.front();
+        level = ql.front();
+        qn.pop();
+        ql.pop();
+
+        // If the dequeued node has the given key k
+        if (node->key == k)
+        {
+            // If there are no more items in queue or given node is
+            // the rightmost node of its level, then return NULL
+            if (ql.size() == 0 || ql.front() != level)
+               return NULL;
+
+            // Otherwise return next node from queue of nodes
+            return qn.front();
+        }
+
+        // Standard BFS steps: enqueue children of this node
+        if (node->left != NULL)
+        {
+            qn.push(node->left);
+            ql.push(level+1);
+        }
+        if (node->right != NULL)
+        {
+            qn.push(node->right);
+            ql.push(level+1);
+        }
+    }
+
+    // We reach here if given key x doesn't exist in tree
+    return NULL;
+}
+
+// Utility function to create a new tree node
+node* newNode(int key)
+{
+    node *temp = new node;
+    temp->key = key;
+    temp->left = temp->right = NULL;
+    return temp;
+}
+
+// A utility function to test above functions
+void test(node *root, int k)
+{
+    node *nr = nextRight(root, k);
+    if (nr != NULL)
+      cout << "Next Right of " << k << " is " << nr->key << endl;
+    else
+      cout << "No next right node found for " << k << endl;
+}
+
+// Driver program to test above functions
+int main()
+{
+    // Let us create binary tree given in the above example
+    node *root = newNode(10);
+    root->left = newNode(2);
+    root->right = newNode(6);
+    root->right->right = newNode(5);
+    root->left->left = newNode(8);
+    root->left->right = newNode(4);
+
+    test(root, 10);
+    test(root, 2);
+    test(root, 6);
+    test(root, 5);
+    test(root, 8);
+    test(root, 4);
+    return 0;
+}
+ Output: No next right node found for 10
+Next Right of 2 is 6
+No next right node found for 6
+No next right node found for 5
+Next Right of 8 is 4
+Next Right of 4 is 5 Time Complexity: The above code is a simple BFS traversal code which visits every enqueue and dequeues a node at most once. Therefore, the time complexity is O(n) where n is the number of nodes in the given binary tree. Exercise: Write a function to find left node of a given node. If there is no node on the left side, then return NULL. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. VaraKalyan M I think, ql.size() == 0 ,, this should be qn.size()==0 sijayaraman Using one queue and one dummy node. void print_right(struct node* root, int key) { queue myqueue; struct node* dummy =newNode(-1); myqueue.push(root); myqueue.push(dummy); while(!myqueue.empty()) { struct node* current = myqueue.front(); myqueue.pop(); if(current->data == key) { if(myqueue.front()->data == -1) { cout<<"NULL"<<endl; return; } else { cout<data; return; } } else { if(current->left) { myqueue.push(current->left); } if(current->right) { myqueue.push(current->right); } if(myqueue.front()->data ==-1) { myqueue.push(dummy); } } } } G Veera Sekhar public void findRight() { List list = new LinkedList(); list.add(header); findRight(list, 4); } private static void findRight(List list, int k) { if (list == null || list.isEmpty()) { return; } int size = list.size(); for(int i=0;i<size;i++) { Node root = list.remove(0); if(root.data == k) { if(i < size-1) { Node right = list.remove(0); System.out.println(right.data); } else { System.out.println("null"); } list = null; break; } if(root.left != null) list.add(root.left); if(root.right != null) list.add(root.right); } findRight(list, k); } pulkit mehra It can be solved without using queues. Just do a inorder traversal with 2 extra variables(level and flag, make them static). Find the level of the node whose next right is to be determined, as soon as we reach that node, set the flag, level and return Find the next node with the same level and check if the flag is set. If we find a node return that node, Its the answer naveenbobbili Solved using BFS with one queue node* nextRight(node *root, int k) { if ((NULL != root) && (root->key != k)) { queue q1; q1.push(root); while (!q1.empty()) { int size = q1.size(); for (int i = 1; i key == k) { if (i == size) return NULL; q1.pop(); return q1.front(); } else { if (NULL != temp->left) q1.push(temp->left); if (NULL != temp->right) q1.push(temp->right); q1.pop(); } } } } return NULL; } Coder011 A recursive approach to the question involves (A) Finding the node with the given value (employing a simple BFS). (B) Quitting the recursion and moving upwards to find the Next Right Node. Link to Ideone : http://ideone.com/G15hoI poonam shd it not be dfs instead if bfs … Coder011 we can use both, though i have used DFS (wrongly mentioned as BFS in the comment) Sumit Monga The recursive solution for this problem is: void next_Right(struct node * root,int data,bool * is_found,int level,int * true_level,struct node ** temp) //is_found checks whether the value whose right is to be located is found //level holds the current level(initial value passed is 0) //true_level is actual level of element whose right is to be located //if target found store it in *temp. { if(!root) return; if(root->data == data) { *is_found = true; *true_level = level; } else { if(*is_found) //found actual element { if(level == *true_level && !(*temp)) *temp = root; if(level >= *true_level) return; } next_Right(root->left,data,is_found,level+1,true_level,temp); if(*temp) return; else next_Right(root->right,data,is_found,level+1,true_level,temp); } } Hell I don’t understand why output for 2 is not 4 guest because the question is not the find the right node of the root..but the node which is on the same level and is just right to it piyush bansal Hey, Solved this with simple pre-order traversal without the usage of queues void handleRightNodeToKey(struct BST* node, int refvalue, struct BST** resultnode) { struct BST* temp = node; if(temp != NULL) { if(temp->info == refvalue) { *resultnode = temp->right; return; } handleRightNodeToKey(temp->left, refvalue, resultnode); handleRightNodeToKey(temp->right,refvalue, resultnode); } } A simple recursive approach helps to find the exact answer, you can handle the resultnode for the null value to avoid any segmentation faults. The same can be further improvised to work for the first match, for now the whole tree will be traversed even if a value is found. groomnestle Level order traversal of a tree is actually a BFS on undirected graph (starting from root). The problem simplifies to find the next node to be visited when given a node. maverick Here is a very simple recursive implementation, please have a look at it.. http://ideone.com/QuganS#stdin Geek123 Without Queue Implementation #include struct TreeNode { struct TreeNode *left; struct TreeNode *right; int data; }; void print(struct TreeNode *root) { int temp_data=0; if(root==NULL) { return; } temp_data=root->data; print(root->left); temp_data=root->data; printf(“%d”,root->data); temp_data=root->data; print(root->right); } struct TreeNode* InsertNode(struct TreeNode *root,int data) { int temp_data=0; if(root==NULL) { struct TreeNode * newNode=(struct TreeNode*)malloc(sizeof(struct TreeNode)); newNode->data=data; newNode->left=NULL; newNode->right=NULL; return newNode; } if(datadata) { temp_data=root->data; root->left= InsertNode(root->left,data); } else if(data>root->data) { temp_data=root->data; root->right=InsertNode(root->right,data); } return root; } struct TreeNode *_FindRightNode(struct TreeNode *root,struct TreeNode *target,struct TreeNode **temp,int *templevel,int level) { if(root==NULL) return; _FindRightNode(root->left,target,temp,templevel,level+1); _FindRightNode(root->right,target,temp,templevel,level+1); if(*temp!=NULL&&*templevel==level) *temp=root; if(root==target) { *templevel=level; *temp=target; } } struct TreeNode *FindRightNode(struct TreeNode *root,struct TreeNode *target) { struct TreeNode *temp=NULL; int templevel=-1; _FindRightNode(root,target,&temp,&templevel,0); if(temp!=target) return temp; return NULL; } int main() { struct TreeNode * newnode=NULL; newnode=InsertNode(newnode,50); InsertNode(newnode,25); InsertNode(newnode,56); InsertNode(newnode,75); InsertNode(newnode,80); InsertNode(newnode,10); InsertNode(newnode,90); InsertNode(newnode,53); print(newnode); struct TreeNode *res=FindRightNode(newnode,newnode->right->left); if(res) printf(“nThe right node of the key is %d”,res->data); else printf(“nNo right node is present”); } http://opensourceforgeeks.blogspot.in/ Aniket Thakur Java code with output : http://opensourceforgeeks.blogspot.in/2013/12/find-next-right-node-of-given-key.html Hara Shankar Nayak For exercise question,Use reverse pre-order traversal to get left node. Thanks Hara Shankar Nayak This question can be solve in O(1) space complexity.Use DFS instead of BFS. In DFS we can use pre-order traversal in which after getting the key,we will move right wards.We keep the level of the key so that if we get any node with same level then that will be the first right node and we return from it as we dont want further nodes to be executed. Please find the code below in C #define null 0 typedef struct node { int data; struct node *left; struct node *right; }Node; Node *get_right_node_util(Node * root,int key,int level,int *k_lev) { if(root==null) return null; //if flag is true then it tells that the key is found and looking for right node //k_lev gives the level of the key static int flag=0; Node *temp=null; if(flag) { if(level==*k_lev) return root; } else if(root->data==key) { flag=1; *k_lev=level; return null; } temp=get_right_node_util(root->left,key,level+1,k_lev); if(temp) return temp; return get_right_node_util(root->right,key,level+1,k_lev); } Node *get_right_node(Node * root,int key) { if(root==null || root->data==key) return null; int k_lev=-1; return get_right_node_util(root,key,0,&k_lev); } Please help me if I m wrong. Capablanca tree * NextNode(tree* root,int key) { if(!root) return root; if(root->data==key) return root->right; tree* right= NextNode(root->right,key); tree* left=NextNode(root->left,key); if(right) return right; if(left) return left; return NULL; } xxmajia seriously? can you please read the question first? Sumit Poddar Please find the code without any space complexity and kindly let me know if theres any issue. public static int findRight(Node root, int k, int height, int p) { if (root == null) { return p; } if (root.data == k) { return -height; } if (height == -(p)) { return root.data; } p = findRight(root.left, k, height + 1, p); p = findRight(root.right, k, height + 1, p); return p; } public static int findLeft(Node root, int k, int height, int p) { if (root == null) { return p; } if (root.data == k) { return -height; } if (height == -(p)) { return root.data; } p = findLeft(root.right, k, height + 1, p); p = findLeft(root.left, k, height + 1, p); return p; } viki Dear GFG, This questions was asked in Microsoft coding test this year, and pointer to root node was not given, only query node was given. struct TreeNode { int data; struct TreeNode *left,*right, *parent; }; Kartik Viki, could you provide a solution for this problem. A simple solution is to first check parent, then grand parent and so on. Aditya Joshi Another simple solution is to first find the root. The root doesn’t have a parent. And carry out the same BFS traversal. Kartik Thanks Aditya, this looks simple and better. Preeti getNextRIghtNode(struct node *key) { if(key == NULL) return NULL; struct node *par = key->parent; if(par == NULL)//root has no parent return NULL; if(par && par->left == key && par->right != NULL) return par->right; struct node *x = getNextRightNode(par); if(x == NULL) return NULL; if(x->left) return x->left; else if(x->right) return x->right; else return NULL; } guest For the exercise part…Traverse the level from right to left instead of left to right in this.. And we can optimize the space complexity by using one queue instead of 2.. Just take a variable to keep track of how many nodes are pushed from x level to x+1 level…then while traversing all the nodes at x+1 level,If we found that node then if the level has more nodes return that node else return NULl Same as iterative method to find the height of the tree…. GFGFollower great to see a coding post after long time. keep it up GFG Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

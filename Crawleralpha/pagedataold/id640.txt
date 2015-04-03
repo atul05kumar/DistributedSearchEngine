@@ -1,0 +1,1333 @@
+Check if a given Binary Tree is SumTree - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Check if a given Binary Tree is SumTree Write a function that returns true if the given Binary Tree is SumTree else false. A SumTree is a Binary Tree where the value of a node is equal to sum of the nodes present in its left subtree and right subtree. An empty tree is SumTree and sum of an empty tree can be considered as 0. A leaf node is also considered as SumTree. Following is an example of SumTree. 
+          26
+        /   \
+      10     3
+    /    \     \
+  4      6      3 Method 1 ( Simple ) Get the sum of nodes in left subtree and right subtree. Check if the sum calculated is equal to root’s data. Also, recursively check if the left and right subtrees are SumTrees. 
+#include <stdio.h>
+#include <stdlib.h>
+
+/* A binary tree node has data, left child and right child */
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+/* A utility function to get the sum of values in tree with root
+  as root */
+int sum(struct node *root)
+{
+   if(root == NULL)
+     return 0;
+   return sum(root->left) + root->data + sum(root->right);
+}
+
+/* returns 1 if sum property holds for the given
+    node and both of its children */
+int isSumTree(struct node* node)
+{
+    int ls, rs;
+
+    /* If node is NULL or it's a leaf node then
+       return true */
+    if(node == NULL ||
+            (node->left == NULL && node->right == NULL))
+        return 1;
+
+   /* Get sum of nodes in left and right subtrees */
+   ls = sum(node->left);
+   rs = sum(node->right);
+
+   /* if the node and both of its children satisfy the
+       property return 1 else 0*/
+    if((node->data == ls + rs)&&
+            isSumTree(node->left) &&
+            isSumTree(node->right))
+        return 1;
+
+   return 0;
+}
+
+/*
+ Helper function that allocates a new node
+ with the given data and NULL left and right
+ pointers.
+*/
+struct node* newNode(int data)
+{
+    struct node* node =
+        (struct node*)malloc(sizeof(struct node));
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+    return(node);
+}
+
+/* Driver program to test above function */
+int main()
+{
+    struct node *root  = newNode(26);
+    root->left         = newNode(10);
+    root->right        = newNode(3);
+    root->left->left   = newNode(4);
+    root->left->right  = newNode(6);
+    root->right->right = newNode(3);
+    if(isSumTree(root))
+        printf("The given tree is a SumTree ");
+    else
+        printf("The given tree is not a SumTree ");
+
+    getchar();
+    return 0;
+}
+ Time Complexity: O(n^2) in worst case. Worst case occurs for a skewed tree. Method 2 ( Tricky ) The Method 1 uses sum() to get the sum of nodes in left and right subtrees. The method 2 uses following rules to get the sum directly. 1) If the node is a leaf node then sum of subtree rooted with this node is equal to value of this node. 2) If the node is not a leaf node then sum of subtree rooted with this node is twice the value of this node (Assuming that the tree rooted with this node is SumTree). 
+#include <stdio.h>
+#include <stdlib.h>
+
+/* A binary tree node has data, left child and right child */
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+/* Utillity function to check if the given node is leaf or not */
+int isLeaf(struct node *node)
+{
+    if(node == NULL)
+        return 0;
+    if(node->left == NULL && node->right == NULL)
+        return 1;
+    return 0;
+}
+
+/* returns 1 if SumTree property holds for the given
+    tree */
+int isSumTree(struct node* node)
+{
+    int ls; // for sum of nodes in left subtree
+    int rs; // for sum of nodes in right subtree
+
+    /* If node is NULL or it's a leaf node then
+       return true */
+    if(node == NULL || isLeaf(node))
+        return 1;
+
+    if( isSumTree(node->left) && isSumTree(node->right))
+    {
+        // Get the sum of nodes in left subtree
+        if(node->left == NULL)
+            ls = 0;
+        else if(isLeaf(node->left))
+            ls = node->left->data;
+        else
+            ls = 2*(node->left->data);
+
+        // Get the sum of nodes in right subtree
+        if(node->right == NULL)
+            rs = 0;
+        else if(isLeaf(node->right))
+            rs = node->right->data;
+        else
+            rs = 2*(node->right->data);
+
+        /* If root's data is equal to sum of nodes in left
+           and right subtrees then return 1 else return 0*/
+        return(node->data == ls + rs);
+    }
+
+    return 0;
+}
+
+/* Helper function that allocates a new node
+ with the given data and NULL left and right
+ pointers.
+*/
+struct node* newNode(int data)
+{
+    struct node* node =
+        (struct node*)malloc(sizeof(struct node));
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+    return(node);
+}
+
+/* Driver program to test above function */
+int main()
+{
+    struct node *root  = newNode(26);
+    root->left         = newNode(10);
+    root->right        = newNode(3);
+    root->left->left   = newNode(4);
+    root->left->right  = newNode(6);
+    root->right->right = newNode(3);
+    if(isSumTree(root))
+        printf("The given tree is a SumTree ");
+    else
+        printf("The given tree is not a SumTree ");
+
+    getchar();
+    return 0;
+}
+ Time Complexity: O(n) Please write comments if you find the above codes/algorithms incorrect, or find other ways to solve the same problem.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. NoobTreeCoder How about this code … its O(n) int isSumTree(node *root,int *sum){ if(root==NULL){ *sum=0; return(1); } if(root->left==NULL && root->right==NULL){ *sum=root->data; return(1); } int lsum,rsum; if(isSumTree(root->left,&lsum) && isSumTree(root->right,&rsum) && lsum+rsum=root->data){ *sum=lsum+rsum+root->data; return(1); } return(0); } hary I think the above solution is also good and it has less condition checking, the only thing I would have done differently is if(isSumTree(root->left,&lsum) && isSumTree(root->right,&rsum)){ *sum=lsum+rsum+root->data; return (lsum+rsum=root->data); } hary I think the above solution is also good and it has less condition checking, the only thing I would have done differently is if(isSumTree(root->left,&lsum) && isSumTree(root->right,&rsum)){ *sum=lsum+rsum+root->data; return (lsum+rsum=root->data); } hary Forgot to add double equality in the return statement i.e. return (lsum+rsum == root->data) CoderBoy I want to point out that if you see we used same strategy in converting Diameter,Height-Balance Verification solutions of O(n^2) to O(n)…Cool Isn’t it??? AbhishekSingh why does the method 1 solution returns 1 for the case when binary tree contains only root node? How does this satisfies the sum property?  
+int isSumTree(struct node* node)
+{
+    int ls, rs;
+ 
+    /* If node is NULL or it's a leaf node then
+       return true */
+    if(node == NULL ||
+            (node->left == NULL && node->right == NULL))
+        return 1;
+ 
+   /* Get sum of nodes in left and right subtrees */
+   ls = sum(node->left);
+   rs = sum(node->right);
+ 
+   /* if the node and both of its children satisfy the
+       property return 1 else 0*/
+    if((node->data == ls + rs)&&
+            isSumTree(node->left) &&
+            isSumTree(node->right))
+        return 1;
+ 
+   return 0;
+}
+ AbhishekSingh why does the code in method 1 returns 1 for the case when only root node is present in the binary tree? How does this satisfy the sum property?  
+int isSumTree(struct node* node)
+{
+    int ls, rs;
+ 
+    /* If node is NULL or it's a leaf node then
+       return true */
+    if(node == NULL ||
+            (node->left == NULL && node->right == NULL))
+        return 1;
+ 
+   /* Get sum of nodes in left and right subtrees */
+   ls = sum(node->left);
+   rs = sum(node->right);
+ 
+   /* if the node and both of its children satisfy the
+       property return 1 else 0*/
+    if((node->data == ls + rs)&&
+            isSumTree(node->left) &&
+            isSumTree(node->right))
+        return 1;
+ 
+   return 0;
+}
+ Akhil An O(n) small self explanatory precise code.  
+#include<stdio.h>
+#include<stdlib.h>
+struct tree
+{
+    int info;
+    struct tree *l;
+    struct tree *r;
+};
+typedef struct tree *Tree;
+
+Tree newNode(int num)
+{
+    Tree temp = (Tree)malloc(sizeof(struct tree));
+    temp->info = num;
+    temp->l = NULL;
+    temp->r = NULL;
+    return temp;
+}
+
+int isSumTree(Tree root)
+{
+    if(!root)
+        return 0;
+    if(!root->l && !root->r)
+        return root->info;
+    int ls = isSumTree(root->l);
+    int rs = isSumTree(root->r);
+    if(ls!=-1 && rs!=-1 && root->info == ls+rs)
+        return root->info+ls+rs;
+    return -1;
+}
+int main()
+{
+    struct tree *root  = newNode(26);
+    root->l = newNode(10);
+    root->r = newNode(3);
+    root->l->l = newNode(4);
+    root->l->r = newNode(6);
+    root->r->r = newNode(3);
+    if(isSumTree(root)!=-1)
+        printf("YES\n");
+    else printf("NO");
+    return 0;
+}
+
+
+ Ronny Thumbs up..Cool denial Where is Admin ? This solution works perfect. I tried this. Hey people Do comment if something is wrong. Geek86 It will fail in the following case : BTree with root ‘7’ and with left child ‘7’ and right child ‘0’ Correct me If I am wrong. Geek86 Correction from above It will fail in the following case : BTree with root ‘7’ and with left child ‘7’ and NO right child Correct me If I am wrong. Akhil This would work.  
+#include<stdio.h>
+#include<stdlib.h>
+struct tree
+{
+    int info;
+    struct tree *l;
+    struct tree *r;
+};
+typedef struct tree *Tree;
+ 
+Tree newNode(int num)
+{
+    Tree temp = (Tree)malloc(sizeof(struct tree));
+    temp->info = num;
+    temp->l = NULL;
+    temp->r = NULL;
+    return temp;
+}
+ 
+int isSumTree(Tree root)
+{
+    if(!root)
+        return 0;
+    if(!root->l && !root->r)
+        return root->info;
+    int ls = isSumTree(root->l);
+    int rs = isSumTree(root->r);
+    if(ls!=-1 && rs!=-1 && root->info == ls+rs)
+        return root->info+ls+rs;
+    else if(ls==-1)
+        return root->info+rs;
+    else if(rs==-1)
+        return root->info+ls;
+    else
+    return -1;
+}
+int main()
+{
+    struct tree *root  = newNode(26);
+    root->l = newNode(10);
+    root->r = newNode(3);
+    root->l->l = newNode(4);
+    root->l->r = newNode(6);
+    root->r->r = newNode(3);
+    if(isSumTree(root)!=-1)
+        printf("YES\n");
+    else printf("NO");
+    return 0;
+}
+ Rahul Why did you change the code? I guess the one you posted earlier was also working in the example suggested by Geek86 Akhil yes, you are right. It will work then also.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Sreenivas Doosa This solution works perfectly.. Nice and simple.. Ujjwal  
+Cant the solution be approached using tree's inorder and preorder traversal.??
+ abhishek08aug C++ code:  
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+  
+class tree_node {
+  private:
+    int data;
+    tree_node * left;
+    tree_node * right;
+  public:
+    tree_node() {
+      left=NULL;
+      right=NULL;
+    }
+    void set_data(int data) {
+      this->data=data;
+    }
+    int get_data() {
+      return this->data;
+    }
+    void set_left(tree_node * left) {
+      this->left=left;
+    }
+    tree_node * get_left() {
+      return this->left;
+    }
+    void set_right(tree_node * right) {
+      this->right=right;
+    }
+    tree_node * get_right() {
+      return this->right;
+    }
+    tree_node ** get_left_ref() {
+      return &(this->left);
+    }
+    tree_node ** get_right_ref() {
+      return &(this->right);
+    }
+};
+  
+class tree {
+  private:
+    tree_node * root;
+    int size;
+    void _recursive_insert(tree_node ** root_ref, int value);
+    void _print_preorder(tree_node * root);
+    void _print_inorder(tree_node * root);
+    void _print_postorder(tree_node * root);
+    int _find_size(tree_node * root);
+    int _are_identical(tree_node * tn1, tree_node * tn2);
+    int _find_height(tree_node * root);
+    void _delete_tree(tree_node ** root);
+    void _mirror(tree_node * root);
+    void _print_paths(tree_node * root, int * path_nodes, int next_vacant_position);
+    void _print_array(int * array, int len);
+    tree_node * _lowest_common_ancestor(tree_node * parent, tree_node * root, int a, int b);
+    tree_node * _find_node(tree_node * root, int value);
+    tree_node * _min_node(tree_node * root);
+    void _print_level_order(tree_node * root);
+    int _count_leaf_nodes(tree_node * root);
+    int _is_bst(tree_node * root);
+    int _children_sum(tree_node * root);
+    void _ensure_children_sum(tree_node * root);
+    int _diameter(tree_node * root);
+    int _is_height_balanced(tree_node * root);
+    int _leaf_path_sum(tree_node * root, int num);
+    void _double_tree(tree_node * root);
+    int _width(tree_node * root, int height, int level, int initialize_width_array);
+    int _maximum(int array[], int len);
+    void _print_k_distance_nodes(tree_node * root, int k, int distance);
+    tree_node * _kth_smallest_element(tree_node * root, int k);
+    int _get_level(tree_node * root, int key, int level);
+    int _print_ancestors(tree_node * root, int key);
+    void _print_keys_in_range(tree_node * root, int r1, int r2);
+    int _is_sum_tree(tree_node * root);
+  public:
+    tree() {
+      root=NULL;
+      size=0;
+    }
+    void insert(int value);
+    void recursive_insert(int value);
+    void print_preorder();
+    void print_inorder();
+    void print_postorder();
+    int find_size();
+    int get_size() {
+      return this->size;
+    }
+    int are_identical(tree t);
+    int find_height();
+    void delete_tree();
+    void mirror();
+    void print_paths();
+    tree_node * lowest_common_ancestor(int a, int b);
+    tree_node * find_node(int value);
+    tree_node * min_node();
+    void print_level_order();
+    int count_leaf_nodes();
+    int is_bst();
+    int children_sum();
+    void ensure_children_sum();
+    int diameter();
+    int is_height_balanced();
+    int leaf_path_sum(int num);
+    void double_tree();
+    int width();
+    void print_k_distance_nodes(int k);
+    tree_node * kth_smallest_element(int k);
+    int get_level(int key);
+    void print_ancestors(int key);
+    void print_keys_in_range(int r1, int r2);
+    int is_sum_tree();
+};
+  
+void tree::insert(int value) {
+  if(root==NULL) {
+    root=new tree_node;
+    root->set_data(value);
+  } else {
+    tree_node * parent=NULL;
+    tree_node * current=root;
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    while(current!=NULL) {
+      if(value<=current->get_data()) {
+        parent=current;
+        current=current->get_left();
+      } else {
+        parent=current;
+        current=current->get_right();
+      }
+    }
+    if(value<=parent->get_data() && parent->get_left()==NULL) {
+      parent->set_left(new_node);
+    } else if(value>parent->get_data() && parent->get_right()==NULL) {
+      parent->set_right(new_node);
+    }
+  }
+  size++;
+}
+  
+void tree::recursive_insert(int value) {
+  _recursive_insert(&root, value);
+  size++;
+}
+  
+void tree::_recursive_insert(tree_node ** root_ref, int value) {
+  if(*root_ref==NULL) {
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    *root_ref=new_node;  
+  } else {
+    if(value<=(*root_ref)->get_data()) {
+      _recursive_insert((*root_ref)->get_left_ref(), value);
+    } else {
+      _recursive_insert((*root_ref)->get_right_ref(), value);
+    }
+  }
+}
+  
+void tree::print_preorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_preorder(root);
+  cout<<endl;
+}
+  
+void tree::_print_preorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  cout<<root->get_data()<<" ";
+  if(root->get_left()!=NULL)
+    _print_preorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_preorder(root->get_right());
+}
+  
+void tree::print_inorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_inorder(root);
+  cout<<endl;
+}
+  
+void tree::_print_inorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_inorder(root->get_left());
+  cout<<root->get_data()<<" ";
+  if(root->get_right()!=NULL)
+    _print_inorder(root->get_right());
+}
+  
+void tree::print_postorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_postorder(root);
+  cout<<endl;
+}
+  
+void tree::_print_postorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_postorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_postorder(root->get_right());
+  cout<<root->get_data()<<" ";
+}
+ 
+int tree::find_size() {
+  return _find_size(root);
+}
+ 
+int tree::_find_size(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else {
+    return 1+_find_size(root->get_left())+_find_size(root->get_right());
+  }
+}
+ 
+int tree::are_identical(tree t) {
+  return _are_identical(this->root, t.root);
+}
+ 
+int tree::_are_identical(tree_node * tn1, tree_node * tn2) {
+  if(tn1==NULL && tn2==NULL) {
+    return 1;
+  } else if((tn1==NULL && tn2!=NULL) || (tn1!=NULL && tn2==NULL) || (tn1->get_data()!=tn2->get_data())) {
+    return 0;
+  } else {
+    return _are_identical(tn1->get_left(), tn2->get_left()) && _are_identical(tn1->get_right(), tn2->get_right());
+  }
+}
+ 
+int tree::find_height() {
+  return _find_height(root);
+}
+ 
+int tree::_find_height(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  }
+  else {
+    return 1+max(_find_height(root->get_left()), _find_height(root->get_right()));
+  }
+}
+ 
+void tree::delete_tree() {
+  _delete_tree(&root);
+  size=0;
+}
+ 
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      _delete_tree((*root)->get_left_ref());
+    }
+    if((*root)->get_right()!=NULL) {
+      _delete_tree((*root)->get_right_ref());
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+ 
+/* alternate _delete_tree */
+/*
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      tree_node * left_ref=(*root)->get_left();
+      _delete_tree(&left_ref);
+    }
+    if((*root)->get_right()!=NULL) {
+      tree_node * right_ref=(*root)->get_right();
+      _delete_tree(&right_ref);
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+*/
+ 
+void tree::mirror() {
+  _mirror(root);
+}
+ 
+void tree::_mirror(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+ 
+  tree_node * temp=root->get_left();
+  root->set_left(root->get_right());
+  root->set_right(temp);
+  _mirror(root->get_left());
+  _mirror(root->get_right());
+}
+ 
+void tree::print_paths(){
+   int max_path_length=find_height();
+   int * path_nodes=(int *)calloc(sizeof(int), max_path_length);
+  _print_paths(root, path_nodes, 0);
+}
+ 
+void tree::_print_paths(tree_node * root, int * path_nodes, int next_vacant_position){
+  if(root==NULL) {
+    return;
+  } else if(root->get_left()==NULL && root->get_right()==NULL) {
+    *(path_nodes+next_vacant_position)=root->get_data();
+    _print_array(path_nodes, next_vacant_position);
+  } else {
+    *(path_nodes+next_vacant_position)=root->get_data();
+    _print_paths(root->get_left(), path_nodes, next_vacant_position+1);
+    _print_paths(root->get_right(), path_nodes, next_vacant_position+1);
+  }
+}
+ 
+void tree::_print_array(int * array, int len) {
+  int i;
+  for(i=0; i<=len; i++) {
+    cout<<*(array+i)<<" ";
+  }
+  cout<<endl;
+}
+ 
+tree_node * tree::find_node(int value) {
+  return _find_node(root, value);
+}
+ 
+tree_node * tree::_find_node(tree_node * root, int value) {
+  if(root==NULL || root->get_data()==value) {
+    return root;
+  } else if(value<=root->get_data()) {
+    return _find_node(root->get_left(), value);
+  } else {
+    return _find_node(root->get_right(), value);
+  }
+}
+ 
+tree_node * tree::lowest_common_ancestor(int a, int b) {
+  return _lowest_common_ancestor(NULL, root, a, b);
+}
+ 
+tree_node * tree::_lowest_common_ancestor(tree_node * parent, tree_node * root, int a, int b) {
+  if(root==NULL) {
+    return root;
+  } else if((root->get_data()==a && (root->get_left()->get_data()==b || root->get_right()->get_data()==b))
+             || (root->get_data()==b && (root->get_left()->get_data()==a || root->get_right()->get_data()==a))) {
+    return parent;
+  } else if((_find_node(root->get_left(), a)!=NULL && _find_node(root->get_right(), b)!=NULL)
+        || (_find_node(root->get_left(), b)!=NULL && _find_node(root->get_right(), a)!=NULL)) {
+    return root;
+  } else if(_find_node(root->get_left(), a)!=NULL && _find_node(root->get_left(), b)!=NULL) {
+    return _lowest_common_ancestor(root, root->get_left(), a, b);
+  } else if(_find_node(root->get_right(), a)!=NULL && _find_node(root->get_right(), b)!=NULL) {
+    return _lowest_common_ancestor(root, root->get_right(), a, b);
+  } else {
+    return NULL;
+  }
+}
+ 
+tree_node * tree::min_node() {
+  return _min_node(root);
+}
+ 
+tree_node * tree::_min_node(tree_node * root) {
+  if(root==NULL || root->get_left()==NULL) {
+    return root;
+  } else {
+    return _min_node(root->get_left());
+  }
+}
+ 
+int tree::count_leaf_nodes() {
+  return _count_leaf_nodes(root);
+}
+ 
+int tree::_count_leaf_nodes(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else if(root->get_left()==NULL && root->get_right()==NULL) {
+    return 1;
+  } else {
+    return _count_leaf_nodes(root->get_left())+_count_leaf_nodes(root->get_right());
+  }
+}
+ 
+ 
+int tree::is_bst() {
+  return _is_bst(root);
+}
+ 
+int tree::_is_bst(tree_node * root) {
+  static tree_node * previous=NULL;
+  if(root==NULL) {
+    return 1;
+  } else {
+    if(!_is_bst(root->get_left())) {
+      return 0;
+    }
+    if(previous!=NULL && (previous->get_data())>(root->get_data())) {
+      return 0;
+    }
+    previous=root;
+    if(!_is_bst(root->get_right())) {
+      return 0;
+    }   
+  }
+}
+ 
+int tree::children_sum() {
+  return _children_sum(root);
+}
+ 
+int tree::_children_sum(tree_node * root) {
+  if(root==NULL) {
+    return 1;
+  }
+  if(root->get_left()==NULL && root->get_right()==NULL) {
+    return 1;
+  }
+  else if(_children_sum(root->get_left()) && _children_sum(root->get_right())){
+    int left_data;
+    int right_data;
+    if(root->get_left()!=NULL) {
+      left_data=root->get_left()->get_data();
+    } else {
+      left_data=0;
+    }
+    if(root->get_right()!=NULL) {
+      right_data=root->get_right()->get_data();
+    } else {
+      right_data=0;
+    }
+ 
+    if(left_data+right_data==root->get_data()) {
+      return 1;
+    } else {
+      return 0;
+    }
+  } else {
+    return 0;
+  }
+}
+ 
+void tree::ensure_children_sum() {
+  _ensure_children_sum(root);
+}
+ 
+void tree::_ensure_children_sum(tree_node * root) {
+  if(root==NULL || (root->get_left()==NULL && root->get_right()==NULL)) {
+    return;
+  } else {
+    _ensure_children_sum(root->get_left());
+    _ensure_children_sum(root->get_right());
+    int left_data;
+    int right_data;
+    if(root->get_left()!=NULL) {
+      left_data=root->get_left()->get_data();
+    } else {
+      left_data=0;
+    }
+    if(root->get_right()!=NULL) {
+      right_data=root->get_right()->get_data();
+    } else {
+      right_data=0;
+    }
+    root->set_data(left_data+right_data);
+  }
+}
+ 
+int tree::diameter() {
+  return _diameter(root);
+}
+ 
+int tree::_diameter(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else {
+    return max(_find_height(root->get_left())+_find_height(root->get_right())+1, max(_diameter(root->get_left()), _diameter(root->get_left())));
+  }
+}
+ 
+int tree::is_height_balanced() {
+  return _is_height_balanced(root);
+}
+ 
+int tree::_is_height_balanced(tree_node * root) {
+  if(root==NULL) {
+    return 1;
+  } else {
+    int left_height=_find_height(root->get_left());
+    int right_height=_find_height(root->get_right());
+    if(abs(left_height-right_height)<=1 && _is_height_balanced(root->get_left()) && _is_height_balanced(root->get_left())) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+}
+ 
+int tree::leaf_path_sum(int sum) {
+  return _leaf_path_sum(root, sum);
+}
+ 
+int tree::_leaf_path_sum(tree_node * root, int sum) {
+  if(root==NULL) {
+    return 0;
+  } else if(root->get_data()==sum && root->get_left()==NULL && root->get_right()==NULL) {
+    return 1;
+  } else {
+    return _leaf_path_sum(root->get_left(), sum-root->get_data()) || _leaf_path_sum(root->get_right(), sum-root->get_data());
+  }
+}
+ 
+void tree::double_tree() {
+  _double_tree(root);
+}
+ 
+void tree::_double_tree(tree_node * root) {
+  if(root==NULL) {
+    return;
+  } else {
+    tree_node * new_node=new tree_node;
+    new_node->set_data(root->get_data());
+    tree_node * root_left=root->get_left();
+    root->set_left(new_node);
+    new_node->set_left(root_left);
+    _double_tree(root_left);
+    _double_tree(root->get_right());
+  }
+}
+ 
+int tree::width() {
+  int height=find_height();
+  return _width(root, height, 0, 1);
+}
+ 
+int tree::_width(tree_node * root, int height, int level, int initialize_width_array) {
+  static int width[]={0};
+  if(initialize_width_array==1) {
+    int i;
+    for(i=0; i<height; i++) {
+      width[i]=0; 
+    }
+  }
+  if(root==NULL) {
+    width[level]=width[level]+0;
+  } else {
+    width[level]=width[level]+1;
+    _width(root->get_left(), height, level+1, 0);
+    _width(root->get_right(), height, level+1, 0);
+  }
+  return _maximum(width, height);
+}
+ 
+int tree::_maximum(int array[], int len) {
+  int i;
+  int max=array[0];
+  for(i=1; i<len; i++) {
+    if(array[i]>max) {
+      max=array[i];
+    }
+  }
+  return max;
+}
+ 
+void tree::print_k_distance_nodes(int k) {
+  _print_k_distance_nodes(root, k, 0);
+  cout<<endl;
+}
+ 
+void tree::_print_k_distance_nodes(tree_node * root, int k, int distance) {
+  if(root==NULL) {
+    return;
+  } else if(distance==k) {
+    cout<<root->get_data()<<" ";
+  } else {
+    _print_k_distance_nodes(root->get_left(), k, distance+1);
+    _print_k_distance_nodes(root->get_right(), k, distance+1);
+  }
+}
+ 
+tree_node * tree::kth_smallest_element(int k) {
+  return _kth_smallest_element(root, k);
+}
+ 
+tree_node * tree::_kth_smallest_element(tree_node * root, int k) {
+  if(root==NULL) {
+    return root;
+  } else {
+    int left_size=_find_size(root->get_left());
+    if(left_size==k-1) {
+      return root;
+    } else if(left_size>=k) {
+      return _kth_smallest_element(root->get_left(), k);
+    } else {
+      return _kth_smallest_element(root->get_right(), k-left_size-1);
+    }
+  }
+}
+
+int tree::get_level(int key) {
+  return _get_level(root, key, 1);
+}
+
+int tree::_get_level(tree_node * root, int key, int level) {
+  if(root==NULL) {
+      return 0;
+  } else if(root->get_data()==key) {
+      return level;
+  }
+  else {
+          return _get_level(root->get_left(), key, level+1)+_get_level(root->get_right(), key, level+1);
+  }
+}
+
+void tree::print_ancestors(int key){
+    _print_ancestors(root, key);
+    cout<<endl;
+}
+    
+int tree::_print_ancestors(tree_node * root, int key) {
+    if(root==NULL) {
+        return 0;
+    } else if(root->get_data()==key) {
+      return 1;
+    } else {
+        if(_print_ancestors(root->get_left(), key) || _print_ancestors(root->get_right(), key)) {
+            cout<<root->get_data()<<" ";
+            return 1;
+        }
+    }
+}
+
+void tree::print_keys_in_range(int r1, int r2) {
+    _print_keys_in_range(root, r1, r2);
+    cout<<endl;
+}
+
+void tree::_print_keys_in_range(tree_node * root, int r1, int r2) {
+    if(root==NULL) {
+        return;
+    }
+    if(root->get_left()!=NULL) {
+        _print_keys_in_range(root->get_left(), r1, r2);
+    }
+    if(root->get_data()>=r1 && root->get_data()<=r2) {
+        cout<<root->get_data()<<" ";
+    }
+    if(root->get_right()!=NULL) {
+        _print_keys_in_range(root->get_right(), r1, r2);
+    }
+}
+
+int tree::is_sum_tree() {
+    return _is_sum_tree(root);
+}
+
+int tree::_is_sum_tree(tree_node * root) {
+  if(root==NULL) {
+    return 1;
+  }
+  tree_node * left=root->get_left();
+  tree_node * right=root->get_right();
+  if(left==NULL && right==NULL) {
+      return 1;
+  }
+  int left_value;
+  int right_value;
+  if(left==NULL) {
+    left_value=0; 
+  } else {
+    left_value=left->get_data();
+  }
+  if(right==NULL) {
+    right_value=0; 
+  } else {
+    right_value=right->get_data();
+  }
+  if(left_value+right_value!=root->get_data() || !_is_sum_tree(left) || !_is_sum_tree(right)) {
+      return 0;
+  } else {
+      return 1;
+  }
+}
+
+int main() {
+  tree t1;
+ 
+  t1.recursive_insert(20);
+  t1.recursive_insert(10);
+  t1.insert(30);
+  t1.insert(8);
+  t1.recursive_insert(12);
+  t1.recursive_insert(28);
+  t1.recursive_insert(32);
+  t1.recursive_insert(6);
+  t1.recursive_insert(9);
+  t1.recursive_insert(50);
+  t1.insert(14);
+  t1.insert(26);
+ 
+  t1.print_inorder();
+ 
+  if(t1.is_sum_tree()) {
+      cout<<"Sum tree!"<<endl;
+  } else {
+      cout<<"Not a sum tree!"<<endl;
+  }
+  
+  tree t2;
+ 
+  t2.recursive_insert(20);
+  t2.recursive_insert(20);
+  
+  t2.print_inorder();
+ 
+  if(t2.is_sum_tree()) {
+      cout<<"Sum tree!"<<endl;
+  } else {
+      cout<<"Not a sum tree!"<<endl;
+  }
+  
+  return 0;
+}
+ 6 8 9 10 12 14 20 26 28 30 32 50 Not a sum tree! 20 20 Sum tree! Sreenivas Doosa Please check this simple one. Works in O(n). Please correct if anything wrong with this.  
+
+bool isSumTree(struct node* root, int* sum)
+{
+  if(root == NULL)
+  {
+    *sum = 0;
+    return true;
+  }
+
+  int leftSum, rightSum;
+
+  isSumTree(root->left, &leftSum);
+  isSumTree(root->right, &rightSum);
+
+  *sum = leftSum + rightSum + root->data;
+
+  if(leftSum + rightSum == root->data)
+    return true;
+  else
+    return false;
+}
+
+ Akhil Changing the function prototype is usually undesirable. rohit int sumtree(struct node *root,int *fl) { int p1=0,p2=0; if((root->left==NULL)&&(root->right==NULL)) return(root->data); if(root->left!=NULL) p1=sumtree(root->left,fl); if(root->right!=NULL) p2=sumtree(root->right,fl); if(root->data==p1+p2) return(root->data+p1+p2); else *fl=1; } anand public class CheckIfGivenBTisST { public static void main(String[] args){ Node root = new Node(46); root.left = new Node(10); root.right = new Node(13); root.left.left = new Node(4); root.left.right = new Node(6); root.right.right = new Node(3); root.right.left = new Node(5); root.right.left.left = new Node(5); System.out.println(getSumTree(root)!= -1); } private static int getSumTree(Node root) { if(root == null) return 0; else{ int lt = getSumTree(root.left); int rt = getSumTree(root.right); if(root.left == null && root.right == null) return 0; else if(lt == -1 || rt == -1) return -1; else{ if(root.data == lt + rt+ (root.left!=null?root.left.data:0) + (root.right!=null?root.right.data:0)){ return root.data; }else{ return -1; } } } } } Manish Dipankar  
+
+int issumtree(struct node* root)
+{
+	if(root == NULL)
+		return 1;
+	if(root->left == NULL && root->right == NULL)
+		return 1;
+	else if((root->left != NULL && root->right !=NULL))
+	{
+	if((root->data == root->left->data + root->right->data) &&
+			issumtree(root->left) &&
+			issumtree(root->right))
+		return 1;
+	else 
+		return 0;
+	}
+}
+ Gaurav int SumTree(struct node *p){ int temp=0; if(p!=NULL){ if(p->left==NULL && p->right==NULL) return p->data; if(p->data==(temp=SumTree(p->left)+SumTree(p->right))) return 2*temp; return -1; // Not a SumTree } return 0; } sandesh Take preorder of the tree and except first element take the sum of remaining and check whether it is same or not. rahul will your idea work if the preorder traversal of the tree is 26 10 4 5 4 3? regards!! ayan_2587 Just do a Breadth first traversal, and as you pass the node, check if the root value is equal to sum of the left and the right child. In case of leaf nodes, the root value itself would be the sum. http://www.crazylearner.com/ student what about this solution?  
+int checksumtree(struct node *t){
+if (t && !(t->right) && !(t->left))
+return t->data;
+if (!t)
+return 0;
+
+
+if(t->data==(checksumtree(t->left)) + (checksumtree(t->right)))
+        return 2*t->data;
+        else
+        return 0;
+
+}
+int main(){
+
+/*
+* Initialization 
+*/
+if (checksumtree(t))
+
+cout<<"TRUE";
+
+else
+
+cout<<"FALSE";
+
+} 
+ Bala  
+
+/* 
+   Algorithm:
+   1) Use bottom up approach
+   2) Get the sum of root's sub trees and compare with root value
+   3) Handle the base conditions
+*/
+
+int isSumTree(sturct node *root)
+{
+    int sum = 0;
+    return(isSumTreeHelper(root, &sum));
+}
+
+int isSumTreeHelper(struct node *root, int *sum)
+{
+    int left_tree_sum = 0, right_tree_sum = 0;
+    int is_left = 0, is_right = 0;
+    
+    // base conditions
+    if (NULL == root) {
+//     *sum = *sum + 0; // do you need this :) , well, it's not required ..
+     return (1); // return SUCCESS
+    }
+    
+    if ((NULL == root->left) && (NULL == root->right)) {// if it is a leaf node
+       *sum = *sum + (root->data);
+       return (1);
+    }
+    
+    is_left = isSumTreeHelper(root->left, &left_tree_sum);
+    
+    is_right = isSumTreeHelper(root->right, &right_tree_sum);
+       
+    *sum = left_tree_sum + root->data + right_tree_sum;
+    
+    return (is_left && is_right && (root->data == left_tree_sum + right_tree_sum));                      
+             
+}
+
+/*
+ * if left sub tree is not a sum tree, do we need to validate the right sub tree?
+ * Well, it's not required, we can avoid the right sub tree validation. The below change does the same.
+ *
+ */
+ 
+  if (is_left) {  
+    is_right = isSumTreeHelper(root->right, &right_tree_sum);
+  }
+ Ankur Another O(n) solution int checkSumTree(struct node* root){ int sum ; if(root == NULL || isLeaf(root) ){ return 1; } if(checkSumTree(root->left) && checkSumTree(root->right)){ if(root->left!=NULL && root->right!=NULL){ sum = root->data – root->left->data – root->right->data; } if(root->left!=NULL && root->right==NULL){ sum = root->data – root->left->data; } if(root->left==NULL && root->right!=NULL){ sum = root->data – root->right->data ; } if(sum ==0){ return 1; } else{ return 0; } return 1; } else return 0; }   Ankur Another solution in O(n) int checkSumTree(struct node* root){ int sum ; if(root == NULL || isLeaf(root) ){ return 1; } if(checkSumTree(root->left) && checkSumTree(root->right)){ if(root->left!=NULL && root->right!=NULL){ sum = root->data – root->left->data – root->right->data; } if(root->left!=NULL && root->right==NULL){ sum = root->data – root->left->data; } if(root->left==NULL && root->right!=NULL){ sum = root->data – root->right->data ; } if(sum ==0){ return 1; } else{ return 0; } return 1; } else return 0; } red just traverse the tree in postorder and the call to the left subtree and the right subtree return the respective sum of the values in the left and right subtrees. compare this value with the current node. whenever the value doesnt match break and print ‘is not a sum tree’. else print is a sum tree. takes O(n) mitul that’s what the second solution is doing … take a good look returning sum=2*(node->data) is same as adding sum to the node->data value..!! there’s isn’t any flaw in yr comment but the approach is already suggested http://www.tanmayonrun.blogspot.com Tanmay Chakrabarty Hi. I solved the problem with a little limitation. I used my own depth first search method to find out the sum. You can visit it in the following link Computer Programming: Binary Tree is Sum tree or Not baskin How about this? // Inner class class Result { private boolean isSumTree; private int subTreeSum; } public static Result sumTree(Node node) { if (node == null{ return new Result(true, 0); } if (node.left == null && node.right == null) { return new Result(true, node.data); } Result lr = sumTree(node.left); // result for left subtree Result rr = sumTree(node.right); // result for right subtree return new Result( lr.isSumTree && rr.isSumTree && (node.data == lr.subTreeSum + rr.subTreeSum), node.data + lr.subTreeSum + rr.subTreeSum); } baskin How do i edit the update. Correction: <> return new Result(return lr.isSumTree && rr.isSumTree && (node.data == lr.subTreeSum + rr.subTreeSum), node.data + lr.subTreeSum + rr.subTreeSum); GeeksforGeeks @baskin: Modification by users is currently not supported. We have modified your originial comment with the suggested change. Please let us know if the modified code looks fine. baskin Looks fine. nitpicking warning: indentation can be improved though. http://shashank7s.blogspot.com WgpShashank  
+#include <stdio.h>
+#include <stdlib.h>
+ 
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+     int data;
+     struct node* left;
+     struct node* right;
+};
+ 
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+     struct node* node = (struct node*)
+                                  malloc(sizeof(struct node));
+     node->data = data;
+     node->left = NULL;
+     node->right = NULL;
+ 
+     return(node);
+}
+ 
+ 
+struct node* sumSubTree(struct node** root)
+{
+int LeftOld,RightOld;
+struct node *l,*r;
+if((*root) == NULL || ((*root) -> left== NULL && (*root)->right == NULL))
+return NULL;
+else
+{
+LeftOld = (*root)->left->data;
+RightOld = (*root)->right->data;
+l = sumSubTree(&(*root )->left);
+r = sumSubTree(&(*root)->right);
+(*root)->data = LeftOld + RightOld;
+if(!l)
+(*root)->data += l->data;
+if(!r)
+(*root)->data += r->data;
+return *root;
+}
+ 
+}
+ 
+/* Given a binary tree, print its nodes in inorder*/
+void printPreorder(struct node* node)
+{
+     if (node == NULL)
+          return;
+ 
+     /* first print data of node */
+     printf("%d ", node->data); 
+ 
+     /* then recur on left sutree */
+     printPreorder(node->left); 
+ 
+     /* now recur on right subtree */
+     printPreorder(node->right);
+}   
+ 
+int main()
+{
+     struct node *root  = newNode(1);
+     root->left             = newNode(2);
+     root->right           = newNode(3);
+     root->left->left     = newNode(4);
+     root->left->right   = newNode(5);
+ 
+     root=sumSubTree(&root);
+ 
+     printf("\n Preorder traversal of binary tree is \n");
+     printPreorder(root);
+ 
+     
+ 
+     getchar();
+     return 0;
+}
+ http://shashank7s.blogspot.com WgpShashank My Code is extended version of above program..in above we are only checking whether given tree is sumtree or not ..but my program is converting given tree into its sumTree so basically its replacing root node value with sum of it “left & right subtree” its completely new program. GeeksForGeeks Please Post it as Separate Post.. Vishakha Wouldn’t this be an easy one?  
+int hasPathSum(struct node* node, int sum) {
+  // return true if we run out of tree and sum==0
+  if (node == NULL) {
+    return(sum == 0);
+  }
+  else {
+    // otherwise check both subtrees
+    int subSum = sum - node->data;
+    return(hasPathSum(node->left, subSum) ||
+           hasPathSum(node->right, subSum));
+  }
+}
+ Sandeep @Vishakha: Please take a closer look at the problem. The solution given by you doesn’t work for this, it is for a differnt problem. Ankit Solution using recursion :  
+void SubTreeSum(Treenode *ptr, int *Sum)
+{
+
+	if(ptr->left!=null)
+	{ 
+		SubTreeSum(ptr->left, Sum);		
+	}
+
+	if(ptr->right!=null)
+	{ 
+		SubTreeSum(ptr->right, Sum);
+	}
+	Sum+= [ptr].Value;     
+}
+
+bool IsSumTree(TreeNode *root, int * Sum)
+{
+	if(root->left != null)
+	{
+		if(SubTreeSum(root->left, Sum)!=[root->left].Value)
+			return false;
+		else 
+			Sum += [root->left].Value;
+	}
+	if(root->right != null)
+	{
+		if(SubTreeSum(root->right, Sum)!=[root->right].Value)
+			return false;
+		else
+			Sum += [root->right].Value;
+	}
+	if(root.Value==Sum)
+		return true;
+	else 
+		return false;
+}
+
+void main()
+{
+	bool isSumTree= isSumTree(root, 0);
+}
+ It will ensure if the subtree itself is not Sum Tree, will immediately return false; adityaork it can done easily in O(n) using recursive calls to left and right subtree  
+int sum(tree * t)
+{
+if(t==NULL) return 0;
+if(leaf(t))
+  return t->value;
+int ls=sum(t->left),rs=sum(t->right);
+if(ls==-1 || rs==-1 || t!=ls+rs) return -1;
+else if(t->value==ls+rs) return 2*t->value;
+} if sum return -1 then its not a sumtree else it is vasu This logic does not work if the binary tree has -1 as the node value itself 4 3 -1 3 -1 This logic would return false whereas this is a sum tree Jim How about use a pointer to return the sum of the current node, and its left and right subtrees besides the return value of isSumTree()? For example, we declare int isSumTree(struct node* node, int *Sum)? Is it prohibited? If it is allowed, we don’t need the Sum() method in method 1. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

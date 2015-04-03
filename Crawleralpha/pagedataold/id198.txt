@@ -1,0 +1,259 @@
+Maximum size square sub-matrix with all 1s - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Maximum size square sub-matrix with all 1s Given a binary matrix, find out the maximum size square sub-matrix with all 1s. For example, consider the below binary matrix.  
+   0  1  1  0  1 
+   1  1  0  1  0 
+   0  1  1  1  0
+   1  1  1  1  0
+   1  1  1  1  1
+   0  0  0  0  0 The maximum square sub-matrix with all set bits is 
+    1  1  1
+    1  1  1
+    1  1  1 Algorithm: Let the given binary matrix be M[R][C]. The idea of the algorithm is to construct an auxiliary size matrix S[][] in which each entry S[i][j] represents size of the square sub-matrix with all 1s including M[i][j] where M[i][j] is the rightmost and bottommost entry in sub-matrix. 
+1) Construct a sum matrix S[R][C] for the given M[R][C].
+     a)	Copy first row and first columns as it is from M[][] to S[][]
+     b)	For other entries, use following expressions to construct S[][]
+         If M[i][j] is 1 then
+            S[i][j] = min(S[i][j-1], S[i-1][j], S[i-1][j-1]) + 1
+         Else /*If M[i][j] is 0*/
+            S[i][j] = 0
+2) Find the maximum entry in S[R][C]
+3) Using the value and coordinates of maximum entry in S[i], print 
+   sub-matrix of M[][] For the given M[R][C] in above example, constructed S[R][C] would be: 
+   0  1  1  0  1
+   1  1  0  1  0
+   0  1  1  1  0
+   1  1  2  2  0
+   1  2  2  3  1
+   0  0  0  0  0 The value of maximum entry in above matrix is 3 and coordinates of the entry are (4, 3). Using the maximum value and its coordinates, we can find out the required sub-matrix. 
+#include<stdio.h>
+#define bool int
+#define R 6
+#define C 5
+
+void printMaxSubSquare(bool M[R][C])
+{
+  int i,j;
+  int S[R][C];
+  int max_of_s, max_i, max_j; 
+ 
+  /* Set first column of S[][]*/
+  for(i = 0; i < R; i++)
+     S[i][0] = M[i][0];
+ 
+  /* Set first row of S[][]*/     
+  for(j = 0; j < C; j++)
+     S[0][j] = M[0][j];
+     
+  /* Construct other entries of S[][]*/
+  for(i = 1; i < R; i++)
+  {
+    for(j = 1; j < C; j++)
+    {
+      if(M[i][j] == 1) 
+        S[i][j] = min(S[i][j-1], S[i-1][j], S[i-1][j-1]) + 1;
+      else
+        S[i][j] = 0;
+    }    
+  } 
+  
+  /* Find the maximum entry, and indexes of maximum entry 
+     in S[][] */
+  max_of_s = S[0][0]; max_i = 0; max_j = 0;
+  for(i = 0; i < R; i++)
+  {
+    for(j = 0; j < C; j++)
+    {
+      if(max_of_s < S[i][j])
+      {
+         max_of_s = S[i][j];
+         max_i = i; 
+         max_j = j;
+      }        
+    }                 
+  }     
+  
+  printf("\n Maximum size sub-matrix is: \n");
+  for(i = max_i; i > max_i - max_of_s; i--)
+  {
+    for(j = max_j; j > max_j - max_of_s; j--)
+    {
+      printf("%d ", M[i][j]);
+    }  
+    printf("\n");
+  }  
+}     
+
+/* UTILITY FUNCTIONS */
+/* Function to get minimum of three values */
+int min(int a, int b, int c)
+{
+  int m = a;
+  if (m > b) 
+    m = b;
+  if (m > c) 
+    m = c;
+  return m;
+}
+
+/* Driver function to test above functions */
+int main()
+{
+  bool M[R][C] =  {{0, 1, 1, 0, 1}, 
+                   {1, 1, 0, 1, 0}, 
+                   {0, 1, 1, 1, 0},
+                   {1, 1, 1, 1, 0},
+                   {1, 1, 1, 1, 1},
+                   {0, 0, 0, 0, 0}};
+               
+  printMaxSubSquare(M);
+  getchar();  
+}  
+ Time Complexity: O(m*n) where m is number of rows and n is number of columns in the given matrix. Auxiliary Space: O(m*n) where m is number of rows and n is number of columns in the given matrix. Algorithmic Paradigm: Dynamic Programming Please write comments if you find any bug in above code/algorithm, or find other ways to solve the same problem           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: Dynamic Programming Tweet Writing code in comment? Please use ideone.com and share the link here. prashant jha my c++ code using dp in o(mn) compleity http://ideone.com/anhb8j Nikhil Kumar can any one explain the logic of above algorithm ? why we take min of three values and add 1 if M[i][j] == 1 ? Nikhil Kumar can any one explain the logic of above algorithm ? why we take min of three values and add 1 if M[i][j] == 1 ? Sachin I think we can reduce the space complexity to m x 2(m-no. of rows); since the value only depends on 3 cells, and can store the maximum value in a separate variable, to keep the track of biggest square sub matrix. This will drastically reduce the space complexity to O(2*m) ~ O(m) Neha Garg complexity can be reduced keep the track of maxofs in the first step .. then no need to again track the s matrix for finding it and also no need to max_i and max_j as all elements are 1 and we dont want position of that matrix .. the maxofs will give dimension of required matrix as this is a square matrix plz correct me if i m wrong… draganwarrior solution for rectangle http://ideone.com/DbafRI vishal your soln doesnt work for the given input: {{1,1,1,1,0,0,1,0,1,1}, {1,0,1,0,1,1,0,1,0,1}, {1,1,1,1,1,1,0,0,0,0}, {0,1,1,1,1,1,1,1,1,0}, {1,1,1,1,0,1,0,1,0,1}} output will be 1 1 1 1 1 1 1 1 1 1 but your output is {{1},{1}} Saurabh Gupta Buddy , Q. is asking for square matrix and your ex. output is not square matrix. draganwarrior YEP u right M.Sheykhov it is designed for square matrix Guest #include using namespace std; int Matrix[5][5]= {{0,0,0,0,0}, {0,1,0,0,0}, {0,1,1,0,0}, {0,0,1,1,0}, {0,0,1,1,0}}; int IsMatrix(int i,int j,int n) { int x = i, y = j; while(x < (i + n)) { y = j; while(y < (j + n)) { if (Matrix[x][y] != 1) { return 0; } y++; } x++; } return 1; } int main() { int n = 5,i,j; int sizeOfSubMatrix = 0,xoffset,yoffset; int sizecounter = 0; for(i = 0; i < n; i++ ) for(j= 0; j sizeOfSubMatrix) { if(IsMatrix(xoffset,yoffset,sizecounter)) { sizeOfSubMatrix = sizecounter; } else { sizecounter = 0; } } } else { sizecounter = 0; } } cout<<"Max size of the possible sub matrix : "<<sizeOfSubMatrix; } Nguy?n Hoài B?o it wrong in sample test: 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 answer must be 1 but it return 0. Kartik It prints 1. See http://ideone.com/EQwwB5 jaskaran1 I think there seems to be some inconsistency. If suppose the matrix M[][] is 1 1 0 1 1 0 0 0 0 then S[][] according to the logic is 1 1 0 1 2 0 0 0 0 So according to the logic S[2][2] is the size of the largest square submatrix of 1s which is present in this matrix M which here is 0.But we know that the largest square submatrix in M is of size 2.So shouldn’t S in this case be 1 1 1 1 2 2 2 2 2 GeeksforGeeks Please note that we copy first row and first column as it is, then fill rest of the entries in S[][]. jaskaran1 I do understand the point.But then the matrix S is 1 1 0 1 2 0 0 0 0 which is incorrect as S[i][j] represents the dimension of the largest square submatrix of 1s in the matrix (i+1)x(j+1).So S[2][2] is 0 which means that the size of the largest square submatrix of 1s in 3×3 matrix is 0 which is wrong and the correct answer is 2. GeeksforGeeks Please take a closer look at the implementation and explanation, especially the following statement. S[i][j] represents size of the square sub-matrix with all 1s including M[i][j] where M[i][j] is the rightmost and bottommost entry in sub-matrix. mohammad faizan ali  
+Hey every one since i found the above implementation little lengthy i'm posting this one:
+
+
+#include<stdio.h>
+int count=0;
+void modify(int * arr,int x,int y);
+int min(int,int,int);
+int main()
+{
+	
+	int x,i,y,j;
+//      asking for no. of rows and columns
+	printf("Enter the  number of rows and columns\n");
+	scanf("%d %d ",&x,&y);
+
+	int array[x][y];
+//      taking input
+
+	for(i=0;i<x;i++)
+	{
+		for(j=0;j<y;j++)
+		scanf("\n%d",&array[i][j]);
+	}
+//      calling the function to perform desired action
+//      first argument is the integer address of first element //      of 2-D array
+
+	modify(array[0],x,y);
+//      printing the modified array
+	for(i=0;i<x;i++)
+	{
+		for(j=0;j<y;j++)
+		printf(" %d",array[i][j]);
+		printf("\n");
+	}
+	scanf("\n%d",&x);
+	return 0;
+}
+void modify(int * arr, int x,int y)
+{
+	int i,j;
+	for(i=0;i<x;i++)
+	{
+		for(j=0;j<y;j++)
+		{
+//             below *(arr+(i)*y+j) is same as array[i][j] in //             main program. comparing it to  top,left and 
+//             top left  adjacent element
+
+			if(*(arr+(i)*y+j)==1  && j>0 && i>0)
+			*(arr+(i)*y+j)=min(*(arr+(i-1)*y+j-1),*(arr+(i-1)*y+j),*(arr+(i)*y+j-1))+1;
+		}
+	}
+	
+	
+
+}
+// function to find minimum of three integers
+int min(int a,int b,int c)
+{
+	return(a>b?(b>c?c:b):(a>c?c:a));
+}
+//sample run input array
+/* 0  1  1  0  1 
+   1  1  0  1  0 
+   0  1  1  1  0
+   1  1  1  1  0
+   1  1  1  1  1
+   0  0  0  0  0*/
+
+ Srikanth You are trying to modify the given matrix …here right  
+/* Paste your code here (You may delete these lines if not writing code) */
+ mohammad faizan ali Hey every one since i found the above implementation little lengthy im posting this one: #include int count=0; void modify(int * arr,int x,int y); int min(int,int,int); int main() { int x,i,y,j; // asking for no. of rows and columns printf(“Enter the number of rows and columns\n”); scanf(“%d %d “,&x,&y); int array[x][y]; // taking input for(i=0;i<x;i++) { for(j=0;j<y;j++) scanf("\n%d",&array[i][j]); } // calling the function to perform desired action // first argument is the integer address of first element // of 2-D array modify(array[0],x,y); // printing the modified array for(i=0;i<x;i++) { for(j=0;j<y;j++) printf(" %d",array[i][j]); printf("\n"); } scanf("\n%d",&x); return 0; } void modify(int * arr, int x,int y) { int i,j; for(i=0;i<x;i++) { for(j=0;j0 && i>0) *(arr+(i)*y+j)=min(*(arr+(i-1)*y+j-1),*(arr+(i-1)*y+j),*(arr+(i)*y+j-1))+1; } } } // function to find minimum of three integers int min(int a,int b,int c) { return(a>b?(b>c?c:b):(a>c?c:a)); } //sample run input array /* 0 1 1 0 1 1 1 0 1 0 0 1 1 1 0 1 1 1 1 0 1 1 1 1 1 0 0 0 0 0*/ _maverick can anyone help me for finding the maximum cluster of 1’s in the given matrix -> It can be top,bottom,left,right movement from any cell eg: 110001000111 111101011110 000110001101 000000000011 in this situation 9 if possible including diagonal movement also ! give me an idea or code anyone pls……. someone you can do a bfs to get your answer pefullarton This approach is not correct. It would always give a square matrix only, even if a greater sized rectangle matrix is possible. E.g. In 0 1 1 0 1 1 1 0 1 0 1 1 1 1 0 1 1 1 1 0 1 1 1 1 1 0 0 0 0 0 Result would be 1 1 1 1 1 1 1 1 1 instead of 1 1 1 1 1 1 1 1 1 1 1 1 pefullarton Oh didn’t see if it the question was about sub-matrix only coderAce Please just don’t give the algorithm plainly. Atleast provide some explanations as to how this algorithm was formulated. The way it is presented here, it looks as if you want the readers to memorise the strategy! http://www.prakhar.me prakhar Python code def find_sub_matrix_size(matrix): copy_matrix = deepcopy(matrix) for i in range(1, len(matrix)): for j in range(1, len(matrix[0])): if matrix[i][j] == 1: copy_matrix[i][j] = min(copy_matrix[i-1][j], copy_matrix[i][j-1], copy_matrix[i-1][j-1]) + 1 else: copy_matrix[i][j] = 0 return max([item for rows in copy_matrix for item in rows]) mn 6 6 8 -3 4 -1 5 18 2 3 4 -3 0 7 6 -2 3 1 1 3 3 0 2 -1 3 1 2 2 2 2 2 2 1 3 1 -1 3 1 Pandiyaraj  
+#include <iostream>
+#define R 6
+#define C 5
+
+using namespace std;
+
+int find_sub_sq_matrix_size(int a[R][C])
+{
+    int sum, total_sum=0;
+    int *aux = (int *)malloc(R* sizeof(int));
+    
+    for( int i=0; i<R; i++){
+        sum = 0;
+        for(int j=0; j<C; j++){
+            sum += a[i][j];
+        }
+        aux[i] = sum;
+        total_sum += sum;
+    }
+    int mean = total_sum / R;
+    int count=0;
+
+    while( count <= mean)
+    {
+        for(int i=0; i<R; i++)
+        {
+            if(aux[i] >= mean)
+                count ++;
+        }
+        if( count < mean )
+        {
+            mean--;
+            count=0;
+        }
+    }
+    return mean;
+}
+
+int main()
+{
+    int a[R][C] =  {{0, 1, 1, 0, 1}, 
+                   {1, 1, 0, 1, 0}, 
+                   {0, 1, 1, 1, 0},
+                   {1, 1, 1, 1, 0},
+                   {1, 1, 1, 1, 1},
+                   {0, 0, 0, 0, 0}};
+
+    cout<<"The sub matrix size is "<<find_sub_sq_matrix_size(a)<<"\n";
+    return 0;
+}
+ Palash This could be done using max area histogram approach too. Just need to keep track of some small details. I say this because, max area histogram is generally used if the question is to find the biggest “rectangle” of 1’s. In this question, we need to find a square, so it’s better if you learn one approach that could do both.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Palash This could be done using max area histogram approach too. Just need to keep track of some small details. I say this because, max area histogram is generally used if the question is to find the biggest “rectangle” of 1’s. In this question, we need to find a square, so it’s better if you learn one approach to do both.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Sourabh Hi, I saw a few questions around why S[i-1][j-1] is considered. According to my understanding of this, i am posting it here. Suppose, we have a solution like this : – 0 1 1 1 0 1 1 1 1 1 1 1 And suppose we are considering the case for the bottom-right 1. Here, the maximum square is of 2*2 size with bottom-right at (2,2)(rows, column index with 0). To find the maximum square, we need to find the minimum extension of 1s in different directions and add 1 to it to form the length of square ending at present case. So, here are the cases :- 1 i-1,j —-> This sees till what length i can extend upwards from bottom right corner vertically. 2.i, j-1—> To check till what length we can extend leftwards from bottom left corner. If we just take minimum of these, it takes care of left and top direction.However, we also need to make sure that there are 1’s in top left corner of perspective square. S[i-1][j-1], by definition, contains a max square at position i-1, j-1, whose top left corner (here,(0,1)), puts an upper limit on how up and left we can get. So, we need to consider that as well. I will make this clear with help of pic if required.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ SR Not sure if S[i-1][j-1] is needed in this formulae:  
+S[i][j] = min(S[i][j-1], S[i-1][j], S[i-1][j-1]) + 1
+ blurjp I don’t think this works for the sub-matrix is single row or col, you cannot get the max sub matrix with the following loop like this: 0 1 0 1 0 1 0 1 0 1 1 1 0 0 1 0 then you get the index of max entry is (1, 1) which is wrong.  
+/* Find the maximum entry, and indexes of maximum entry
+     in S[][] */
+  max_of_s = S[0][0]; max_i = 0; max_j = 0;
+  for(i = 0; i < R; i++)
+  {
+    for(j = 0; j < C; j++)
+    {
+      if(max_of_s < S[i][j])
+      {
+         max_of_s = S[i][j];
+         max_i = i;
+         max_j = j;
+      }
+    }
+  }     
+ null_pointer please read the question carefully,it says “SQUARE SUB MATRIX”,you are talking about rectangle :/ gksgeek @GeeksforGeeks: Can we modify this to find largest sum square matrix in general? Shaikh Its sad that in spite of many people asking the rationale behind taking S[i][j] = min(S[i-1][j], S[i][j-1], S[i-1][j-1]) + 1 nobody has come forward to reason it out. One can understand that its Dynamic Programming, and its easy work through a solution but its quite difficult to figure it out why this step has been taken, keeping in mind what? I would really appreciate if someone(and @GeeksforGeeks) can come forward and let us know the reason behind it. Thanks. Max Original: 1111 1110 1110 0111 Sum: 1110 1220 2230 0121 Explanation: I am indexing from 0 for the sake of this explanation, with the left as the x-axis zero and the top as the y-axis zero. Consider Sum[1][1]. We know that this space itself must be a sub-square of at least size one if Original[1][1] has a 1 there. Likewise, in Original[0][0], Original[0][1], and Original[1][0], we also know there to exist sub-squares of at least size one. When considering Sum[1][1], we are trying to determine the largest sub-square which exists there. We know that its neighbor upward, its neighbor to the left, and its up-left neighbor each contain a sub-square of size one. Since there is also a sub-square of size one at Sum[1][1], we know that there is a sub-square of size four across those four spaces. The same logic applies to [2][2]. We know there is a sub-square of size 2 above it ([1][0], [2][0], [1][1], [2][1]), to the left ([0][1], [0][2], [1][1], [1][2]), and to the upper-left ([0][0], [0][1], [1][0], [1][1]), as well as a sub-square of size one at [2][2], meaning that the largest sub-square to the upper-left starting at [2][2] is of size 3. For the space [3][2], it is clear why we use min. We see that [3][2] is occupied by a 1. The space above it shows us there is a sub-square of size 3. However, Sum[3][2] only contains the value 2. This is because the value to the left of Sum[3][2] indicates a sub-square of size 1. Given this information, we know that the maximum sub-square located at [3][2] is size 2, since one of its neighbors is only of size 1 which would prohibit a square larger than 2. I do hope this makes sense. We only need to expand the square one row/column at a time, so proving the existence of sub-squares within the region already traveled allows us to do the smallest amount of work while obtaining a correct answer. eclassi Thanks for the algorithm. Sunil Nice logic to determine credit goes to the person who found out the logic. Aleksandar Great algorithm! Did you invent it, or do you know the name of the inventor? sankalp @Aleksandar: This is a classic dynamic programming problem.. Kumar what is the algorithm for maximum rectangular sub-matrix having all 1’s abc Can anyone elaborate a little bit on how do we find a rectangular sub-matrix instead? Thanks! GeeksforGeeks @abc: We will soon write a separate post for rectangular matrix. triti Can you please give me the link to the rectangular submatrix algorithm?Please i really need it kartik See if the following link can help. http://effprog.blogspot.com/2011/06/max-rectangle-sub-matrix-of-all-1s-in.html http://www.wgpshashank.co.cc wgpshashank Hey I would Like To Share The Concept Used BY Above program FAQ. Q.Why we are copying the first column & first row from source matrix to destination matrix. ans.. although its not mandatory but as below we are using the prev,current,next concept so lets just copy only first row & col in tio auxiliary matrix. Q.why it uses the min of 3 elements ans. because if sub-matrix exist into middle of actual matrix we have to take care of in account of prev ,current, & next value wrt corresponding M[i}[j} Correct me if i m wrong Ashish http://en.wikipedia.org/wiki/Levenshtein_distance Rohit Kandhal What if we want to show the maximum sized rectangular matrix consisting of all 0’s? Also as Himanshu pointed what is the reasoning behind S[i][j] = min(S[i][j-1], S[i-1][j], S[i-1][j-1].To some extent i got it but i want to know exact reason. gen For a sub martrix with all 0’s.. you can flip the initial matrix and follow above algorithm. vignesh A good example for DP.. Cheers Himanshu Aggarwal Hi, Can any one explain how this formula/algorithm was derived?  If M[i][j] is 1 then
+            S[i][j] = min(S[i][j-1], S[i-1][j], S[i-1][j-1]) + 1
+         Else /*If M[i][j] is 0*/
+            S[i][j] = 0 Some mathematical derivation or some reasoning would be sufficient to understand. Regards, Himanshu Aggarwal ravi I think they must have used the concept of dyanamic programming . if you remember the problem of “longest common subsequence ” the similar concept is used here. abc They indeed have used DP but what’s the rationale behind the formulae? We know the reason behind L[i,j] = min(L[i-1,j], L[i, j-1]), but what’s the similar reasoning behind min(S[i][j-1], S[i-1][j], S[i-1][j-1]) + 1?? Nikhil http://www.topcoder.com/tc?d1=tutorials&d2=dynProg&module=Static Just go through this article and you will have solution for all your doubts rohans The solution for max sub rectangle won’t work if a row of S has 2,3,2 it means the max sub rectangle is of size 2*(3-1) = 6; So to find the max sub rectangle we will have to take all possible combinations of non zero entries in each row and column of S Sunny What if we need to find the largest rectangular matrix consisting of 1s? How will you change the above algorithm to get the solution or else is it a completely different approach? Ands is there a way to get the max sub rectangular matrix? Sandeep You can add another step to above algorithm to merge square sub-matrices. Note that square sub-matrices can be merged horizontally or vertically only if adjacent values in sum matrix S[R][C] are same. abc What do you mean by adjacent values? Consider the input matrix:   |0 1 2 3 4 5 6 –|————- 0|1 0 1 1 1 0 1 1|1 1 1 1 1 0 1 2|1 0 1 1 1 1 0 3|1 0 1 1 1 0 1 The sum matrix for this would look like: |0 1 2 3 4 5 6 –|————- 0|1 0 1 1 1 0 1 1|1 1 1 2 2 0 1 2|1 0 2 2 3 1 0 3|1 0 1 2 3 0 2 So now there are two numbers with same max value as 3, they are: S[2][4] and S[3][4] That means 2 square matrices, we can merge these. By adjacent do you mean either horizontally or vertically adjacent? That is, a sum matrix like this is valid (a hypothetical matrix) |0 1 2 3 4 5 6 –|————- 0|X X X X X X X 1|X X X X X X X 2|X X X X 3 3 X 3|X X X X X X X And a one like this is not (another hypothetical one): |0 1 2 3 4 5 6 –|————- 0|X X X X X X X 1|X X X X X X X 2|X X X X 3 X X 3|X X X X X 3 X jntl Typo found below, should be M[0][j] instead. for(j = 0; j < C; j++) S[0][j] = M[0][i]; GeeksforGeeks @jntl: Thanks for pointing this out. We have corrected the typo. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

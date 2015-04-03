@@ -1,0 +1,500 @@
+Backtracking | Set 2 (Rat in a Maze) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Backtracking | Set 2 (Rat in a Maze) We have discussed Backtracking and Knight’s tour problem in Set 1. Let us discuss Rat in a Maze as another example problem that can be solved using Backtracking. A Maze is given as N*N binary matrix of blocks where source block is the upper left most block i.e., maze[0][0] and destination block is lower rightmost block i.e., maze[N-1][N-1]. A rat starts from source and has to reach destination. The rat can move only in two directions: forward and down. In the maze matrix, 0 means the block is dead end and 1 means the block can be used in the path from source to destination. Note that this is a simple version of the typical Maze problem. For example, a more complex version can be that the rat can move in 4 directions and a more complex version can be with limited number of moves. Following is an example maze.  Gray blocks are dead ends (value = 0). Following is binary matrix representation of the above maze. 
+                {1, 0, 0, 0}
+                {1, 1, 0, 1}
+                {0, 1, 0, 0}
+                {1, 1, 1, 1}
+ Following is maze with highlighted solution path. Following is the solution matrix (output of program) for the above input matrx. 
+                {1, 0, 0, 0}
+                {1, 1, 0, 0}
+                {0, 1, 0, 0}
+                {0, 1, 1, 1}
+ All enteries in solution path are marked as 1.
+ Naive Algorithm The Naive Algorithm is to generate all paths from source to destination and one by one check if the generated path satisfies the constraints. while there are untried paths
+{
+   generate the next path
+   if this path has all blocks as 1
+   {
+      print this path;
+   }
+} Backtrackng Algorithm If destination is reached
+    print the solution matrix
+Else
+   a) Mark current cell in solution matrix as 1. 
+   b) Move forward in horizontal direction and recursively check if this 
+       move leads to a solution. 
+   c) If the move chosen in the above step doesn't lead to a solution
+       then move down and check if  this move leads to a solution. 
+   d) If none of the above solutions work then unmark this cell as 0 
+       (BACKTRACK) and return false.
+ Implementation of Backtracking solution 
+#include<stdio.h>
+
+// Maze size
+#define N 4 
+
+bool solveMazeUtil(int maze[N][N], int x, int y, int sol[N][N]);
+
+/* A utility function to print solution matrix sol[N][N] */
+void printSolution(int sol[N][N])
+{
+    for (int i = 0; i < N; i++)
+    {
+        for (int j = 0; j < N; j++)
+            printf(" %d ", sol[i][j]);
+        printf("\n");
+    }
+}
+
+/* A utility function to check if x,y is valid index for N*N maze */
+bool isSafe(int maze[N][N], int x, int y)
+{
+    // if (x,y outside maze) return false
+    if(x >= 0 && x < N && y >= 0 && y < N && maze[x][y] == 1)
+        return true;
+
+    return false;
+}
+
+/* This function solves the Maze problem using Backtracking.  It mainly uses
+solveMazeUtil() to solve the problem. It returns false if no path is possible,
+otherwise return true and prints the path in the form of 1s. Please note that
+there may be more than one solutions, this function prints one of the feasible
+solutions.*/
+bool solveMaze(int maze[N][N])
+{
+    int sol[N][N] = { {0, 0, 0, 0},
+        {0, 0, 0, 0},
+        {0, 0, 0, 0},
+        {0, 0, 0, 0}
+    };
+
+    if(solveMazeUtil(maze, 0, 0, sol) == false)
+    {
+        printf("Solution doesn't exist");
+        return false;
+    }
+
+    printSolution(sol);
+    return true;
+}
+
+/* A recursive utility function to solve Maze problem */
+bool solveMazeUtil(int maze[N][N], int x, int y, int sol[N][N])
+{
+    // if (x,y is goal) return true
+    if(x == N-1 && y == N-1)
+    {
+        sol[x][y] = 1;
+        return true;
+    }
+
+    // Check if maze[x][y] is valid
+    if(isSafe(maze, x, y) == true)
+    {
+        // mark x,y as part of solution path
+        sol[x][y] = 1;
+
+        /* Move forward in x direction */
+        if (solveMazeUtil(maze, x+1, y, sol) == true)
+            return true;
+
+        /* If moving in x direction doesn't give solution then
+           Move down in y direction  */
+        if (solveMazeUtil(maze, x, y+1, sol) == true)
+            return true;
+
+        /* If none of the above movements work then BACKTRACK: 
+            unmark x,y as part of solution path */
+        sol[x][y] = 0;
+        return false;
+    }   
+
+    return false;
+}
+
+// driver program to test above function
+int main()
+{
+    int maze[N][N]  =  { {1, 0, 0, 0},
+        {1, 1, 0, 1},
+        {0, 1, 0, 0},
+        {1, 1, 1, 1}
+    };
+
+    solveMaze(maze);
+    getchar();
+    return 0;
+}
+ Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: Backtracking Tweet Writing code in comment? Please use ideone.com and share the link here. Amit Very well explained but it will fail for the case in which rat has to travel left or up and then the normal path ex 1 1 1 0 0 0 0 1 0 0 0 1 1 0 0 0 1 0 0 0 0 1 1 1 1 Kartik Amit, please take a closer look at the problem statement. It is clearly mentioned that the rat can only move forward (or right) and down. amit oops. kartik Thanku buddy shiv here is one more sipmle solution of maze technofrendzz.blogspot.in nakul gowda here is the bfs implementation for the same, which is much quicker and gives you always the shortest path #include #define SIZE 7 int a[SIZE][SIZE],q[SIZE*SIZE],visited[SIZE][SIZE],n,i,j,f=0,r=-1; int parent[SIZE*SIZE], x_dest, y_dest, x_temp, y_temp; int flag =0; void find_neighbours(int x, int y) { if (( (y+1)=0 && (a[x][y-1]) && !visited[x][y-1]) { q[++r]= x*n + (y-1); parent[x*n + (y-1)] = x*n +y; visited[x][y-1] =1; } if ((x+1)=0 && (a[x-1][y]) && !visited[x-1][y]) { q[++r]= (x-1)*n + (y); parent[(x-1)*n + (y)] = x*n +y; visited[x-1][y] =1; } } void bfs(int x, int y) { find_neighbours(x, y); if(f<=r) { x_temp = q[f]/n; y_temp = q[f] – n*x_temp; if (x_temp == x_dest && y_temp == y_dest) { flag =1; return ; } // visited[x_temp][y_temp] = 1; f++; bfs(x_temp,y_temp); } } int main() { int x,y,val; int source_x , source_y; n = SIZE; for(i=0;i< n;i++) { q[i]=0; } for(i=0;i< n;i++) for(j=0;j<n;j++) { visited[i][j] = 0; } for(i=0;i<n*n;i++) parent[i] = 0; printf("n Enter graph data in matrix form:n"); for(i=0;i< n;i++) for(j=0;j<n;j++) scanf("%d",&a[i][j]); source_x = 0; source_y = 0; visited[source_x][source_y] =1; x_dest = 6; y_dest = 6; bfs(0,0); if (!flag) { printf("not reachablen"); return 0; } x = x_temp; y = y_temp; while(x!=0 || y!=0) { val = parent[x *n + y]; x = val/n; y = val – x*n; printf("%d %dn ", x,y); } return 0; } Raj Here is the java version of rat in a maze. Code is really easy to understand. http://techlovejump.in/2013/11/rat-in-a-maze-in-java/ Demo of code :- boolean solveMazeUtil(int matrix[][],int x,int y,int sol[][],int n){ //path complete (if we are at our goal then path complete) if(x == n-1 && y == n-1){ sol[x][y] = 1; return true; } if(isSafe(matrix,x,y,n) == true) { sol[x][y] = 1; // try right if(solveMazeUtil(matrix,x+1,y,sol,n)) return true; //try down if(solveMazeUtil(matrix,x,y+1,sol,n)) return true; //try left if(solveMazeUtil(matrix,x-1,y,sol,n)) return true; //try up if(solveMazeUtil(matrix,x,y-1,sol,n)) return true; //no case match so return false sol[x][y] = 0; return false; } return false; }} Suryaamsh This is quite long comment/reply. I think performance of the solution posted can be improved by memorizing whether a path exists from given node (to destination). Say, we are at a[i][j] and if both recursive calls of solveMazeUtil return false, it means that from that node there doesn’t exist a path leading to destination. Set a flag say, flags[i][j] to false. So, when a[i][j] is hit during another recursive call (arriving from different path), we can altogether ignore the subsequent recursive calls if flags[i][j] is found to be false. There is an overhead of n^2 bits though. In my opinion, it can reduce substantial amount of redundant recursive calls on an average. Please point the mistakes if found. Aditya so you are saying false => no path , true => path exists, what about the third case, where we do not know if path exists or not, i.e. we haven’t calculated yet? its better if we use an int array with 0,1,2 values. correct me if I’m mistaken. Kavish Dwivedi Here is my code for the problem:  
+#include<stdio.h>
+#define N 4
+int sol[N][N],maze[N][N];
+int check(int x,int y)
+{
+	if( x>=0 && x<N && y>=0 && y<N && maze[x][y]!=0 && sol[x][y]==-1)
+	return 1;
+	return 0;
+}
+int solve(int x,int y,int move)
+{
+	if(x==N-1&&y==N-1)
+	{
+		return 1;
+	}
+	else
+	{
+		if(check(x+1,y)==1)
+		{
+			sol[x+1][y]=move;
+			if(solve(x+1,y,move+1)==1)
+			return 1;
+			else
+			{
+				printf("Case 1\n");
+				sol[x+1][y]=-1;
+			}
+			
+		}
+		if(check(x,y+1)==1)
+		{
+			sol[x][y+1]=move;
+			if(solve(x,y+1,move+1)==1)
+			return 1;
+			else
+			{
+				printf("Case 2\n");
+				sol[x][y+1]=-1;
+			}
+		}
+	}
+	return 0;
+}
+int main()
+{
+	int i,j;
+	for(i=0;i<N;i++)
+	for(j=0;j<N;j++)
+	sol[i][j]=-1;
+	printf("Enter the maze:\n");
+	for(i=0;i<N;i++)
+	for(j=0;j<N;j++)
+	scanf("%d",&maze[i][j]);
+	sol[0][0]=0;
+	if(solve(0,0,1)==1)
+	{
+		for(i=0;i<N;i++)
+		{
+			for(j=0;j<N;j++)
+			printf("%d ",sol[i][j]);
+			printf("\n");
+		}
+	}
+	else
+	printf("No path exists\n");
+	return 0;
+}
+
+ Ravi Shankar This prints no. of solutions from 0,0 to n-1,n-1 #include<cstdio> int v[10][10],m[10][10],c=0,n,i,j,dx[4]={1,0,-1,0},dy[4]={0,1,0,-1}; int s(int x,int y){ if(x>=0&&x<n&&y>=0&&y<n&&m[x][y]&&!v[x][y]){ if(x==n-1&&y==n-1)return 1; v[x][y]=1; for(int i=0;i<4;i++)c+=s(x+dx[i],y+dy[i]); v[x][y]=0; } return 0; } int main(){ scanf("%d",&n); for(i=0;i<n;i++)for(j=0;j<n;j++)scanf("%d",&m[i][j]); s(0,0); printf("%d\n",c); return 0; } hariprasath does this implementation correct?? #include #include #include int a[9][9]; int b[9][9]; int check(int x,int y,int val) { int i,j; //Scanning its own Row and Column for(i=0;i<9;i++) { if(val==b[i][y] || val==b[x][i]) return 0; } // Scanning its own square if(x<3) { if(y<3) { for(i=0;i<3;i++) for(j=0;j<3;j++) if (val==b[i][j]) return 0; } else if(y<6) { for(i=0;i<3;i++) for(j=3;j<6;j++) if(val==b[i][j]) return 0; } else { for(i=0;i<3;i++) for(j=6;j<9;j++) if(val==b[i][j]) return 0; } } else if(x<6) { if(y<3) { for(i=3;i<6;i++) for(j=0;j<3;j++) if(val==b[i][j]) return 0; } else if(y<6) { for(i=3;i<6;i++) for(j=3;j<6;j++) if(val==b[i][j]) return 0; } else { for(i=3;i<6;i++) for(j=6;j<9;j++) if(val==b[i][j]) return 0; } } else { if(y<3) { for (i=6;i<9;i++) for(j=0;j<3;j++) if (val == b[i][j]) return 0; } else if(y<6) { for(i=6;i<9;i++) for(j=3;j<6;j++) if(val==b[i][j]) return 0; } else { for(i=6;i<9;i++) for(j=6;j<9;j++) if(val==b[i][j]) return 0; } } return val; } int BT(int x,int y) { int t,i,j; //If the value is Zero then we have to find possible values!! if(b[x][y]==0) { for(i=1;i0) { b[x][y]=t; if(x==8 && y==8) return 1; //Puzzle solved and returns 1. else if(x==8) { if(BT(0,y+1)) return 1; } else { if(BT(x+1,y)) return 1 ; } } } if(i==10) { if(b[x][y] != a[x][y]) b[x][y]=0; return 0; } } else { if(x==8 && y==8) return 1; else if(x==8) { if(BT(0,y+1)) return 1; } else { if(BT(x+1,y)) return 1; } } } main() { int i,j; FILE * fd; fd=fopen(“input.txt”,”r”); printf(“Before Solving:\n”); //Read the puzzle from the given text file!! for(i=0;i<9;i++) { fscanf(fd,"%d%d%d%d%d%d%d%d%d",&a[i][0],&a[i][1],&a[i][2],&a[i][3],&a[i][4],&a[i][5],&a[i][6],&a[i][7],&a[i][8]); } //For dispalying the given puzzle before solving and also copying it into another array for future use!! for(i=0;i<9;i++) { for (j=0;j<9;j++) { b[i][j] = a[i][j]; printf("%d ", a[i][j]); } printf("\n"); } //Here i implemented backtrack for solving this given puzzle it returns 1 on success!! if(BT(0,0)) { printf("After Solving:\n"); for(i=0;i<9;i++) { for(j=0;j<9;j++) { printf("%d ",b[i][j]); } printf("\n"); } } else { printf("Error in the given data\n"); } fclose(fd); return 0; } Ravi Shankar Thanks sachin I have basic C /recursion noob question.Can Someone please explain- when we backtrack,why we set sol[x][y] =0 . As sol[x][y] should not already be set to 0 when return to previous state of recursion? monika It is because, we were making changes in the same sol[][] matrix, and so when we backtrack, we have to undo the changes we had made. sachin How to find out the shortest path among all the paths? vivek where is the backtracking step? i mean in backtracking,if subsequent computation don’t provide a valid solution we revert the state of a system to a previous stable state…right? so i don’t get where is that done here?here its just a condition checking .. please explain Guddu sharma Here is my code which prints all the solutions of the maze.  
+void Maze(int (*maze)[N],int x,int y,int (*sol)[N])
+{
+	static int i,j;
+	if(x==N-1 && y==N-1)
+	{
+		printf("\n\nSolution\n\n");
+		sol[x][y]=1;
+		for(i=0;i<N;i++)
+		{
+			for(j=0;j<N;j++)
+				printf("%d ",sol[i][j]);
+			printf("\n");
+		}
+	}
+	else
+	{
+		if(isSafe(maze,x,y))
+		{
+			sol[x][y]=1;
+
+			Maze(maze,x+1,y,sol);
+			Maze(maze,x,y+1,sol);
+
+			sol[x][y]=0;
+		}
+	}
+}
+ comments are welcome Ajinkya Execute this modified code to print all possible paths and not just one path… Also a new more clear printPath procedure….  
+#include<stdio.h>
+#include<conio.h>
+#include<iostream.h>
+ 
+// Maze size
+#define N 4 
+ 
+void solveMazeUtil(int maze[N][N], int x, int y, int sol[N][N]);
+ 
+/* A utility function to print solution matrix sol[N][N] */
+void printSolution(int sol[N][N],int i,int j)
+{
+    /*for (int i = 0; i < N; i++)
+    {
+        for (int j = 0; j < N; j++)
+            printf(" %d ", sol[i][j]);
+        printf("\n");
+    }*/
+
+       cout<<"("<<i<<","<<j<<")"<<endl;
+       if(i==N-1 && j==N-1) //end
+         return;
+       if(sol[i+1][j]==1)
+        printSolution(sol,i+1,j);
+       else
+        printSolution(sol,i,j+1);
+   //go down till you can, if you cant go right
+   
+          
+}
+ 
+/* A utility function to check if x,y is valid index for N*N maze */
+bool isSafe(int maze[N][N], int x, int y)
+{
+    // if (x,y outside maze) return false
+    if(x >= 0 && x < N && y >= 0 && y < N && maze[x][y] == 1)
+        return true;
+ 
+    return false;
+}
+ 
+/* This function solves the Maze problem using Backtracking.  It mainly uses
+solveMazeUtil() to solve the problem. It returns false if no path is possible,
+otherwise return true and prints the path in the form of 1s. Please note that
+there may be more than one solutions, this function prints one of the feasible
+solutions.*/
+void solveMaze(int maze[N][N])
+{
+    int sol[N][N] = { {0, 0, 0, 0},
+        {0, 0, 0, 0},
+        {0, 0, 0, 0},
+        {0, 0, 0, 0}
+    };
+ 
+    solveMazeUtil(maze, 0, 0, sol);
+    //return true;
+}
+ 
+/* A recursive utility function to solve Maze problem */
+void solveMazeUtil(int maze[N][N], int x, int y, int sol[N][N])
+{
+      cout<<"x: "<<x<<" y: "<<y<<endl;
+    // if (x,y is goal) return true
+    if(x == N-1 && y == N-1)
+    {
+        sol[x][y] = 1;
+        printSolution(sol,0,0);
+        return;
+    }
+ 
+    // Check if maze[x][y] is valid
+    if(isSafe(maze, x, y) == true)
+    {
+        // mark x,y as part of solution path
+        sol[x][y] = 1;
+       
+ 
+        /* Move forward in x direction */
+        solveMazeUtil(maze, x+1, y, sol);
+        
+        /* If x moving in x direction doesn't give solution then
+           Move down in y direction  */
+        solveMazeUtil(maze, x, y+1, sol);
+        sol[x][y]=0;
+ 
+        /* If none of the above movements work then BACKTRACK:
+            unmark x,y as part of solution path */
+        //sol[x][y] = 0;
+        //return false;
+    }   
+ 
+    
+}
+ 
+// driver program to test above function
+int main()
+{
+    int maze[N][N]  =  { {1,0,0,0},
+        {1, 1, 0, 1},
+        {0, 1, 1, 0},
+        {1, 1, 1, 1}
+    };
+ 
+    solveMaze(maze);
+    getchar();
+    return 0;
+}
+
+ Agniswar Hey this is my solution..please tell me if there is any wrong in the code somewhere- #include #include #define N 4 int is_safe(int a[N][N],int sol[][N],int x1,int y1) { if((x1>=0 && y1>=0) && (x1<=N-1 && y1<=N-1)) { if(a[x1][y1]==1 && sol[x1][y1]==0) return 1; } return 0; } void init(int sol[N][N]) { int i,j; for(i=0;i<N;i++) { for(j=0;j<N;j++) { sol[i][j]=0; } } } void print(int a[][N]) { int i,j; for(i=0;i<N;i++) { for(j=0;j<N;j++) { printf("%d ",a[i][j]); } printf("\n"); } } int rat_in_maze(int a[N][N],int sol[N][N],int x1,int y1,int x2,int y2) { static int flag=0; if(x1==x2 && y1==y2) { printf("destination found\n"); sol[x1][y1]=1; print(sol); return 1; } else if(is_safe(a,sol,x1,y1)) { sol[x1][y1]=1; } else if(!is_safe(a,sol,x1,y1)) return 0; if(flag==0) { return (rat_in_maze(a,sol,x1+1,y1,x2,y2) || rat_in_maze(a,sol,x1,y1+1,x2,y2)||rat_in_maze(a,sol,x1-1,y1,x2,y2)||rat_in_maze(a,sol,x1,y1-1,x2,y2)); } } int main() { int a[N][N] = { {1, 1, 0, 0}, {1, 1, 0, 1}, {0, 1, 0, 0}, {1, 1, 1, 1} }; int sol[N][N]; init(sol); int x=rat_in_maze(a,sol,0,0,3,3); //print(a); printf("\n\n"); printf("x=%d\n",x); if(x==0) printf("No solution exists\n"); getch(); } karthiga can somebody pls help me how dis part working ..i cant understand dis !!!!!!  
+bool solveMazeUtil(int maze[N][N], int x, int y, int sol[N][N])
+{
+    // if (x,y is goal) return true
+    if(x == N-1 &amp;&amp; y == N-1)
+    {
+        sol[x][y] = 1;
+        return true;
+    }
+ 
+    // Check if maze[x][y] is valid
+    if(isSafe(maze, x, y) == true)
+    {
+        // mark x,y as part of solution path
+        sol[x][y] = 1;
+ 
+        /* Move forward in x direction */
+        if (solveMazeUtil(maze, x+1, y, sol) == true)
+            return true;
+ 
+        /* If x moving in x direction doesn't give solution then
+           Move down in y direction  */
+        if (solveMazeUtil(maze, x, y+1, sol) == true)
+            return true;
+ 
+        /* If none of the above movements work then BACKTRACK:
+            unmark x,y as part of solution path */
+        sol[x][y] = 0;
+        return false;
+    }   
+ 
+    return false;
+}
+ PolaNix If you cant understand this clearly written code along with the descriptive comments, this is a serious RED flag. xor The code is clear to you because you wrote it. nitishgarg Err..The code given above is not printing the correct solution, check here: https://ideone.com/Ffssm Can anyone check why? http://geeksforgeeks.org/ Sandeep @nitishgarg: Thanks for pointing this out. The original code was working on my compiler (Code Blocks) but there was a small issue which was causing problems on Ideone. I have added “return false” at the end of solveMaze(). It should work on all compilers now. atul code does not work for below test case :- int maze[N][N] = { {1, 1, 1, 1}, {0, 0, 1, 1}, {0, 1, 1, 0}, {1, 1, 1, 1} };  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Aps It doesn’t work because we defined ‘N’ value to 9 so the array which we given is 4X4 but compiler considers it as 9X9 by inserting zeros(as we no for zero’s there is no path),so by changing N value to 4 we can get a correct path atul it will fail for following test case :- int maze[N][N] = { {1, 1, 1, 1,1,1}, {0, 0, 1, 0,0,1}, {0, 0, 0, 1,1,1}, {1, 1, 0, 0,1,0}, {0, 0, 1, 1,1,1}, {0, 0, 0, 0,0,1} };  
+/* Paste your code here (You may delete these lines if not writing code) */
+ atul007 Here is the code which will for all cases :-  
+
+#include<stdio.h>
+#include<stdlib.h>
+#define N 9
+
+int validPath(int maze[][N],int row,int col)
+{
+	if(maze[row][col])
+		return 1;
+
+return 0;
+}
+void printSolution(int path[][N])
+{
+int i,j;
+
+        for(i=0;i<N;i++)
+        {
+                for(j=0;j<N;j++)
+                {
+                        printf("%d ",path[i][j]);
+                }
+                printf("\n");
+        }
+}
+
+int searchUtil(int maze[][N],int sol[][N],int row,int col)
+{
+
+if(row==N-1 && col==N-1)
+{
+	sol[row][col]=1;
+	return 1;
+}
+
+if(row >= N || col >= N || row < 0 || col < 0)
+{
+		return 0;
+}
+	if(validPath(maze,row,col)==1)
+	{
+		if(sol[row][col]==0)
+		{
+			sol[row][col]=1;
+			
+				if(searchUtil(maze,sol,row,col+1)==1)
+					return 1;
+		
+				if(searchUtil(maze,sol,row+1,col)==1)
+					return 1;
+
+                		if(searchUtil(maze,sol,row,col-1)==1)
+					return 1;
+
+				if(searchUtil(maze,sol,row-1,col)==1)
+                                        return 1;
+ 				
+		
+			sol[row][col]=0;
+
+		}
+	}
+
+return 0;
+}
+
+
+void searchPath(int maze[][N])
+{
+	int path[N][N];
+	int i,j;
+
+	for(i=0;i<N;i++)
+		for(j=0;j<N;j++)
+			path[i][j]=0;
+
+	if(searchUtil(maze,path,0,0)==0)
+	{
+		printf("\n\nPath does not exist\n\n");
+	}
+	else
+	{
+		printf("\n\nSolution\n\n");
+		printSolution(path);
+	}	
+
+}
+
+int main()
+{
+
+int maze[N][N]  =  {
+        {1, 1, 1, 1,1,1,0,0,0},
+        {0, 0, 1, 0,0,1,0,0,0},
+        {0, 0, 0, 1,1,1,0,0,1},
+        {1, 1, 0, 0,1,0,0,0,0},
+        {0, 0, 1, 1,1,0,0,0,1},
+        {1, 1, 1, 0,0,0,0,0,0},
+	{0, 1, 0, 0,1,1,1,0,0},
+	{0, 1, 1, 1,1,0,1,1,0},
+	{0, 0, 0, 0,0,0,0,1,1},
+    };
+
+/*
+modify #define N accordingly for below test case..or it wont give correct output. 
+
+int maze[N][N]  =  {
+        {1, 1, 1, 1,1,1},
+        {0, 0, 1, 0,0,1},
+        {0, 0, 0, 1,1,1},
+        {1, 1, 0, 0,1,0},
+	{0, 0, 1, 1,1,1},
+	{0, 0, 0, 0,0,1}
+    };
+*/
+/*
+int maze[N][N]  =  { {1, 1, 1, 1},
+        {1, 1, 1, 1},
+        {1, 1, 1, 1},
+        {1, 1, 1, 1}
+    };
+*/
+searchPath(maze);
+printf("\n");
+return 1;
+}
+
+
+ yu we can also build a binary tree from the matrix representation and do a depth-first traversal to find a route to destination. http://geeksforgeeks.org/ Sandeep Backtracking solution does DFS traversal only. The point to note is that the Backtracking solutions do not always traverse the complete tree. Backtracking stops at an internal node when it sees that no solution is feasible from this node and starts exploring other possibilities. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

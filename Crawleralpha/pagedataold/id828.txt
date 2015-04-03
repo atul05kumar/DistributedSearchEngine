@@ -1,0 +1,335 @@
+Turn an image by 90 degree - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Turn an image by 90 degree Given an image, how will you turn it by 90 degrees? A vague question. Minimize the browser and try your solution before going further. An image can be treated as 2D matrix which can be stored in a buffer. We are provided with matrix dimensions and it’s base address. How can we turn it? For example see the below picture, * * * ^ * * *
+* * * | * * *
+* * * | * * *
+* * * | * * * After rotating right, it appears (observe arrow direction) * * * *
+* * * *
+* * * *
+-- - - >
+* * * *
+* * * *
+* * * * The idea is simple. Transform each row of source matrix into required column of final image. We will use an auxiliary buffer to transform the image. From the above picture, we can observe that first row of source ------> last column of destination
+second row of source ------> last but-one column of destination
+so ... on
+last row of source ------> first column of destination In pictorial form, we can represent the above transformations of an (m x n) matrix into (n x m) matrix, Transformations If you have not attempted, atleast try your pseudo code now. It will be easy to write our pseudo code. In C/C++ we will usually traverse matrix on row major order. Each row is transformed into different column of final image. We need to construct columns of final image. See the following algorithm (transformation) for(r = 0; r < m; r++)
+{
+   for(c = 0; c < n; c++)
+   {
+      // Hint: Map each source element indices into
+      // indices of destination matrix element.
+       dest_buffer [ c ] [ m - r - 1 ] = source_buffer [ r ] [ c ];
+   }
+} Note that there are various ways to implement the algorithm based on traversal of matrix, row major or column major order. We have two matrices and two ways (row and column major) to traverse each matrix. Hence, there can atleast be 4 different ways of transformation of source matrix into final matrix. Code: 
+#include <stdio.h>
+#include <stdlib.h>
+
+void displayMatrix(unsigned int const *p, unsigned int row, unsigned int col);
+void rotate(unsigned int *pS, unsigned int *pD, unsigned int row, unsigned int col);
+
+int main()
+{
+    // declarations
+    unsigned int image[][4] = {{1,2,3,4}, {5,6,7,8}, {9,10,11,12}};
+    unsigned int *pSource;
+    unsigned int *pDestination;
+    unsigned int m, n;
+
+    // setting initial values and memory allocation
+    m = 3, n = 4, pSource = (unsigned int *)image;
+    pDestination = (unsigned int *)malloc(sizeof(int)*m*n);
+
+    // process each buffer
+    displayMatrix(pSource, m, n);
+
+    rotate(pSource, pDestination, m, n);
+
+    displayMatrix(pDestination, n, m);
+
+    free(pDestination);
+
+    getchar();
+    return 0;
+}
+
+void displayMatrix(unsigned int const *p, unsigned int r, unsigned int c)
+{
+    unsigned int row, col;
+    printf("\n\n");
+
+    for(row = 0; row < r; row++)
+    {
+        for(col = 0; col < c; col++)
+        {
+            printf("%d\t", *(p + row * c + col));
+        }
+        printf("\n");
+    }
+
+    printf("\n\n");
+}
+
+void rotate(unsigned int *pS, unsigned int *pD, unsigned int row, unsigned int col)
+{
+    unsigned int r, c;
+    for(r = 0; r < row; r++)
+    {
+        for(c = 0; c < col; c++)
+        {
+            *(pD + c * row + (row - r - 1)) = *(pS + r * col + c);
+        }
+    }
+}
+ Compiled by Venki. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. alien most easiest algorithm int i,j,row=4,col=0; for(i=0;i<3;i++,col++) { row=4; for(j=0;j<5;j++,row–) { arr2[i][j] = arr[row][col]; } } for(i=0;i<3;i++) { for(j=0;j<5;j++) { printf("%d ",arr2[i][j]); } printf("n"); } return 0; } nidhi How to do in-place? anonymous  
+http://stackoverflow.com/questions/2893101/how-to-rotate-a-n-x-n-matrix-by-90-degrees
+ wasseypuriyan Do we any solution for general NxM in place transformation its_dark for(int i=0; i < n / 2 ; i++) for(int j=0; j<(n+1)/2; j++) cyclic_roll(m[i][j], m[n-1-j][i], m[n-1-i][n-1-j], m[j][n-1-i]); void cyclic_roll(int &a, int &b, int &c, int &d) { int temp = a; a = b; b = c; c = d; d = temp; } shivi  
+//shivi..coding is adictive!!
+#include<shiviheaders.h>
+#define M 4
+#define N 7
+using namespace std;
+int main()
+{
+	char brr[N][M];
+	
+	char arr[][N]=
+	{
+	{'*','*','*','^','*','*','*'},{'*','*','*','|','*','*','*'},{'*','*','*','|','*','*','*'},{'*','*','*','|','*','*','*'}
+	};
+	
+	int x=N-1,y=M-1;
+	
+	for(int i=0;i<M;++i)
+	{
+		for(int j=0;j<N;++j)
+		{
+			if(arr[i][j]=='|')brr[x--][y]='-';
+			if(arr[i][j]=='^')brr[x--][y]='>';
+			if(arr[i][j]=='*')brr[x--][y]=arr[i][j];
+			
+		}
+		y--;
+		x=N-1;
+	}
+	for(int i=0;i<M;++i)
+	{
+		for(int j=0;j<N;++j)
+		cout<<arr[i][j];
+		cout<<endl;
+	}
+	cout<<endl<<endl;
+	for(int i=0;i<N;++i)
+	{
+		for(int j=0;j<M;++j)
+		cout<<brr[i][j];
+		cout<<endl;
+	}
+	
+}
+ will smith  
+/* Paste your code here (You may delete these lines if not writing code) */
+#include<stdio.h>
+int main()
+{
+    int n,m,i,j;
+    scanf("%d%d",&n,&m);
+    int src[n][m],des[m][n];
+    for(i=0;i<n;i++)
+     for(j=0;j<m;j++)
+       scanf("%d",&src[i][j]);
+    printf("Initial Matrix\n");
+    for(i=0;i<n;i++)
+    {
+        for(j=0;j<m;j++)
+        {
+            printf("%2d ",src[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+    for(i=0;i<n;i++)
+    {
+        for(j=0;j<m;j++)
+        {
+            des[j][n-1-i]=src[i][j];
+        }
+    }
+    printf("Matrix After Rotated 90 degrees\n");
+    for(i=0;i<m;i++)
+    {
+        for(j=0;j<n;j++)
+        {
+            printf("%2d ",des[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+    return 0;
+}
+ Sreenivas Doosa First transpose the matrix and then swap the columns. Here is the working code in java.. package com.ds.algo; public class Matrix { int input[]; int ROWS, COLS; public static void main(String args[]) { int M = 4; int N = 3; Matrix matrix = new Matrix(M, N); System.out.println("Original Matrix –>"); matrix.printMatrix(M, N); matrix.rotateBy90(); System.out.println("After rotating by 90 –>"); matrix.printMatrix(N, M); } public Matrix(int ROWS, int COLS) { this.ROWS = ROWS; this.COLS = COLS; input = new int[ROWS * COLS]; fillMatrix(); } public void fillMatrix() { int data = 1; for(int i = 0; i < ROWS * COLS; i++) { input[i] = data++; } } public void printMatrix(int ROWS, int COLS) { for(int i = 0; i < ROWS; i++) { for(int j = 0; j < COLS; j++) { System.out.print(input[i * COLS + j] + " "); } System.out.println(); } } public void transpose() { int size = ROWS * COLS; int last = size – 1; int cols = ROWS; boolean[] visited = new boolean[size]; int cycle = 0; while(++cycle != size) { if(visited[cycle]) { continue; } int a = cycle; do { a = (a == last) ? last : (cols * a) % last; // swap the element at a & cycle swap(a, cycle); visited[a] = true; } while (a != cycle); } } public void swap(int a, int b) { int temp = input[a]; input[a] = input[b]; input[b] = temp; } public void rotateBy90() { //first transpose the matrix transpose(); // swap the columns in the transposed matrix int cols = ROWS; int rows = COLS; for(int r = 0; r < rows; r++) { for(int i = 0, j = cols – 1; i < j; i++, j–) { swap(r * cols + i, r * cols + j); } } } } Hanish “We have two matrices and two ways (row and column major) to traverse each matrix. Hence, there can atleast be 4 different ways of transformation of source matrix into final matrix.” Can you please explain this ?? We will traverse either source matrix in row or column major and fill the destination matrix accordingly.So, should it not be just 2 ways? Please elaborate the 4 different PSEUDO procedures of traversal. Kunal Chitkara Another very simple method without using any pointers  
+#include<stdio.h>
+
+int main()
+{
+    int image[][4] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 9, 9};
+    int i, j, rows, cols, i1, j1;
+    rows = sizeof(image) / sizeof(image[0]);
+    cols = sizeof(image[0])/sizeof(image[0][0]);
+    
+    int rot[cols][rows] ;
+    printf("Original Matrix:\n");
+    for(i = 0; i < rows; i++)
+    {
+          for(j = 0; j < cols; j++)
+                printf("%d ", image[i][j]);
+          printf("\n");
+    }
+    i1=0;
+    printf("Rotated Matrix\n");
+    for(i = 0; i < cols; i++)
+    {
+         j1 = 0;
+         for(j = rows-1; j > -1; j--)
+               rot[i1][j1++] = image[j][i];
+         i1++;
+    }
+    rows = sizeof(rot) / sizeof(rot[0]);
+    cols = sizeof(rot[0])/sizeof(rot[0][0]);
+
+    for(i = 0; i < rows; i++)
+    {
+          for(j = 0; j < cols; j++)
+                printf("%d ", rot[i][j]);
+          printf("\n");
+    }    
+    return 0;
+}
+
+ vivek is it not taking transpose of a matrix ? algopiggy In transpose, the first row will become the first column. Here the first row becomes the last column of the matrix after the transformation.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Diksha I have tried doing it inplace & its working. here is the code.  
+int main()
+{
+	int old[][3]={1,2,3,4,5,6,7,8,9},i,first,last,j,L,offset;
+	clrscr();
+
+	for(L=0;L<3/2;L++)
+	{
+		first=L;
+		last=3-1-L;
+		for(i=0;i<last;i++)
+		{
+			offset=i-first;
+			j=old[first][i];
+
+			old[first][i]=old[last-offset][first];
+
+			old[last-offset][first]=old[last][last-offset];
+
+			old[last][last-offset]=old[offset][last];
+
+			old[offset][last]=j;
+
+		}
+	}
+
+	for(i=0;i<3;i++)
+	{
+		for(j=0;j<3;j++)
+			printf("%d ",old[i][j]);
+		printf("\n");
+	}
+	return 0;
+}
+ Please let me know if it is missing anything. Bhupendra This will work only for case where number of rows and column are equal. General code for in place is not that straight forward. You have to deal with cycles. see wiki for in place transpose algorithm  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://java4projects.blogspot.in/2012/05/how-to-add-jinternal-frame-and-jpanel.html jIntrnal frame Thanks for finally talking about >Turn an image by 90 degree | GeeksforGeeks <Loved it!How to add jInternal and jPanel frame into jDestopPane Priyanka  
+#define ROW 2
+#define COL 3 
+//Rotating an image by 90 degree
+void rotateimage(int a[][COL])
+{
+int i,j;
+printf("\nRotated Image\n");
+for(i=0;i<COL;i++)
+{
+	for(j=ROW-1;j>=0;j--)
+	printf("%d ",a[j][i]);
+printf("\n");
+}
+}
+ Priya T B Let a[n][n] be the pixel matrix.  
+
+for(int i=0;i<n/2;i++){
+    for(int j=0;j<n+1/2;j++){
+       exchange(a[i][j],a[n-j-1][i],a[n-i-1][n-j-1],a[j][n-1-i]);
+    }
+}
+
+exchange(int &a, int &b, int &c, int &d){
+      int temp;
+      temp = a;
+      a=b;
+      b=c;
+      c=d;
+      d=temp;
+}
+
+ Priya T B  
+//Let a[][] be n*n the 2d array having the pixel values...
+
+for(int i=0;i<n/2;i++){
+    for(int j=0;j<n+1/2;j++){
+       exchange(a[i][j],a[n-j-1][i],a[n-i-1][n-j-1],a[j][n-1-i]);
+    }
+}
+
+exchange(int &a, int &b, int &c, int &d){
+      int temp;
+      temp = a;
+      a=b;
+      b=c;
+      c=d;
+      d=temp;
+}
+ bond I think in place rotation can be done by first taking transpose of matrix and then swapping columns(swap first column with las,second with second last and so on..) complexity-O(n^2) http://www.wgpshashank.co.cc wgpshashank In Place Matrix Rotation  
+void rotate_matrix_90degree(int **m, int n)
+{
+    int i, j;
+
+    // first mirror the matrix along the diagonal line.
+    for (i = 0; i < n; i++)
+    {
+          for (j = i + 1; j < n; j++)
+          {
+             int tmp = m[i][j];
+             m[i][j] = m[j][i];
+             m[j][i] = tmp;
+         }
+    }
+
+    // mirror the matrix horizontally. for Left Rotation
+    // and mirror the matrix vertically for right rotation
+
+     for (i = 0; i < n / 2; i++)
+     {
+         for (j = 0; j < n; j++)
+          {
+              int tmp = m[j][i];
+              m[j][i] = m[j][n - i - 1];
+              m[j][n - i - 1] = tmp;
+           }
+      }
+}
+ Please write comment if you find any thing wrong in this code or anything missing abc But this will work only for square matrix. Right? Algoseekar @wgpshashank..yes it will work only for square matrix & fail for m*n matrix..you have to think some other way to solve it..inplace..isn’t it..?? extremecode @wgpshashank your first loop has no efect on the matrix,simulate and try  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Sajeesh  
+//for each point-(0,0)(1,1) and so on...
+for(i=0;i<rows;i++)
+{
+	//traversing along the row and col from the point(i,i) and swapping them
+	t=i+1;
+	while(t<rows||t<cols){
+		swap(a[i][t],a[t][i]);
+		t++;
+	}	
+}
+ Gaurav I think we can implement it in-place by doing a four way swap by first starting from the corners and then on the elements clockwise from the edges. I hope you understood what i am trying to say? Jing I agree harry Can somebody please provide code/algorithm for in-place rotation? sharat check this link http://stackoverflow.com/questions/3777184/rotate-2d-rectangular-array-in-place for some interesting ideas on inplace rotation kartik nice in-place implementation http://www.linkedin.com/in/ramanawithu Venki No, it is not in-place. I am using O(mn) extra buffer for transformations. In place transformation is complex. sharat probably Karthik was sarcastic Algoseekar @kartik…wgpshashank has provided inplace implementation for square matrix only u may try to modify to that for general m*n matrix..??? Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

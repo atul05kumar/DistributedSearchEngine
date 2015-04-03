@@ -1,0 +1,130 @@
+Random number generator in arbitrary probability distribution fashion - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Random number generator in arbitrary probability distribution fashion Given n numbers, each with some frequency of occurrence. Return a random number with probability proportional to its frequency of occurrence. Example: 
+Let following be the given numbers.
+  arr[] = {10, 30, 20, 40}  
+
+Let following be the frequencies of given numbers.
+  freq[] = {1, 6, 2, 1}  
+
+The output should be
+  10 with probability 1/10
+  30 with probability 6/10
+  20 with probability 2/10
+  40 with probability 1/10 It is quite clear that the simple random number generator won’t work here as it doesn’t keep track of the frequency of occurrence. We need to somehow transform the problem into a problem whose solution is known to us. One simple method is to take an auxiliary array (say aux[]) and duplicate the numbers according to their frequency of occurrence. Generate a random number(say r) between 0 to Sum-1(including both), where Sum represents summation of frequency array (freq[] in above example). Return the random number aux[r] (Implementation of this method is left as an exercise to the readers). The limitation of the above method discussed above is huge memory consumption when frequency of occurrence is high. If the input is 997, 8761 and 1, this method is clearly not efficient. How can we reduce the memory consumption? Following is detailed algorithm that uses O(n) extra space where n is number of elements in input arrays. 1. Take an auxiliary array (say prefix[]) of size n. 2. Populate it with prefix sum, such that prefix[i] represents sum of numbers from 0 to i. 3. Generate a random number(say r) between 1 to Sum(including both), where Sum represents summation of input frequency array. 4. Find index of Ceil of random number generated in step #3 in the prefix array. Let the index be indexc. 5. Return the random number arr[indexc], where arr[] contains the input n numbers.   Before we go to the implementation part, let us have quick look at the algorithm with an example:       arr[]: {10, 20, 30}       freq[]: {2, 3, 1}       Prefix[]: {2, 5, 6}   Since last entry in prefix is 6, all possible values of r are [1, 2, 3, 4, 5, 6]          1: Ceil is 2. Random number generated is 10.          2: Ceil is 2. Random number generated is 10.          3: Ceil is 5. Random number generated is 20.          4: Ceil is 5. Random number generated is 20.          5: Ceil is 5. Random number generated is 20.          6. Ceil is 6. Random number generated is 30.   In the above example       10 is generated with probability 2/6.       20 is generated with probability 3/6.       30 is generated with probability 1/6. How does this work? Any number input[i] is generated as many times as its frequency of occurrence because there exists count of integers in range(prefix[i – 1], prefix[i]] is input[i]. Like in the above example 3 is generated thrice, as there exists 3 integers 3, 4 and 5 whose ceil is 5. 
+//C program to generate random numbers according to given frequency distribution
+#include <stdio.h>
+#include <stdlib.h>
+
+// Utility function to find ceiling of r in arr[l..h]
+int findCeil(int arr[], int r, int l, int h)
+{
+    int mid;
+    while (l < h)
+    {
+         mid = l + ((h - l) >> 1);  // Same as mid = (l+h)/2
+        (r > arr[mid]) ? (l = mid + 1) : (h = mid);
+    }
+    return (arr[l] >= r) ? l : -1;
+}
+
+// The main function that returns a random number from arr[] according to
+// distribution array defined by freq[]. n is size of arrays.
+int myRand(int arr[], int freq[], int n)
+{
+    // Create and fill prefix array
+    int prefix[n], i;
+    prefix[0] = freq[0];
+    for (i = 1; i < n; ++i)
+        prefix[i] = prefix[i - 1] + freq[i];
+
+    // prefix[n-1] is sum of all frequencies. Generate a random number
+    // with value from 1 to this sum
+    int r = (rand() % prefix[n - 1]) + 1;
+
+    // Find index of ceiling of r in prefix arrat
+    int indexc = findCeil(prefix, r, 0, n - 1);
+    return arr[indexc];
+}
+
+// Driver program to test above functions
+int main()
+{
+    int arr[]  = {1, 2, 3, 4};
+    int freq[] = {10, 5, 20, 100};
+    int i, n = sizeof(arr) / sizeof(arr[0]);
+
+    // Use a different seed value for every run.
+    srand(time(NULL));
+
+    // Let us generate 10 random numbers accroding to
+    // given distribution
+    for (i = 0; i < 5; i++)
+      printf("%d\n", myRand(arr, freq, n));
+
+    return 0;
+}
+ Output: May be different for different runs 
+4
+3
+4
+4
+4 This article is compiled by Aashish Barnwal. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: MathematicalAlgo Tweet Writing code in comment? Please use ideone.com and share the link here. Alok Kumar Your non recursive binary search is good, but it’s always O(logn). I mean you always reach to the end case where you have just 2 elements. You can improve it, for average and good cases by doing few more checks. However I must agree solving it this way makes code much easier to understand. Meenal I have a doubt in above code. When i run above code I am not getting values according to frequencies and I debugged and found out random number r is not generated with equal probability which is affecting final answer. Can anyone help me out with this issue. Code used is same as above. Please help if I am missing anything. I tried to run it for arr[]: {10, 20, 30} freq[]: {2, 3, 1} Prefix[]: {2, 5, 6} and out put was not according to frequency. spheroid Nice Article.Below is Implementation left as an exercise  
+#include<stdio.h>
+#include<iostream>
+#include<stdlib.h>
+#include<time.h>
+using namespace std;
+
+int main()
+{
+    int sum=0,k=0,opt=1;
+    int arr[]={10, 30, 20, 40} ;
+    int  freq[] = {1, 6, 2, 1} ;
+    int l=sizeof(freq)/sizeof(int);
+    for( k=0;k<l;k++)
+    {
+	     sum+=freq[k];
+    }
+    int s[sum];
+    k=0;
+    for(int r=0;r<l;r++)
+    {
+            for(int p=0;p<freq[r];p++)
+            {
+                     s[k]=arr[r];
+                     k++;
+            }
+    }
+    do
+    {
+            srand(time(NULL));
+            int x=rand()%(sum-1);
+            cout<<s[x]<<endl;
+            cout<<"Enter option";
+            cin>>opt;
+     }while(opt);
+     getchar();
+}1
+
+ spheroid One Correction int x=rand()%(sum-1); should be int x=rand()%(sum);//x in range 0 to (sum-1)  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://none Prateek  
+/* Paste your code here (You may delete these lines if not writing code) */
+int findCeil(int arr[], int r, int l, int h)
+{
+    int mid;
+    while (l < h)
+    {
+         mid = l + ((h - l) >> 1);  // Same as mid = (l+h)/2
+        (r > arr[mid]) ? (l = mid + 1) : (h = mid);
+    }
+    return (arr[l] >= r) ? l : -1;
+}
+
+if above function return -1 and later this value is used as array index. Like
+
+int indexc = findCeil(prefix, r, 0, n - 1);
+    return arr[indexc];
+
+Does it sounds good?? 
+ 
+ http://www.facebook.com/barnwal.aashish Aashish Please take a closer look at the algorithm. The findCeil() will never return -1. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

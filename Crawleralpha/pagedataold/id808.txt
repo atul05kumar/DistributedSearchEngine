@@ -1,0 +1,548 @@
+Maximum sum such that no two elements are adjacent - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Maximum sum such that no two elements are adjacent Question: Given an array of positive numbers, find the maximum sum of a subsequence with the constraint that no 2 numbers in the sequence should be adjacent in the array. So 3 2 7 10 should return 13 (sum of 3 and 10) or 3 2 5 10 7 should return 15 (sum of 3, 5 and 7).Answer the question in most efficient way. Algorithm: Loop for all elements in arr[] and maintain two sums incl and excl where incl = Max sum including the previous element and excl = Max sum excluding the previous element. Max sum excluding the current element will be max(incl, excl) and max sum including the current element will be excl + current element (Note that only excl is considered because elements cannot be adjacent). At the end of the loop return max of incl and excl. Example: 
+  arr[] = {5,  5, 10, 40, 50, 35}
+
+  inc = 5 
+  exc = 0
+
+  For i = 1 (current element is 5)
+  incl =  (excl + arr[i])  = 5
+  excl =  max(5, 0) = 5
+
+  For i = 2 (current element is 10)
+  incl =  (excl + arr[i]) = 15
+  excl =  max(5, 5) = 5
+
+  For i = 3 (current element is 40)
+  incl = (excl + arr[i]) = 45
+  excl = max(5, 15) = 15
+
+  For i = 4 (current element is 50)
+  incl = (excl + arr[i]) = 65
+  excl =  max(45, 15) = 45
+
+  For i = 5 (current element is 35)
+  incl =  (excl + arr[i]) = 80
+  excl = max(5, 15) = 65
+
+And 35 is the last element. So, answer is max(incl, excl) =  80
+ Thanks to Debanjan for providing code. Implementation: 
+#include<stdio.h>
+
+/*Function to return max sum such that no two elements
+ are adjacent */
+int FindMaxSum(int arr[], int n)
+{
+  int incl = arr[0];
+  int excl = 0;
+  int excl_new;
+  int i;
+
+  for (i = 1; i < n; i++)
+  {
+     /* current max excluding i */
+     excl_new = (incl > excl)? incl: excl;
+
+     /* current max including i */
+     incl = excl + arr[i];
+     excl = excl_new;
+  }
+
+   /* return max of incl and excl */
+   return ((incl > excl)? incl : excl);
+}
+
+/* Driver program to test above function */
+int main()
+{
+  int arr[] = {5, 5, 10, 100, 10, 5};
+  printf("%d \n", FindMaxSum(arr, 6));
+  getchar();
+  return 0;
+}
+ Time Complexity: O(n) Now try the same problem for array with negative numbers also. Please write comments if you find any bug in the above program/algorithm or other ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: array Tweet Writing code in comment? Please use ideone.com and share the link here. Venu Gopal Recursive version as in other DP problems: just the function is changed http://ideone.com/rdbd9A Mohamed Abdul Rahim How about this? public static int getMax(int[] A) { int[] mArray = new int[A.length]; int maxSoFar = 0; for (int i = 0; i 0) ? A[i] + mArray[i – 2] : A[i]; int m2 = (i – 3 > 0) ? A[i] + mArray[i – 3] : A[i]; mArray[i] = max(m1, m2); if (mArray[i] > maxSoFar) { maxSoFar = mArray[i]; } } return maxSoFar; } Aditya Murgai // a recursive approach #include /*Function to return max sum such that no two elements are adjacent */ int mymax(int a,int b) { return a>b?a:b; } int FindMaxSum(int arr[], int pos, int sum,int n) { if(pos>=n) return sum; else return mymax(FindMaxSum(arr,pos+1,sum,n),FindMaxSum(arr,pos+2,sum+arr[pos],n)); /* return max of incl and excl */ } /* Driver program to test above function */ int main() { int arr[] = {5, 5, 10, 40, 50, 35}; printf(“%d n”, FindMaxSum(arr,0,0, 6)); getchar(); return 0; } Venu Gopal saw your code now only, just before I was going to post this same approach.. my code: http://ideone.com/rdbd9A Vijay Apurva for -ve number we can use the same approach first we replace all the -ve numbers with 0 . after this we can apply this approach . newCoder Here is the code which works on all cases positive and negative or mix: private static int maxNonAdjacentSum(int a[]) { if (a.length == 1) return a[0]; if (a.length == 2) return max(a[0], a[1]); int secondLast = a[0]; int last = max(secondLast, a[1]); int current = last; for (int i = 2; i < a.length; i++) { current = max(a[i], max(secondLast + a[i], last)); secondLast = last; last = current; } return current; } alien awesome algo dude xiveman Can you explain why we need two different arrays? Why not use only one array M such that M[i] stores maximum such sum with a[i] included: public static int maxSum(int[] a){ if(a == null || a.length == 0) return 0; if(a.length == 1) return a[0]; if(a.length == 2) return (a[0] > a[1] ? a[0] : a[1]); int[] M = new int[a.length]; M[0] = a[0]; M[1] = a[1]; int max = 0; for(int i = 2; i = 0 && M[i-3] > M[i-2]) M[i] = M[i-3]; M[i] += a[i]; max = (max > M[i] ? max : M[i]); } return max; } HRISHIKESH //recursive code of above problem #include using namespace std; int getmaxsum(int a[],int size) { if (size>=2) { int temp=getmaxsum(a,size-1); int temp2=getmaxsum(a,size-2); return temp2 +a[size]>temp?temp2+a[size]:temp; } else if (size==1) return a[0]>a[1]?a[0]:a[1]; else return a[0]; } int main () { int array[]= {3,8,12,6,2,34,4,19,7,9,11}; cout<<getmaxsum(array,10); return 0; } skmahawar @orchidmajumder:disqus some modification for case of -ve numbers. please comment if any case is not met. [Language : Java] import java.io.*; public class Program{ public static void main(String[] args) throws IOException{ int input[] = {-3,-2,-1,-10}; int sumUpto[] = new int[4]; sumUpto[0] = input[0]; sumUpto[1] = Math.max(input[0],sumUpto[0]); for(int i = 2 ; i<4 ; i++){ sumUpto[i] = Math.max(input[i],Math.max(input[i]+sumUpto[i-2],sumUpto[i-1])); } System.out.println(sumUpto[3]); } } guest No need to use DP…A very simple approach.. Just a little modification in above code… It wont work if all are -ve..we can have one pre check…please let me know if it has any flaw.. #include #include /*Function to return max sum such that no two elements are adjacent */ int max(int a,int b) { if(a>b) return a; else return b; } int FindMaxSum(int arr[], int n) { int incl = arr[0]; int excl = 0; int excl_new; int i; for (i = 1; i < n; i++) { /* current max excluding i */ int temp=incl; if(excl excl)? incl : excl); } /* Driver program to test above function */ int main() { int arr[] = {-3,6,-7,8,9,-10,23,-8,-7,-9,-80,-90,1}; printf(“%d n”, FindMaxSum(arr, sizeof(arr)/sizeof(arr[0]))); getchar(); return 0; } Abhay //work for negative number also int main() { int i,j,sum1=0,sum2=0; int arr[]={5,5,10,40,50,-35}; int n=sizeof(arr)/sizeof(arr[0]); for(i=0,j=1;j<=n;i+=2,j+=2) { sum1=sum1+arr[i]; sum2=sum2+arr[j]; } if(sum1<sum2) printf("%d",sum2); else printf("%d",sum1); } zorro Very poorly written article…. with complex and probably incorrect solution a..this is a DP problem and comments have better solutions !!! Garrick Agree. Which solutions below do you feel are better? Algorithm (2 pagargraphs): Contradict each other. Are we excluding the current or previous element? Example: Is very poor, starting off with duplicate values. eg. Which 5 is being tracked (at any given point)? zorro I feel the DP solution provided by shek8034 is the best solution. Amit Works for -ve values too: #include int max(int a,int b) { if(a>=b) return a; return b; } int main() { int a[]={-3 ,-2 ,-1 ,-10}; int n=4,i,m; int f[10]={0}; f[0]=a[0]; f[1]=max(a[1],a[0]); for(i=2;if[i-2]+a[i]) m = max(f[i-2],a[i]); else m = f[i-2]+a[i]; f[i]=max(m,f[i-1]); } printf("%dn",f[n-1]); return 0; } HSIRIHS Better way : I don’t get the above solution but it’s very simple if take maximum of elements at odd positions and elements at even positions in the array – alternatively. No need to remember any variables. Gunni Then solve this: list = { 1, 0, 0, 1 } Pooja why hsirihs approach is wrong?? plz explain me Pooja why hsirihs approach is wrong?? plz explain me Shreyans It won’t give correct answer when negative numbers are also included… draganwarrior Does this algo handle -ve value also magician.trilok ///Any guideline to paste c++ code ? Ankur #include #include #define SIZE 6 int check(int *a,int size,int i,int sum) { if(sizesum2 ?sum1:sum2); } main() { int a[SIZE]={3, 2, 5, 10, 7}; int sum,sum1; sum=check(a,SIZE-1,0,0); sum1=check(a,SIZE -1,1,0); printf(“maximum sum is %d”,sum>sum1?sum:sum1); getch(); } Ankur #include #include #define SIZE 6 int check(int *a,int size,int i,int sum) { if(sizesum2 ?sum1:sum2); } main() { int a[SIZE]={5, 5, 10, 40, 50, 35}; int sum,sum1; sum=check(a,SIZE-1,0,0); sum1=check(a,SIZE -1,1,0); printf(“maximum sum is %d”,sum>sum1?sum:sum1); getch(); } Mukut  
+
+#include<stdio.h>
+#define no 20
+int n;
+int A[no];
+int Sum(int i, int s, bool sel)
+{
+	int a = 0,b = 0;
+	if(i == n)
+	{
+		if(!sel)
+			return s + A[i];
+		else
+			return s;
+	}
+	if(!sel)
+		a = Sum(i+1,s + A[i], true);
+	b = Sum(i+1,s, false);
+	return a > b ? a : b;
+	
+}
+void main()
+{
+	printf("Enter no. of elements.\t");
+	scanf("%d",&n);
+	printf("Enter the list.\n");
+	A[0] = 0;
+	for(int i = 1; i <= n; i++)
+		scanf("%d",&A[i]);
+	int s = Sum(0,0, false);
+	printf("Maximum sum is = %d",s);
+	
+}
+
+ shek8034 A Very Simple DP Solution. Time : O(n). Space: O(1). Please go through this algorithm. Let sum[i] represent maximum non-consecutive subsequence sum till ith element of input[], then sum[i] = max(sum[i-1], input[i] + input[i-2]) which says that new sum would either be obtained by not including ith element i.e previous sum, or by including it with last to previous sum i.e input[i-2]. The new sum would be maximum of these two possibilities. Since space complexity is O(1), instead of using sum[] array, we only need 3 variables, to store current, last and second last values of sum. I m using 3 variables here. a -> for (i-2)th index. b -> for (i-1)th index. c -> for ith index. ( This stores our answer). This is 100% working code for all cases (negatives values also). Check it out.  
+#include<stdio.h>
+main()
+{
+	int input[100],i,N;
+	scanf("%d",&N);
+	for(i=0;i<N;i++)
+		scanf("%d",&input[i]);
+	printf("%d\n",adjacent_sum(input,N));
+}
+	
+int adjacent_sum(int input[],int N)
+{	
+	int a,b,c,i;
+	a = input[0];
+	if(input[1] > input[0])
+		b = input[1];
+	else
+		b = input[0];
+	for(i=2; i<N; i++)
+        {
+		if(b > input[i] + a)
+			c =  b;
+		else
+			c = input[i] + a;
+        //Now store values in a and b to use them in next step
+		a=b; // a now becomes second last sum
+		b=c; // b now becomes previous sum
+	}
+	return c; // returns the final sum
+}
+ Test cases: 1) 4 12 5 6 15 o/p = 27 (12+15) 2) 5 -3 -2 4 1 -5 o/p = -1 (only 1) 3) 6 25 5 10 100 10 5 o/p = 130 (25+100+5) 4) 7 5 5 10 100 10 5 101 o/p = 206 (5+100+101) khurshid @shek8034 : i think the dp should be sum[i] = max(sum[i-1], input[i] + sum[i-2]) @GeeksforGeeks: Please verify it . shek8034 @khurshid : I think my DP is correct and its working for all the cases. Please provide some test cases if you find some difficulty. Also, the problem statement says that no two element are adjacent. So we have to take max of either the two alternate elements or previous stored sum. Correct me if i m wrong. gourav pathak No, I think @khurshid is right sajal jain @khurshid : your code is correct.. Ankit Chaudhary There are two flaws in ur code. 1. variable c is not initialised. In case array size of 2, function return garbage value. So before for loop write statement c=b; 2. Your code will not work if all elements in array are negative, otherwise it is fine. Modification in dp : sum[i]=max(arr[i],sum[i-1],sum[i-2]+arr[i]); Below is modified code . This will work even if all elements are negative. Correct me if I am wrong. Why my code is not posted in readable form ? I have tried many times but unable to post it in correct format. code: modification in for loop : c=b; for(int i=2;i<n;i++) c=max(input[i],input[i]+a,b); a=b; b=c; return c; Vijay Daultani Why in 2nd test case output is -1 it could have been just 4 smith good one smith input[i-2] must be sum[i-2] shek8034 A Very Simple DP Solution. Time : O(n). Space: O(1). Please go through this algorithm. Let sum[i] represent maximum non-consecutive subsequence sum till ith element of input[], then sum[i] = max(sum[i-1], input[i] + input[i-2]) which says that new sum would either be obtained by not including ith element i.e previous sum, or by including it with last to previous sum i.e input[i-2]. The new sum would be maximum of these two possibilities. Since space complexity is O(1), instead of using sum[] array, we only need 3 variables, to store current, last and second last values of sum. I m using 3 variables here. a -> for (i-2)th index. b -> for (i-1)th index. c -> for ith index. ( This stores our answer). This is 100% working code for all cases (negatives values also). Check it out.  
+#include<stdio.h>
+main()
+{
+	int input[100],i,N;
+	scanf("%d",&N);
+	for(i=0;i<N;i++)
+		scanf("%d",&input[i]);
+	printf("%d\n",adjacent_sum(input,N));
+}
+	
+int adjacent_sum(int input[],int N)
+{	
+	int a,b,c,i;
+	a = input[0];
+	if(input[1] > input[0])
+		b = input[1];
+	else
+		b = input[0];
+	for(i=2; i<N; i++)
+        {
+		if(b > input[i] + a)
+			c =  b;
+		else
+			c = input[i] + a;
+        //Now store values in a and b to use them in next step
+		a=b; // a now becomes second last sum
+		b=c; // b now becomes previous sum
+	}
+	return c; // returns the final sum
+}
+ Test cases: 1) 4 12 5 6 15 o/p = 27 (12+15) 2) 5 -3 -2 4 1 -5 o/p = -1 (only 1) 3) 6 25 5 10 100 10 5 o/p = 130 (25+100+5) 4) 7 5 5 10 100 10 5 101 o/p = 206 (5+100+101) coder! your algo is same as above joker int sum(vector<int> a) { vector<int> dp(100); int i; dp[0]=a[0],dp[1]=a[1]; for(i=2;i<a.size();i++) dp[i]=max(dp[i-2],dp[i-2]+a[i]); return max(dp[i-1],dp[i-2]); } main() { int n,k,x,i; vector<int> a,ans; scanf("%d",&n); for(i=0;i<n;i++) scanf("%d",&x), a.push_back(x); printf("sum is: %d\n",sum(a)); } orchidmajumder Dynamic programming approach..  
+#include<stdio.h>
+int max(int a,int b)
+{
+    if(a>=b)
+    return a;
+    return b;
+}
+int main()
+{
+    int a[]={3 ,2 ,7 ,10};
+    int n=4,i;
+    int f[10]={0};
+    f[0]=a[0];
+    f[1]=max(a[1],a[0]);
+    for(i=2;i<n;++i)
+    f[i]=max(f[i-2]+a[i],f[i-1]);
+    
+    printf("%d\n",f[n-1]);
+    return 0;
+}
+ Gaurav pruthi good one Amit Please check for this case: int a[]={-3 ,-2 ,-1 ,-10}; o/p: -2 should be: -1 DraganWarrior Plz read Question carefully This is only for arry with +ve value Tuhin Chakrabarty esob abar kobe orchidmajumder bochor khanek aage hobe nikhil A DP solution… http://algorithmsforever.blogspot.in/2011/11/largest-non-consecutive-subsequence.html kT Hi, I think this needs to be corrected : >> excl = max(5, 15) = 65 instead should be excl = max(65, 45) = 65 Please correct me otherwise. Thanks. joker {{{ int solve(vector a) { int dp[10000]; CLR(dp); dp[0]=a[0],dp[1]=max(a[0],a[1]); for(int i=2;i<a.size();i++) dp[i]=max(dp[i-2]+a[i],dp[i-1]); return dp[a.size()-1]; } main() { int t; int b[]={5, 5, 10, 40, 50, 35}; vector a(b,b+sizeof(b)/sizeof(int)); printf(“%d\n”,solve(a)); system(“pause”); return 0; } }}} Ankit Malhotra The algorithm for the negative integral values solution can be simplified by replacing Steps 4.3 to 4.5 as 4.3 Return the highest of the 6 elements (term[0], sum1, sum1 + term[0], term[1], sum2, term[1] + sum2) as MNAS. Ankit Malhotra There is a correction in the algorithm posted for negative integral values solution. Step 4.3 was incorrectly repeated for 4.4 Also the ordering of the terms of the temporary subarrays need to be corrected. The new steps are 4.3 Create a new temporary array arr1 with 3 elements as (term[0], term[0] + sum1, sum1) 4.4 Create a new temporary array arr2 with 3 elements as (term[1], term[1] + sum2, sum2) 4.5 Return the higher of the MNAS of the 2 new arrays as the required MNAS. Ankit Malhotra Adding algorithm for my solution This can be resolved as a Dynamic Programming solution based on the count of the elements. Let us refer to the max non adjacent sum of an array of n elements term[] as MNAS. For whole numbers alone the solution is simpler than a negative integral value solution. 1. If count is 1 return MNAS = term[0] 2. If count is 2 return MNAS as higher of term[0] & term[1] 3. If count is 3 return MNAS as higher of the sum of first and last element or the second element alone i.e. higher of (term[0] + term[2]) & term[1]. 4. For counts more than 3 4.1 Find sum1 as sum of first element & MNAS of the remaining array of (n-2) elements from the third element. 4.2 Find sum2 as sum of second element & MNAS of the remaining array of (n-3) elements from the fourth element. 4.3 Return higher of sum1 & sum2 as MNAS. When the problem set is integral including the negative values, then the sum has to be compared with each element also. Hence the algorithm changes to incorporate that detail from Step 3 onwards where non adjacent elements are summed. It goes without saying that the solution for negative integral values is always going to solve the problem for whole numbers also though adding to complexity, and hence is actually the desirable solution if needed. 1. If count is 1 return MNAS = term[0] 2. If count is 2 return MNAS as higher of term[0] & term[1] 3. If count is 3 return MNAS as highest of the three terms compared with the sum of first and last element i.e. highest of term[0], term[1], term[2] & (term[0] + term[2]). 4. For counts more than 3 4.1 Find sum1 as MNAS of the array of (n-2) elements from the third element. 4.2 Find sum2 as MNAS of the array of (n-3) elements from the fourth element. 4.3 Create a new temporary array arr1 with 3 elements as (term[0], sum1, term[0] + sum1) 4.3 Create a new temporary array arr2 with 3 elements as (term[1], sum2, term[1] + sum2) 4.5 Return the higher of the MNAS of the 2 new arrays as the required MNAS. Ankit Malhotra function pmaxsum will handle positive numbers. To handle all cases of -ve numbers with 0 change to maxsum.  
+#define higher(a,b) (a > b? a : b)
+int pmaxsum (int term[], int count)
+{
+  if (count == 1) return term[0];
+  else if (count == 2) return higher (term[0], term[1]);
+  else if (count == 3) return higher (term[0] + term[2], term[1]);
+  int sum1 = term[0] + maxsum(term + 2, count - 2),
+  sum2 = term[1] + maxsum(term + 3, count - 3);
+  return higher (sum1, sum2);
+}    
+
+int maxsum (int term[], int count)
+{
+  if (count == 1) return term[0];
+  else if (count == 2) return higher (term[0], term[1]);
+  else if (count == 3) 
+    return higher (higher (term[0], term[2]), 
+		   higher (term[1], term[0] + term[2]));
+
+  int sum1 = maxsum(term + 2, count - 2),
+  sum2 = maxsum(term + 3, count - 3);
+  return higher (higher (higher (term[0], sum1), term[0] + sum1), 
+		 higher (higher (term[1], sum2), term[1] + sum2));
+}    
+
+ Ankit Malhotra Improved maxsum to simplify code at the expense of space.  
+#define higher(a,b) (a > b? a : b)
+int maxsum (int term[], int count)
+{
+  if (count == 1) return term[0];
+  else if (count == 2) return higher (term[0], term[1]);
+  else if (count == 3) 
+    return higher (higher (term[0], term[2]), 
+		   higher (term[1], term[0] + term[2]));
+
+  int sum1 = maxsum(term + 2, count - 2),
+  sum2 = maxsum(term + 3, count - 3),
+  arr1[] = {term[0], sum1, term[0] + sum1},
+  arr2[] = {term[1], sum2, term[1] + sum2};
+  return higher (maxsum (arr1, 3), maxsum (arr2, 3));
+}
+ Ankit Malhotra Please change creation lines of arr1 and arr2 as follows for the code to work correctly : arr1[] = {term[0], term[0] + sum1, sum1}, arr2[] = {term[1], term[1] + sum2, sum2}; Ankit Malhotra Please ignore this solution as it adds unnecesary comparisons. The originally posted versions of pmaxsum and maxsum are correct. Though this solution works, it does 9 comparisons where work can be done with 5 besides also adding significantly to the stack calls. Ankit Malhotra This is a very simple recursive solution. @GeeksforGeeks : I am guessing the complexity remains O(n) though space is utilized on the stack heavily. GeeksforGeeks Thanks for sharing a new method. Could you please also write pseudo code or algorithm for this? newCoder See this DP solution: private static int maxNonAdjacentSum(int a[]) { if (a.length == 1) return a[0]; if (a.length == 2) return max(a[0], a[1]); int secondLast = a[0]; int last = max(secondLast, a[1]); int current = last; for (int i = 2; i < a.length; i++) { current = max(a[i], max(secondLast + a[i], last)); secondLast = last; last = current; } return current; } aygul I found the same sln and coded it before i look at the comments. but this is far far away from O(n) just put a static count in maxsum and count the calls made to this function. for an array of 25 elements it is called 92735 times in my code. even it seems like DP the solution is not complete in terms of saving previously calculated results. for example for a call with count 10 in your code you search result for count 8 and result for count 7 seperately. which means they found sub sln for count 5 seperately. So this is not O(n)… My code is here  
+        int MaxSumNoAdj(int[] a, int s, int e)
+        {// very bad solution
+            cnt++;
+            int n = e - s + 1;
+
+            if (n <= 0) return 0;
+            if (n == 1) return a[s];
+            if (n == 2) return a[s] > a[e] ? a[s] : a[e];
+            if (n == 3) return a[s] + a[e] > a[s + 1] ? a[s] + a[e] : a[s + 1];
+
+            int sum1 = a[s] + MaxSumNoAdj(a, s + 2, e);
+            int sum2 = MaxSumNoAdj(a, s + 1, e);
+
+            return sum1 > sum2 ? sum1 : sum2;
+        }
+ Ankit Malhotra This code is pretty self explanatory and handles all cases including negative numbers.  
+#define higher(a,b) (a > b? a : b)
+int maxsum (int term[], int count)
+{
+  if (count == 1) return term[0];
+  if (count == 2) return higher (term[0], term[1]);
+  if (count == 3) return higher (higher(term[0], term[2]), higher (term[1], term[0] + term[2]));
+  int sum1 = maxsum(term + 2, count - 2), sum2 = maxsum(term + 3, count - 3);
+  return higher (higher (higher (term[0], sum1), term[0] + sum1), higher (higher (term[1], sum2), term[1] + sum2));
+}    
+ Arunda Seth Hi All, Please find my logic below.  
+#include<conio.h>
+#include<stdio.h>
+
+int main()
+{
+    int array[] = {5,5,35,40,50,35};
+    int pmi,cmi;
+    int max1,max2;
+    int MaxSum;
+    max1 = array[0];
+    max2 = array[1];
+    int index;
+    if(array[0] >= array[1])
+    {
+       pmi = 0;
+    }
+    else
+    {
+        pmi=1;
+    }
+    
+    for(index=2; index < 5; index = index+2)
+    {
+        if(array[index] >= array[index+1])
+        {
+            cmi = index;
+            if(cmi != pmi+1)
+            {
+                 max1 += array[index];
+                 max2 += array[index+1];
+            }
+            else
+            {
+                max1 += array[index+1];
+                max2 += array[index];
+            }
+            pmi = cmi;
+        }
+        else
+        {
+            cmi = index+1;
+            if(cmi != pmi+1)
+            {
+                 max1 += array[index+1];
+                 max2 += array[index];
+            }
+            else
+            {
+                max1 += array[index];
+                max2 += array[index+1];
+            }
+            pmi = cmi;
+        }
+    }
+    MaxSum = (max1>max2)?max1:max2;
+    printf("\nMax Sum Such tha no Two Elements are Adjacent %d",MaxSum);
+    getch();
+    return 0;
+}
+ sidd081 /*#include int FindMaxSum(int[], int); int max(int , int); main() { int arr[] = {5, 5, 10, 100, 10,5,101 }; printf(“%d \n”, FindMaxSum(arr, 7)); } int FindMaxSum(int a[], int n) { int s[n]; if(n==1) return a[n-1]; if(n==2) return (max(a[0],a[1])); s[0]=a[0]; s[1]=a[1]; s[2]=max(s[0]+a[2],a[1]); for(int i=3;ib)? a: b); }*/ lohith  
+
+public class NonadjacentMaxSum {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		int arr[] = {5,  5, 10, 40, 50, 35};
+		
+		int answer = findMaximumNonadjacentSum(arr,0,arr.length-1);
+		System.out.println(answer);
+	}
+
+	private static int findMaximumNonadjacentSum(int[] arr, int low, int high) {
+		
+		if(low==high){
+			return arr[low];
+		}
+		if(low+1==high){
+			return arr[low]>arr[high] ?arr[low] : arr[high] ;
+		}
+		if(low<high){
+			int max =  -1;
+			int curr= arr[low];
+			for(int i=low+2;i<=high;i++ ){
+				
+				int temp = findMaximumNonadjacentSum(arr,i,high)+curr;
+				if(max<temp)
+					max=temp;
+			}
+			return max;
+		}
+		return 0;
+	}
+
+}
+
+ lohith adding a hashmap for the calculated values will make it o(n) lohith using hashmap to store the calculated subsequence on the above code will make it o(n). let me know if there is any wrong -lohi newlx  
+public int nonAdjacentMaxSum(int [] A)
+	{
+		int preMaxGap2 = 0; // local max till A[i-2]
+		int preMaxGap1 = 0; // local max till A[i-1]
+		int maxSum = 0; // global max sum
+		
+		for(int i = 0; i < A.length; i++ ){
+			int s = max3(preMaxGap2, preMaxGap2 + A[i], A[i]);
+			if(s > maxSum)
+				maxSum = s;
+			
+			preMaxGap2 = max2(preMaxGap2, preMaxGap1);
+			preMaxGap1 = s;
+		}
+		
+		return maxSum;
+	}
+	
+	private int max3(int a, int b, int c)
+	{
+		return max2(max2(a, b), c);
+	}
+	
+	private int max2(int a, int b)
+	{
+		return a < b ? b : a;
+	}
+ Balasubramanian.N I think the following solution will also work. Please comment, if the following approach is incorrect. This is a DP approach that checks-if for every position i, whether a[i] can be included to get the maximum sum or the sub-sequence containing a[i-1] is maximum.  
+int findMaxSum(int *a,int len)
+{
+	if(len==1){ return a[0]; }
+	int n1=a[0];
+	int n2=max(a[0],a[1]);
+	for(int i=2;i<len;++i)
+	{
+		int n3=max(n1+a[i],n2);
+		n1=n2;
+		n2=n3;
+	}
+	return n2;
+}
+ Thanks, Balasubramanian.N kg1020 for negative number also,,,, I think… maxsum[i] = max{ A[i], maxsum[i-1], A[i]+maxsum[i-2] }; here I m just explaining the logic. I m not bothering about the space. Obviously, taking 2 variable it can be done. so Just apply the algo on this ex A[]= {-3, -2, 4, 1, -5}; suggest me.. what should be the output.. and.. correct me.. if I m forgetting something…  
+
+ kg1020  
+#include<iostream>
+using namespace std;
+void Swap(int &a,int &b) {  a=a+b; b =a-b; a=a-b; }
+int max(int a,int b,int c)
+{
+    if(a>b)
+        if(a>c)return a;
+        else return c;
+    else if(b>c) return b;
+    else return c;
+}
+int findMaxSum(int *ar,int n)
+{
+    int sum1 = ar[0];
+    int sum2 = ar[0] > ar[1] ? ar[0] : ar[1];
+    for(int i=2;i<n;i++)
+    {
+        sum1 = max( ar[i], sum2, ar[i]+sum1 );
+        Swap(sum1,sum2);
+    }
+    return sum2;
+}
+int main()
+{
+    int ar[] ={-3, -2, 4, 1, -5};
+    int n = sizeof(ar)/sizeof(ar[0]);
+    cout<<findMaxSum(ar,n);
+    return 0;
+}
+
+ pankaj sahu  
+/* Paste your code here (You may delete these lines if not writing code) */
+int sum(int arr[],int i)
+{
+    if(i>=n)
+       return 0;
+    if(i==n-1){
+       if(arr[i]>0)
+          return arr[i];
+       else 
+          return 0;
+    }
+    return max(arr[i]+sum(arr,i+2),arr[i+1]+sum(arr,i+3));
+}
+ huha hey!hope u find dis dp soln easy  
+#include<stdio.h>
+#define max(a,b) a>b?a:b
+int n;
+
+
+int sum(int arr[],int i)
+{
+	if(i==n-3) 
+	return max(arr[i]+sum(arr,i+2),arr[i+1]);
+	if(i==n-2)
+	return max(arr[i],arr[i+1]);
+	if(i==n-1)
+	{if(arr[i]>0)
+	return arr[i];
+	else return 0;
+	}
+	return max(arr[i]+sum(arr,i+2),arr[i+1]+sum(arr,i+3));
+}
+
+int main()
+{
+	printf("n=?");
+	scanf("%d",&n);
+	int arr[n];
+	int i;
+	for(i=0;i<n;i++)
+	scanf("%d",&arr[i]);
+	
+	printf("%d",sum(arr,0));
+}
+ kindly cmnt if any missing cases Mahesh The code breaks on this input – {5, 5, 10, 100, 10, 5, 101} It outputs 110 whereas the answer should be 206 (may be not right, but definitely something more than 201) The question just says elements should not be adjacent, they can be far apart. Vinod @Mahesh…..I think you ran code with array size=6 instead of actual array size=7 Code is giving a correct output i.e. 206 radhakrishna followed the DP approach and coded it. simple to undestand. public static int maxsum(int[] arr) { int incl = arr[0]; int excl = Math.max(arr[0], arr[1]); for (int i=1; i<arr.length;i++) { if(i%2 ==0) { incl = Math.max(excl, incl + arr[i]); } else { excl = Math.max (incl, excl + arr[i]); } } return Math.max(incl, excl); } http://shashank7s.blogspot.com/ WgpShashank Dear Geeks As it can solved like Standard DP Problem define new array S set S[0]=a[0] & s[1]=a[1]; for i= 2 to n(size of array) s[i]=max(s[i-2]+a[i],s[i-1) return s[n]; Do Notify me if Anything Wrong Cheers!!! Shashank Shilpa_IIITH @WgpShashank Awesome As Usual Keep It Up jia this prog will work but here you have used extra o(n) space..in the geekforgeeks implementation has used 0(3)space. ayush hii geeks above code can also be done in a o(3) time by taking three variables instead of an array set prev=a[0] & cur=a[1]; set next=0 for i= 2 to n(size of array) {next=max(prev+a[i],cur) prev=cur; cur=next; } return next; Do Notify me if i Am wrong gadge Naveen Makwana all these suggested codes will not work for the obvious case in which numbers of the sequence need not to be alternate…… i mean to say an array like [25 5 10 100 10 5] should return 130 as the answer (25 + 100 + 5 = 130) but in the codes above it is just 120. Raman Bhatia DP can’t be applied.. it doesn’t have an optimal substructure property check out the first example given suhas @raman lol  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Decoder As we need only s[i-2] and s[i-1] we can use 2 variables and update their values while traversing array. So we dont need to use 0(n) space. Decoder As pointed out by naveen for this case [25 5 10 100 10 5] it should return 130 as the answer (25 + 100 + 5 = 130) but in the codes above it is just 120. so recursion must be S[i] = max(s[i-2], s[i-3]) + a[i]; krishna You don`t even have to maintain an array buddy, you just have to remember the previous 2 elements, so keep 2 variables. doom @WgpShashank: I guess The assumption that s[1] = a[1] is wrong. It should be max of a[0] & a[1], since for deciding s[1], we might want to exclude a[1] and just have a[0], or make s[1] = a[1] + a[-1] .. and a[-1] does not exist. So, s[1] = max(a[0], a[1]) Something like this works:  
+/* Paste your code here (You may delete these lines if not writing code) */
+#include <iostream>
+#define MAX(a,b) (a)>(b)?(a):(b)
+using namespace std;
+void maxNonAdjacentSum(int input[], int N);
+int main()
+{
+        int N;
+        cin>>N;
+        int input[N];
+        for(int i=0; i<N;i++)
+                cin>>input[i];
+        maxNonAdjacentSum(input, N);
+        
+        for(int i=0; i<N;i++)
+                cout<<input[i]<<" ";
+        
+}
+ 
+void maxNonAdjacentSum(int input[], int N)
+{
+        input[1] = MAX(input[0], input[1]);
+        for(int i=2;i<N;i++)
+        {               
+                input[i] = MAX((input[i-2]+input[i]), input[i-1]);
+        }
+}
+ red use dp man. you have to maintain an array maxsum[] such that maxsum[i] has the maximum sum till the ith element. and maxsum[i]=max(maxsum[i-2],maxsum[i-3])+arr[i]; and the catch is that we have to include either the 1st element or the 2nd element in the maxsum so maxsum[0]=arr[0]; maxsum[1]=arr[1]; maxsum[2]=arr[0]+arr[2]; now apply the recursive structure from the 4th element onwards. This would take O(n) time and then find the maximum element of maxsum. O(n). Simple Thanks Red Thanks Red,Its indeed an DP problem. Thanks for pointing Thanks Red Correction : It should be like this maxsum[i] = max(maxsum[i-1],maxsum[i-2]+arr[i]); Nik Shouldn’t maxsum[1] be max(arr[0],arr[1])? ajay ajay void find_max_sum(int a[],int n) { int sum=0; int max=a[0]; int temp; if(n==1) { printf(“%d “,a[0]); } int i; for(i=2;i<n;i++) { if(maxsum) sum=temp; } printf(“%d “,sum); } this also works, it maintains the max of just 2 index behind the current index. running time is o(n) Julian Can we just use simple dynamic programming: let the optimal output be opt, if we don’t choose n in the output, opt(n)=opt(n-1), otherwise opt(n)=array[n]+opt(n-2) (adjacent constraints). The final expression is opt[i]=max(opt[i-1],array[i]+opt[i-2]), the initial opt[0]=array[0], opt[1]=array[1]. It’s simple and easy to understand, but it costs O(n) space ravikant Hi Julian I think there is one error in your scheme. opt[1] should be max (array[0],array[1]) Please let me know if i am wrong. http://geeksforgeeks.org/?p=3133 Prozac Can u pls.. explain the logic more clearly.. with some proof.. This algo seems to work but not able to concisely understand it.. Himanshu Is there any derivation or proof for the logic used in this program? Something that proves the correctness of this program. jay It can be proved using mathematical induction. kp101090 Given algorithm also works for the negative numbers. Just the case it cant handle is when array has all negative numbers, where it returns 0 instead of returning maximum number of that array. But we can pre-check that array to know whether it contains all negative numbers & if it does, return the maximum number in that array. Complexity would be same o(n). Jing Dynamic programming. So if there are negative numbers, is the only difference that 1) we can skip neg numbers because they only decrease the sum; 2) for the pos number after a neg number, use the incl & excl of the last pos number, and incl of the current number can include the last pos number ’cause they are not adjacent. This however, doesn’t change time O(n). vignesh The given algo will work also with negative numbers.. there’s a max in exclude Jing Yes right. Was just trying to make beneficial changes based on the difference. Not very useful though. seeker7 the given algo works very well,but pls elaborate on the logic and construction of algo.?how cud one possibly reach such algo? ravikant Hi seeker7 If you look at the solution provided by Julian, you will see that to find the optimal(n) we require only two previous values i.e. optimal(n-1) and optimal(n-2). Using this fact, if you try and construct a bottom up solution you should get a similar solution to the one provided by geeksforgeeks prasad k isn’t this simpler and fast  
+sum1=0;
+sum2=0;
+
+for(i=0;i<n-1;i+=2){
+ sum1 +=a[i]; // sum of all elements at even position
+ sum2 +=a[i+1]; //// sum of all elements at odd position
+}
+
+if(i==n-1)
+    sum1+= a[n-1];
+
+return max(sum1,sum2);
+ Sandeep @prasad k, This approach won’t work for the arrays like [12, 5, 6, 15]? It would return max(12+6, 5+15), but the answer for this array should be 27. Correct me if I am wrong. Rohit Sarewar It also works for this example incl=12,5,18,27 excl=0,12,12,18 i=1,2,3 max(27,18)=27 suresh Will this work if we say ‘no three elements are adjacent’? Asit we can get all possible sequence by scanning half of the array…if there’s 5 elements in the array you need to compute only for first three. And all possible sequence could be, {0,2,4} ,{0,3},{1,3}, {1,4}. SO i used two variables and increment them by 2 and 3 every time. Here’s my code and i’m doing this in O(nlogn)…any idea how to improve this?  
+public static void main(String[] args) {
+		
+	 	int a[]={3,2,7,10};
+	 	int max=0;
+	 	for(int i=0;i<=a.length/2;i++){
+	 		int j=i+2,k=i+3;
+	 		int temp=0;
+	 		if(j<a.length){
+	 			temp=a[i]+a[j];
+	 			j=j+2;
+	 		}
+	 		
+	 		while(j<a.length){
+	 			temp=temp+a[j];
+	 			j=j+2;
+	 		}
+	 		if(temp>max)	max=temp;
+	 		temp=0;
+	 		if(k<a.length){
+	 			temp=a[i]+a[k];
+	 			k=k+3;
+	 		}
+	 		
+	 		while(k<a.length){
+	 			temp=temp+a[k];
+	 			k=k+3;
+	 		}
+	 		if(temp>max)	max=temp;
+	 	}
+	 	System.out.println(max);
+	}
+ GeeksforGeeks @Tushar: Thanks for pointing this out. We have made corrections. @Ved: Kadane’s algorithm can not be used because we have one more condition here that elements should not be adjacent. Tushar For i = 3, inc = 45 and not 55 as written in the example Ved Can’t we use Kadane’s algorithm ? Its much clear. Asit kadane’s algo is for adjacent elements coderAce Some of the people actually asked can Kadan’e algo be used to solve this problem as they think its clearer that way .To answer those, well part of the Kadane’s strategy can be used. As all the elemnts are positive, hence no need to have the logic to check max_ending_here is negative. Only have the max_so_far>max_ending here logic with the following modification:  
+if(max_ending_here>max_so_far)
+{
+      max_so_far=max_ending_here;
+      contributing_eleJ[contr++]=A[j];
+      if(j<N){j++;}
+}
+ Now this shall calculate the sum for all elements at even positions, 0,2,4…; Do the same for elements at the odd positions now and compare the sums and return the max. Note that the strategy I mentioned is inferior to the one discussed in the thread. I have mentioned it only for those who thought Kadane’s algorithm is easier to follow. If you pay attention you will realise that the algorithm discussed in this thread does similar stuff, but is little tricky and more efficient Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

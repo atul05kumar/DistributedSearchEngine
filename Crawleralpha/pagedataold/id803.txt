@@ -1,0 +1,453 @@
+Program for array rotation - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Program for array rotation Write a function rotate(ar[], d, n) that rotates arr[] of size n by d elements. Rotation of the above array by 2 will make array METHOD 1 (Use temp array) Input arr[] = [1, 2, 3, 4, 5, 6, 7], d = 2, n =7
+1) Store d elements in a temp array
+   temp[] = [1, 2]
+2) Shift rest of the arr[]
+   arr[] = [3, 4, 5, 6, 7, 6, 7]
+3) Store back the d elements
+   arr[] = [3, 4, 5, 6, 7, 1, 2] Time complexity O(n) Auxiliary Space: O(d) METHOD 2 (Rotate one by one) leftRotate(arr[], d, n)
+start
+  For i = 0 to i < d
+    Left rotate all elements of arr[] by one
+end To rotate by one, store arr[0] in a temporary variable temp, move arr[1] to arr[0], arr[2] to arr[1] …and finally temp to arr[n-1] Let us take the same example arr[] = [1, 2, 3, 4, 5, 6, 7], d = 2 Rotate arr[] by one 2 times We get [2, 3, 4, 5, 6, 7, 1] after first rotation and [ 3, 4, 5, 6, 7, 1, 2] after second rotation. 
+/*Function to left Rotate arr[] of size n by 1*/
+void leftRotatebyOne(int arr[], int n);
+
+/*Function to left rotate arr[] of size n by d*/
+void leftRotate(int arr[], int d, int n)
+{
+  int i;
+  for (i = 0; i < d; i++)
+    leftRotatebyOne(arr, n);
+}
+
+void leftRotatebyOne(int arr[], int n)
+{
+  int i, temp;
+  temp = arr[0];
+  for (i = 0; i < n-1; i++)
+     arr[i] = arr[i+1];
+  arr[i] = temp;
+}
+
+/* utility function to print an array */
+void printArray(int arr[], int size)
+{
+  int i;
+  for(i = 0; i < size; i++)
+    printf("%d ", arr[i]);
+}
+
+/* Driver program to test above functions */
+int main()
+{
+   int arr[] = {1, 2, 3, 4, 5, 6, 7};
+   leftRotate(arr, 2, 7);
+   printArray(arr, 7);
+   getchar();
+   return 0;
+}
+ Time complexity: O(n*d) Auxiliary Space: O(1) METHOD 3 (A Juggling Algorithm) This is an extension of method 2. Instead of moving one by one, divide the array in different sets where number of sets is equal to GCD of n and d and move the elements within sets. If GCD is 1 as is for the above example array (n = 7 and d =2), then elements will be moved within one set only, we just start with temp = arr[0] and keep moving arr[I+d] to arr[I] and finally store temp at the right place. Here is an example for n =12 and d = 3. GCD is 3 and Let arr[] be {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
+
+a)	Elements are first moved in first set – (See below diagram for this movement)
+
+
+
+          arr[] after this step --> {4 2 3 7 5 6 10 8 9 1 11 12}
+
+b)	Then in second set.
+          arr[] after this step --> {4 5 3 7 8 6 10 11 9 1 2 12}
+
+c)	Finally in third set.
+          arr[] after this step --> {4 5 6 7 8 9 10 11 12 1 2 3}
+ 
+/* function to print an array */
+void printArray(int arr[], int size);
+
+/*Fuction to get gcd of a and b*/
+int gcd(int a,int b);
+
+/*Function to left rotate arr[] of siz n by d*/
+void leftRotate(int arr[], int d, int n)
+{
+  int i, j, k, temp;
+  for (i = 0; i < gcd(d, n); i++)
+  {
+    /* move i-th values of blocks */
+    temp = arr[i];
+    j = i;
+    while(1)
+    {
+      k = j + d;
+      if (k >= n)
+        k = k - n;
+      if (k == i)
+        break;
+      arr[j] = arr[k];
+      j = k;
+    }
+    arr[j] = temp;
+  }
+}
+
+/*UTILITY FUNCTIONS*/
+/* function to print an array */
+void printArray(int arr[], int size)
+{
+  int i;
+  for(i = 0; i < size; i++)
+    printf("%d ", arr[i]);
+}
+
+/*Fuction to get gcd of a and b*/
+int gcd(int a,int b)
+{
+   if(b==0)
+     return a;
+   else
+     return gcd(b, a%b);
+}
+
+/* Driver program to test above functions */
+int main()
+{
+   int arr[] = {1, 2, 3, 4, 5, 6, 7};
+   leftRotate(arr, 2, 7);
+   printArray(arr, 7);
+   getchar();
+   return 0;
+}
+ Time complexity: O(n) Auxiliary Space: O(1) Please see following posts for other methods of array rotation: Block swap algorithm for array rotation Reversal algorithm for array rotation References: http://www.cs.bell-labs.com/cm/cs/pearls/s02b.pdf Please write comments if you find any bug in above programs/algorithms.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: array Tweet Writing code in comment? Please use ideone.com and share the link here. Tony why are u using gcd(d,n) in for (i = 0; i < gcd(d, n); i++) because every time when condition is checked gcd is calculated every time. you should store it in a variable xiveman We can first reverse the part a[0 .. k-1] then a[k .. n-1] and finally the whole array. This would rotate the array to left by k positions. public static void help(int[] a, int l , int r){ while(l < r){ int t = a[l]; a[l] = a[r]; a[r] = t; l++; r--; } } public static void rotate(int[] a, int d){ if(d % a.length == 0) return; // no need to rotate boolean rotateToLeft = true; // positive d: rotate to left else to right if(d < 0){ rotateToLeft = false; d = -d; } d = d % a.length; if(!rotateToLeft) help(a, 0, a.length-1); help(a, 0, d-1); help(a, d, a.length-1); if(rotateToLeft) help(a, 0, a.length-1); } public static void main(String[] args){ int[] a = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9}; rotate(a, -2); System.out.println(Arrays.toString(a)); } Amit Kumar Best option is by using modulo : consider array of size 5 , and i want to shift each element n times then: (5+n+ i) %5 where i is the actual position of a value in the array. This equation will give the new location to the array. It can be used along with recursion to shift values. A sample code would be like: shiftValuesby2 ( int array[], int i){ int value; if(n==5){ return; } shiftValueby2(array,i+1); array[(i+5+2)%5] = value; // shift each value location by 2 } renu can anyone please explain why the loop counter has gcd of d and n has the limit.it works correctly. but what is the concept behind using gcd? Maggi Lover Maggi 2 minute solution- 1) Reverse arr[0, n-d] 2) Reverse arr[n-d+1, n-1] 3) Reverse arr[0,n-1] Complexity-o(n) Rohit Sharma reverse_array(a,0,d-1); reverse_array(a,d,n-1); reverse_array(a,0,n); This is correct please check if anything wrong. Neha Garg please somebody explain how juggling theorm will work for first example?? or i think it wont work for gcd less than d plz correct where i m wrong Rohit Sharma yes,it is also working if gcd is less than d..!! mrn for(int i=0;i>a[i]; cin>>d; for(int i=0;i= n) break; int right=i+d,k=right; for(int j=i;j<right;j++) swap(a,j,k++); } Guest here is implementation of method 1..pls correct me if there are any mistakes #include #include void arrrot(int arr[],int n,int d) { int *temp=(int *)malloc(sizeof(int)*d); int i,j=0; for(i=0;i<d;i++) { temp[i]=arr[i]; } for(i=d;i<n;i++) { arr[i-d]=arr[i]; } for(i=n-d;i<n;i++) { arr[i]=temp[j++]; } } void printArray(int arr[], int size) { int i; for(i = 0; i < size; i++) printf("%d ", arr[i]); } int main() { int arr[] = {1, 2, 3, 4, 5, 6, 7}; arrrot(arr, 7,6); printArray(arr, 7); getchar(); return 0; } Kushagra Singhal We can use array reversal algorithm to solve this problem. The algo is: 1. Reverse first ‘d’ elements. 2. Reverse the remaining ‘n-d’ elements 3. Now reverse the complete array Time complexity: O(n) Space Complexity: O(1) Rohan Can we make a circular linked list out of array and then perform roation. This way Time complexity would be O(d) only. Please correct me if i am wrong. softvar  
+/* Paste your code here (You may delete these lines if not writing code) */
+ softvar  
+/*
+METHOD-1 (using temp array)
+===========================
+
+Complexity of this program - O(n)
+---------------------------------
+
+Auxillary Space - O(d)
+----------------------
+*/
+
+#include<stdio.h>
+
+int main()
+{
+	int arr[]={1,2,3,4,5,6,7};
+	const int len = sizeof(arr)/sizeof(arr[0]);
+	int d = 2,i,j,k;
+	int temp[len];
+
+	printf("Before Rotation: ");
+	for(i=0;i<len;i++)
+		printf("%d  ",arr[i]);   
+
+	/* Store d elements in a temp array
+	   temp[] = [1, 2] 
+	*/
+	for(i=0;i<d;i++){
+		temp[i]=arr[i];
+	}
+
+	/* Shift rest of the arr[]
+	   arr[] = [3, 4, 5, 6, 7, 6, 7]
+	*/
+	for(i=0;i<len-d;i++){
+		arr[i]=arr[i+d];
+	}
+
+	/* Store back the d elements
+   		arr[] = [3, 4, 5, 6, 7, 1, 2]
+    */
+	for(j=len-d,k=0;j<len;j++,k++){
+		arr[j]=temp[k];
+	}
+
+	printf("\nAfter Rotation: ");
+	for(i=0;i<len;i++)
+		printf("%d  ",arr[i]);
+return 0;
+}
+
+ shek8034 One more tricky algo. 1. Reverse first d elements. 2. Reverse next n-d elements. 3. Reverse the whole array. Ex : {1,2,3,4,5,6} d=2; After Step 1: {2,1,3,4,5,6} After Step 2: {2,1,6,5,4,3} After Step 1: {3,4,5,6,1,2} [done] Reverse of each subarray in each step can be done by swapping values at first and last index, as we simply do to reverse an array. Works for all the cases. shek8034 This is also called Reversal Algorithm http://www.geeksforgeeks.org/program-for-array-rotation-continued-reversal-algorithm/ anonymous can anyone plz tell me wht is the significance of taking GCD(n,d)… here :p Abhinav Aggarwal Suppose n=10 and d=53545  
+/* Paste your code here (You may delete these lines if not writing code) */
+ abhishek08aug  
+void leftRotate(int arr[], int d, int n)
+{
+  int i, j, temp;
+  for (i = 0; i < d; i++)
+  {
+    temp = arr[i];
+    arr[i]=arr[d];
+    for(j=d; j<=n-2; j++) {
+      arr[j]=arr[j+1];
+    }
+    arr[n-1]=temp;
+  }
+}
+ abhishek08aug Intelligent Nirdesh How come this algorithm works with the data, Input arr[] = [1, 2, 3, 4, 5, 6, 7], d = 2, n =7 as here GCD=1,so after 1st rotation ,result will be, 2,3,4,5,6,7,1 but the expected is 3,4,5,6,7,1,2 which is wrong….correct me if its wrong.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Purushotham how does the above juggling algo behave for the case n=8 and d =6. In this case GCD(6,8) will be 2. so all the position will be shifted by just 2 places but not 6 places. Please clarify, if I am missing something.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ naresh b Here is the block-swap implementation in java (block swap can be replaced with native method like Array.copyArry etc.. method not sure about it)  
+package com.nbethi;
+
+import java.util.Arrays;
+
+public class BlockSwapArray {
+
+	public static void main(String[] args) {
+		int[] array;
+		int size = 17;
+		array = new int[size];
+		for (int i = 0; i < size; i++) {
+			array[i] = i;
+		}
+		System.out.println(Arrays.toString(array));
+		rotateLeft(array, 7);
+		System.out.println(Arrays.toString(array));
+		System.out.println("DONE");
+
+	}
+
+	public static void rotateLeft(int[] arr, int d) {
+		rotate(arr, 0, arr.length, d, arr.length - d);
+	}
+
+	public static void rotate(int[] arr, int start, int end, int m, int n) {
+		System.out.println(Arrays.toString(arr) + " #" + start + " #" + end + " #" + m + " #" + n);
+
+		if(m==n){
+			blockSwap(arr, start, end - m, n);
+			return;
+		}
+		if (m < n) {
+			blockSwap(arr, start, end - m, m);
+			rotate(arr, start, end - m, m, n - m);
+		} else {
+			blockSwap(arr, start, end - n, n);
+			rotate(arr, start + n, end, m - n, n);
+		}
+	}
+
+	private static void blockSwap(int[] arr, int l, int r, int size) {
+		for (int i = 0; i < size; i++) {
+			swap(arr, l + i, r + i);
+		}
+	}
+
+	private static void swap(int[] arr, int i, int j) {
+		int tmp = arr[i];
+		arr[i] = arr[j];
+		arr[j] = tmp;
+	}
+}
+
+ Hinidu Simple solution. Time O(n). Memory O(1).  
+void rotate(int *a, int d, int n)
+{
+        for (int i = d; i < n; ++i)
+                swap(a[i], a[i - d]);
+        if (n % d)
+                rotate(a + n - d, d - n % d, d);
+}
+ poorvank #include void main() { int arr[50],i,j,k,count=0,n,m; printf(“Enter no of elements in array:\n”); scanf(“%d”,&n); printf(“Enter elements in array:\n”); for(i=0;i<n;i++) { scanf("%d",&arr[i]); } printf("Enter the amount of rotation:\n"); scanf("%d",&m); while(count<m) { k=arr[0]; for(i=0;i<n;i++) { arr[i]=arr[i+1]; } arr[n-1]=k; count++;//counting upto rotation to be done } printf("Array is:\n"); for(i=0;i<n;i++) { printf("%d ",arr[i]); } } Mohit BHnadari You are given a sorted array [containing no repeated elements] of size N, on which left circular rotation has been applied k number of times. For example, left circular rotation of 1, 2, 3, 4, 5, 6 will give 2, 3, 4, 5,6 , 1 One more left circular rotation will give 3, 4, 5, 6, 1, 2 and so on. The algorithm for finding the value of k should use O(1) space and should take a maximum of O(log2N) time. Ankit Malhotra or right jump d can be negative and also added check for d > n.  
+#include <iostream>
+using namespace::std;
+typedef unsigned long counter;
+typedef long element;
+
+void printArray(element term[], counter count)
+{
+  for (int i = 0; i != count; cout << term[i++] << ' ');
+  cout << endl;
+}  
+
+counter gcd (counter a, counter b)
+{
+  if (!b) return a;
+  else return gcd (b, a%b);
+}
+
+void rotate (element term[], counter count, long jump)
+{
+  jump %= count; // C/C++ will return remainder based on dividend sign.
+  if (jump < 0)
+    jump += count;
+  element temp;
+  counter block = gcd (count, jump), i, position , k;
+  for (i = 0; i != block; i++)
+  {
+    temp = term [i];
+    position = i;
+    while (true)
+    {
+      k = position + jump;
+      if (k >= count) k -= count;
+      if (k == i) break;
+      term [position] = term[k];
+      position = k;
+    }
+    term[position] = temp;
+  }
+}
+
+int main ()
+{
+   element term[] = {1,2, 3, 4, 5, 6, 7};
+   counter count = sizeof(term)/sizeof(long);
+   long jump = -2;
+   printArray (term, count);
+   rotate (term, count, jump);
+   cout << "Rotated by " << jump << "." << endl;
+   printArray (term, count);
+   return 0;
+}
+ Ankit Malhotra Handles -ve values of d for right jump and also checks for |d| > n replace typedef unsigned long counter; with typedef long counter; Palash Algorithm below works too. It places the first element in its correct position and then places the element there at its correct position and so on, till we reach position 0 again, then it breaks. #include void rotate(int *arr, int n, int d) { int x=n-d,y=x; int temp,prev=arr[0]; do { temp=arr[y]; arr[y]=prev; prev=temp; y=(y+x)%n; }while(y!=x); return; } int main() { int i,n,d; scanf(“%d”,&n); int *arr=(int *)malloc(n*sizeof(int)); for(i=0;i<n;i++)scanf("%d",&arr[i]); scanf("%d",&d); rotate(arr,n,d); for(i=0;i<n;i++)printf("%d ",arr[i]); printf("\n"); return 0; } ying when i test this code using 8 1 2 3 4 5 6 7 8 2 the output is wrong: 3 2 5 4 7 6 1 8 correct me if i am wrong.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Palash Yeah, sorry, my bad. A small modification makes it work, though. It’s still O(n) in time and O(1) in space. I’ll post the code as soon as I can. Palash I’ve rectified the code. Here it goes – void rotate(int *arr, int n, int d) { int x=n-d,y; int i,temp,prev=arr[0],count=0; for(i=0;i<n;i++) { prev=arr[i]; y=(i+x)%n; do { count++; temp=arr[y]; arr[y]=prev; prev=temp; y=(y+x)%n; }while(y!=(i+x)%n); if(count==n)break; } return; } Nishant Juggling problem is having O(nd) complexity in worse case scenario i.e. when GCD is 1. please correct if i am wrong. Nishant Sorry for above comment. I got it now harsh jain #include #include using namespace std; void rotation( int arr[] , int , int , int , int , int ); int main() { int n , k; cin >> n; int arr[n]; for ( int i = 0; i > k; arr[i] = k; } int d; cin >> d; rotation( arr , n , d , 0 , arr[0] , 0); for ( int i = 0; i < n; i++ ){ cout << arr[i] <> n; return 0; } void rotation( int arr[] , int n , int d , int p , int last , int count ) { if( count == n ) return; int out , k; if( p < d ) out = n – d + p; else out = p – d; k = arr[out]; arr[out] = last; last = k; rotation( arr , n , d , out , last , count + 1 ); } Ricky13 A simple O(n) solution without any extra space.  
+/* Paste your code here (You may delete these lines if not writing code) */
+#include <stdio.h>
+
+void arrayrotate(int a[],int n, int d) {
+	int temp = a[0];
+	int count = 0;
+	int i = 0;
+	while ( count < n ) {
+		a[i] = a[(i+d)%n];
+		count++;
+		i = (i+d)%n;
+	}
+
+	a[n-d] = temp;
+}
+
+
+int main()
+{
+	int a[] = {1,2,3,4,5,6,7};
+	int i;
+	arrayrotate(a,7,3);
+	for ( i = 0; i < 7; i++ ) {
+		printf("%d  ",a[i]);
+	}
+}
+ ying same testing as the above when i test this code using 8 1 2 3 4 5 6 7 8 2 the output is wrong: 5 2 7 4 3 6 1 8 correct me if i am wrong.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ pankaj Y so complex algorithm. It can be easily done by. reverse 0 to d, reverse d to n , then again reverse 0 to n.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks The reversal algorithm has been published as a separate post (See http://www.geeksforgeeks.org/archives/2838) . This post is to for one more method to do rotation. mAc There is one more method which i read somewhere. pseudo code… Step1:reverse entire array. Step2:reverse the first ‘d’ elements. Step3:reverse the last ‘n-d’ elements.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ mAc sorry…it was already posted… geekva I guess this should work.  
+i=0,count=0; // a,b,temp are variables (for intermediate 
+             // book-keeping)
+     while(count!=n)
+     {
+	  if(d>i)
+	  {
+	       b=n+i-d;
+	       if(count==0) a=arr[i];
+	       temp=a;
+	       a=arr[b];
+	       arr[b]=temp;
+	       i=b;
+
+	  }
+	  else
+	  {
+	       b=i-d;
+	       temp=arr[b];
+	       arr[b]=a;
+	       a=temp;
+	       i=b;
+	  }
+	  count++;
+
+     }
+     for(j=0;j<n;j++) printf("%d ",arr[j]);
+     printf("\n");
+}
+
+ Example: Arr: 1,2,3 d=2 Iteration 1(‘1′ will be moved to its final position,replacing ‘2’ that will be stored in the variable ‘a’) : 1,1,3 Iteration 2(‘2′ will be moved to its final position,replacing ‘3’ that will be stored in the variable ‘a’) : 1,1,2 Iteration 3(‘3′ will be moved to its final position,replacing 1st ‘1’) : 3,1,2 Time complexity: O(n) Auxiliary Space: O(1) how to rotate right by juggling how to rotate right by juggling http://in.linkedin.com/in/balajisoundrarajan bala  
+      k = j + d;
+      if (k >= n)
+        k = k - n;
+ This particular section of code will become  
+      k = j - d;
+      if (k < 0)
+        k = n + k; //Remember k is negative
+ Deepak Well, the better option is use of linked list quadmaniac This can be done using the method in http://www.azillionmonkeys.com/qed/case8.html. Here’s my code for the same: Order : O(n) Logic : follow loops/cycles until you’re done  
+void leftrotate(vector<int>& v, size_t k)
+{
+	assert(k > 0 && k < v.size());
+
+	size_t count = 0;
+	int prev, cur;
+	int start = 0;
+	int i = 0;
+	int j = 0;
+
+	while(1)
+	{
+		i = start;
+		prev = v[i];
+
+		if(count >= v.size())
+			break;
+	
+		while(1)
+		{
+			j = i - k;
+			if(j < 0) 
+				j += v.size();
+
+			if(j == start) 
+				break;
+			
+			cur = v[j];
+			v[j] = prev;
+			count++;
+			prev = cur;
+			i = j;
+		}
+
+		v[start] = prev;
+		count++;
+		start++;		
+	}
+}
+ quadmaniac Well I guess this is very similar to the GCD method anyway. sharpie i think in method three gcd will be called each time the loop will be executed so it must be pre-calculated and then used in the loop int g=gcd(n,d) for(int i=0; i<g; i++) { } John what’s space complexity of method 1? graju256  
+void reverse(char* data)
+{
+  char ch;
+  int i = 0, len = strlen(data);
+
+  while (i < (len / 2))
+  {
+     ch = data[i];
+     data[i] = data[len - i - 1];
+     data[len - i - 1] = ch;
+     i++;
+  }
+}
+ graju256  
+// left rotate by [rlen]
+void lrotate(char* data, int rlen)
+{
+  char ch;
+  int i = 0, len = strlen(data);
+
+  while (i < len - rlen)
+  {
+     ch = data[i];
+     data[i] = data[(i + rlen) % len];
+     data[(i + rlen) % len] = ch;
+     i++;
+  }
+}
+ Kumar it is not working Rajeev How is the time complexity of the juggling algorithm is O(n)?? If d is a factor of n, it is O(n), but if it is not the time complexity remains O(n*d) like in the second method. dfyz Because common complexity is O(n/d * d) = O(n). donbosio yeah even i think so…admin plz pt some light here prabhakaran I think so too. Can anybody clarify it?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ nitin gupta its O(n*d) for loop will execute d times and inner loop which is infinite will execute at most n times so O(n*d)  
+/* Paste your code here (You may delete these lines if not writing code) */
+ nitin gupta sorry it is O(n) how for loop will execute O(d) times and the inner loop jumping in the gap of d over n element so it will be order of O(n/d) times so O(d* n/d) = O(n) Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

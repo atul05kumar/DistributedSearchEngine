@@ -1,0 +1,144 @@
+Find a peak element - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find a peak element Given an array of integers. Find a peak element in it. An array element is peak if it is NOT smaller than its neighbors. For corner elements, we need to consider only one neighbor. For example, for input array {5, 10, 20, 15}, 20 is the only peak element. For input array {10, 20, 15, 2, 23, 90, 67}, there are two peak elements: 20 and 90. Note that we need to return any one peak element. Following corner cases give better idea about the problem. 1) If input array is sorted in strictly increasing order, the last element is always a peak element. For example, 50 is peak element in {10, 20, 30, 40, 50}. 2) If input array is sorted in strictly decreasing order, the first element is always a peak element. 100 is the peak element in {100, 80, 60, 50, 20}. 3) If all elements of input array are same, every element is a peak element. It is clear from above examples that there is always a peak element in input array in any input array. A simple solution is to do a linear scan of array and as soon as we find a peak element, we return it. The worst case time complexity of this method would be O(n). Can we find a peak element in worst time complexity better than O(n)? We can use Divide and Conquer to find a peak in O(Logn) time. The idea is Binary Search based, we compare middle element with its neighbors. If middle element is greater than both of its neighbors, then we return it. If the middle element is smaller than the its left neighbor, then there is always a peak in left half (Why? take few examples). If the middle element is smaller than the its right neighbor, then there is always a peak in right half (due to same reason as left half). Following is C implementation of this approach. 
+// A divide and conquer solution to find a peak element element
+#include <stdio.h>
+
+// A binary search based function that returns index of a peak element
+int findPeakUtil(int arr[], int low, int high, int n)
+{
+    // Fin index of middle element
+    int mid = low + (high - low)/2;  /* (low + high)/2 */
+
+    // Compare middle element with its neighbours (if neighbours exist)
+    if ((mid == 0 || arr[mid-1] <= arr[mid]) &&
+            (mid == n-1 || arr[mid+1] <= arr[mid]))
+        return mid;
+
+    // If middle element is not peak and its left neighbor is greater than it
+    // then left half must have a peak element
+    else if (mid > 0 && arr[mid-1] > arr[mid])
+        return findPeakUtil(arr, low, (mid -1), n);
+
+    // If middle element is not peak and its right neighbor is greater than it
+    // then right half must have a peak element
+    else return findPeakUtil(arr, (mid + 1), high, n);
+}
+
+// A wrapper over recursive function findPeakUtil()
+int findPeak(int arr[], int n)
+{
+    return findPeakUtil(arr, 0, n-1, n);
+}
+
+/* Driver program to check above functions */
+int main()
+{
+    int arr[] = {1, 3, 20, 4, 1, 0};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    printf("Index of a peak point is %d", findPeak(arr, n));
+    return 0;
+}
+ Output: Index of a peak point is 2 Time Complexity: O(Logn) where n is number of elements in input array. Exercise: Consider the following modified definition of peak element. An array element is peak if it is greater than its neighbors. Note that an array may not contain a peak element with this modified definition. References: http://courses.csail.mit.edu/6.006/spring11/lectures/lec02.pdf http://www.youtube.com/watch?v=HtSuA80QTyo Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: Divide and Conquer Tweet Writing code in comment? Please use ideone.com and share the link here. Saurabh “If the middle element is smaller than the its left neighbor, then there is always a peak in left half.” If the numbers from start are in decreasing order till middle then middle element is smaller than the left neighbor, however there is no peak in left subarray. Do we consider Arr[-1] == Arr[n+1] == -Infinity ?. Jonathan Chen If I’m understanding correctly, you are saying “If the numbers from element[0] to element[middle] are all decreasing”, that right? Then, it’s the first element of the array (element[0]). Corner case. Since it’s decreasing, the right neighbor of element[0] is smaller than it. And, element[0] has no left neighbor. So, it’s a peak. santhosh {5,0,1,0,2,10,9} for this what will be peak element. Arthur For this the peek value is 5, 1, 10. Since we are interested only in one value, by using D&C as mentioned above the result will be 5. sambhavsharma If the middle element is smaller than the its left neighbor, then there is always a peak in left half. Pretty nice deduction. Priyanka Gupta I think this algorithm will have complexity of O(logn) only for distinct elements, for duplicates worst case can become O(n). As you said if all elements are equal every element is peak, we need to make sure of it, that every element is equal. if (a[mid] < a[mid+1]) { // search right } else if (a[mid] < a[mid-1]) { // search left } else // we are at a plateau, not up-slope, not down-slope { // search right peak // search left peak // return the largest or equal } Parvin Taheri for the exercise part, I think we can not do binary search. take these two test cases: {20, 1, 10,10,1} and {2, 1, 10, 10,1}. in the first one there is only one peak in the left side and in the second one there is no peak. so I think we need to search both sides of the mid point. Ankit Chaudhary Agree with u, binary search will not work for exercise part. codeKaichu the reason binary search works (i.e if mid < left element, there's atleast one peak on left and similar case for right part) can be better visualized if you can draw a plot of the points. pinkfloyda Recently in my blog, I have discussed this problem why it works, check http://comtechstash.wordpress.com/2013/11/19/intuitive-thinking-for-counter-intuitive-algorithms/ annonymoe with small logical comparison of the derivative at low, high and mid you can do much better at finding a peak rather than giving the first and the last element typically for most of the cases RahulMJ //C++ implementation which returns a list of peaks found in the array // A divide and conquer solution to find a peak element element #include #include using namespace std; // A binary search based function that returns index of a peak element void findPeakUtil(int arr[], int low, int high, int n, vector *indexList) { // Fin index of middle element int mid = low + (high – low)/2; /* (low + high)/2 */ // Compare middle element with its neighbours (if neighbours exist) if ((mid == 0 || arr[mid-1] <= arr[mid]) && (mid == n-1 || arr[mid+1] arr[mid]) findPeakUtil(arr, low, (mid -1), n, indexList); // If middle element is not peak and its right neighbor is greater than it // then right half must have a peak element if (arr[mid+1] > arr[mid]) findPeakUtil(arr, (mid + 1), high, n, indexList); } /* Driver program to check above functions */ int main() { int arr[] = {10, 20, 15, 2, 23, 90, 67}; vector indexList; int n = sizeof(arr)/sizeof(arr[0]); findPeakUtil(arr, 0, n-1, n, &indexList); cout << "Index of a peak point is:" ; for(int i=0;i<indexList.size();i++) cout << indexList[i] << " "; return 0; } manjunathak The questions is not clear. Is it to find the list of peak elements or at least one peak element? TA find ‘a’ peak Sriharsha g.r.v only one of the peak elements are being returned…..if i am not wrong..this could look bad in this case {10,8,2,4,3,7} ..it might return a[0]which is 10 leaving a[3] which is 4 and its peek element as well….. Guest only one of the peak elements are being returned…..if i am not wrong..thios could look bad in this case {10,8,2,4,3,7} ..it might return a[0]which is 10 leaving a[3] which is 4 and peek element as well….. Akshay This would be a perfect code #include #include int main() { int a[]={10, 20, 15, 2, 23, 90, 67}; int len=sizeof(a)/sizeof(a[0]); int i; for(i=0;ia[i+1]) printf(“nPeak element found at position %d”,i+1); else if((i==len-1)&&(a[i]>a[i-1])) printf(“nPeak element found at position %d”,i+1); else if(a[i]>a[i-1]&&a[i]>a[i+1]) printf(“nPeak element found at position %d”,i+1); } getch(); return 0; } Akshay This approach is totally wrong, as you cannot deny the fact that even if the mid element has greater value on one side, the other side can also have a peak element. It does not even satisfy the provided test case of {10, 20, 15, 2, 23, 90, 67}. It should be done with linear approach. helloworld programmer Yes your statement is correct, no denying there. But the provided solution will help finding one peak point. Even in explanation I don’t see anywhere mentioned that one half is ignored because it doesn’t have peak point. So nothing wrong in the code and approach. Alien The program is only returning only 1 peak. For example, for arr[] = {10, 20, 15, 2, 23, 90, 67}, output is index = 1. Actually output should be index = 1, 5. raghvendra  
+#include<iostream>
+#include<cstdio>
+using namespace std;
+int A[1000];
+int binary(int low,int high)
+{
+    int mid;
+    while(low<=high)
+    {
+        mid=low+(high-low)/2;
+        if(low==high)return A[low];
+        if(low==high-1)
+        {
+            if(A[low]<=A[high])return A[high];
+            else return A[low];
+        }
+        if(A[mid]>=A[mid+1]&&A[mid]>=A[mid-1])return A[mid];
+        if(A[mid]<A[mid+1])low=mid+1;
+        else high=mid-1;
+    }
+    return -1;
+}
+int main()
+{
+    int n;
+    cin>>n;
+    for(int i=0;i<n;i++)
+    {
+        cin>>A[i];
+    }
+    cout<<binary(0,n-1);
+    return 0;
+}
+
+ Rahul Singh (selfcompiler) i don’t understand your O(logN) approach how they can decide whether the left half is choose or right half choosen . take a test case 3 3 3 4 4 5 5 5 5 5 logic_bomber I hope the condition (mid>0) in else if part is not required!! because it mid high && low<0 which is highly improbable.. further low gets incremented only if u take up right half of the array n hence it can go upto a maximum of n-1(when low=n-1 then high would also be n-1 ..this case denotes a single element array which always has a peak element n peak element would be returned and low will not be incremented further).. this again shows that every array has a peak element! logic_bomber there always exists a peak!.. Do take a closer look at the problem statement. kaushik  
+//kaushik sahu
+
+#include<stdio.h>
+#include<conio.h>
+#define size sizeof(array)/sizeof(array[0])
+
+int main () 
+{
+   int array[] = {1,2,4,3,6,1,7};
+   int i=0;
+   
+   if(array[1] < array[0])
+       printf("Index of peak element(%d) is %d \n",array[0],0);       
+       
+   for(i=1;i<(size-1);i++)
+   {
+       if((array[i] > array[i-1]) && (array[i] > array[i+1]))
+           printf("Index of peak element(%d) is %d \n",array[i],i);
+   }
+                          
+   if(array[size-2] < array[size-1])
+       printf("Index of peak element(%d) is %d",array[size-1],size-1);
+       
+    getch();
+    return 0;
+}
+
+ iftekhar09 if the array is arr[]={5,7,12,10,15,20,25,30,35}; the function is returning index 8 rather than index 2…. GeeksforGeeks Please take a closer look. The question is to find a peak element. Index 8 is also a peak element. spandan I dont think there should be a direct comparision between 2 algorithms , because they do fiffrent things. O(n) algo finds ALL peaks , while log(N) just determines if there is a peak . logic_bomber there always exists a peak!.. Do take a closer look at the problem statement. mohit Why are we using a wrapper function,why not call directly the recursive function.Is there any advantage of using a wrapper function? tapananand Using A wrapper function makes the calling of the function more reasonable and understandable to the client who is not required to know the implementation. e.g :- calling peak(array, numofelements) is more logical than passing arguments like 0 and n – 1 which are mere implementation details. mohit Thanks  
+/* Paste your code here (You may delete these lines if not writing code) */
+ badri for input : {1, 4, 0, 3, 1, 20,5}; ,it should return 5(20) index , it is returning 3 (3).  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks @badri, Please take a closer look at the problem statement. http://athiruban.blogspot.com athiruban I think an alternative method is to start the comparison from a random position (using a random number generator) instead of starting from the middle of the array. If I am wrong, please correct me.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Prashanth Comparing with the middle element provides better time complexity as compared to random element because we are divding the size by half Prashanth Comparing with the middle element provides better time complexity as compared to random element because we are divding the size by half Prateek Sharma Previous code has one test case missing ,here is improved python code with o(log n) complexity…….. def binarySearch(a,i,j,mid,index): mid = (i+j)/2 if i == j: index = i return index elif mid == i: if a[mid]>= a[mid+1]: index = mid else: index = mid+1 return index elif a[mid] >= a[mid-1] and a[mid] >= a[mid+1]: index = mid return index elif a[mid] < a[mid-1]: j = mid-1 b=binarySearch(a,i,j,mid,index) return b else: i = mid+1 b =binarySearch(a,i,j,mid,index) return b def findingPeakElement(a): length = len(a) i =0 index =-100 j = length -1 mid = -1 index =binarySearch(a,i,j,mid,index) print " peak element is at index: " + str(index) +" whose value is: "+ str(a[index]) def main(): arr =[1,2,3] findingPeakElement(arr) if __name__ == ‘__main__': main() Prateek Sharma Python Code with o(log n)complexity……… def binarySearch(a,i,j,mid,index): if i>=j: return index else: mid = (i+j)/2 if mid == i: if a[mid]>= a[mid+1]: index = mid else: index = mid+1 return index elif a[mid] >= a[mid-1] and a[mid] >= a[mid+1]: index = mid return index elif a[mid] < a[mid-1]: j = mid-1 b=binarySearch(a,i,j,mid,index) return b else: i = mid+1 b =binarySearch(a,i,j,mid,index) return b def findingPeakElement(a): length = len(a) i =0 index =-1 j = length -1 mid = -1 index =binarySearch(a,i,j,mid,index) print " peak element is at index: " + str(index) +" whose value is: "+ str(a[index]) def main(): arr =[9,8,7,6,5,5,5,4,3,2,1] findingPeakElement(arr) if __name__ == ‘__main__': main() atul no need of checking mid > 0 in else if because mid==0 is check above it.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Nitesh I think comparisons should be with low and high instead of 0 and n-1 for the sake of generalizing for all calls. We don’t need to pass n as 4th argument as well.  
+// A binary search based function that returns index of a peak element
+int findPeakUtil(int arr[], int low, int high)
+{
+    // Fin index of middle element
+    int mid = low + (high - low)/2;  /* (low + high)/2 */
+ 
+    // Compare middle element with its neighbours (if neighbours exist)
+    if ((mid == low || arr[mid-1] <= arr[mid]) &&
+            (mid == high || arr[mid+1] <= arr[mid]))
+        return mid;
+ 
+    // If middle element is not peak and its left neighbor is greater than it
+    // then left half must have a peak element
+    else if (mid > low && arr[mid-1] > arr[mid])
+        return findPeakUtil(arr, low, (mid -1));
+ 
+    // If middle element is not peak and its right neighbor is greater than it
+    // then right half must have a peak element
+    else return findPeakUtil(arr, (mid + 1), high);
+}
+ 
+// A wrapper over recursive function findPeakUtil()
+int findPeak(int arr[], int n)
+{
+    return findPeakUtil(arr, 0, n-1);
+}
+ nitin88 I still didn’t get this point “If the middle element is smaller than the its left neighbor, then there is always a peak in left half (Why? take few examples). If the middle element is smaller than the its right neighbor, then there is always a peak in right half” Example: [1,9,3,4,6,7,8] Middle Element: 4, it’s left neighbor is 3 and it’s not smaller than 3,still there’s a peak in the left. It’s right neighbor is 6 and it’s smaller than 6. But there’s no peak in right side. kartik There is a peak on right side. 8 is peak on right side. aman That claim is correct, but i still don’t get how does it make it log(n) as we are not pruning our search space on the basis of heuristics. According to me time complexity should be O(n). Please let me know if i am missing any point.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik @aman: Time complexity is O(Logn) in worst casr. Following is recurrence relation of time complexity of the algorithm. T(n) = T(n/2) + C If we solve this recurrence using Master Method, we get O(Logn) [It falls in case 2]. aman okay thanks a lot, i actually thought it was about finding all peak elements. geekay the comparison code desn’t seem to return true at any condition shouldn’t it be like below:  
+// Compare middle element with its neighbours (if neighbours exist)
+    if ((mid == 0 && arr[mid-1] <= arr[mid]) ||
+            (mid == n-1 && arr[mid+1] <= arr[mid]))
+        return mid; tapananand Nope. The given condition is correct. Try your condition if mid = 0, mid = n – 1. and mid = 2(say) in an array (1,2,3,2,1). ahsan Your algo won’t work for strictly non-increasing array (sorted array in decreasing order with duplicate elements) eg. [9 8 7 6 5 5 5 4 3 2 1] your code will start searching in the top half and will never find correct peak. GeeksforGeeks The program produces 5 as output for [9 8 7 6 5 5 5 4 3 2 1] (see this run). 5 is a peak element ( take a closer look at the definition of peak element). ahsan My bad.. either I misread the definition.. or it was modified after I commented .. In any case it clarifies my doubt. Thanks. GeeksforGeeks It was not modified after your comment. When a reader points out something and it turns out incorrect, we thank to the reader in reply pritesh if array is [9,8,7,6,5,5,5,6,7,8,9] then your algo won’t work. bcoz i think 5 is not a peak element of these array. please reply if i m wrong. Navin How will it work when we have multiple peaks ? ahsan The question talks about find ‘a’ peak out of many. Guest if array is [9,8,7,6,5,5,5,6,7,8,9] then your algo won’t work. bcoz i think 5 is not a peak element of these array. please reply if i m wrong. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

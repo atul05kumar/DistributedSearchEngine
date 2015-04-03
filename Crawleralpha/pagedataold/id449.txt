@@ -1,0 +1,433 @@
+Find if there is a path between two vertices in a directed graph - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find if there is a path between two vertices in a directed graph Given a Directed Graph and two vertices in it, check whether there is a path from the first given vertex to second. For example, in the following graph, there is a path from vertex 1 to 3. As another example, there is no path from 3 to 0. We can either use Breadth First Search (BFS) or Depth First Search (DFS) to find path between two vertices. Take the first vertex as source in BFS (or DFS), follow the standard BFS (or DFS). If we see the second vertex in our traversal, then return true. Else return false. Following is C++ code that uses BFS for finding reachability of second vertex from first vertex. 
+// Program to check if there is exist a path between two vertices of a graph.
+#include<iostream>
+#include <list>
+
+using namespace std;
+
+// This class represents a directed graph using adjacency list representation
+class Graph
+{
+    int V;    // No. of vertices
+    list<int> *adj;    // Pointer to an array containing adjacency lists
+public:
+    Graph(int V);  // Constructor
+    void addEdge(int v, int w); // function to add an edge to graph
+    bool isReachable(int s, int d);  // returns true if there is a path from s to d
+};
+
+Graph::Graph(int V)
+{
+    this->V = V;
+    adj = new list<int>[V];
+}
+
+void Graph::addEdge(int v, int w)
+{
+    adj[v].push_back(w); // Add w to v’s list.
+}
+
+// A BFS based function to check whether d is reachable from s.
+bool Graph::isReachable(int s, int d)
+{
+    // Base case
+    if (s == d)
+      return true;
+
+    // Mark all the vertices as not visited
+    bool *visited = new bool[V];
+    for (int i = 0; i < V; i++)
+        visited[i] = false;
+
+    // Create a queue for BFS
+    list<int> queue;
+
+    // Mark the current node as visited and enqueue it
+    visited[s] = true;
+    queue.push_back(s);
+
+    // it will be used to get all adjacent vertices of a vertex
+    list<int>::iterator i;
+
+    while (!queue.empty())
+    {
+        // Dequeue a vertex from queue and print it
+        s = queue.front();
+        queue.pop_front();
+
+        // Get all adjacent vertices of the dequeued vertex s
+        // If a adjacent has not been visited, then mark it visited
+        // and enqueue it
+        for (i = adj[s].begin(); i != adj[s].end(); ++i)
+        {
+            // If this adjacent node is the destination node, then return true
+            if (*i == d)
+                return true;
+
+            // Else, continue to do BFS
+            if (!visited[*i])
+            {
+                visited[*i] = true;
+                queue.push_back(*i);
+            }
+        }
+    }
+
+    return false;
+}
+
+// Driver program to test methods of graph class
+int main()
+{
+    // Create a graph given in the above diagram
+    Graph g(4);
+    g.addEdge(0, 1);
+    g.addEdge(0, 2);
+    g.addEdge(1, 2);
+    g.addEdge(2, 0);
+    g.addEdge(2, 3);
+    g.addEdge(3, 3);
+
+    int u = 1, v = 3;
+    if(g.isReachable(u, v))
+        cout<< "\n There is a path from " << u << " to " << v;
+    else
+        cout<< "\n There is no path from " << u << " to " << v;
+
+    u = 3, v = 1;
+    if(g.isReachable(u, v))
+        cout<< "\n There is a path from " << u << " to " << v;
+    else
+        cout<< "\n There is no path from " << u << " to " << v;
+
+    return 0;
+}
+ Output: 
+ There is a path from 1 to 3
+ There is no path from 3 to 1
+ As an exercise, try an extended version of the problem where the complete path between two vertices is also needed. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Vertex Cover Problem | Set 1 (Introduction and Approximate Algorithm) Snake and Ladder Problem Tarjan’s Algorithm to find Strongly Connected Components Shortest path with exactly k edges in a directed and weighted graph Count all possible walks from a source to a destination with exactly k edges Euler Circuit in a Directed Graph Given an array of strings, find if the strings can be chained to form a circle Given a sorted dictionary of an alien language, find order of characters Tags: Graph Tweet Writing code in comment? Please use ideone.com and share the link here. hxgxs1 following is what i came up with…i have not used queue or a stack..a simple DFS would be enough… https://ideone.com/6F3wrK Anubhav Balodhi can U please tell a way to check whether a vertex exists which can be reached from any other two points, case is unidirected graph… i learnt Sparse matrix and tried adjacency list but don’t know hats Bfs of Gfs of Dfs… pavansrinivas Are the 2 points given beforehand? If so, u can use the union find algorithm and check whether all the 3 vertices are in the same set… SudhanshuAnand Could you please point out the mistake in the following program for finding if path exists or not  
+#include<iostream>
+#include<list>
+
+using namespace std;
+
+class Graph{
+	int V;
+	list<int> *adj;
+	bool path_found(int s, int d, bool visited[]);
+	public:
+		Graph(int V);
+		void addEdge(int v, int w);
+		bool path(int v, int w);
+};
+
+Graph:: Graph(int V){
+	this->V = V;
+	adj = new list<int>[V];
+}
+
+void Graph::addEdge(int v, int w){
+	adj[v].push_back(w);
+}
+
+bool Graph::path_found(int v, int w, bool visited[]){
+	visited[v] = true;
+	
+	for(list<int>::iterator i = adj[v].begin(); i!= adj[v].end(); i++){
+		if(*i == w) return true;
+		else{
+			if(visited[*i]== false){
+				if(path_found(*i, w, visited) == true){
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+bool Graph::path(int v , int w){
+	
+	bool *visited = new bool[V];
+	for(int i=0;i<V;i++)
+		visited[i] = false;
+	
+	return(path_found(v, w, visited));
+}
+
+int main(){
+	Graph g(6);
+g.addEdge(1, 2);
+g.addEdge(1, 3);
+g.addEdge(1, 5);
+g.addEdge(2, 4);
+g.addEdge(2, 6);
+g.addEdge(3, 2);
+g.addEdge(3, 4);
+g.addEdge(3, 5);
+g.addEdge(4, 6);
+g.addEdge(5, 4);
+g.addEdge(5, 6);
+
+int u = 3, v = 5;
+if( g.path(u, v) )
+{
+cout<< "\n There is a path from " << u << " to " << v << endl;
+}
+else
+cout<< "\n There is no path from " << u << " to " << v;
+ 
+    return 0;
+}
+ SudhanshuAnand Could anyone please point out the mistake in the code for the above problem. Thank you  
+#include<iostream>
+#include<list>
+
+using namespace std;
+
+class Graph{
+	int V;
+	list<int> *adj;
+	bool path_found(int s, int d, bool visited[]);
+	public:
+		Graph(int V);
+		void addEdge(int v, int w);
+		bool path(int v, int w);
+};
+
+Graph:: Graph(int V){
+	this->V = V;
+	adj = new list<int>[V];
+}
+
+void Graph::addEdge(int v, int w){
+	adj[v].push_back(w);
+}
+
+bool Graph::path_found(int v, int w, bool visited[]){
+	visited[v] = true;
+	
+	for(list<int>::iterator i = adj[v].begin(); i!= adj[v].end(); i++){
+		if(*i == w) return true;
+		else{
+			if(visited[*i]== false){
+				if(path_found(*i, w, visited) == true){
+					return true;
+				}
+				else{
+					return false;
+				}
+			}
+		}
+	}
+	
+	cout<<"This is were I think the problem is\n";
+	return false;
+}
+
+bool Graph::path(int v , int w){
+	
+	bool *visited = new bool[V];
+	for(int i=0;i<V;i++)
+		visited[i] = false;
+	
+	return(path_found(v, w, visited));
+}
+
+int main(){
+	Graph g(6);
+g.addEdge(1, 2);
+g.addEdge(1, 3);
+g.addEdge(1, 5);
+g.addEdge(2, 4);
+g.addEdge(2, 6);
+g.addEdge(3, 2);
+g.addEdge(3, 4);
+g.addEdge(3, 5);
+g.addEdge(4, 6);
+g.addEdge(5, 4);
+g.addEdge(5, 6);
+
+int u = 3, v = 5;
+if( g.path(u, v) )
+{
+cout<< "\n There is a path from " << u << " to " << v << endl;
+}
+else
+cout<< "\n There is no path from " << u << " to " << v;
+ 
+    return 0;
+}
+ Shrishty Can we print the path from the source vertex to the destination?? pavansrinivas if u solve the above problem using DFS and once u find the destination vertex,the path is nothing but the contents of the stack.. Winner 993 Plz I Need Help I want this c++ program but using an adjcency MATRIX not list can anybody help me ?? Guddu sharma @Venki, Can we print the path between two vertices using BFS[as we cannot backtrack in this case]? Ninja We can keep track of path from source to current index and print it later if this is the destination. http://www.linkedin.com/in/ramanawithu Venki I have used DFS as it explores longest possible node. BFS explores all the nodes in the vicinity of source node which can terminate early when graph is dense.  
+// Program to check if there is exist a path between two vertices of a graph
+// and to print it
+#include<iostream>
+#include <list>
+#include <stack>
+
+using namespace std;
+
+// This class represents a directed graph
+// using adjacency list representation
+class Graph
+{
+    // No. of vertices
+    int V;
+    // Source vertex
+    int S;
+    // Destination vertex
+    int D;
+    // Visited nodes marker
+    bool *visited;
+    // Stores parenet nodes
+    int *BackwardVector;
+    // Pointer to an array containing adjacency lists
+    list<int> *adj;
+
+    // helper function (DFS)
+    void exploreNodes(int s);
+
+public:
+    Graph(int V);
+    
+    ~Graph();
+
+    // function to add an edge to graph
+    void AddEdge(int v, int w);
+    // returns true if there is a path from s to d
+    bool Reachable(int s, int d);
+    // Prints the path if found
+    void PrintPath(void);
+};
+
+Graph::Graph(int V)
+{
+    this->V = V;
+    adj = new list<int>[V];
+    S = -1;
+    D = -1;
+
+    // Create vectors
+    visited = new bool[V];
+    BackwardVector = new int[V];
+}
+
+Graph::~Graph()
+{
+    if( visited ) delete[] visited;
+    if( BackwardVector ) delete[] BackwardVector;
+
+    if( adj )
+    {
+        for(int i = 0; i < V; i++)
+            adj[i].clear();
+
+        delete[] adj;
+    }
+
+}
+
+void Graph::AddEdge(int v, int w) { adj[v].push_back(w); }
+
+bool Graph::Reachable(int s, int d)
+{
+    // Base case
+    if (s == d)
+      return true;
+
+    S = s;
+    D = d;
+
+    // Initialize vectors
+    memset(visited, false, V);
+    memset(BackwardVector, -1, V);
+
+    // Mark exploring vertex as visited
+    visited[s] = true;
+    exploreNodes(s);
+   
+    return visited[d];
+}
+
+// A DFS based algorithm
+void Graph::exploreNodes(int s)
+{
+    // Mark exploring vertex as visited
+    visited[s] = true;
+
+    // s's adjacent nodes
+    list<int> &l = adj[s];
+
+    // iterator to get all adjacent vertices of d
+    list<int>::iterator i = l.begin();
+
+    while( i != l.end() )
+    {
+        int x = *i;
+
+        if( !visited[x] )
+        {
+            // store it's parent
+            BackwardVector[x] = s;
+            exploreNodes(x);
+        }
+
+        i++;
+    }
+}
+
+void Graph::PrintPath(void)
+{
+    if( visited[D] )
+    {
+        // even system stack can be used
+        stack<int> st;
+
+        // Collect the nodes in backward
+        for( int i = D; i != S; i = BackwardVector[i] )
+            st.push(i);
+
+        st.push(S);
+
+        while( !st.empty() )
+        {
+            cout << st.top() << "\t";
+            st.pop();
+        }
+    }
+}
+
+// Driver program to test methods of graph class
+int main()
+{
+    // Create a graph given in the above diagram
+    Graph g(4);
+    g.AddEdge(0, 1);
+    g.AddEdge(0, 2);
+    g.AddEdge(1, 2);
+    g.AddEdge(2, 0);
+    g.AddEdge(2, 3);
+    g.AddEdge(3, 3);
+
+    int u = 1, v = 3;
+    if( g.Reachable(u, v) )
+    {
+        cout<< "\n There is a path from " << u << " to " << v << endl;
+
+        g.PrintPath();
+    }
+    else
+        cout<< "\n There is no path from " << u << " to " << v;
+
+    u = 3, v = 1;
+    if(g.Reachable(u, v))
+    {
+        cout<< "\n There is a path from " << u << " to " << v;
+        g.PrintPath();
+    }
+    else
+        cout<< "\n There is no path from " << u << " to " << v;
+
+    return 0;
+}
+ eren Your code is not working with 6 vertices. Check here. // Program to check if there is exist a path between two vertices of a graph // and to print it #include #include #include using namespace std; // This class represents a directed graph // using adjacency list representation class Graph { // No. of vertices int V; // Source vertex int S; // Destination vertex int D; // Visited nodes marker bool *visited; // Stores parenet nodes int *BackwardVector; // Pointer to an array containing adjacency lists list *adj; // helper function (DFS) void exploreNodes(int s); public: Graph(int V); ~Graph(); // function to add an edge to graph void AddEdge(int v, int w); // returns true if there is a path from s to d bool Reachable(int s, int d); // Prints the path if found void PrintPath(void); }; Graph::Graph(int V) { this->V = V; adj = new list[V]; S = -1; D = -1; // Create vectors visited = new bool[V]; BackwardVector = new int[V]; } Graph::~Graph() { if( visited ) delete[] visited; if( BackwardVector ) delete[] BackwardVector; if( adj ) { for(int i = 0; i < V; i++) adj[i].clear(); delete[] adj; } } void Graph::AddEdge(int v, int w) { adj[v].push_back(w); } bool Graph::Reachable(int s, int d) { // Base case if (s == d) return true; S = s; D = d; // Initialize vectors memset(visited, false, V); memset(BackwardVector, -1, V); // Mark exploring vertex as visited visited[s] = true; exploreNodes(s); return visited[d]; } // A DFS based algorithm void Graph::exploreNodes(int s) { // Mark exploring vertex as visited visited[s] = true; // s's adjacent nodes list &l = adj[s]; // iterator to get all adjacent vertices of d list::iterator i = l.begin(); while( i != l.end() ) { int x = *i; if( !visited[x] ) { // store it’s parent BackwardVector[x] = s; exploreNodes(x); } i++; } } void Graph::PrintPath(void) { if( visited[D] ) { // even system stack can be used stack st; // Collect the nodes in backward for( int i = D; i != S; i = BackwardVector[i] ) st.push(i); st.push(S); while( !st.empty() ) { cout << st.top() << "\t"; st.pop(); } } } // Driver program to test methods of graph class int main() { // Create a graph given in the above diagram Graph g(6); g.AddEdge(1, 2); g.AddEdge(1, 3); g.AddEdge(1, 5); g.AddEdge(2, 4); g.AddEdge(2, 6); g.AddEdge(3, 2); g.AddEdge(3, 4); g.AddEdge(3, 5); g.AddEdge(4, 6); g.AddEdge(5, 4); g.AddEdge(5, 6); int u = 1, v = 6; if( g.Reachable(u, v) ) { cout<< "\n There is a path from " << u << " to " << v << endl; g.PrintPath(); } else cout<< "\n There is no path from " << u << " to " << v; system("pause"); return 0; } /*#include #include #include //Basic Definitions #define WHITE 0 #define GRAY 1 #define BLACK 2 #define MAX_NODES 1000 #define oo 1000000000 using namespace std; //Declarations int n; // number of nodes int e; // number of edges int capacity[MAX_NODES][MAX_NODES]; // capacity matrix int flow[MAX_NODES][MAX_NODES]; // flow matrix int color[MAX_NODES]; // needed for breadth-first search int pred[MAX_NODES]; // array to store augmenting path int min (int x, int y) { return x<y ? x : y; // returns minimum of x and y } //A Queue for Breadth-First Search int head,tail; int q[MAX_NODES+2]; void enqueue (int x) { q[tail] = x; tail++; color[x] = GRAY; } int dequeue () { int x = q[head]; head++; color[x] = BLACK; return x; } //Breadth-First Search for an augmenting path int bfs (int start, int target) { int u,v; for (u=0; u<n; u++) { color[u] = WHITE; } head = tail = 0; enqueue(start); pred[start] = -1; while (head!=tail) { u = dequeue(); // Search all adjacent white nodes v. If the capacity // from u to v in the residual network is positive, // enqueue v. for (v=0; v0) { enqueue(v); pred[v] = u; } } } // If the color of the target node is black now, // it means that we reached it. return color[target]==BLACK; } //Ford-Fulkerson Algorithm int max_flow (int source, int sink) { int i,j,u; // Initialize empty flow. int max_flow = 0; for (i=0; i<n; i++) { for (j=0; j=0; u=pred[u]) { increment = min(increment,capacity[pred[u]][u]-flow[pred[u]][u]); } // Now increment the flow. for (u=n-1; pred[u]>=0; u=pred[u]) { flow[pred[u]][u] += increment; flow[u][pred[u]] -= increment; } max_flow += increment; } // No augmenting path anymore. We are done. return max_flow; } //Reading the input file and the main program void read_input_file() { int a,b,c,i,j; ifstream testfile (“capacity.txt”); if (testfile.is_open()) { // read number of nodes and edges testfile >> n >> e; // initialize empty capacity matrix for (i=0; i<n; i++) { for (j=0; j<n; j++) { capacity[i][j] = 0; } } // read edge capacities for (i=0; i> a >> b >> c; capacity[a][b] = c; } } testfile.close(); } int main () { read_input_file(); cout<<max_flow(1,6)<<endl; //printf("%d\n",max_flow(0,n-1)); system("pause"); return 0; }*/ /*#include #include #include using namespace std; int cost[10][10],i,j,k,n,qu[10],front,rare,v,visit[10],visited[10]; int main() { int m; cout <> n; cout <> m; cout <<"\nEDGES \n"; for(k=1;k>i>>j; cost[i][j]=1; } cout <>v; cout <<"Visitied vertices\n"; cout << v; visited[v]=1; k=1; while(k<n) { for(j=1;j<=n;j++) if(cost[v][j]!=0 && visited[j]!=1 && visit[j]!=1) { visit[j]=1; qu[rare++]=j; } v=qu[front++]; cout<<v << " "; k++; visit[v]=0; visited[v]=1; } system("pause"); } */ /*#include #include #include #include using namespace std; class Agency{ int name; } int main(){ int neighbour[20][20]; int last=0; int first=1; Agency agency[20]; Agency A; //emptying the array for(int i=0;i<20;i++){ for(int j=0;j> a >> b >> c){ //finding first and last element if(a>b && a>=last) last=a; else if (b>a && b>=last) last=b; if(a<b && a<=first) first = a; else if(b<a && b<=first) first =b; //—————————– neighbour[a][b]=c; cout<<first<<last<<endl; } } system("pause"); return 0; }*/ hemant Can DFS be extended to print all the paths from one source to different destinations in O(V+E)? Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

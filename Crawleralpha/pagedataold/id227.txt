@@ -1,0 +1,441 @@
+Searching for Patterns | Set 2 (KMP Algorithm) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Searching for Patterns | Set 2 (KMP Algorithm) Given a text txt[0..n-1] and a pattern pat[0..m-1], write a function search(char pat[], char txt[]) that prints all occurrences of pat[] in txt[]. You may assume that n > m. Examples: 1) Input: 
+  txt[] =  "THIS IS A TEST TEXT"
+  pat[] = "TEST"
+ Output:    Pattern found at index 10 2) Input: 
+  txt[] =  "AABAACAADAABAAABAA"
+  pat[] = "AABA"
+ Output: 
+   Pattern found at index 0
+   Pattern found at index 9
+   Pattern found at index 13
+ Pattern searching is an important problem in computer science. When we do search for a string in notepad/word file or browser or database, pattern searching algorithms are used to show the search results. We have discussed Naive pattern searching algorithm in the previous post. The worst case complexity of Naive algorithm is O(m(n-m+1)). Time complexity of KMP algorithm is O(n) in worst case. KMP (Knuth Morris Pratt) Pattern Searching The Naive pattern searching algorithm doesn’t work well in cases where we see many matching characters followed by a mismatching character. Following are some examples. 
+   txt[] = "AAAAAAAAAAAAAAAAAB"
+   pat[] = "AAAAB"
+
+   txt[] = "ABABABCABABABCABABABC"
+   pat[] =  "ABABAC" (not a worst case, but a bad case for Naive)
+ The KMP matching algorithm uses degenerating property (pattern having same sub-patterns appearing more than once in the pattern) of the pattern and improves the worst case complexity to O(n). The basic idea behind KMP’s algorithm is: whenever we detect a mismatch (after some matches), we already know some of the characters in the text (since they matched the pattern characters prior to the mismatch). We take advantage of this information to avoid matching the characters that we know will anyway match. KMP algorithm does some preprocessing over the pattern pat[] and constructs an auxiliary array lps[] of size m (same as size of pattern). Here name lps indicates longest proper prefix which is also suffix.. For each sub-pattern pat[0…i] where i = 0 to m-1, lps[i] stores length of the maximum matching proper prefix which is also a suffix of the sub-pattern pat[0..i].    lps[i] = the longest proper prefix of pat[0..i] 
+              which is also a suffix of pat[0..i]. Examples: For the pattern “AABAACAABAA”, lps[] is [0, 1, 0, 1, 2, 0, 1, 2, 3, 4, 5] For the pattern “ABCDE”, lps[] is [0, 0, 0, 0, 0] For the pattern “AAAAA”, lps[] is [0, 1, 2, 3, 4] For the pattern “AAABAAA”, lps[] is [0, 1, 2, 0, 1, 2, 3] For the pattern “AAACAAAAAC”, lps[] is [0, 1, 2, 0, 1, 2, 3, 3, 3, 4] Searching Algorithm: Unlike the Naive algo where we slide the pattern by one, we use a value from lps[] to decide the next sliding position. Let us see how we do that. When we compare pat[j] with txt[i] and see a mismatch, we know that characters pat[0..j-1] match with txt[i-j+1…i-1], and we also know that lps[j-1] characters of pat[0…j-1] are both proper prefix and suffix which means we do not need to match these lps[j-1] characters with txt[i-j…i-1] because we know that these characters will anyway match. See KMPSearch() in the below code for details. Preprocessing Algorithm: In the preprocessing part, we calculate values in lps[]. To do that, we keep track of the length of the longest prefix suffix value (we use len variable for this purpose) for the previous index. We initialize lps[0] and len as 0. If pat[len] and pat[i] match, we increment len by 1 and assign the incremented value to lps[i]. If pat[i] and pat[len] do not match and len is not 0, we update len to lps[len-1]. See computeLPSArray () in the below code for details. 
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+
+void computeLPSArray(char *pat, int M, int *lps);
+
+void KMPSearch(char *pat, char *txt)
+{
+    int M = strlen(pat);
+    int N = strlen(txt);
+
+    // create lps[] that will hold the longest prefix suffix values for pattern
+    int *lps = (int *)malloc(sizeof(int)*M);
+    int j  = 0;  // index for pat[]
+
+    // Preprocess the pattern (calculate lps[] array)
+    computeLPSArray(pat, M, lps);
+
+    int i = 0;  // index for txt[]
+    while (i < N)
+    {
+      if (pat[j] == txt[i])
+      {
+        j++;
+        i++;
+      }
+
+      if (j == M)
+      {
+        printf("Found pattern at index %d \n", i-j);
+        j = lps[j-1];
+      }
+
+      // mismatch after j matches
+      else if (i < N && pat[j] != txt[i])
+      {
+        // Do not match lps[0..lps[j-1]] characters,
+        // they will match anyway
+        if (j != 0)
+         j = lps[j-1];
+        else
+         i = i+1;
+      }
+    }
+    free(lps); // to avoid memory leak
+}
+
+void computeLPSArray(char *pat, int M, int *lps)
+{
+    int len = 0;  // lenght of the previous longest prefix suffix
+    int i;
+
+    lps[0] = 0; // lps[0] is always 0
+    i = 1;
+
+    // the loop calculates lps[i] for i = 1 to M-1
+    while (i < M)
+    {
+       if (pat[i] == pat[len])
+       {
+         len++;
+         lps[i] = len;
+         i++;
+       }
+       else // (pat[i] != pat[len])
+       {
+         if (len != 0)
+         {
+           // This is tricky. Consider the example AAACAAAA and i = 7.
+           len = lps[len-1];
+
+           // Also, note that we do not increment i here
+         }
+         else // if (len == 0)
+         {
+           lps[i] = 0;
+           i++;
+         }
+       }
+    }
+}
+
+// Driver program to test above function
+int main()
+{
+   char *txt = "ABABDABACDABABCABAB";
+   char *pat = "ABABCABAB";
+   KMPSearch(pat, txt);
+   return 0;
+}
+ Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Suffix Tree Application 5 – Longest Common Substring Generalized Suffix Tree 1 Suffix Tree Application 4 – Build Linear Time Suffix Array Suffix Tree Application 3 – Longest Repeated Substring Suffix Tree Application 2 – Searching All Patterns Suffix Tree Application 1 – Substring Check Ukkonen’s Suffix Tree Construction – Part 6 Ukkonen’s Suffix Tree Construction – Part 5 Tags: Pattern Searching Tweet Writing code in comment? Please use ideone.com and share the link here. Vinay Dsouza @rajeshmd:disqus when the suffix of the Pattern does not matches prefix. ie. pat[i] != pat[len] and if len!=0 , then len = lpx[len-1] , which basically means if the prefix and suffix char dont match, then len = second last array element from lps array. This is done so that we check again for the prefix and suffix, and the len has to be decreased by 1. Check the link below for a detailed explanation. https://www.youtube.com/watch?v=SVKe7bvQ4Xk Rajesh M D can anyone explain me why this part is implemented. ———————————————————– if( len != 0 ) { // This is tricky. Consider the example AAACAAAA and i= 7. len = lps[len-1]; // Also, note that we do not increment i here } —————————————– we could have assign len = 0 directly right. Zheng Luo Good implementation, thanks for sharing. Zheng Luo Good implementation, thanks for sharing. Gourab Mitra Consult http://jakeboxer.com/blog/2009/12/13/the-knuth-morris-pratt-algorithm-in-my-own-words/ for step by step preparation of the lps[] array gaurav jindal Thanks a lot buddy. Your explanation helped a lot, and put an end to my frustration in understanding this gaurav jindal Thanks a lot buddy. Your explanation helped a lot, and put an end to my frustration in understanding this shashi jey //following is short and easy code of kmp algorithm and its easy to understand// #include #include #include void KMPSearch(char *pat, char *txt) { int M = strlen(pat); int N = strlen(txt); // create lps[] that will hold the longest prefix suffix values for pattern int j = 0; // index for pat[] // Preprocess the pattern (calculate lps[] array) int i = 0; // index for txt[] while(i < N) { if(pat[j] == txt[i]) { j++; i++; } if (j == M) { printf("Found pattern at index %d n", i-j); j =0; } // mismatch after j matches else if(pat[j] != txt[i]) { // Do not match lps[0..lps[j-1]] characters, // they will match anyway if(j != 0) j = 0; else i = i+1; } } // to avoid memory leak } // Driver program to test above function int main() { char *txt = "ACBABBCACABB"; char *pat = "ABB"; KMPSearch(pat, txt); return 0; } groomnestle Should lps[i] indicates the longest common prefix/suffix for [0..i-1] ? rahul hmmm…. patrick Does anyone have an idea about implementation of KMP with pattern having wildcard characters ?? karan @geeksforgeeks:When we compare pat[j] with txt[i] and see a mismatch, we know that characters pat[0..j-1] match with “txt[i-j+1…i-1]”.I think it’s a bit wrong. It should be “txt[i-j…i-1]”. It’s because the two lengths don’t match. pat[0…j-1] has length of (j-1)-0+1=j. But txt[i-j+1…i-1] has length of (i-1)-(i-j+1)+1= j-1. Muthukumar @geeksforgeeks If we have a substring as ABABABABBA : the array should be [0,0,1,2,3,4,5,6,0,1] I have a problem with the BBA part. the algo will give an output [0,0,1,2,3,4,5,6,5,6] Correct me if i am wrong. Muthukumar Sorry, the algo does give the correct answer. A better explanation to how ? Karthick Can we use “len–” instead of “len=lps[len-1]” ? If not,can u give a test case for which it fails.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ its_dark 0 1 2 3 4 5 6 7 8 9 if we take pat=”A B A B C A B A B A”, lps array : 0 0 1 2 0 1 2 3 4 3 then, when j=8, len=4 (ABAB has been matched). Now, pat[9] != pat[4], we know that pat[4] also has some lps number, in this case it is 2.That means that we are at index 4, then also, there is a prefix (“AB”) of size 2, that is also a suffix. now, if index 8 has lps number 4, this means “ABAB” is a prefix as well as suffix of the pat string till index 9. Now, at index 4, we have “AB” matched (at index : 0-1) , therefore at index 8 also, we can have “AB” matched (at index : 0-1). therefore, the main point is if pat[9] doesn’t match with the pat[4], then we know that we can’t increment lps[8]=4 anymore. BUT, we know that whatever is the lps of pat[3], pat[8] will match with that also,(in this case, pat[3] is 2, that is pat[0] and pat[1]). therefore, pat[8] has lps of 2 ( “AB”). Now, it might be the case that pat[9] matches with pat[2], which is true. therefore, length increases to 3. So, when we can’t increase lps[8](=4) anymore, we try to increase it by comparing with lps [ lps[ 8 ] – 1 ].(-1 because index starts with zero) anjaneya2 in your code mismatch after j matches i.e else if(pat[j] != txt[i]) { // Do not match lps[0..lps[j-1]] characters, // they will match anyway if(j != 0) j = lps[j-1]; else i = i+1; } i think j = lps[j-1] should be lps[j]. Correct me if wrong anjaneya2 why you are taking if(j != 0) j = lps[j-1]; else i = i+1; } anjaneya2  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Vishnu Vasanth R This is the implementation based of CLRS book. /* Paste your code here (You may delete these lines if not writing code) */ [/#include #include using namespace std; void computeLongestPrefixSuffix(string &P,int lps[]); void KMPMatcher(string &T, string &P){ int n = T.size(); int m = P.size(); int *lps = new int[P.size()]; // similar to int lps[P.size()]; computeLongestPrefixSuffix(P,lps); int q =-1; // put q=-1 since we start comparing from indoex 0 which is q+1 // also we ll not access index -1 in function or matcher for (int i = 0; i while(q>-1 && P[q+1] != T[i]) q = lps[q]; if(P[q+1] == T[i]) q = q+1; if((q+1)==m){ // since q = -1 initially add +1 to neutralise cout< <"The patters occurs at shift "<<(i+1)-m< q = lps[q]; } } // free(lps); } void computeLongestPrefixSuffix(string &P,int lps[]) { int m = P.size(); lps[0]=-1; int k = -1; for (int q = 1 ; q while(k>-1&& P[k+1] != P[q]) k = lps[k]; if(P[k+1] == P[q]) // k can never be greater than q, since we increment both at same time, k incrementer here and q ll be incremented in for loop k = k+1; lps[q]=k; } } // Driver program to test above function int main() { string T = “ABABDABACDABABCABAB”; string P = “ABABCABAB”; KMPMatcher(T, P); return 0; }] rakshify @GeeksForGeeks:- Can you please explain how worst case complexity of KMP is O(n)? Looking at this piece:-  
+while(i < N)
+    {
+      if(pat[j] == txt[i])
+      {
+        j++;
+        i++;
+      }
+ 
+      if (j == M)
+      {
+        printf("Found pattern at index %d \n", i-j);
+        j = lps[j-1];
+      }
+ 
+      // mismatch after j matches
+      else if(pat[j] != txt[i])
+      {
+        // Do not match lps[0..lps[j-1]] characters,
+        // they will match anyway
+        if(j != 0)
+         j = lps[j-1];
+        else
+         i = i+1;
+      }
+    }
+ suppose we give txt = “aaaaaaaaab” and pat = “aaab”, this peice is having O(mn) complexity. Explanation: 1st 3 iterations, we get match, for 4th mismatch, our loop runs 3 times without increamenting i, till we get j to 0. Similarily again we find matches at txt[4…6] and on mismatch at txt[7], we get our loop running 3 times without increamenting i, till we get j to 0 and repetetions till we reach end of text string. Please correct me if i’m wrong and missing anything. kartik The loop actually runs at-most 2n times. Therefore, the time complexity is O(n). Like Naive string matching, we slide the pattern over and match them at different shifts in text. If we take a closer look at the implementation, we notice that, in every iteration of loop, either we shift the pattern or we move to next character in text. So total iterations of loop is 2n. rakshify Oh, that was so stupid to miss that. Thanks Kartik. rakshify @GeeksForGeeks:- Can you please explain how worst case complexity of KMP is O(n)? Looking at this piece:-  
+while(i < N)
+    {
+      if(pat[j] == txt[i])
+      {
+        j++;
+        i++;
+      }
+ 
+      if (j == M)
+      {
+        printf("Found pattern at index %d \n", i-j);
+        j = lps[j-1];
+      }
+ 
+      // mismatch after j matches
+      else if(pat[j] != txt[i])
+      {
+        // Do not match lps[0..lps[j-1]] characters,
+        // they will match anyway
+        if(j != 0)
+         j = lps[j-1];
+        else
+         i = i+1;
+      }
+    }
+ suppose we give txt = “aaaaaaaaab” and pat = “aaab”, this peice is having O(mn) complexity. Explanation: 1st 3 iterations, we get match, for 4th mismatch, our loop runs 3 times without increamenting i, till we get j to 0. Similarily again we find matches at txt[4…6] and on mismatch at txt[7], we get our loop running 3 times without increamenting i, till we get j to 0 and repetetions till we reach end of text string. Please correct me if i’m wrong and missing anything. pritybhudolia @GeeksForGeeks Hi,A very simple approach in O(n) complexity. Can someone tell me that why should we go for KMP algo or some other algo. I am really confused as it works for all cases according to me. / #include #include void search(char *pat, char *str) { int M = strlen(pat); int N = strlen(str); int index=0,i,j,flag=0; for(i=0,j=0;i<=N;i++) { if(str[i]==pat[j] && ((str[i+1]==pat[j+1])||(j==M-1))) { j++; flag=1; } else { index=i+1; flag=0;j=0; } if(flag==1 && (j==M)) { printf(“\nPattern found at index %d”,index); j=0; index=i+1; } } } /* Driver program to test above function */ int main() { char *str = “AABAACAADAABAAABAAABAA”; char *pat = “ABAA”; search(pat, str); // *str = “THIS IS A TEST TEXT”; // *pat = “TEST”; //search(pat, str); getchar(); return 0; } */ GeeksforGeeks Could you please post the code again in sourcecode tags. Also, please provide some details of your algorithm. pritybhudolia @GeeksforGeeks Yes ofcourse, actually we start with the first index of original string and traverse through the entire string.everytime while traversing we compare first two elements of the STR with PAT and only if it matches we increment both(i.e index of STR and PAT)and flag is set to 1 to indicate there is a matching pattern,else we increment index of STR alone and set index of PAT to 0. when flag is 1 and pattern is traversed completely once, we print the pattern and set its index val again to zero to iterate again and search for another pattern if exists.  
+
+#include<stdio.h>
+#include<string.h>
+void search(char *pat, char *str)
+{
+    int M = strlen(pat);
+    int N = strlen(str);
+    int index=0,i,j,flag=0;
+    for(i=0,j=0;i<=N;i++)
+    {                       
+    if(str[i]==pat[j] && ((str[i+1]==pat[j+1])||(j==M-1)))
+    {                                                     
+         j++;
+         flag=1;                                                                                                                         
+    }
+    else
+    {
+        index=i+1;
+        flag=0;j=0;
+    }
+    if(flag==1 && (j==M))
+    {       
+        printf("\nPattern found at index %d",index);
+        j=0;
+        index=i+1;                                                     
+    }                       
+  }
+}
+  
+/* Driver program to test above function */
+int main()
+{
+   char *str = "AABAACAADAABAAABAAABAA";
+   char *pat = "ABAA";
+   search(pat, str);
+   // *str = "THIS IS A TEST TEXT";
+   // *pat = "TEST";
+   //search(pat, str);
+   getchar();
+   return 0;
+}
+ Pandian Your code fails for the following case : text : AAAAAAAAAAAAAAAAAAAB pattern : AAAAAAAAAAAAB TheRock Dude, it works for this test case.. prity @GeeksForGeeks Hi,A very simple approach in O(n) complexity. Can someone tell me that why should we go for KMP algo or some other algo. I am really confused as it works for all cases according to me.  
+/
+#include<stdio.h>
+#include<string.h>
+void search(char *pat, char *str)
+{
+    int M = strlen(pat);
+    int N = strlen(str);
+    int index=0,i,j,flag=0;
+    for(i=0,j=0;i<=N;i++)
+    {
+                       
+                                  if(str[i]==pat[j] && ((str[i+1]==pat[j+1])||(j==M-1)))
+                                  {
+                                                     
+                                                     j++;
+                                                     flag=1;
+                                                                           
+                                  }
+                                  else
+                                  {
+                                                     index=i+1;
+                                                     flag=0;j=0;
+                                  }
+                                 if(flag==1 && (j==M))
+                                 {          
+                                  
+                                                     printf("\nPattern found at index %d",index);
+                                                     j=0;
+                                                     index=i+1;
+                                                     
+                                  }
+                       
+  }
+}
+  
+/* Driver program to test above function */
+int main()
+{
+   char *str = "AABAACAADAABAAABAAABAA";
+   char *pat = "ABAA";
+   search(pat, str);
+   // *str = "THIS IS A TEST TEXT";
+   // *pat = "TEST";
+   //search(pat, str);
+   getchar();
+   return 0;
+}
+*/
+ Gagan For a much elaborate and clear explanation of this algorithm please refer to “Lecture Series on Design & Analysis of Algorithms by Prof.SunderVishwanathan, Department of Computer Science Engineering,IIT Bombay” at the below mentioned link: http://www.youtube.com/watch?v=EEjNb9yUv1k abhishek08aug Intelligent Rama Krishna Linga Following is the Java version and does not have the issues listed by Ramesh.  
+    // Takes a pattern and returns a new array containing count of
+    // longest proper prefix of pat[i] which is also suffix of pat[i]
+    private static int [] buildLPS(char []pat)
+    {
+        int [] lps = new int[pat.length];
+
+        for (int len=0, i=1; i < pat.length; i++)
+        {
+            if (pat[i] == pat[len])
+            {
+                len++;
+                lps[i] = len;
+                i++;
+            }
+            else
+            {
+                if (len != 0)
+                {
+                    len = lps[len-1];
+                }
+                else
+                {
+                    lps[i++] = 0;
+                }
+            }
+
+        }
+
+        return lps;
+    }
+
+    public static void KMPSearch(char [] text, char []pat)
+    {
+        int [] lps = buildLPS(pat);
+
+        System.out.println("LPS for the given pattern " + pat + " is " + Arrays.toString(lps)) ;
+
+        for(int i=0, j=0; i < text.length;)
+        {
+            if (text[i] == pat[j])
+            {
+                i++;
+                j++;
+
+                if (j == pat.length)
+                {
+                    System.out.println("Found pattern at " + (i-j) );
+                    j = lps[j-1];
+                }
+
+            }
+            else // if (text[i] != pat[j]) // mismatch observed after j matches
+            {
+                if ( j != 0)
+                {
+                    j = lps[j-1];
+                }
+                else
+                    i++;
+            }
+
+        }
+    }
+ Ramesh.Mxian I think the code given in the post for 2 method will not work for the following input. Text : ABCAAAABBBABCBCA Pattern: ABC It will cause segmentation fault in the following line // mismatch after j matches else if(pat[j] != txt[i]) Because last character in the text ‘A’ will match the 1st character ‘A’ in the pattern then ‘i’ will be incremented to next. Now ‘i’ will became the length of the Text given, so Text[i] will give segmentation fault. nikhil  
+void KMPSearch(char *pat, char *txt)
+{
+    int m = strlen(pat);
+    int n = strlen(txt);
+    int i=0, len=0;
+    computeLPSArray(pat, m, lps);
+    while (i<n)
+    {
+        while (len!=0 && txt[i]!=pat[len]) len=b[len]; //backtrack
+        if(pat[len] == txt[i]) { len++;} //if pattern matches , incr len
+        i++; //to match next pattern
+        if (len==m)
+        {
+            //print pattern found at i;
+            len=lps[len]; //backtrack to last match position
+        }
+    }
+}
+void computeLPSArray(char *pat, int M, int *lps)
+{
+    int i=1, len=0;
+    lps[0]=0;
+    while (i<m)
+    {
+        while (len!=0 && pat[i]!=pat[len]) len=lps[len]; //backtrack
+        if (pat[i]==pat[len]) { len++; } //if pattern matches ,incr len
+                lps[i]=len;
+                i++;
+    }
+}
+ Vibhu Tiwari This is the source code for pattern searching in much less effort with the time complexity of O(n).You can check it for various strings by passing the lengths of the two strings to be matched.The statement pattern match gets printed the number of times that substring occurs in the string. #include #include void patternsearch(char *a,char *b,int n,int m) { int k,count=0,j=0,i=0,c=0; while(i!=n) { if(j==m) {j=0; c=c+1;count=0; i=c;} k=a[i]-b[j]; if(k==0){ count++;} if(count==m) {printf(“Pattern Match found\n”);} i=i+1; j=j+1; } } main() { char *a=”ABABABCABABABCABABABC”; char *b=”ABABCA”; patternsearch(a,b,21,6); getch(); } rana_leaner For pattern “AABAACAABAA ” lps[] is Def of lps[i] = the longest proper preefix of pat[0..i] which is also a suffix of pat[0..i]. Steps: lps[0]–> pat[0] = A –>0 (represents length of match prefix,suffix) lps[1]–> pat[0..2] = A/*A*/ –>1 (Proper prefix =A ,Suffix = A) lps[2]–>pat[0..3] = AAB –>0 (No any equal prefix,suffix) lps[3]–>pat[0..4] = /*A*/AB/*A*/–>1 (prefix = A ,sufficx =A) lps[4]–>pat[0..5] = /*AA*/B/*AA*/ –>2 (prefix = AA ,sufficx =AA) lps[5]–>pat[0..6] = AABAAC –>0 lps[6]–>pat[0..7] =/*A*/ABAAC/*A*/ –>1 …. so on lps[] = [0,1,0,1,2,0,1,2,3,4,5]  
+/* Paste your code here (You may delete these lines if not writing code) */
+ anonymus I was trying to understand this algorithm form back two months, Now I finally go it with the help of geeksforgeeks, THANKS GEEKSFORGEEKS Yogesh Batra Thanks Geeksforgeeks!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ deep great code  
+/* Paste your code here (You may delete these lines if not writing code) */
+ sparco The below code is more readable and understandable. Logic is same as the notes. Just worth sharing!  
+void KMPSearch(char *pat, char *txt)
+{
+    int m = strlen(pat);
+    int n = strlen(txt);
+    int i=0, len=0;
+    computeLPSArray(pat, m, lps);
+    while (i<n)
+    {
+        while (len!=0 && txt[i]!=pat[len]) len=b[len]; //backtrack
+		if(pat[len] == txt[i]) { len++;} //if pattern matches , incr len
+		i++; //to match next pattern
+        if (len==m)
+        {
+            //print pattern found at i;
+            len=lps[len]; //backtrack to last match position
+        }
+    }
+}
+void computeLPSArray(char *pat, int M, int *lps)
+{
+    int i=0, len=0;
+    lps[0]=0;
+    while (i<m)
+    {
+        while (len!=0 && pat[i]!=pat[j]) len=lps[len]; //backtrack
+        if (pat[i]==pat[j]) { len++; } //if pattern matches , incr len
+		i++; //to update the next lps array
+        lps[i]=len;
+    }
+}
+ anonymous @sparco In your code of computeLPSArray you wrote j instead of len. samesh Hi,could anyone put some light on this example. According to me itz a wrong example??Help me out… txt[] = “ABABABCABABABCABABABC” pat[] = “ABABAC” (not a worst case, but a bad case for Naive) suresh kumar  
+Hi,could anyone put some light on this example.
+According to me itz a wrong example??Help me out...
+txt[] = "ABABABCABABABCABABABC"
+pat[] =  "ABABAC" (not a worst case, but a bad case for Naive)
+ Franky // This is tricky. Consider the example AAACAAAA and i = 7. len = lps[len-1]; Can you explain why we need to set len equal to lps[len-1] in the function? sharat Hi Algorist, Read CLR book and then come back here….. Arpit Gupta In this article,the complexity of naive method has been wrongly mentione as (m*(m-n+1)).it should be (m*(n-m+1)). http://geeksforgeeks.org/ Sandeep @Arpit Gupta: Thanks for pointing this out. We have corrected the typo. sharat04 Hi Geeks, Thanks for coming up with this post. I am still struggling to understand the construction of the lps[] array Basically I am looking for two things here. 1) A technical definition of “proper prefix” and ” proper Suffix” 2) A detailed run down of any of the examples in your listing. explaining how the lps[] array is constructed. From the listing above, For the pattern “AAACAAAAAC”, lps[] is [0, 1, 2, 0, 1, 2, 3, 3, 3, In the above mentioned example, why is the lps[3](element C in the pattern) “0”. I was expecting it to be 3 because of “AAA” is before C and after C in the pattern?? Please help me understand the algorithm here. Thanks.. sharat04 I think I figured it out.. I looked at the wiki http://en.wikipedia.org/wiki/Substring In any case, I would request you to add more detailed description and add a reference to the wiki page I mentioned. Thanks Cracker Code For KMP  
+// precomputation time: O(m) where m is length of string to be matched
+// net time: O(n+m) where n = length of string to which another string is to be compared
+
+#include<stdio.h>
+
+void kmp(char[],char[]);
+
+int main()
+{
+	char a[100], b[100];
+
+	gets(a);
+	gets(b);
+
+	kmp(a,b);
+
+	return 0;
+}
+
+void kmp(char a[], char b[])
+{
+	int p, q;
+	for (p = 0; a[p] != ''; p++);
+	for (q = 0; b[q] != ''; q++);
+	
+	int c[q+1], i;
+	for (i = 0; i <= q; i++) c[i] = -1;
+	int k;
+
+	for (i = 1; i <= q; i++) {
+		k = c[i-1];
+		while ((k != -1) && (b[i-1] != b[k])) k = c[k];
+		c[i] = k+1;
+	}	
+	for (i = 1; i <= q; i++) {
+		printf("%d ",c[i]);
+	}
+	printf("\n");
+
+	int sa = 0, sb = 0;
+	for (i = 0; i < p; i++) {
+		while (sb != -1 && (sb == q || a[sa] != b[sb])) sb = c[sb];
+		sa++;
+		sb++;
+		if (sb == q) printf("%d\n",i+1-q);
+	}
+}
+ Algoseekar http://codepad.org/grtqfF5f KMP Code Algorist Hi Algoseekar, Can you explain the logic on this page!! I didn’t get it. Is it really a KMP algorithm? Please go through with an example!! algorist Hi, How did you calculate the lps array[], kindly explain with the help of an example. And what is the purpose of preprocessing the text this way? Thanks. GeeksforGeeks @algorist: As metnioned in the post, we preprocess pattern, not text. We do this preprocessing to avoid matching pat[] and txt[] characters which we know will anyway match. Let us consider the pattern as “AACA”. Following are the preprocessing steps invoved for getting the lps[] array for this pattern. pat[] = AACA, lps[] for this array would be [0, 1, 0, 1] lps[0] = 0 // lps[0] is always 0. len = 0 i = 1 compare lps[len] and lps[i]. Since these two are same, increment len. len and lps[1] become 1 and i becomes 2. compare lps[len] and lps[i]. Since these two are NOT same, update len to lps[len-1]. len becomes 0, i remains 2 compare lps[len] and lps[i]. Since these two are NOT same and len is 0, set lps[2] as 0. len becomes 0, i becomes 3 compare lps[len] and lps[i]. Since these two are same, increment len. len and lps[3] become 1. i becomes 4. Since i becomes M, we stop here. algorist Thanks. GeeksForGeeks. I got an idea now of KMP… It looks a great idea of preprocessing the pattern this way.. Patterns are generally very small.. So we can always we process it like this way.. I want to know one thing here.. how about preprocessing it by adding up all the ascii values of characters in the pattern, and then matching it with the current text charcters.. On moving forward(i.e. sliding the window), you subtract first character and add next character, and then comparing again.. For E.g. txt[] = AABAACAADAABAAABAA pat[] = AABAA ASCII Calculation of AABAA = A + A + B + A + A = X ASCII Calculation of first 5 texts >> Since it matches you print the start index. You move on, Next five characters >> ABAAC. The ascii value of this can be calculated by subtracting character before ABAAC and adding character ‘C’ (new character added to window). And then you compare again.. Please let me know what is the demerit of using this approach.. This looks more simpler. GeeksforGeeks @algorist: Please note that just checking the ASCII sum value is not sufficient because sum can be same for different strings. We need to do two step process. 1) Compare sum of current window of text with sum of pattern. 2) If sum is same then match the pattern with the current window of text. Which is similar to Rabin Carp algorithm. The Rabin Karp algorithm works well under some assumptions, but worst case time complexity of Rabin Karp is O((m-n+1)m). To see worst case, use the above two step approach and take the example as txt as “AAAAAAAAAAAAA” and example pattern as “AAAA”. algorist @geeksfrogeesk can you please through some more light on this preprocessing part For the pattern “AABAACAABAA”, lps[] is [0, 1, 0, 1, 2, 0, 1, 2, 3, 4, 5] For the pattern “ABCDE”, lps[] is [0, 0, 0, 0, 0] For the pattern “AAAAA”, lps[] is [0, 1, 2, 3, 4] For the pattern “AAABAAA”, lps[] is [0, 1, 2, 0, 1, 2, 3] For the pattern “AAACAAAAAC”, lps[] is [0, 1, 2, 0, 1, 2, 3, 3, 3, 4] please explain in detail how u r calculating lps array for any pattern say “AABAACAABAA”..please reply asap..??? algorist @geeksfrogeeks pleaase explain me preprocesing phase i have shown my doubt below…. can any explain this ?? how u r calculating lps array for any pattern say “AABAACAABAA”..please reply asap. GeeksforGeeks @algorist: As mentioned in the post, every element ips[i] in the ips array follows following definition. lps[i] = the longest proper preefix of pat[0..i] which is also a suffix of pat[0..i]. rcdeo @geeksforgeeks::y r u comparing lps[i] and lps[len]?? Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

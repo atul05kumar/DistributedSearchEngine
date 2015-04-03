@@ -1,0 +1,119 @@
+The Stock Span Problem - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph The Stock Span Problem The stock span problem is a financial problem where we have a series of n daily price quotes for a stock and we need to calculate span of stock’s price for all n days. The span Si of the stock’s price on a given day i is defined as the maximum number of consecutive days just before the given day, for which the price of the stock on the current day is less than or equal to its price on the given day. For example, if an array of 7 days prices is given as {100, 80, 60, 70, 60, 75, 85}, then the span values for corresponding 7 days are {1, 1, 1, 2, 1, 4, 6} A Simple but inefficient method Traverse the input price array. For every element being visited, traverse elements on left of it and increment the span value of it while elements on the left side are smaller. Following is implementation of this method. 
+// A brute force method to calculate stock span values
+#include <stdio.h>
+
+// Fills array S[] with span values
+void calculateSpan(int price[], int n, int S[])
+{
+   // Span value of first day is always 1
+   S[0] = 1;
+
+   // Calculate span value of remaining days by linearly checking previous days
+   for (int i = 1; i < n; i++)
+   {
+      S[i] = 1; // Initialize span value
+
+      // Traverse left while the next element on left is smaller than price[i]
+      for (int j = i-1; (j>=0)&&(price[i]>=price[j]); j--)
+          S[i]++;
+   }
+}
+
+// A utility function to print elements of array
+void printArray(int arr[], int n)
+{
+    for (int i = 0; i < n; i++)
+      printf("%d ", arr[i]);
+}
+
+// Driver program to test above function
+int main()
+{
+    int price[] = {10, 4, 5, 90, 120, 80};
+    int n = sizeof(price)/sizeof(price[0]);
+    int S[n];
+
+    // Fill the span values in array S[]
+    calculateSpan(price, n, S);
+
+    // print the calculated span values
+    printArray(S, n);
+
+    return 0;
+}
+ Time Complexity of the above method is O(n^2). We can calculate stock span values in O(n) time. A Linear Time Complexity Method We see that S[i] on day i can be easily computed if we know the closest day preceding i, such that the price is greater than on that day than the price on day i. If such a day exists, let’s call it h(i), otherwise, we define h(i) = -1. The span is now computed as S[i] = i – h(i). See the following diagram. To implement this logic, we use a stack as an abstract data type to store the days i, h(i), h(h(i)) and so on. When we go from day i-1 to i, we pop the days when the price of the stock was less than or equal to price[i] and then push the value of day i back into the stack. Following is C++ implementation of this method. 
+// a linear time solution for stock span problem
+#include <iostream>
+#include <stack>
+using namespace std;
+
+// A brute force method to calculate stock span values
+void calculateSpan(int price[], int n, int S[])
+{
+   // Create a stack and push index of first element to it
+   stack<int> st;
+   st.push(0);
+
+   // Span value of first element is always 1
+   S[0] = 1;
+
+   // Calculate span values for rest of the elements
+   for (int i = 1; i < n; i++)
+   {
+      // Pop elements from stack while stack is not empty and top of
+      // stack is smaller than price[i]
+      while (!st.empty() && price[st.top()] < price[i])
+         st.pop();
+
+      // If stack becomes empty, then price[i] is greater than all elements
+      // on left of it, i.e., price[0], price[1],..price[i-1].  Else price[i]
+      // is greater than elements after top of stack
+      S[i] = (st.empty())? (i + 1) : (i - st.top());
+
+      // Push this element to stack
+      st.push(i);
+   }
+}
+
+// A utility function to print elements of array
+void printArray(int arr[], int n)
+{
+    for (int i = 0; i < n; i++)
+      cout << arr[i] << " ";
+}
+
+// Driver program to test above function
+int main()
+{
+    int price[] = {10, 4, 5, 90, 120, 80};
+    int n = sizeof(price)/sizeof(price[0]);
+    int S[n];
+
+    // Fill the span values in array S[]
+    calculateSpan(price, n, S);
+
+    // print the calculated span values
+    printArray(S, n);
+
+    return 0;
+}
+ Output: 1 1 2 4 5 1 Time Complexity: O(n). It seems more than O(n) at first look. If we take a closer look, we can observe that every element of array is added and removed from stack at most once. So there are total 2n operations at most. Assuming that a stack operation takes O(1) time, we can say that the time complexity is O(n). Auxiliary Space: O(n) in worst case when all elements are sorted in decreasing order. References: http://en.wikipedia.org/wiki/Stack_(abstract_data_type)#The_Stock_Span_Problem http://crypto.cs.mcgill.ca/~crepeau/CS250/2004/Stack-I.pdf Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: stack Tweet Writing code in comment? Please use ideone.com and share the link here. sijayaraman void stock(int arr[],int n) { int index=0; int result[n]; while(index=0;j–) { if(arr[index]>arr[j]) { result[index]++; } else if(arr[j]> arr[index]) { break; } } index++; } //output for(int i=0;i<n;i++) { cout<<result[i]<<","; } } int main() { int arr[]={10, 4, 5, 90, 120, 80}; int n = sizeof(arr)/sizeof(arr[0]); stock(arr,n); } Guest Does this work for {2,3,10,4,5,6,7}? sapy I think the code needs correction…  
+ S[i] = (st.empty())? (i + 1) : (i - st.size());
+ Sairam Ravu int price[] = {10, 4, 5, 90, 120, 80}; For this input the span[5] that is for 80 should be 3 but your answer is 1. I didn’t understand the brute force method, it just checks for less than or equal it doesn’t check for consecutive, if so then for {10,4,5,90,120,80}, span[5] will be 4 instead of 3 because you are just incrementing the count for how many values which are less than given value.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks Please take a closer look at the problem statement, especially following part. “The span Si of the stock’s price on a given day i is defined as the maximum number of consecutive days just before the given day, for which the price of the stock on the current day is less than or equal to its price on the given day.” AlexC this is the same algorithm (with a small change) used to efficiently construct Cartesian tree. http://en.wikipedia.org/wiki/All_nearest_smaller_values http://en.wikipedia.org/wiki/Cartesian_tree nishant I think this works.  
+void calculateSpan(int price[], int n, int S[])
+{
+  int i,j;
+  S[0]=1;
+  for(i=1;i<n;i++)
+  {
+    j=i-1;
+    while(price[i]>price[j])
+        j=j-S[j];
+    S[i]=i-j;
+  }
+}
+ kx It looks good… but this won’t work.. After : if(price[i]>=price[i-1]) S[i]=S[i-1]+1; you need to additionally check for a similar condition: (price[i]>=price[i-S[i]]), and update S[i] again accordingly based on the result => and continue this step until you reach the top of the array. (In a way its similar to the stack implementation above). Else, your case will fail for something like: price = {70,60,80}. S[2] here should be 3; your method will give 2 (because you stop after comparing with 60, and do not check against 70]. Shashank Rai It is wrong, v don’t hav 2 print length of non-decreasing prices upto the given day. eg. 10 4 5 90, den fr 90 ur algo gives 3 but d ans shd b 4 since 10 4 panda lol, i was interviewed by storm8 with this question…. shashank Hi panda , what the question in coding challenge ? Thanks  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

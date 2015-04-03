@@ -1,0 +1,148 @@
+Given a linked list which is sorted, how will you insert in sorted way - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Given a linked list which is sorted, how will you insert in sorted way Algorithm: Let input linked list is sorted in increasing order. 
+1) If Linked list is empty then make the node as head and return it.
+2) If value of the node to be inserted is smaller than value of head node
+    then insert the node at start and make it head.
+3) In a loop, find the appropriate node after which the input node (let 9) is
+    to be inserted. To find the appropriate node start from head, keep moving 
+    until you reach a node GN (10 in the below diagram) who's value is 
+    greater than the input node. The node just before GN is the appropriate
+    node (7).
+4) Insert the node (9) after the appropriate node (7) found in step 3.
+ Initial Linked List Linked List after insertion of 9 Implementation: 
+/* Program to insert in a sorted list */
+#include<stdio.h>
+#include<stdlib.h>
+
+/* Link list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+
+/* function to insert a new_node in a list. Note that this
+  function expects a pointer to head_ref as this can modify the
+  head of the input linked list (similar to push())*/
+void sortedInsert(struct node** head_ref, struct node* new_node)
+{
+    struct node* current;
+    /* Special case for the head end */
+    if (*head_ref == NULL || (*head_ref)->data >= new_node->data)
+    {
+        new_node->next = *head_ref;
+        *head_ref = new_node;
+    }
+    else
+    {
+        /* Locate the node before the point of insertion */
+        current = *head_ref;
+        while (current->next!=NULL &&
+               current->next->data < new_node->data)
+        {
+            current = current->next;
+        }
+        new_node->next = current->next;
+        current->next = new_node;
+    }
+}
+
+/* BELOW FUNCTIONS ARE JUST UTILITY TO TEST sortedInsert */
+
+/* A utility function to create a new node */
+struct node *newNode(int new_data)
+{
+    /* allocate node */
+    struct node* new_node =
+        (struct node*) malloc(sizeof(struct node));
+
+    /* put in the data  */
+    new_node->data  = new_data;
+    new_node->next =  NULL;
+
+    return new_node;
+}
+
+/* Function to print linked list */
+void printList(struct node *head)
+{
+    struct node *temp = head;
+    while(temp != NULL)
+    {
+        printf("%d  ", temp->data);
+        temp = temp->next;
+    }
+}
+
+/* Drier program to test count function*/
+int main()
+{
+    /* Start with the empty list */
+    struct node* head = NULL;
+    struct node *new_node = newNode(5);
+    sortedInsert(&head, new_node);
+    new_node = newNode(10);
+    sortedInsert(&head, new_node);
+    new_node = newNode(7);
+    sortedInsert(&head, new_node);
+    new_node = newNode(3);
+    sortedInsert(&head, new_node);
+    new_node = newNode(1);
+    sortedInsert(&head, new_node);
+    new_node = newNode(9);
+    sortedInsert(&head, new_node);
+    printf("\n Created Linked List\n");
+    printList(head);
+
+    getchar();
+    return 0;
+}
+ Shorter Implementation using double pointers Thanks to Murat M Ozturk for providing this solution. Please see Murat M Ozturk’s comment below for complete function. The code uses double pointer to keep track of the next pointer of the previous node (after which new node is being inserted). Note that below line in code changes current to have address of next pointer in a node. 
+   current = &((*current)->next);
+ Also, note below comments. 
+    new_node->next = *current; /* Copies the value-at-address current to new_node's next pointer*/
+
+    *current = new_node;  /* Fix next pointer of the node (using it's address) after which new_node is being inserted */
+ Time Complexity: O(n) References: http://cslibrary.stanford.edu/105/LinkedListProblems.pdf           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. Dark Protocol For Larger List size (n>10000000), Skip list is more appropriate Himanshu Dagar can refer to below code http://ideone.com/R5rl9g Daniel YIn node * sortedInsert(node * n, int d){ if (n == NULL || n->data >d) return new node(d,n); else if (n->data == d) return n; else { n->next = sortedInsert(n->next,d); return n; } } mahi2 This problem can be solved if we maintain 2 pointers…and move one pointer (tmp2) ahead of the other (tmp1) in the loop..and compare the value of the node to be inserted with the data value of tmp1 and tmp2. At one point data (node)> data(tmp1) and data(node) < data(tmp2).. insert the node at that point! nitin #include #include struct node { int data; struct node *link; }; void insert1(struct node **p,int data) { struct node *temp,*t,*s; temp=(struct node *)malloc(sizeof(struct node)); temp->data=data; temp->link=NULL; if((*p)==NULL) { *p=temp; } else { t=*p; s=*p; while(t->datalink; if(s!=NULL&&s->data>data) { temp->link=s; t->link=temp; break; } if(s==NULL) { t->link=temp; break; } else t=t->link; } } } void print(struct node *p) { while(p!=NULL) { printf(“%d\t”,p->data); p=p->link; } } int main() { struct node *p; p=NULL; insert1(&p, 2); insert1(&p, 15); insert1(&p, 10); insert1(&p, 7); insert1(&p, 5); print(p); printf(“\n”); insert1(&p, 9); print(p); } ff hi … please i want sorted with with only int this funnction: sortedinsert(int) Shekhu can you please explain your requirement with an example? GeeksforGeeks @Murat M Ozturk: Thanks for the short and nice solution. We have added the solution to the original post. rikitic it can be done in less time by using binary search on linked list….correct me if i am wrong  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks Binary Search can not be applied on Linked Lists. That is why we have skip lists (http://www.geeksforgeeks.org/skip-list/) rikitic its almost binary search  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Murat M Ozturk Here is a simplified version of the sortedInsert() method:  
+void sortedInsert(struct node** head_ref, struct node* new_node)
+{
+  if (head_ref == NULL) 
+  {
+	  return;
+  }
+
+	/* Locate the node before the point of insertion */
+	struct node** current = head_ref;
+	while (*current !=NULL && (*current)->data < data)
+	{
+	  current = &((*current)->next);
+	}
+
+	new_node->next = *current;
+	*current = new_node;
+}
+ olra  
+/*
+checking: if (head_ref == NULL) is included in while loop
+so the code is : 
+*/
+void sortedInsert(struct node** head_ref, struct node* new_node)
+{
+    /* Locate the node before the point of insertion */
+    struct node** current = head_ref;
+    while (*current !=NULL && (*current)->data < data)
+    {
+      current = &((*current)->next);
+    }
+ 
+    new_node->next = *current;
+    *current = new_node;
+}
+ http://www.geeksforgeeks.org/given-a-linked-list-which-is-sorted-how-will-you-insert-in-sorted-way/ Viky The second method of double pointer doesn’t work for all cases ..  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks Could you please let us know the case for which it doesn’t work? http://www.geeksforgeeks.org/given-a-linked-list-which-is-sorted-how-will-you-insert-in-sorted-way/#comment-15367 Viky If the list is empty, we should make head as the new node. But in this case it returns NULL. Also, Adding element to the end of the list doesn’t work  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Bunty #include #include struct node { int data; struct node *next; }; void printList(struct node *n) { while(n!=NULL) { printf(“%dn”,n->data); n=n->next; } } void SortingAList(struct node *n,int val) { struct node *fast=n; struct node *slow; while(fast->datanext; } struct node *new_node=(struct node *)malloc(sizeof(struct node)); new_node->data=val; new_node->next=slow->next; slow->next=new_node; } int main() { struct node *head=NULL; struct node *second=NULL; struct node *third=NULL; head=(struct node *)malloc(sizeof(struct node)); second=(struct node *)malloc(sizeof(struct node)); third=(struct node *)malloc(sizeof(struct node)); head->data=10; head->next=second; second->data=20; second->next=third; third->data=30; third->next=NULL; printList(head); SortingAList(head,25); printList(head); getch(); return 0; } bunty neglect the at the end hina I think this wont work when the node to be inserted turns out to be the largest…I have added a few checks for this condition….Correct me if I am wrong… hina Code with all the checks: Correct me if i am wrong void sortedInsert(struct node** head_ref, struct node* new_node). { /*if LL is empty */ if (head_ref == NULL) { *head_ref = new_node; } /* Locate the node before the point of insertion or if last node is reached we stop at last node */. struct node** current = head_ref; //if new node is to be inserted at first position if((*current)->data > new_node ->data) { new_node -> next = *current; *head_ref = new_node; } while ((*current)!=NULL && (*current)->data next != NULL) current = &((*current)->next); } //if new node is to be inserted before the current node if((*current) -> data > new_node -> data) { new_node->next = *current; *current = new_node; } //if new node is to be inserted at last position else { current->next=new_node; new_node->next=NULL; } } Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

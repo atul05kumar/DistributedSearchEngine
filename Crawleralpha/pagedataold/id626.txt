@@ -1,0 +1,954 @@
+How to determine if a binary tree is height-balanced? - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph How to determine if a binary tree is height-balanced? A tree where no leaf is much farther away from the root than any other leaf. Different balancing schemes allow different definitions of “much farther” and different amounts of work to keep them balanced. Consider a height-balancing scheme where following conditions should be checked to determine if a binary tree is balanced. An empty tree is height-balanced. A non-empty binary tree T is balanced if: 1) Left subtree of T is balanced 2) Right subtree of T is balanced 3) The difference between heights of left subtree and right subtree is not more than 1. The above height-balancing scheme is used in AVL trees. The diagram below shows two trees, one of them is height-balanced and other is not. The second tree is not height-balanced because height of left subtree is 2 more than height of right subtree. To check if a tree is height-balanced, get the height of left and right subtrees. Return true if difference between heights is not more than 1 and left and right subtrees are balanced, otherwise return false. 
+/* program to check if a tree is height-balanced or not */
+#include<stdio.h>
+#include<stdlib.h>
+#define bool int
+
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+/* Returns the height of a binary tree */
+int height(struct node* node);
+
+/* Returns true if binary tree with root as root is height-balanced */
+bool isBalanced(struct node *root)
+{
+   int lh; /* for height of left subtree */
+   int rh; /* for height of right subtree */  
+
+   /* If tree is empty then return true */
+   if(root == NULL)
+    return 1; 
+
+   /* Get the height of left and right sub trees */
+   lh = height(root->left);
+   rh = height(root->right);
+
+   if( abs(lh-rh) <= 1 &&
+       isBalanced(root->left) &&
+       isBalanced(root->right))
+     return 1;
+
+   /* If we reach here then tree is not height-balanced */
+   return 0;
+}
+
+/* UTILITY FUNCTIONS TO TEST isBalanced() FUNCTION */
+
+/* returns maximum of two integers */
+int max(int a, int b)
+{
+  return (a >= b)? a: b;
+}    
+
+/*  The function Compute the "height" of a tree. Height is the
+    number of nodes along the longest path from the root node
+    down to the farthest leaf node.*/
+int height(struct node* node)
+{
+   /* base case tree is empty */
+   if(node == NULL)
+       return 0;
+
+   /* If tree is not empty then height = 1 + max of left
+      height and right heights */
+   return 1 + max(height(node->left), height(node->right));
+} 
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+    struct node* node = (struct node*)
+                                malloc(sizeof(struct node));
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+
+    return(node);
+}
+
+int main()
+{
+    struct node *root = newNode(1);
+    root->left = newNode(2);
+    root->right = newNode(3);
+    root->left->left = newNode(4);
+    root->left->right = newNode(5);
+    root->left->left->left = newNode(8);
+
+    if(isBalanced(root))
+      printf("Tree is balanced");
+    else
+      printf("Tree is not balanced");    
+
+    getchar();
+    return 0;
+}
+ Time Complexity: O(n^2) Worst case occurs in case of skewed tree. Optimized implementation: Above implementation can be optimized by calculating the height in the same recursion rather than calling a height() function separately. Thanks to Amar for suggesting this optimized version. This optimization reduces time complexity to O(n). 
+/* program to check if a tree is height-balanced or not */
+#include<stdio.h>
+#include<stdlib.h>
+#define bool int
+
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+  int data;
+  struct node* left;
+  struct node* right;
+};
+
+/* The function returns true if root is balanced else false
+   The second parameter is to store the height of tree.  
+   Initially, we need to pass a pointer to a location with value 
+   as 0. We can also write a wrapper over this function */
+bool isBalanced(struct node *root, int* height)
+{
+  /* lh --> Height of left subtree 
+     rh --> Height of right subtree */    
+  int lh = 0, rh = 0;  
+
+  /* l will be true if left subtree is balanced 
+    and r will be true if right subtree is balanced */ 
+  int l = 0, r = 0;
+    
+  if(root == NULL)
+  {
+    *height = 0;
+     return 1;
+  }
+
+  /* Get the heights of left and right subtrees in lh and rh 
+    And store the returned values in l and r */    
+  l = isBalanced(root->left, &lh);
+  r = isBalanced(root->right,&rh);
+
+  /* Height of current node is max of heights of left and 
+     right subtrees plus 1*/    
+  *height = (lh > rh? lh: rh) + 1;
+    
+  /* If difference between heights of left and right 
+     subtrees is more than 2 then this node is not balanced
+     so return 0 */
+  if((lh - rh >= 2) || (rh - lh >= 2))
+    return 0;
+    
+  /* If this node is balanced and left and right subtrees 
+    are balanced then return true */
+  else return l&&r;
+}
+
+
+/* UTILITY FUNCTIONS TO TEST isBalanced() FUNCTION */
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+    struct node* node = (struct node*)
+                                malloc(sizeof(struct node));
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+
+    return(node);
+}
+
+int main()
+{
+  int height = 0;
+   
+  /* Constructed binary tree is
+             1
+           /   \
+         2      3
+       /  \    /
+     4     5  6
+    /
+   7
+  */    
+  struct node *root = newNode(1);  
+  root->left = newNode(2);
+  root->right = newNode(3);
+  root->left->left = newNode(4);
+  root->left->right = newNode(5);
+  root->right->left = newNode(6);
+  root->left->left->left = newNode(7);
+
+  if(isBalanced(root, &height))
+    printf("Tree is balanced");
+  else
+    printf("Tree is not balanced");    
+
+  getchar();
+  return 0;
+}
+ Time Complexity: O(n) Please write comments if you find any of the above codes/algorithms incorrect, or find other ways to solve the same problem.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. Mohamad Al Mustapha Check this iterative algorithm solving the same problem. http://cs-and-design.blogspot.com/2014/03/how-to-find-if-binary-search-tree-is.html supershal if( Integer.MaxInteger == isHeightBalanced( root, 0) ) { return false; }else{ return true; } public int isHeightBalanced(Node root, int height){ if(root == null){ return height; } int lHeight = isHeightBalanced( root.left, height + 1); int rHeight = isHeightBalanced( root.left, height + 1); if( abs(lHeight – rHeight) > 1) { return Integer.MAXInteger; } return max(lHeight , rHeight) ; } phantom max = max_depth(root) #function to find max_depth —> takes O(n) min = min_depth(root) # function to find min_depth —> takes O(n) if ( max – min) <= boundary: return true else: return false deepak Is the following tree height balanced: 1 / 6 2 / / 7 11 3 4 / / 8 10 12 5 9 struct node *root = newNode(1); root->left = newNode(6); root->right = newNode(2); root->right->left = newNode(3); root->right->right = newNode(4); root->right->right->left = newNode(5); root->left->left = newNode(7); root->left->left->left = newNode(8); root->left->left->left->left = newNode(9); root->left->right = newNode(11); root->left->right->right = newNode(12); root->left->left->right = newNode(10); @admin according to the definition it is not 3 is at a distance 2 and 9 is at a distance 4. But the program gives it as height balanced. Did i made any mistake? Another good solution would be: find max height, find min height check if difference left), get_minpath(root->right)); } int get_maxpath(struct node *root){ if(root == NULL) return 0; return 1 + max(get_maxpath(root->left), get_maxpath(root->right)); } cout << get_maxpath(root) – get_minpath(root) <= 1 << endl; Jasprit int isBalanced(struct node *root, int *height) { if (root == NULL) {*height = 0; return 1; } int lh = 0, rh = 0; if (isBalanced(root->left, &lh) && isBalanced(root->right, &rh)) { *height = max(lh, rh) +1; if ((abs(lh – rh) >= 2)) return 0; return 1; } return 0; } pavansrinivas Similar to “Check if Leaves are at same level”.. Aditya Ambashtha We can check balance while finding height of the tree.. supply the address of an int whose value is initialized as 1 in the beginning..If that value survives, the tree is balanced, else unbalanced…  
+int findHeightAndBalance(struct node *root,int *ans)
+{
+    if (root==NULL)
+        return 0;
+
+    int lef,rig;
+
+    lef=findHeightAndBalance(root->left,ans);
+    rig=findHeightAndBalance(root->right,ans);
+
+    if (abso(lef,rig)<=1)
+        *ans=(*ans)&1;
+    else
+        *ans=(*ans)&0;
+
+    return (max(lef,rig)+1);
+}
+ ultimate_coder +1 optimisation to method 1’s space complexity.  
+if( abs(lh-rh) <= 1 &&
+       isBalanced(root->left) &&
+       isBalanced(root->right))
+     return 1;
+This should be replaced by 
+
+return ( (abs(lh-rh) <= 1) &&  isBalanced(root->left) &&  isBalanced(root->right)) )
+
+As u can see it is a "tail recursion", so it reduces size of stack frame and also prevents condition for stack oveflow. :P
+ initialcoder  
+#include<stdio.h>
+#include<stdlib.h>
+
+typedef struct NodeTag{
+	char SYMBOL;
+	struct NodeTag * LLINK;
+	struct NodeTag * RLINK;
+} TreeNode;
+
+int getHeight(TreeNode * root){
+
+	if(root == NULL)
+		return 0;
+	int lHeight =0;
+	int rHeight = 0;
+	
+	lHeight = getHeight(root->LLINK);
+	rHeight = getHeight(root->RLINK);
+	
+	if(lHeight > rHeight)
+		return (lHeight + 1);
+	else
+		return (rHeight + 1);
+}
+
+int isBalanced(TreeNode * root){
+	if(root == NULL)
+		return 1;
+	int lheight, rheight, temp;
+	lheight = getHeight(root->LLINK);
+	rheight = getHeight(root->RLINK);
+	
+	temp = lheight - rheight;
+	
+	if(temp >= -1 && temp <=1)
+		return 1;
+	else
+		return 0;	
+}
+ prity Hi, can some one explain the second approach. Thanks. Priyanka K  
+//the function returns height of subtree whichever is greatest
+//if subtrees are balanced otherwise return -1 
+int ifHeightBal(node *root){
+    if(!root)
+             return 0;
+    int l=ifHeightBal(root->left);
+    int r=ifHeightBal(root->right);
+    if(abs(l-r)>1 || l==-1 || r==-1)
+           return -1;
+    return l>r?l+1:r+1;
+}
+ abhishek08aug C++ code:  
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+ 
+class tree_node {
+  private:
+    int data;
+    tree_node * left;
+    tree_node * right;
+  public:
+    tree_node() {
+      left=NULL;
+      right=NULL;
+    }
+    void set_data(int data) {
+      this->data=data;
+    }
+    int get_data() {
+      return this->data;
+    }
+    void set_left(tree_node * left) {
+      this->left=left;
+    }
+    tree_node * get_left() {
+      return this->left;
+    }
+    void set_right(tree_node * right) {
+      this->right=right;
+    }
+    tree_node * get_right() {
+      return this->right;
+    }
+    tree_node ** get_left_ref() {
+      return &(this->left);
+    }
+    tree_node ** get_right_ref() {
+      return &(this->right);
+    }
+};
+ 
+class tree {
+  private:
+    tree_node * root;
+    int size;
+    void _recursive_insert(tree_node ** root_ref, int value);
+    void _print_preorder(tree_node * root);
+    void _print_inorder(tree_node * root);
+    void _print_postorder(tree_node * root);
+    int _find_size(tree_node * root);
+    int _are_identical(tree_node * tn1, tree_node * tn2);
+    int _find_height(tree_node * root);
+    void _delete_tree(tree_node ** root);
+    void _mirror(tree_node * root);
+    void _print_paths(tree_node * root, int * path_nodes, int next_vacant_position);
+    void _print_array(int * array, int len);
+    tree_node * _lowest_common_ancestor(tree_node * parent, tree_node * root, int a, int b);
+    tree_node * _find_node(tree_node * root, int value);
+    tree_node * _min_node(tree_node * root);
+    void _print_level_order(tree_node * root);
+    int _count_leaf_nodes(tree_node * root);
+    int _is_bst(tree_node * root);
+    int _children_sum(tree_node * root);
+    void _ensure_children_sum(tree_node * root);
+    int _diameter(tree_node * root);
+    int _is_height_balanced(tree_node * root);
+  public:
+    tree() {
+      root=NULL;
+      size=0;
+    }
+    void insert(int value);
+    void recursive_insert(int value);
+    void print_preorder();
+    void print_inorder();
+    void print_postorder();
+    int find_size();
+    int get_size() {
+      return this->size;
+    }
+    int are_identical(tree t);
+    int find_height();
+    void delete_tree();
+    void mirror();
+    void print_paths();
+    tree_node * lowest_common_ancestor(int a, int b);
+    tree_node * find_node(int value);
+    tree_node * min_node();
+    void print_level_order();
+    int count_leaf_nodes();
+    int is_bst();
+    int children_sum();
+    void ensure_children_sum();
+    int diameter();
+    int is_height_balanced();
+};
+ 
+void tree::insert(int value) {
+  if(root==NULL) {
+    root=new tree_node;
+    root->set_data(value);
+  } else {
+    tree_node * parent=NULL;
+    tree_node * current=root;
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    while(current!=NULL) {
+      if(value<=current->get_data()) {
+        parent=current;
+        current=current->get_left();
+      } else {
+        parent=current;
+        current=current->get_right();
+      }
+    }
+    if(value<=parent->get_data() && parent->get_left()==NULL) {
+      parent->set_left(new_node);
+    } else if(value>parent->get_data() && parent->get_right()==NULL) {
+      parent->set_right(new_node);
+    }
+  }
+  size++;
+}
+ 
+void tree::recursive_insert(int value) {
+  _recursive_insert(&root, value);
+  size++;
+}
+ 
+void tree::_recursive_insert(tree_node ** root_ref, int value) {
+  if(*root_ref==NULL) {
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    *root_ref=new_node;   
+  } else {
+    if(value<=(*root_ref)->get_data()) {
+      _recursive_insert((*root_ref)->get_left_ref(), value);
+    } else {
+      _recursive_insert((*root_ref)->get_right_ref(), value);
+    }
+  }
+}
+ 
+void tree::print_preorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_preorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_preorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  cout<<root->get_data()<<" ";
+  if(root->get_left()!=NULL)
+    _print_preorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_preorder(root->get_right());
+}
+ 
+void tree::print_inorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_inorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_inorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_inorder(root->get_left());
+  cout<<root->get_data()<<" ";
+  if(root->get_right()!=NULL)
+    _print_inorder(root->get_right());
+}
+ 
+void tree::print_postorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_postorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_postorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_postorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_postorder(root->get_right());
+  cout<<root->get_data()<<" ";
+}
+
+int tree::find_size() {
+  return _find_size(root);
+}
+
+int tree::_find_size(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else {
+    return 1+_find_size(root->get_left())+_find_size(root->get_right());
+  }
+}
+
+int tree::are_identical(tree t) {
+  return _are_identical(this->root, t.root);
+}
+
+int tree::_are_identical(tree_node * tn1, tree_node * tn2) {
+  if(tn1==NULL && tn2==NULL) {
+    return 1;
+  } else if((tn1==NULL && tn2!=NULL) || (tn1!=NULL && tn2==NULL) || (tn1->get_data()!=tn2->get_data())) {
+    return 0;
+  } else {
+    return _are_identical(tn1->get_left(), tn2->get_left()) && _are_identical(tn1->get_right(), tn2->get_right());
+  }
+}
+
+int tree::find_height() {
+  return _find_height(root);
+}
+
+int tree::_find_height(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  }
+  else {
+    return 1+max(_find_height(root->get_left()), _find_height(root->get_right()));
+  }
+}
+
+void tree::delete_tree() {
+  _delete_tree(&root);
+  size=0;
+}
+
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      _delete_tree((*root)->get_left_ref());
+    }
+    if((*root)->get_right()!=NULL) {
+      _delete_tree((*root)->get_right_ref());
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+
+/* alternate _delete_tree */
+/*
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      tree_node * left_ref=(*root)->get_left();
+      _delete_tree(&left_ref);
+    }
+    if((*root)->get_right()!=NULL) {
+      tree_node * right_ref=(*root)->get_right();
+      _delete_tree(&right_ref);
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+*/
+
+void tree::mirror() {
+  _mirror(root);
+}
+
+void tree::_mirror(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+
+  tree_node * temp=root->get_left();
+  root->set_left(root->get_right());
+  root->set_right(temp);
+  _mirror(root->get_left());
+  _mirror(root->get_right());
+}
+
+void tree::print_paths(){
+   int max_path_length=find_height();
+   int * path_nodes=(int *)calloc(sizeof(int), max_path_length);
+  _print_paths(root, path_nodes, 0);
+}
+
+void tree::_print_paths(tree_node * root, int * path_nodes, int next_vacant_position){
+  if(root==NULL) {
+    return;
+  } else if(root->get_left()==NULL && root->get_right()==NULL) {
+    *(path_nodes+next_vacant_position)=root->get_data();
+    _print_array(path_nodes, next_vacant_position);
+  } else {
+    *(path_nodes+next_vacant_position)=root->get_data();
+    _print_paths(root->get_left(), path_nodes, next_vacant_position+1);
+    _print_paths(root->get_right(), path_nodes, next_vacant_position+1);
+  }
+}
+
+void tree::_print_array(int * array, int len) {
+  int i;
+  for(i=0; i<=len; i++) {
+    cout<<*(array+i)<<" ";
+  }
+  cout<<endl;
+}
+
+tree_node * tree::find_node(int value) {
+  return _find_node(root, value);
+}
+
+tree_node * tree::_find_node(tree_node * root, int value) {
+  if(root==NULL || root->get_data()==value) {
+    return root;
+  } else if(value<=root->get_data()) {
+    return _find_node(root->get_left(), value);
+  } else {
+    return _find_node(root->get_right(), value);
+  }
+}
+
+tree_node * tree::lowest_common_ancestor(int a, int b) {
+  return _lowest_common_ancestor(NULL, root, a, b);
+}
+
+tree_node * tree::_lowest_common_ancestor(tree_node * parent, tree_node * root, int a, int b) {
+  if(root==NULL) {
+    return root;
+  } else if((root->get_data()==a && (root->get_left()->get_data()==b || root->get_right()->get_data()==b))
+             || (root->get_data()==b && (root->get_left()->get_data()==a || root->get_right()->get_data()==a))) {
+    return parent;
+  } else if((_find_node(root->get_left(), a)!=NULL && _find_node(root->get_right(), b)!=NULL)
+        || (_find_node(root->get_left(), b)!=NULL && _find_node(root->get_right(), a)!=NULL)) {
+    return root; 
+  } else if(_find_node(root->get_left(), a)!=NULL && _find_node(root->get_left(), b)!=NULL) {
+    return _lowest_common_ancestor(root, root->get_left(), a, b);
+  } else if(_find_node(root->get_right(), a)!=NULL && _find_node(root->get_right(), b)!=NULL) {
+    return _lowest_common_ancestor(root, root->get_right(), a, b);
+  } else {
+    return NULL;
+  }
+}
+
+tree_node * tree::min_node() {
+  return _min_node(root);
+}
+
+tree_node * tree::_min_node(tree_node * root) {
+  if(root==NULL || root->get_left()==NULL) {
+    return root;
+  } else {
+    return _min_node(root->get_left());
+  }
+}
+
+int tree::count_leaf_nodes() {
+  return _count_leaf_nodes(root);
+}
+
+int tree::_count_leaf_nodes(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else if(root->get_left()==NULL && root->get_right()==NULL) {
+    return 1;
+  } else {
+    return _count_leaf_nodes(root->get_left())+_count_leaf_nodes(root->get_right());
+  }
+}
+
+
+int tree::is_bst() {
+  return _is_bst(root);
+}
+
+int tree::_is_bst(tree_node * root) {
+  static tree_node * previous=NULL;
+  if(root==NULL) {
+    return 1;
+  } else {
+    if(!_is_bst(root->get_left())) {
+      return 0;
+    }
+    if(previous!=NULL && (previous->get_data())>(root->get_data())) {
+      return 0;
+    }
+    previous=root;
+    if(!_is_bst(root->get_right())) {
+      return 0;
+    }    
+  }
+}
+
+int tree::children_sum() {
+  return _children_sum(root);
+}
+
+int tree::_children_sum(tree_node * root) {
+  if(root==NULL) {
+    return 1;
+  }
+  if(root->get_left()==NULL && root->get_right()==NULL) {
+    return 1;
+  }
+  else if(_children_sum(root->get_left()) && _children_sum(root->get_right())){
+    int left_data;
+    int right_data;
+    if(root->get_left()!=NULL) {
+      left_data=root->get_left()->get_data();
+    } else {
+      left_data=0;
+    }
+    if(root->get_right()!=NULL) {
+      right_data=root->get_right()->get_data();
+    } else {
+      right_data=0;
+    }
+
+    if(left_data+right_data==root->get_data()) {
+      return 1;
+    } else {
+      return 0;
+    }
+  } else {
+    return 0;
+  }
+}
+
+void tree::ensure_children_sum() {
+  _ensure_children_sum(root);
+}
+
+void tree::_ensure_children_sum(tree_node * root) {
+  if(root==NULL || (root->get_left()==NULL && root->get_right()==NULL)) {
+    return;
+  } else {
+    _ensure_children_sum(root->get_left());
+    _ensure_children_sum(root->get_right());
+    int left_data;
+    int right_data;
+    if(root->get_left()!=NULL) {
+      left_data=root->get_left()->get_data();
+    } else {
+      left_data=0;
+    }
+    if(root->get_right()!=NULL) {
+      right_data=root->get_right()->get_data();
+    } else {
+      right_data=0;
+    }
+    root->set_data(left_data+right_data);
+  }
+}
+
+int tree::diameter() {
+  return _diameter(root);
+}
+
+int tree::_diameter(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else {
+    return max(_find_height(root->get_left())+_find_height(root->get_right())+1, max(_diameter(root->get_left()), _diameter(root->get_left())));
+  }
+}
+
+int tree::is_height_balanced() {
+  return _is_height_balanced(root);
+}
+
+int tree::_is_height_balanced(tree_node * root) {
+  if(root==NULL) {
+    return 1;
+  } else {
+    int left_height=_find_height(root->get_left());
+    int right_height=_find_height(root->get_right());
+    if(abs(left_height-right_height)<=1 && _is_height_balanced(root->get_left()) && _is_height_balanced(root->get_left())) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+}
+
+int main() {
+  tree t1;
+
+  t1.recursive_insert(5);
+  t1.recursive_insert(3);
+  t1.insert(10);
+  t1.insert(7);
+  t1.recursive_insert(50);
+  t1.recursive_insert(6);
+  t1.recursive_insert(1);
+  t1.recursive_insert(45);
+  t1.recursive_insert(55);
+  t1.recursive_insert(4);
+
+  t1.print_inorder();
+
+  if(t1.is_height_balanced()==1) {
+    cout<<"Tree is height balanced"<<endl;
+  } else {
+    cout<<"Tree is not height balanced"<<endl;
+  }
+
+  t1.recursive_insert(70);
+
+  if(t1.is_height_balanced()==1) {
+    cout<<"Tree is height balanced"<<endl;
+  } else {
+    cout<<"Tree is not height balanced"<<endl;
+  }
+
+  return 0;
+}
+ 1 3 4 5 6 7 10 45 50 55 Tree is height balanced Tree is not height balanced https://sites.google.com/site/nishantonl9/ Nishant Kumar It returns -1 if not balanced.  
+int isHeightBalance(tree* root){
+	if(root==NULL)
+		return 0;
+	int left = isHeightBalance(root->left);
+	int right = isHeightBalance(root->right);
+
+	if(abs(right-left)<2 && left!=-1 && right!=-1)
+		return 1 + max(left,right);
+	else
+		return -1;
+
+}
+ Gaurav your code will never return -1. Take a simple example: 1 / 2 / 3 Mika For root node ‘1’, it would return -1 as abs(right-left) = 2 varun jain #include #include #include int h=0,lmax=0; struct tree { char data; struct tree *left; struct tree *right; }; int buildtree(struct tree **,int ); int balance(struct tree *,int); int max(int,int); int main() {struct tree *root; root=NULL; int arr[8]={50,54,32,33,31,56,34,53}; for(int i=0;i<8;i++) buildtree(&root,arr[i]); int k; (k=abs(balance(root,0)-lmax))data=n; (*root)->left=NULL; (*root)->right=NULL; } else { if(ndata) buildtree(&((*root)->left),n); else buildtree(&((*root)->right),n); } } int balance(struct tree *root,int l) {if(l>lmax) lmax=l; if(root==NULL) return 0; else return 1+max(balance(root->left,l+1),balance(root->right,l+1)); } int max(int a,int b) {return abs(a-b)b?a:b):0; } what about this code?here i am using two parameter to find if tree is balance or not.if (balance(struct tree*,int)-lmax)<=1 then tree is balanced otherwise not. Shankar A / \ B C \ / \ E F G / \ H I Is the above a balanced binary tree? If not, wont the algorithm fail in this case? Each of the subtrees are balanced and the diff between left subtree height and right subtree height is one. Shankar Sorry, i meant this tree. ….A …/..\ ..B….C ..\…/..\ ..E..F….G ……../ \ …….H…I Shankar H & I are under G, F & G under C, E under B, B&C under A. https://sites.google.com/site/nishantonl9/ Nishant Kumar Yes, It is a balanced tree. mrn  
+/* Paste your code here (You may delete these lines if not writing code) */
+int avl_check(Node *n,bool *check)
+{
+	if(n==NULL) return 0;
+	int lh=avl_check(n->l,check);
+	int lr=avl_check(n->r,check);
+	if(abs(lh-lr) > 1)
+	{
+		*check=false;
+		return 0;
+	}
+	return max(lh,lr)+1;	
+}
+ aygul Here is a c# version. Tried to optimize the given solution… bool IsBalanced(BTNode root) { int h = 0; retrun IsBalanced(root, ref h); } bool IsBalanced(BTNode root, ref int h) { if (root == null) return true; int lHeight = 0; if (!IsBalanced(root.Left, ref lHeight)) return false; int rHeight = 0; if (!IsBalanced(root.Right, ref rHeight)) return false; if (lHeight – rHeight >= 2 || rHeight – lHeight >= 2) return false; h = (lHeight > rHeight ? lHeight : rHeight) + 1; return true; } Porus   /* Paste your code here (You may delete these lines if not writing code) */ /*A little more Optimization..*/ bool isBalancedTree(Tree *t , int *height) int lh = 0 , rh = 0; if(!t) return TRUE; if(isBalancedTree(t->left , &lh) , isBalancedTree(t->right , &rh)) { *height = max(lh,rh) +1; if(Abs(lh-rh) < 2) return TRUE; else return FALSE; } else return FALSE; } Hey Geeks , Please correct if im wrong… Porus Correction in the above code :: Should be as below.. if(isBalancedTree(t->left , &lh) && isBalancedTree(t->right , &rh)) sreeram   int isbalanced(struct node *root) { if(root == NULL) return 0; int b1=isbalanced(root->left); int b2=isbalanceed(root->right); if( b1 != -1 && b2 != -1 && abs(b1-b2) <= 1) return 1+max(b1,b2); else return -1; } //returns the height of the tree if balanced else returns -1 aaddd I think when root==null should return -1 since the empty tree height is -1 rather than 0.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Udit Bhatia  
+
+int isHeightBalanced(NODE *root){
+
+	if(root==NULL){
+		return 0;
+	}
+
+	int LH=0,RH=0;
+	
+	LH=isHeightBalanced(root->left);
+	RH=isHeightBalanced(root->right);
+
+	if((LH==-1) || (RH==-1)){
+		return -1; //not a height balanced.
+	}
+
+	if( abs(LH-RH) <= 1){
+		
+		// is height balanced uptill now
+		return ((LH > RH) ? (LH + 1) : (RH + 1));
+	}else{
+
+		return -1;
+	}
+}
+ ramana  
+int maxheight( struct stree *p)
+{
+     if(p==NULL)
+    return 0;
+    else
+    m=max(1+maxheight(p->left),1+maxheight(p->right));
+    return m;
+}
+          
+int minheight(struct stree *p)
+{   
+    if(p==NULL)
+    return 0;
+    else
+    m=min(1+minheight(p->left),1+minheight(p->right));
+  
+    return m;
+}
+ sub max-min and verify it is 1 or 0 godrej can ny one explain about this complexity  
+/* Paste your code here (You may delete these lines if not writing code) */
+ aygul Nice approach! It is still O(n). ramana int maxheight( struct stree *p) { if(p==NULL) return 0; else m=max(1+maxheight(p->left),1+maxheight(p->right)); return m; } int minheight(struct stree *p) { if(p==NULL) return 0; else m=min(1+minheight(p->left),1+minheight(p->right)); return m; } substract maxheight-minheight and check it if is 1 or 0 this works……  
+/* Paste your code here (You may delete these lines if not writing code) */
+ code_player Actually I am not getting why time complexity of first approach is O(n^2). in the condition if the first expression abs(lh-lr)<=1 doesn't satisfy then next expressions of && won't be evaluated and it will simply return 0. /* Paste your code here (You may delete these lines if not writing code) */ suja this is confusing for a clear idea go to link http://www.mytechinterviews.com/balanced-tree Abhinav The time complexity calculation for the first algorithm in this post seems flawed to me. I am providing my calculation and it would be great if you guys can take a look and let me know. Complexity Calculation ================= The O(n^2) argument misses the fact that the number of nodes at every level is different. The n in O(n) time for height algorithm is going to vary at each level. Also, it is the balanced tree that would be the worst case. This is because the algorithm will find a much earlier exit in the case of unbalanced tree, it will have lesser nodes to traverse in order to determine the balance. The correct way to calculate this would be: lets say T is the time taken and we are considering a complete balanced tree, T = summation[ (2^h – 2) * n/(2^h – 1) ] where n = number of nodes in tree, h = height of the node, h ranges from 2 to lg(n). The second term n/(2^h – 1) is the number of nodes at height h. The first term in the number of nodes in the subtree for each of these nodes at height h. The summation T comes out to be O(n log(n)). Another point I wanted to make is that the two recursive calls are not taken into account while calculating the time complexity. This does not however cause a problem here because the two calls do not share any computations (as in the case of Fibonacci numbers). Still, it would be better if it was mentioned that this was the reason you could ignore the two calls. The most correct way to write the complexity equation for this algorithm would have been: T(n) = T(n1) + T(n2) + O(n1+n2), n1=number of nodes in left subtree, n2=number of nodes in right subtree. vj just find the max height from root and min height from root.If the difference is less then or equal to 1 we have a balanced tree..else not.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Dexters How is maxdepth for the tree is 0? http://www.mytechinterviews.com/balanced-tree http://stackoverflow.com/questions/6917439/doubt-regarding-function-to-check-whether-a-tree-is-balanced-or-not http://cracktheinterview.org/ vinay polisetti Can someone explain me the usage of the height variable in method2 ? mohit  
+/* Paste your code here (You may delete these lines if not writing code) */
+int blncd_tree(Node  n)
+{
+	if(n==NULL) return 0;
+	int l=0,r=0;
+	l=blncd_tree(n->l);
+	r=blncd_tree(n->r);
+	if(l==-2 || r==-2)
+		 return -2;	
+	if(abs(l-r) <=1) 
+		return l>r?l+1:r+1;
+	else
+		return -2;
+}
+
+ master fuji Hi GeeksforGeeks, im happy with ur site, one suggestion is to hide the solutions for people, who wants to give a try with ur test cases  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks @master fuji: Thanks for the feedback. Hiding solutions is a nice idea. We will consider it in next release. Keep visiting us!! sreenivas putta findout the maximum depth of the tree and minimum depth of the tree and find the difference between two. i.e.,if maxdepth-mindepth<=1 , then tree is balanced. the more optimized version for the problem. ayan_2587 Dude..that is what I have posted in my solution below !!! GeeksforGeeks @sreenivas putta & ayan_2587: Consider the following tree. max and min dpeth of the tree are 0. But the tree is not balanced as both left and right subtrees of A are not balanced. …….A ……/…\ …..B….C …./…….\ …D……..E ../………..\ .F…………G Dexters How is maxdepth for the tree is 0? http://www.mytechinterviews.com/balanced-tree http://stackoverflow.com/questions/6917439/doubt-regarding-function-to-check-whether-a-tree-is-balanced-or-not  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ayan_2587 My solution to the post :- Do a simple Depth First Traversal of the given tree in question. Maintain two variables, min & max. While doing the depth traversal once you reach a leaf node, compare the level(level of the leaf node ie. height) of the leaf node with the min & max variable.if it less than min store the level in min, else if it is greater than max, store it in max. At the end of the traversal, if the difference between min & max is more than one then, the tree is not balanced. Please let me know if there is any bug in this solution Thanks krishna As i understand depth of the node is the count of nodes from the root to the current node. Assuming above defnition is legal, Your logic doesnt make much sense. There is no necessity that max and min depths should differ by one. gaurav Could anyone explain, how the time complexity of the Optimized Algorithm is O(n)? kartik @gaurav: The optimized solution just does tree traversal of the tree and time complexity of tree tree traversal is O(n). See this post for time complexity of tree traversals. ricky @kartik can u explin the how Tc of 1st program is O(n^2) ..plz through some light on the same ..can u proove that ..one more suggestion .that plz try to prrove time complixity of each program your write in geeksforgeek..its Awesome site i have seen in my whole lifetime…..Please try to reply ASAP…. Thanks Ricky Sandeep @ricky: Thanks for the nice comments about the site!! The time complexity of height function height() is O(n) where n is the number of nudes in binary tree. The height function is being called for every node in the given binary tree. For a skewed tree, time complexity would be O(n) + O(n-1) + O(n-2) + O(n-3) + … + O(1) which is O(n^2) 
+       1
+      /
+     2
+    /
+   3
+  /
+ 4
+ aaa I don’t think so since for a skewed tree, the function will terminate for the first iteration since the left height is 2 more than the right height, then it’s O(n-1).  
+/* Paste your code here (You may delete these lines if not writing code) */
+ aaddd I don’t think so since for a skewed tree, the function will terminate for the first iteration since the left height is 2 more than the right height, then it’s O(n-1). aaddd Instead, i think the worst case should be: all the above level except the leaves are balanced except for the last second two bottom levels, so the iteration will go all the way down and for each level it takes O(n), so total should be O(nlogn). Amar How about this? The complexity is O(n) here.  
+int isbaltree2(nodeptr root, int* max)
+{
+    int l = 0, r = 0,left = 0, right = 0;
+    if(root == NULL)
+    {
+        *max = 0;
+        return 1;
+    }
+    l = isbaltree2(root->left,&left);
+    r = isbaltree2(root->right,&right);
+    *max = (left>right?left:right) + 1;
+    if((left - right >= 2) || (right - left >= 2))
+    {
+        printf("\n Not balanced at : %d",root->data);
+        return 0;
+    }
+    return l&&r;
+}
+ GeeksforGeeks @Amar: Awesome!! We have included this optimized implementation to our original post. gk_manutd if you initialize left & right as 0 everytime… then max always returns 1, right? Shouldn’t left & right be initialized outside the function altogether? gk_manutd apologies- posted at the wrong place. Jegan How about this optimization  
+int isbaltree2(nodeptr root)
+{
+    int l = 0, r = 0, left = 0, right = 0;
+    if(root == NULL)
+    {
+        *max = 0;
+        return 1;
+    }
+    l = isbaltree2(root->left,&left);
+    if(!l)return 0;
+    r = isbaltree2(root->right,&right);
+    if(!r)return 0;
+    *max = (left>right?left:right) + 1;
+    if((left - right >= 2) || (right - left >= 2))
+    {
+        printf("\n Not balanced at : %d",root->data);
+        return 0;
+    }
+    return l&&r;
+}
+ Sandeep @Nik: height() is called for every node in a given tree. Time complexity of height() for a skewed tree with n nodes is Theta of n (or cn). So, overall time complexity for skewed tree becomes cn + c(n-1) + c(n-2) + .. + c which is equal to O(n^2). Gerald Yes, I agree. Worst-case time complexity is O(n^2). Consider a tree in which each node has just a single child node. Nik Can someone verify how the time complexity of above goes to O(n^2)? Wouldn’t it be O(n)? Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

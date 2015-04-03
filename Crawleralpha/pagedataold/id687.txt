@@ -1,0 +1,87 @@
+Deepest left leaf node in a binary tree - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Deepest left leaf node in a binary tree Given a Binary Tree, find the deepest leaf node that is left child of its parent. For example, consider the following tree. The deepest left leaf node is the node with value 9. 
+       1
+     /   \
+    2     3
+  /      /  \  
+ 4      5    6
+        \     \
+         7     8
+        /       \
+       9         10 We strongly recommend you to minimize the browser and try this yourself first. The idea is to recursively traverse the given binary tree and while traversing, maintain “level” which will store the current node’s level in the tree. If current node is left leaf, then check if its level is more than the level of deepest left leaf seen so far. If level is more then update the result. If current node is not leaf, then recursively find maximum depth in left and right subtrees, and return maximum of the two depths. Thanks to Coder011 for suggesting this approach. 
+// A C++ program to find the deepest left leaf in a given binary tree
+#include <stdio.h>
+#include <iostream>
+using namespace std;
+
+struct Node
+{
+    int val;
+    struct Node *left, *right;
+};
+
+Node *newNode(int data)
+{
+    Node *temp = new Node;
+    temp->val = data;
+    temp->left = temp->right =  NULL;
+    return temp;
+}
+
+// A utility function to find deepest leaf node.
+// lvl:  level of current node.
+// maxlvl: pointer to the deepest left leaf node found so far
+// isLeft: A bool indicate that this node is left child of its parent
+// resPtr: Pointer to the result
+void deepestLeftLeafUtil(Node *root, int lvl, int *maxlvl,
+                         bool isLeft, Node **resPtr)
+{
+    // Base case
+    if (root == NULL)
+        return;
+
+    // Update result if this node is left leaf and its level is more
+    // than the maxl level of the current result
+    if (isLeft && !root->left && !root->right && lvl > *maxlvl)
+    {
+        *resPtr = root;
+        *maxlvl = lvl;
+        return;
+    }
+
+    // Recur for left and right subtrees
+    deepestLeftLeafUtil(root->left, lvl+1, maxlvl, true, resPtr);
+    deepestLeftLeafUtil(root->right, lvl+1, maxlvl, false, resPtr);
+}
+
+// A wrapper over deepestLeftLeafUtil().
+Node* deepestLeftLeaf(Node *root)
+{
+    int maxlevel = 0;
+    Node *result = NULL;
+    deepestLeftLeafUtil(root, 0, &maxlevel, false, &result);
+    return result;
+}
+
+// Driver program to test above function
+int main()
+{
+    Node* root = newNode(1);
+    root->left = newNode(2);
+    root->right = newNode(3);
+    root->left->left = newNode(4);
+    root->right->left = newNode(5);
+    root->right->right = newNode(6);
+    root->right->left->right = newNode(7);
+    root->right->right->right = newNode(8);
+    root->right->left->right->left = newNode(9);
+    root->right->right->right->right = newNode(10);
+
+    Node *result = deepestLeftLeaf(root);
+    if (result)
+        cout << "The deepest left child is " << result->val;
+    else
+        cout << "There is no left leaf in the given tree";
+
+    return 0;
+}
+ Output: The deepest left child is 9 Time Complexity: The function does a simple traversal of the tree, so the complexity is O(n). This article is contributed by Abhay Rathi. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. neelabhsingh @GeeksforGeeks. Suppose in the second last level Node value 8 has left child as 10 then what should be return 6 or 10. Please clearly it. codey.modey Do you know the biggest bug in your code is you didn’t typedef your struct to Node still you accept as a return type in functions shrek Try this solution, this will give us the deepest node length int length(Node node){ if(node==null) return 0; int a = length(node.leftChild)+1; int b = length(node.rightChild)+1; return a>b ? a:b; } amit what about traversing levelorder and returning first node of last level Anirudh Mathad if your tree ends like … 1 2 3 10 10 , you will end up returning 10 and not 2 Jonathan Chen The result has to be a left child. The first node of the last level could be a right child for all we know. http://opensourceforgeeks.blogspot.in/ Aniket Thakur Java Code with output : http://opensourceforgeeks.blogspot.in/2013/12/deepest-left-leaf-node-in-binary-tree.html Guest package reva.geeksforgeeks.solution; import reva.java.practice.TreeNode; public class Deepest_Left_LeafNode { static TreeNode result = null; static int flevel = Integer.MIN_VALUE; public static void main(String[] args) { TreeNode root = new TreeNode(1); root.leftchild = new TreeNode(2); root.rightchild = new TreeNode(3); root.leftchild.leftchild = new TreeNode(4); root.leftchild.rightchild = new TreeNode(5); root.rightchild.leftchild = new TreeNode(6); root.rightchild.rightchild = new TreeNode(7); root.rightchild.leftchild.leftchild = new TreeNode(8); root.rightchild.leftchild.rightchild = new TreeNode(10); root.rightchild.rightchild.rightchild = new TreeNode(9); root.rightchild.leftchild.rightchild.leftchild = new TreeNode(11); System.out.println(utilLeftLeafNode(root,0).value); } public static TreeNode utilLeftLeafNode(TreeNode node, int level) { if(node == null) return null; if(node.leftchild!=null&&level>flevel) { result = node.leftchild; flevel = level; } utilLeftLeafNode(node.leftchild, level+1); utilLeftLeafNode(node.rightchild, level+1); return result; } } Satyendra Kumar Singh Another simple solution…. void DeepestLeft(Node * root,int level,int *maxsofar,Node **leftnode) { if(root==NULL) return; if(*maxsofar left) { *maxsofar=level; *leftnode= root->left; } DeepestLeft(root->left,level+1,maxsofar,leftnode); DeepestLeft(root->right,level+1,maxsofar,leftnode); } Diego Giagio C++ iterative version: http://ideone.com/Tc7YvU Diego Giagio C++ recursive version: http://ideone.com/fbQcjj Setu Simple Java Implementaion class DeepsestLeftNode{ static int maxLevel =0; static Node node =null; private static void printLeftUtil(Node root, boolean left,int level) { if(root==null) return; if(left & level>maxLevel){ maxLevel=level; node=root; } printLeftUtil(root.left , true, level+1); printLeftUtil(root.right, false, level+1); } public static void main(String[] args) { Node root = new Node(1); root.left = new Node(2); root.right = new Node(3); root.left.left = new Node(4); root.right.left = new Node(5); root.right.right = new Node(6); root.right.left.right = new Node(7); root.right.right.right = new Node(8); root.right.left.right.left = new Node(9); root.right.right.right.right = new Node(10); printLeftUtil(root,false, 1); if(node!=null) System.out.println(node.val); else System.out.println(“No Left Node”); } } pavansrinivas iterative soln in java (using level order) Time :O(n) Space :O(n ) `void deepestLeft(){ Node temp = root; int fin_ans = -1; Queue Q = new LinkedList(); Q.add(root); while (!Q.isEmpty()) { temp = Q.remove(); if (temp.left!=null){ Q.add(temp.left); fin_ans = temp.left.i; } if (temp.right!=null){ Q.add(temp.right); } } System.out.print(fin_ans); } neelabhsingh @pavansrinivas: Your solution will work fine but for 6 2 5 3 10 7 9 8 11 13 12(Binary Serach Tree with 6 as root) will return 12 which is same level as 8, 12 and 8 are both left child of their parent but in the same level 8 comes before 12. So it should return 8 instead of 12. pavansrinivas got it..this might work..i am just using 2 variables which indicates the level and i update fin_ans only for one time… `void deepestLeft(){ Node temp = root; int fin_ans = -1; int pr = -1,cl = -1; Queue Q = new LinkedList(); Q.add(root); Q.add(null); while (!Q.isEmpty()) { temp = Q.remove(); if(temp==null){ if(!Q.isEmpty()){ Q.add(null); } cl++; pr = cl; }else{ if (temp.left!=null){ Q.add(temp.left); if(pr==cl){ fin_ans = temp.left.i; pr++; } } if (temp.right!=null){ Q.add(temp.right); } } } System.out.print(fin_ans); Dixit To make the code work in java I defined ‘maxLevel’ and ‘result’ as static variable. Is that the only way? samsammy No, you can use instance variable also. package abc; public class DeepestLeftLeaf { Node node; int maxHeight=0; public static void main(String[] args) { Node root = new Node(2); root.left = new Node(1); root.right = new Node(3); root.left.left=new Node(4); root.left.right=new Node(5); root.left.right.left=new Node(6); root.right.left=new Node(7); root.right.left.right=new Node(8); root.right.left.right.left=new Node(9); DeepestLeftLeaf d= new DeepestLeftLeaf(); d.dummyStart(root); } public void dummyStart(Node root) { DeepestLeftLeaf d= new DeepestLeftLeaf(); if(root.left!=null) deepest(root,maxHeight,true); else deepest(root,maxHeight,false); System.out.println(node.data); } public void deepest(Node root,int h,boolean left) { if(root!=null) { if(left==true && h>maxHeight) { node=root; maxHeight=h; } deepest(root.left,h+1,true); deepest(root.right,h+1,false); } } } deep i think time complexity in o(n^2).Could you please clarify how time complexly is o(n) Kartik The time complexity seems to be O(n). It’s a simple recursive tree traversal program where T(n) = T(k) + T(n-k-1) + C. acharyayogesh Another solution using iterative method : Scan the tree level by level and if node has left child, push the left child data into stack. Pop the stack at the end to get the answer. #include #include #include using namespace std; class Node { public : int data; Node *left, *right; Node (int d) { data = d; left = right = NULL; } }; int main() { Node* root = new Node(1); root->left = new Node(2); root->right = new Node(3); root->left->left = new Node(4); root->right->left = new Node(5); root->right->right = new Node(6); root->right->left->right = new Node(7); root->right->right->right = new Node(8); root->right->left->right->left = new Node(9); root->right->right->right->right = new Node(10); queue que; stack stk; que.push(root); while (!que.empty()) { Node *n = que.front(); que.pop(); if (n->left != NULL) { stk.push(n->left->data); que.push(n->left); } if (n->right != NULL) { que.push(n->right); } } cout << stk.top() << endl; } Nitin Pallindrome simple solution that is what comes into my mind …thanx yogesh acharyayogesh thanks for ur feedback. I think there is no need for stack. Just use a variable deep. #include //#include #include using namespace std; class Node { public : int data; Node *left, *right; Node (int d) { data = d; left = right = NULL; } }; int main() { Node* root = new Node(1); root->left = new Node(2); root->right = new Node(3); root->left->left = new Node(4); root->right->left = new Node(5); root->right->right = new Node(6); root->right->left->right = new Node(7); root->right->right->right = new Node(8); root->right->left->right->left = new Node(9); root->right->right->right->right = new Node(10); queue que; //stack stk; int deep; que.push(root); while (!que.empty()) { Node *n = que.front(); que.pop(); if (n->left != NULL) { //stk.push(n->left->data); deep = n->left->data; que.push(n->left); } if (n->right != NULL) { que.push(n->right); } } cout << deep << endl; } kunal gupta HI I dont think there is any need for ” bool isleft “, left leg of a tree called first always. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

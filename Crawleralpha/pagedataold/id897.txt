@@ -1,0 +1,172 @@
+Merge k sorted arrays | Set 1 - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Merge k sorted arrays | Set 1 Given k sorted arrays of size n each, merge them and print the sorted output. Example: 
+Input:
+k = 3, n =  4
+arr[][] = { {1, 3, 5, 7},
+            {2, 4, 6, 8},
+            {0, 9, 10, 11}} ;
+
+Output: 0 1 2 3 4 5 6 7 8 9 10 11 A simple solution is to create an output array of size n*k and one by one copy all arrays to it. Finally, sort the output array using any O(nLogn) sorting algorithm. This approach takes O(nkLognk) time. We can merge arrays in O(nk*Logk) time using Min Heap. Following is detailed algorithm. 1. Create an output array of size n*k. 2. Create a min heap of size k and insert 1st element in all the arrays into a the heap 3. Repeat following steps n*k times.      a) Get minimum element from heap (minimum is always at root) and store it in output array.      b) Replace heap root with next element from the array from which the element is extracted. If the array doesn’t have any more elements, then replace root with infinite. After replacing the root, heapify the tree. Following is C++ implementation of the above algorithm. 
+// C++ program to merge k sorted arrays of size n each.
+#include<iostream>
+#include<limits.h>
+using namespace std;
+
+#define n 4
+
+// A min heap node
+struct MinHeapNode
+{
+    int element; // The element to be stored
+    int i; // index of the array from which the element is taken
+    int j; // index of the next element to be picked from array
+};
+
+// Prototype of a utility function to swap two min heap nodes
+void swap(MinHeapNode *x, MinHeapNode *y);
+
+// A class for Min Heap
+class MinHeap
+{
+    MinHeapNode *harr; // pointer to array of elements in heap
+    int heap_size; // size of min heap
+public:
+    // Constructor: creates a min heap of given size
+    MinHeap(MinHeapNode a[], int size);
+
+    // to heapify a subtree with root at given index
+    void MinHeapify(int );
+
+    // to get index of left child of node at index i
+    int left(int i) { return (2*i + 1); }
+
+    // to get index of right child of node at index i
+    int right(int i) { return (2*i + 2); }
+
+    // to get the root
+    MinHeapNode getMin() { return harr[0]; }
+
+    // to replace root with new node x and heapify() new root
+    void replaceMin(MinHeapNode x) { harr[0] = x;  MinHeapify(0); }
+};
+
+// This function takes an array of arrays as an argument and
+// All arrays are assumed to be sorted. It merges them together
+// and prints the final sorted output.
+int *mergeKArrays(int arr[][n], int k)
+{
+    int *output = new int[n*k];  // To store output array
+
+    // Create a min heap with k heap nodes.  Every heap node
+    // has first element of an array
+    MinHeapNode *harr = new MinHeapNode[k];
+    for (int i = 0; i < k; i++)
+    {
+        harr[i].element = arr[i][0]; // Store the first element
+        harr[i].i = i;  // index of array
+        harr[i].j = 1;  // Index of next element to be stored from array
+    }
+    MinHeap hp(harr, k); // Create the heap
+
+    // Now one by one get the minimum element from min
+    // heap and replace it with next element of its array
+    for (int count = 0; count < n*k; count++)
+    {
+        // Get the minimum element and store it in output
+        MinHeapNode root = hp.getMin();
+        output[count] = root.element;
+
+        // Find the next elelement that will replace current
+        // root of heap. The next element belongs to same
+        // array as the current root.
+        if (root.j < n)
+        {
+            root.element = arr[root.i][root.j];
+            root.j += 1;
+        }
+        // If root was the last element of its array
+        else root.element =  INT_MAX; //INT_MAX is for infinite
+
+        // Replace root with next element of array
+        hp.replaceMin(root);
+    }
+
+    return output;
+}
+
+// FOLLOWING ARE IMPLEMENTATIONS OF STANDARD MIN HEAP METHODS
+// FROM CORMEN BOOK
+// Constructor: Builds a heap from a given array a[] of given size
+MinHeap::MinHeap(MinHeapNode a[], int size)
+{
+    heap_size = size;
+    harr = a;  // store address of array
+    int i = (heap_size - 1)/2;
+    while (i >= 0)
+    {
+        MinHeapify(i);
+        i--;
+    }
+}
+
+// A recursive method to heapify a subtree with root at given index
+// This method assumes that the subtrees are already heapified
+void MinHeap::MinHeapify(int i)
+{
+    int l = left(i);
+    int r = right(i);
+    int smallest = i;
+    if (l < heap_size && harr[l].element < harr[i].element)
+        smallest = l;
+    if (r < heap_size && harr[r].element < harr[smallest].element)
+        smallest = r;
+    if (smallest != i)
+    {
+        swap(&harr[i], &harr[smallest]);
+        MinHeapify(smallest);
+    }
+}
+
+// A utility function to swap two elements
+void swap(MinHeapNode *x, MinHeapNode *y)
+{
+    MinHeapNode temp = *x;  *x = *y;  *y = temp;
+}
+
+// A utility function to print array elements
+void printArray(int arr[], int size)
+{
+   for (int i=0; i < size; i++)
+       cout << arr[i] << " ";
+}
+
+// Driver program to test above functions
+int main()
+{
+    // Change n at the top to change number of elements
+    // in an array
+    int arr[][n] =  {{2, 6, 12, 34},
+                     {1, 9, 20, 1000},
+                     {23, 34, 90, 2000}};
+    int k = sizeof(arr)/sizeof(arr[0]);
+
+    int *output = mergeKArrays(arr, k);
+
+    cout << "Merged array is " << endl;
+    printArray(output, n*k);
+
+    return 0;
+}
+ Output: Merged array is
+1 2 6 9 12 20 23 34 34 90 1000 2000 Time Complexity: The main step is 3rd step, the loop runs n*k times. In every iteration of loop, we call heapify which takes O(Logk) time. Therefore, the time complexity is O(nk Logk). There are other interesting methods to merge k sorted arrays in O(nkLogk), we will sonn be discussing them as separate posts. Thanks to vignesh for suggesting this problem and initial solution. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. Nikunj Banka An alternative approach can be to bottom up merge sort the array considering the array sizes to be k then 2k then 4k then 8k…. The complexity would again be O(NKlogK) as we have to merge the arrays logK times and each time we have to look at all the NK numbers. You can see the working code here. http://ideone.com/fuxBSK Uma Trika We can merge arr1[] and arr2[] in to temp_arr[] And then merge temp_arr[] and arr3[]. The time complexity will be O(n). But it needs n*2k temporary array to store the intermediate output. Ankit Chaudhary Another nk*log(k) solution: Modified mergeSort. create two global array of size n*k each, one is our final sorted array(arr[n*k]), which is our answer and another is temporary array (tmp[n*k]) step 1 :Copy 2D array to arr[n*k] step2 : call mergeK(2D array, 0,k-1,n) prototype : void mergeK(int a[][MAX],int low,int high,int n) Recursive Algo: void mergeK(int a[][MAX],int low,int high,int n){ 1: if(low>=high) return; 2 : int mid=(low+high)/2; 3: mergeK(a,low,mid,n); 4 : mergeK(a,mid+1,high,n); // now merge two sorted array a[low][n] to a[high][n] 5 : merge(arr, low*n, (mid+1)*n ,(mid+1)*n, (high+1)*n); } where low, mid and high are actually row number in 2D array and n = column of 2D array. void merge(int a[],int ind1,int n1,int ind2,int n2): a[] is sorted from (ind1 to n1-1) and (ind2 to n2-1). So we can use merge procedure of merge sort, which gives us sorted array a[] from (ind1 to n2-1). Logic : This is similar to Merge Sort procedor for 1D array. 1 .For 1D array low,mid and high represent index into array, while for this case these variables represent row number for 2D array. 2. For 1D array low=high, means single element of array which is already sorted, in this case low=high means single row, which is already sorted. Abhishek Kumar yar can u tell me how nk*logk complexity is for your method ?? Ankit Chaudhary height of recursion tree is log(k). At every level total number of elements are n*k (for merging). time= n*k*height = nklog(k). Vikram Ojha we have taken here 2D array having k rows….bt I think we need to take K different arrays bcoz question demands dis i suppose http://www.jashsayani.com/ Jash Sayani Interesting idea. But you are assuming that second element of any array is larger than first elements in all arrays. So if you have {3,4,6,7} and {1,2,5,8}, then you put 3 and 1 in heap and extractMin, then move to 4 and 2. But 2 is smaller than 3, which you already put in the result array. I think using the merge step of merge sort and passing all arrays would be a good bet. http://www.cyukang.com/ Yukang No, we don’t have this assumption. put 3 and 1 in heap do NOT mean we put it in final output array, you extract 1 from heap, and put it in final array, at the same time put 2 (which is the follower of 1) into heap, and the next extract value is 2, this is right. James Fraser Exception in thread “main” java.lang.NullPointerException harr[i].element = arr[i][0]; Java gets a null pointer exception for MinHeapNode. Could anyone please provide a Java solution please? Deepak Shrivastava i have written a c implementation of the same #include using namespace std; int left(int i) { return 2*i + 1; } int right(int i) { return 2*i+2; } void swap (int* a, int* b) { int tmp = (*a); *a = *b; *b = tmp; } void heapify(int heap[], int heapsize, int i) { int l = left(i); int r = right(i); int smallest = i; if(l heap[l]) { smallest = l; } if(r<heapsize && heap[r] 1) { heap[0] = heap[(*heapsize) – 1]; (*heapsize)–; heapify(heap, (*heapsize), 0); } return min; } int replaceMin(int heap[], int heapsize, int x) { int min = heap[0]; heap[0] = x; if(x>min) { heapify(heap, heapsize, 0); } return min; } // Given an array of size n, where every element is k away from its target // position, sorts the array in O(nLogk) time. void sortK(int arr[], int n, int k) { int heapsize = k+1; int *heap = new int[k+1]; for (int i = 0; i<=k && i<n; i++) heap[i] = arr[i]; heapify(heap, heapsize, k/2); for(int i = k+1, ti = 0; ti < n; i++, ti++) { if(i<n) arr[ti] = replaceMin(heap, heapsize, arr[i]); else arr[ti] = extractmin(heap, &heapsize); } } // A utility function to print array elements void printArray(int arr[], int size) { for (int i=0; i < size; i++) cout << arr[i] << " "; cout << endl; } int main(){ int k = 3; int arr[] = {2, 6, 3, 12, 56, 8}; int n = sizeof(arr)/sizeof(arr[0]); sortK(arr, n, k); cout << "Following is sorted arrayn"; printArray (arr, n); return 0; } Guest main() { int *a,*b,*c,*d,m,n,l,i,*merge(int*,int*,int*,int,int,int); printf("Enter the size of 1st arrayn"); scanf("%d",&m); a=(int*)malloc(sizeof(int)*m); printf("Enter the elements of 1st arrayn"); for(i=0;i<m;i++) scanf("%d",&a[i]); printf("Enter the size of 2nd arrayn"); scanf("%d",&n); b=(int*)malloc(sizeof(int)*n); printf("Enter the elements of 2nd arrayn"); for(i=0;i<n;i++) scanf("%d",&b[i]); printf("Enter the size of 3rd arrayn"); scanf("%d",&l); c=(int*)malloc(sizeof(int)*l); printf("Enter the elements of 3rd arrayn"); for(i=0;i<l;i++) scanf("%d",&c[i]); d=(int*)malloc(sizeof(int)*(m+n+l)); d=merge(a,b,c,m,n,l); printf("Merged arrayn"); for(i=0;i<(m+n+l);i++) printf("%dn",d[i]); return 0; } int* merge(int *x,int *y,int *z,int a,int b,int c) { int temp,t,min,k,*d,i,j=0,l=0,m=0; k=a+b+c; if(k==0) return; d=(int*)malloc(sizeof(int)*k); for(i=0;i=a) { if(y[l]=b) { if(x[j]=c) { if(y[l]<x[j]) min=y[l++]; else min=x[j++]; } else if(x[j]<y[l] && x[j]<z[m]) min=x[j++]; else if(y[l]<x[j] && y[l]0 && temp<d[t-1]) { d[t]=d[t-1]; t-=1; } d[t]=min; } return d; } Guest main() { int *a,*b,*c,*d,m,n,l,i,*merge(int*,int*,int*,int,int,int); printf(“Enter the size of 1st arrayn”); scanf(“%d”,&m); a=(int*)malloc(sizeof(int)*m); printf(“Enter the elements of 1st arrayn”); for(i=0;i<m;i++) scanf("%d",&a[i]); printf("Enter the size of 2nd arrayn"); scanf("%d",&n); b=(int*)malloc(sizeof(int)*n); printf("Enter the elements of 2nd arrayn"); for(i=0;i<n;i++) scanf("%d",&b[i]); printf("Enter the size of 3rd arrayn"); scanf("%d",&l); c=(int*)malloc(sizeof(int)*l); printf("Enter the elements of 3rd arrayn"); for(i=0;i<l;i++) scanf("%d",&c[i]); d=(int*)malloc(sizeof(int)*(m+n+l)); d=merge(a,b,c,m,n,l); printf("Merged arrayn"); for(i=0;i<(m+n+l);i++) printf("%dn",d[i]); return 0; } int* merge(int *x,int *y,int *z,int a,int b,int c) { int temp,t,min,k,*d,i,j=0,l=0,m=0; k=a+b+c; if(k==0) return; d=(int*)malloc(sizeof(int)*k); for(i=0;i=a) { if(y[l]=b) { if(x[j]=c) { if(y[l]<x[j]) min=y[l++]; else min=x[j++]; } else if(x[j]<y[l] && x[j]<z[m]) min=x[j++]; else if(y[l]<x[j] && y[l]0 && temp<d[t-1]) { d[t]=d[t-1]; t-=1; } d[t]=min; } return d; } shivam Why can’t we do it like the ‘merge’ function we make in mergesort ? As far as I know every time merge function is called it merges two sorted arrays. It’s time complexity is O(m + n) (where m and n are sizes of the two sorted arrays) ? Please correct me if I am wrong.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Zebadiah “Merge algorithms generally run in time proportional to the sum of the lengths of the lists; merge algorithms that operate on large numbers of lists at once will multiply the sum of the lengths of the lists by the time to figure out which of the pointers points to the lowest item” http://en.wikipedia.org/wiki/Merge_algorithm This would make a standard merge O(n*m) where n is the length of all the lists, and m is the number of lists. The point of using the heap is to reduce the cost of finding the min element at each step to O(log m) making the overall order O(n*log m) vishal Instead of using heap we can do pairwise merging of arrays and then pair wise merging of resulting arrays and so on.. since each array has n elements and there are k arrays total no of elements at each level will be “n*k”. After final merge we will have one resultant array of size n*k. Total no of levels in recursion tree of this operation(merging arrays pairwise) will be “logk”(actually ceiling of logk) So total cost of merging k arrays will be : “O(nklogk)” (since there are logk levels and merging at each level will cost time proportional to nk because there are nk elements at each level and we are merging arrays pairwise).  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Guest Simple merging would take O(n*k^2) time. Zebadiah Here’s a c# solution for the more trivial way of doing this. It’s pretty easy to see how the run time would benefit by replacing the inner loop that finds the current min with a much faster minheap. This solution also happens to work on arrays of different lengths for no apparent reason. // Generate a random number of non-decreasing lists of random size Random r = new Random(); int numArrays = r.Next()%10; int[][] data = new int[numArrays][]; for(int i = 0; i < numArrays; i++) { data[i] = new int[r.Next()%10]; int lastValue = -100; for(int j = 0; j < data[i].Length; j++) { lastValue += r.Next()%100; data[i][j] = lastValue; } } // Merge them in what appears to be O(numArrays*totalSize) int totalSize = 0; for(int i = 0; i < data.Length; i++) totalSize += data[i].Length; int[] merged = new int[totalSize]; int[] indexes = new int[data.Length]; for(int i = 0; i < totalSize; i++) { // Find current min int minValue = int.MaxValue; int minIndex = -1; for(int j = 0; j < data.Length; j++) { if(data[j].Length > indexes[j] && data[j][indexes[j]] < minValue) { minValue = data[j][indexes[j]]; minIndex = j; } } merged[i] = data[minIndex][indexes[minIndex]]; indexes[minIndex]++; } // Output results for(int i = 0; i < numArrays; i++) { for(int j = 0; j < data[i].Length; j++) { Console.Write (data[i][j] + ", "); } Console.WriteLine (); } Console.WriteLine(); for(int i = 0; i < totalSize; i++) { Console.Write (merged[i] + ", "); } Ankita  
+Having some problem with code. Not giving the correct output for the given input. Plz ckeck !!!! 
+int arr[][n] =  {{200, 60, 120, 34},
+                     {10, 19, 20, 100},
+                     {23, 34, 90, 20}};
+
+output :- Merged array is
+10 19 20 23 34 90 20 100 200 60 120 34
+ GeeksforGeeks @Ankita: The input array doesn’t seem to be valid. {200, 60, 120, 34} is not sorted. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

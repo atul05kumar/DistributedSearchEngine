@@ -1,0 +1,590 @@
+Add two numbers represented by linked lists | Set 2 - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Add two numbers represented by linked lists | Set 2 Given two numbers represented by two linked lists, write a function that returns sum list. The sum list is linked list representation of addition of two input numbers. It is not allowed to modify the lists. Also, not allowed to use explicit extra space (Hint: Use Recursion). Example 
+Input:
+  First List: 5->6->3  // represents number 563
+  Second List: 8->4->2 //  represents number 842
+Output
+  Resultant list: 1->4->0->5  // represents number 1405
+ We have discussed a solution here which is for linked lists where least significant digit is first node of lists and most significant digit is last node. In this problem, most significant node is first node and least significant digit is last node and we are not allowed to modify the lists. Recursion is used here to calculate sum from right to left. Following are the steps. 1) Calculate sizes of given two linked lists. 2) If sizes are same, then calculate sum using recursion. Hold all nodes in recursion call stack till the rightmost node, calculate sum of rightmost nodes and forward carry to left side. 3) If size is not same, then follow below steps: ….a) Calculate difference of sizes of two linked lists. Let the difference be diff ….b) Move diff nodes ahead in the bigger linked list. Now use step 2 to calculate sum of smaller list and right sub-list (of same size) of larger list. Also, store the carry of this sum. ….c) Calculate sum of the carry (calculated in previous step) with the remaining left sub-list of larger list. Nodes of this sum are added at the beginning of sum list obtained previous step. Following is C implementation of the above approach. 
+// A recursive program to add two linked lists
+
+#include <stdio.h>
+#include <stdlib.h>
+
+// A linked List Node
+struct node
+{
+    int data;
+    struct node* next;
+};
+
+typedef struct node node;
+
+/* A utility function to insert a node at the beginning of linked list */
+void push(struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node = (struct node*) malloc(sizeof(struct node));
+
+    /* put in the data  */
+    new_node->data  = new_data;
+
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);
+
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+/* A utility function to print linked list */
+void printList(struct node *node)
+{
+    while (node != NULL)
+    {
+        printf("%d  ", node->data);
+        node = node->next;
+    }
+    printf("\n");
+}
+
+// A utility function to swap two pointers
+void swapPointer( node** a, node** b )
+{
+    node* t = *a;
+    *a = *b;
+    *b = t;
+}
+
+/* A utility function to get size of linked list */
+int getSize(struct node *node)
+{
+    int size = 0;
+    while (node != NULL)
+    {
+        node = node->next;
+        size++;
+    }
+    return size;
+}
+
+// Adds two linked lists of same size represented by head1 and head2 and returns
+// head of the resultant linked list. Carry is propagated while returning from
+// the recursion
+node* addSameSize(node* head1, node* head2, int* carry)
+{
+    // Since the function assumes linked lists are of same size,
+    // check any of the two head pointers
+    if (head1 == NULL)
+        return NULL;
+
+    int sum;
+
+    // Allocate memory for sum node of current two nodes
+    node* result = (node *)malloc(sizeof(node));
+
+    // Recursively add remaining nodes and get the carry
+    result->next = addSameSize(head1->next, head2->next, carry);
+
+    // add digits of current nodes and propagated carry
+    sum = head1->data + head2->data + *carry;
+    *carry = sum / 10;
+    sum = sum % 10;
+
+    // Assigne the sum to current node of resultant list
+    result->data = sum;
+
+    return result;
+}
+
+// This function is called after the smaller list is added to the bigger
+// lists's sublist of same size.  Once the right sublist is added, the carry
+// must be added toe left side of larger list to get the final result.
+void addCarryToRemaining(node* head1, node* cur, int* carry, node** result)
+{
+    int sum;
+
+    // If diff. number of nodes are not traversed, add carry
+    if (head1 != cur)
+    {
+        addCarryToRemaining(head1->next, cur, carry, result);
+
+        sum = head1->data + *carry;
+        *carry = sum/10;
+        sum %= 10;
+
+        // add this node to the front of the result
+        push(result, sum);
+    }
+}
+
+// The main function that adds two linked lists represented by head1 and head2.
+// The sum of two lists is stored in a list referred by result
+void addList(node* head1, node* head2, node** result)
+{
+    node *cur;
+
+    // first list is empty
+    if (head1 == NULL)
+    {
+        *result = head2;
+        return;
+    }
+
+    // second list is empty
+    else if (head2 == NULL)
+    {
+        *result = head1;
+        return;
+    }
+
+    int size1 = getSize(head1);
+    int size2 = getSize(head2) ;
+
+    int carry = 0;
+
+    // Add same size lists
+    if (size1 == size2)
+        *result = addSameSize(head1, head2, &carry);
+
+    else
+    {
+        int diff = abs(size1 - size2);
+
+        // First list should always be larger than second list.
+        // If not, swap pointers
+        if (size1 < size2)
+            swapPointer(&head1, &head2);
+
+        // move diff. number of nodes in first list
+        for (cur = head1; diff--; cur = cur->next);
+
+        // get addition of same size lists
+        *result = addSameSize(cur, head2, &carry);
+
+        // get addition of remaining first list and carry
+        addCarryToRemaining(head1, cur, &carry, result);
+    }
+
+    // if some carry is still there, add a new node to the fron of
+    // the result list. e.g. 999 and 87
+    if (carry)
+        push(result, carry);
+}
+
+// Driver program to test above functions
+int main()
+{
+    node *head1 = NULL, *head2 = NULL, *result = NULL;
+
+    int arr1[] = {9, 9, 9};
+    int arr2[] = {1, 8};
+
+    int size1 = sizeof(arr1) / sizeof(arr1[0]);
+    int size2 = sizeof(arr2) / sizeof(arr2[0]);
+
+    // Create first list as 9->9->9
+    int i;
+    for (i = size1-1; i >= 0; --i)
+        push(&head1, arr1[i]);
+
+    // Create second list as 1->8
+    for (i = size2-1; i >= 0; --i)
+        push(&head2, arr2[i]);
+
+    addList(head1, head2, &result);
+
+    printList(result);
+
+    return 0;
+}
+ Output: 1  0  1  7 Time Complexity: O(m+n) where m and n are the sizes of given two linked lists. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. http://twitter.com/gkns gkns @GeeksforGeeks A more slick way (I guess) to do it would be a single function: static int carry; //function argument in case of pass by reference; static LinkedNode prev = null; //argument in case of ” public static LinkedNode llAdd(LinkedNode ll1, LinkedNode ll2, int shift) { int a, b, sum; if (ll1 != null){ a = ll1.item; ll1 = ll1.next; } else a = 0; if (ll2 != null && shift <= 0) { b = ll2.item; ll2 = ll2.next; } else b=0; shift–; if (ll1 != null && ll2 != null) llAdd(ll1, ll2, shift); sum = (a+b+carry) % 10; carry = (a+b+carry) / 10; LinkedNode Node = new LinkedNode(sum); Node.next = prev; prev = Node; return Node; } public static void main () { LinkedList LL1 = new LinkedList(); LinkedList LL2 = new LinkedList(); LL1.add(2);LL1.add(4);LL1.add(6);LL1.add(8); LL2.add(9);LL2.add(5); LinkedList temp; int ll1size = LL1.size; int ll2size = LL2.size; int shift = Math.abs(ll1size – ll2size); if (ll2size > ll1size) { temp = LL1; LL1 = LL2; LL2 = temp; } LinkedList result = new LinkedList(); result.head = llAdd(LL1.head, LL2.head, shift); System.out.println(result.toString()); } https://www.facebook.com/aditya.pearl7 Aditya Gaurav s1=reverse(s1);s2=reverse(s2); s* s3=addLists(s1,s2);s3=reverse(s3); s3 is the required list… function definition s* addLists(s* s1, s* s2, int carry=0){ int sum=0; if(s1!=NULL)sum+=s1->data;if(s2!=NULL)sum+=s2->data;sum+=carry; if(sum==0)return NULL; carry=sum/10;sum=sum%10; s* temp=getnew(sum); temp->link=addLists((s1==NULL)?NULL:s1->link,(s2==NULL)?s2:s2->link,carry); return temp; } https://www.facebook.com/aditya.pearl7 Aditya Gaurav // s1 is 1st list, s2 is 2nd list; s3 is the resultant list Calling: s1=rev(s1);s2=rev(s2); //rev() reverses the list s* s3=addLists(s1,s2); // recursive function to get s3 s3=rev(s3); display(s3); //display() displays the list node data //recursive function definition; s* addLists(s* s1, s* s2, int carry=0){ int sum=0; if(s1!=NULL)sum+=s1->data;if(s2!=NULL)sum+=s2->data;sum+=carry; if(sum==0)return NULL; carry=sum/10;sum=sum%10; s* temp=getnew(sum); //getnew(n) is utility function to get a new node with values as: data=n link=NULL temp->link=addLists((s1==NULL)?NULL:s1->link,(s2==NULL)?s2:s2->link,carry); return temp; } Sambhav Sharma I think this is a pretty easy way to do it. What could be the possible drawbacks using this code? void add(struct node *start1, struct node *start2) { struct node *tmp1=start1->next, *tmp2=start2->next; int num1=start1->data,num2=start2->data,num3=start3->data; int sum=0; while(tmp1) { num1 = num1 * 10 + tmp1->data; tmp1=tmp1->next; } while(tmp2) { num2 = num2 * 10 + tmp2->data; tmp2=tmp2->next; } sum = num1 + num2; printf(“nThe sum is: %dn”,sum); } faisal #include #include struct node { int data; struct node *next; }; struct node *res=NULL; /* Function to insert a node at the beginning */ void push(struct node ** head_ref, int new_data) { struct node* new_node = (struct node*) malloc(sizeof(struct node)); new_node->data = new_data; new_node->next = (*head_ref); (*head_ref) = new_node; } /* Utility function to print a singly linked list */ void printList(struct node *head) { struct node *temp = head; while (temp != NULL) { printf(“%d “, temp->data); temp = temp->next; } printf(“n”); } void sum(struct node *p, struct node **q) { int no1=0,no2=0,sum,t; struct node *q1=*q,*p1=p; while(p1) { no1=no1*10+p1->data; p1=p1->next; } printf(“sum1=%d”,no1); while(q1) { no2=no2*10+q1->data; q1=q1->next; } printf(“nsum2=%d”,no2); sum=no1+no2; printf(“n%d”,sum); while(sum) { t=sum%10; newpush(t); sum/=10; } } void newpush(int data1) { struct node *temp=(struct node*)malloc(sizeof(struct node)); temp->data=data1; temp->next=res; res=temp; } int main() { struct node *p = NULL, *q = NULL; push(&p, 3); push(&p, 2); push(&p, 1); push(&p, 9); push(&p, 4); printf(“First Linked List:n”); printList(p); push(&q, 8); push(&q, 7); // push(&q, 6); // push(&q, 5); // push(&q, 4); printf(“Second Linked List:n”); printList(q); sum(p,&q); printList(res); getchar(); return 0; } Sameer http://codingrecipies.blogspot.in/2013/11/sum-two-linked-lists.html, Liked this blog , full code in java , simple to understand Vishal Hemnani That is a hack to solve this question. I’d recommend using gforg’s approach.. Uma Trika #include #include struct link_list { int data; struct link_list *next; }; typedef struct link_list node; void print(node *head) { node *temp = head; while(temp) { printf(“%d–>”, temp->data); temp = temp->next; } printf(“n”); } void push(node **head, int num) { node *new_node = (node*)malloc(sizeof(node)); if(new_node) { printf(“Creating new noden”); new_node->data = num; new_node->next = (*head); (*head) = new_node; } } void add_list(node *first, node *second, node **output) { int sum_first=0, sum_second=0, sum_output=0; node *temp; temp = first; while(temp) { sum_first = sum_first*10 + temp->data; temp = temp->next; } printf(“First list %dn”, sum_first); temp = second; while(temp) { sum_second = sum_second*10 + temp->data; temp = temp->next; } printf(“Second list %dn”, sum_second); sum_output = sum_first + sum_second; while(sum_output) { push(&(*output), sum_output%10); sum_output/= 10; } print((*output)); } main() { node *first, *second, *output; first = NULL; second = NULL; output = NULL; push(&first, 3); push(&first, 6); push(&first, 5); print(first); push(&second, 2); push(&second, 4); push(&second, 8); print(second); add_list(first, second, &output); } Maverick Node* addIntegers(Node* n1, Node* n2) { int number1=0, number2=0; while(n1 != NULL) { number1 = number1*10 + n1->val; n1 = n1->next; } while(n2 != NULL) { number2 = number2*10 + n2->val; n2 = n2->next; } int number3 = number1 + number2; Node* prev = NULL; while(number3 != 0) { Node* n = new Node(); n->val = number3%10; number3 = number3/10; n->next = prev; prev = n; } return prev; } asunel GeeksforGeeks: O(n) Iterative method to find sum without extra-space and without modifying the lists !! // Adds two linked lists represented by head1 and head2 and returns sum int add(node* head1, node* head2, int count) { int sum=0; while(count--) { if(head2) { sum= sum*10+ (head1->data + head2->data); head2=head2->next; } else sum= sum*10+ (head1->data); head1=head1->next; } return sum; } // The main function that adds two linked lists represented by head1 and head2. // The sum of two lists is stored in a list referred by result void addList(node* head1, node* head2, node** result) { node *cur; int sum=0, size; // first list is empty if (head1 == NULL) { *result = head2; return; } // second list is empty else if (head2 == NULL) { *result = head1; return; } int size1 = getSize(head1); int size2 = getSize(head2) ; // Add same size lists if (size1 == size2) sum = add(head1, head2, size1); else { int diff = abs(size1 - size2); int temp=diff; size = size1; // First list should always be larger than second list. // If not, swap pointers if (size1 next); // get addition of same size lists sum = add(cur, head2, size-diff); // get addition of remaining first list and previous sum sum=sum+ (add(head1, NULL, diff))*pow(10, size-diff); while(sum) { push(result, sum%10); sum/=10; } } } saksham here is the code below(correct me if I am wrong anywhere): node* findsum(node* root1,node* root2, int count1, int count2, int *carry) { if(!root1&&!root2) return null; node* tmp = NULL; if(count1>count2) { tmp = findsum(root1->next, root2, count1-1, count2, carry); sum = root1->data + carry; } if(count1next, count1, count2-1, carry); sum = root2->data + carry; } else { tmp = findsum(root1->next, root2->next, count1, count2, carry); sum = root1->data + root2->data + carry; } carry = sum/10; sum = sum%10; node* res = newNode(sum); res->next = tmp; return res; //in the calling function, check for carry value and add a node in the beginning } saksham Ohh cannot edit the code once posted as guest. there seems to be some problem with discus script nehamahajan In case of same size of list, say 5->6->3 and 8->4->2, above algo. generates 4->0->5 as result list, which must be 14->0->5. Some modification is required in addSameSize method such that in case of first element it should not compute carry. we can send one variable to function to check for same. amitjnumca08 1. pass head of both lists (say head1 and head2) along with their size say, s1 and s2 respectively add(head1, s1, head2, s2) 2. during recursion – if s1 and s2 are equal (lists are of same size), move head of both list by one node add(head1->next, s1-1, head2->next, s2-1) else if head1 is bigger list (by checking s1> min(s1,s2)), add(head1->next, s1-1, head2, s2) if head2 is bigger list (by checking s2> min(s1,s2)), add(head1, s1, head2->next, s2-1) with this approach – 1. handling of extra nodes in bigger list is not needed. 2. following the same pattern, we can write the function for the addition of more than two list  
+int move(int cur, int s1, int s2){
+     if (s1 == s2) return 1;
+     
+     int min = s1 < s2 ? s1 : s2;
+     if(cur > min) return 1;
+     return 0;
+}
+
+node* add(node* head1, int s1, node* head2, int s2, int* carry)
+{
+     
+    if(s1==0 && s2==0)
+             return NULL;
+
+    int sum=0;
+
+   // Allocate memory for sum node of current two nodes
+    node* result = (node *)malloc(sizeof(node));
+
+    // Recursively add remaining nodes and get the carry
+    result->next = add( move(s1,s1,s2) ? head1->next : head1, move(s1,s1,s2) ? s1-1 : s1,
+                        move(s2,s1,s2) ? head2->next : head2, move(s2,s1,s2) ? s2-1 : s2,
+                        carry);
+
+    // add digits of current nodes and propagated carry
+    if(move(s1,s1,s2))
+        sum = sum  + head1->data; 
+    if(move(s2,s1,s2))
+        sum = sum  + head2->data;
+    
+    sum = sum + *carry;
+
+    *carry = sum / 10;
+    sum = sum % 10;
+
+    // Assigne the sum to current node of resultant list
+    result->data = sum;
+
+    return result;
+}
+
+// method called from main method to add two linked List
+void addList(node* head1, node* head2, node** result)
+{
+    node *cur;
+
+    int size1 = getSize(head1);
+    int size2 = getSize(head2) ;
+
+    int carry = 0;
+
+     *result = add(head1, size1, head2, size2, &carry);
+    // if some carry is still there, add a new node to the fron of
+    // the result list. e.g. 999 and 87
+    if (carry!=0)
+        push(result, carry);
+}	
+ amitjnumca08 1. pass head of both lists (say head1 and head2) along with their size say, s1 and s2 respectively add(head1, s1, head2, s2) 2. during recursion, if s1 and s2 are equal (lists are of same size), move head of both list by one node add(head1->next, s1-1, head2->next, s2-1) else if head1 is bigger list (by checking s1> min(s1,s2)), add(head1->next, s1-1, head2, s2) if head2 is bigger list (by checking s2> min(s1,s2)), add(head1, s1, head2->next, s2-1) with this approach – 1. handling of extra nodes in bigger list is not needed. 2. following the same pattern, we can write the function for the addition of more than two list  
+int move(int cur, int s1, int s2){
+     if (s1 == s2) return 1;
+     
+     int min = s1 < s2 ? s1 : s2;
+     if(cur > min) return 1;
+     return 0;
+}
+
+node* add(node* head1, int s1, node* head2, int s2, int* carry)
+{
+     
+    if(s1==0 && s2==0)
+             return NULL;
+
+    int sum=0;
+
+   // Allocate memory for sum node of current two nodes
+    node* result = (node *)malloc(sizeof(node));
+
+    // Recursively add remaining nodes and get the carry
+    result->next = add( move(s1,s1,s2) ? head1->next : head1, move(s1,s1,s2) ? s1-1 : s1,
+                        move(s2,s1,s2) ? head2->next : head2, move(s2,s1,s2) ? s2-1 : s2,
+                        carry);
+
+    // add digits of current nodes and propagated carry
+    if(move(s1,s1,s2))
+        sum = sum  + head1->data; 
+    if(move(s2,s1,s2))
+        sum = sum  + head2->data;
+    
+    sum = sum + *carry;
+
+    *carry = sum / 10;
+    sum = sum % 10;
+
+    // Assigne the sum to current node of resultant list
+    result->data = sum;
+
+    return result;
+}
+
+// method called from main method to add two linked List
+void addList(node* head1, node* head2, node** result)
+{
+    node *cur;
+
+    int size1 = getSize(head1);
+    int size2 = getSize(head2) ;
+
+    int carry = 0;
+
+     *result = add(head1, size1, head2, size2, &carry);
+    // if some carry is still there, add a new node to the fron of
+    // the result list. e.g. 999 and 87
+    if (carry!=0)
+        push(result, carry);
+}	
+ vikas How to apply the same method to the following question with three linklist ? Given three linked lists,where each linked list represents a number, add the three lists and return the resultant list. 5->1->2->NULL 9->1->NULL 7->2->2->NULL Output :: 1->3->2->5->NULL Asked in Amazon written  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Sumit Gera Shouldn’t the recursive call to addSameSize() function be like the following?  
+node* result = addSameSize(head1->next, head2->next, &carry);
+ Sri Can i use the algorithm given below? What could be the flaws with it? Assumption:least significant digit is 1st node. MSD is the last node. In List 1: i=0; sum=0; tmp=head // head is ptr to 1st node in the list while (tmp->next!=null) { sum=sum+tmp->data*10^i; tmp=tmp->next; i++; } n1=sum; n1 has the number represented by list 1. similarly , n2 will have the number represented by list 2. Create a new list with 0 elements. total=n1+n2; while(total!=0) { q=total/10; r=total%10; // Now append r to the new list. total=q; } The sum will now be represented by the new list(resultant list_.It doesn’t modify the original lists. how about this algorithm? hxgxs1 /* This code works for huge numbers as well */ #include #include typedef struct node { int info; struct node *next; }node; node *getnode(int elem) { node *p; p=(node *)malloc(sizeof(node)); p->info=elem; p->next=NULL; return p; } void create_list(node **head,int elem) { node *p; if((*head)==NULL) (*head)=getnode(elem); else { p=(*head); while(p->next!=NULL) p=p->next; p->next=getnode(elem); } } void display(node *p) { printf(“\n\n”); while(p!=NULL) { printf(” %d “,p->info); p=p->next; } printf(“\n\n”); } node *Addition(node *list1,node *list2) { node *result=(node *)malloc(sizeof(node)); int carry=0; if(list1==NULL && list2==NULL) return NULL; else { result->next=Addition(list1->next,list2->next); if(result->next!=NULL) { if(result->next->info>=10) { result->next->info-=10; carry =1; } } result->info=carry+list1->info+list2->info; return result; } } node *move_from_end(node *head,int n) { node *p,*q; int i,j; p=head; // printf(“\nsize = %d\n”,n); for(i=0;i { p=p->next; if(p==NULL) { printf(“\nFirst number is not long enough\n”); return; } } q=head; while(p!=NULL) { p=p->next; q=q->next; } return q; } node *combine(node *head,node *result,int n) { node *temp; if(n==0) { return result; } else { result=combine(head->next,result,n-1); temp=getnode(head->info); temp->next=result; result=temp; return result; } } int main() { node *a,*b,*result,*list,*temp; char ch; int digit,size1=0,size2=0,carry=0,i; a=b=NULL; printf(“\nEnter the first number\n”); while((ch=getchar())!=’\n’) { digit=ch-‘0′; create_list(&a,digit); size1++; } printf(“\nEnter Second number\n”); while((ch=getchar())!=’\n’) { digit=ch-‘0′; create_list(&b,digit); size2++; } //Addition if(size1!=size2) { if(size1 > size2) { list=move_from_end(a,size2); // display(list); result=Addition(list,b); if(result->info >=10) { result->info -=10; carry=1; } result= combine(a,result,size1-size2); for(i=0,temp=result;i< (size1-size2-1);i++,temp=temp->next) { } temp->info++; } } else { result=Addition(a,b); if(result->info >=10) { result->info -=10; temp=getnode(1); temp->next=result; result=temp; } } display(a); printf(” +”); display(b); printf(“———————-“); display(result); return 0; } preity we can reverse both the list and then perform addition as we did previously Prateek Sharma C code………  
+#include<conio.h>
+#include<stdio.h>
+#include<stdlib.h>
+struct Node {
+       int value;
+       struct Node *next;
+       };
+int insertAtEnd(struct Node *node,int val) {
+    struct Node *temp;
+    struct Node *ne;
+    temp = node;
+    while(temp->next!= NULL) {
+          temp = temp->next;
+}
+    ne = (struct Node *) malloc(sizeof(struct Node));
+    ne->value = val;
+    ne->next = NULL;
+    temp->next = ne;    
+    return 0;                          
+}         
+int count =0;
+int sum(struct Node *node1,int s1,struct Node *node2,int s2) {
+    if (s1>0 && s2>0){ 
+    int i;        
+    struct Node *temp1,*temp2,*prev1;
+    temp1 = prev1 = node1;
+    temp2 = node2;
+    
+    for (i=1;i<= s1-1;i++) {
+         temp1 = temp1->next;
+        
+    }
+    for(i=1;i<= s2-1;i++) {
+         temp2= temp2->next;
+    }
+    while(prev1->next != temp1 and s1>1) {
+          prev1 = prev1->next;
+          } 
+    temp1->value =temp1->value +temp2->value;
+    if (temp1->value>= 10){
+        temp1->value = temp1->value -10;
+        if (s1>1){
+        prev1->value = prev1->value +1;
+        }
+        if (s1 == 1) {count =1;
+        }} 
+    sum(node1,--s1,node2,--s2); 
+    }
+   return 0;}   
+           
+int main() {
+   int n,s1,s2,i =1,diff; 
+   struct Node *node2,*node1,*temp1,*temp2,*left;
+   node1 = (struct Node *) malloc(sizeof(struct Node));
+   node2 = (struct Node *) malloc(sizeof(struct Node));
+   printf("enter value of root node1:\n");
+   scanf("%d",&n);
+   node1->value = n;
+   node1->next = NULL;
+   printf("enter size of linked list1");
+   scanf("%d",&s1);
+   while(i<=s1) {
+   printf("enter next element of linked list1\n");
+   scanf("%d",&n);
+   insertAtEnd(node1,n);
+   i++;}  
+   printf("enter value of root node2:\n");
+   scanf("%d",&n);
+   node2->value = n;
+   node2->next = NULL;
+   printf("enter size of linked list2");
+   scanf("%d",&s2);
+   i =1;
+   while(i<=s2) {
+   printf("enter next element of linked list2\n");
+   scanf("%d",&n);
+   insertAtEnd(node2,n);
+   i++;} 
+   temp1 = node1;
+   temp2 = node2;  
+   if (s1>s2){
+      diff = s1-s2;
+      for (i=1;i<=diff;i++){
+         left = (struct Node *) malloc(sizeof(struct Node));
+         left->value =0;
+         left->next =node2;
+         node2 = left;} 
+         s2 = s2+diff;   }
+    else if (s2>s1){
+       diff = s2-s1;
+       for (i=1;i<=diff;i++){
+         left = (struct Node *) malloc(sizeof(struct Node));
+         left->value =0;
+         left->next =node1;
+         node1 = left;}
+         s1 = s1+ diff;    }
+    else
+       {diff =0;
+       }
+   sum(node1,s1+1,node2,s2+1);
+   if (count ==1){
+     struct Node *first;
+     first = (struct Node *) malloc(sizeof(struct Node));
+     first->value = 1;
+     first->next =node1;
+     node1 = first;        
+    }
+   temp1 = node1;
+   printf("Sum Linked List is\n");
+   while(temp1 != NULL) {
+       printf("%d",temp1->value);
+       temp1 = temp1->next;
+}
+getch();
+return 0;
+}                   
+
+ abhishek08aug Intelligent Sunny #include #include // A linked List Node struct node { int data; struct node* next; }; typedef struct node node; /* A utility function to insert a node at the beginning of linked list */ void push(struct node** head_ref, int new_data) { /* allocate node */ struct node* new_node = (struct node*) malloc(sizeof(struct node)); /* put in the data */ new_node->data = new_data; /* link the old list off the new node */ new_node->next = (*head_ref); /* move the head to point to the new node */ (*head_ref) = new_node; } /* A utility function to print linked list */ void printList(struct node *node) { while (node != NULL) { printf(“%d “, node->data); node = node->next; } printf(“\n”); } void addListWithCarry(struct node *head1, struct node *head2,struct node **res, int *carry) { int sum = 0; if(head1->next == NULL && head2->next == NULL) { sum = head1->data+head2->data; *carry = sum/10; sum%=10; push(res,sum); return; } if(head1->next == NULL) { addListWithCarry(head1, head2->next,res, carry); sum = head2->data+*carry; } else if(head2->next == NULL) { addListWithCarry(head1->next, head2, res, carry); sum = head1->data+*carry; } else { addListWithCarry(head1->next, head2->next, res, carry); sum = head1->data+head2->data+*carry; } //common area *carry = sum/10; sum%=10; push(res,sum); } void addList(struct node *head1, struct node *head2, struct node **res) { int carry =0; addListWithCarry(head1,head2,res,&carry); if(carry) { push(res,carry); } } // Driver program to test above functions int main() { node *head1 = NULL, *head2 = NULL, *result = NULL; int arr1[] = {1}; int arr2[] = {9,9,9}; int size1 = sizeof(arr1) / sizeof(arr1[0]); int size2 = sizeof(arr2) / sizeof(arr2[0]); int i; for (i = size1-1; i >= 0; –i) push(&head1, arr1[i]); // Create second list as 1->8 for (i = size2-1; i >= 0; –i) push(&head2, arr2[i]); printList(head1); printList(head2); addList(head1, head2, &result); printList(result); return 0; } Arindam #include #include #include #include struct node{ int info; struct node *link; }; struct node * add(struct node *,int); void display(struct node *); struct node* addnum(struct node*,struct node * ,struct node *,int ,int); void main(){ clrscr(); struct node *start=NULL,*start1=NULL,*start3=NULL; int d,d1,temp,c1=0,c2=0; printf(“\nenter the 1st number….”); scanf(“%d”,&d); printf(“\n enter the 2nd number….”); scanf(“%d”,&d1); while(d!=0){ temp=d%10; start=add(start,temp); d=d/10; c1++; } while(d1!=0){ temp=d1%10; start1=add(start1,temp); d1=d1/10; c2++; } printf(“\ndisplaying the list1…….”); display(start); printf(“\ndisplaying the list 2…..”); display(start1); start3=addnum(start,start1,start3,c1,c2); display(start3); getch(); } struct node * add(struct node *start,int d){ struct node *temp=(struct node *)malloc(sizeof(struct node)); temp->info=d; temp->link=start; start=temp; return start; } void display(struct node *start){ struct node *p=start; while(p!=NULL) { printf(“%3d”,p->info); p=p->link; } } struct node * addnum(struct node *start,struct node *start1,struct node *start3,int c1,int c2){ printf(“\n resultant list of the two numbers….”); struct node *p=start; struct node *q=start1; int k=0,k1=0; while(p!=NULL) { k=k+((p->info)*(pow(10,c1-1))); p=p->link; c1–; } while(q!=NULL) { k1=k1+((q->info)*(pow(10,c2-1))); q=q->link; c2–; } int m= (k+k1); while(m!=0){ int temp=m%10; start3=add(start3,temp); m=m/10; } return start3; } Alex How about 1. Reverse both lists 2. Sum 3. Add carryover if needed 4. Revert the list again? Should be way cleaner… lovethissite Thanks for your tutorial. The case dealing with addCarryToRemaining is quite painful. In fact, I believe using an explicit stack produces a much clean solution. # pseudo-code import deque def add(first, second): stack_one = deque() stack_two = deque() # add two numbers to stacks while first: stack_one.append(first.data) first = first.next while second: stack_two.append(second.data) second = second.next # calculate new list carry = 0 result = None while len(stack_one) or len(stack_two): first_number = stack_one.pop() if len(stack_one) else 0 second_number = stack_two.pop() if len(stack_two) else 0 sum = carry + first_number + second_number carry = 1 if sum >= 10 else 0 sum %= 10 # create new node node = ListNode(sum, result) result = node return result adarsh  
+#include<stdio.h>
+#include<conio.h>
+struct node
+{
+int data;
+struct node *next;
+}*ptr1,*ptr2,*ptr3;
+int ptr1sum,ptr2sum;
+void insert(struct node** ,int);
+void display(struct node*);
+void calculate(struct node* );
+void insertatbegin(struct node**,int);
+int main()
+{
+int temp,last;
+ptr1=ptr2=NULL;
+insert(&ptr1,1);
+insert(&ptr1,2);
+insert(&ptr1,3);
+insert(&ptr1,4);
+
+display(ptr1);
+insert(&ptr2,4);
+insert(&ptr2,5);
+insert(&ptr2,6);
+
+
+display(ptr2);
+calculate(ptr1);
+calculate(ptr2);
+temp=ptr1sum+ptr2sum;
+while(temp)
+{
+last=temp%10;
+insertatbegin(&ptr3,last);
+temp=temp/10;
+}
+display(ptr3);
+getch();
+return 0;
+
+}
+void insert(struct node **ptr,int a)
+{
+struct node *temp,*p;
+p=malloc(sizeof(struct node));
+p->next=NULL;
+p->data=a;
+if(*ptr==NULL)
+*ptr=p;
+else
+{
+temp=*ptr;
+while(temp->next!=NULL)
+temp=temp->next;
+temp->next=p;
+}
+}
+void display(struct node *ptr)
+{
+printf("\nTHE LINKED LIST IS\n");
+while(ptr!=NULL)
+{
+printf("%d--->",ptr->data);
+ptr=ptr->next;
+
+}
+}
+void calculate(struct node *ptr)
+{
+struct node *temp,*temp1;
+temp1=ptr;
+temp=ptr;
+int mul=1,t=0;
+while(temp->next!=NULL)
+{
+mul=mul*10;
+temp=temp->next;
+}
+printf("\n");
+while(ptr!=NULL)
+{
+t+=(ptr->data)*mul;
+
+mul=mul/10;
+ptr=ptr->next;
+}
+if(temp1==ptr1)
+ptr1sum=t;
+else
+ptr2sum=t;
+
+}
+void insertatbegin(struct node** ptr,int value)
+{
+struct node *temp,*p;
+p=malloc(sizeof(struct node));
+p->next=NULL;
+p->data=value;
+if(*ptr==NULL)
+*ptr=p;
+else
+{
+temp=*ptr;
+*ptr=p;
+p->next=temp;
+}
+
+
+}
+
+ adarsh 1 drawback in my program, i am adding two numbers if the numbers will be two big then it might not b possible Amit Why are you using reference variable for storing carry??you could have returned carry from the functions.. Ahmed I don’t know if this idea is correct or not. Why I can’t extract the values of the first linked list then the second linked list, then add those to variables, then again construct a third linked list and put the values in it ? http://www.geeksforgeeks.org/ Deek @ahmed: Application of this problem is when there is a possibility of arithmetic overflow. So your method can not be used if the two numbers are too big and adding them might have overflow issues.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks @All: The example quoted in the problem statement was incorrect, that caused confusion. Apologies for the inconvenience. We have corrected the example now. The least significant digit is the last node of linked list, the most significant node is the first node. Input: First List: 5->6->3 // represents number 563 Second List: 8->4->2 // represents number 842 Output Resultant list: 1->4->0->5 // represents number 1405 Palash Why do you need recursion if the lists are stored in the backwards format. You can just traverse the lists using a carry variable and form the resultant list.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Kartik @Palash: The sum of lists has to be calculated from rightmost node to left most node. Could you please explain what do you mean when you say “lists are stored in the backwards format” Pardhu @karthik : the list is represented with least significant digit appearing first in list. number ‘365’ is represented as 5->6->3 as per your example. So why cant we just start from beginning of both the lists and calculated the sum and use the carry for next digits, iteratively. If the number is represented the other way as 3->6->5, recursion would be much helpful as we always need to start the addition from least significant digit.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Shubham Saxena void sumlist(node **list1,node **list2) { reverselist(list1); reverselist(list2); node *p=(*list1),*t=(*list2),*res=NULL; int carry=0,sum=0; while(p||t) { sum=carry+(p?p->data:0)+(t?t->data:0); carry=(sum>=10)?1:0; sum=sum%10; insertbeg(&res,sum); if(p!=NULL) p=p->next; if(t!=NULL) t=t->next; } printList(res); } this code is giving correct output for every possible … plz tel me this is correct or not? Palash @karthik : The lists are represented with least significant digit appearing first in list. That’s what I meant by “stored in backwards format”.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://www.geeksforgeeks.org/ Deek #include #include #include #include struct Node1 { int data; struct Node1 *next; }; typedef struct Node1 Node; Node *node1,*node2; Node* create_list(int no, Node* first) { Node *node1=NULL; Node *cur=NULL; node1=(Node*)malloc(sizeof(Node)); node1->data=no; node1->next=NULL; if(first==NULL) first=node1; else { cur=first; while(cur->next!=NULL) cur=cur->next; cur->next=node1; } return first; } void print_list(Node *cur) { if(cur==NULL) { printf(“list is empty\n”); return; } while(cur!=NULL) { printf(“%d—>”, cur->data); cur=cur->next; } printf(“NULL \n”); } void delete_list(Node *cur) { Node* prev; if (cur==NULL) return; while(cur!=NULL) { prev=cur; cur=cur->next; free(prev); } } Node* create_list_add(Node* first,int data) { Node *node1=NULL; Node *cur=NULL; node1=(Node*)malloc(sizeof(Node)); node1->data=data; node1->next=NULL; if(first==NULL) first=node1; else { node1->next=first; first=node1; } return first; } Node* add_recursion(Node* first, Node* second,int *c) { static int m=0; static Node *sum=NULL; if(first==NULL && second==NULL) return; if((first==NULL && second!=NULL) || (first!=NULL && second==NULL)) assert(0); add_recursion(first->next,second->next,c); m=first->data + second->data + (*c); if(m>9) { (*c)=m/10; m=m%10; } else (*c)=0; sum=create_list_add(sum,m); return sum; } Node* append_first(int m, Node **sum) { Node * newnode= (Node *)malloc(sizeof(Node)); assert(newnode); newnode->data=m; newnode->next=(*sum); return newnode; } void add_third(Node* third,Node** sum,int *c,int x) { static int m; Node *temp; if(x==0) return; add_third((third->next),sum,c,–x); m=third->data+(*c); if(m>9) { *c=m/10; m=m%10; } else *c=0; temp=append_first(m,sum); /*dont do this, instead create a new node*/ (*sum)=temp; } int find_length(Node* first1) { int n=0; if(first1==NULL) return 0; while(first1!=NULL) { n++; first1=first1->next; } return n; } int main() { int diff,x,n1,n2; int no,c=0; Node *first=NULL,*second=NULL,*sum=NULL,*third=NULL,*first1=NULL,*second1=NULL; printf(“program to create two linked list and add them\nn”); printf (“enter the elements of first linked list, -1 to stop\n”); scanf(“%d”, &no); while(no!=-1) { first=create_list(no,first); printf (“enter the elements of first linked list, -1 to stop\n”); scanf(“%d”, &no); } printf (“enter the elements of second linked list, -1 to stop\n”); scanf(“%d”, &no); while(no!=-1) { second=create_list(no,second); printf (“enter the elements of second linked list, -1 to stop\n”); scanf(“%d”, &no); } print_list(first); printf(“\n”); print_list(second); printf(“\n”); n1=find_length(first); n2=find_length(second); printf(“lenth of the first list %d \n length of the second list %d \n”,n1,n2); first1=first; second1=second; printf(“\n\n== linked list after adding==\n\n”); diff=n1-n2; x=(diff>0)?diff:-diff; if(diffnext; (diff)++; } } else { third=first; while(diff) { first=first->next; diff–; } } sum=add_recursion(first,second,&c); if(x) add_third(third,&sum,&c,x); if(c) sum=create_list_add(sum,c); print_list(sum); printf(“\nprinting input lists\n\nfirst list\n”); print_list(first1); printf(“\n second list\n”); print_list(second1); delete_list(sum); delete_list(first); delete_list(second); return 0; } http://www.geeksforgeeks.org/ Deek  
+@palash : Exactly!! and moreover representing 365 as 5->6>3 just makes coders life easy.
+
+it should will be challenging when number is represented as it is in linked list rather than storing it in reverse order.
+
+input:
+------ 
+
+3->6->5->NULL representing 365
+9->9->NULL    representing 99.
+
+So there will be two solutions for this.
+
+Method 1:
+=========
+
+Reverse the first list.
+Reverse the second list.
+
+Now the problem will be same as mentioned above. And as palash said, we need not have to do it recursively.
+
+Method2 :
+=========
+
+-- find the length of two lists.
+-- calculate the difference(lets say x)
+-- move the head pointer x nodes ahead after keeping a  -   reference to the head node.
+-- now add the two lists recursively (this works becuase length of tow list will be same)
+-- Now append the remaining part of bigger linked list to 
+the resultant list recursively.
+-- After done with all the nodes, if still there is a carry add that nodes to the list.
+-- In all these places keep a track of carry carefully.
+
+ Qwerty (*carry != 0) is a wrong condition given in addCarryToRemaining() function .. It will miss nodes from first list if there is no carry returned from addSameSize() Please correct me if I am wrong Kartik Thanks for pointing this out. We have removed the condition. Keep it up! Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

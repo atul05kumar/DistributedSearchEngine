@@ -1,0 +1,105 @@
+Morris traversal for Preorder - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Morris traversal for Preorder Using Morris Traversal, we can traverse the tree without using stack and recursion. The algorithm for Preorder is almost similar to Morris traversal for Inorder. 1...If left child is null, print the current node data. Move to right child. ….Else, Make the right child of the inorder predecessor point to the current node. Two cases arise: ………a) The right child of the inorder predecessor already points to the current node. Set right child to NULL. Move to right child of current node. ………b) The right child is NULL. Set it to current node. Print current node’s data and move to left child of current node. 2...Iterate until current node is not NULL. Following is C implementation of the above algorithm. 
+// C program for Morris Preorder traversal
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node
+{
+    int data;
+    struct node *left, *right;
+};
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+    struct node* temp = (struct node*) malloc(sizeof(struct node));
+    temp->data = data;
+    temp->left = temp->right = NULL;
+    return temp;
+}
+
+// Preorder traversal without recursion and without stack
+void morrisTraversalPreorder(struct node* root)
+{
+    while (root)
+    {
+        // If left child is null, print the current node data. Move to
+        // right child.
+        if (root->left == NULL)
+        {
+            printf( "%d ", root->data );
+            root = root->right;
+        }
+        else
+        {
+            // Find inorder predecessor
+            struct node* current = root->left;
+            while (current->right && current->right != root)
+                current = current->right;
+
+            // If the right child of inorder predecessor already points to
+            // this node
+            if (current->right == root)
+            {
+                current->right = NULL;
+                root = root->right;
+            }
+
+            // If right child doesn't point to this node, then print this
+            // node and make right child point to this node
+            else
+            {
+                printf("%d ", root->data);
+                current->right = root;
+                root = root->left;
+            }
+        }
+    }
+}
+
+// Function for sStandard preorder traversal
+void preorder(struct node* root)
+{
+    if (root)
+    {
+        printf( "%d ", root->data);
+        preorder(root->left);
+        preorder(root->right);
+    }
+}
+
+/* Driver program to test above functions*/
+int main()
+{
+    struct node* root = NULL;
+
+    root = newNode(1);
+    root->left = newNode(2);
+    root->right = newNode(3);
+
+    root->left->left = newNode(4);
+    root->left->right = newNode(5);
+
+    root->right->left = newNode(6);
+    root->right->right = newNode(7);
+
+    root->left->left->left = newNode(8);
+    root->left->left->right = newNode(9);
+
+    root->left->right->left = newNode(10);
+    root->left->right->right = newNode(11);
+
+    morrisTraversalPreorder(root);
+
+    printf("\n");
+    preorder(root);
+
+    return 0;
+}
+ Output: 1 2 4 8 9 5 10 11 3 6 7
+1 2 4 8 9 5 10 11 3 6 7 Limitations: Morris traversal modifies the tree during the process. It establishes the right links while moving down the tree and resets the right links while moving up the tree. So the algorithm cannot be applied if write operations are not allowed. This article is compiled by Aashish Barnwal and reviewed by GeeksforGeeks team. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. X A correction in the if conditions for current.right != null: In the traversal, if current.right == root, it means we have reached a node that’s already processed(threaded) and this can be printed and the link reverted back to null. If current.right == null, it means we are reaching this node for this first time and this needs to linked to the inorder successor. So, I think the conditions should be swapped to the following. Please correct me if I ‘am wrong: if(current.right == null) { current.right = root; root = root.left; } else { print(current.data); current.right = null; root = root.right; } sap what about morris traversal for postorder? abhishek08aug Intelligent Soumya Sengupta why is it printing the tree twice??  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Debjit Viky, Linear time complexity and constant space complexity  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ubiquitous this is not linear time complexity. it’s O(NLogN) and constant space. So sometimes the memory restriction is so much that this traversal helps in great time rathe then O(N) recursive preorder traversal. Hope it helps. Madhav Great Solution. Thanks. http://www.geeksforgeeks.org/morris-traversal-for-preorder/ Viky What is the complexity of this algorithm? Nitin Sharma Time Complexity -> n Log(n) where n -> number of nodes. As you can see there are two while loops.First while loop is iterating through each and every node and second while loop is helping to find the inorder predecessor . 1. Due to outer loop -> O(n) 2. Due to inner loop -> O(Log(n)) Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

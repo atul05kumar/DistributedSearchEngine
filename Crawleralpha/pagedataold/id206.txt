@@ -1,0 +1,316 @@
+Dynamic Programming | Set 23 (Bellman–Ford Algorithm) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Dynamic Programming | Set 23 (Bellman–Ford Algorithm) Given a graph and a source vertex src in graph, find shortest paths from src to all vertices in the given graph. The graph may contain negative weight edges. We have discussed Dijkstra’s algorithm for this problem. Dijksra’s algorithm is a Greedy algorithm and time complexity is O(VLogV) (with the use of Fibonacci heap). Dijkstra doesn’t work for Graphs with negative weight edges, Bellman-Ford works for such graphs. Bellman-Ford is also simpler than Dijkstra and suites well for distributed systems. But time complexity of Bellman-Ford is O(VE), which is more than Dijkstra. Algorithm Following are the detailed steps. Input: Graph and a source vertex src Output: Shortest distance to all vertices from src. If there is a negative weight cycle, then shortest distances are not calculated, negative weight cycle is reported. 1) This step initializes distances from source to all vertices as infinite and distance to source itself as 0. Create an array dist[] of size |V| with all values as infinite except dist[src] where src is source vertex. 2) This step calculates shortest distances. Do following |V|-1 times where |V| is the number of vertices in given graph. …..a) Do following for each edge u-v ………………If dist[v] > dist[u] + weight of edge uv, then update dist[v] ………………….dist[v] = dist[u] + weight of edge uv 3) This step reports if there is a negative weight cycle in graph. Do following for each edge u-v ……If dist[v] > dist[u] + weight of edge uv, then “Graph contains negative weight cycle” The idea of step 3 is, step 2 guarantees shortest distances if graph doesn’t contain negative weight cycle. If we iterate through all edges one more time and get a shorter path for any vertex, then there is a negative weight cycle How does this work? Like other Dynamic Programming Problems, the algorithm calculate shortest paths in bottom-up manner. It first calculates the shortest distances for the shortest paths which have at-most one edge in the path. Then, it calculates shortest paths with at-nost 2 edges, and so on. After the ith iteration of outer loop, the shortest paths with at most i edges are calculated. There can be maximum |V| – 1 edges in any simple path, that is why the outer loop runs |v| – 1 times. The idea is, assuming that there is no negative weight cycle, if we have calculated shortest paths with at most i edges, then an iteration over all edges guarantees to give shortest path with at-most (i+1) edges (Proof is simple, you can refer this or MIT Video Lecture) Example Let us understand the algorithm with following example graph. The images are taken from this source. Let the given source vertex be 0. Initialize all distances as infinite, except the distance to source itself. Total number of vertices in the graph is 5, so all edges must be processed 4 times. Let all edges are processed in following order: (B,E), (D,B), (B,D), (A,B), (A,C), (D,C), (B,C), (E,D). We get following distances when all edges are processed first time. The first row in shows initial distances. The second row shows distances when edges (B,E), (D,B), (B,D) and (A,B) are processed. The third row shows distances when (A,C) is processed. The fourth row shows when (D,C), (B,C) and (E,D) are processed. The first iteration guarantees to give all shortest paths which are at most 1 edge long. We get following distances when all edges are processed second time (The last row shows final values). The second iteration guarantees to give all shortest paths which are at most 2 edges long. The algorithm processes all edges 2 more times. The distances are minimized after the second iteration, so third and fourth iterations don’t update the distances. Implementation: 
+// A C / C++ program for Bellman-Ford's single source shortest path algorithm.
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <limits.h>
+
+// a structure to represent a weighted edge in graph
+struct Edge
+{
+    int src, dest, weight;
+};
+
+// a structure to represent a connected, directed and weighted graph
+struct Graph
+{
+    // V-> Number of vertices, E-> Number of edges
+    int V, E;
+
+    // graph is represented as an array of edges.
+    struct Edge* edge;
+};
+
+// Creates a graph with V vertices and E edges
+struct Graph* createGraph(int V, int E)
+{
+    struct Graph* graph = (struct Graph*) malloc( sizeof(struct Graph) );
+    graph->V = V;
+    graph->E = E;
+
+    graph->edge = (struct Edge*) malloc( graph->E * sizeof( struct Edge ) );
+
+    return graph;
+}
+
+// A utility function used to print the solution
+void printArr(int dist[], int n)
+{
+    printf("Vertex   Distance from Source\n");
+    for (int i = 0; i < n; ++i)
+        printf("%d \t\t %d\n", i, dist[i]);
+}
+
+// The main function that finds shortest distances from src to all other
+// vertices using Bellman-Ford algorithm.  The function also detects negative
+// weight cycle
+void BellmanFord(struct Graph* graph, int src)
+{
+    int V = graph->V;
+    int E = graph->E;
+    int dist[V];
+
+    // Step 1: Initialize distances from src to all other vertices as INFINITE
+    for (int i = 0; i < V; i++)
+        dist[i]   = INT_MAX;
+    dist[src] = 0;
+
+    // Step 2: Relax all edges |V| - 1 times. A simple shortest path from src
+    // to any other vertex can have at-most |V| - 1 edges
+    for (int i = 1; i <= V-1; i++)
+    {
+        for (int j = 0; j < E; j++)
+        {
+            int u = graph->edge[j].src;
+            int v = graph->edge[j].dest;
+            int weight = graph->edge[j].weight;
+            if (dist[u] != INT_MAX && dist[u] + weight < dist[v])
+                dist[v] = dist[u] + weight;
+        }
+    }
+
+    // Step 3: check for negative-weight cycles.  The above step guarantees
+    // shortest distances if graph doesn't contain negative weight cycle.
+    // If we get a shorter path, then there is a cycle.
+    for (int i = 0; i < E; i++)
+    {
+        int u = graph->edge[i].src;
+        int v = graph->edge[i].dest;
+        int weight = graph->edge[i].weight;
+        if (dist[u] != INT_MAX && dist[u] + weight < dist[v])
+            printf("Graph contains negative weight cycle");
+    }
+
+    printArr(dist, V);
+
+    return;
+}
+
+// Driver program to test above functions
+int main()
+{
+    /* Let us create the graph given in above example */
+    int V = 5;  // Number of vertices in graph
+    int E = 8;  // Number of edges in graph
+    struct Graph* graph = createGraph(V, E);
+
+    // add edge 0-1 (or A-B in above figure)
+    graph->edge[0].src = 0;
+    graph->edge[0].dest = 1;
+    graph->edge[0].weight = -1;
+
+    // add edge 0-2 (or A-C in above figure)
+    graph->edge[1].src = 0;
+    graph->edge[1].dest = 2;
+    graph->edge[1].weight = 4;
+
+    // add edge 1-2 (or B-C in above figure)
+    graph->edge[2].src = 1;
+    graph->edge[2].dest = 2;
+    graph->edge[2].weight = 3;
+
+    // add edge 1-3 (or B-D in above figure)
+    graph->edge[3].src = 1;
+    graph->edge[3].dest = 3;
+    graph->edge[3].weight = 2;
+
+    // add edge 1-4 (or A-E in above figure)
+    graph->edge[4].src = 1;
+    graph->edge[4].dest = 4;
+    graph->edge[4].weight = 2;
+
+    // add edge 3-2 (or D-C in above figure)
+    graph->edge[5].src = 3;
+    graph->edge[5].dest = 2;
+    graph->edge[5].weight = 5;
+
+    // add edge 3-1 (or D-B in above figure)
+    graph->edge[6].src = 3;
+    graph->edge[6].dest = 1;
+    graph->edge[6].weight = 1;
+
+    // add edge 4-3 (or E-D in above figure)
+    graph->edge[7].src = 4;
+    graph->edge[7].dest = 3;
+    graph->edge[7].weight = -3;
+
+    BellmanFord(graph, 0);
+
+    return 0;
+}
+ Output: Vertex   Distance from Source
+0                0
+1                -1
+2                2
+3                -2
+4                1 Notes 1) Negative weights are found in various applications of graphs. For example, instead of paying cost for a path, we may get some advantage if we follow the path. 2) Bellman-Ford works better (better than Dijksra’s) for distributed systems. Unlike Dijksra’s where we need to find minimum value of all vertices, in Bellman-Ford, edges are considered one by one. Exercise 1) The standard Bellman-Ford algorithm reports shortest path only if there is no negative weight cycles. Modify it so that it reports minimum distances even if there is a negative weight cycle. 2) Can we use Dijksra’s algorithm for shortest paths for graphs with negative weights – one idea can be, calculate the minimum weight value, add a positive value (equal to absolute value of minimum weight value) to all weights and run the Dijksra’s algorithm for the modified graph. Will this algorithm work? References: http://www.youtube.com/watch?v=Ttezuzs39nk http://en.wikipedia.org/wiki/Bellman%E2%80%93Ford_algorithm http://www.cs.arizona.edu/classes/cs445/spring07/ShortestPath2.prn.pdf Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Vertex Cover Problem | Set 1 (Introduction and Approximate Algorithm) Snake and Ladder Problem Tarjan’s Algorithm to find Strongly Connected Components Shortest path with exactly k edges in a directed and weighted graph Count all possible walks from a source to a destination with exactly k edges Euler Circuit in a Directed Graph Given an array of strings, find if the strings can be chained to form a circle Given a sorted dictionary of an alien language, find order of characters Tags: Dynamic Programming, Graph Tweet Writing code in comment? Please use ideone.com and share the link here. tokes There is a problem where if you change the source node to something different from “a” which is “0” you will get wrong answers. viki Hi Sir, Replace the code “dist[u] + weight < dist[v]" by "dist[u] < dist[v] – weight" to overcome integer overflow. BTW excellent post. Krishna Prasad For step 2: what if i use…. int flag=1; while(flag) { flag=0; for (int j = 0; j edge[j].src; int v = graph->edge[j].dest; int weight = graph->edge[j].weight; if (dist[u] + weight < dist[v]) { dist[v] = dist[u] + weight; flag=1; } } } instead of….. for (int i = 1; i <= V-1; i++) { for (int j = 0; j edge[j].src; int v = graph->edge[j].dest; int weight = graph->edge[j].weight; if (dist[u] + weight < dist[v]) dist[v] = dist[u] + weight; } } ….. It may improve performance breaking out unnecessary iterations am i right????? and what is the need of step3 ?…. i dint understand it…… coder the corresponding mit video lecture is great Kumar Vikram Another implementation of the above problem using adjacency list.. #include<iostream> #include <list> #include <stack> #include <limits.h> using namespace std; class AdjListNode { int v; int weight; public: AdjListNode(int _v, int _w) { v = _v; weight = _w;} int getV() { return v; } int getWeight() { return weight; } }; class Graph { int V; // No. of vertices’ // Pointer to an array containing adjacency lists list<AdjListNode> *adj; public: Graph(int V); // Constructor // function to add an edge to graph void addEdge(int u, int v, int weight); void bell_ford(int src); }; Graph::Graph(int V) { this->V = V; adj = new list<AdjListNode>[V]; } void Graph::addEdge(int u, int v, int weight) { AdjListNode node(v, weight); adj[u].push_back(node); // Add v to u’s list } void Graph::bell_ford(int src) { int dist[V]; for (int i = 0; i < V; i++) dist[i] = INT_MAX; dist[src] = 0; for (int u = 0; u < V; u++) { list<AdjListNode>::iterator i; if (dist[u] != INT_MAX) { for (i = adj[u].begin(); i != adj[u].end(); ++i) if (dist[i->getV()] > dist[u] + i->getWeight()) { dist[i->getV()] = dist[u] + i->getWeight(); } } } cout<<"Vertex\t\tDistance"<<endl; for(int i=0;i<V;i++) { cout<<i<<"\t\t"<<dist[i]<<"\t\t"; cout<<endl; } } int main() { Graph g(5); g.addEdge(0, 1, -1); g.addEdge(0, 2, 4); g.addEdge(1, 2, 3); g.addEdge(1, 3, 2); g.addEdge(1, 4, 2); g.addEdge(3, 2, 5); g.addEdge(3, 1, 1); g.addEdge(4, 3, -3); int s = 1; cout << "Following are shortest distances from source " << s <<" \n"; g.bell_ford(s); return 0; } sumit @252d1d6f4d5c2d9381e4ac9c48ff36cf:disqus , there is one major issue with your approach above , the algo talks about iterating through each edge V-1 times . what you have done in bell_ford() is to iterate through all edges as per the adj list just once . may be you need to change the logic a bit to accommodate this … raghson In the if condition if(dist[u] + weight < dist[v]) : the dist[v] is updated even in the case when dist[u] is INT_MAX, dist[v] is INT_MAX and weight is negative as the condition is satisfied. So, the if-condition should be modified to if(dist[u] + weight < dist[v] && (dist[u]!=INT_MAX)). It will save time which is spent calculating dist[v] in the cases which are of type mentioned above. Please correct me if I am wrong. Kumar Vikram this is an implementation of the given program with the addition that it also calculates the minimum path along with the minimum path length.  
+/*// A C / C++ program for Bellman-Ford's single source shortest path algorithm.
+ 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <limits.h>
+ 
+
+struct Edge
+{
+    int src, dest, weight;
+};
+ 
+
+struct Graph
+{
+   
+    int V, E;
+ 
+    
+    struct Edge* edge;
+};
+ 
+
+struct Graph* createGraph(int V, int E)
+{
+    struct Graph* graph = (struct Graph*) malloc( sizeof(struct Graph) );
+    graph->V = V;
+    graph->E = E;
+ 
+    graph->edge = (struct Edge*) malloc( graph->E * sizeof( struct Edge ) );
+ 
+    return graph;
+}
+ 
+int pred[10];
+void print_path(int s,int v)
+{
+int i,u;
+int path[10];
+int count=0;
+while(v != s)
+{
+	count++;
+	path[count]=v;
+	u=pred[v];
+	v=u;
+}
+count++;
+path[count]=s;
+printf("the shortest path is : ");
+for(i=count;i>=1;i--)
+{
+	printf("%d\t",path[i]);
+}
+}
+ 
+void printArr(int dist[], int n, int src)
+{
+    printf("Vertex       Distance:\n");
+    for (int i = 0; i < n; ++i)
+	{
+        printf("%d \t\t %d\t",i,dist[i]);
+	print_path(src,i);
+	printf("\n");
+	}
+}
+
+
+void BellmanFord(struct Graph* graph, int src)
+{
+    int V = graph->V;
+    int E = graph->E;
+    int dist[V];
+    char path[V][V];
+    int i,j;
+    
+    for (int i = 0; i < V; i++)
+        dist[i]   = INT_MAX;
+    dist[src] = 0;
+ 
+   
+    for (int i = 1; i <= V-1; i++)
+    {
+        for (int j = 0; j < E; j++)
+        {
+            int u = graph->edge[j].src;
+            int v = graph->edge[j].dest;
+            int weight = graph->edge[j].weight;
+            if (dist[u] + weight < dist[v])
+		{
+                dist[v] = dist[u] + weight;
+		pred[v]=u;
+		}
+        }
+    }
+ 
+    
+    for (int i = 0; i < E; i++)
+    {
+        int u = graph->edge[i].src;
+        int v = graph->edge[i].dest;
+        int weight = graph->edge[i].weight;
+        if (dist[u] + weight < dist[v])
+            printf("Graph contains negative weight cycle");
+    }
+
+    printArr(dist, V, src);
+ 
+    return;
+}
+ 
+
+int main()
+{
+    
+    int V = 5;  // Number of vertices in graph
+    int E = 8;  // Number of edges in graph
+    struct Graph* graph = createGraph(V, E);
+ 
+    
+    graph->edge[0].src = 0;
+    graph->edge[0].dest = 1;
+    graph->edge[0].weight = -1;
+ 
+   
+    graph->edge[1].src = 0;
+    graph->edge[1].dest = 2;
+    graph->edge[1].weight = 4;
+ 
+  
+    graph->edge[2].src = 1;
+    graph->edge[2].dest = 2;
+    graph->edge[2].weight = 3;
+ 
+   
+    graph->edge[3].src = 1;
+    graph->edge[3].dest = 3;
+    graph->edge[3].weight = 2;
+ 
+   
+    graph->edge[4].src = 1;
+    graph->edge[4].dest = 4;
+    graph->edge[4].weight = 2;
+ 
+   
+    graph->edge[5].src = 3;
+    graph->edge[5].dest = 2;
+    graph->edge[5].weight = 5;
+ 
+   
+    graph->edge[6].src = 3;
+    graph->edge[6].dest = 1;
+    graph->edge[6].weight = 1;
+ 
+   
+    graph->edge[7].src = 4;
+    graph->edge[7].dest = 3;
+    graph->edge[7].weight = -3;
+ 
+    BellmanFord(graph, 0);
+    return 0;
+}
+     */
+ Kumar Vikram  this is an implementation of above program that also calculates the shortest path along with the minimum cost
+/* Paste your code here (You may delete these lines if not writing code) */
+ // A C / C++ program for Bellman-Ford’s single source shortest path algorithm. #include #include #include #include struct Edge { int src, dest, weight; }; struct Graph { int V, E; struct Edge* edge; }; struct Graph* createGraph(int V, int E) { struct Graph* graph = (struct Graph*) malloc( sizeof(struct Graph) ); graph->V = V; graph->E = E; graph->edge = (struct Edge*) malloc( graph->E * sizeof( struct Edge ) ); return graph; } int pred[10]; void print_path(int s,int v) { int i,u; int path[10]; int count=0; while(v != s) { count++; path[count]=v; u=pred[v]; v=u; } count++; path[count]=s; printf(“the shortest path is : “); for(i=count;i>=1;i–) { printf(“%d\t”,path[i]); } } void printArr(int dist[], int n, int src) { printf(“Vertex Distance:\n”); for (int i = 0; i V; int E = graph->E; int dist[V]; char path[V][V]; int i,j; for (int i = 0; i < V; i++) dist[i] = INT_MAX; dist[src] = 0; for (int i = 1; i <= V-1; i++) { for (int j = 0; j edge[j].src; int v = graph->edge[j].dest; int weight = graph->edge[j].weight; if (dist[u] + weight < dist[v]) { dist[v] = dist[u] + weight; pred[v]=u; } } } for (int i = 0; i edge[i].src; int v = graph->edge[i].dest; int weight = graph->edge[i].weight; if (dist[u] + weight edge[0].src = 0; graph->edge[0].dest = 1; graph->edge[0].weight = -1; graph->edge[1].src = 0; graph->edge[1].dest = 2; graph->edge[1].weight = 4; graph->edge[2].src = 1; graph->edge[2].dest = 2; graph->edge[2].weight = 3; graph->edge[3].src = 1; graph->edge[3].dest = 3; graph->edge[3].weight = 2; graph->edge[4].src = 1; graph->edge[4].dest = 4; graph->edge[4].weight = 2; graph->edge[5].src = 3; graph->edge[5].dest = 2; graph->edge[5].weight = 5; graph->edge[6].src = 3; graph->edge[6].dest = 1; graph->edge[6].weight = 1; graph->edge[7].src = 4; graph->edge[7].dest = 3; graph->edge[7].weight = -3; BellmanFord(graph, 0); return 0; } Shashank The algorithm is correct but there is a small glitch in the explanation. *The idea is, if we have calculated shortest paths with at most i edges, then an iteration over all edges guarantees to give shortest path with at-most (i+1) edges* My Point: After ‘i’ iterations every node does not hold a value for shortest path with at most i edges. It holds a value which is ‘at-most’ the value for the shortest path with at most i edges. But it definitely holds a value for some path. It is just that after ‘i’ iterations it may hold a value for a path with greater than ‘i’ edges. This can also be seen in the example cited above where – Node C holds the matrix value 2 after 1st iteration when the value 2 for Node C is for a path with 2 edges. This happens because of the sequence in which the nodes are considered. Just a minor correction in the description  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

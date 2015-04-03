@@ -1,0 +1,336 @@
+Position of rightmost set bit - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Position of rightmost set bit Write a one line C function to return position of first 1 from right to left, in binary representation of an Integer. 
+I/P    18,   Binary Representation 010010
+O/P   2
+I/P    19,   Binary Representation 010011
+O/P   1
+ Let I/P be 12 (1100) 
+Algorithm: (Example 18(010010))
+
+1. Take two's complement of the given no as all bits are reverted
+except the first '1' from right to left (10111)
+
+2  Do an bit-wise & with original no, this will return no with the
+required one only (00010)
+
+3  Take the log2 of the no, you will get position -1 (1)
+
+4  Add 1 (2)
+ Program: 
+#include<stdio.h>
+#include<math.h>
+
+unsigned int getFirstSetBitPos(int n)
+{
+   return log2(n&-n)+1;
+}
+
+int main()
+{
+    int n = 12;
+    printf("%u", getFirstSetBitPos(n));
+    getchar();
+    return 0;
+}
+           Related Topics: Check if binary representation of a number is palindrome Swap two nibbles in a byte How to turn off a particular bit in a number? Check if a number is multiple of 9 using bitwise operators How to swap two numbers without using a temporary variable? Divide and Conquer | Set 4 (Karatsuba algorithm for fast multiplication) Find position of the only set bit Swap all odd and even bits Tags: Bit Magic Tweet Writing code in comment? Please use ideone.com and share the link here. Abhishek What if n=0; RAUL One line code: while ( !(n & 1) && ++pos && (n >>= 1) ); cout << pos+1; divyank_duvedi Another Method to do it : XOR=num^(num-1); pos_rightset=(log(XOR)/log(2))+1; Ujjwal Arora  
+log2((n & (n-1)) ^ n)) + 1;
+*/
+ olive int getrmostbit(int n) {count=0; while(n!=0) { if(n&1) {count++;break;} count++; n=n>>1; } return count; }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ crazy why not this.. return n&~(n-1);  
+/* Paste your code here (You may delete these lines if not writing code) */
+ crazy I am sorry it will not work….  
+/* Paste your code here (You may delete these lines if not writing code) */
+ minoz Isn’t 2’s complement of 18 1110? Seems a typo in the example. _naive_ #include int main() { int n,i,set=0; printf(“Enter the number:-“); scanf(“%d”,&n); int mask = 1; for(i=1;i< =32;i++) { if((mask & n) == 1) { set = 1; break; } else n = n >> 1; } if(set == 1) printf(“%d”,i); else printf(“No Set Bit Found !!!”); return 0; } Ranjan prints the binary value of the given decimal number along with the first set bit position from the right.  
+/* Paste your code here (You may delete these lines if not writing code) */#include<stdio.h>
+int bin(unsigned n)
+{
+    unsigned i;
+    int count =-1;
+    for (i = 1<<31 ; i > 0; i = i / 2)
+    {
+         (n & i)? printf("1"): printf("0");
+          if(n & i)
+         {
+               count = i/2;
+         }
+    }
+    return count+1;
+}
+ 
+int main(void)
+{
+    int position;
+    position = bin(0);    
+    printf("\n%d\n", position);
+    position = bin(4);
+    printf("\n%d\n", position);
+    getchar();
+    return 0;
+}
+ Amandeep Sharma Method you have shown above uses log function, which implicitly uses multipication and division.Here is another method.  
+#include<stdio.h>
+#include<conio.h>
+int main()
+{
+    int num=16;
+    int mask=1;
+    int pos;
+    if(num==0)
+    {
+        printf("0");
+        return 0;
+    }
+    for(pos=1;!(mask & num);pos++)
+    {
+        mask=mask<<1;
+    }
+    printf("position : %d ",pos);
+    return 0;
+}
+
+ Monidipa Chakraborty  
+int rightmost_setbit(int n)
+{
+     return (n&(!(n-1)));
+}
+ pr6989  
+#include<iostream>
+#include<math.h>
+using namespace std;
+main()
+{
+    int n;
+    cin>>n;
+    if(n==0)
+    cout<<0;
+    else
+    {
+        int check=1;
+        while(check<n)
+        {
+            if(check&n)
+            break;
+            else
+            check<<=1;
+        }
+        cout<<log2(check)+1;
+    }
+
+}
+
+ pr6989 The above code works for positive numbers only. shivi can’t just n-(n&(n-1)) give the answerr?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ vick my solution  
+/* 
+#include<stdio.h>
+#include<conio.h>
+
+int posOf1st1(int a,int *c)
+{
+	for((*c)=1;!(a & 1);(*c)++,a=a>>1);
+};
+
+int main()
+{
+	int a,c;
+	scanf("%d",&a);
+	posOf1st1(a,&c);
+	printf("%d",c);
+	getch();
+} */
+ bhavneet why not this?  
+int func(int n)
+{
+return log2(n-n&(n-1));
+}
+ akshat gupta it is perfectly fine. Neha Apply n & !(n-1) Rudhi /* comment on my simple logic */ # include int position_of_rightmost_set_bit (int); int main () { int enter_num; printf (“enter an integer \n”); scanf (“%d”, &enter_num); printf (“The position of the rightmost set bit is equal to %d”, position_of_rightmost_set_bit(enter_num)); return 0; } int position_of_rightmost_set_bit (int num) { static int count; if (num > 0) { if ((num%2) == 1) { ++count; } else { (num = num / 2); ++count; position_of_rightmost_set_bit (num); } } return count; } Rudhi   /* Hi!! Rudhi here Plz comment me on this piece of code */ # include int position_of_rightmost_set_bit (int); int main () { int enter_num; printf (“enter an integer \n”); scanf (“%d”, &enter_num); printf (“The position of the rightmost set bit is equal to %d”, position_of_rightmost_set_bit(enter_num)); return 0; } int position_of_rightmost_set_bit (int num) { static int count; if (num > 0) { if ((num%2) == 1) { ++count; } else { (num = num / 2); ++count; position_of_rightmost_set_bit (num); } } return count; } levis log2(n^(n&n-1))+1 Piyush elaborate  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Abhimanyu Vohra nice!! Kk  
+while(!(n & (1 << (i++))));
+//i points to position, but it is O(b), where b is the no. of bits in n.
+ rajat  
+int first_set_bit(int n){
+         /* I have assumed LSB is at position 0 and 2nd bit is at position 1 */
+       int first_bit= (n&(~(n-1)))/2;
+       return(first_bit +1);
+}
+ BlackMath Fails for input 8, 16, etc.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Himanshu Another implementation used by Linux kernel is : A function ffs() is defined as:  
+/**
+   * ffs - find first bit set
+    * @x: the word to search
+    *
+    * This is defined the same way as
+    * the libc and compiler builtin ffs routines, therefore
+    * differs in spirit from the above ffz (man ffs).
+    */
+  static inline int ffs(int x)
+  {
+          int r = 1;
+  
+          if (!x)
+                  return 0;
+          if (!(x & 0xffff)) {
+                  x >>= 16;
+                  r += 16;
+          }
+          if (!(x & 0xff)) {
+                  x >>= 8;
+                  r += 8;
+          }
+          if (!(x & 0xf)) {
+                  x >>= 4;
+                  r += 4;
+          }
+          if (!(x & 3)) {
+                  x >>= 2;
+                  r += 2;
+          }
+          if (!(x & 1)) {
+                  x >>= 1;
+                  r += 1;
+          }
+          return r;
+  }
+ Also see : http://lxr.linux.no/#linux+v2.6.37/include/asm-generic/bitops/ffs.h Hill  
+#include<iostream>
+#include<stdio.h>
+
+using namespace std;
+int main()
+{
+int pos=1;
+
+unsigned int v=18;
+unsigned int m=1;
+
+while (v)
+{
+    if(v&m) break;
+    pos++;
+    v >>=1;
+    
+}
+cout<<pos;
+getchar();
+}
+ guineaPig  
+#include<stdio.h>
+int place(int n) {
+ 	int pos=1,num=1;
+	while(!(n & num)) {
+		num<<=1;
+		pos++;
+	}
+       return pos;
+}
+int main()
+{
+	int n=64;
+	printf("%d",place(64));
+        getchar();
+ 
+
+	return 0;
+}
+ http://wemeanourthoughts.blogspot.com/ Venki An order of log(X) algorithm. We can conclude from 2’s complement form that “a number can be converted to 2’s complement form by complementing each bit from right most set bit”. For example, -7 can be obtained in the following way (assuming 8 bit size) 7 = 00000111 -7 = 11111001 8 = 00001000 -8 = 11111000 5 = 00000101 -5 = 11111011 If we perform ANDing between x and -x we left with right most set bit. All this takes O(1) time. Now use binary search [ O(log(x)) ] to figure out which bit is set. Given below is code.  
+int getPosition(unsigned x)
+{
+    // ASSUMPTION: x will not be zero
+
+    // left, right and mid position
+    int l = 0, r = 33, mid = 0;
+    // temp value
+    unsigned temp;
+
+    // Iterate till we find the bit position
+    while(l < r)
+    {
+        // ((r - l) >> 1) + l - Is more effective??
+        mid = (l + r) >> 1;
+
+        // Set the most possible significant bit
+        temp = (1 << (mid - 1));
+
+        if(temp == x)
+        {
+            break;
+        }
+        else if(temp < x)
+        {
+            // Bit is in the higher half
+            l = mid;
+        }
+        else
+        {
+            // Bit is in the lower half
+            r = mid;
+        }
+    }
+
+    // Return mid itself if bits
+    // are positioned from 1 to 32
+    return (mid-1);
+}
+
+int getRightMostSetBit(unsigned x)
+{
+    // Return 0 if x is zero
+    int position = 0;
+
+    // Avoid multiple return statements
+    if(x != 0)
+    {
+        // Make the integer passes as least power of 2
+        // Call the position locator
+        position = getPosition(x & -(signed)x);
+    }
+
+    return position;
+}
+ Errors, if any, please let me know. http://shashank7s.blogspot.com wgpshashank nice venki , thumbs up !!!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Abhishek Sorry…it shud be right shift not left shift in the previous post Abhishek I wud like to suggest another solution…plz tell me if i m wrong Let the given number be n.. m= n^(n-1) now left shift m and keep increasing the counter by 1. when m becomes 0, the value of count is the required value.. amit is there any efficient method for position of leftmost bit???? Hary Game your solution is awesome. But this will not work for n = 0 and it also assumes that for n = 1 bit position returned will be 0. game Using ‘log’ is never a good idea, iterating over the bits will be much more efficient than taking a log. log and % are highly costly operations because they generally include memory accesses. Below is a ~40-50 instruction O(1) solution  
+#include<stdio.h>
+unsigned int getFirstSetBitPos(int n)
+{
+  int b =0;       
+  n--;
+  if((n&0xffff) == 0xffff) 
+  {
+    b+=16;
+    n>>=16;
+  }  
+  if((n&0xff) == 0xff) 
+  {
+    b+=8;
+    n>>=8;
+  }  
+  if((n&0xf) == 0xf) 
+  {
+    b+=4;
+    n>>=4;
+  }  
+  if((n&0x3) == 0x3) 
+  {
+    b+=2;
+    n>>=2;
+  }
+  if ((n&1) == 1) 
+  {
+    b++;
+    n>>=1;
+  }
+  return b; 
+}         
+
+/*Driver program for testing above function*/
+int main()
+{
+  int n = 12; /*Change n for testing other numbers*/
+  printf("%u\n", getFirstSetBitPos(n));
+  getchar();
+  return 0;
+}
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

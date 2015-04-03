@@ -1,0 +1,69 @@
+Write a C program to find the parity of an unsigned integer - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Write a C program to find the parity of an unsigned integer Parity: Parity of a number refers to whether it contains an odd or even number of 1-bits. The number has “odd parity”, if it contains odd number of 1-bits and is “even parity” if it contains even number of 1-bits. Main idea of the below solution is – Loop while n is not 0 and in loop unset one of the set bits and invert parity. 
+Algorithm: getParity(n)
+1. Initialize parity = 0
+2. Loop while n != 0      
+      a. Invert parity 
+             parity = !parity
+      b. Unset rightmost set bit
+             n = n & (n-1)
+3. return parity
+
+Example:
+ Initialize: n = 13 (1101)   parity = 0
+
+n = 13 & 12  = 12 (1100)   parity = 1
+n = 12 & 11 = 8  (1000)   parity = 0
+n = 8 & 7 = 0  (0000)    parity = 1
+ Program: 
+# include <stdio.h>
+# define  bool int
+
+/* Function to get parity of number n. It returns 1
+   if n has odd parity, and returns 0 if n has even
+   parity */
+bool getParity(unsigned int n)
+{
+    bool parity = 0;
+    while (n)
+    {
+        parity = !parity;
+        n      = n & (n - 1);
+    }        
+    return parity;
+}
+
+/* Driver program to test getParity() */
+int main()
+{
+    unsigned int n = 7;
+    printf("Parity of no %d = %s",  n, 
+             (getParity(n)? "odd": "even"));
+    
+    getchar();
+    return 0;
+}
+ Above solution can be optimized by using lookup table. Please refer to Bit Twiddle Hacks[1st reference] for details. Time Complexity: The time taken by above algorithm is proportional to the number of bits set. Worst case complexity is O(Logn). Uses: Parity is used in error detection and cryptography. References: http://graphics.stanford.edu/~seander/bithacks.html#ParityNaive – last checked on 30 May 2009.           Related Topics: Check if binary representation of a number is palindrome Swap two nibbles in a byte How to turn off a particular bit in a number? Check if a number is multiple of 9 using bitwise operators How to swap two numbers without using a temporary variable? Divide and Conquer | Set 4 (Karatsuba algorithm for fast multiplication) Find position of the only set bit Swap all odd and even bits Tags: Bit Magic Tweet Writing code in comment? Please use ideone.com and share the link here. Amit Kumar void main() { int value=7,i=1,count=0; while (i){ if(value & i){ ++count;} i=i<<1; } printf(" value: %d", count); PingPong Hi, I don’t understand the definition, which is given blow: “The number has “odd parity”, if it contains odd number of 1-bits and is “even parity” if it contains even number of 1-bits.” And ” It returns 1if n has odd parity, and returns 0 if n has even parity” Thus, shouldn’t the example above return the result below instead: Initialize: n = 13 (1101) parity should be 1 because it has 3 1-bits n= 12 (1100) parity should 0 because it has 2 1-bits What information am I missing here, please correct me? dusty Another possible solution :  int main()
+{
+    int a,n;
+    a=0;
+    scanf("%d",&n);
+    while(n>0)
+    {
+        if(n&1)
+            a=!a;
+        n>>=1;
+    }
+    printf("%d",a);
+}
+
+ shhrohan19 How the time complexity is O(log n) .. please explain … we are doing n-1 on every iteration..!!! so it should be O(n) right ? Ritesh We can also use the gcc built-in function: int __builtin_parity (unsigned int x) Returns the parity of x, i.e. the number of 1-bits in x modulo 2. yaser fathi thanks for this program I want to C++ code for two-spiral problem and function approximation for neural network trainning Lokesh Another optimized code:  
+bool getParity(unsigned int x)
+{
+    x = ((x >> 1) & 0x55555555) + (x & 0x55555555);
+    x = ((x >> 2) & 0x33333333) + (x & 0x33333333);
+    x = ((x >> 4) & 0x0F0F0F0F) + (x & 0x0F0F0F0F);
+    x = ((x >>  8 ) + x ;
+    x = ((x >>  16 ) + x ;
+    return (x&0x01);
+}
+ Constant running time for any value. Worst Case Complexity O(1) temp Can you please explain what are these hex values? a link to a good source would also be great. Thanks bala Unsigned int in the question takes 4 bytes. 0x55555555 – 01010101 01010101 01010101 01010101 0x33333333 – 00110011 00110011 00110011 00110011 0x0F0F0F0F – 00001111 00001111 00001111 00001111 What the first 3 steps basically does is that , it calculates the number of 1’s in the groups of 2 bits, 4 bits, 8 bits respectively. The 4th step is actually not necessary, still it gives the correct answer. Hence the 4th step can be omitted. If you work out the first 3 steps , you will understand what the 4th and 5th step does. Hope it helps Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

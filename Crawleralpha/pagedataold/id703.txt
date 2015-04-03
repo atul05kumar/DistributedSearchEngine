@@ -1,0 +1,103 @@
+Print nodes between two given level numbers of a binary tree - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Print nodes between two given level numbers of a binary tree Given a binary tree and two level numbers ‘low’ and ‘high’, print nodes from level low to level high. 
+For example consider the binary tree given in below diagram. 
+
+Input: Root of below tree, low = 2, high = 4
+
+Output:
+8 22
+4 12
+10 14<> A Simple Method is to first write a recursive function that prints nodes of a given level number. Then call recursive function in a loop from low to high. Time complexity of this method is O(n2) We can print nodes in O(n) time using queue based iterative level order traversal. The idea is to do simple queue based level order traversal. While doing inorder traversal, add a marker node at the end. Whenever we see a marker node, we increase level number. If level number is between low and high, then print nodes. The following is C++ implementation of above idea. 
+// A C++ program to print Nodes level by level berween given two levels.
+#include <iostream>
+#include <queue>
+using namespace std;
+
+/* A binary tree Node has key, pointer to left and right children */
+struct Node
+{
+    int key;
+    struct Node* left, *right;
+};
+
+/* Given a binary tree, print nodes from level number 'low' to level
+   number 'high'*/
+void printLevels(Node* root, int low, int high)
+{
+    queue <Node *> Q;
+
+    Node *marker = new Node; // Marker node to indicate end of level
+
+    int level = 1;   // Initialize level number
+
+    // Enqueue the only first level node and marker node for end of level
+    Q.push(root);
+    Q.push(marker);
+
+    // Simple level order traversal loop
+    while (Q.empty() == false)
+    {
+        // Remove the front item from queue
+        Node *n = Q.front();
+        Q.pop();
+
+        // Check if end of level is reached
+        if (n == marker)
+        {
+            // print a new line and increment level number
+            cout << endl;
+            level++;
+
+            // Check if marker node was last node in queue or
+            // level number is beyond the given upper limit
+            if (Q.empty() == true || level > high) break;
+
+            // Enqueue the marker for end of next level
+            Q.push(marker);
+
+            // If this is marker, then we don't need print it
+            // and enqueue its children
+            continue;
+        }
+
+        // If level is equal to or greater than given lower level,
+        // print it
+        if (level >= low)
+            cout << n->key << " ";
+
+        // Enqueue children of non-marker node
+        if (n->left != NULL)  Q.push(n->left);
+        if (n->right != NULL) Q.push(n->right);
+    }
+}
+
+/* Helper function that allocates a new Node with the
+   given key and NULL left and right pointers. */
+Node* newNode(int key)
+{
+    Node* temp = new Node;
+    temp->key = key;
+    temp->left = temp->right = NULL;
+    return (temp);
+}
+
+/* Driver program to test above functions*/
+int main()
+{
+    // Let us construct the BST shown in the above figure
+    struct Node *root        = newNode(20);
+    root->left               = newNode(8);
+    root->right              = newNode(22);
+    root->left->left         = newNode(4);
+    root->left->right        = newNode(12);
+    root->left->right->left  = newNode(10);
+    root->left->right->right = newNode(14);
+
+    cout << "Level Order traversal between given two levels is";
+    printLevels(root, 2, 3);
+
+    return 0;
+}
+ 
+Level Order traversal between given two levels is
+8 22
+4 12 Time complexity of above method is O(n) as it does a simple level order traversal. This article is contributed by Frank. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Find Height of Binary Tree represented by Parent array Minimum no. of iterations to pass information to all nodes in the tree Tweet Writing code in comment? Please use ideone.com and share the link here. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,356 @@
+Binary Tree to Binary Search Tree Conversion  - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Binary Tree to Binary Search Tree Conversion Given a Binary Tree, convert it to a Binary Search Tree. The conversion must be done in such a way that keeps the original structure of Binary Tree. Examples. 
+Example 1
+Input:
+          10
+         /  \
+        2    7
+       / \
+      8   4
+Output:
+          8
+         /  \
+        4    10
+       / \
+      2   7
+
+
+Example 2
+Input:
+          10
+         /  \
+        30   15
+       /      \
+      20       5
+Output:
+          15
+         /  \
+       10    20
+       /      \
+      5        30
+ Solution Following is a 3 step solution for converting Binary tree to Binary Search Tree. 1) Create a temp array arr[] that stores inorder traversal of the tree. This step takes O(n) time. 2) Sort the temp array arr[]. Time complexity of this step depends upon the sorting algorithm. In the following implementation, Quick Sort is used which takes (n^2) time. This can be done in O(nLogn) time using Heap Sort or Merge Sort. 3) Again do inorder traversal of tree and copy array elements to tree nodes one by one. This step takes O(n) time. Following is C implementation of the above approach. The main function to convert is highlighted in the following code. 
+/* A program to convert Binary Tree to Binary Search Tree */
+#include<stdio.h>
+#include<stdlib.h>
+
+/* A binary tree node structure */
+struct node
+{
+    int data;
+    struct node *left;
+    struct node *right;
+};
+
+/* A helper function that stores inorder traversal of a tree rooted
+  with node */
+void storeInorder (struct node* node, int inorder[], int *index_ptr)
+{
+    // Base Case
+    if (node == NULL)
+        return;
+
+    /* first store the left subtree */
+    storeInorder (node->left, inorder, index_ptr);
+
+    /* Copy the root's data */
+    inorder[*index_ptr] = node->data;
+    (*index_ptr)++;  // increase index for next entry
+
+    /* finally store the right subtree */
+    storeInorder (node->right, inorder, index_ptr);
+}
+
+/* A helper function to count nodes in a Binary Tree */
+int countNodes (struct node* root)
+{
+    if (root == NULL)
+     return 0;
+    return countNodes (root->left) +
+           countNodes (root->right) + 1;
+}
+
+// Following function is needed for library function qsort()
+int compare (const void * a, const void * b)
+{
+    return ( *(int*)a - *(int*)b );
+}
+
+/* A helper function that copies contents of arr[] to Binary Tree. 
+   This functon basically does Inorder traversal of Binary Tree and 
+   one by one copy arr[] elements to Binary Tree nodes */
+void arrayToBST (int *arr, struct node* root, int *index_ptr)
+{
+    // Base Case
+    if (root == NULL)
+      return;
+
+    /* first update the left subtree */
+    arrayToBST (arr, root->left, index_ptr);
+
+    /* Now update root's data and increment index */
+    root->data = arr[*index_ptr];
+    (*index_ptr)++;
+
+    /* finally update the right subtree */
+    arrayToBST (arr, root->right, index_ptr);
+}
+
+// This function converts a given Binary Tree to BST
+void binaryTreeToBST (struct node *root)
+{
+    // base case: tree is empty
+    if(root == NULL)
+       return;
+
+    /* Count the number of nodes in Binary Tree so that
+       we know the size of temporary array to be created */
+    int n = countNodes (root);
+
+    // Create a temp array arr[] and store inorder traversal of tree in arr[]
+    int *arr = new int[n];
+    int i = 0;
+    storeInorder (root, arr, &i);
+
+    // Sort the array using library function for quick sort
+    qsort (arr, n, sizeof(arr[0]), compare);
+
+    // Copy array elements back to Binary Tree
+    i = 0;
+    arrayToBST (arr, root, &i);
+
+    // delete dynamically allocated memory to avoid meory leak
+    delete [] arr;
+}
+
+/* Utility function to create a new Binary Tree node */
+struct node* newNode (int data)
+{
+    struct node *temp = new struct node;
+    temp->data = data;
+    temp->left = NULL;
+    temp->right = NULL;
+    return temp;
+}
+
+/* Utility function to print inorder traversal of Binary Tree */
+void printInorder (struct node* node)
+{
+    if (node == NULL)
+        return;
+
+    /* first recur on left child */
+    printInorder (node->left);
+
+    /* then print the data of node */
+    printf("%d ", node->data);
+
+    /* now recur on right child */
+    printInorder (node->right);
+}
+
+/* Driver function to test above functions */
+int main()
+{
+    struct node *root = NULL;
+
+    /* Constructing tree given in the above figure
+          10
+         /  \
+        30   15
+       /      \
+      20       5   */
+    root = newNode(10);
+    root->left = newNode(30);
+    root->right = newNode(15);
+    root->left->left = newNode(20);
+    root->right->right = newNode(5);
+
+    // convert Binary Tree to BST
+    binaryTreeToBST (root);
+
+    printf("Following is Inorder Traversal of the converted BST: \n");
+    printInorder (root);
+
+    return 0;
+}
+ Output: 
+Following is Inorder Traversal of the converted BST:
+5 10 15 20 30 We will be covering another method for this problem which converts the tree using O(height of tree) extra space. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. Sudarshan Kj what is the use of compare fuction there? anyone pls tell me Harry It used by the c function “qsort”, refer to http://www.cplusplus.com/reference/cstdlib/qsort/ Vivek O(n^2) with space O(1) /* A program to convert Binary Tree to Binary Search Tree */ #include #include /* A binary tree node structure */ struct node { int data; struct node *left; struct node *right; }; void swap(struct node *root1, struct node *root2) { int c; c=root1->data; root1->data=root2->data; root2->data=c; } /*int isBst(struct node *root) { if(root->left && root->right) return isBst(root->left)data && root->dataright); if(!root->left && !root->right) return root->data; if(!root->left) return root->data>=isBst(root->right); if(!root->right) return isBst(root->left)data; } */ void converttoBSTutil(struct node *root) { if(root) { converttoBSTutil(root->left); converttoBSTutil(root->right); if(root->left) { if(root->data left->data) { swap(root, root->left); } } if(root->right) { if(root->data > root->right->data) { swap(root, root->right); } } } } void converttoBST(struct node *root,struct node *root2) { if(root) { converttoBST(root->left,root2); converttoBSTutil(root2); converttoBST(root->right,root); } } struct node* newNode (int data) { struct node *temp = (struct node *)malloc(sizeof(struct node)); temp->data = data; temp->left = NULL; temp->right = NULL; return temp; } void printInorder (struct node* node) { if (node == NULL) return; /* first recur on left child */ printInorder (node->left); /* then print the data of node */ printf("%d ", node->data); /* now recur on right child */ printInorder (node->right); } /* Driver function to test above functions */ int main() { struct node *root = NULL; /* Constructing tree given in the above figure 10 / 30 15 / 20 5 */ root = newNode(10); root->left = newNode(30); root->right = newNode(15); root->left->left = newNode(20); root->right->right = newNode(5); // convert Binary Tree to BST converttoBST(root,root); printf("Following is Inorder Traversal of the converted BST: n"); printInorder (root); return 0; } Vinodhini could you guys post the O(height of tree) solution? Amit Bgl wow code abhishek08aug Intelligent prakash_ntk  
+
+//Here is a solution for converting a Binary tree to BST without //using extra space.time complexity=o(n^2)
+
+
+Convert_BST(node root, int cur_max)
+{
+	If(NULL==root)
+		return ;
+	Convert_BST(root->right, cur_max);
+	node * max_node=find_next _max(root,cur_max);
+	int temp=root->data;
+	root->data=max_node->data;
+	max_node->data=temp;
+	cur_max= max_node->data;
+	Convert_BST(root->left, cur_max);
+}
+
+node find_next_max(node root,int pre_max)
+{
+	static int max=0;//keep track ofcurrent max value
+	static node *max_node;//keep track of cur maximum valued node.
+	
+	if(NULL==root)
+		return 0;
+	
+	
+	
+	find_next_max(root->left,cur_max);
+	find_next_max(root->right,cur_max);
+	
+	//if current node value is higher than max and less than previous max value, update
+ 	//the max_node pointer and max value
+	if(root->data>max && root->data<pre_max)
+	{
+		max_node=root;	
+		max=root->data;
+	}
+	return max_node;
+	
+
+}
+ algobard Can you guys please post the approach which uses O(ht.) space? http://googleblog.blogspot.com Arun  
+traverse the tree in pre-order , make the root node correct (mean root is greater than left child and smaller than write child.
+do it n(no. of node) times. the tree will be BST . 
+Time complexity is nlogn.
+ Dipanjan  
+Your solution won't retain the original Binary tree structure...
+ Pramod  
+import java.util.*;
+/**
+ * Given a Binary Tree, convert it to a Binary Search Tree. The conversion must
+ * be done in such a way that keeps the original structure of Binary Tree.
+ * 
+ * @author ppatil
+ * 
+ * Example 1
+Input:
+          10
+         /  \
+        2    7
+       / \
+      8   4
+Output:
+          8
+         /  \
+        4    10
+       / \
+      2   7
+
+Example 2
+Input:
+          10
+         /  \
+        30   15
+       /      \
+      20       5
+Output:
+          15
+         /  \
+       10    20
+       /      \
+      5        30
+      
+ */
+public class BinTree2BinSrchTree {
+
+
+ private List<Integer> elements;
+ 
+ public BinTree2BinSrchTree(){
+	 this.elements = new ArrayList<Integer>();
+ }
+ 
+ public void storeInOrder(Node n){ 
+	 if(n== null) return;
+	 storeInOrder(n.left);
+	 this.elements.add(n.val);
+	 storeInOrder(n.right);
+ }
+ 
+ public void printList(){
+	 Arrays.toString(this.elements.toArray());
+ }
+
+
+ 
+ private static int index = 0;
+ public void binT2BST(Node n){
+	 if(n== null) return;
+	 this.storeInOrder(n);
+	 Object[] arr = this.elements.toArray(); 
+	Arrays.sort( arr);
+	convertToBSH(n, arr);
+	 
+	 
+ }
+ 
+ void printOrder(Node n){
+	 if (n== null ) return;
+	 printOrder(n.left);
+	 System.out.println(n.val);
+	 printOrder(n.right);
+ }
+
+private List<Integer> bsh= new ArrayList();
+
+private void convertToBSH(Node n,Object[] arr ) {
+	if(n == null ) return;
+	
+	//first add left subtree
+	convertToBSH(n.left, arr);
+	n.val = (Integer) arr[index];
+	++index;
+	convertToBSH(n.right,arr);
+	
+}
+ 
+
+
+public static void main(String[] args){
+
+	
+	BinTree2BinSrchTree binTree2BinSrchTree = new BinTree2BinSrchTree();
+
+/* Constructing tree given in the above figure
+10
+/  \
+30   15
+/      \
+20       5  
+ */
+	
+Node root = new Node(10);
+root.left = new Node(30);
+root.right = new Node(15);
+root.left.left = new Node(20);
+root.right.right = new Node(5);
+
+// convert Binary Tree to BST
+binTree2BinSrchTree.binT2BST (root);
+
+System.out.println("Following is Inorder Traversal of the converted BST: \n");
+binTree2BinSrchTree.printOrder (root);
+
+
+}
+ 
+public static class Node {
+	public Node left;
+	public Node right;
+	public int val;
+	public Node(int in){
+		this.val = in;
+	}
+ }
+}
+
+
+ Venki I guess we can use modified head sort method. Use an explicit pointer to point next slot in the inorder traversal, fill it from the top of heap. Algorithmically, 1. Min heapify the binary tree (you need parent pointer). 2. Set inorder successor pointer to left most element. 3. Copy root to successor node. 4. Move the successor node to next node in inorder traversal. 5. Heapify the binary tree (excluding subtrees of inorder successor, little trick needed here). 6. Repeat 3 to 5 till all nodes are placed. Binary tree is nothing but random shuffle or data, the any algorithm must atleast take O(N log N) time. Keshava Would it not be better to make the BST balanced while we are at it? selecting arr[n/2] as root recursively would do that Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

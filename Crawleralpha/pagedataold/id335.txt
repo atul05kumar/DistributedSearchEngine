@@ -1,0 +1,84 @@
+Efficient program to calculate e^x  - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Efficient program to calculate e^x The value of Exponential Function e^x can be expressed using following Taylor Series. e^x = 1 + x/1! + x^2/2! + x^3/3! + ...... How to efficiently calculate the sum of above series? The series can be re-written as e^x = 1 + (x/1) (1 + (x/2) (1 + (x/3) (........) ) ) Let the sum needs to be calculated for n terms, we can calculate sum using following loop. 
+for (i = n - 1, sum = 1; i > 0; --i )
+    sum = 1 + x * sum / i; Following is implementation of the above idea. 
+// Efficient program to calculate e raise to the power x
+#include <stdio.h>
+
+//Returns approximate value of e^x using sum of first n terms of Taylor Series
+float exponential(int n, float x)
+{
+    float sum = 1.0f; // initialize sum of series
+
+    for (int i = n - 1; i > 0; --i )
+        sum = 1 + x * sum / i;
+
+    return sum;
+}
+
+// Driver program to test above function
+int main()
+{
+    int n = 10;
+    float x = 1.0f;
+    printf("e^x = %f", exponential(n, x));
+    return 0;
+}
+ Output: e^x = 2.718282 This article is compiled by Rahul and reviewed by GeeksforGeeks team. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: MathematicalAlgo Tweet Writing code in comment? Please use ideone.com and share the link here. K.kaushik A simple java code for the program: If any error is there please reply to inform me… //considering calculation upto 10 imes. public class Exponent { public static double getExponent(double x, int i) { if(i == 0) return 1; // as e^0 = 0; if(i > 10) return 1; else { double y = getExponent(x, i+1); return 1 + (x / i) * y; } } public static void main(String[] args) { double exponent = getExponent(0, 1); System.out.println(“The exponent is : ” + exponent); } } K.kaushik a typo is there : e^0 = 1 .. Sorry for the inconvenience. K.kaushik  
+For greater accuracy in output while calculating e^x you may need to consider i upto 100 or more times instead of upto 10 times only. If considered a high value of 'i', you can get expected result for negative values of x also. In the above code, in the main function, x is given as 0, you can calculate e^x for any +ve or -ve value of x with the code.
+ A Chakraborty  
+/*A more efficient program for calculating e^x (which doesn't involved bulky operations like raising number to power or calculation higher factorials).
+
+Simple Recursion is used.
+We know e^x=1+x+x^/2!+....+x^n/n!
+
+Thus the n'th ten Tn=x^n/n!
+n+1'th tern Tn-1=x^n-1/n-1!
+
+dividing the two relations we get.
+
+Tn-1=Tn * n/x.
+
+Calculated in Get().
+Main() not written! */
+#include <stdio.h>
+#include <math.h>
+float Calc(float);
+float Get(int, float);
+float Calc(float x).
+{
+int i, c=0;
+float sum=0, presum=0;
+for(i=0; ;i++)//no condition statement for desired degree of accuracy.
+{
+c++;
+if(c==1000)
+break;
+presum=sum;
+sum=sum+Get(i, x);
+if((sum-presum)<= 0.00001)
+/*HERE I ASSUMED THAT THE POWER BE CALCULATED CORRECT TO 5 DECIMAL PLACES BUT AND DEGREE OF ACCURACY CAN BE ACHIEVED! */
+{
+break;
+}
+}
+return sum;
+}
+float Get(int i, float x).
+{
+float t;
+if(i==0)return 1;
+if(i==1)
+{
+return x;
+}
+else
+{
+t=(float)x/i;
+return(Get(i-1, t));
+}
+}
+ Raison It’s may not get good precision, even change to double version. For low precision, it’s good. Hello You have an error in your for loop after sum = 1. You meant to put a semi-colon there instead of a comma.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Kartik Thanks for pointing this out. We have replaced comma with semicolon in algorithm. Akshat Gupta  
+Nicely done!!
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,130 @@
+Extract Leaves of a Binary Tree in a Doubly Linked List - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Extract Leaves of a Binary Tree in a Doubly Linked List Given a Binary Tree, extract all leaves of it in a Doubly Linked List (DLL). Note that the DLL need to be created in-place. Assume that the node structure of DLL and Binary Tree is same, only the meaning of left and right pointers are different. In DLL, left means previous pointer and right means next pointer. 
+Let the following be input binary tree
+        1
+     /     \
+    2       3
+   / \       \
+  4   5       6
+ / \         / \
+7   8       9   10
+
+
+Output:
+Doubly Linked List
+7<->8<->5<->9<->10
+
+Modified Tree:
+        1
+     /     \
+    2       3
+   /         \
+  4           6 We strongly recommend you to minimize the browser and try this yourself first. We need to traverse all leaves and connect them by changing their left and right pointers. We also need to remove them from Binary Tree by changing left or right pointers in parent nodes. There can be many ways to solve this. In the following implementation, we add leaves at the beginning of current linked list and update head of the list using pointer to head pointer. Since we insert at the beginning, we need to process leaves in reverse order. For reverse order, we first traverse the right subtree then the left subtree. We use return values to update left or right pointers in parent nodes. 
+// C program to extract leaves of a Binary Tree in a Doubly Linked List
+#include <stdio.h>
+#include <stdlib.h>
+
+// Structure for tree and linked list
+struct Node
+{
+    int data;
+    struct Node *left, *right;
+};
+
+// Main function which extracts all leaves from given Binary Tree.
+// The function returns new root of Binary Tree (Note that root may change
+// if Binary Tree has only one node).  The function also sets *head_ref as
+// head of doubly linked list.  left pointer of tree is used as prev in DLL
+// and right pointer is used as next
+struct Node* extractLeafList(struct Node *root, struct Node **head_ref)
+{
+   // Base cases
+   if (root == NULL)  return NULL;
+
+   if (root->left == NULL && root->right == NULL)
+   {
+       // This node is going to be added to doubly linked list
+       // of leaves, set right pointer of this node as previous
+       // head of DLL. We don't need to set left pointer as left
+       // is already NULL
+       root->right = *head_ref;
+
+       // Change left pointer of previous head
+       if (*head_ref != NULL) (*head_ref)->left = root;
+
+       // Change head of linked list
+       *head_ref = root;
+
+       return NULL;  // Return new root
+   }
+
+   // Recur for right and left subtrees
+   root->right = extractLeafList(root->right, head_ref);
+   root->left  = extractLeafList(root->left, head_ref);
+
+   return root;
+}
+
+// Utility function for allocating node for Binary Tree.
+struct Node* newNode(int data)
+{
+    struct Node* node = (struct Node*)malloc(sizeof(struct Node));
+    node->data = data;
+    node->left = node->right = NULL;
+    return node;
+}
+
+// Utility function for printing tree in In-Order.
+void print(struct Node *root)
+{
+    if (root != NULL)
+    {
+         print(root->left);
+         printf("%d ",root->data);
+         print(root->right);
+    }
+}
+
+// Utility function for printing double linked list.
+void printList(struct Node *head)
+{
+     while (head)
+     {
+         printf("%d ", head->data);
+         head = head->right;
+     }
+}
+
+// Driver program to test above function
+int main()
+{
+     struct Node *head = NULL;
+     struct Node *root = newNode(1);
+     root->left = newNode(2);
+     root->right = newNode(3);
+     root->left->left = newNode(4);
+     root->left->right = newNode(5);
+     root->right->right = newNode(6);
+     root->left->left->left = newNode(7);
+     root->left->left->right = newNode(8);
+     root->right->right->left = newNode(9);
+     root->right->right->right = newNode(10);
+
+     printf("Inorder Trvaersal of given Tree is:\n");
+     print(root);
+
+     root = extractLeafList(root, &head);
+
+     printf("\nExtracted Double Linked list is:\n");
+     printList(head);
+
+     printf("\nInorder traversal of modified tree is:\n");
+     print(root);
+     return 0;
+}
+
+ Output: Inorder Trvaersal of given Tree is:
+7 4 8 2 5 1 3 9 6 10
+Extracted Double Linked list is:
+7 8 5 9 10
+Inorder traversal of modified tree is:
+4 2 1 3 6 Time Complexity: O(n), the solution does a single traversal of given Binary Tree. This article is contributed by Chandra Prakash. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. danny A simple inorder traversal can be used for this question………@geeksforgeeks please suggest if some error or case is missing…. Initially called with convert(root,NULL,NULL); root= root of tree. prev=this points to parent of the root. head=used for DLL. void convert(struct tree *root,struct tree *prev,struct tree **head) { static struct tree *p=NULL; if(root==NULL) return; else { convert(root->left,root,head); if(root->left==NULL && root->right==NULL) { root->left=p; if((*head)==NULL) *head=root; else { p->right=root; } p=root; if(prev->left==root) //deleting node from tree prev->left=NULL; else prev->right=NULL; } convert(root->right,root,head); } } Guest A simple inorder traversal can be used for this question………@geeksforgeeks please suggest if some error or case is missing…. Initially called with convert(root,NULL,NULL); void convert(struct tree *root,struct tree *prev,struct tree **head) { static struct tree *p=NULL; if(root==NULL) return; else { convert(root->left,root,head); if(root->left==NULL && root->right==NULL) { root->left=p; if((*head)==NULL) *head=root; else { p->right=root; } p=root; if(prev->left==root) //deleting node from tree prev->left=NULL; else prev->right=NULL; } convert(root->right,root,head); } } wgpshashank There is no need of reverse post order traversal , http://ideone.com/cEFBah. coder_aks I didn’t get the significance of DLL here? Can anyone help me ? coder_aks Can this be done through level order traversal? The output(order in DLL) might not be the same as discussed here. wgpshashank Yes that’s the way , we should always avoid the recursion as much as possible . coder_aks Can we do it through level order traversal? The output might not be same as the one discussed here! nitin the extractLeafList should return (*head) instead of root at the last Coder011 #include #include #include using namespace std; struct TreeNode { int val; TreeNode *left; TreeNode *right; TreeNode(int x) : val(x), left(NULL), right(NULL) {} }; bool Inorder(TreeNode **tail,TreeNode *root) { if(!root) return 0; if(!root->left && !root->right) { (*tail)->right=root; root->left=(*tail); (*tail)=root; return 1; } if(Inorder(tail,root->left)) // As a check for hitting a Leaf Node root->left=NULL; if(Inorder(tail,root->right)) root->right=NULL; return false; } TreeNode *newNode(int val) { TreeNode *X=(TreeNode *)calloc(1,sizeof(TreeNode)); X->val=val; X->right=X->left=NULL; return X; } void MakeTree(TreeNode *root) { root->left = newNode(2); root->right = newNode(3); root->left->left = newNode(4); root->left->right = newNode(5); root->right->right = newNode(6); root->left->left->left = newNode(7); root->left->left->right = newNode(8); root->right->right->left = newNode(9); root->right->right->right = newNode(10); return; } class Solution { public: TreeNode *ExtractLeavesDLL(TreeNode*,TreeNode *); }; TreeNode *Solution::ExtractLeavesDLL(TreeNode *head,TreeNode *root) { TreeNode *SaveHead=head; Inorder(&head,root); return SaveHead->right; } void Doinorder(TreeNode* root) { if(!root) return; Doinorder(root->left); cout<val<right); } /* Driver Program to test the above Code */ int main() { Solution ob1; struct TreeNode *head = newNode(-1); struct TreeNode *root = newNode(1); MakeTree(root); head=ob1.ExtractLeavesDLL(head,root); cout<<"Printing the Doubly Linked Listn"; while(head) { cout<val<right; } cout<<"n——————————–n"; cout<<" Inorder Traversal of Modified Treen"; Doinorder(root); cout<<"n"; return 0; } Uma Trika void extract_leaf(t_node *root, l_node **head) { if(root == NULL) return; if(root->right && root->right->left == NULL && root->right->right == NULL) { insert_in_list(root->right->data, &(*head)); root->right = NULL; } if(root->left && root->left->left == NULL && root->left->right == NULL) { insert_in_list(root->left->data, &(*head)); root->left = NULL; } extract_leaf(root->right, &(*head)); extract_leaf(root->left, &(*head)); } Abhirup Ghosh I think we can do it using general BFS. A overview of the simple algorithm can be (without safe checks): if root is a leaf node insert root to double linked list and delete it from tree return enqueue (root) while (queue is not empty) { temp = dequeue() if (temp right child is leaf node) insert temp right child in double linked list end free up temp right child else enqueue (temp right child) if (temp left child is leaf node) insert temp left child in double linked list end free up temp left child else enqueue (temp left child) } insert to double linked list can be a simple function to the last of the linked list. what’s in a name #include #include #include using namespace std; class Node{ public: int val; class Node *left; class Node *right; }; typedef class Node *NODEPTR; NODEPTR linkNodes(NODEPTR root){ if(root == NULL) return NULL; NODEPTR lSides = linkNodes(root->left); if(root->left == NULL && root->right == NULL){ return root; } NODEPTR rSides = linkNodes(root->right); //Reach right end of lsides NODEPTR curr = NULL, prev = NULL; if(lSides != NULL){ curr = lSides; while(curr->right!=NULL){ curr = curr->right; } } //Reach left end of rsides if(rSides != NULL){ prev = rSides; while(prev->left != NULL){ prev = prev->left; } } if(curr!=NULL) curr->right = prev; if(prev!=NULL) prev->left = curr; /*curr = lSides; cout<val , root->val); curr = curr->right; } */ if(lSides == NULL) return rSides; return lSides; } NODEPTR newNode(int n){ NODEPTR ptr = new Node(); ptr->val = n; ptr->left = NULL; ptr->right = NULL; return ptr; } int main(){ class Node *root = newNode(1); root->left = newNode(2); root->right = newNode(3); root->left->left = newNode(4); root->left->right = newNode(5); root->right->right = newNode(6); root->left->left->left = newNode(7); root->left->left->right = newNode(8); root->right->right->left = newNode(9); root->right->right->right = newNode(10); NODEPTR dlinkedList = linkNodes(root); while(dlinkedList != NULL){ printf(“%d ” , dlinkedList->val); dlinkedList = dlinkedList->right; } } max //initially dll =NULL and c =NULL struct tree *leaf_to_dll(struct tree *t,struct tree **dll,struct tree **c) { if(!t) return NULL; if(!t->l && !t->r) { if(!(*c)) { (*dll)=t; (*c)=t; } else { (*c)->r=t; t->l=(*c); (*c)=t; } return NULL; } t->l=leaf_to_dll(t->l,dll,c); t->r=leaf_to_dll(t->r,dll,c); return t; } Parvez Another way of implementing it, comments welcome http://ideone.com/ecKwfv Rahul Tibrewal why did we put nodes in the beginning,(it made all the confusion about going from right to left), am i missing something? Kartik If we insert at the end, then for every new inserted node, we have to traverse from head till last node and then insert the new node. This makes the time complexity high. Another approach could be to maintain an extra pointer to tail node which could work, but requires an extra argument to be passed to all functions. Neha In the second approach which you suggested above, we can also have a global pointer to head, which will be initialize only once, when we will hit the first leave of the left sub-tree. And call the print method with this global-pointer. Kartik We can use global pointer. But in general, use of global variables should be avoided in any program (google about it and u will know why) Neha Yes I agree, that global variables, should be avoided as max as possible. Neha We can avoid global pointer also, by modifying printList to void printList(struct Node *head) { if(head) { printList(head->left); printf(“%d “, head->data); } } Parvez No reason, you can very well have ‘tail’ pointer pointing always to end of list and update tail pointer everytime list is updated. duzzy // modification required in : void printlist().. { while(head) { //printing the data. head = head -> right ; // not head = head->left ; } } dazer i guess this inorder traversal is wrong code have some problem with DLL creation .. for me the output of the code above is : // modification required in : void printlist().. { while(head) { //printing the data. head = head -> right ; // not head = head->left ; } } GeeksforGeeks Thanks for pointing this out. The code is updated. jaya well written code! Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

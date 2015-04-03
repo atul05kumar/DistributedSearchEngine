@@ -1,0 +1,297 @@
+Find the Minimum length Unsorted Subarray, sorting which makes the complete array sorted - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find the Minimum length Unsorted Subarray, sorting which makes the complete array sorted Given an unsorted array arr[0..n-1] of size n, find the minimum length subarray arr[s..e] such that sorting this subarray makes the whole array sorted. Examples: 1) If the input array is [10, 12, 20, 30, 25, 40, 32, 31, 35, 50, 60], your program should be able to find that the subarray lies between the indexes 3 and 8. 2) If the input array is [0, 1, 15, 25, 6, 7, 30, 40, 50], your program should be able to find that the subarray lies between the indexes 2 and 5. Solution: 1) Find the candidate unsorted subarray a) Scan from left to right and find the first element which is greater than the next element. Let s be the index of such an element. In the above example 1, s is 3 (index of 30). b) Scan from right to left and find the first element (first in right to left order) which is smaller than the next element (next in right to left order). Let e be the index of such an element. In the above example 1, e is 7 (index of 31). 2) Check whether sorting the candidate unsorted subarray makes the complete array sorted or not. If not, then include more elements in the subarray. a) Find the minimum and maximum values in arr[s..e]. Let minimum and maximum values be min and max. min and max for [30, 25, 40, 32, 31] are 25 and 40 respectively. b) Find the first element (if there is any) in arr[0..s-1] which is greater than min, change s to index of this element. There is no such element in above example 1. c) Find the last element (if there is any) in arr[e+1..n-1] which is smaller than max, change e to index of this element. In the above example 1, e is changed to 8 (index of 35) 3) Print s and e. Implementation: 
+#include<stdio.h>
+ 
+void printUnsorted(int arr[], int n)
+{
+  int s = 0, e = n-1, i, max, min;   
+ 
+  // step 1(a) of above algo
+  for (s = 0; s < n-1; s++)
+  {
+    if (arr[s] > arr[s+1])
+      break;
+  }
+  if (s == n-1)
+  {
+    printf("The complete array is sorted");
+    return;
+  }
+ 
+  // step 1(b) of above algo
+  for(e = n - 1; e > 0; e--)
+  {
+    if(arr[e] < arr[e-1])
+      break;
+  }
+ 
+  // step 2(a) of above algo
+  max = arr[s]; min = arr[s];
+  for(i = s + 1; i <= e; i++)
+  {
+    if(arr[i] > max)
+      max = arr[i];
+    if(arr[i] < min)
+      min = arr[i];
+  }
+ 
+  // step 2(b) of above algo
+  for( i = 0; i < s; i++)
+  {
+    if(arr[i] > min)
+    {  
+      s = i;
+      break;
+    }      
+  } 
+ 
+  // step 2(c) of above algo
+  for( i = n -1; i >= e+1; i--)
+  {
+    if(arr[i] < max)
+    {
+      e = i;
+      break;
+    } 
+  }  
+     
+  // step 3 of above algo
+  printf(" The unsorted subarray which makes the given array "
+         " sorted lies between the indees %d and %d", s, e);
+  return;
+}
+ 
+int main()
+{
+  int arr[] = {10, 12, 20, 30, 25, 40, 32, 31, 35, 50, 60};
+  int arr_size = sizeof(arr)/sizeof(arr[0]);
+  printUnsorted(arr, arr_size);
+  getchar();
+  return 0;
+}
+ Time Complexity: O(n) Please write comments if you find the above code/algorithm incorrect, or find better ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. groomnestle A (nlgn) solution is simpler: make a copy of array A into B, sort B using quicksort/mergesort (nlgn), then find the first leftmost and rightmost elements that differ in A and B. The minimum subarray would be the array between these 2 elements. Castle Age time complexity nlgn and space complexity n vs time complexity n and space complexity constant I would take latter anytime, plus it is pretty simple as well Marsha Donna can sum1 pls give an eg to explain when part 2b of above solution arises?? Pushkar Part 2(b) of the solution arises with the input {10,12,30,11,40,32,31,35,50,60} Here 25 is replaced by 11 in this example. so step 2(a) find min for [30,11,40,32,31] as 11. So step 2(b) changes the value of s to 1 which is the index of 12. Hope you got it!!! Marsha Donna thanks ..how do v copy paste code from vc++ here..wenever i paste it changes to something else…can u tel sum good material to understand asymptotic notations and dynamic programming Marsha Donna another way to implement part1 of the solution is as follows void minunsort(int arr[],int n) { int diff[10],i,minind,maxind; for(i=0;i<n-1;i++) { diff[i]=arr[i+1]-arr[i]; } for(i=0;i<n-1;i++) { if(diff[i]=0;i++) { if(diff[i]<0) { maxind=i; break; } } maxind++; printf("the subarray indices are %d and %dn and the length is n",minind,maxind); } for the given eg the value held by minind would be 3 and maxind would be 7 but it uses auxillary space of O(n) exor The last part where you scan the insertion point for min and max can be done in logn using binary search (because the starting and ending sequences are sorted)… It doesn’t reduce the complexity but it’s technically more efficient. kuldeepshandilya We can use binary search to find following indexes – startIndexOfUnsortedSubArray = index of a number which is greater than its next number if there are are multiple such indexes, take the left most index endIndexOfUnsortedSubArray = index of a number which is less than its previous number if there are are multiple such indexes, take the right most index When there are more than one such unsorted arrays, the answer would be sum of sizes of all these sub arrays. hunter //my code is simple left=0; right=n-1; while(left<right) { while(a[left]a[right-1]) right–; if(left<right) { //now left and right positions indicates min unsorted subarray sort(a,left,right); break; } } //if any thing wrong correct me………….. hunter sorry it won’t work…………. Priyanshu I have written a solution using 2 scans in a simplified way. Please throw some test cases if it gets failed  
+/* Paste your code here (You may delete these lines if not writing code) */
+#include<iostream>
+using namespace std;
+int main()
+{
+    int a[]={0,5,3,2,9,6,7,3};
+    int n=sizeof(a)/sizeof(a[0]);
+    int i,start=0,end=n-1;
+    int min=a[n-1],max=a[0];
+    for(i=n-2;i>=0;i--)
+    {
+        if(a[i]<=min)
+        min=a[i];
+        else
+        start=i;
+    }
+    for(i=1;i<n;i++)
+    {
+        if(a[i]>=max)
+        max=a[i];
+        else
+        end=i;
+    }
+    cout<<start<<" "<<end;
+    return 0;
+}
+ Happy Coding me.abhinav A different O(n) solution: Let answer = (start, end), where ‘start’ = first index of the subarray to be sorted, and ‘end’ = last index of the subarray to be sorted. 1) Scan the array a[0..n-1] from left-to-right. Let current index be ‘i’. How can we say that ‘i’ is the required first index (i.e. ‘start’) of the subarray to be sorted?? If a[i] > minimum(a[i..n-1]) then this a[i] must be present at some other index > i in the completely sorted array. Thus ‘start’ = i and we need to sort the array from ‘start’ upto some index ‘end’ (which is calculated in next step). Print ‘start’ and break from loop. 2) Scan the array a[0..n-1] from right-to-left. Let current index be ‘i’. Following the above logic, if a[i] < max(a[0..i]) then this a[i] must be present at some other index < i in the completely sorted array. Thus ‘end’ = i and we need to sort the array from ‘start’ (calculated in step-(1)) upto ‘end’. Print ‘end’ and break from loop. With some pre-processing (which takes O(n) time), we can determine min(a[i..n-1]) and max(a[0..i]) in constant time (see code). me.abhinav I suppose the code could not be pasted correctly. So pasting it again:  
+#include <iostream>
+#define SIZ 100
+#define MAX(a, b) (a>b)?a:b
+#define MIN(a, b) (a>b)?b:a
+
+using namespace std;
+
+int main()
+{
+	int a[SIZ], n, min[SIZ], max[SIZ];
+	int i;
+
+	while(1){
+		cout<<"Enter array size: ";
+		cin>>n;
+		cout<<"Enter "<<n<<" elements.\n";
+		for(i = 0; i < n; i++){
+			cin>>a[i];
+		}
+		
+		min[n-1] = a[n-1];
+		for(i=n-2 ; i>=0 ; i--)
+			min[i] = MIN(a[i], min[i+1]);
+		max[0] = 0;
+		for(i=1 ; i<n ; i++)
+			max[i] = MAX(a[i], max[i-1]);
+
+		for(i=0 ; i<n ; i++){
+			if(a[i]>min[i]){
+				cout<<"You should sort from index: "<<i;
+				break;
+			}
+		}
+		for(i=n-1 ; i>=0 ; i--){
+			if(a[i]<max[i]){
+				cout<<" to "<<i<<"\n\n";
+				break;
+			}
+		}
+	}
+	return 0;
+}
+
+ Ganesh You can find java code here: /** * Given an unsorted array arr[0..n-1] of size n, find the minimum length subarray arr[s..e] * such that sorting this subarray makes the whole array sorted. * Example: * If the input array is [10, 12, 20, 30, 25, 40, 32, 31, 35, 50, 60], your program should be able to * find that the subarray lies between the indexes 3 and 8. * * @author GAPIITD * */ public class MinimumLengthUnsortedSubarray { public static void main(String[] args) { int arr[] = {10, 12, 20, 30, 25, 40, 32, 31, 35, 50, 60}; findMinimumLengthUnsortedSubarray(arr); } private static void findMinimumLengthUnsortedSubarray(int[] arr) { int i = 0; while (i < arr.length – 1 && arr[i] < arr[i+1]) i++; int j = arr.length – 1; while (j > 0 && arr[j] > arr[j-1]) j–; int min, max; min = max = arr[i+1]; for (int k = i + 2; k < j; k++) { if (min > arr[k]) min = arr[k]; if (max < arr[k]) max = arr[k]; } while (i >= 0 && arr[i] > min) i–; while (j < arr.length && arr[j] < max) j++; for (int k = i+1; k < j; k++) System.out.println(arr[k]); } } Vamsi Subhash  
+max=arr[0];
+first=-1;
+second=-1
+for(I=0;i<n;i++) {
+if (arr[I]>max) {
+max=arr[I];
+maxIdx=I;
+}
+else {
+if(first==-1) first=I;
+else second=I;
+}
+}
+output arr[first] to arr[second] => Result
+ Tulasi It can be done using stacks also. But requires auxiliary space in form of stacks.  
+#include<stdio.h>
+#include "stack/stack.c"
+
+int main(){
+	int a[]={0, 1, 15, 25, 6, 7, 30, 40, 50};
+	int n=sizeof(a)/sizeof(a[0]),i,j;
+	
+	Stack minS=getStackInstance();
+	Stack maxS=getStackInstance();
+	
+	push(minS,a[n-1]);
+	push(maxS,a[0]);
+	
+	for(i=1,j=n-2;i<n && j>=0;i++,j--){
+		if(a[i] > peek(maxS))
+			push(maxS,a[i]);
+		if(a[j] < peek(minS))
+			push(minS,a[j]);
+	}
+
+	i=0;while(a[i] == peek(minS)){pop(minS);i++;};
+	j=n-1;while(a[j] == peek(maxS)){pop(maxS);j--;};
+
+	printf("\n Unsorted sequence ( %d, %d ) \n",i,j);
+	
+	return 0;
+}
+ Palash You don’t need stacks to do what you are doing.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ spandan we can sort the copy of original array first(Nlogn),then compare the mismatches found for ‘s’ and ‘e’… prakhar if you are already sorting, then what’s the significance of this information? abhimanu To optimize the part where we are finding the max and min between indices s and e, have an if -else condition rather than if followed by another if. Reason being if arr[i] is more than max then if cannot be less than in in the same iteration.  
+
+// step 2(a) of above algo
+  max = arr[s]; min = arr[s];
+  for(i = s + 1; i <= e; i++)
+  {
+    if(arr[i] > max)
+      max = arr[i];
+    else if(arr[i] < min)
+      min = arr[i];
+  }
+ torabul Very nicely done. Thanks. roadies can we make a min and a max heap, and try to remove the elements from left to right (in min heap) to check if we have smaller elements on their correct positions or not, and similarly for right to left for larger elements hii int main() { int arr[]={1,2,4,7,6,3,9,4}; int start=end=0,largest=arr[0]; int i; for(i=1;i<n;i++) { if(arr[i]<largest) //if current element is smaller than largest so { //so far then it is a part of subarray so set if(!start) // end=i start=i-1; end=i; } else largest=arr[i]; } } shanky can it be done using stacks?? http://vineelkumarreddy.blogspot.com Vineel Kumar Reddy  
+#include<stdio.h>
+int main()
+{
+	int a[] = {0, 1, 15, 25, 6, 7, 30, 40, 50,60}; //10, 12, 20, 55, 25, 40, 23, 31, 35, 50, 60
+	int n;
+	int i = 0;
+	n = sizeof(a)/sizeof(int);
+	int low,high;
+	
+	//search for high
+	//find the number greater than its right side element i.e., 25
+	for(i = 0;i < n-1;i++ ){
+		if(a[i] > a[i+1]){
+			high = i;
+			break;
+		}
+	}		
+	//now from right find which number is less than 25 i.e., 7
+	for(i=n-1; i > high ; i--){
+		if(a[i] < a[high]){
+			high = i;
+			break;
+		}
+	}			
+	//search for low
+	//find the number lesser than its left side element i.e., 6
+	for(i = n-1;i > 0; i--){
+		if(a[i] < a[i-1]){
+			low = i;
+			break;
+		}
+	}		
+	//now from left find which number is greater than 6 i.e., 15	
+	for(i=0; i < low ; i++){
+		if(a[i] > a[low]){
+			low = i;
+			break;
+		}
+	}	
+	
+	printf("%d %d",a[low],a[high]);
+	
+	return 0;
+} Prateek Caire Another solution in O(n)  
+L(i)
+	if(i == 0)
+		return l[0]
+	if(l[i] != I)
+		return l[i]
+	if(a[i] < l(i-1))
+		l[i] = i
+	else
+		l[i] = l(i-1)
+	return l[i]
+		
+	//R(i) can be created in a same way
+
+	US()
+		for each i from 0 to n-1
+			if(l[i] != s[i])
+				lo = i
+			if(l[n-1-i] != s[n-1-i])
+				hi = n-1-i
+	
+	main()
+		L(n-1)
+		R(0)
+		US()
+		print(lo, hi)
+ sg // step 2(b) of above algo for( i = 0; i min) s = i; } // step 2(c) of above algo for( i = e+1; i < n; i++) { if(arr[i] < max) e = i; } has a small bug it should have been // step 2(b) of above algo for( i = 0; i min) s = i; break; } // step 2(c) of above algo for( i = n -1 ; i >= e+1; –i) { if(arr[i] < max) e = i; break; } Sandeep @sg: Thanks for pointing out the bug. We have corrected the original program. Prateek Caire Am i missing any case here in solution given below?  
+US()
+	max = a[0]
+	for each i from 1 to n-1
+		if(a[i] >= max)
+			max = a[i]
+		else
+			e = i
+	min = a[n-1]
+	for each i from n-2 to 0
+		if(a[i] <= min)
+			min = a[i]
+		else
+			s = i
+ Rohit I don’t think anything is missing. It is a nice/better solution.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://dzmitryhuba.blogspot.com Dzmitry Huba Folks, This algorithm has a small issue. Consider the following input: {10, 12, 20, 55, 25, 40, 23, 31, 35, 50, 60}. At first s = 3, and e = 6, min = 25, max = 40. But once you’ll move left boundary to include 55 max will change 55 which won’t be noticed in current algorithm. I think correct algorithm should be: static Tuple<int, int> FindMinUnsortedSubarray(int[] a) { int i = 0, j = a.Length – 1; for (; i < j && a[i] <= a[i + 1]; i++) ; if (i == j) return new Tuple<int, int>(-1, -1); for (; a[j – 1] <= a[j]; j–) ; int min = a[++i], max = a[–j]; for (var k = i; k <= j; k++) { min = Math.Min(min, a[k]); max = Math.Max(max, a[k]); } bool done; do { done = true; if (i > 0 && a[i – 1] > min) { done = false; max = Math.Max(max, a[–i]); } if (j < a.Length && a[j + 1] < max) { done = false; min = Math.Min(min, a[++j]); } } while (!done); return new Tuple<int, int>(i, j); } What do you think? Sandeep @Dzmitry Huba: Please take a closer look at algorithm. In step 2(c), e is updated. Also, the program given in post, prints correct output for your example.  int main()
+{
+  int arr[] = {10, 12, 20, 55, 25, 40, 23, 31, 35, 50, 60};
+  int arr_size = sizeof(arr)/sizeof(arr[0]);
+  printUnsorted(arr, arr_size);
+  getchar();
+  return 0;
+}
+ Let me know if I missed something. Dzmitry Huba I’m sorry, I missed that while calculating min and max both boundaries (max of increasing sequence to the left and min of increasing sequence to the right) are included and that is why it is got into consideration. Your solution is correct. In my solution there is no point recalculating min and max as the only values that influence the result are boundaries. Again, well done. anirudh Small correction is needed here, s=3 and e=7.So we need to find the min,max for – [30, 25, 40, 32, 31] which happen to be 25 and 40 respectively. The array specified in the solution includes 35 as well. GeeksforGeeks @anirudh: Thanks for pointing this out. There was a typo. We have fixed it. lovocas I think something may be wrong Find first element (if there is any) in arr[e+1..n-1] which is smaller than max, change e to index of this element. In the above example 1, e is changed to 8 (index of 35) should be “Find first element arr[xx](if there is any) in arr[e+1..n-1] which is larger than max”,then the result should be xx-1 . sry ,my written english is not pretty good ,do you guys know what I mean, isn’t it like this?? for example : in example(2) [10, 12, 20, 30, 25, 40, 32, 31, 35, 50, 60] the result is 3 , 8; but if [10, 12, 20, 30, 25, 40, 32, 31, 35, 36 ,50, 60] the wrong result is 3, 8! It’s wrong. should be 3,9 Sandeep @lovocas: Please take a closer look at the algo and implementation. It seems correct to me. The implementation strictly follow the algorithm, and it prints correct results for [10, 12, 20, 30, 25, 40, 32, 31, 35, 36 ,50, 60]. Let me know if you still feel that something is wrong/missing. lovocas 2(c) Find first element (if there is any) in arr[e+1..n-1] which is smaller than max,change e to index of this element    // step 2(c) of above algo
+  for( i = e+1; i < n; i++)
+  {
+    if(arr[i] < max)
+      e = i;
+  } actually I just read the Solution description carefully, not pay much attention to the code. 2(c) should be Find the last element ………….it may make someone else confused! after all ,code is right. Sandeep @lovocas: yes, putting last seems to make more sense than first. I have modified the algorithm. Thanks!! http://spgokul.blogspot.com spgokul really nice program and cool answer … Great kp101090 Very nice program geeks !!! Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

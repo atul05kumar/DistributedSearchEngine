@@ -1,0 +1,1900 @@
+Find k-th smallest element in BST (Order Statistics in BST) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find k-th smallest element in BST (Order Statistics in BST) Given root of binary search tree and K as input, find K-th smallest element in BST. For example, in the following BST, if k = 3, then output should be 10, and if k = 5, then output should be 14. Method 1: Using Inorder Traversal. Inorder traversal of BST retrieves elements of tree in the sorted order. The inorder traversal uses stack to store to be explored nodes of tree (threaded tree avoids stack and recursion for traversal, see this post). The idea is to keep track of popped elements which participate in the order statics. Hypothetical algorithm is provided below, Time complexity: O(n) where n is total nodes in tree.. Algorithm: /* initialization */
+pCrawl = root
+set initial stack element as NULL (sentinal)
+
+/* traverse upto left extreme */
+while(pCrawl is valid )
+   stack.push(pCrawl)
+   pCrawl = pCrawl.left
+
+/* process other nodes */
+while( pCrawl = stack.pop() is valid )
+   stop if sufficient number of elements are popped.
+   if( pCrawl.right is valid )
+      pCrawl = pCrawl.right
+      while( pCrawl is valid )
+         stack.push(pCrawl)
+         pCrawl = pCrawl.left Implementation: #include <stdio.h>
+#include <stdlib.h>
+
+#define ARRAY_SIZE(arr) sizeof(arr)/sizeof(arr[0])
+
+/* just add elements to test */
+/* NOTE: A sorted array results in skewed tree */
+int ele[] = { 20, 8, 22, 4, 12, 10, 14 };
+
+/* same alias */
+typedef struct node_t node_t;
+
+/* Binary tree node */
+struct node_t
+{
+    int data;
+
+    node_t* left;
+    node_t* right;
+};
+
+/* simple stack that stores node addresses */
+typedef struct stack_t stack_t;
+
+/* initial element always NULL, uses as sentinal */
+struct stack_t
+{
+    node_t*  base[ARRAY_SIZE(ele) + 1];
+    int      stackIndex;
+};
+
+/* pop operation of stack */
+node_t *pop(stack_t *st)
+{
+    node_t *ret = NULL;
+
+    if( st && st->stackIndex > 0 )
+    {
+        ret = st->base[st->stackIndex];
+        st->stackIndex--;
+    }
+
+    return ret;
+}
+
+/* push operation of stack */
+void push(stack_t *st, node_t *node)
+{
+    if( st )
+    {
+        st->stackIndex++;
+        st->base[st->stackIndex] = node;
+    }
+}
+
+/* Iterative insertion
+   Recursion is least preferred unless we gain something
+*/
+node_t *insert_node(node_t *root, node_t* node)
+{
+    /* A crawling pointer */
+    node_t *pTraverse = root;
+    node_t *currentParent = root;
+
+    // Traverse till appropriate node
+    while(pTraverse)
+    {
+        currentParent = pTraverse;
+
+        if( node->data < pTraverse->data )
+        {
+            /* left subtree */
+            pTraverse = pTraverse->left;
+        }
+        else
+        {
+            /* right subtree */
+            pTraverse = pTraverse->right;
+        }
+    }
+
+    /* If the tree is empty, make it as root node */
+    if( !root )
+    {
+        root = node;
+    }
+    else if( node->data < currentParent->data )
+    {
+        /* Insert on left side */
+        currentParent->left = node;
+    }
+    else
+    {
+        /* Insert on right side */
+        currentParent->right = node;
+    }
+
+    return root;
+}
+
+/* Elements are in an array. The function builds binary tree */
+node_t* binary_search_tree(node_t *root, int keys[], int const size)
+{
+    int iterator;
+    node_t *new_node = NULL;
+
+    for(iterator = 0; iterator < size; iterator++)
+    {
+        new_node = (node_t *)malloc( sizeof(node_t) );
+
+        /* initialize */
+        new_node->data   = keys[iterator];
+        new_node->left   = NULL;
+        new_node->right  = NULL;
+
+        /* insert into BST */
+        root = insert_node(root, new_node);
+    }
+
+    return root;
+}
+
+node_t *k_smallest_element_inorder(stack_t *stack, node_t *root, int k)
+{
+    stack_t *st = stack;
+    node_t *pCrawl = root;
+
+    /* move to left extremen (minimum) */
+    while( pCrawl )
+    {
+        push(st, pCrawl);
+        pCrawl = pCrawl->left;
+    }
+
+    /* pop off stack and process each node */
+    while( pCrawl = pop(st) )
+    {
+        /* each pop operation emits one element
+           in the order
+        */
+        if( !--k )
+        {
+            /* loop testing */
+            st->stackIndex = 0;
+            break;
+        }
+
+        /* there is right subtree */
+        if( pCrawl->right )
+        {
+            /* push the left subtree of right subtree */
+            pCrawl = pCrawl->right;
+            while( pCrawl )
+            {
+                push(st, pCrawl);
+                pCrawl = pCrawl->left;
+            }
+
+            /* pop off stack and repeat */
+        }
+    }
+
+    /* node having k-th element or NULL node */
+    return pCrawl;
+}
+
+/* Driver program to test above functions */
+int main(void)
+{
+    node_t* root = NULL;
+    stack_t stack = { {0}, 0 };
+    node_t *kNode = NULL;
+
+    int k = 5;
+
+    /* Creating the tree given in the above diagram */
+    root = binary_search_tree(root, ele, ARRAY_SIZE(ele));
+
+    kNode = k_smallest_element_inorder(&stack, root, k);
+
+    if( kNode )
+    {
+        printf("kth smallest elment for k = %d is %d", k, kNode->data);
+    }
+    else
+    {
+        printf("There is no such element");
+    }
+
+    getchar();
+    return 0;
+}
+ Method 2: Augmented  Tree Data Structure. The idea is to maintain rank of each node. We can keep track of elements in a subtree of any node while building the tree. Since we need K-th smallest element, we can maintain number of elements of left subtree in every node. Assume that the root is having N nodes in its left subtree. If K = N + 1, root is K-th node. If K < N, we will continue our search (recursion) for the Kth smallest element in the left subtree of root. If K > N + 1, we continue our search in the right subtree for the (K – N – 1)-th smallest element. Note that we need the count of elements in left subtree only. Time complexity: O(n) where n is total nodes in tree. Algorithm: start:
+if K = root.leftElement + 1
+   root node is the K th node.
+   goto stop
+else if K > root.leftElements
+   K = K - (root.leftElements + 1)
+   root = root.right
+   goto start
+else
+   root = root.left
+   goto srart
+
+stop: Implementation: 
+#include <stdio.h>
+#include <stdlib.h>
+
+#define ARRAY_SIZE(arr) sizeof(arr)/sizeof(arr[0])
+
+typedef struct node_t node_t;
+
+/* Binary tree node */
+struct node_t
+{
+    int data;
+    int lCount;
+
+    node_t* left;
+    node_t* right;
+};
+
+/* Iterative insertion
+   Recursion is least preferred unless we gain something
+*/
+node_t *insert_node(node_t *root, node_t* node)
+{
+    /* A crawling pointer */
+    node_t *pTraverse = root;
+    node_t *currentParent = root;
+
+    // Traverse till appropriate node
+    while(pTraverse)
+    {
+        currentParent = pTraverse;
+
+        if( node->data < pTraverse->data )
+        {
+            /* We are branching to left subtree
+               increment node count */
+            pTraverse->lCount++;
+            /* left subtree */
+            pTraverse = pTraverse->left;
+        }
+        else
+        {
+            /* right subtree */
+            pTraverse = pTraverse->right;
+        }
+    }
+
+    /* If the tree is empty, make it as root node */
+    if( !root )
+    {
+        root = node;
+    }
+    else if( node->data < currentParent->data )
+    {
+        /* Insert on left side */
+        currentParent->left = node;
+    }
+    else
+    {
+        /* Insert on right side */
+        currentParent->right = node;
+    }
+
+    return root;
+}
+
+/* Elements are in an array. The function builds binary tree */
+node_t* binary_search_tree(node_t *root, int keys[], int const size)
+{
+    int iterator;
+    node_t *new_node = NULL;
+
+    for(iterator = 0; iterator < size; iterator++)
+    {
+        new_node = (node_t *)malloc( sizeof(node_t) );
+
+        /* initialize */
+        new_node->data   = keys[iterator];
+        new_node->lCount = 0;
+        new_node->left   = NULL;
+        new_node->right  = NULL;
+
+        /* insert into BST */
+        root = insert_node(root, new_node);
+    }
+
+    return root;
+}
+
+int k_smallest_element(node_t *root, int k)
+{
+    int ret = -1;
+
+    if( root )
+    {
+        /* A crawling pointer */
+        node_t *pTraverse = root;
+
+        /* Go to k-th smallest */
+        while(pTraverse)
+        {
+            if( (pTraverse->lCount + 1) == k )
+            {
+                ret = pTraverse->data;
+                break;
+            }
+            else if( k > pTraverse->lCount )
+            {
+                /*  There are less nodes on left subtree
+                    Go to right subtree */
+                k = k - (pTraverse->lCount + 1);
+                pTraverse = pTraverse->right;
+            }
+            else
+            {
+                /* The node is on left subtree */
+                pTraverse = pTraverse->left;
+            }
+        }
+    }
+
+    return ret;
+}
+
+/* Driver program to test above functions */
+int main(void)
+{
+    /* just add elements to test */
+    /* NOTE: A sorted array results in skewed tree */
+    int ele[] = { 20, 8, 22, 4, 12, 10, 14 };
+    int i;
+    node_t* root = NULL;
+
+    /* Creating the tree given in the above diagram */
+    root = binary_search_tree(root, ele, ARRAY_SIZE(ele));
+
+    /*  It should print the sorted array */
+    for(i = 1; i <= ARRAY_SIZE(ele); i++)
+    {
+        printf("\n kth smallest elment for k = %d is %d",
+                 i, k_smallest_element(root, i));
+    }
+
+    getchar();
+    return 0;
+}
+ Thanks to Venki for providing post. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. opcoder The signature of the function should be node * kth_smallest(node *root, int &k ); So according to this we should return node pointer of that node my implementation: node *kth_smallest(node *root, int &k) { if (!root) return NULL; node *left = kth_smallest(root->left, k); if (!left){ if (–k == 0) return root; } else return left; node *right = kth_smallest(root->right, k); return right; } anon int getKthSmallest(struct Node *root, int *count) { if (root == NULL) return 0; getKthSmallest (root->left, count); (*count)++; if (k == *count) { printf(“n %d Smalllest ellement %d”, k, root->data); } getKthSmallest(root->right, count); } Mohaan #include #include #define ARRAY_SIZE(arr) sizeof(arr)/sizeof(arr[0]) typedef struct node_t node_t; static bool kthSmallestFound; static int count = 0; /* Binary tree node */ struct node_t { int data; int lCount; node_t* left; node_t* right; }; /* Iterative insertion Recursion is least preferred unless we gain something */ node_t *insert_node(node_t *root, node_t* node) { /* A crawling pointer */ node_t *pTraverse = root; node_t *currentParent = root; // Traverse till appropriate node while(pTraverse) { currentParent = pTraverse; if( node->data data ) { /* We are branching to left subtree increment node count */ pTraverse->lCount++; /* left subtree */ pTraverse = pTraverse->left; } else { /* right subtree */ pTraverse = pTraverse->right; } } /* If the tree is empty, make it as root node */ if( !root ) { root = node; } else if( node->data data ) { /* Insert on left side */ currentParent->left = node; } else { /* Insert on right side */ currentParent->right = node; } return root; } /* Elements are in an array. The function builds binary tree */ node_t* binary_search_tree(node_t *root, int keys[], int const size) { int iterator; node_t *new_node = NULL; for(iterator = 0; iterator data = keys[iterator]; new_node->lCount = 0; new_node->left = NULL; new_node->right = NULL; /* insert into BST */ root = insert_node(root, new_node); } return root; } int k_smallest_element(node_t *root, int k) { static int value = 0; if(root == NULL) { return 0; } k_smallest_element(root->left,k); printf(“nActual Value : %d”, root->data); if(!kthSmallestFound) { count++; if(count == k ) { value = root->data; printf(“Value from Method : %d”, value); kthSmallestFound = true; return value; } k_smallest_element(root->right,k); } else { return value; } //k_smallest_element(root->right,k); } /* Driver program to test above functions */ int main(void) { /* just add elements to test */ /* NOTE: A sorted array results in skewed tree */ int ele[] = { 20, 8, 22, 4, 12, 10, 14 }; int i; node_t* root = NULL; /* Creating the tree given in the above diagram */ root = binary_search_tree(root, ele, ARRAY_SIZE(ele)); /* It should print the sorted array */ for(i = 1; i <= ARRAY_SIZE(ele); i++) { kthSmallestFound = false; count = 0; printf("n kth smallest elment for k = %d is %d", i, k_smallest_element(root, i)); } // printf("n kth smallest element for k = 5 is %d",k_smallest_element(root, 5,1)); getchar(); return 0; } Nachiket public class TreeAllApplication { public int printKthOrder(Tree root, int k, int temp) { if (root == null) return temp>0?temp:0; temp = printKthOrder(root.getLeft(), k, temp); temp++; if (k == temp) { System.out.println(root.getData()); return temp; } temp = printKthOrder(root.getRight(), k, temp); return temp; } public void printKthorderIntial(Tree root, int k, int temp){ printKthOrder(root, k, temp); } public static void main(String[] args) { TreeAllApplication test = new TreeAllApplication(); Tree root = new Tree(20); root.setLeft(new Tree(8)); root.setRight(new Tree(22)); Tree Left = root.getLeft(); Left.setLeft(new Tree(4)); Left.setRight(new Tree(12)); Tree LeftRight = Left.getRight(); LeftRight.setLeft(new Tree(10)); LeftRight.setRight(new Tree(14)); test.printKthorderIntial(root, 7, 0); } } pulikesi inorder(root,k) { static int count=0; if(root==NULL) return; inorder(2*root+1,k); count++; if(count==k) print root->data inorder(2*root+2,k); } groomnestle You can init an array starting at index[1] and traverse the tree in-order and push element into that array. Once you are done, you can find kth smallest element at array[k]. Anon Why can’t we straightaway do an inorder traversal, w/o recursion, using a stack. And keep on traversing till we find the number, as soon as found, break the while loop, and exit? Gaurav Ambast #include #include /* A binary tree tNode has data, pointer to left child and a pointer to right child */ struct node { int data; struct node* left; struct node* right; }; int getnumber(struct node* root) { if(root ==NULL) return 0; return (getnumber(root->left) + getnumber(root->right) + 1); } struct node *ksmallest(struct node *root, int k) { int l=0; if(root ==NULL || k==0) return NULL; if(k==1) return root; if(root->left) l= getnumber(root->left); if(k==l+1) return root; if(kleft, k); if(k > l+1) return ksmallest(root->right,k-l-1); }; /* UTILITY FUNCTIONS */ /* Helper function that allocates a new tNode with the given data and NULL left and right pointers. */ struct node* newtNode(int data) { struct node* node = (struct node*) malloc(sizeof(struct node)); node->data = data; node->left = NULL; node->right = NULL; return(node); } /* Driver program to test above functions*/ int main() { /* Constructed binary tree is 4 / 2 5 / 1 3 */ struct node *root = newtNode(4); root->left = newtNode(2); root->right = newtNode(5); root->left->left = newtNode(1); root->left->right = newtNode(3); struct node *t; t=ksmallest(root,3); printf(“%dn”, t->data); getchar(); return 0; } Yash Girdhar We can follow this approach also : Keep a static variable and once you reach the minimum element, initialize that variable to 1.After that, on every element, increment that variable and if it equals k, return the element. int kthsmallest(node *start, int k){ if(!start->left && !start->right){ //for leaf if(c==-1) c=1; else c++; if(c==k) return start->data; return -1; } if(start->left){ //if left exists int temp = -1; temp = kthsmallest(start->left,k); if(temp != -1) return temp; } if(c != -1)c++; else c=1; if(c==k) return start->data; //self if(start->right){ //if right exists int temp = -1; temp = kthsmallest(start->right,k); if(temp != -1) return temp; } return -1; } Raj void order(struct node *root, int k) // kth smallest element { static int i=0; if(root == NULL) return ; order(root->left,k); i++; if(i==k) printf(“%d”,root->data); order(root->right,k); } Sumit Monga This solution is based upon traversing in inorder and using static variables to keep count of number in ascending order: #include #include struct node { int data; struct node * left, *right; }; struct node * newNode(int data) { struct node * temp = (struct node *)malloc(sizeof(struct node)); temp->data = data; temp->left = temp->right = NULL; return temp; } void k_smallest(struct node * root,int k,int * p) { if(!root) return; static int i; static bool done; /* i increments as we visit the smallest,next smallest and so on while done stores whether kth smallest element is found or not */ k_smallest(root->left,k,p); if(done) return; if(++i == k) { *p = root->data; done = 1; return; } k_smallest(root->right,k,p); } int main() { struct node * root = newNode(20); root->left = newNode(8); root->right = newNode(22); root->left->left = newNode(4); root->left->right = newNode(12); root->left->right->left = newNode(10); root->left->right->right = newNode(14); int k_small = 0; k_smallest(root,6,&k_small); printf(” %d “,k_small); } Rohit Rawat GeeksforGeeks. this solution works. please review it void inorder(struct bst *p, int *n) { if(p == NULL) return; inorder(p->left, n); if(*n == 1) printf("%d", p->data); (*n)--; inorder(p->right, n); } Debjyoti Roy What about this ? int findk(TNode *root, int k, int *result) { if (root == NULL) return 0; /* l is the size of left subtree */ int l = findk(root->left, k, result); if (k == l+1) *result = root->data; /* r is size of right subtree */ int r = findk(root->right, k-l-1, result); return l+r+1; } JOBBINE JOSEPH int KthSmallestElement(struct TreeNode *Node,int k) { while(1) { if(!Node) { return 0; } if(k == Node->rank) { return (Node->data); } else if(k>Node->rank) { k = k – Node->rank; Node = Node->RChild; } else { Node = Node->LChild; } } } Prakhar Jain I think the augmented tree approach has order O(log n) for a balanced BST. But It is hard to implement a balanced BST with lcount parameter.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Soumya How about this one?  
+int kthSmallestUtil(Tree *tree, int &k,bool &found)
+{
+    if(!tree)return -1;
+    int p = kthSmallestUtil(tree->left,k,found);
+    if(!found)
+    {
+        if(!--k)
+        {
+            found = true;
+            return tree->data;
+        }
+        return kthSmallestUtil(tree->right,k,found);
+    }
+    return p;
+}
+
+int kthSmallest(Tree *tree, int &k)
+{
+    bool found = false;
+    int p = k;
+    return kthSmallestUtil(tree,p,found);
+}
+
+ pranjalgupta Awesome implementation @ Venki. Pavan  
+
+ void  KthSmallestinBST(struct node* node , int k , int *kthmin)
+ {  
+     static int count =0;
+     if (node == NULL)
+          return ;
+      else 
+      {
+     
+     KthSmallestinBST(node->left,k,kthmin);
+     count++;
+     if(count==k)
+     *kthmin=node->data;
+     KthSmallestinBST(node->right,k,kthmin);
+     return ;
+      }
+ }
+ 
+ 
+ 
+ 
+/* Driver function to test above functions */
+int main()
+{
+  struct node *root ;
+  root = newNode(20);
+  root->left = newNode(10);
+  root->right = newNode(25);
+  root->left->left = newNode(7);
+  root->left->right = newNode(11);
+  int k=4 ,kthmin ;
+  KthSmallestinBST(root,k,&kthmin); 
+  printf("%d ",kthmin);
+  
+  getchar();
+  return 0;
+}
+ Pavan  
+int  _KthSmallestinBST(struct node* node , int k , int *count)
+ {
+     if (node == NULL)
+          return 0;
+      else 
+      {
+     int l,m=0,n;
+     l=_KthSmallestinBST(node->left,k,count);
+     (*count)++;
+     if(*count==k)
+     m=node->data;
+     n=_KthSmallestinBST(node->right,k,count);
+     return (l|m|n);
+      }
+ }
+int KthSmallestinBST(struct node* node ,int k)
+{
+    
+     int c =0;
+     return  _KthSmallestinBST(node , k , &c);
+    
+}
+ Pavan  
+#include <stdio.h>
+#include <stdlib.h>
+struct node
+{
+  int data;
+  struct node *left;
+  struct node *right;
+};
+ 
+struct node* newNode(int data)
+{
+     struct node* node = (struct node*)
+                                  malloc(sizeof(struct node));
+     node->data = data;
+     node->left = NULL;
+     node->right = NULL;
+ 
+     return(node);
+}
+ 
+ int  _KthSmallestinBST(struct node* node , int k , int *count)
+ {
+     if (node == NULL)
+          return 0;
+      else 
+      {
+     int l,m=0,n;
+     l=_KthSmallestinBST(node->left,k,count);
+     (*count)++;
+     if(*count==k)
+     m=node->data;
+     n=_KthSmallestinBST(node->right,k,count);
+     return (l|m|n);
+      }
+ }
+int KthSmallestinBST(struct node* node ,int k)
+{
+    
+     int c =0;
+     return  _KthSmallestinBST(node , k , &c);
+    
+}
+ 
+ 
+ 
+/* Driver function to test above functions */
+int main()
+{
+  struct node *root ;
+  root = newNode(20);
+  root->left = newNode(10);
+  root->right = newNode(25);
+  root->left->left = newNode(7);
+  root->left->right = newNode(11);
+  int kthmin = KthSmallestinBST(root,2); 
+  printf("%d ",kthmin);
+  
+  getchar();
+  return 0;
+}
+ Pavan  
+
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+struct node
+{
+  int data;
+  struct node *left;
+  struct node *right;
+};
+
+struct node* newNode(int data)
+{
+     struct node* node = (struct node*)
+                                  malloc(sizeof(struct node));
+     node->data = data;
+     node->left = NULL;
+     node->right = NULL;
+ 
+     return(node);
+}
+ 
+int KthSmallestinBST(struct node* node ,int m)
+{
+    static int count =0;
+     if (node == NULL)
+          return 0;
+      else 
+      {
+     int i,j=0,k;
+     i=KthSmallestinBST(node->left,m);
+     count++;
+     if(count==m)
+     j=node->data;
+     k=KthSmallestinBST(node->right,m);
+     return (i|j|k);
+      }
+}
+
+
+ 
+/* Driver function to test above functions */
+int main()
+{
+  struct node *root ;
+  root = newNode(20);
+  root->left = newNode(10);
+  root->right = newNode(25);
+  root->left->left = newNode(7);
+  root->left->right = newNode(11);
+  int kthmin = KthSmallestinBST(root,4); 
+  printf("%d ",kthmin);
+  
+  getchar();
+  return 0;
+}
+ Pavan  
+#include <stdio.h>
+#include <stdlib.h>
+struct node
+{
+  int data;
+  struct node *left;
+  struct node *right;
+};
+
+struct node* newNode(int data)
+{
+     struct node* node = (struct node*)
+                                  malloc(sizeof(struct node));
+     node->data = data;
+     node->left = NULL;
+     node->right = NULL;
+ 
+     return(node);
+}
+ 
+int KthSmallest(struct node* node ,int m)
+{
+    static int count =0;
+     if (node == NULL)
+          return 0;
+      else 
+      {
+     int i,j=0,k;
+     i=KthSmallest(node->left,m);
+     count++;
+     if(count==m)
+     j=node->data;
+     k=KthSmallest(node->right,m);
+     return (i|j|k);
+      }
+}
+
+
+ 
+/* Driver function to test above functions */
+int main()
+{
+  struct node *root ;
+  root = newNode(20);
+  root->left = newNode(10);
+  root->right = newNode(25);
+  root->left->left = newNode(7);
+  root->left->right = newNode(11);
+  int kthmin = KthSmallest(root,4); 
+  printf("%d ",kthmin);
+  
+  getchar();
+  return 0;
+}
+ kritika #include #include #include struct node { struct node * left,*right; int val; }; void inorder(struct node * root,int k) { static int count=0; if(root) { inorder(root->left,k); count++; if(count==k) printf(“%d”,root->val); inorder(root->right,k); } } struct node * create(int n) { struct node * nn=(struct node *)malloc(sizeof(struct node)); nn->val=n; nn->left=nn->right=NULL; return nn; } main() { struct node * tree=create(5); tree->left=create(3); tree->right=create(8); tree->left->left=create(2); tree->left->right=create(4); tree->right->left=create(6); tree->right->right=create(9); inorder(tree,4); getch(); } Ronny @GeeksforGeeks the link to the related post is broken. Kindly update it GeeksforGeeks @Ronny: Thanks for pointing this out. The linked forum seems to be lost. We have removed the related post link. geekfreak Do reverse inorder traversal. If you have passed through k nodes from last then print the node. public static int retreivekth(node n, int k , intp curr){ if(n==null) return -1; int a = retreivekth(n.right,k,curr); if(a!=-1) return a; else curr.set_val(curr.get_val()+1); if(curr.get_val()==k) return n.data; return retreivekth(n.left,k,curr); } Himanshu  
+/* we can use a static variable and use inorder traversal.First we reach the leftmost child in the tree and then start increment the static variable until it becomes equal to k.*/
+#include <stdio.h>
+#include <stdlib.h>
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+int count(struct node *root)
+{
+    if(root==NULL) return 0;
+    else
+        return count(root->left)+1+count(root->right);
+}
+void inorder(struct node *root,int *k)
+{
+    static int i=0;
+
+    if(root==NULL)return ;
+    else
+    {
+        inorder(root->left,k);
+        i++;
+
+        if(i== *k)
+        {
+            printf(" the k th smallest is %d ",root->data);
+            exit(0);
+        }
+        inorder(root->right,k);
+    }
+
+}
+void Kthsmallest(struct node *root,int *k)
+{
+    if(root==NULL)
+    {
+        printf("the tree is empty\n");
+        return;
+    }
+    int cunt=count(root);
+
+    if(*k>cunt)
+        printf("the value of k is greater than the number of elements in the tree\n");
+    else
+        inorder(root,k);
+}
+
+struct node* newNode(int data)
+{
+    struct node* node = (struct node*)malloc(sizeof(struct node));
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+
+    return(node);
+}
+
+
+int main()
+{
+
+    struct node *root = newNode(20);
+    root->left        = newNode(8);
+    root->right       = newNode(22);
+    root->left->left  = newNode(4);
+    root->left->right = newNode(12);
+    root->left->right->left=newNode(10);
+    root->left->right->right=newNode(14);
+
+    int k=3;
+
+    Kthsmallest(root,&k);
+    return 0;
+}
+
+
+ sonali gupta simple approach #include #include #include typedef struct NODE { int info; struct NODE *left,*right; }node; node *temp; node *getnode() {return((node *)malloc(sizeof(node))); } node *newNode(int x) { temp=getnode(); temp->info=x; temp->left=NULL; temp->right=NULL; return temp; } int a[20]; int i=0; void inorder(node *root) {if(root!=NULL) { inorder(root->left); a[i++]=root->info; if(i==3) printf(“%d”,root->info); inorder(root->right); } } int main() {int count=0; node *root= newNode(1); root->left = newNode(2); root->right = newNode(3); root->left->left = newNode(4); root->left->right = newNode(5); inorder(root); getch(); return 0; } zyzz this will take O(logN) on average  
+int size(node *root)
+{
+if(root==NULL)
+return 0;
+else
+return (size(root->left)+1+sizeof(root->right));
+}
+
+int smallest(int k,node *root)
+{
+int count;
+count=size(root->left)+1;
+if(k==count)
+return (root->data);
+else if(k<count)
+return smallest(k,root->left);
+else
+return smallest(k-count,root->right);
+}
+ Kunaal How about this? using a static count variable in inorder traversal O(n) and no extra data structure required.  
+/* Paste your code here (You may delete these lines if not writing code) */
+
+#include<stdio.h>
+#include<stdlib.h>
+
+struct Node
+{
+        int val;
+        struct Node *left;
+        struct Node *right;
+};
+typedef struct Node node;
+
+node * newnode(int val)
+{
+    node * ptr=(node *)malloc(sizeof(node));
+    ptr->val=val;
+    ptr->left=NULL;
+    ptr->right=NULL;
+
+    return ptr;
+}
+
+void count(node * root,int k)
+{
+    static int xx=0;
+
+    if(root==NULL)
+      return;
+
+    count(root->left,k);
+
+    xx++;
+    if(xx==k)
+      printf("%d  ",root->val);
+
+   count(root->right,k);
+}
+
+int main()
+{
+
+    node * ptr=newnode(20);
+    ptr->left=newnode(8);
+    ptr->left->left=newnode(4);
+    ptr->left->right=newnode(12);
+    ptr->right=newnode(22);
+    ptr->left->right->left=newnode(10);
+    ptr->left->right->right=newnode(14);
+
+    int k=5;
+    //int k=5;
+    count(ptr,k);
+
+    return 0;
+}
+
+ Jitendra.BITS This will have O(n) complexity right? ultimate_coder  
+Looks like it is O(k).
+ shek8034 An alternative could be : Do inorder traversal and store the result in an array. Print kth element of array. Space complexity: O(n). Ujjwal  
+Cant this work..??
+-Build a stack by traversing the node in Inorder.
+-Remove (n-k) elements from the stack, where 'n' is the total number of elements in the tree.
+-Top of the stack will give you 'kth' minimum..
+ root  
+int kthsmallest(node *root,int count)
+{
+static int i=0,val=0;
+if(root)
+{
+kthsmallest(root->left,count);
+i++; if(i==count) val=root->data;
+kthsmallest(root->right,count);
+}
+return val;
+}
+ anon_user I did it in similar way  
+
+int kthSmallest(struct node* node,int k)
+{
+    static int count=1;
+    int a,c,b;
+    if(node==NULL)
+        return 0;
+    a=kthSmallest(node->left,k);
+    if(count==k)
+    {
+        b= node->data;
+
+    }
+    else
+        b=0;
+    count++;
+
+    c=kthSmallest(node->right,k);
+    return (a+b+c);
+}
+ abhishek08aug C++ code:  
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+ 
+class tree_node {
+  private:
+    int data;
+    tree_node * left;
+    tree_node * right;
+  public:
+    tree_node() {
+      left=NULL;
+      right=NULL;
+    }
+    void set_data(int data) {
+      this->data=data;
+    }
+    int get_data() {
+      return this->data;
+    }
+    void set_left(tree_node * left) {
+      this->left=left;
+    }
+    tree_node * get_left() {
+      return this->left;
+    }
+    void set_right(tree_node * right) {
+      this->right=right;
+    }
+    tree_node * get_right() {
+      return this->right;
+    }
+    tree_node ** get_left_ref() {
+      return &(this->left);
+    }
+    tree_node ** get_right_ref() {
+      return &(this->right);
+    }
+};
+ 
+class tree {
+  private:
+    tree_node * root;
+    int size;
+    void _recursive_insert(tree_node ** root_ref, int value);
+    void _print_preorder(tree_node * root);
+    void _print_inorder(tree_node * root);
+    void _print_postorder(tree_node * root);
+    int _find_size(tree_node * root);
+    int _are_identical(tree_node * tn1, tree_node * tn2);
+    int _find_height(tree_node * root);
+    void _delete_tree(tree_node ** root);
+    void _mirror(tree_node * root);
+    void _print_paths(tree_node * root, int * path_nodes, int next_vacant_position);
+    void _print_array(int * array, int len);
+    tree_node * _lowest_common_ancestor(tree_node * parent, tree_node * root, int a, int b);
+    tree_node * _find_node(tree_node * root, int value);
+    tree_node * _min_node(tree_node * root);
+    void _print_level_order(tree_node * root);
+    int _count_leaf_nodes(tree_node * root);
+    int _is_bst(tree_node * root);
+    int _children_sum(tree_node * root);
+    void _ensure_children_sum(tree_node * root);
+    int _diameter(tree_node * root);
+    int _is_height_balanced(tree_node * root);
+    int _leaf_path_sum(tree_node * root, int num);
+    void _double_tree(tree_node * root);
+    int _width(tree_node * root, int height, int level, int initialize_width_array);
+    int _maximum(int array[], int len);
+    void _print_k_distance_nodes(tree_node * root, int k, int distance);
+    tree_node * _kth_smallest_element(tree_node * root, int k);
+  public:
+    tree() {
+      root=NULL;
+      size=0;
+    }
+    void insert(int value);
+    void recursive_insert(int value);
+    void print_preorder();
+    void print_inorder();
+    void print_postorder();
+    int find_size();
+    int get_size() {
+      return this->size;
+    }
+    int are_identical(tree t);
+    int find_height();
+    void delete_tree();
+    void mirror();
+    void print_paths();
+    tree_node * lowest_common_ancestor(int a, int b);
+    tree_node * find_node(int value);
+    tree_node * min_node();
+    void print_level_order();
+    int count_leaf_nodes();
+    int is_bst();
+    int children_sum();
+    void ensure_children_sum();
+    int diameter();
+    int is_height_balanced();
+    int leaf_path_sum(int num);
+    void double_tree();
+    int width();
+    void print_k_distance_nodes(int k);
+    tree_node * kth_smallest_element(int k);
+};
+ 
+void tree::insert(int value) {
+  if(root==NULL) {
+    root=new tree_node;
+    root->set_data(value);
+  } else {
+    tree_node * parent=NULL;
+    tree_node * current=root;
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    while(current!=NULL) {
+      if(value<=current->get_data()) {
+        parent=current;
+        current=current->get_left();
+      } else {
+        parent=current;
+        current=current->get_right();
+      }
+    }
+    if(value<=parent->get_data() && parent->get_left()==NULL) {
+      parent->set_left(new_node);
+    } else if(value>parent->get_data() && parent->get_right()==NULL) {
+      parent->set_right(new_node);
+    }
+  }
+  size++;
+}
+ 
+void tree::recursive_insert(int value) {
+  _recursive_insert(&root, value);
+  size++;
+}
+ 
+void tree::_recursive_insert(tree_node ** root_ref, int value) {
+  if(*root_ref==NULL) {
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    *root_ref=new_node;   
+  } else {
+    if(value<=(*root_ref)->get_data()) {
+      _recursive_insert((*root_ref)->get_left_ref(), value);
+    } else {
+      _recursive_insert((*root_ref)->get_right_ref(), value);
+    }
+  }
+}
+ 
+void tree::print_preorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_preorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_preorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  cout<<root->get_data()<<" ";
+  if(root->get_left()!=NULL)
+    _print_preorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_preorder(root->get_right());
+}
+ 
+void tree::print_inorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_inorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_inorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_inorder(root->get_left());
+  cout<<root->get_data()<<" ";
+  if(root->get_right()!=NULL)
+    _print_inorder(root->get_right());
+}
+ 
+void tree::print_postorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_postorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_postorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_postorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_postorder(root->get_right());
+  cout<<root->get_data()<<" ";
+}
+
+int tree::find_size() {
+  return _find_size(root);
+}
+
+int tree::_find_size(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else {
+    return 1+_find_size(root->get_left())+_find_size(root->get_right());
+  }
+}
+
+int tree::are_identical(tree t) {
+  return _are_identical(this->root, t.root);
+}
+
+int tree::_are_identical(tree_node * tn1, tree_node * tn2) {
+  if(tn1==NULL && tn2==NULL) {
+    return 1;
+  } else if((tn1==NULL && tn2!=NULL) || (tn1!=NULL && tn2==NULL) || (tn1->get_data()!=tn2->get_data())) {
+    return 0;
+  } else {
+    return _are_identical(tn1->get_left(), tn2->get_left()) && _are_identical(tn1->get_right(), tn2->get_right());
+  }
+}
+
+int tree::find_height() {
+  return _find_height(root);
+}
+
+int tree::_find_height(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  }
+  else {
+    return 1+max(_find_height(root->get_left()), _find_height(root->get_right()));
+  }
+}
+
+void tree::delete_tree() {
+  _delete_tree(&root);
+  size=0;
+}
+
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      _delete_tree((*root)->get_left_ref());
+    }
+    if((*root)->get_right()!=NULL) {
+      _delete_tree((*root)->get_right_ref());
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+
+/* alternate _delete_tree */
+/*
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      tree_node * left_ref=(*root)->get_left();
+      _delete_tree(&left_ref);
+    }
+    if((*root)->get_right()!=NULL) {
+      tree_node * right_ref=(*root)->get_right();
+      _delete_tree(&right_ref);
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+*/
+
+void tree::mirror() {
+  _mirror(root);
+}
+
+void tree::_mirror(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+
+  tree_node * temp=root->get_left();
+  root->set_left(root->get_right());
+  root->set_right(temp);
+  _mirror(root->get_left());
+  _mirror(root->get_right());
+}
+
+void tree::print_paths(){
+   int max_path_length=find_height();
+   int * path_nodes=(int *)calloc(sizeof(int), max_path_length);
+  _print_paths(root, path_nodes, 0);
+}
+
+void tree::_print_paths(tree_node * root, int * path_nodes, int next_vacant_position){
+  if(root==NULL) {
+    return;
+  } else if(root->get_left()==NULL && root->get_right()==NULL) {
+    *(path_nodes+next_vacant_position)=root->get_data();
+    _print_array(path_nodes, next_vacant_position);
+  } else {
+    *(path_nodes+next_vacant_position)=root->get_data();
+    _print_paths(root->get_left(), path_nodes, next_vacant_position+1);
+    _print_paths(root->get_right(), path_nodes, next_vacant_position+1);
+  }
+}
+
+void tree::_print_array(int * array, int len) {
+  int i;
+  for(i=0; i<=len; i++) {
+    cout<<*(array+i)<<" ";
+  }
+  cout<<endl;
+}
+
+tree_node * tree::find_node(int value) {
+  return _find_node(root, value);
+}
+
+tree_node * tree::_find_node(tree_node * root, int value) {
+  if(root==NULL || root->get_data()==value) {
+    return root;
+  } else if(value<=root->get_data()) {
+    return _find_node(root->get_left(), value);
+  } else {
+    return _find_node(root->get_right(), value);
+  }
+}
+
+tree_node * tree::lowest_common_ancestor(int a, int b) {
+  return _lowest_common_ancestor(NULL, root, a, b);
+}
+
+tree_node * tree::_lowest_common_ancestor(tree_node * parent, tree_node * root, int a, int b) {
+  if(root==NULL) {
+    return root;
+  } else if((root->get_data()==a && (root->get_left()->get_data()==b || root->get_right()->get_data()==b))
+             || (root->get_data()==b && (root->get_left()->get_data()==a || root->get_right()->get_data()==a))) {
+    return parent;
+  } else if((_find_node(root->get_left(), a)!=NULL && _find_node(root->get_right(), b)!=NULL)
+        || (_find_node(root->get_left(), b)!=NULL && _find_node(root->get_right(), a)!=NULL)) {
+    return root; 
+  } else if(_find_node(root->get_left(), a)!=NULL && _find_node(root->get_left(), b)!=NULL) {
+    return _lowest_common_ancestor(root, root->get_left(), a, b);
+  } else if(_find_node(root->get_right(), a)!=NULL && _find_node(root->get_right(), b)!=NULL) {
+    return _lowest_common_ancestor(root, root->get_right(), a, b);
+  } else {
+    return NULL;
+  }
+}
+
+tree_node * tree::min_node() {
+  return _min_node(root);
+}
+
+tree_node * tree::_min_node(tree_node * root) {
+  if(root==NULL || root->get_left()==NULL) {
+    return root;
+  } else {
+    return _min_node(root->get_left());
+  }
+}
+
+int tree::count_leaf_nodes() {
+  return _count_leaf_nodes(root);
+}
+
+int tree::_count_leaf_nodes(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else if(root->get_left()==NULL && root->get_right()==NULL) {
+    return 1;
+  } else {
+    return _count_leaf_nodes(root->get_left())+_count_leaf_nodes(root->get_right());
+  }
+}
+
+
+int tree::is_bst() {
+  return _is_bst(root);
+}
+
+int tree::_is_bst(tree_node * root) {
+  static tree_node * previous=NULL;
+  if(root==NULL) {
+    return 1;
+  } else {
+    if(!_is_bst(root->get_left())) {
+      return 0;
+    }
+    if(previous!=NULL && (previous->get_data())>(root->get_data())) {
+      return 0;
+    }
+    previous=root;
+    if(!_is_bst(root->get_right())) {
+      return 0;
+    }    
+  }
+}
+
+int tree::children_sum() {
+  return _children_sum(root);
+}
+
+int tree::_children_sum(tree_node * root) {
+  if(root==NULL) {
+    return 1;
+  }
+  if(root->get_left()==NULL && root->get_right()==NULL) {
+    return 1;
+  }
+  else if(_children_sum(root->get_left()) && _children_sum(root->get_right())){
+    int left_data;
+    int right_data;
+    if(root->get_left()!=NULL) {
+      left_data=root->get_left()->get_data();
+    } else {
+      left_data=0;
+    }
+    if(root->get_right()!=NULL) {
+      right_data=root->get_right()->get_data();
+    } else {
+      right_data=0;
+    }
+
+    if(left_data+right_data==root->get_data()) {
+      return 1;
+    } else {
+      return 0;
+    }
+  } else {
+    return 0;
+  }
+}
+
+void tree::ensure_children_sum() {
+  _ensure_children_sum(root);
+}
+
+void tree::_ensure_children_sum(tree_node * root) {
+  if(root==NULL || (root->get_left()==NULL && root->get_right()==NULL)) {
+    return;
+  } else {
+    _ensure_children_sum(root->get_left());
+    _ensure_children_sum(root->get_right());
+    int left_data;
+    int right_data;
+    if(root->get_left()!=NULL) {
+      left_data=root->get_left()->get_data();
+    } else {
+      left_data=0;
+    }
+    if(root->get_right()!=NULL) {
+      right_data=root->get_right()->get_data();
+    } else {
+      right_data=0;
+    }
+    root->set_data(left_data+right_data);
+  }
+}
+
+int tree::diameter() {
+  return _diameter(root);
+}
+
+int tree::_diameter(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else {
+    return max(_find_height(root->get_left())+_find_height(root->get_right())+1, max(_diameter(root->get_left()), _diameter(root->get_left())));
+  }
+}
+
+int tree::is_height_balanced() {
+  return _is_height_balanced(root);
+}
+
+int tree::_is_height_balanced(tree_node * root) {
+  if(root==NULL) {
+    return 1;
+  } else {
+    int left_height=_find_height(root->get_left());
+    int right_height=_find_height(root->get_right());
+    if(abs(left_height-right_height)<=1 && _is_height_balanced(root->get_left()) && _is_height_balanced(root->get_left())) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+}
+
+int tree::leaf_path_sum(int sum) {
+  return _leaf_path_sum(root, sum);
+}
+
+int tree::_leaf_path_sum(tree_node * root, int sum) {
+  if(root==NULL) {
+    return 0;
+  } else if(root->get_data()==sum && root->get_left()==NULL && root->get_right()==NULL) {
+    return 1;
+  } else {
+    return _leaf_path_sum(root->get_left(), sum-root->get_data()) || _leaf_path_sum(root->get_right(), sum-root->get_data());
+  }
+}
+
+void tree::double_tree() {
+  _double_tree(root);
+}
+
+void tree::_double_tree(tree_node * root) {
+  if(root==NULL) {
+    return;
+  } else {
+    tree_node * new_node=new tree_node;
+    new_node->set_data(root->get_data());
+    tree_node * root_left=root->get_left();
+    root->set_left(new_node);
+    new_node->set_left(root_left);
+    _double_tree(root_left);
+    _double_tree(root->get_right());
+  }
+}
+
+int tree::width() {
+  int height=find_height();
+  return _width(root, height, 0, 1);
+}
+
+int tree::_width(tree_node * root, int height, int level, int initialize_width_array) {
+  static int width[]={0};
+  if(initialize_width_array==1) {
+    int i;
+    for(i=0; i<height; i++) {
+      width[i]=0;  
+    }
+  }
+  if(root==NULL) {
+    width[level]=width[level]+0;
+  } else {
+    width[level]=width[level]+1;
+    _width(root->get_left(), height, level+1, 0);
+    _width(root->get_right(), height, level+1, 0);
+  }
+  return _maximum(width, height);
+}
+
+int tree::_maximum(int array[], int len) {
+  int i;
+  int max=array[0];
+  for(i=1; i<len; i++) {
+    if(array[i]>max) {
+      max=array[i];
+    }
+  }
+  return max;
+}
+
+void tree::print_k_distance_nodes(int k) {
+  _print_k_distance_nodes(root, k, 0);
+  cout<<endl;
+}
+
+void tree::_print_k_distance_nodes(tree_node * root, int k, int distance) {
+  if(root==NULL) {
+    return;
+  } else if(distance==k) {
+    cout<<root->get_data()<<" ";
+  } else {
+    _print_k_distance_nodes(root->get_left(), k, distance+1);
+    _print_k_distance_nodes(root->get_right(), k, distance+1);
+  }
+}
+
+tree_node * tree::kth_smallest_element(int k) {
+  return _kth_smallest_element(root, k);
+}
+
+tree_node * tree::_kth_smallest_element(tree_node * root, int k) {
+  if(root==NULL) {
+    return root;
+  } else {
+    int left_size=_find_size(root->get_left());
+    if(left_size==k-1) {
+      return root;
+    } else if(left_size>=k) {
+      return _kth_smallest_element(root->get_left(), k);
+    } else {
+      return _kth_smallest_element(root->get_right(), k-left_size-1);
+    }
+  }
+}
+
+int main() {
+  tree t1;
+
+  t1.recursive_insert(20);
+  t1.recursive_insert(10);
+  t1.insert(30);
+  t1.insert(8);
+  t1.recursive_insert(12);
+  t1.recursive_insert(28);
+  t1.recursive_insert(32);
+  t1.recursive_insert(6);
+  t1.recursive_insert(9);
+  t1.recursive_insert(50);
+  t1.insert(14);
+  t1.insert(26);
+
+  t1.print_inorder();
+
+  tree_node * kth_smallest_node;
+
+  kth_smallest_node=t1.kth_smallest_element(1);
+  if(kth_smallest_node!=NULL) {
+    cout<<"1st smallest node "<<kth_smallest_node->get_data()<<endl;
+  }
+  kth_smallest_node=t1.kth_smallest_element(2);
+  if(kth_smallest_node!=NULL) {
+    cout<<"2nd smallest node "<<kth_smallest_node->get_data()<<endl;
+  }
+  kth_smallest_node=t1.kth_smallest_element(3);
+  if(kth_smallest_node!=NULL) {
+    cout<<"3rd smallest node "<<kth_smallest_node->get_data()<<endl;
+  }
+  kth_smallest_node=t1.kth_smallest_element(4);
+  if(kth_smallest_node!=NULL) {
+    cout<<"4th smallest node "<<kth_smallest_node->get_data()<<endl;
+  }
+  kth_smallest_node=t1.kth_smallest_element(5);
+  if(kth_smallest_node!=NULL) {
+    cout<<"5th smallest node "<<kth_smallest_node->get_data()<<endl;
+  }
+  kth_smallest_node=t1.kth_smallest_element(6);
+  if(kth_smallest_node!=NULL) {
+    cout<<"6th smallest node "<<kth_smallest_node->get_data()<<endl;
+  }
+  kth_smallest_node=t1.kth_smallest_element(7);
+  if(kth_smallest_node!=NULL) {
+    cout<<"7th smallest node "<<kth_smallest_node->get_data()<<endl;
+  }
+  kth_smallest_node=t1.kth_smallest_element(8);
+  if(kth_smallest_node!=NULL) {
+    cout<<"8th smallest node "<<kth_smallest_node->get_data()<<endl;
+  }
+  kth_smallest_node=t1.kth_smallest_element(9);
+  if(kth_smallest_node!=NULL) {
+    cout<<"9th smallest node "<<kth_smallest_node->get_data()<<endl;
+  }
+  kth_smallest_node=t1.kth_smallest_element(10);
+  if(kth_smallest_node!=NULL) {
+    cout<<"10th smallest node "<<kth_smallest_node->get_data()<<endl;
+  }
+  kth_smallest_node=t1.kth_smallest_element(11);
+  if(kth_smallest_node!=NULL) {
+    cout<<"11th smallest node "<<kth_smallest_node->get_data()<<endl;
+  }
+  kth_smallest_node=t1.kth_smallest_element(12);
+  if(kth_smallest_node!=NULL) {
+    cout<<"12th smallest node "<<kth_smallest_node->get_data()<<endl;
+  }
+  kth_smallest_node=t1.kth_smallest_element(13);
+  if(kth_smallest_node!=NULL) {
+    cout<<"13th smallest node "<<kth_smallest_node->get_data()<<endl;
+  }
+
+  return 0;
+}
+ 6 8 9 10 12 14 20 26 28 30 32 50 1st smallest node 6 2nd smallest node 8 3rd smallest node 9 4th smallest node 10 5th smallest node 12 6th smallest node 14 7th smallest node 20 8th smallest node 26 9th smallest node 28 10th smallest node 30 11th smallest node 32 12th smallest node 50 abhishek08aug My solution is recursive. aman1234 dude, have you done whole geeksforgeeks ? i am wondering… naveen.bobbili  
+template<class T>
+struct result {
+  Tree<T>* node;
+  int data;
+};
+
+template<class T>
+struct result<T> kthInorder(Tree<T>* root, int k) {
+  if (root == NULL) {
+    struct result<T> a;
+    a.data = 0;
+    a.node = NULL;
+    return a;
+  }
+
+  struct result<T> left = kthInorder(root->lchild(), k);
+  if (left.node != NULL)
+    return left;
+  else {
+    if (left.data == (k-1)) {
+      left.node = root;
+      return left;
+    } else if(left.data < (k-1)) {
+      if (root->rchild() != NULL) {
+        return kthInorder(root->rchild(), k-(left.data + 1));
+      } else {
+        left.data = left.data + 1;
+        return left;
+      }
+    } 
+  } 
+}
+ rohit int ksmall(struct node*root,int *k) { int a; if(root==NULL) return(0); {a=ksmall(root->left,k); if(a!=0) return(a); } (*k)–; if(!(*k)) return(root->data); a=ksmall(root->right,k); return(a); } cyberWolf Kth smallest value in BST using Stack  
+int findKthSmallest(treeNode* x, int k)
+{
+        int count = 0;
+        stack<treeNode*> s;
+        s.push(x);
+
+        while(!s.empty())
+        {   
+                while(x->left != NULL)
+                {   
+                        s.push(x->left);
+                        x=x->left;
+                }   
+    
+                x = s.top();
+                s.pop();
+                count++;
+    
+                if(count == k)
+                        return x->data;
+    
+                if(x->right)
+                {   
+                        s.push(x->right);
+                        x=x->right;
+                }   
+        }   
+        return -1; 
+}
+
+ doingit Isn’t it a good solution  
+
+void Kthsmallest(node* root,int k){
+   static int cnt = 0;
+   if(root==NULL)
+        return;
+   Kthsmallest(root->left,k);
+   cnt++;
+   if(cnt == k)
+        cout<<root->key<<" ";
+   Kthsmallest(root->right,k);
+}
+
+ ashu code  
+void get3(node *root,int* ind,int* val,int k){
+	if(root==NULL) return;
+	get3(root->left,ind,val,k);
+	*ind+=1;
+	if(*ind==k) *val=root->data;
+	get3(root->right,ind,val,k);
+}
+void kthSmall(node *root){
+	int ind=0;
+	int val=-1;
+	int k=5;
+	get3(root,&ind,&val,k);
+	cout<<val<<"\n";
+}
+ Ashu  
+void get3(node *root,int* ind,int* val,int k){
+	if(root==NULL) return;
+	get3(root->left,ind,val,k);
+	*ind+=1;
+	if(*ind==k) *val=root->data;
+	get3(root->right,ind,val,k);
+}
+void KthNode(node *root){
+	int ind=0;
+	int val=-1;
+	int k=5;
+	get3(root,&ind,&val,k);
+	cout<<val<<"\n";
+}
+ naresh Without using any global variable or static variable. Note : found is used as a indicator. Using the Inorder tree property. int kth(struct node *root, int k, int *found){ if(root == NULL) return k; k = kth(root->left, k, found); if(k == 1 && *found == 0){ printf(“Kth =%d \n”, root->data); *found = 1; return root->data; } if(*found == 0){ k–; k = kth(root->right, k, found); return k; } } huha  
+struct node *nthorder(struct node* root,int *n)
+{
+	struct node* ptr=(struct node*)malloc(sizeof(struct node));
+	if(!root) return NULL;
+	ptr=nthorder(root->left,n);
+	if(ptr) return ptr;
+	if((*n)==1) 
+	{
+	printf("nth is %d",root->data);
+	return root;}
+	(*n)--;
+	ptr=nthorder(root->right,n);
+	return ptr;
+}
+
+ huha sry,for reposting..had problem wid uploading  
+/* Paste your code here (You may delete these lines if not writing code) */
+ naresh It giving segmentation fault. huha  
+struct node *nthorder(struct node* root,int *n)
+{
+	struct node* ptr=(struct node*)malloc(sizeof(struct node));
+	if(!root) return NULL;
+	ptr=nthorder(root->left,n);
+	if(ptr) return ptr;
+	if((*n)==1) 
+	{
+	printf("nth is %d",root->data);
+	return root;}
+	(*n)--;
+	ptr=nthorder(root->right,n);
+	return ptr;
+}
+ Bala The following code gives the kth smallest in O(n) time without needing any additional fields. Please correct me if anything is wrong in the approach. void findKthSmallest(int k) //function that will called by the user { int ans; if(!root){ printf("The tree is empty.\n"); return; } findAnswer(root,0,k,&ans); printf("The %dth smallest element is %d\n",k,ans); return; } int findAnswer(node *cur,int curRank,int k,int *ans) //does the actual work finding the answer { int l=curRank,r=curRank; if(cur->lchild) { l = findAnswer(cur->lchild,curRank,k,ans); } if(l+1==k){ *ans=cur->data; } r=l+1; if(cur->rchild) { r=findAnswer(cur->rchild,r,k,ans); } return r; } kartik @Bala: Could you repost the code between the sourcecode tags, please?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Balasubramanian.N Sorry, I think I pasted it using code tags, but I will do it again.  
+void findKthSmallest(int k) //function that will called by the user
+{
+int ans;
+if(!root){ printf("The tree is empty.\n"); return; }
+findAnswer(root,0,k,&ans);
+printf("The %dth smallest element is %d\n",k,ans);
+return;
+}
+int findAnswer(node *cur,int curRank,int k,int *ans) //does the actual work finding the answer
+{
+int l=curRank,r=curRank;
+if(cur->lchild)
+{
+l = findAnswer(cur->lchild,curRank,k,ans);
+}
+if(l+1==k){ *ans=cur->data; }
+r=l+1;
+if(cur->rchild)
+{
+r=findAnswer(cur->rchild,r,k,ans);
+}
+return r;
+}
+ Balasubramanian.N Sorry, I thought I had used the code tags. I am reposting it.  
+void findKthSmallest(int k) //function that will called by the user
+{
+int ans;
+if(!root){ printf("The tree is empty.\n"); return; }
+findAnswer(root,0,k,&ans);
+printf("The %dth smallest element is %d\n",k,ans);
+return;
+}
+int findAnswer(node *cur,int curRank,int k,int *ans) //does the actual work finding the answer
+{
+int l=curRank,r=curRank;
+if(cur->lchild)
+{
+l = findAnswer(cur->lchild,curRank,k,ans);
+}
+if(l+1==k){ *ans=cur->data; }
+r=l+1;
+if(cur->rchild)
+{
+r=findAnswer(cur->rchild,r,k,ans);
+}
+return r;
+}
+ payal int kth_small(struct node* node,int k) { static int m=0; if(node==NULL) return 0; int a=kth_small(node->left,k); if(mdata;} a=kth_small(node->right,k); return a; } payal sorry typo error in above code corrected code is here:  
+int kth_small(struct node* node,int k)
+{
+static int m=0;
+if(node==NULL)
+return 0;
+
+int a=kth_small(node->left,k);
+
+if(m<0)
+return a;
+
+m++;
+if(m==k)
+{m=-1;
+return node->data;}
+
+a=kth_small(node->right,k);
+return a;
+}
+ payal int kth_small(struct node* node,int k) { static int m=0; if(node==NULL) return 0; int a=kth_small(node->left,k); if(mdata;} a=kth_small(node->right,k); return a; } Sandeep Vasani  
+int size(struct node * a)
+{
+    if(a==NULL)
+    return 0;
+    else
+    return(size(a->left)+size(a->right)+1);
+}
+
+int i_smallest_element(struct node* root,int i)
+{
+     int k=size(root->left)+1;
+     if(i==k) return root->data;
+     if(i<k) return i_smallest_element(root->left,i);
+     else
+     return i_smallest_element(root->right,i-k);
+
+}
+ saipraneeth  
+#include <stdio.h>
+#include <stdlib.h>
+ 
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+  int data;
+  struct node* left;
+  struct node* right;
+
+};
+int k_smallest(struct node * root,int n);
+int k_smallest(struct node * root,int n)
+{
+  if(root ==NULL) return;
+  static int k=0,ele=-1;
+  k_smallest(root->left,n);
+  //printf("k = %d n = %d\n",k,n);
+  if(++k == n){
+    //printf("enter\n");
+    ele = root->data;
+    //return root->data;
+  }
+  else 
+    k_smallest(root->right,n);
+  return ele;
+}
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+  struct node* node = (struct node*)
+    malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+  return(node);
+}
+/* Driver program to test above functions*/
+int main()
+{
+  struct node *root = newNode(8);
+  root->left        = newNode(5);
+  root->right       = newNode(9);
+  root->left->left  = newNode(4);
+  root->left->right = newNode(6);
+  root->right->right = newNode(11);
+  root->right->right->left  = newNode(10);
+  root->right->right->right  = newNode(12);     
+ 
+  /*
+   Constructed bunary tree is:
+          8
+        /  \
+       5    9
+     /  \     \
+    4    6     11
+              /  \
+             10   12
+  */
+  int k = k_smallest(root,4);
+  if(k==-1)
+    printf("number of elements is less than k\n");
+  else
+    printf("%d th smallest element is %d \n",4,k);
+  getchar();
+  return 0;
+}
+ gaurav singh #include #include struct node { int data; struct node* left; struct node* right; }; void k_smallest_element(struct node *root, int k) { static int i=0; if(root==NULL) return; k_smallest_element(root->left,k); i++; if(i==k) { printf(“%d”,root->data); } k_smallest_element(root->right,k); } struct node* newNode(int data) { struct node* node = (struct node*) malloc(sizeof(struct node)); node->data = data; node->left = NULL; node->right = NULL; return(node); } struct node* insert(struct node* node, int data) { /* 1. If the tree is empty, return a new, single node */ if (node == NULL) return(newNode(data)); else { struct node *temp; /* 2. Otherwise, recur down the tree */ if (data data) { temp = insert(node->left, data); node->left = temp; } else { temp = insert(node->right, data); node->right = temp; } /* return the (unchanged) node pointer */ return node; } } /* Driver program to test above functions*/ int main() { int i=5; struct node* root = NULL; //creating the tree given in the above diagram root = insert(root, 20); root = insert(root, 8); root = insert(root, 22); root = insert(root, 4); root = insert(root, 12); root = insert(root, 10); root = insert(root, 14); printf(“\n kth smallest elment for k = %d is “, i); k_smallest_element(root, i); getchar(); return 0; } gaurav singh http://ideone.com/EUm4b Anil Above problem can be solved in o(k) time using modified inorder traversal (using two static variables )as follows : void modified_inorder1(node* root) { //printf(“%d”,k); static int flag=0; static int count=k; if(root->left!=NULL && count>0) modified_inorder(root->left); count–; if(count==0 && !flag) { printf(“%d “,root->key); flag=1; } if(root->right!=NULL && !flag) modified_inorder(root->right); } tell me if i am wrong. anuja consider the following case where k=2, is ur algo still o(k)? I cant understand how is it differnt from the above given techniques.. please reply 5 / 4 / 3 / 2 / 1  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://caughtonthecrease.wordpress.com Ankur struct node* findKthSmallest(node* root, int& k) { if(!root){ return NULL; } struct node* temp; temp=findKthSmallest(root->left,k); k–; if(k==0) return root; if(k>0) temp=findKthSmallest(root->right,k); return temp; }   shani void kth_smallest_element(p_tree root,int* k) { if(NULL != root) { kth_smallest_element(root->left,k); (*k)–; if(0 == *k) { printf(“element is %d\n”,root->info); return; } kth_smallest_element(root->rht,k); } } neeraj singh  
+public static void findKthLargestInBST(Node node, int KthElement) {
+                if (node != null) {
+            findKthLargestInBST(node.right, KthElement);
+            counter++;
+            if (KthElement == counter) {
+                System.out.print(node);
+                return ;
+            }
+            findKthLargestInBST(node.left, KthElement);
+        }
+    }
+
+    public static void findKthMinimumInBST(Node node, int KthElement) {
+               if (node != null) {
+            findKthLargestInBST(node.left, KthElement);
+            counter++;
+            if (KthElement == counter) {
+                System.out.print(node);
+                return;
+            }
+            findKthLargestInBST(node.right, KthElement);
+        }
+    }
+ neeraj singh  public static void findKthMinimumInBST(Node node, int KthElement) {
+if (node != null) {
+findKthMinimumInBST(node.left, KthElement);
+counter++;
+if (KthElement == counter) {
+System.out.print(node);
+return;
+}
+findKthMinimumInBST(node.right, KthElement);
+}
+} //corrected the copy paste error Bandicoot Why not just do an inorder traversal ?  
+int count;  // global count
+bool flag1=FALSE;  // to denote starting count increments
+bool flag2=FALSE;  // to avoid unnecessary traversals once kth smallest node is found
+int kthinbst(node_t *node, int k)
+{
+   if(!node) {
+      flag1=TRUE;
+      count++;
+   }
+   kthinBST(node->left, k);
+   if(flag1) {
+      count++;
+      if(count == k) { // the kth smallest
+         printf("kth smallest = %d\n", node->data);
+         flag2=TRUE;
+      }
+   }
+   if(!flag2)
+      kthinbst(node->right, k);
+}
+ Please feel free to point out mistakes/comment on efficiency. vinni  
+static int count=k;
+int kthMin(BinarySearchTree *t)
+{
+  while(t!=NULL)
+  {
+    kthMin(t->leftchild);
+    if(k!=0)
+    {
+      k--;
+    }
+    else
+    {
+      return t.data;
+      break;  
+    }
+}
+}
+ sachin This code doesnot go to right subtree , what if K=N(total no. nodes in tree) i.e. largest element in tree mac hey plz correct me but i think average running time for 2nd method is O(lgn)as we are taking left or right subtree at every step only worst case running time will be o(n). http://www.linkedin.com/in/ramanawithu Venki For both the methods, the average time depends on the distribution of nodes in the input array. Worst case is when array is sorted either way, that results in skewed tree. mac ya that’s why i was saying that running time for 2nd method is O(lgn)while it is mentioned as O(n). http://effprog.blogspot.com Sambasiva Recursion is such a fundamental technique in Computer science. Implementations may be sucking, but not the expressiveness of recursion technique. Please see the following link http://effprog.blogspot.com Sambasiva  
+int kthMin(BinarySearchTree *t, int *k) {
+
+    if(t == NULL)
+        return INT_MAX;
+
+    int x = kthMin(t->left, k);
+
+    if(x != INT_MAX) return x;
+
+    (*k)--;
+    if(*k == 0) return t->data;
+
+    return kthMin(t->right, k);
+}
+ http://www.linkedin.com/in/ramanawithu Venki @Sambasiva, thanks for the code and link. The reason for non-recursive code, may be content for another article. abhishek could u pls tell me what does INT_MAX stands for ? Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

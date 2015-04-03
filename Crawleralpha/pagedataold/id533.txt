@@ -1,0 +1,186 @@
+Move last element to front of a given Linked List - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Move last element to front of a given Linked List Write a C function that moves last element to front in a given Singly Linked List. For example, if the given Linked List is 1->2->3->4->5, then the function should change the list to 5->1->2->3->4. Algorithm: Traverse the list till last node. Use two pointers: one to store the address of last node and other for address of second last node. After the end of loop do following operations. i) Make second last as last (secLast->next = NULL). ii) Set next of last as head (last->next = *head_ref). iii) Make last as head ( *head_ref = last) 
+/* Program to move last element to front in a given linked list */
+#include<stdio.h>
+#include<stdlib.h>
+
+/* A linked list node */
+struct node
+{
+ int data;
+ struct node *next;
+};
+
+/* We are using a double pointer head_ref here because we change    
+   head of the linked list inside this function.*/
+void moveToFront(struct node **head_ref)
+{
+  /* If linked list is empty, or it contains only one node, 
+    then nothing needs to be done, simply return */   
+  if(*head_ref == NULL || (*head_ref)->next == NULL)
+    return;
+    
+  /* Initialize second last and last pointers */  
+  struct node *secLast = NULL;
+  struct node *last = *head_ref;
+  
+  /*After this loop secLast contains address of second last
+  node and last contains address of last node in Linked List */
+  while(last->next != NULL)  
+  {
+    secLast = last;
+    last = last->next; 
+  }                 
+  
+  /* Set the next of second last as NULL */
+  secLast->next = NULL;
+  
+  /* Set next of last as head node */
+  last->next = *head_ref;
+  
+  /* Change the head pointer to point to last node now */
+  *head_ref = last;    
+}     
+
+/* UTILITY FUNCTIONS */
+/* Function to add a node at the begining of Linked List */
+void push(struct node** head_ref, int new_data)
+{
+  /* allocate node */
+  struct node* new_node =
+            (struct node*) malloc(sizeof(struct node));
+
+  /* put in the data  */
+  new_node->data  = new_data;
+
+  /* link the old list off the new node */
+  new_node->next = (*head_ref);    
+
+  /* move the head to point to the new node */
+  (*head_ref)    = new_node;
+}
+
+
+/* Function to print nodes in a given linked list */
+void printList(struct node *node)
+{
+  while(node != NULL)
+  {
+    printf("%d ", node->data);
+    node = node->next;
+  }
+}
+
+/* Druver program to test above function */
+int main()
+{
+  struct node *start = NULL;   
+
+  /* The constructed linked list is:
+   1->2->3->4->5 */
+  push(&start, 5);
+  push(&start, 4);
+  push(&start, 3);
+  push(&start, 2);
+  push(&start, 1);
+
+  printf("\n Linked list before moving last to front ");
+  printList(start);
+
+  moveToFront(&start);
+
+  printf("\n Linked list after removing last to front ");
+  printList(start);
+
+  getchar();
+}        
+ Time Complexity: O(n) where n is the number of nodes in the given Linked List. Please write comments if you find any bug in above code/algorithm, or find other ways to solve the same problem.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. Akash Panda void MoveLastToFront(struct node **head) { struct node *current=*head; if(current==NULL || current->next==NULL) return; while(current->next->next!=NULL) { current=current->next; } struct node *temp=current->next; current->next=NULL; temp->next=*head; *head=temp; } Himanshu Dagar even we can do it with a single pointer by keep track of forward nodes frm current node Guest void move_last_node_to_beg(struct node **head) { struct node **temp=&((*head)->link); //temp holds address of link part of 1st node which is pointed to by head node if(*temp!=NULL) //this is just to handle the case that the 1ST node itself is not the last node { while(((*temp)->link)!=NULL) //find the address present in the link field of 1st node by *temp,then go to that address and check if that nodes link field is null then quit the loop , temp=&((*temp)->link); //this is basically to make temp to hold the next node’s link field’s address //finally temp will hold address of the last but 1 nodes’s link field’s address…bcoz while loop quits when the next nodes link field contains null (*temp)->link=*head; //now change the address of the present in the last nodes link to make it point to the head node *head=*temp; //head node now points to where earlier the last but 1 node’s link field was pointing that is to the last node *temp=NULL; //the last but 1 node’s link field now contains null } } adithya  
+/* Make last node first */
+void reverse(node **head) {
+	node *temp,*temp1;
+	temp=*head;
+	temp1=*head;
+	temp=temp->link;
+	while(temp1->link!=NULL) {
+		temp=temp->link;
+		temp1=temp1->link->link;
+	}
+	temp1->link=*head;
+	*head=temp1;
+	temp->link=NULL;
+	return;
+}
+ adithya  
+/* Function for making lastnode first*/
+void reverse(node **head) {
+	node *temp,*temp1;
+	temp=*head;
+	temp1=*head;
+	temp=temp->link;
+	while(temp1->link!=NULL) {
+		temp=temp->link;
+		temp1=temp1->link->link;
+	}
+	temp1->link=*head;
+	*head=temp1;
+	temp->link=NULL;
+	return;
+}
+ http://www.linkedin.com/in/ramanawithu Venki Function to move last node to start of the list with only one crawl pointer. Comments explains the logic.  
+void moveToFront(struct node **head_ref)
+{
+    /* Proceed only when list is valid (efficient code) */
+    if( *head_ref && (*head_ref)->next )
+    {
+        struct node *ite = *head_ref;
+
+        /* Move to second last node */
+        while( ite && ite->next && ite->next->next )
+        {
+            ite = ite->next;
+        }
+
+        /* Make the list circular */
+        ite->next->next = *head_ref;
+        /* Set up new head */
+        *head_ref = ite->next;
+        /* Break the loop */
+        ite->next= NULL;
+    }
+}
+ Soumya Sengupta @venki-great iterative code……enjoyed it…  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Coder Nice approach really good Venki renu awesome!!! Murali S Iyengar @Venki The check “ite && ite->next” in the while loop is redundant as you have already checked for head and head->next in “if” at the beginning. The while loop may be changed to while (ite->next->next) { ite = ite->next; } http://effprog.blogspot.com Sambasiva  
+void moveToFront(struct node **head_ref)
+{
+    struct node *p = *head_ref;
+    if(!p || !p->next) return;
+    for(;p->next->next; p = p->next);
+    p->next->next = *head_ref;
+    *head_ref = p->next;
+    p->next = NULL;   
+}
+
+ Sam Below is C# version  
+public static LinkedList MoveLastItemToFirst(LinkedList head)
+        {
+            LinkedList last = null;
+            LinkedList secondLast = null;
+            LinkedList cur = head;
+
+            while (null != cur)
+            {
+                secondLast = last;
+                last = cur;
+                cur = cur.Next;
+            }
+
+            if (null != last)
+            {
+                secondLast.Next = null;
+                last.Next = head;
+                head = last;
+            }
+
+            return head;
+        }
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

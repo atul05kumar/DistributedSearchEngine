@@ -1,0 +1,96 @@
+Generate integer from 1 to 7 with equal probability - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Generate integer from 1 to 7 with equal probability Given a function foo() that returns integers from 1 to 5 with equal probability, write a function that returns integers from 1 to 7 with equal probability using foo() only. Minimize the number of calls to foo() method. Also, use of any other library function is not allowed and no floating point arithmetic allowed. Solution: We know foo() returns integers from 1 to 5. How we can ensure that integers from 1 to 7 occur with equal probability? If we somehow generate integers from 1 to a-multiple-of-7 (like 7, 14, 21, …) with equal probability, we can use modulo division by 7 followed by adding 1 to get the numbers from 1 to 7 with equal probability. We can generate from 1 to 21 with equal probability using the following expression.  5*foo() + foo() -5 Let us see how above expression can be used. 1. For each value of first foo(), there can be 5 possible combinations for values of second foo(). So, there are total 25 combinations possible. 2. The range of values returned by the above equation is 1 to 25, each integer occurring exactly once. 3. If the value of the equation comes out to be less than 22, return modulo division by 7 followed by adding 1. Else, again call the method recursively. The probability of returning each integer thus becomes 1/7. The below program shows that the expression returns each integer from 1 to 25 exactly once. 
+#include <stdio.h>
+
+int main()
+{
+    int first, second;
+    for ( first=1; first<=5; ++first )
+        for ( second=1; second<=5; ++second )
+            printf ("%d \n", 5*first + second - 5);
+    return 0;
+}
+ Output: 1
+2
+.
+.
+24
+25 The below program depicts how we can use foo() to return 1 to 7 with equal probability. 
+#include <stdio.h>
+
+int foo() // given method that returns 1 to 5 with equal probability
+{
+    // some code here
+}
+
+int my_rand() // returns 1 to 7 with equal probability
+{
+    int i;
+    i = 5*foo() + foo() - 5;
+    if (i < 22)
+        return i%7 + 1;
+    return my_rand();
+}
+
+int main()
+{
+    printf ("%d ", my_rand());
+    return 0;
+}
+ This article is compiled by Aashish Barnwal and reviewed by GeeksforGeeks team. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: MathematicalAlgo Tweet Writing code in comment? Please use ideone.com and share the link here. http://www-users.cs.umn.edu/~verma/ Saurabh Verma Just putting variation of this problem : Generate (1-7) using rand(1-5) such that your solution time complexity is O(1). Assume that equal probability is not a constraint here. Solution is easy but may be tricky !! anonymous2 What is exactly meant by equal probability? One way I can think is a number in the range will never repeat itself unless all other numbers in the range have been generated. Assuming this is the case, the solution here is wrong! If we can generate numbers from 1 to 14 with equal probability, the first seven numbers generated may be 8,1,.. So if we modulo divide by 7 and add one, the first two numbers are 1. Where is the equal probability then? http://www-users.cs.umn.edu/~verma/ Saurabh Verma Imagine your solution function like a dice: A dice, when you throw gives only 1,2,…..21 (since you are rejecting 22,23,24,25 a.k.a rejection sampling theorem) So total no. of possible are 21. No. of ways getting “1”=3 (5*1+1-5,5*2+3-5,5*3+1-1)%7 No. of ways getting “2”=3 (5*1+2-5,5*2+4-5,5*3+2-1)%7 and so on.. P(1)=3/21=1/7 P(2)=3/21=1/7 and so on… Phoenix The function: foo()*5 + foo() – 5 generates numbers from 1 to 25 with equal probability. Therefore, each number has a probability of 1/25. 1,2,3,4,5,6,7 8,9,10,11,12,13,14 15,16,17,18,19,20,21 The above numbers will give a random number from 0-7. Since P(any number)=1/25, therefore, P(any number 0-7) = 3/25 P({22,23,24,25})=1/25. These numbers will again generate the same numbers and hence same probabilities. This becomes a GP for every number in 0-7: 3/25 + 4/25(3/25 + 4/25(3/25 + …….. => (3/25)*(1/(1-4/25)) = 3/21 = 1/7 Hence, probability is 1/7 for every number Phil why not generate 1 – 10? ignore 8, 9, and 10. http://www-users.cs.umn.edu/~verma/ Saurabh Verma For that, you will do something like this : x=foo()+foo()-1; if (x !=8,9){ return x; } Now what’s the probability here for p(1),p(2)…p(7)? no. of ways of producing “1” =1 (1+1-1) no. of ways of producing “2” =2 (2+1-1,1+2-1) and so on… Total no. of possible combination =5*5=25 P(1)=1/25; P(2)=2/25 and so on… So probabilities are not equal in this case !! leet I am weak in the probability stuff. Why cant we do this ? foo()*5+foo() – 5 if it gives number from 1 to 7 then return else continue. it will give the number from 1 to 7 with probability equal that is 1/25. Or we have to return with 1/7 probablity only ?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Aashish The question is to output number with equal probability, not with 1/7 probability. abhishek08aug And what exactly will be the equal probability for 7 numbers: 1/7 geekguy I think that will work. But as u know foo()*5+foo() - 5 will give answer in range 1-25. Now if you just consider the range 1-7 then ~2.5 out of ~3.5(25/7) time you are calling the function back. so it ‘ll be useless overhead. So we are using range as much as we can for best output which is 21 in this case. Please correct me if I am wrong! Anonymous First, observe that we cannot do this in a guaranteed finite amount of time. Why? Let’s see by a parallel example: How would you use rand2() to create rand3()? Observe that each call of rand2() and the corresponding decision you make can be represented by a decision tree. On each node, you have two branches. You take the left one when rand2() equals 0 (which happens with 1/2 probability). You take the right one when rand2() equals 1 (which happens with 1/2 probability). You continue branching left and right as you continue to call 1/2. When you reach a leaf, you return a result of 1, 2 or 3 (your rand3() results). »»What’s the probability of taking each branch? 1/2. »»What’s the probability to reach a particular leaf node? 1/2^j (for some j). »»What the probability of returning 3 (for example)? We could compute this by summing up the probabilities of reaching each leaf node with value 3. Each of these paths has probability 1/2^j, so we know that the total probability of returning 3 must be a series of terms of reciprocal powers of 2 (e.g., 1/2^x + 1/2^y + 1/2^z + …). We also know, however, that the probability of returning 3 must be 1/3 (because rand3() should be perfectly random). Can you find a series of reciprocal powers of 2 that sum to 1/3? No, because 3 and 2 are relatively prime. We can similarly conclude that to solve this problem, we will need to accept a small (infinitesimally small) chance that this process will repeat forever. That’s ok. So, how do we solve this? In order to generate a random number between 1 and 7, we just need to uniformly generate a larger range than we are looking for and then repeatedly sample until we get a number that is good for us. We will generate a base 5 number with two places with two calls to the RNG. public static int rand7() { while (true) { int num = 5 * (rand5()- 1) + (rand5() – 1); if (num < 21) return (num % 7 + 1); } } kartik @Rishabh and @Sundar The only numbers which are generated by my_rand() are from 1 to 7 because the function recursively calls itself if i is greater than 21. And all the numbers from 1 to 7 will be generated with equal probability because the expression 5*foo() + foo() -5 generates 1 to 25 with equal probability. Rishabh thanks!!!…i htink i got it  
+/* Paste your code here (You may delete these lines if not writing code) */
+ RHTDM (foo()+foo()-1)%7+1 is it right? kartik It will never generate 1. anonymous it will generate 1  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik @anonymous: Could you please explain when will it generate 1. The minimum value it generates is 2, when both the first foo() and second foo() return 1. vibhor @kartik : if foo() + foo() gives 8 ,then (8-1)%7 + 1 will give 1 as answer Aashish Barnwal Agree, it will generate 1 to 7. But, what about the problem definition: “Generate 1 to 7 with Equal Probability”. Written the below program & your equation violates the problem’s constraints:  
+int main()
+{
+    int first, second,arr[7]={0};
+    for ( first=1; first<=5; ++first )
+        for ( second=1; second<=5; ++second )
+            arr[(first+second-1)%7]++;
+ 
+        for(first=0;first<7;++first)
+                printf("%d:%d\n",first+1,arr[first]);
+    return 0;
+}
+ And the output is: 1:3 2:3 3:3 4:3 5:4 6:5 7:4 See the number of times an integer is generated from 1 to 7. You can check the output here: http://ideone.com/XblHJ Rishabh plz explain again how is it that probabaility is equal i.e.1/7……i got your point that the hance of getting 25 is 4% …hence 96% right!1 (correct me if i got u wrong) but prob of getting 22 23 24 are also 4% each ….you did not consider them….why??  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Sundar Can some one explain how the probability comes to 1/7? I do not understand that.d Anonymous  
+int my_rand() // returns 1 to 7 with equal probability
+{
+    int i;
+    i = 5*foo() + foo() - 5;
+    if (i < 22)
+        return i%7 + 1;
+    return my_rand();
+}
+ considering the worst case , if booth foo() returns 5 (i.e i>=22) every-time, the function never terminates making it an unstable program. Aashish Barnwal Yes. But what is the probability that both functions return 5. Its 1/25. So, we have a success rate of 96%. Ankit http://stackoverflow.com/questions/137783/expand-a-random-range-from-1-5-to-1-7 Maverick  
+/*
+One can simple write this my_rand function as belows!
+ 
+int my_rand()
+{
+  int i;
+  i=foo() + foo()%3 -1;
+  return i;
+}
+ */
+ kartik This function will never return 7. The maximum value it returns is 6. Please correct me if i am wrong. Anugrah Jonan It should work with this correction.  
+int my_rand()
+{
+  return (foo() + foo()%4 -1);
+}
+ Kartik It will generate all numbers from 1 to 7, but not with equal probability. See output following program.  
+#include <stdio.h>
+
+int main()
+{
+    int first, second;
+    for ( first=1; first<=5; ++first )
+        for ( second=1; second<=5; ++second )
+            printf ("%d \n", first + second %4  - 1);
+    return 0;
+}
+
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

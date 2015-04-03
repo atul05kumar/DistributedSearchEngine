@@ -1,0 +1,387 @@
+Tree Traversals - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Tree Traversals Unlike linear data structures (Array, Linked List, Queues, Stacks, etc) which have only one logical way to traverse them, trees can be traversed in different ways. Following are the generally used ways for traversing trees. Example Tree Depth First Traversals: (a) Inorder (b) Preorder (c) Postorder Breadth First or Level Order Traversal Please see this post for Breadth First Traversal. Inorder Traversal: 
+Algorithm Inorder(tree)
+   1. Traverse the left subtree, i.e., call Inorder(left-subtree)
+   2. Visit the root.
+   3. Traverse the right subtree, i.e., call Inorder(right-subtree)
+ Uses of Inorder In case of binary search trees (BST), Inorder traversal gives nodes in non-decreasing order. To get nodes of BST in non-increasing order, a variation of Inorder traversal where Inorder itraversal s reversed, can be used. Example: Inorder traversal for the above given figure is 4 2 5 1 3. Preorder Traversal: 
+Algorithm Preorder(tree)
+   1. Visit the root.
+   2. Traverse the left subtree, i.e., call Preorder(left-subtree)
+   3. Traverse the right subtree, i.e., call Preorder(right-subtree)
+ Uses of Preorder Preorder traversal is used to create a copy of the tree. Preorder traversal is also used to get prefix expression on of an expression tree. Please see http://en.wikipedia.org/wiki/Polish_notation to know why prefix expressions are useful. Example: Preorder traversal for the above given figure is 1 2 4 5 3. Postorder Traversal: 
+Algorithm Postorder(tree)
+   1. Traverse the left subtree, i.e., call Postorder(left-subtree)
+   2. Traverse the right subtree, i.e., call Postorder(right-subtree)
+   3. Visit the root.
+ Uses of Postorder Postorder traversal is used to delete the tree. Please see the question for deletion of tree for details. Postorder traversal is also useful to get the postfix expression of an expression tree. Please see http://en.wikipedia.org/wiki/Reverse_Polish_notation to for the usage of postfix expression. Example: Postorder traversal for the above given figure is 4 5 2 3 1. 
+#include <stdio.h>
+#include <stdlib.h>
+
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+     int data;
+     struct node* left;
+     struct node* right;
+};
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+     struct node* node = (struct node*)
+                                  malloc(sizeof(struct node));
+     node->data = data;
+     node->left = NULL;
+     node->right = NULL;
+
+     return(node);
+}
+
+/* Given a binary tree, print its nodes according to the
+  "bottom-up" postorder traversal. */
+void printPostorder(struct node* node)
+{
+     if (node == NULL)
+        return;
+
+     // first recur on left subtree
+     printPostorder(node->left);
+
+     // then recur on right subtree
+     printPostorder(node->right);
+
+     // now deal with the node
+     printf("%d ", node->data);
+}
+
+/* Given a binary tree, print its nodes in inorder*/
+void printInorder(struct node* node)
+{
+     if (node == NULL)
+          return;
+
+     /* first recur on left child */
+     printInorder(node->left);
+
+     /* then print the data of node */
+     printf("%d ", node->data);  
+
+     /* now recur on right child */
+     printInorder(node->right);
+}
+
+/* Given a binary tree, print its nodes in inorder*/
+void printPreorder(struct node* node)
+{
+     if (node == NULL)
+          return;
+
+     /* first print data of node */
+     printf("%d ", node->data);  
+
+     /* then recur on left sutree */
+     printPreorder(node->left);  
+
+     /* now recur on right subtree */
+     printPreorder(node->right);
+}    
+
+/* Driver program to test above functions*/
+int main()
+{
+     struct node *root  = newNode(1);
+     root->left             = newNode(2);
+     root->right           = newNode(3);
+     root->left->left     = newNode(4);
+     root->left->right   = newNode(5); 
+
+     printf("\n Preorder traversal of binary tree is \n");
+     printPreorder(root);
+
+     printf("\n Inorder traversal of binary tree is \n");
+     printInorder(root);  
+
+     printf("\n Postorder traversal of binary tree is \n");
+     printPostorder(root);
+
+     getchar();
+     return 0;
+}
+ Time Complexity: O(n) Let us prove it: Complexity function T(n) — for all problem where tree traversal is involved — can be defined as: T(n) = T(k) + T(n – k – 1) + c Where k is the number of nodes on one side of root and n-k-1 on the other side. Let’s do analysis of boundary conditions Case 1: Skewed tree (One of the subtrees is empty and other subtree is non-empty ) k is 0 in this case. T(n) = T(0) + T(n-1) + c T(n) = 2T(0) + T(n-2) + 2c T(n) = 3T(0) + T(n-3) + 3c T(n) = 4T(0) + T(n-4) + 4c ………………………………………… …………………………………………. T(n) = (n-1)T(0) + T(1) + (n-1)c T(n) = nT(0) + (n)c Value of T(0) will be some constant say d. (traversing a empty tree will take some constants time) T(n) = n(c+d) T(n) = (-)(n) (Theta of n) Case 2: Both left and right subtrees have equal number of nodes. T(n) = 2T(|_n/2_|) + c This recursive function is in the standard form (T(n) = aT(n/b) + (-)(n) ) for master method http://en.wikipedia.org/wiki/Master_theorem. If we solve it by master method we get (-)(n) Auxiliary Space : If we don’t consider size of stack for function calls then O(1) otherwise O(n).           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tags: Inorder Traversal, PostOrder Traversal, Preorder Traversal, Tree Traveral, Trees, Tutorial Tweet Writing code in comment? Please use ideone.com and share the link here. DarkProtocol Two Types: BFS- 1)Inorder – LRoot R –T(n) O(n) , Space used by stack in recursion S(n)=O(n) 2)Preorder – Root L R –T(n) O(n) , Space used by stack in recursion S(n)=O(n) 3)Postorder – L R Root–T(n) O(n) , Space used by stack in recursion S(n)=O(n) DFS – 1) Level Order – With Recursion T(n) – O(n2) – With Queue’s – T(n) – O(n) and S(n) – O(n) dipak preorder space used is O(n)…I am a bit confused can someone please explain with an example ? initialcoder  
+#include<stdio.h>
+#include<stdlib.h>
+
+typedef struct NodeTag{
+	char SYMBOL;
+	struct NodeTag * LLINK;
+	struct NodeTag * RLINK;
+} TreeNode;
+
+typedef enum{PreOrder, InOrder, PostOrder} OrderOfTraverse;
+
+void visitNode(TreeNode * node){
+	if(node == NULL)
+		return;
+	printf("%c ", node->SYMBOL);
+}
+
+void treeTraverse(TreeNode * treeRoot, OrderOfTraverse TraverseOrder){
+	if(treeRoot == NULL)
+		return;
+	
+	if(TraverseOrder == PreOrder){
+		visitNode(treeRoot);
+		treeTraverse(treeRoot->LLINK, PreOrder);
+		treeTraverse(treeRoot->RLINK, PreOrder);
+	}
+	else if(TraverseOrder == InOrder){
+		treeTraverse(treeRoot->LLINK, InOrder);
+		visitNode(treeRoot);
+		treeTraverse(treeRoot->RLINK, InOrder);
+	}
+	else if(TraverseOrder == PostOrder){
+		treeTraverse(treeRoot->LLINK, PostOrder);
+		treeTraverse(treeRoot->RLINK, PostOrder);
+		visitNode(treeRoot);
+	}
+	else 
+		printf("Traverse Order input error!\n");
+}
+ abhishek08aug Here is the C++ design/code for BST traversals. Recursive insert is bit tricky. I have solved the issue at below URL: http://stackoverflow.com/questions/8183985/recursive-insertion-of-bst  
+#include<iostream>
+using namespace std;
+
+class tree_node {
+  private:
+    int data;
+    tree_node * left;
+    tree_node * right;
+  public:
+    tree_node() {
+      left=NULL;
+      right=NULL;
+    }
+    void set_data(int data) {
+      this->data=data;
+    }
+    int get_data() {
+      return this->data;
+    }
+    void set_left(tree_node * left) {
+      this->left=left;
+    }
+    tree_node * get_left() {
+      return this->left;
+    }
+    void set_right(tree_node * right) {
+      this->right=right;
+    }
+    tree_node * get_right() {
+      return this->right;
+    }
+    tree_node ** get_left_ref() {
+      return &(this->left);
+    }
+    tree_node ** get_right_ref() {
+      return &(this->right);
+    }
+};
+
+class tree {
+  private:
+    tree_node * root;
+  public:
+    tree() {
+      root=NULL;
+    }
+    void insert(int value);
+    void recursive_insert(int value);
+    void _recursive_insert(tree_node ** root_ref, int value);
+    void print_preorder();
+    void _print_preorder(tree_node * root);
+    void print_inorder();
+    void _print_inorder(tree_node * root);
+    void print_postorder();
+    void _print_postorder(tree_node * root);
+};
+
+void tree::insert(int value) {
+  if(root==NULL) {
+    root=new tree_node;
+    root->set_data(value);
+  } else {
+    tree_node * parent=NULL;
+    tree_node * current=root;
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    while(current!=NULL) {
+      if(value<=current->get_data()) {
+        parent=current;
+        current=current->get_left();
+      } else {
+        parent=current;
+        current=current->get_right();
+      }
+    }
+    if(value<=parent->get_data() && parent->get_left()==NULL) {
+      parent->set_left(new_node);
+    } else if(value>parent->get_data() && parent->get_right()==NULL) {
+      parent->set_right(new_node);
+    }
+  }
+}
+
+void tree::recursive_insert(int value) {
+  _recursive_insert(&root, value);
+}
+
+void tree::_recursive_insert(tree_node ** root_ref, int value) {
+  if(*root_ref==NULL) {
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    *root_ref=new_node;    
+  } else {
+    if(value<=(*root_ref)->get_data()) {
+      _recursive_insert((*root_ref)->get_left_ref(), value);
+    } else {
+      _recursive_insert((*root_ref)->get_right_ref(), value);
+    }
+  }
+}
+
+void tree::print_preorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_preorder(root);
+  cout<<endl;
+}
+
+void tree::_print_preorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  cout<<root->get_data()<<" ";
+  if(root->get_left()!=NULL)
+    _print_preorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_preorder(root->get_right());
+}
+
+void tree::print_inorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_inorder(root);
+  cout<<endl;
+}
+
+void tree::_print_inorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_inorder(root->get_left());
+  cout<<root->get_data()<<" ";
+  if(root->get_right()!=NULL)
+    _print_inorder(root->get_right());
+}
+
+void tree::print_postorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_postorder(root);
+  cout<<endl;
+}
+
+void tree::_print_postorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_postorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_postorder(root->get_right());
+  cout<<root->get_data()<<" ";
+}
+
+int main() {
+  tree t;
+  t.recursive_insert(5);
+  t.recursive_insert(3);
+  t.insert(1);
+  t.insert(7);
+  t.recursive_insert(50);
+  cout<<"Preorder Traversal"<<endl;
+  t.print_preorder();
+  cout<<"Inorder Traversal"<<endl;
+  t.print_inorder();
+  cout<<"Postorder Traversal"<<endl;
+  t.print_postorder();
+  return 0;
+}
+ Preorder Traversal 5 3 1 7 50 Inorder Traversal 1 3 5 7 50 Postorder Traversal 1 3 50 7 5 abhishek08aug Here is the C++ design/code for BST traversals. Recursive insert is bit tricky. I have solved the issue at below URL: http://stackoverflow.com/questions/8183985/recursive-insertion-of-bst #include<iostream> using namespace std; class tree_node { private: int data; tree_node * left; tree_node * right; public: tree_node() { left=NULL; right=NULL; } void set_data(int data) { this->data=data; } int get_data() { return this->data; } void set_left(tree_node * left) { this->left=left; } tree_node * get_left() { return this->left; } void set_right(tree_node * right) { this->right=right; } tree_node * get_right() { return this->right; } tree_node ** get_left_ref() { return &(this->left); } tree_node ** get_right_ref() { return &(this->right); } }; class tree { private: tree_node * root; public: tree() { root=NULL; } void insert(int value); void recursive_insert(int value); void _recursive_insert(tree_node ** root_ref, int value); void print_preorder(); void _print_preorder(tree_node * root); void print_inorder(); void _print_inorder(tree_node * root); void print_postorder(); void _print_postorder(tree_node * root); }; void tree::insert(int value) { if(root==NULL) { root=new tree_node; root->set_data(value); } else { tree_node * parent=NULL; tree_node * current=root; tree_node * new_node=new tree_node; new_node->set_data(value); while(current!=NULL) { if(value<=current->get_data()) { parent=current; current=current->get_left(); } else { parent=current; current=current->get_right(); } } if(value<=parent->get_data() && parent->get_left()==NULL) { parent->set_left(new_node); } else if(value>parent->get_data() && parent->get_right()==NULL) { parent->set_right(new_node); } } } void tree::recursive_insert(int value) { _recursive_insert(&root, value); } void tree::_recursive_insert(tree_node ** root_ref, int value) { if(*root_ref==NULL) { tree_node * new_node=new tree_node; new_node->set_data(value); *root_ref=new_node; } else { if(value<=(*root_ref)->get_data()) { _recursive_insert((*root_ref)->get_left_ref(), value); } else { _recursive_insert((*root_ref)->get_right_ref(), value); } } } void tree::print_preorder() { if(root==NULL) { return; } _print_preorder(root); cout<<endl; } void tree::_print_preorder(tree_node * root) { if(root==NULL) { return; } cout<<root->get_data()<<" "; if(root->get_left()!=NULL) _print_preorder(root->get_left()); if(root->get_right()!=NULL) _print_preorder(root->get_right()); } void tree::print_inorder() { if(root==NULL) { return; } _print_inorder(root); cout<<endl; } void tree::_print_inorder(tree_node * root) { if(root==NULL) { return; } if(root->get_left()!=NULL) _print_inorder(root->get_left()); cout<<root->get_data()<<" "; if(root->get_right()!=NULL) _print_inorder(root->get_right()); } void tree::print_postorder() { if(root==NULL) { return; } _print_postorder(root); cout<<endl; } void tree::_print_postorder(tree_node * root) { if(root==NULL) { return; } if(root->get_left()!=NULL) _print_postorder(root->get_left()); if(root->get_right()!=NULL) _print_postorder(root->get_right()); cout<<root->get_data()<<" "; } int main() { tree t; t.recursive_insert(5); t.recursive_insert(3); t.insert(1); t.insert(7); t.recursive_insert(50); cout<<"Preorder Traversal"<<endl; t.print_preorder(); cout<<"Inorder Traversal"<<endl; t.print_inorder(); cout<<"Postorder Traversal"<<endl; t.print_postorder(); return 0; } Marsha Donna i hav written a simpler code to recursively insert in bst..but it gives error as Runtime error time: 0 memory: 2288 signal:11 can some1 help me out the link is http://ideone.com/HVLJ1q Nikin  
+void inorder(node *sr)
+{
+if(sr == NULL)
+return;
+inorder(sr->left); cout<<sr->data<<" "; inorder(sr->right);
+}
+ Deepak When inorder traversing a tree resulted E A C K F H D B G; the preorder traversal would return ( b. FAEKCDHGB ) … but how does it so……. can u explain it Avinash Post order is the toughest out of all the tree traversals when solved iteratively. I am pasting the code in C#.  
+//Post Order Traversal
+        public void printpostorder()
+        {
+            Node current = Root;
+            Node temp;
+            if (current == null)
+            {
+                Console.WriteLine("Empty Tree");
+                return;
+            }
+            else
+            {
+                Stack<Node> myStack = new Stack<Node>();
+                while (true)
+                {
+                    if (current !=null)
+                    {
+                        myStack.Push(current);
+                        current = current.left;
+                    }
+                    else
+                    {
+                       
+                        if (myStack.Count == 0) break;
+                        temp = myStack.Peek();
+                        if (temp.right == null)
+                        {
+                            current = myStack.Pop();
+                            Console.WriteLine(current.data);
+                            temp = myStack.Peek();
+                            while (temp.right != null && temp.right == current)
+                            {
+                                current=myStack.Pop();
+                                Console.WriteLine(temp.data);
+                                if (myStack.Count == 0) break;
+                                else temp = myStack.Peek();
+                            }
+                        }
+                        if (myStack.Count == 0) break;
+          
+                        if (myStack.Count != 0)
+                        {
+                            temp = myStack.Peek();
+                            current = temp.right;
+                        }
+                        else
+                        {
+                            current = null;
+                        }
+                    }
+                }
+            }
+        }
+ Jacopo Your analysis is correct but you wronged the math. The last step is: T(n) = nT(0) + T(0) + nc => n(d+1 + c) => O(n). Right? raa but what about complexity in the following case: if number of nodes in left and right sub trees are not zero and not equal. kartik For general cases, we can use substitution method given in CLRS book to show that the time complexity is O(n). Algoseekar WHATS THE k in time complexity T(n) = T(k) + T(n – k – 1) + c Please reply asap GeeksforGeeks k is the number of nodes on one side of root and n-k-1 on the other side. devraj it could be better if the reason is mention here that why different types of traversel required. http://wemeanourthoughts.blogspot.com/ Venki There is a typo in the description “Uses of Postorder Preorder traversal … ” Change postorder to preorder. Level order code is missing. GeeksforGeeks @Venki: Thanks for pointing this out. we have corrected the typo. We have a separate post (http://geeksforgeeks.org/?p=2686) for Level Order Traversal raa You are the one – giving the clear details with space complexity also – nice post – keep it up. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

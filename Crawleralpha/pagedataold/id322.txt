@@ -1,0 +1,113 @@
+Shuffle a given array - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Shuffle a given array Given an array, write a program to generate a random permutation of array elements. This question is also asked as “shuffle a deck of cards” or “randomize a given array”. Let the given array be arr[]. A simple solution is to create an auxiliary array temp[] which is initially a copy of arr[]. Randomly select an element from temp[], copy the randomly selected element to arr[0] and remove the selected element from temp[]. Repeat the same process n times and keep copying elements to arr[1], arr[2], … . The time complexity of this solution will be O(n^2). Fisher–Yates shuffle Algorithm works in O(n) time complexity. The assumption here is, we are given a function rand() that generates random number in O(1) time. The idea is to start from the last element, swap it with a randomly selected element from the whole array (including last). Now consider the array from 0 to n-2 (size reduced by 1), and repeat the process till we hit the first element. Following is the detailed algorithm 
+To shuffle an array a of n elements (indices 0..n-1):
+  for i from n - 1 downto 1 do
+       j = random integer with 0 <= j <= i
+       exchange a[j] and a[i]
+ Following is C++ implementation of this algorithm. 
+// C Program to shuffle a given array
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+// A utility function to swap to integers
+void swap (int *a, int *b)
+{
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+// A utility function to print an array
+void printArray (int arr[], int n)
+{
+    for (int i = 0; i < n; i++)
+        printf("%d ", arr[i]);
+    printf("\n");
+}
+
+// A function to generate a random permutation of arr[]
+void randomize ( int arr[], int n )
+{
+    // Use a different seed value so that we don't get same
+    // result each time we run this program
+    srand ( time(NULL) );
+
+    // Start from the last element and swap one by one. We don't
+    // need to run for the first element that's why i > 0
+    for (int i = n-1; i > 0; i--)
+    {
+        // Pick a random index from 0 to i
+        int j = rand() % (i+1);
+
+        // Swap arr[i] with the element at random index
+        swap(&arr[i], &arr[j]);
+    }
+}
+
+// Driver program to test above function.
+int main()
+{
+    int arr[] = {1, 2, 3, 4, 5, 6, 7, 8};
+    int n = sizeof(arr)/ sizeof(arr[0]);
+    randomize (arr, n);
+    printArray(arr, n);
+
+    return 0;
+}
+ Output: 7 8 4 6 3 1 2 5 The above function assumes that rand() generates a random number. Time Complexity: O(n), assuming that the function rand() takes O(1) time. How does this work? The probability that ith element (including the last one) goes to last position is 1/n, because we randomly pick an element in first iteration. The probability that ith element goes to second last position can be proved to be 1/n by dividing it in two cases. Case 1: i = n-1 (index of last element): The probability of last element going to second last position is = (probability that last element doesn't stay at its original position) x (probability that the index picked in previous step is picked again so that the last element is swapped) So the probability = ((n-1)/n) x (1/(n-1)) = 1/n Case 2: 0 < i < n-1 (index of non-last): The probability of ith element going to second position = (probability that ith element is not picked in previous iteration) x (probability that ith element is picked in this iteration) So the probability = ((n-1)/n) x (1/(n-1)) = 1/n We can easily generalize above proof for any other position. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: MathematicalAlgo Tweet Writing code in comment? Please use ideone.com and share the link here. Manni Manni’s probabilistic approach: Select 2 random number between 0-n, swap the two elements at the the indexes that we just found using rand func. Repeat the step n/2 times atleast. Contact Manpreet Singh, NIT Durgapur for more doubts. https://www.facebook.com/manpreet.singh.delhiwale?fref=ts Manni Manni’s probabilistic approach: Select 2 random number between 0-n, swap the two elements at the the indexes that we just found using rand func. Repeat the step n/2 times atleast. Contact Manpreet Singh, NIT Durgapur for more doubts. https://www.facebook.com/manpreet.singh.delhiwale?fref=ts Ankur Jain Q1 why mod we take mod rand() % (i+1);and not like rand() % (n) ? Q2 and why didn’t take the element at zeroth index ? alien A1: because once you have shuffled nth element, dont replace it again. A2: with what will you replace 0th element with? Ankur Jain Q1 comment : in the above solution you are swapping with its lower element i.e element in 5th position is only replace with 0,1,2,3,4 and why cant 6 th ,7th , this also increse randomness..(%n) Q2 comment : as 0th element is only replace when rand fun gives value, for i 0 to n j=rand()%n; shuffle the whole array in equal proportion K.kaushik A simple java implementation of the above program with O(n) time complexity.  
+
+public class Shuffle {
+
+	public static int randomize(int min, int max)
+	{			
+			return (int) (Math.random() * (max-min+1) + min );
+	}
+
+	public static void shuffleCards(int cards[],  int n)
+	{
+			int i;
+			
+			for(i = 0; i < n; i++)
+			{
+				int j = randomize(i, n-1-i);
+				
+				int temp;
+				temp = cards[i];
+				cards[i] = cards[j];
+				cards[j] = temp;
+			}
+			
+				System.out.println("Shuffles cards are now : ");
+		
+			int k;
+		
+			for(k = 0; k < n; k++)
+			{
+				System.out.print(cards[k] + "   ");
+			}
+		
+	}
+
+	public static void main(String[] args)
+	{
+		int[] cards = {2,3,4,5,6,7,8,9,10};
+		int total_cards = cards.length;
+		
+		shuffleCards(cards, total_cards);
+		
+	}
+}
+
+ Praveen Also a better explanation is here – http://bost.ocks.org/mike/shuffle/ Mahesh Can you explain how the first case is order n^2 ? Kartik In first method, we need to remove the selected element from temp. Removing an element may take upto c(m-1) time where m is the number of elements in temp[] and c is a constant. So overall time will be (n-1 + n-2 + …. 1)c = O(n^2) Ishant Gaurav class Main { public static void main (String[] args) throws java.lang.Exception { int a[]={0,1,2,3,4,5,6,7,8,9}; int randarray[]=new int[10]; int flag[] = new int[10]; for(int i=0;i<10;i++) { randarray[i]=a[i]; } SecureRandom rand = new SecureRandom(); int i=0; while(i<=9) { int num = rand.nextInt(10); if(i<=9 && flag[num]==0) { a[i]=randarray[num]; flag[num]++; i++; } } for( i=0;i<10;i++) { System.out.print(a[i]+" "); } } } Ishant Gaurav I have wrritten acc to first method suggested by geeks for geeks n i dont think that its time complexity is o(n*2). Can u plz suggest if m wrong somewhere raj In First method.. instead of removing selected element and then moving right elements to left by 1…we can just simply swap it with the last element.. As a result first algorithm will also be 0(n) time.. GeeksforGeeks @V: Thanks for the suggestion. We have added srand(time(NULL)) to the original code. @Apeirogon: Thanks for the inputs. We have added a comment before ‘for’ loop. We have kept the loop to start from last only as it makes the program more readable and matches with the standard algorithm. V You need to call srand(time(NULL)) before your call to randomize() otherwise the same seed will be used for rand() on each program execution.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Aish Hi, It appears like the same output is generated each time when I try executing the code. Output: 3 6 4 7 1 5 8 2 Is there any way by which we can get differnet set of array output each time?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ adarsh  
+you must have forgot to write srand() function
+ Apeirogon It is a C implementation and not C++ implementation as stated in the post. The loop iteration in randomize function need not be in reverse order, it is better to iterate from 0 to n-2. When the code leaves out one iteration, write a comment about the same.  
+void randomize (int *a, int n) {
+  for (int i = 0; i < n - 1; i++) { // off-by-one intentional, we do not want to swap last element
+  swap  (&a[i], &a[i + rand()%(n - i)];
+}
+ Rajeev Nice Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

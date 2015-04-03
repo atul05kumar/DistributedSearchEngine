@@ -1,0 +1,222 @@
+Dynamic Programming | Set 12 (Longest Palindromic Subsequence) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Dynamic Programming | Set 12 (Longest Palindromic Subsequence) Given a sequence, find the length of the longest palindromic subsequence in it. For example, if the given sequence is “BBABCBCAB”, then the output should be 7 as “BABCBAB” is the longest palindromic subseuqnce in it. “BBBBB” and “BBCBB” are also palindromic subsequences of the given sequence, but not the longest ones. The naive solution for this problem is to generate all subsequences of the given sequence and find the longest palindromic subsequence. This solution is exponential in term of time complexity. Let us see how this problem possesses both important properties of a Dynamic Programming (DP) Problem and can efficiently solved using Dynamic Programming. 1) Optimal Substructure: Let X[0..n-1] be the input sequence of length n and L(0, n-1) be the length of the longest palindromic subsequence of X[0..n-1]. If last and first characters of X are same, then L(0, n-1) = L(1, n-2) + 2. Else L(0, n-1) = MAX (L(1, n-1), L(0, n-2)). Following is a general recursive solution with all cases handled. 
+// Everay single character is a palindrom of length 1
+L(i, i) = 1 for all indexes i in given sequence
+
+// IF first and last characters are not same
+If (X[i] != X[j])  L(i, j) =  max{L(i + 1, j),L(i, j - 1)} 
+
+// If there are only 2 characters and both are same
+Else if (j == i + 1) L(i, j) = 2  
+
+// If there are more than two characters, and first and last 
+// characters are same
+Else L(i, j) =  L(i + 1, j - 1) + 2 
+ 2) Overlapping Subproblems Following is simple recursive implementation of the LPS problem. The implementation simply follows the recursive structure mentioned above. 
+#include<stdio.h>
+#include<string.h>
+
+// A utility function to get max of two integers
+int max (int x, int y) { return (x > y)? x : y; }
+
+// Returns the length of the longest palindromic subsequence in seq
+int lps(char *seq, int i, int j)
+{
+   // Base Case 1: If there is only 1 character
+   if (i == j)
+     return 1;
+
+   // Base Case 2: If there are only 2 characters and both are same
+   if (seq[i] == seq[j] && i + 1 == j)
+     return 2;
+
+   // If the first and last characters match
+   if (seq[i] == seq[j])
+      return lps (seq, i+1, j-1) + 2;
+
+   // If the first and last characters do not match
+   return max( lps(seq, i, j-1), lps(seq, i+1, j) );
+}
+
+/* Driver program to test above functions */
+int main()
+{
+    char seq[] = "GEEKSFORGEEKS";
+    int n = strlen(seq);
+    printf ("The lnegth of the LPS is %d", lps(seq, 0, n-1));
+    getchar();
+    return 0;
+}
+ Output: 
+The lnegth of the LPS is 5
+ Considering the above implementation, following is a partial recursion tree for a sequence of length 6 with all different characters. 
+               L(0, 5)
+             /        \ 
+            /          \  
+        L(1,5)          L(0,4)
+       /    \            /    \
+      /      \          /      \
+  L(2,5)    L(1,4)  L(1,4)  L(0,3)
+ In the above partial recursion tree, L(1, 4) is being solved twice. If we draw the complete recursion tree, then we can see that there are many subproblems which are solved again and again. Since same suproblems are called again, this problem has Overlapping Subprolems property. So LPS problem has both properties (see this and this) of a dynamic programming problem. Like other typical Dynamic Programming(DP) problems, recomputations of same subproblems can be avoided by constructing a temporary array L[][] in bottom up manner. Dynamic Programming Solution 
+#include<stdio.h>
+#include<string.h>
+
+// A utility function to get max of two integers
+int max (int x, int y) { return (x > y)? x : y; }
+
+// Returns the length of the longest palindromic subsequence in seq
+int lps(char *str)
+{
+   int n = strlen(str);
+   int i, j, cl;
+   int L[n][n];  // Create a table to store results of subproblems
+
+
+   // Strings of length 1 are palindrome of lentgh 1
+   for (i = 0; i < n; i++)
+      L[i][i] = 1;
+
+    // Build the table. Note that the lower diagonal values of table are
+    // useless and not filled in the process. The values are filled in a
+    // manner similar to Matrix Chain Multiplication DP solution (See
+    // http://www.geeksforgeeks.org/archives/15553). cl is length of
+    // substring
+    for (cl=2; cl<=n; cl++)
+    {
+        for (i=0; i<n-cl+1; i++)
+        {
+            j = i+cl-1;
+            if (str[i] == str[j] && cl == 2)
+               L[i][j] = 2;
+            else if (str[i] == str[j])
+               L[i][j] = L[i+1][j-1] + 2;
+            else
+               L[i][j] = max(L[i][j-1], L[i+1][j]);
+        }
+    }
+
+    return L[0][n-1];
+}
+
+/* Driver program to test above functions */
+int main()
+{
+    char seq[] = "GEEKS FOR GEEKS";
+    int n = strlen(seq);
+    printf ("The lnegth of the LPS is %d", lps(seq));
+    getchar();
+    return 0;
+}
+ Output: 
+The lnegth of the LPS is 7
+ Time Complexity of the above implementation is O(n^2) which is much better than the worst case time complexity of Naive Recursive implementation. This problem is close to the Longest Common Subsequence (LCS) problem. In fact, we can use LCS as a subroutine to solve this problem. Following is the two step solution that uses LCS. 1) Reverse the given sequence and store the reverse in another array say rev[0..n-1] 2) LCS of the given sequence and rev[] will be the longest palindromic sequence. This solution is also a O(n^2) solution. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above. References: http://users.eecs.northwestern.edu/~dda902/336/hw6-sol.pdf           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: Dynamic Programming Tweet Writing code in comment? Please use ideone.com and share the link here. Vivek Chicharito Zakwalia In the problem statement how LPS of BBABCBCAB is BABCBAB… it should be BABCCBAB and thus ur code should return ‘8’? Archit i think you should not consider all the permutation of string. Check palindrom in string from index 0 to len-1 without changing the order of characters. Vivek Chicharito Zakwalia if order isnt changing then how it will generate BABCBAB ? Vivek Chicharito Zakwalia if order isnt changing then how it will generate BABCBAB ? Archit string is BBABCBCAB you should take char at index 0,2,3,4,5,7,8 ,,,and you are taking 0,2,3,4,(6,5),7,8 ,,order of characters is changed. 5 is coming after 6. Vivek Chicharito Zakwalia esa kya… o.O (Y) renu the brute force approach has a solution of o(n^3) not exponential cxity..right? prashant jha my c++ code in exponential time 0(2^n) reduce it into polynomial time by 2d array and memorisation which is quite easy…..see for recursive part http://ideone.com/Z4qbMP prashant my c++ code but naive recursive approach in 0(2^n) complexity get into polynomial time by using 2-d array and memorisation http://ideone.com/Z4qbMP Guest At last in this post u have mentioned that we can use LCS as a subroutine to solve this problem,which is not correct everytime..let me explain with example For example S=original string S’=reverse of orginal string S = “caba”, S’ = “abac”. The longest common substring between S and S’ is “aba”, which is the answer.but now Let’s try another example: S = “abacdfgdcaba”, S’ = “abacdgfdcaba”. The longest common substring between S and S’ is “abacd”. Clearly, this is not a valid palindrome. loconet > The longest common substring between S and S’ is “abacd” The problem here is that you are using “longest common substring”. The solution by the poster is using LCS, which is Longest Common *Subsequence*. That is completely different. A longest common subsequence of “abacdfgdcaba” and “abacdgfdcaba” is [a, b, a, c, d, f, d, c, a, b, a] ..which as you can see is a palindrome. pinto This code in the article is incorrect and misleading. Please either fix the code or remove it the page. correct code is something like: public class Palindrome { public static boolean find(int[][] memo, char[] in, int i, int j) { if (i == j) { memo[i][j] = 1; return true; } if (in[i] == in[j]) { if (find(memo, in, i+1, j-1)) { memo[i][j] = memo[i+1][j-1] + 2; return true; } else { memo[i][j] = 0; return false; } } else { memo[i][j] = 0; find(memo, in, i+1, j); find(memo, in, i, j-1); return false; } } public static String memoToString(int[][] memo) { String result = “”; for (int i = 0; i < memo.length; ++i) { for (int j = 0; j < memo[i].length; ++j) { result += memo[i][j] + " "; } result += "n"; } return result; } public static void main(String[] args) { boolean has = false; String s = ""; int[][] memo = null; s = "123abcba5435"; memo = new int[s.length()][s.length()]; has = Palindrome.find(memo, s.toCharArray(), 0, s.length()-1); //has = Palindrome.find(memo, s.toCharArray(), 3, 7); System.out.println(s + " : " + has); System.out.println(Palindrome.memoToString(memo)); s = "abxyzba"; memo = new int[s.length()][s.length()]; has = Palindrome.find(memo, s.toCharArray(), 0, s.length()-1); System.out.println(s + " : " + has); System.out.println(Palindrome.memoToString(memo)); } } PAN SINGH #include #include #include using namespace std; string S = "GEEKSFORGEEKS"; int dp[100][100]; int maxPalindrome(int i, int j) { int length; if(dp[i][j] != -1) return dp[i][j]; if(i == j) { dp[i][j] = 1; return 1; } if(i > j) return 0; if( S[i] == S[j]) length = 2 + maxPalindrome(i+1, j-1); else length = max(maxPalindrome(i+1, j), maxPalindrome(i, j-1)); dp[i][j] = length; return length; } int main() { memset(dp, -1, sizeof(dp)); cout<<maxPalindrome(0, S.length()-1); } Santosh Tadikonda How to print the longest string ? Kaidul Islam Sazal How to print the longest palindromic string? Kaidul Islam Sazal Ignore it! I am able to do it rohit for (cl=2; cl<=n; cl++) { for (i=0; i<n-cl+1; i++) { j = i+cl-1; rohit for (cl=2; cl<=n; cl++) { for (i=0; i<n-cl+1; i++) { j = i+cl-1; any one help me what is this part of code doing rishi the above code is wrong because the logic, i.e., the recurrence relation itself is wrong. else if (str[i] == str[j]) L[i][j] = L[i+1][j-1] + 2; else L[i][j] = max(L[i][j-1], L[i+1][j]); the condition to be checked is not if(str[i] == str[j]) but actually if str[i…j] is a palindrome or not. Hence the code would look some thing like: else if (is_palindrome(str, i, j)) L[i][j] = L[i+1][j-1] + 2; else L[i][j] = max(L[i][j-1], L[i+1][j]); because equating last two characters don’t increase palindrome length by 2 rather whole of inner string must be a palindrome. VARUN The recurrence relation if fine. the problem is to find the palindromic subsequence not substring so whole of inner string need not necessarily be palindrome. makamus for string “GEEKS FOR GEEKS”, we feel that the lps is not 7, less 7,do you? from the above code, we are known the str “EEKS FOR GEE”, but is not Palindromic, ?????  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ASHISH AGGARWAL The another last solution given by GFG that 1. reverse string 2. find LSC would fail in this case : “abcdgfdcba” ki It is working perfectly. the answer you get is 9, which is indeed correct. I think u meant that it wont work in the case of longest-palindromic-substring and in that you are correct. Rahul Hi, why we do this , j = i + cl -1; Thanks!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ magnet Let L = j ? i + 1 denote the length of the substring where i and j indicates start and end index of string then if a substring of length L starts at position i, then j = i + L ? 1. sreekanth There is a serious flaw in the original code written by geeksforgeeks. suppose the input is “axbya” From the given code output is 3. but actual output should be 1. Logic fail:[I found] original post // If there are more than two characters, and first and last // characters are same Else L(i, j) = L(i + 1, j – 1) + 2 “axbya” here suppose L[1,5] = L[2,4] + 2; L[2,4] returns 1 which is correct but L[1,5] = 1+2 = 3; 1..5 is not a palindrome. we need to check whether 2..4 is a palindrome or not. If 2..4 is palindrome then only we should add 2 otherwise not. kartik Please take a closer look at the problem statement. It is subsequence, not substring. See http://en.wikipedia.org/wiki/Subsequence for definition of subsequence. sreekanth oohh.. okay. Thanks. Nitin Pallindrome bhaiya ji …its 3 char seq like axa or aba or aya….. Prateek Caire without DP but for even length-ed palindrome..  
+P()
+	for each i from 0 to n-1
+		if(a[i] == a[i+1])
+			j = i
+			k = i+1
+			c = 0
+			while(a[j] == a[k])								
+				c = c+2
+				j--
+				k++
+			if(c > mx)
+				mx = c
+ Abhijeet Sinha @Kartik – As you mentioned the alternate method to calculate LPS is by taking LCS of original string and its reverse version. A minor modification is required in this method. Here is the link which I went through. Please correct me if I am wrong. http://wcipeg.com/wiki/Longest_palindromic_subsequence See the LCS-based approach in this article. http://mohyt.blogspot.com mohyt memoized version of lps: # include <cstdio> # include <cstring> # define NIL -1 # define MAX 1000 using namespace std; inline int max(int a, int b) { return (a > b) ? a : b; } int L[MAX][MAX]; int lps(char *X,int i,int j) { if(i==j) L[i][j]=1; else if(X[i]==X[j] && i+1==j) L[i][j]=2; else if(X[i]==X[j]) L[i][j]=2+lps(X,i+1,j-1); else L[i][j]=max(lps(X,i,j-1),lps(X,i+1,j)); return L[i][j]; } void _init(int n) { int i, j; for (i=0; i<=n; i++) for (j=0; j<=n; j++) L[i][j] = NIL; } int main() { char seq[] = "GEEKSFORGEEKS"; int n = strlen(seq); _init(n); printf ("The lnegth of the LPS is %d", lps(seq, 0, n-1)); return 0; } Suggestion and comments are most welcome manish please check the output for the second method. manish okay i got it…these contain space too. gautam Without DP and without extra memory in O(n^2)  
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h> 
+/*conside the each element as mid of palindrome 
+
+for eg :   string with length 5 we can consider 3rd element as middle
+
+for string of length we need to take two element 2gthr at middle element
+
+*/
+
+
+int lps1(char *a)
+{
+   int len=strlen(a);
+   if(len<=1) return len;
+   if(len==2) return ( a[0]==a[1]? 2 : 1);
+   
+   //printf("%d \n",len);
+   int ans=1,i,j,k;
+   int max=1;
+   int ans1,max1;
+   if(len%2) //odd lengt
+    {
+     for(i=1;i<len;i++)  //consider str[i] as a middle element
+      {  
+        ans=1;         
+        j=i-1; k=i+1;
+        //printf("%d %d\n",j,k);
+        while(j>=0 && k <len)
+         {
+           if(a[j]==a[k])
+             {ans+=2; j--;k++; /*printf("%d %d\n",j,k);*/}                
+           else
+            break;          
+         }
+        if(max<ans)
+         max=ans;                
+      }       
+    } 
+  return max;
+}
+int lps2(char *a)
+{
+   int len=strlen(a);
+   
+   if(len<=1) return len;
+   if(len==2) return ( a[0]==a[1]? 2 : 1);
+   
+   //printf("%d\\n",len);
+   int ans=1,i,j,k;
+   int max=1;
+   int ans1,max1;
+    ans1=0;
+    max1=0;
+    for(i=1;i<len;i++)
+     {
+        ans1=0;
+        j=i-1;k=i;              
+        while(j>=0&&k<len)
+        {
+          if(a[j]==a[k]) { ans1+=2; j--;k++; }
+          else
+           break;                
+        }        
+        if(max1<ans1)
+         max1=ans1; 
+                                 
+     }
+   return max1; 
+}
+
+int LPS(char *a)
+{
+ int i,j;
+ i=lps1(a);
+ j=lps2(a);
+ //printf("%d %d \n",i,j);
+ return i>j? i: j;   
+}
+int main()
+{
+    char seq[] = "AAAABAAAAAAAA";
+    int n = strlen(seq);
+    printf ("The lnegth of the LPS is %d", LPS(seq));
+    getchar();
+    return 0;
+}
+
+ kartik Your program doesn’t seem to be working for many strings. For example, it produced 1 as output for string “ABCBCA” gautam Sorry for the wrong code In the lps1 just remove the following condition and please let me know if it has some more flaw. if(len%2) //odd lengt  
+/* Paste your code here (You may delete these lines if not writing code) */
+ anonymous your code calculates longest common sub’string’ not sub’sequence’ BP can you tell how to print longest palindrome subsequence eminem The solutions that you have posted are O(n2). There are better solutions with both O(nlogn) and O(n) complexities. Google them ! kartik Tried googling it, but couldn’t find a nLogn solution. Could you post the links, please? eminem please find the linear time solution here http://www.akalin.cx/longest-palindrome-linear-time kartik Thanks for sharing the link. We will look into this solution. eminem  
+/* Paste your code here (You may delete these lines if not writing code) */
+ BP can anybody could tell me how to print the longest palindrome subsequence string not the length Saurabh Your link points to longest palindromic ‘substring’, not ‘subsequence’. eminem @saurav and how are the two things different? kartik There is difference between following two terms 1) Substring 2) Subsequence “ABC” is a subsequence of “AABBCC”, but not a substring. BP can you please tell me how to print the longest palindrome subsequence.. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,225 @@
+Recursion - GeeksQuiz GeeksQuiz Computer science mock tests for geeks Home Latest Questions Articles C/C++ Programs Contribute Books Subscribe 
+ Recursion Please wait while the activity loads. If this activity does not load, try refreshing your browser. Also, this page requires javascript. Please visit using a browser with javascript enabled. If loading fails, click here to try again Question 1 Predict output of following program 
+#include <stdio.h>
+
+int fun(int n)
+{
+    if (n == 4)
+       return n;
+    else return 2*fun(n+1);
+}
+
+
+int main()
+{
+   printf("%d ", fun(2));
+   return 0;
+}
+
+ A 4 B 8 C 16 D Runtime Error Discuss it Question 2 Consider the following recursive function fun(x, y). What is the value of fun(4, 3) 
+int fun(int x, int y) 
+{
+  if (x == 0)
+    return y;
+  return fun(x - 1,  x + y);
+} 
+ A 13 B 12 C 9 D 10 Discuss it Question 2 Explanation:  The function fun() calculates and returns ((1 + 2 … + x-1 + x) +y) which is x(x+1)/2 + y. Question 3 What does the following function print for n = 25? 
+void fun(int n)
+{
+  if (n == 0)
+    return;
+
+  printf("%d", n%2);
+  fun(n/2);
+}  
+ A 11001 B 10011 C 11111 D 00000 Discuss it Question 3 Explanation:  The function mainly prints binary representation in reverse order. Question 4 What does the following function do? 
+int fun(int x, int y)
+{
+    if (y == 0)   return 0;
+    return (x + fun(x, y-1));
+}
+ A x + y B x + x*y C x*y D xy Discuss it Question 4 Explanation:  The function adds x to itself y times which is x*y. Question 5 What does fun2() do in general? 
+int fun(int x, int y)
+{
+    if (y == 0)   return 0;
+    return (x + fun(x, y-1));
+}
+
+int fun2(int a, int b)
+{
+    if (b == 0) return 1;
+    return fun(a, fun2(a, b-1));
+}
+ A x*y B x+x*y C xy D yx Discuss it Question 5 Explanation:  The function multiplies x to itself y times which is xy. Question 6 Output of following program? 
+#include<stdio.h>
+void print(int n)
+{
+    if (n > 4000)
+        return;
+    printf("%d ", n);
+    print(2*n);
+    printf("%d ", n);
+}
+
+int main()
+{
+    print(1000);
+    getchar();
+    return 0;
+}
+ A 1000 2000 4000 B 1000 2000 4000 4000 2000 1000 C 1000 2000 4000 2000 1000 D 1000 2000 2000 1000 Discuss it Question 7 What does the following function do? 
+int fun(unsigned int n)
+{
+    if (n == 0 || n == 1)
+        return n;
+
+    if (n%3 != 0)
+        return 0;
+
+    return fun(n/3);
+}
+ A It returns 1 when n is a multiple of 3, otherwise returns 0 B It returns 1 when n is a power of 3, otherwise returns 0 C It returns 0 when n is a multiple of 3, otherwise returns 1 D It returns 0 when n is a power of 3, otherwise returns 1 Discuss it Question 8 Predict the output of following program 
+#include <stdio.h>
+int f(int n)
+{
+    if(n <= 1)
+        return 1;
+    if(n%2 == 0)
+        return f(n/2);
+    return f(n/2) + f(n/2+1);
+}
+
+
+int main()
+{
+    printf("%d", f(11));
+    return 0;
+}
+ A Stack Overflow B 3 C 4 D 5 Discuss it Question 9 Consider the following recursive C function that takes two arguments 
+ unsigned int foo(unsigned int n, unsigned int r) {
+  if (n  > 0) return (n%r +  foo (n/r, r ));
+  else return 0;
+}
+ What is the return value of the function foo when it is called as foo(345, 10) ? A 345 B 12 C 5 D 3 Discuss it Question 9 Explanation:  The call foo(345, 10) returns sum of decimal digits (because r is 10) in the number n. Sum of digits for 345 is 3 + 4 + 5 = 12. Question 10 Consider the same recursive C function that takes two arguments 
+unsigned int foo(unsigned int n, unsigned int r) {
+  if (n  > 0) return (n%r +  foo (n/r, r ));
+  else return 0;
+} What is the return value of the function foo when it is called as foo(513, 2)? A 9 B 8 C 5 D 2 Discuss it Question 10 Explanation:  foo(513, 2) will return 1 + foo(256, 2). All subsequent recursive calls (including foo(256, 2)) will return 0 + foo(n/2, 2) except the last call foo(1, 2) . The last call foo(1, 2) returns 1. So, the value returned by foo(513, 2) is 1 + 0 + 0…. + 0 + 1. The function foo(n, 2) basically returns sum of bits (or count of set bits) in the number n. Question 11 #include<stdio.h>
+int f(int *a, int n)
+{
+  if(n <= 0) return 0;
+  else if(*a % 2 == 0) return *a + f(a+1, n-1);
+  else return *a - f(a+1, n-1);
+}
+ 
+int main()
+{
+  int a[] = {12, 7, 13, 4, 11, 6};
+  printf("%d", f(a, 6));
+  getchar();
+  return 0;
+} A -9 B 5 C 15 D 19 Discuss it Question 11 Explanation:  f() is a recursive function which adds f(a+1, n-1) to *a if *a is even. If *a is odd then f() subtracts f(a+1, n-1) from *a. See below recursion tree for execution of f(a, 6). .  f(add(12), 6) /*Since 12 is first element. a contains address of 12 */
+    |
+    |
+ 12 + f(add(7), 5) /* Since 7 is the next element, a+1 contains address of 7 */
+        |
+        |
+     7 - f(add(13), 4)
+              |
+              |
+           13 - f(add(4), 3)
+                     |
+                     |
+                  4 + f(add(11), 2)
+                             |
+                             |
+                           11 - f(add(6), 1)
+                                    |
+                                    |
+                                 6 + 0 So, the final returned value is 12 + (7 – (13 – (4 + (11 – (6 + 0))))) = 15 Question 12 Output of following program? 
+#include <stdio.h>
+int fun(int n, int *f_p)
+{
+    int t, f;
+    if (n <= 1)
+    {
+        *f_p = 1;
+        return 1;
+    }
+    t = fun(n- 1,f_p);
+    f = t+ * f_p;
+    *f_p = t;
+    return f;
+}
+
+int main()
+{
+    int x = 15;
+    printf (" %d \n", fun(5, &x));
+    return 0;
+}
+ A 6 B 8 C 14 D 15 Discuss it Question 13 Consider the following function 
+double f(double x){
+  if( abs(x*x – 3) < 0.01) return x;
+  else return f(x/2 + 1.5/x);
+}
+ Give a value q (to 2 decimals) such that f(q) will return q:_____. A 1.72 B 2.24 C 4.22 D 3.42 Discuss it Question 14 Consider the C function given below. 
+int f(int j)
+{
+  static int i = 50;
+  int k;
+  if (i == j)
+  {
+    printf(“something”);
+    k = f(i);
+    return 0;
+  }
+  else return 0;
+}
+ Which one of the following is TRUE? A The function returns 0 for all values of j. B The function prints the string something for all values of j. C The function returns 0 when j = 50. D The function will exhaust the runtime stack or run into an infinite loop when j = 50 Discuss it Question 14 Explanation:  When j is 50, the function would call itself again and again as neither i nor j is changed inside the recursion. Question 15 
+#include<stdio.h>
+void crazy(int n,int a,int b)
+{
+    if (n <= 0)  return;
+    crazy(n-1, a, b+n);
+    printf("%d %d %d\n",n,a,b);
+    crazy(n-1, b, a+n);
+}
+
+int main()
+{
+    crazy(3,4,5);
+    return 0;
+}
+ A 
+1 4 10
+2 4 8
+1 8 6
+3 4 5
+1 5 9
+2 5 7
+1 7 7 B 
+3 4 5
+1 4 10
+2 4 8
+1 8 6
+1 5 9
+2 5 7
+1 7 7 C 
+1 4 10
+2 4 8
+1 8 6
+3 4 5 D 3 4 5
+1 5 9
+2 5 7
+1 7 7 Discuss it Question 16 Consider the following C function: 
+int f(int n)
+{
+   static int i = 1;
+   if (n >= 5)
+      return n;
+   n = n+i;
+   i++;
+   return f(n);
+}
+ The value returned by f(1) is A 5 B 6 C 7 D 8 Discuss it Question 16 Explanation:  See Question 3 of http://www.geeksforgeeks.org/c-language-set-2/ There are 16 questions to complete. You have completed questions question Your score is Correct Wrong Partial-Credit You have not finished your quiz. If you leave this page, your progress will be lost. Correct Answer You Selected Not Attempted Final Score on Quiz Attempted Questions Correct Attempted Questions Wrong Questions Not Attempted Total Questions on Quiz Question Details Results Date Score Hint Time allowed minutes seconds Time used Answer Choice(s) Selected Question Text All done Need more practice! Keep trying! Not bad! Good work! Perfect!      Tweet Categories Articles (105) Algorithms (21) C (13) C++ (16) Data Structures (29) DBMS (1) Interview Experiences (6) Java (2) Operating Systems (1) Searching and Sorting (10) Programs (35) Quizzes (1,744) Aptitude (1) Computer Science Quizzes (1,742) Algorithms (147) C (207) C++ (129) Data Structures (132) DBMS (2) GATE (1,046) Java (51) Operating Systems (28) Web technologies (1) Recent Discussions Valid XHTML Strict 1.0 Powered by WordPress & MooTools | MiniMoo 1.3.4

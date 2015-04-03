@@ -1,0 +1,509 @@
+Get Level of a node in a Binary Tree - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Get Level of a node in a Binary Tree Given a Binary Tree and a key, write a function that returns level of the key. For example, consider the following tree. If the input key is 3, then your function should return 1. If the input key is 4, then your function should return 3. And for key which is not present in key, then your function should return 0. Thanks to prandeey for suggesting the following solution. The idea is to start from the root and level as 1. If the key matches with root’s data, return level. Else recursively call for left and right subtrees with level as level + 1. #include<stdio.h>
+
+/* A tree node structure */
+struct node
+{
+    int data;
+    struct node *left;
+    struct node *right;
+};
+
+/* Helper function for getLevel().  It returns level of the data if data is
+   present in tree, otherwise returns 0.*/
+int getLevelUtil(struct node *node, int data, int level)
+{
+    if (node == NULL)
+        return 0;
+
+    if (node->data == data)
+        return level;
+
+    int downlevel = getLevelUtil(node->left, data, level+1);
+    if (downlevel != 0)
+        return downlevel;
+
+    downlevel = getLevelUtil(node->right, data, level+1);
+    return downlevel;
+}
+
+/* Returns level of given data value */
+int getLevel(struct node *node, int data)
+{
+    return getLevelUtil(node,data,1);
+}
+
+/* Utility function to create a new Binary Tree node */
+struct node* newNode(int data)
+{
+    struct node *temp = new struct node;
+    temp->data = data;
+    temp->left = NULL;
+    temp->right = NULL;
+
+    return temp;
+}
+
+/* Driver function to test above functions */
+int main()
+{
+    struct node *root = new struct node;
+    int x;
+
+    /* Constructing tree given in the above figure */
+    root = newNode(3);
+    root->left = newNode(2);
+    root->right = newNode(5);
+    root->left->left = newNode(1);
+    root->left->right = newNode(4);
+
+    for (x = 1; x <=5; x++)
+    {
+      int level = getLevel(root, x);
+      if (level)
+        printf(" Level of %d is %d\n", x, getLevel(root, x));
+      else
+        printf(" %d is not present in tree \n", x);
+
+    }
+
+    getchar();
+    return 0;
+}
+ Output:  Level of 1 is 3
+ Level of 2 is 2
+ Level of 3 is 1
+ Level of 4 is 3
+ Level of 5 is 2 Time Complexity: O(n) where n is the number of nodes in the given Binary Tree. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. Uma Trika void getLevelUtil(struct node *node, int h, int *level, int key) { if(node == NULL) return ; if(node->data == key) { *level = h ; } getLevelUtil(node->left, h+1, level, key); getLevelUtil(node->right, h+1, level, key); } hhh I think it is O(n*logn) – getLevelUntil is O(logn) and when we run it for each element in an array, total execution time will be O(n*logn) Pranav Its O(n) because if you look closely you will find that getLevelUtil() first check for current node, than left sub tree and finally right sub tree. So every node is visited exactly once. DarkProtocol How is this T(n)= O(n)… it basically does searching and which should be O(logn).. Any inputs or ideas? cool_dude #include #include struct node { struct node *left; struct node *right; int data; }; struct node *create_node(int num) { struct node *temp=(struct node*)malloc(sizeof(struct node )); temp->left=NULL; temp->right=NULL; temp->data=num; return temp; } void level(struct node *tree,int num,int h,int *i) { if(tree==NULL) return; level(tree->left,num,h+1,i); if(tree->data==num) { printf("level=%d ",h); *i=1; } level(tree->right,num,h+1,i); } int main() { struct node *tree; tree=create_node(5); tree->left=create_node(4); tree->right=create_node(7); tree->left->left=create_node(6); tree->left->right=create_node(3); tree->right->right=create_node(9); int h=1, i=0; level(tree,2,h,&i); if(i==0) printf("level=0"); return 0; } cool_dude #include #include struct node { struct node *left; struct node *right; int data; }; struct node *create_node(int num) { struct node *temp=(struct node*)malloc(sizeof(struct node )); temp->left=NULL; temp->right=NULL; temp->data=num; return temp; } void level(struct node *tree,int num,int h,int *i) { if(tree==NULL) return; level(tree->left,num,h+1,i); if(tree->data==num) { printf(“level=%d “,h); *i=1; } level(tree->right,num,h+1,i); } int main() { struct node *tree; tree=create_node(5); tree->left=create_node(4); tree->right=create_node(7); tree->left->left=create_node(6); tree->left->right=create_node(3); tree->right->right=create_node(9); int h=1; int i=0; level(tree,2,h,&i); if(i==0) printf(“level=0″); return 0; } Vandal /* A much simpler Implementation It returns 0 if key not found*/ int keyLevel(int key, tNode* n, int count) { if(n == NULL) return 0; if( n->data == key) return count; else { return max(keyLevel(key, n->left, count+1), keyLevel(key, n->right, count+1)); } } Sunil Why is a bitwise or used instead of logical or in the following line? return getLevelUtil ( node->left, data, level+1) | getLevelUtil ( node->right, data, level+1); I compiled the program using ‘logical or’ for input=4 with the same binary tree, I get level=1 as the output. GeeksforGeeks @Sunil: We have updated the code to avoid confusion. The bitwise or was used to return integer value, rather than boolean value. Please note that the old code also works for trees with all distinct keys, but may fail for same key in left and right subtree. Following is old code for record.  
+#include<stdio.h>
+
+/* A tree node structure */
+struct node
+{
+  int data;
+  struct node *left;
+  struct node *right;
+};
+
+/*
+   Helper function for getLevel().  It returns level of the data if data is
+   present in tree, otherwise returns 0.
+*/
+int getLevelUtil(struct node *node, int data, int level)
+{
+  if ( node == NULL )
+    return 0;
+
+  if ( node->data == data )
+    return level;
+
+  return getLevelUtil ( node->left, data, level+1) |
+         getLevelUtil ( node->right, data, level+1);
+}
+
+/* Returns level of given data value */
+int getLevel(struct node *node, int data)
+{
+  return getLevelUtil(node,data,1);
+}
+
+/* Utility function to create a new Binary Tree node */
+struct node* newNode(int data)
+{
+  struct node *temp = new struct node;
+  temp->data = data;
+  temp->left = NULL;
+  temp->right = NULL;
+
+  return temp;
+}
+
+/* Driver function to test above functions */
+int main()
+{
+  struct node *root = new struct node;
+  int x;
+
+  /* Constructing tree given in the above figure */
+  root = newNode(3);
+  root->left = newNode(2);
+  root->right = newNode(5);
+  root->left->left = newNode(1);
+  root->left->right = newNode(4);
+
+  x = 3;
+  printf(" Level of %d is %d", x, getLevel(root, x));
+
+  x = 4;
+  printf("\n Level of %d is %d", x, getLevel(root, x));
+
+  getchar();
+  return 0;
+}
+
+ Silent why this is not giving correct result?? /* int level(struct tree *root,int k,int count) { if(root&&root->info==k) return count; if(root) { return level(root->left,k,count+1); return level(root->right,k,count+1); } } */ shek8034 Add this line in the beginning : if ( root == NULL ) return 0; // for empty tree Linuxwc In addition, you finish the activation (at the latest) after calling the left subtree. The line return level(root->right,k,count+1); is never executed since it is located after an unconditional return-statement. shek8034 @Linuxwc : Yes, you are right. The correct return statement at the end should be:- return level(root->left,k,count+1)||level(root->right,k,count+1); Silent yes i got it.. NNavneet Wah Wah kya bat hai !!!! main toh sach main dar gaya !!! kk kanha se aaye ho bhai…. vineet I think there is a simpler way out. We find height(h1) of tree rooted at the target node(the node, for which we have to find the level) and find the height(h2) of the original tree. The difference(h2 – h1 + 1) should be the answer I think. Please correct if I am wrong. Obviously we need to put in extra check for the case where the target node doesn’t exist in the tree.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Linuxwc It works if all paths have the same length. For example, perfect binary tree fulfills the condition. Hanish Bansal I think we might do the question this way in O(log n) time : Follow the search procedure of a tree and keep adding 1 to the (static int level) and return level. If we reach NULL, return (level=0); We will find the level of the node in O(log n) time this way instead of O(n) as mentioned. Please correct me in case i am wrong… Hanish Sorry for the wrong comment. I was completely thinking out of the line. I considered it as a BST. Sayak int f(node * T, int k) { if (!T) return 0; if (T->val == k) return 1; int left = f(T->left, k); int right = f(T->right, k); if (left == right) return 0; else return (left>right)? (left + 1): (right + 1); } PsychoCoder Here is the BFS implementation of the tree. If you find any node return the level otherwise return 0. Obviously extra space is required!! But still another approach.  
+#include<stdio.h>
+#include<stdlib.h>
+#include<limits.h>
+
+typedef struct node {
+  int data ;
+  struct node *left ;
+  struct node *right ;
+}node;
+
+typedef struct list {
+  node *data ;
+  struct list *next;
+}list;
+
+typedef struct queue {
+  int count ;
+  struct list *front ;
+  struct list *rear;
+}queue ;
+
+void createQueue (queue **head) {
+  *head = (queue *) malloc (sizeof(queue)) ;
+  (*head)->count = 0 ;
+  (*head)->front = NULL ;
+  (*head)->rear = NULL ;
+}
+
+list* newList (node* data) {
+  list *head ;
+  head = (list *) malloc (sizeof(list)) ;
+  head->next = NULL ;
+  head->data = data ;
+  return head ;
+}
+
+queue* enqueue (queue *head, node* data) {
+  list *temp = newList (data) ;
+  if (head->front == NULL) {
+    head->front = temp ;
+    head->rear = temp ;
+    head->count ++ ;
+  }
+  else {
+    head->rear->next = temp ;
+    head->rear = head->rear->next ;
+    head->count ++ ;
+  }
+  return head;
+}
+
+list* dequeue (queue **head) {
+  list *temp ;
+  if ((*head)->count == 0)
+    return NULL ;
+  if ((*head)->front != NULL) {
+    temp = (*head)->front ;
+    if ( (*head)->front == (*head)->rear ) {
+      (*head)->front = NULL ;
+      (*head)->rear = NULL ;
+      (*head)->count -- ;
+    }
+    else {
+      (*head)->front = (*head)->front->next ;
+      (*head)->count -- ;
+    }
+  } 
+  return temp ;
+}
+
+int isEmpty (queue *q) {
+  return (q->count == 0);
+}
+
+node* newnode (int data) {
+  node *head ;
+  head = (node *) malloc (sizeof(node)) ;
+  head->data = data ;
+  head->left = NULL ;
+  head->right = NULL ;
+  return head ;
+}
+
+int getNodeLevelBFS (node *tree, int key) {
+  queue *q ;
+  int level = 1, found = 0 ;
+  list *temp ;
+  /* Initialize the queue */
+  createQueue (&q) ;
+
+  enqueue (q,tree) ;
+  /* Use INT_MAX as delimiter */
+  enqueue (q,newnode(INT_MAX)) ;
+
+  while ( !isEmpty (q) ) {
+    temp = dequeue (&q) ;
+  
+    if ( temp->data->data == key ) {
+      found = 1 ;
+      break ;
+    }
+    /* Check whether it is a delimiter or not */
+    if ( temp->data->data != INT_MAX ) {
+      /* If not then extreme right of this level
+         is not reached till now. Enqueue its
+         child */
+      if (temp->data->left)
+        q = enqueue (q, temp->data->left) ;
+
+      if (temp->data->right)
+        q = enqueue (q, temp->data->right) ;
+    } else {
+      /* If a delimiter is reached, then set the 
+         delimiter of the next level. Because 
+         extreme right is reached for this level */
+      if ( !isEmpty(q) ) {
+        enqueue (q,newnode(INT_MAX)) ;
+        level ++ ;
+      }
+    }
+  }
+  while (!isEmpty (q))
+    temp = dequeue (&q) ;
+  free (q) ;
+  return (found == 0) ? 0 : level;
+}
+
+int main() {
+
+  node *root 	    = newnode(10);
+  root->left        = newnode(8);
+  root->right       = newnode(2);
+  root->left->left  = newnode(3);
+  root->right->left = newnode(6) ;
+  root->right->right = newnode(7) ;
+
+  printf ( "\n\nLevel is : %d", getNodeLevelBFS (root,7 ) );
+  free (root);
+  return 1 ;
+} Hemil What if we solved this using BFS.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Agniswar Hi,this is my solution- int get_level(node *root,int k) { static int level=1; if(root==NULL) return 0; if(root->data==k) return level; else if(root->left->data==k || root->right->data==k) return (++level); else if(get_level(root->left,k) || get_level(root->right,k)) return (++level); else return level; } Pls revert back if am wrong! Sayak dude check mine as well, int f(node * T, int k) { if (!T) return 0; if (T->val == k) return 1; int left = f(T->left, k); int right = f(T->right, k); if (left == right) return 0; else return (left>right)? (left + 1): (right + 1); } Linuxwc If level is static, it should be zero when nothing has been found and initialized to one when the value is found. See the code below for details.  
+int get_level(node *root,int k)
+{
+//static int level=1;    
+static int level=0;
+if(root==NULL)
+return 0;
+if(root->data==k)
+// return level;
+    return (level=1); // Because this is static, 
+// initialize here
+// else if(root->lelt->data==k || root->right->data==k) 
+// return (++level);
+// Remove those lines since the pointer may be null
+// and the lines are redundant
+else if(get_level(root->left,k) || get_level(root->right,k))
+return (++level);
+else
+// return level;
+return 0; // Do not use level if value not found
+}
+ Harshit  
+int getlevel(treeptr p,int x)
+{
+
+    if(p==NULL)
+    return 0;
+
+    if(p->info==x)
+    return 1;
+
+    int d;
+
+    if(d=getlevel(p->left,x))
+    return 1+d;
+
+    if(d=getlevel(p->right,x))
+    return 1+d;
+    else
+
+    return 0;
+
+}
+ anantha89 Hi All, I guess we can avoid traversing the entire tree by modifying like this,  int getNodeL(Tnode *root, int key, int level) {
+    int leftlevel = 0, rightlevel = 0;
+    
+    if (root == NULL)
+        return 0;
+    
+    if (key == root->data)
+        return level;
+    
+    leftlevel = getNodeL(root->left, key, level + 1);
+    
+    if (leftlevel == 0)
+        rightlevel = getNodeL(root->right, key, level + 1);
+    
+    return leftlevel + rightlevel;
+} mrn i donno y this code is not working  int level(int v)
+{
+	map<struct node *,int > q;
+	struct node *n;
+	int l=0;
+	q.insert(make_pair(root,l+1));
+	map<struct  node *,int>::iterator it;
+	for(it=q.begin();it!=q.end();l++)
+	{
+		if(!it->first)
+			break;
+		n=it->first->r;
+		printf("it:%d\n",n->v);
+		if(it->first->v==v)
+		{
+			return it->second;
+		}
+		if((n=it->first->l)!=0)
+		{
+			q.insert(make_pair(n,l+1));
+		}
+		if((n=it->first->r)!=0)
+		{
+			q.insert(make_pair(n,l+1));
+		}
+		//q.erase(it);
+		it++;
+	}
+	return 0;
+} Linuxwc You increment the level every time you get a node from the list, even though many nodes may have the same level. Moreover, remove your test lines that may point to contents of a null pointer. See the code below for more details.  
+int getLevel(int v)
+{
+    map<struct node *,int > q;
+    struct node *n;
+    int l=0;
+    q.insert(make_pair(root,l+1));
+    map<struct  node *,int>::iterator it;
+    for(it=q.begin();it!=q.end();) // remove l++ since
+    // l must be increased only when new level starts
+    // in this breadth first -list
+    {
+        if(!it->first)
+            break;
+    //        n=it->first->r;
+    //        printf("it:%d\n",n->v);
+    // Comment those test lines out since n may be null 
+    // pointer and you use n->v
+
+        l = it->second;  //Add this line since the level
+    // of children is one greater than that of this
+    // parent
+        if(it->first->v==v)
+        {
+//            return it->second;   to avoid redundant
+//            calculation, just return l
+              return l;
+        }
+        if((n=it->first->l)!=0)
+        {
+            q.insert(make_pair(n,l+1));
+        }
+        if((n=it->first->r)!=0)
+        {
+            q.insert(make_pair(n,l+1));
+        }
+        //q.erase(it);
+        it++;
+    }
+    return 0;
+}
+ Trouble  
+int getLevel(node* root, int key, int level){
+	if(!root) return -1;
+	if(root->val == key) return level;
+	int ld, rd;
+	ld = getLevel(root->l, key, level+1);
+	rd = getLevel(root->r, key, level+1);
+	return ld>rd?ld:rd;
+} hari6988 Hey,just a thought… return getLevelUtil ( node->left, data, level+1) | getLevelUtil ( node->right, data, level+1); This works only if all the data values of nodes in the tree are distinct … IF there are several nodes at several levels with the same data value, then | operator will add them up n display the added value. Vijay Very true… If elements are guaranteed to be distinct in the tree, we can check through the node’s info value, else we need to pass the address of the node to be searched  
+/* Paste your code here (You may delete these lines if not writing code) */
+ manishj Iterative approach :  int find_level(node *root, int key)
+{
+	int depth = 0;
+	node *temp = root;
+	while(temp != NULL)
+	{
+		if(temp->data == key)
+			return depth;
+		else if(temp->data < key)
+		{
+			depth++;
+			temp = temp->right;
+		}
+		else
+		{
+			depth++;
+			temp = temp->left;
+		}
+
+	}
+	return depth;
+
+} Hill this works for BST only. But, the problem is to find for binary tree manishj  
+int levelorder_traversal(btree *root,int key)
+{
+	queue<btree*> q;
+
+	btree dummy ;
+
+	q.push(root);
+	q.push(&dummy);
+    int level = 0;
+	while(!q.empty())
+	{
+		btree *node = q.front();
+		q.pop();
+		if(node == &dummy)
+		{
+			level++;
+			if(!q.empty())
+				q.push(&dummy);
+		}
+		else
+		{
+			if(node->data == key)
+				return level;
+			if(node->left != NULL)
+			q.push(node->left);
+			if(node->right != NULL)
+			q.push(node->right);
+			
+		}
+	}
+	return -1;
+}
+ mrn why is it not working  int level(int v)
+{
+	map<struct node *,int > q;
+	struct node *n;
+	int l=0;
+	q.insert(make_pair(root,l+1));
+	map<struct  node *,int>::iterator it;
+	for(it=q.begin();it!=q.end();l++)
+	{
+		if(!it->first)
+			break;
+		n=it->first->r;
+		printf("it:%d\n",n->v);
+		if(it->first->v==v)
+		{
+			return it->second;
+		}
+		if((n=it->first->l)!=0)
+		{
+			q.insert(make_pair(n,l+1));
+		}
+		if((n=it->first->r)!=0)
+		{
+			q.insert(make_pair(n,l+1));
+		}
+		//q.erase(it);
+		it++;
+	}
+	return 0;
+} RAW I think finally depth should not be returned otherwise if the node is not present it would return the height of the tree… return -1 instead. aditya this is not a bst Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

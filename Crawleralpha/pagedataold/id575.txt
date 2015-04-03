@@ -1,0 +1,640 @@
+Copy a linked list with next and arbit pointer - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Copy a linked list with next and arbit pointer You are given a Double Link List with one pointer of each node pointing to the next node just like in a single link list. The second pointer however CAN point to any node in the list and not just the previous node. Now write a program in O(n) time to duplicate this list. That is, write a program which will create a copy of this list. Let us call the second pointer as arbit pointer as it can point to any arbitrary node in the linked list. Arbitrary pointers are shown in red and next pointers in black Figure 1 Method 1 (Uses O(n) extra space) This method stores the next and arbitrary mappings (of original list) in an array first, then modifies the original Linked List (to create copy), creates a copy. And finally restores the original list. 1) Create all nodes in copy linked list using next pointers. 3) Store the node and its next pointer mappings of original linked list. 3) Change next pointer of all nodes in original linked list to point to the corresponding node in copy linked list. Following diagram shows status of both Linked Lists after above 3 steps. The red arrow shows arbit pointers and black arrow shows next pointers. Figure 2 4) Change the arbit pointer of all nodes in copy linked list to point to corresponding node in original linked list. 5) Now construct the arbit pointer in copy linked list as below and restore the next pointer of nodes in the original linked list.        copy_list_node->arbit =
+                      copy_list_node->arbit->arbit->next;
+       copy_list_node = copy_list_node->next; 
+ 6) Restore the next pointers in original linked list from the stored mappings(in step 2). Time Complexity:  O(n) Auxiliary Space:  O(n) Method 2 (Uses Constant Extra Space) Thanks to Saravanan Mani for providing this solution. This solution works using constant space. 1) Create the copy of node 1 and insert it between node 1 & node 2 in original Linked List, create the copy of 2 and insert it between 2 & 3.. Continue in this fashion, add the copy of N afte the Nth node 2) Now copy the arbitrary link in this fashion 
+     original->next->arbitrary = original->arbitrary->next;  /*TRAVERSE 
+TWO NODES*/
+ This works because original->next is nothing but copy of original and Original->arbitrary->next is nothing but copy of arbitrary. 3) Now restore the original and copy linked lists in this fashion in a single loop. 
+     original->next = original->next->next;
+     copy->next = copy->next->next;
+ 4) Make sure that last element of original->next is NULL. Time Complexity: O(n) Auxiliary Space: O(1) Asked by Varun Bhatia. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. pulkit mehra If the List has Read Only access then the above discussed methods will fail. The method I came across uses container of C++ STL. A map is actually an associative array which has a key and a value associated with that key. Steps: (The code syntax isn’t coming properly in comments so check online) 1. Copy the original list to new list with next pointers intact, leave arbit pointers for now 2. While copying make a map map map_hash In our case map will have the key as the original list node and value as copy list node 3 Map would be somewhat like this Original –> Copy Node1 –> Node1(copy) Node2 –> Node2(copy) Node3 –> Node3(copy) 4 Start from head of copy list, corresponding to this copy list node we have the original list node in map. We can access it using an iterator. map::iterator i i = map_hash.begin() copy_node->arbit = map_hash.at((*i).first->arbit) Note:- (*i).first = original_List node (*i).first->arbit = arbitrary node pointed by (*i).first map_hash.at() gives the value stored at that key What we are doing is for each copy_List node we take its corresponding original_List node then find its arbit node, next we use our map to find the node in our copy_List corresponding to this arbit node and assign it to the arbit pointer of the copy_List node Hope this will help!!! darkpassenger if we don’t want to modify the original list the with the help of 2 hash maps u can clone it………. neelabhsingh This problem can be done in two scan Linked List 1st Scan: In first scan change change next pointer of original LL to the corresponding same node in the new LL. and change random pointer of new LL to the corresponding same node of the original linked list. current1 is pointing to the start node of the originalLL. current2 is pointing to the start node of the newLL current1=root1;// root node of the original node current2=roott2// root node of the original node while(current1!=NULL) { temp=current1->next; current1->next=current2; current2->random=current1; current2=current2->next; current1=temp; } // Scan2 current1=root1;// root node of the original node current2=roott2// root node of the original node // current1->next is pointing to the new node so we can node use while(current2!=NULL) { current2->random=current2->random->random->next; current2=current2->next } pavansrinivas What if the Original list is read only??? Prateek Rathore Saravanan Mani , nice trick !!! Neha Garg @d4868dd64c637016efc578852ad7cd68:disqus where do you need to insert copy element in original list ?? we can do it just first copy the whole list using next pointers … then copy the arbitrary pointers of original list in copyid list using using a loop till end and picking one element of each LL ?? this will help in reduing two step first insert in between and second to separate them correct me if i m wrong….. Neha Garg @3544658edbd8b32cd82d8c035a2ba74f:disqus @d4868dd64c637016efc578852ad7cd68:disqus where do you need to insert copy element in original list ?? we can do it just first copy the whole list using next pointers … then copy the arbitrary pointers of original list in copyid list using using a loop till end and picking one element of each LL ?? this will help in reduing two step first insert in between and second to separate them correct me if i m wrong….. ankit Recursive method(using hashmap): where hashmap contains as pair. node* copy(node* n1) { if(n is null) return null; if(if n1 is in hasmap) return n2; else create new node n2; insert into hashMap(n1,n2); n2->data=n1->data; n2->next=copy(n1->next); n2->arbitrary=copy(n1->arbitrary); return n2; } Can anybody pls verify this method. Pavan  
+// Method 2 code ,check if there is any bug
+#include <stdio.h>
+#include <stdlib.h>
+struct node {
+    int data;
+    struct node* arbit;
+    struct node* next;
+};
+struct node *newNode(int data)
+{
+    struct node *new_node = (struct node *) malloc(sizeof(struct node));
+    new_node->data = data;
+    new_node->next = NULL;
+    new_node->arbit = NULL;
+    return new_node;
+}
+void printList(struct node *node)
+{
+    while(node != NULL)
+    {
+       if(node->next==NULL)
+        {
+             printf("next and arbitary of %d is NULL and %d \n",node->data ,node->arbit->data);
+        }
+        else
+        printf("next and arbitary of %d is %d and %d \n",node->data ,node->next->data,node->arbit->data);
+        node = node->next;
+    }
+    printf("\n");
+}
+void push(struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node = newNode(new_data);
+ 
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);
+ 
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+struct node* copyList(struct node*original)
+{
+    struct node *copy=NULL ,*original_i, *copy_i,*temp ;
+    original_i =original ;
+    while(original_i !=NULL)
+    {
+       temp=original_i->next;
+       struct node* newnode =newNode(original_i->data);
+       newnode->next=temp;
+       original_i->next=newnode;
+       original_i=temp;
+    }
+    copy=original->next;
+    copy_i=copy;
+    original_i=original;
+    while(original_i!=NULL)
+    {
+        copy_i->arbit=original_i->arbit->next;
+        if(copy_i->next!=NULL)
+        copy_i=copy_i->next->next;
+        original_i=original_i->next->next;
+    }
+    copy_i=copy;
+    original_i=original;
+    while(original_i!=NULL)
+    {
+        original_i->next=original_i->next->next;
+        if(copy_i->next!=NULL)
+        copy_i->next=copy_i->next->next;
+        original_i= original_i->next;
+        copy_i= copy_i->next;
+    }
+    return copy;
+}
+ 
+ int main()
+{
+    struct node* original=NULL, *copy;
+    push(&original, 5);
+    push(&original, 4);
+    push(&original, 3);
+    push(&original, 2);
+    push(&original, 1);
+    original->arbit = original->next->next;
+    original->next->arbit = original;
+    original->next->next->arbit = original->next->next->next->next;
+    original->next->next->next->arbit = original->next->next;
+    original->next->next->next->next->arbit = original->next;
+    printList(original);
+    copy = copyList(original);
+    printf("copy of the linklist with next and arbit pointer\n");
+    printList(copy);
+    return 0;
+}
+ Gaurav Garg No bug pandu code working fine ! keep posting.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Karshit My Code.. with a built in function to test the copied and original Linked List.. Hope it helps..  
+#include <iostream>
+
+using namespace std;
+
+struct node {
+    int data;
+    node *next;
+    node *arbit;
+};
+
+node *create(int n)
+{
+    if (n == 0)
+        return NULL;
+
+    node *head = new node();
+    node *p = head;
+
+    cin >> (p -> data);
+
+    p -> next = NULL;
+
+    for (int i = 1; i < n; i++) {
+        p -> next = new node();
+        p = p -> next;
+
+        cin >> (p -> data);
+
+        p -> next = NULL;
+    }
+
+    return head;
+}
+
+void print(node *head)
+{
+    while (head != NULL) {
+        cout << head -> data << " ";
+        head = head -> next;
+    }
+
+}
+
+
+node * copy(node *head)
+{
+    node *p = head;
+    node *q;
+
+    while(p) {
+        node *dummy = new node();
+        dummy -> data = p -> data;
+        node *temp = p -> next;
+        p -> next = dummy;
+        dummy -> next = temp;
+
+        p = p -> next -> next;
+    }
+
+    node *head1 = head -> next;
+    p = head;
+    q = head1;
+
+    while (p) {
+        p -> next -> arbit = p -> arbit -> next;
+        p = p -> next -> next;
+    }
+
+    while(1) {
+        head -> next = head -> next -> next;
+        head = head -> next;
+
+        if (!head)
+            break;
+
+        q -> next = q -> next -> next;
+        q = q -> next;
+
+    }
+
+
+    q -> next = NULL;
+
+    return head1;
+}
+
+void test(node *head, node *head1)
+{
+    while (head) {
+        cout << "In list:\n"<< head -> data << " and copy = " << head1 -> data << endl << "Arbitrary Node:\n" << head -> arbit -> data << " and copy = " << head1 -> arbit -> data << endl;
+        head = head -> next;
+        head1 = head1 -> next;
+    }
+}
+int main()
+{
+    node *head = NULL;
+    node *head1 = NULL;
+    head = create(5);
+
+    head -> arbit = head -> next -> next;
+    head -> next -> arbit = head -> next -> next -> next;
+    head -> next -> next -> arbit = head;
+    head -> next -> next -> next -> arbit = head -> next -> next;
+    head -> next -> next -> next -> next -> arbit = head -> next -> next;
+
+    head1 = copy(head);
+
+    test(head, head1);
+
+    cout << "\n";
+
+    return 0;
+}
+
+ abhishek08aug Intelligent Vijay Muvva Hello, I don’t see any need for the auxiliary space in the first method. Why can’t we restore the original list while adding arbitrary links to the new list? Precisely: temp = newListNode.next.arbitrary; newListNode.arbitrary = originalListNode.arbitrary.next; originalListNode.next = temp; Do this for every node. Note: initially new list arbitrary links points to the original list’s corresponding nodes. Please correct if I’m wrong.. anshul.chauhan yes you are wrong…try it with an example…you can’t point any node to anywhere until whole list traversal is done because node can point to previous nodes as well and u’ve already lost the pointer to that  
+/* Paste your code here (You may delete these lines if not writing code) */
+ neham there is more simpler version of method 1. mahajanneha.blogspot.com/2013/04/to-copy-doubly-linked-list-having-arbit.html this approach also takes O(n) auxiliary space. whizkid08 Code for 1st method:  
+#include <stdio.h>
+
+struct Node
+{
+	int data;
+	struct Node *arbit;
+	struct Node *next;
+};
+
+typedef struct Node Node;
+void push(Node **head, int val)
+{
+	Node* temp = (Node*) malloc(sizeof(Node));
+	temp->data = val;
+
+	if(*head == 0)
+	{
+		temp->next = 0;
+		*head = temp;
+	}
+
+	else
+	{
+		temp->next = *head;
+		*head = temp;
+	}
+}
+
+Node* copyList(Node *head)
+{
+	Node* temp = head, *cpyhead, *cpytmp;
+
+	if(!head)
+	return 0;
+
+	cpyhead = (Node*) malloc(sizeof(Node));
+	cpyhead->data = head->data;
+
+	temp = head->next;
+
+	while(temp)
+	{
+		cpytmp = (Node*) malloc(sizeof(Node));
+		cpytmp->data = temp->data;
+		cpytmp->next = cpyhead;
+		cpyhead = cpytmp;
+		temp = temp->next;
+	}
+
+	temp = head;
+	cpytmp = cpyhead;
+
+	while(temp)
+	{
+		Node *sectmp = temp->next;
+		temp->next = cpytmp;
+
+		cpytmp->arbit = temp;
+		temp = sectmp;
+		cpytmp = cpytmp->next;
+	}
+
+	temp = head;
+	cpytmp = cpyhead;
+
+	while(cpytmp)
+	{
+		cpytmp->arbit = cpytmp->arbit->arbit->next;
+		cpytmp = cpytmp->next;
+	}
+
+	return cpyhead;
+}
+
+
+void main()
+{
+	Node *head = 0, *copy_head, *temp;
+
+	push(&head,10);
+	push(&head,20);
+	push(&head,50);
+	push(&head,30);
+	push(&head,25);
+
+	head->arbit = head->next->next;
+	head->next->arbit = head->next->next->next;
+	head->next->next->arbit = head;
+	head->next->next->next->arbit = head->next->arbit;
+	head->next->next->next->next->arbit = head->next->next;
+
+	copy_head = copyList(head);
+	temp= copy_head;
+
+	while(temp)
+	{
+	 printf("\nData=%d",temp->data);
+	 printf("\tArbit=%d \n",temp->arbit->data);
+	 temp = temp->next;
+	}
+}
+ whizkid08 Oops. Didn’t restore original list. Any idea on how to achieve: (2)Store the node and its next pointer mappings of original linked list. It can be easily done by having a 3rd list. Any efficient way in C? Aishwarya  
+#include<iostream>
+#include<vector>
+using namespace std;
+
+struct node
+{
+   int data;
+   node *next, *random;
+   node(int _data):data(_data),next(NULL),random(NULL){}
+};
+
+node *addEnd(node **head, int data)
+{
+   while(*head)head=&(*head)->next;
+   *head=new node(data);
+   return *head;
+}
+
+void printNext(node *head)
+{
+   while(head)
+   {
+      cout<<head->data<<" ";
+      head=head->next;
+   }
+   cout<<endl;
+}
+
+void printRandom(node *head)
+{
+   for(int i=0;i<6;i++)
+   {
+      cout<<head->random->data<<" ";
+      head=head->next;
+   }
+   cout<<endl;
+}
+
+void clone(node *head, node **copy)
+{
+   if(!head)return;
+   node *h=head;
+   while(h)
+   {
+      node *tmp=new node(h->data);
+      tmp->next=h->next;
+      h->next=tmp;
+      h=tmp->next;
+   }
+   *copy=head->next;
+   h=head->next;
+   while(head)
+   {
+      h->random=head->random->next;
+      head->next=head->next->next;
+      head=head->next;
+      h->next=h->next?h->next->next:NULL;
+      h=h->next;
+   }      
+}
+
+int main(void )
+{
+   node *head=NULL;
+   vector<node*> v;
+   v.push_back(addEnd(&head,0));
+   v.push_back(addEnd(&head,1));
+   v.push_back(addEnd(&head,2));
+   v.push_back(addEnd(&head,3));
+   v.push_back(addEnd(&head,4));
+   v.push_back(addEnd(&head,5));
+   v[0]->random=v[1];
+   v[1]->random=v[3];
+   v[2]->random=v[4];
+   v[3]->random=v[5];
+   v[4]->random=v[2];
+   v[5]->random=v[5];
+   cout<<"\noriginal list before copying\n";
+   printNext(head);
+   printRandom(head);
+   node *copy=NULL;
+   clone(head,&copy);
+   cout<<"\noriginal list after copying\n";
+   printNext(head);
+   printRandom(head);
+   cout<<"\ncopied list\n";
+   printNext(copy);
+   printRandom(copy);
+   getchar();
+   return 0;
+}  
+ rahulcynosure Your code has a small bug. Check the output . original list before copying 0 1 2 3 4 5 1 3 4 5 2 5 original list after copying 0 1 2 3 4 5 1 3 4 5 2 5 copied list 0 1 2 3 4 5 1 3 4 5 3 5 in the copied list random pointer , node with value 4 is pointing to node with value 3 . However in orignal list node with value 4 is pointing to node with value 2. Here’s the corrected code. //this function returns the head of the copied list. struct node * copy(struct node * head) { struct node * newLH,*h=head; while(h) { node * temp =(struct node *)malloc(sizeof(struct node)); temp->random = NULL; temp->data = h->data; temp->next = h->next; h->next=temp; h = temp->next; } newLH = head->next; node * t = head->next; h=head; while(h) { h->next->random = h->random->next; h = h->next->next; // t->next = t->next?t->next->next:NULL; // t = t->next; // h = h->next; } h=head; while(h) { h->next = h->next->next; t->next=t->next?t->next->next:NULL; t=t->next; h=h->next; } return newLH; } sushdragon there is no need of extra space. Just change copy_node->arbitrary->next=copy_node->next->arbitrary. user123 how is the 1st solution done in O(n) and 2nd one in O(1)?i can’t understand…somebody please explain  
+/* Paste your code here (You may delete these lines if not writing code) */
+ user123 with respect to space i’m asking.. GeeksforGeeks @WgpShashank: 1. if wen can’t modify the original linked list e.g. its read only If we can’t modify the list then we can create a copy in more than O(n) time complexity by storing everything and creating copy from the stored data. 2. if elements are duplicate or all the elements are same. There should not be any problem when there are duplicates as both of the approaches given above do not compare data. @Ruonan Zhao, @Ishan and @Elijah: Thanks for pointing this out. We have renmoved method 1 from the original post. http://shashank7s.blogspot.com WgpShashank @All Some Issue That I Can See with each approaches are . 1. if wen can’t modify the original linked list e.g. its read only 2. if elements are duplicate or all the elements are same. in these case we have to think some other algorithm ? isn’t it ?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Sudha Malpeddi  
+/* Paste your code here (You may delete these lines if not writing code) */
+void copy(struct node *p, struct node **q)
+{
+	if(p!=NULL)
+	{ 
+		*q=(struct node*)malloc(sizeof(struct node)); 
+		(*q)->num=p->num; 
+		(*q)->next=NULL; 
+		copy(p->next, &((*q)->next)); 
+		(*q)->arbit=p->arbit;
+	}
+}
+ levis This doesnt work …In the last step of recursion you are trying to point to the old list arbitrary pointer !!!but it should to point to the new list … Ruonan Zhao Hi, I think the restriction assumption is wrong for the first solution. The restriction here is that a node will be pointed by only one arbit pointer in a linked list. Even if we obey this restriction, there still have some cause we can not restore the original list. For example? In this case original_Node1->arbit=original_Node3 original_Node2->arbit=original_Node1 original_Node3->arbit=original_Node2 the original_node2-next cannot be restore by original_node2->next = original_node2->next->next->arbit, because original_node2->next->next is copy_node1 and it’s arbit has being change to copy_node3 already in the first loop. So the restriction assumption should be: The node’s arbit will point to the node which is after that node. Ishan Yes, I also came across the same thing, the 1st approach only works if the arbit pointer points to a node which is after the current node in the list. If the node is before the current node , the next pointer of that pointer has already been modified and no longer points to its corresponding node in the duplicated list, thereby producing a wrong result. Elijah A very valid point. Even I figured out the same case.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Raja First figure doesn’t have the restriction mentioned. A node should be pointed by a single arbit link. But in the figure 1, 3’s arbit and 4’s arbit are pointing to node 5. Please correct me if i’m wrong. — Raja GeeksforGeeks @Raja: Thanks for pointing this out. We shall upadate the post with modified figure. http://ashutosh7s.blogspot.com/ wgpshashank   
+struct node
+{
+  struct node *next;
+  struct node *random;
+  int val;
+ 
+};
+void push(struct node **head_ref, int new_data)
+{
+     struct node *new_node =
+              (struct node *)malloc(sizeof(struct node));
+     new_node->val= new_data;
+     new_node->next = *head_ref;
+     *head_ref = new_node;
+}
+struct node* copy_list(struct node *root)
+{
+    struct node *res=NULL;
+    
+    struct node *cur = root;
+    struct node *next, *tmp;
+    
+    //Create the copy of every node in the list and insert 
+    //it in original list between current and next node. 
+    while(cur)
+    {
+        tmp =(struct node *)malloc(sizeof(struct node));
+        tmp->val = cur->val;
+        tmp->random = NULL;
+        tmp->next = cur->next;
+        next = cur->next;
+        cur->next = tmp;
+        cur = next;        
+    }
+      
+    //save result pointer    
+    res = root->next;
+    
+    //Copy the arbitrary link for result
+    cur = root;    
+    while(cur)
+    {
+        cur->next->random = cur->random->next;
+        cur = cur->next->next;  //move 2 nodes at a time
+    }
+    
+    //restore the original and copy linked lists
+    cur = root;    
+    tmp = root->next;
+    while(cur && tmp)
+    {
+        cur->next = cur->next->next;
+        cur = cur->next;
+        if (tmp->next){
+            tmp->next = tmp->next->next;
+            tmp = tmp->next;
+        }        
+    }
+    
+    return res;
+}
+ 
+void printList(struct node *head)
+{
+     while(head!=NULL)
+     {
+        printf("%d ",head->val);
+        head=head->next;
+     }
+     printf("\n");
+}
+ 
+int main()
+{
+struct node *head = NULL;
+ 
+    /* Create following linked list
+      12->15->10->11->5->6->2->3 */
+    push(&head,3);
+    push(&head,2);
+    push(&head,6);
+    push(&head,5);
+    push(&head,11);
+    push(&head,10);
+    push(&head,15);
+    push(&head,12);
+ 
+    head=copy_list(head);
+ 
+    printf("Given Linked List: ");
+    printList(head);
+}
+ disappearedng I am writing this to practice, How can you write a function, deep_equal, that: 1) Traverse all the nodes at least once and check that the corresponding node in another given list has the same value 2) Terminates? My approach has been the following: Given n1, n2: 1) Call on n1.next and n2.next (not n1 and n2) recursively 2) if you are at n1 and n2, return True This does NOT guarantee to stop because you can simply construct a list where 1=>2=>3 and then 2 and 3’s arbit pointer points at 2 and 3 respectively and then this recursion will never stop. How do I go about it? disappearedng Note the method of doing the following: I came up with a two pass algorithm which involves: 1st pass: check both l1 and l2 by traversing next 2nd pass: check both l1 and l2’s arbit pointers pointing to nodes with the same value and continue traversing the list via next (NOT via the arbit pointers to avoid cycles). This does **not** work. Look at the scenario below: l1: 1->2->3->2 there is only 1 arbit pointer and it’s from 3 to the first 2 l2: 1->2->3->2 there is only 1 arbit pointer and it’s from 3 to the SECOND 2. This algorithm will fail. Anyone able to help? http://wgpshashank.co.cc wgpshashank  
+copy_linked_lists(struct node *q, struct node **s)
+{
+   if(q!=NULL) {
+     *s=malloc(sizeof(struct node));
+     (*s)->data=q->data;
+     (*s)->link=NULL;
+     copy_linked_list(q->link, &((*s)->link));
+   }
+}
+ sri The first algo does not make sense. If you change all arbit pointers first and then try to change the next pointers you cannot.. as the arbit have been modified and vice versa. Even if you modify arbit pointer of a node and then restore the next pointer of corresponding node in orig list.. then also the last node’s back pointer shows problem. The next has been modified to point to 3. Pls explain if i am missing something!! guest i don’ tthink u read the algo carefully… it first modifies the arbit pointer of copy list and then modifies the next pointer of corresponding node in orig list. and for the last node how can the next point to 3?? for last node : orig->next=orig->next->next->arbit; but for last node : orig->next->next==NULL so we can set the next of last node in orig to NULL by checking this condition…. kevalvora About the 1st algorithm, either I have not understood it or it is incomplete and does not work properly. In the example given, after 1st iteration, arbit of 1 in copy-list will point to 3 in copy-list. Also, 1 in original-list will point to 2 in original-list. In 2nd iteration, arbit of 2 in original-list is pointing to 1 in original-list but next of 1 in original-list is pointing back to 2 in original-list (due to the change in 1st iteration). So following statement will fail: copy_list_node->arbit = copy_list_node->arbit->arbit->next I might not have understood the algorithm, in that case, please explain where I am going wrong. kevalvora Now I have understood the algorithm and yes, it works properly. In 1st loop we change the arbit nodes of copy-list and in a separate loop we change the next of nodes in original-list. A wonderful algorithm Stiju 1st method doubt : 1st loop we change the arbit nodes of copy-list ————————————- it will work fine separate loop we change the next of nodes in original-list. —————————————– “orig_list_node->next = orig_list_node->next->next->arbit” since orig_list_node->next links to sibling node in copy list, now arent we dependent on copy_list_node->arbit which we changed in 1st loop. wouldn’t orig_list_node->next be replaced with arbit’s of corresponding copy_list_node , which now points to its actual arbit than its sibling on orig_list Parthsarthi the first method is incorrect.I think we will have to store the next pointers in first case too. http://processmanagerforwindows.blogspot.com/ Arif Ali Saiyed After reading the question i tried solving it myself… and came up with the method list below, then i looked into the three solution mentioned here, I liked the solution 3 most. it’s really beautiful. My solution is worst considering the space complexity, but does not modifies the original list while on other hand all three solutions listed above does that… Solution 4: 1) Traverse the list 1 and create list 2 (new copy) , just care about next link ptr, forget the previous link ptr completely. While doing this create/update two hash tables hash table 1 ———————— | list1ptr1 | list2ptr1| | list1ptr2 | list2ptr | hash table 2 ———————— | list2ptr1 | list1ptr1| | list2ptr2 | list1ptr | All that said above is done in one pass of original list… that O(n) 2) Now traverse the second list ( copied one) , and store the prevPtr link using 3 hash tables that we created in pass 1. list2Ptr1->prePtr = a) Refer the hash table 2 and get the counter part pointer in list 1. say list1ptr1 b) find the prevPtr of list1ptr1 in list 1 itself c) use the hash table 2, to find the counter part node in list 2 Time Complexity : O(2n) Space Complexity : O(2n) Raja do u have code for this? Sri1 Algo: This solution can be made much simpler with just one Hash Table. (Key, value) = (pointer, pointer) or (node_list1, node_list2). The hash table takes a list1 node as key and returns the corresponding list2 node. First iteration through original list1: // Create new link list node // After creating each node, add old and new nodes to HashMap // If previous node is present, assign the next node for new list. Second iteration through both list1 and list 2: node_list2->arbit = HashMap(node->arbit); //Move current nodes to node_list2->next; node_list1->next Done! No need for array, index adjustment etc. Sri1 Complexity = O(n) Storage is 2n storage of memory pointers, so still O(n) Of course, if this is a very large data structure and it is a memory constrained device, then the Hashmap implementation, collisions, chaining etc. [if retrieval is actually in O(1) time] will come into play. http://effprog.blogspot.com Sambasiva  
+
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node
+{
+        int data;
+        struct Node *next;
+        struct Node *arb;
+};
+
+typedef struct Node Node;
+typedef Node* list;
+
+Node* dupNode(Node *p)
+{
+        Node *temp = malloc(sizeof(Node));
+
+        memcpy(temp, p, sizeof(Node));
+        p->next = temp;
+
+        return temp;
+}
+
+list copyList(list l)
+{
+        Node *p;
+        Node *temp;
+
+        if(!l) return NULL;
+
+        for(p = l; p ; p = temp->next)
+        {
+                temp = dupNode(p);
+        }
+
+        for(p = l; p ; p = p->next->next)
+        {
+                if(p->arb)
+                        p->arb = p->arb->next;
+        }
+
+        Node *newlist = l->next;
+
+        for(p = l; p ; p = p->next)
+        {
+                temp = p->next;
+                p->next = temp->next;
+                if(temp->next)
+                        temp->next = temp->next->next;
+        }
+
+        return newlist;
+}
+
+Node *insertNode(list l, int elm)
+{
+        Node *temp = malloc(sizeof(Node));
+        temp->next = NULL;
+        temp->arb = NULL;
+        temp->data = elm;
+
+        if(!l)
+                return temp;
+        temp->next = l->next;
+        l->next = temp;
+        temp->arb = l->next;
+        return l;
+}
+
+
+void print(list l)
+{
+        for(; l ; l = l->next)
+                printf("%d\n", l->data);
+}
+
+int main()
+{
+        list l = NULL;
+        int i;
+
+        for(i = 0; i < 10; ++i)
+        {
+                l = insertNode(l,i);
+        }
+
+        print(l);
+        list n = copyList(l);
+        print(n);
+}
+ Shashank Mani Narayan @sambasiva …hi can you explain your code..particularly second for loop inside the copyist Function is not giving clear understanding ..Please Try to Reply ASAP. Thanks Shashank http://ashutosh7s.blogspot.com/ wgpshashank @sambasiva..hi ur program is correct but you forget to initialize the arbitrary pointer of duplicate node inside your dup method…to avoid null pointer /memory error ..we have to take care of such situation http://shashank7s.blogspot.com WgpShashank this method should be ? Node* dupNode(Node *p) { Node *temp = malloc(sizeof(Node)); memcpy(temp, p, sizeof(Node)); temp->next=p->next; p->next=temp; return temp; }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://shashank7s.blogspot.com WgpShashank @sambasiva also it should be p->next->arb = p->arb->next; ? geeksforgeeks @Saravanan Mani: Good work, we have included your algorithm to the original post. Keep it up!! @GT & Goli: We still believe that we cannot set the next of original list and arbit of copy list with auxiliary space O(1) using first two approaches. Please try your algorithm step by step for figure 3 and check if you can set the next of 4 in original list and arbit of 4 in copy list. If you still believe that it can be done with auxiliary space O(1) with a variation of solution 1 and 2, please do write complete algorithm. We will modify the post. Saravanan Mani create the copy of 1 and insert between 1 & 2, create the copy of 2 and insert between 2 & 3.. continue in this fashion add the copy of N to Nth node Now copy the arbitrary link in this fashion Original->next->arbitrary = Original->arbitrary->next; TRAVERSE TWO NODES; This works because original->next is nothing but copy of original and Original->arbitrary->next is nothing but copy of arbitrary. now restore the Original and copy linked lists in this fashion in a single loop. Original->next = Original->next->next; copy->next = copy->next->next; Make sure that last element of original->next is NULL. Arun @Saravanan Mani : Good creative solution. But I am not sure how the Time Complexity is O(n). It looks like it is O(n^3) : First pass to create the copy, second pass to set the arbitrary pointers and 3rd pass to restore the original next pointers. Am I missing something here ?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Arun Oops. It is O(3n) and not O(n^3). What was I thinking !  
+/* Paste your code here (You may delete these lines if not writing code) */
+ goli @GT: I agree. We dont really need to store the info related to original listnodes. We can restore the next of orig list as copy_node.arbit.next = copy_node.next.arbit copy_node.arbit = copy_node.arbit.arbit.next GT do we really need to store the mapping of original listnodes and their next pointers … i think we can set the next pointer of original list via the copied lists next node’s arbit pointer … this works since we are adjusting the arbit pointers of the copied list from left to right … first node to last node … comments are welcome … Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

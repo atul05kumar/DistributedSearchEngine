@@ -1,0 +1,345 @@
+Check for Identical BSTs without building the trees - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Check for Identical BSTs without building the trees Given two arrays which represent a sequence of keys. Imagine we make a Binary Search Tree (BST) from each array. We need to tell whether two BSTs will be identical or not without actually constructing the tree. Examples For example, the input arrays are {2, 4, 3, 1} and {2, 1, 4, 3} will construct the same tree  Let the input arrays be a[] and b[]
+
+Example 1:
+a[] = {2, 4, 1, 3} will construct following tree.
+   2
+ /  \
+1    4
+    /
+   3
+b[] = {2, 4, 3, 1} will also also construct the same tree.
+   2
+ /  \
+1    4
+    /
+   3 
+So the output is "True"
+
+Example 2:
+a[] = {8, 3, 6, 1, 4, 7, 10, 14, 13}
+b[] = {8, 10, 14, 3, 6, 4, 1, 7, 13}
+
+They both construct the same following BST, so output is "True"
+            8
+         /    \
+       3       10
+     /  \        \
+    1     6       14
+        /   \     /
+       4     7   13  
+ Solution: According to BST property, elements of left subtree must be smaller and elements of right subtree must be greater than root. Two arrays represent sane BST if for every element x, the elements in left and right subtrees of x appear after it in both arrays. And same is true for roots of left and right subtrees. The idea is to check of if next smaller and greater elements are same in both arrays. Same properties are recursively checked for left and right subtrees. The idea looks simple, but implementation requires checking all conditions for all elements. Following is an interesting recursive implementation of the idea. 
+// A C program to check for Identical BSTs without building the trees
+#include<stdio.h>
+#include<limits.h>
+#include<stdbool.h>
+
+/* The main function that checks if two arrays a[] and b[] of size n construct
+  same BST. The two values 'min' and 'max' decide whether the call is made for
+  left subtree or right subtree of a parent element. The indexes i1 and i2 are
+  the indexes in (a[] and b[]) after which we search the left or right child.
+  Initially, the call is made for INT_MIN and INT_MAX as 'min' and 'max'
+  respectively, because root has no parent.
+  i1 and i2 are just after the indexes of the parent element in a[] and b[]. */
+bool isSameBSTUtil(int a[], int b[], int n, int i1, int i2, int min, int max)
+{
+   int j, k;
+
+   /* Search for a value satisfying the constraints of min and max in a[] and 
+      b[]. If the parent element is a leaf node then there must be some 
+      elements in a[] and b[] satisfying constraint. */
+   for (j=i1; j<n; j++)
+       if (a[j]>min && a[j]<max)
+           break;
+   for (k=i2; k<n; k++)
+       if (b[k]>min && b[k]<max)
+           break;
+
+   /* If the parent element is leaf in both arrays */
+   if (j==n && k==n)
+       return true;
+
+   /* Return false if any of the following is true
+      a) If the parent element is leaf in one array, but non-leaf in other.
+      b) The elements satisfying constraints are not same. We either search
+         for left child or right child of the parent element (decinded by min
+         and max values). The child found must be same in both arrays */
+   if (((j==n)^(k==n)) || a[j]!=b[k])
+       return false;
+
+   /* Make the current child as parent and recursively check for left and right
+      subtrees of it. Note that we can also pass a[k] in place of a[j] as they
+      are both are same */
+   return isSameBSTUtil(a, b, n, j+1, k+1, a[j], max) &&  // Right Subtree
+          isSameBSTUtil(a, b, n, j+1, k+1, min, a[j]);    // Left Subtree
+}
+
+// A wrapper over isSameBSTUtil()
+bool isSameBST(int a[], int b[], int n)
+{
+   return isSameBSTUtil(a, b, n, 0, 0, INT_MIN, INT_MAX);
+}
+
+// Driver program to test above functions
+int main()
+{
+   int a[] = {8, 3, 6, 1, 4, 7, 10, 14, 13};
+   int b[] = {8, 10, 14, 3, 6, 4, 1, 7, 13};
+   int n=sizeof(a)/sizeof(a[0]);
+   printf("%s\n", isSameBST(a, b, n)?
+             "BSTs are same":"BSTs not same");
+   return 0;
+}
+ Output: BSTs are same This article is compiled by Amit Jain. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. Guest Another method I could think of is: ( i is A[ ]’s index and j is B[ ]’s index ) * Start with i = 0 and j = 0. Check if the first element is same in both arrays (common root). If not, the BSTs have different structure * Find the next smaller element in both the arrays and compare them. If they’re not equal, then BSTs have different structure * Traverse the array again but now keep checking if the next larger element in both arrays are equal. If not, BSTs are different. We’re traversing the array twice so it’s O(N). If you guys find any bugs, do comment below! Guest I think the following should be an easier implementation: bool IsIdenticalBST(int arr1[], int arr2[], int num_elems1, int num_elems2) { if (num_elems1 != num_elems2) return false; if (!num_elems1 && !num_elems2) return true; if (arr1[0] == arr2[0]) return IsIdenticalBST(arr1+1, arr2+1, num_elems1-1, num_elems2-1); int i = 1; for (; i < num_elems2; i++) { if (arr1[0] == arr2[i]) break; } if (!IsIdenticalBST(arr1, arr2+i, i, i) || !IsIdenticalBST(arr1+i, arr2, i, i)) return false; return IsIdenticalBST(arr1+2*i+1, arr2+2*i+1, num_elems1-2*i-1, num_elems2-2*i-1); } anonymous One simple approach that i think could work. As we know that, we have a unique BST, given the inorder traversal of BST, what we can do is : Sort both arrays, in O(n log n) + O(n log n) plus an O(n) traversal to check whether the sorted arrays are same or not = O(n log n) Anonymous i think you solution will fail for below input.. a[] = {1,2,3}, b[]= {2,1,3} after sorting both arrays will be same , but both trees are not same.. please , correct me if i am wrong… Anonymous I think that, they should make the same tree. Only one tree possible, 2 1 3 Tell me, how exactly is the array element order relevant? Is the following correct? Okay, given the array {3,1,2,4}, is it that first the node with data ‘3’ will be populated in BST, then node with ‘1’ and then node with ‘2’ and then ‘4’? that is, 1.) 3 2.) 3 1 3.) 3 1 2 4.) 3 1 4 2 If this is the way the BST is constructed from the array, then my logic is wrong. anonymous I think that, they should make the same tree. Only one tree possible, 2 1 3 Tell me, how exactly is the array element order relevant? Is the following correct? Okay, given the array {3,1,2,4}, is it that first the node with data ‘3’ will be populated in BST, then node with ‘1’ and then node with ‘2’ and then ‘4’? that is, 1.) 3 2.) 3 1 3.) 3 1 2 4.) 3 1 4 2 If this is the way the BST is constructed from the array, then my logic is wrong. Anonymous yes, i think that is the way tree is constructed… it takes the first element as root and starts creating the tree… in that case your solution fails. Sumit Tree for a will be (inorder travesal) : 2 / 1 3 Tree for b will be (preorder travesal) : http://www.geeksforgeeks.org/construct-tree-from-given-inorder-and-preorder-traversal/ 2 / 1 3 Both Tree appears to be same. Can you please tell us y sorting algo wont work. akki Consider the trees: 2 3 4 and 3 / 2 4 They would have the same inorder traversal but different structures. abeyaarfarziyaap pure awesomeness m/ rahul23 @f0ee35f044e285f1ea50e839fe9db23f:disqus Please tell time complexity…is it n^2?? sumit dey The above code is not really going to work take for example : Ex 1: Tree are T1={8}, T2={9} => it will return true. I Think this logic has to be modified : /* If the parent element is leaf in both arrays */ if (j==n && k==n) // needs to add whether a[j]==b[k]. return true; dave The check is done when j=0 and i=0, this will give the answer as false :- if (((j==n)^(k==n)) || a[j]!=b[k]) return false; Shradha Agrawal 1.sort two sequences and check whether they are same or not. 2.if not , output false and stop. 3. else recursively check whether preorder of both is same or not. Code for 3rd step is as: int isIdentical(int in[],int seq1[],int seq2[] , int size) { int z_left , z_right; if(seq1[0] != seq2[0]) return 0; int loc = bsearch(in , seq1[0],0,size-1 ); if(loc != 0) z_left = isIdentical(in,seq1 + 1, seq2 + 1 , loc); else z_left = 1; if(loc != size-1) z_right = isIdentical(in+loc+1,seq1 + loc + 1, seq2 + loc+ 1 , size-loc-1); else z_right = 1; if(z_left && z_right) return 0; else return 1; } bhavneet i have a o(n2) approach. Traverse the array1 and array2. Find minimum number which is greater then current number to the left of current number and find max number which is less then current number to left of current number in both the arrays. The min max for same number should be same in both the arrays. 141093 a[] = {8, 3, 6, 1, 4, 7, 10, 14, 13} b[] = {8, 10, 14, 3, 6, 4, 1, 7, 13} sorted array : 1, 3, 4, 6, 7, 8, 10, 13, 14 elements index in array a[]: 3, 1, 4, 2, 5, 0, 6, 8, 7 elements index in array b[]: 6, 3, 5, 4, 7, 0, 1, 8, 2 for a & b to represent same bts, occurance of indexes must be similar (3>1 && 6>3) && (1<4 && 32 && 5>4)…….. Nitin Sharma Please will u explain it……..???????????? Anil You can use the stack based approach for finding the next greater and smaller elements , and then simply compare. Complexity : O(n) for both space and time. Anil I think we can easily do it in O(n) using the stack approach for finding the next greater and next smaller elements , and then simply comparing them . However, it will require O(n) space.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ gps Can’t we just sort the elements and compare the arrays….because both the arrays will be same if the trees are identical ???  
+/* Paste your code here (You may delete these lines if not writing code) */
+ dex Did you understand now ? if(yes) // ignore this comment exit(0); else { int a[5]= {1,2,3,4,5} int b[5]= {2,3,4,1,5} Both arrays are same if sorted , but the roots of the trees to be constructed are different.It’s all about the construction of tree.Think } DeXter Just make one more check for the first element !  
+/* Paste your code here (You may delete these lines if not writing code) */
+ prama12 I think- this is a little easier to understand. The trees would be the same if 1. The root is the same 2. The left and right subtrees are both the same public boolean checkForIdenticalBST(ArrayList<Integer> arr1,ArrayList<Integer> arr2){ if(arr1.size() != arr2.size()) return false ; if(arr1.isEmpty() && arr2.isEmpty()) return true; // the roots need to be the same if(arr1.get(0)!= arr2.get(0)) return false; ArrayList<Integer> left1 = new ArrayList<Integer>(); ArrayList<Integer> right1= new ArrayList<Integer>(); ArrayList<Integer> left2 = new ArrayList<Integer>(); ArrayList<Integer> right2 = new ArrayList<Integer>(); int n = arr1.size(); int root = arr1.get(0); //create the left subtree and rightsubtree for(int i =1;i<n;i++){ // start with 1 !!! as index if(arr1.get(i)<root){ left1.add(arr1.get(i)); } else{ right1.add(arr1.get(i)); } // do same for next arra if(arr2.get(i)<root){ left2.add(arr2.get(i)); } else{ right2.add(arr2.get(i)); } } return checkForIdenticalBST(left1, left2) && checkForIdenticalBST(right1, right2); } Reflexion Why not just compare the sorted arrays.. that shall give the answer as well right?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ dex Did you understand now ? if(yes) // ignore this comment exit(0); else { int a[5]= {1,2,3,4,5} int b[5]= {2,3,4,1,5} Both arrays are same if sorted , but the roots of the trees to be constructed are different.It’s all about the construction of tree.Think } startre //Another simple Recursive solution  
+#include<stdio.h>
+
+int is_Same_Tree(int *arr,int len1,int *brr,int len2)
+{
+     if(len1!=len2 || arr[0]!=brr[0])
+     {
+                   return 0;
+     }
+     if(len1==1 && arr[0]==brr[0])
+                return 1;
+     if(len1==1 && arr[0]!=brr[0])
+                return 0;
+     if(len1==0 || len2==0)
+                return 1;
+     int i,root,*left1,*left2,*right1,*right2,low1,low2,high1,high2;
+     int flag1,flag2;
+     root=arr[0];
+     low1=low2=high1=high2=0;
+     left1=(int*)malloc(sizeof(int)*len1);
+     left2=(int*)malloc(sizeof(int)*len2);
+     right1=(int*)malloc(sizeof(int)*len1);
+     right2=(int*)malloc(sizeof(int)*len2);
+     
+     for(i=1;i<len1;i++)
+     {
+                        if(arr[i] < root)
+                                  left1[low1++]=arr[i];
+                        else 
+                                  right1[high1++]=arr[i];
+                        if(brr[i] < root)
+                                  left2[low2++]=brr[i];
+                        else
+                                  right2[high2++]=brr[i];
+     }
+     flag1=is_Same_Tree(left1,low1,left2,low2);
+     flag2=is_Same_Tree(right1,high1,right2,high2);
+     if(flag1==1 && flag2==1)
+              return 1;
+     else 
+              return 0;         
+}                   
+                            
+     
+int main()
+{
+    int flag,len1,len2;
+    int arr[]={8,3,6,1,4,7,10,14,13};
+    int brr[]={8,10,14,3,6,4,1,7,13};
+    len1=sizeof(arr)/sizeof(arr[0]);
+    len2=sizeof(brr)/sizeof(brr[0]);
+    flag=is_Same_Tree(arr,len1,brr,len2);
+    if(flag==1)
+               printf("\nTRUE\n");
+    else
+               printf("\nFALSE\n");
+    getch();
+    return 0;
+}
+
+ beginner wat is the INT_MIN and INT_MAX values here  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Karthick  
+
+a[] = {8, 3, 6, 1, 4, 7, 10, 14, 13}
+b[] = {8, 10, 14, 13, 3, 6, 4, 1, 7}
+
+These two are identical bsts but i guess ur implementation will give false for this!
+
+/* Paste your code here (You may delete these lines if not writing code) */
+ AMIT No,it is giving correct result..please check Karthick Yeah.. Sorry I thought n represents last index!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks The implementation seems to be working fine for your example. Please see http://ideone.com/1HNky3 ministar  
+O(nlogn)
+def areEquals(a1,a2):
+	l1=len(a1)
+	l2=len(a2)
+	if l1!=l2:
+		return 0;
+	if (l1==l2 and l1==0):
+		return 1;
+	if (a1[0]!=a2[0]):
+		return 0;
+	g1=[]
+	g2=[]
+	s1=[]
+	s2=[]
+	dict1={}
+	dict2={}
+	for i in range(1,l1):
+		if(a1[i]>a1[0]):
+			g1.append(a1[i])
+			dict1[a1[i]]=1
+		else:
+			s1.append(a1[i])
+			dict2[a1[i]]=1
+		if(a2[i]>a2[0]):
+			g2.append(a2[i])
+		else:
+			s2.append(a2[i])
+	if len(g1)!=len(g2) or len(s1)!=len(s2):
+		return 0;
+	for i in range(0,len(g2)):
+		if(dict1[g2[i]]!=1):
+			return 0
+	for i in range(0,len(s2)):
+		if(dict2[s2[i]]!=1):
+			return 0	
+	return areEquals(g1,g2) and areEquals(s1,s2)
+
+print areEquals([8, 3, 6, 1, 4, 7, 10, 14, 13],[8, 3, 10, 14, 6, 4, 1, 7, 13])
+print areEquals([2,4,3,1],[2,1,4,3])
+print areEquals([4],[4,5])
+ Bala Sravan Explain the algo please….. san4net  
+/* Paste your code here (You may delete these lines if not writing code) */
+
+package com.me.ds;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+public class SameBST<T> {
+
+	/**<p>
+	 * Getting all the children of the BST, like the 0 index will be have all children of 0 index 
+	 * element like wise for each element in the array.
+	 * 
+	 * </p>
+	 * @param inputArray
+	 * @return
+	 */
+	
+	public List<List<Integer>> getChildrenOfArray(Integer[] inputArray ){
+     List<List<Integer>> childList = new ArrayList<List<Integer>>();
+     
+     
+     // we traverse the array  and find all possible children of each index
+     
+     for(int i =0; i<inputArray.length;i++){
+    	 List<Integer> child = getChildrensOfAnIndex(inputArray,i);
+    	 childList.add(child);
+     }
+		return childList;
+	}
+	
+	/**
+	 * Finding the children of specific index.  For this we need to traverse from 
+	 * index+1 to the end of the inputArray. And checkin at each index whether the given element
+	 * can be child or not.
+	 * 
+	 * @param inputArray
+	 * @param index
+	 * @return
+	 */
+	private List<Integer> getChildrensOfAnIndex(Integer[] inputArray, int index) {
+		List<Integer> child = new ArrayList<Integer>();
+		int possibleFather = inputArray[index];
+		
+		for(int startIndex = index+1; startIndex<inputArray.length; startIndex++){
+			int possibleChild = inputArray[startIndex];
+			
+		 if(isChild(inputArray, possibleFather, possibleChild, index)){
+			 child.add(inputArray[startIndex]);
+		 }
+		}
+		return child;
+	}
+	
+  /**
+   * An element will be child if it is on the same side(i.e either greater/less ) while traversing from the root i.e is index 0.
+   * 
+   * @param originalArray
+   * @param possibleFather
+   * @param possibleChild
+   * @return
+   */
+	
+    private boolean isChild(Integer[] originalArray, int possibleFather, int possibleChild, int fatherIndex) {
+		
+		
+		for(int startIndex=0;startIndex<fatherIndex;startIndex++){
+			
+			if(originalArray[startIndex]>possibleChild && originalArray[startIndex]>possibleFather){
+				// both child and its father should be either less then ie. on left side. 
+			}else if(originalArray[startIndex]<possibleChild && originalArray[startIndex]<possibleFather){
+				// both child and its father should be either greater then ie. on right side. 
+			}else{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	 
+	public static void main(String[] args) {
+
+	   Integer a[] = {8, 3, 6, 1, 4, 7, 10, 14, 13};
+	   Integer b[] = {8, 10, 14, 3, 6, 4, 1, 7, 13};
+	   
+	  SameBST<Integer> instance = new SameBST<Integer>();
+	  List<List<Integer>> firstChildList =  instance.getChildrenOfArray(a);
+	  List<List<Integer>> secondChildList =  instance.getChildrenOfArray(b);
+	  
+	  System.out.println(firstChildList+"\n"+ secondChildList);
+	  
+	  // Now compare children of one array element
+	  for(int i =0 ;i <a.length;i++){
+		  List<Integer> childrenInArray1 = firstChildList.get(i);
+		  
+		  List<Integer> childrenInArray2 = secondChildList.get(indexOf(a[i], b));
+		  
+		  if(firstChildList.size() == secondChildList.size()){
+			  Iterator<Integer> iter = childrenInArray1.iterator();
+			  
+			  while(iter.hasNext()){
+				  if(!childrenInArray2.contains(iter.next())){
+					  System.out.println("not same bst");	  
+					  return ;
+				  }
+			  }
+			  
+		  }else{
+			  System.out.println("not same bst");
+			return;
+		  }
+		  
+	  }
+	  
+	  System.out.println(" same bst");
+	}
+
+	private static int indexOf(Integer element, Integer[] inputArray) {
+		for(int i =0 ;i<inputArray.length;i++){
+			if(inputArray[i].equals(element)){
+				return i;
+			}
+		}
+		return 0;
+	}
+
+}
+
+ anonymous i think there should be a problem in line return isSameBSTUtil(a, b, n, j+1, k+1, a[j], max)&&// Left Subtree isSameBSTUtil(a, b, n, j+1, k+1, min, a[j]); //Right Subtree i think first call is for right subtree n second one is for left subtree . admin explain if i m wrong plz. GeeksforGeeks Thanks for pointing this out. We have corrected the comments. gr81 is it possible, if I check the first element to both the array are same, i guess any representation of both array will give same BST. can you elaborate the justification with another 2 array having different element at index 0 of array.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ AMIT Element at index 0 must be same But if element at index 0 is same, this doesn’t mean,both BSTs are equal For example,try for a[]={8,3,1,6} b[]={8,1,3,6} AMIT By equal,i mean identical Manish having the 1st element same is the necessary condition but not the sufficient to declare if both are same. Algo is recursive.we are checking for each element not just the root. The complexity is high. If we could use the info of the previous found position of just max and min.we could reduce the comlexity. http://bhaviindia.blogspot.com Bala Sravan Time complexity for the given algo is O(n^2) can you explain how we can reduce the time complexity Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

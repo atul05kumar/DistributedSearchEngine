@@ -1,0 +1,333 @@
+Trie | (Delete) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Trie | (Delete) In the previous post on trie we have described how to insert and search a node in trie. Here is an algorithm how to delete a node from trie. During delete operation we delete the key in bottom up manner using recursion. The following are possible conditions when deleting key from trie, Key may not be there in trie. Delete operation should not modify trie. Key present as unique key (no part of key contains another key (prefix), nor the key itself is prefix of another key in trie). Delete all the nodes. Key is prefix key of another long key in trie. Unmark the leaf node. Key present in trie, having atleast one other key as prefix key. Delete nodes from end of key until first leaf node of longest prefix key. The highlighted code presents algorithm to implement above conditions. (One may be in dilemma how a pointer passed to delete helper is reflecting changes from deleteHelper to deleteKey. Note that we are holding trie as an ADT in trie_t node, which is passed by reference or pointer). 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define ARRAY_SIZE(a) sizeof(a)/sizeof(a[0])
+
+// Alphabet size (# of symbols)
+
+#define ALPHABET_SIZE (26)
+#define INDEX(c) ((int)c - (int)'a')
+
+#define FREE(p) \
+    free(p);    \
+    p = NULL;
+
+// forward declration
+typedef struct trie_node trie_node_t;
+
+// trie node
+struct trie_node
+{
+    int value; // non zero if leaf
+    trie_node_t *children[ALPHABET_SIZE];
+};
+
+// trie ADT
+typedef struct trie trie_t;
+
+struct trie
+{
+    trie_node_t *root;
+    int count;
+};
+
+trie_node_t *getNode(void)
+{
+    trie_node_t *pNode = NULL;
+
+    pNode = (trie_node_t *)malloc(sizeof(trie_node_t));
+
+    if( pNode )
+    {
+        int i;
+
+        pNode->value   = 0;
+
+        for(i = 0; i < ALPHABET_SIZE; i++)
+        {
+            pNode->children[i] = NULL;
+        }
+    }
+
+    return pNode;
+}
+
+void initialize(trie_t *pTrie)
+{
+    pTrie->root = getNode();
+    pTrie->count = 0;
+}
+
+void insert(trie_t *pTrie, char key[])
+{
+    int level;
+    int length = strlen(key);
+    int index;
+    trie_node_t *pCrawl;
+
+    pTrie->count++;
+    pCrawl = pTrie->root;
+
+    for( level = 0; level < length; level++ )
+    {
+        index = INDEX(key[level]);
+
+        if( pCrawl->children[index] )
+        {
+            // Skip current node
+            pCrawl = pCrawl->children[index];
+        }
+        else
+        {
+            // Add new node
+            pCrawl->children[index] = getNode();
+            pCrawl = pCrawl->children[index];
+        }
+    }
+
+    // mark last node as leaf (non zero)
+    pCrawl->value = pTrie->count;
+}
+
+int search(trie_t *pTrie, char key[])
+{
+    int level;
+    int length = strlen(key);
+    int index;
+    trie_node_t *pCrawl;
+
+    pCrawl = pTrie->root;
+
+    for( level = 0; level < length; level++ )
+    {
+        index = INDEX(key[level]);
+
+        if( !pCrawl->children[index] )
+        {
+            return 0;
+        }
+
+        pCrawl = pCrawl->children[index];
+    }
+
+    return (0 != pCrawl && pCrawl->value);
+}
+
+int leafNode(trie_node_t *pNode)
+{
+    return (pNode->value != 0);
+}
+
+int isItFreeNode(trie_node_t *pNode)
+{
+    int i;
+    for(i = 0; i < ALPHABET_SIZE; i++)
+    {
+        if( pNode->children[i] )
+            return 0;
+    }
+
+    return 1;
+}
+
+bool deleteHelper(trie_node_t *pNode, char key[], int level, int len)
+{
+    if( pNode )
+    {
+        // Base case
+        if( level == len )
+        {
+            if( pNode->value )
+            {
+                // Unmark leaf node
+                pNode->value = 0;
+
+                // If empty, node to be deleted
+                if( isItFreeNode(pNode) )
+                {
+                    return true;
+                }
+
+                return false;
+            }
+        }
+        else // Recursive case
+        {
+            int index = INDEX(key[level]);
+
+            if( deleteHelper(pNode->children[index], key, level+1, len) )
+            {
+                // last node marked, delete it
+                FREE(pNode->children[index]);
+
+                // recursively climb up, and delete eligible nodes
+                return ( !leafNode(pNode) && isItFreeNode(pNode) );
+            }
+        }
+    }
+
+    return false;
+}
+
+void deleteKey(trie_t *pTrie, char key[])
+{
+    int len = strlen(key);
+
+    if( len > 0 )
+    {
+        deleteHelper(pTrie->root, key, 0, len);
+    }
+}
+
+int main()
+{
+    char keys[][8] = {"she", "sells", "sea", "shore", "the", "by", "sheer"};
+    trie_t trie;
+
+    initialize(&trie);
+
+    for(int i = 0; i < ARRAY_SIZE(keys); i++)
+    {
+        insert(&trie, keys[i]);
+    }
+
+    deleteKey(&trie, keys[0]);
+
+    printf("%s %s\n", "she", search(&trie, "she") ? "Present in trie" : "Not present in trie");
+
+    return 0;
+}
+ — Venki. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tags: Advance Data Structures Tweet Writing code in comment? Please use ideone.com and share the link here. pavansrinivas Entire TrieCode in JAVA public class TrieNode { char content; Collection child; boolean isWord; public TrieNode(char c) { content = c; child = new LinkedList(); isWord = false; } TrieNode getchild(char c){ if(child!=null){ for(TrieNode current:child){ if(current.content==c){ return current; } } } return null; } } public class Trie { TrieNode root; public Trie() { root = new TrieNode(' '); } void insert(String word){ TrieNode current = root; for (int i = 0; i < word.length(); i++) { if(current.getchild(word.charAt(i))==null){ TrieNode newNode = new TrieNode(word.charAt(i)); current.child.add(newNode); current = newNode; }else{ current = current.getchild(word.charAt(i)); } if(i==word.length()-1){ current.isWord=true; } } } boolean search(String key){ TrieNode current = root; for(int i=0;i<key.length();i++){ if(current.getchild(key.charAt(i))==null){ return false; }else{ current = current.getchild(key.charAt(i)); } } if(current.isWord==true){ return true; } return false; } void delete(String key){ TrieNode current = root; TrieNode lastMarkedNode =null; int p=-1; for(int i=0;i<key.length();i++){ if(current.getchild(key.charAt(i))==null){ System.out.println("Word Does not exist"); return; }else{ current = current.getchild(key.charAt(i)); if(current.isWord==true&&i!=key.length()-1){ p=i; lastMarkedNode = current; } } } if(current.isWord==false){ System.out.println("Word Does not exist"); return; } else if(!current.child.isEmpty()){ current.isWord = false; } else if(current.child.isEmpty()&&lastMarkedNode==null){ TrieNode del = root.getchild(key.charAt(0)); root.child.remove(del); } else if(current.child.isEmpty()&&lastMarkedNode!=null){ TrieNode del = lastMarkedNode.getchild(key.charAt(p+1)); lastMarkedNode.child.remove(del); } } } Ronny @venki @geeksforgeeks In the deletekey() function should not we decrement the count of the trie node as well. Correct me if I am wrong abhishek08aug Intelligent Shri Though i did not verify. I guess if we have words “any” and “answer” and we try to delete “answer” it seems the logic deletes whole of characters “answer” leaving just “y” of “any” hanging or some corruption state . Am i missing anything here? Venki could you please let me know hoe the above case is handled “any” should be present even after we delete “answer” and point of taking turn the character “n” is a non leaf node and gets deleted  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ronny @shri Note that the above program takes care of this case. See we free the node only when it’s children is free. This is checked using isItfreenode(). And this goes up the level recursively. Hope it clears your doubt. Keshava Lovely code!! I am in love PriC Hi, The link to the ‘previous post’ referenced in the first line of this post throws a 403. Could the coordinators please look into it? Venki @PriC, The site is under maintenance, please bear with us. vishal c source code for TRIE DS  
+#include<stdio.h>
+#include<conio.h>
+#include<malloc.h>
+#include<ctype.h>
+#include<iostream.h>
+struct node
+{
+   char c;
+   int prefixes;
+   int eow;
+   struct node *edges[26];   
+};
+void insert_node(char *s, struct node *root)
+{
+   struct node *n=root;
+   
+   while(*s)
+   {
+      int ch = toupper(*s)-'A';     
+      if(n->edges[ch] == NULL)
+      {
+        struct node *t = (struct node*)malloc(sizeof(struct node));
+        t->c=*s;
+        t->eow = 0;
+        t-> prefixes = 1;
+        for(int i=0;i<26;i++)
+                t->edges[i] = NULL;   
+        n->edges[ch] = t;
+        n = t;
+      } 
+      else
+      {
+          n = n->edges[ch];
+          n->prefixes++;
+      }
+      
+      *s++;
+   }       
+   n->eow=1;
+          
+}
+int search_word(char* s,struct node *root)
+{
+    struct node *t = root;
+    while(*s != '\0')
+    {
+        int c = toupper(*s) - 'A';
+        if(t->edges == NULL)
+        {
+            return 0;
+        }
+        else
+        {
+            t = t->edges;
+        }
+        *s++;
+    }
+    if(t->eow == 1)
+        return 1;
+    else
+        return 0;
+}
+void truncate_node(struct node *n)
+{
+    for(int i=0;i<26;i++)
+    {
+        if(n->edges[i] != NULL)
+        {
+            truncate_node(n->edges[i]);
+        }
+    }
+    delete n;
+}
+void delete_word(char *s,struct node *root)
+{
+     struct node *t=root;
+     while(*s)
+     {
+         int c = toupper(*s)-'A';
+         if(t->edges == NULL)
+         {
+             return;            
+         } 
+         else if(t->edges->prefixes == 1)
+         {
+            truncate_node(t->edges);
+            t->edges = NULL;
+            return;
+         }
+         else
+        {
+            t = t->edges;
+        }
+        *s++;
+     }
+ }
+void preorder_display(node* t)
+{
+    if(t == NULL)
+        return;
+ 
+    cout << "iterating :: " << t->c << " :: " << t->eow << " :: " << t->prefixes << endl;
+ 
+    for(int i=0;i<26;i++)
+    {
+        if(t->edges[i] != NULL)
+            preorder_display(t->edges[i]);
+    }
+} 
+int main()
+{
+     struct node *root=(struct node*)malloc(sizeof(struct node));
+     root->c='\0';
+     root->prefixes = 0;
+     root->eow = 0;
+     for(int i=0;i<26;i++)
+     root->edges[i] = NULL;
+     
+     insert_node("tree",root);
+     insert_node("trie",root);
+     
+     printf("\n%d",search_word("tree",root));
+     
+     preorder_display(root);
+     getch();
+     return 0;
+ }
+
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

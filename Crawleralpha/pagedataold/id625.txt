@@ -1,0 +1,1336 @@
+Diameter of a Binary Tree - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Diameter of a Binary Tree The diameter of a tree (sometimes called the width) is the number of nodes on the longest path between two leaves in the tree. The diagram below shows two trees each with diameter nine, the leaves that form the ends of a longest path are shaded (note that there is more than one path in each tree of length nine, but no path longer than nine nodes). The diameter of a tree T is the largest of the following quantities: * the diameter of T’s left subtree * the diameter of T’s right subtree * the longest path between leaves that goes through the root of T (this can be computed from the heights of the subtrees of T) Implementation: 
+#include <stdio.h>
+#include <stdlib.h>
+
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+/* function to create a new node of tree and returns pointer */
+struct node* newNode(int data);
+
+/* returns max of two integers */
+int max(int a, int b);
+
+/* function to Compute height of a tree. */
+int height(struct node* node);
+
+/* Function to get diameter of a binary tree */
+int diameter(struct node * tree)
+{
+   /* base case where tree is empty */
+   if (tree == 0)
+     return 0;
+
+  /* get the height of left and right sub-trees */
+  int lheight = height(tree->left);
+  int rheight = height(tree->right);
+
+  /* get the diameter of left and right sub-trees */
+  int ldiameter = diameter(tree->left);
+  int rdiameter = diameter(tree->right);
+
+  /* Return max of following three
+   1) Diameter of left subtree
+   2) Diameter of right subtree
+   3) Height of left subtree + height of right subtree + 1 */
+  return max(lheight + rheight + 1, max(ldiameter, rdiameter));
+} 
+
+/* UTILITY FUNCTIONS TO TEST diameter() FUNCTION */
+
+/*  The function Compute the "height" of a tree. Height is the 
+    number f nodes along the longest path from the root node 
+    down to the farthest leaf node.*/
+int height(struct node* node)
+{
+   /* base case tree is empty */ 
+   if(node == NULL)
+       return 0;
+
+   /* If tree is not empty then height = 1 + max of left 
+      height and right heights */    
+   return 1 + max(height(node->left), height(node->right));
+} 
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+  struct node* node = (struct node*)
+                       malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+
+  return(node);
+}
+
+/* returns maximum of two integers */
+int max(int a, int b)
+{
+  return (a >= b)? a: b;
+}    
+
+/* Driver program to test above functions*/
+int main()
+{
+
+  /* Constructed binary tree is 
+            1
+          /   \
+        2      3
+      /  \
+    4     5
+  */
+  struct node *root = newNode(1);
+  root->left        = newNode(2);
+  root->right       = newNode(3);
+  root->left->left  = newNode(4);
+  root->left->right = newNode(5);
+
+  printf("Diameter of the given binary tree is %d\n", diameter(root));
+
+  getchar();
+  return 0;
+}
+ Time Complexity: O(n^2) Optimized implementation: The above implementation can be optimized by calculating the height in the same recursion rather than calling a height() separately. Thanks to Amar for suggesting this optimized version. This optimization reduces time complexity to O(n). 
+/*The second parameter is to store the height of tree.
+   Initially, we need to pass a pointer to a location with value
+   as 0. So, function should be used as follows:
+
+   int height = 0;
+   struct node *root = SomeFunctionToMakeTree();
+   int diameter = diameterOpt(root, &height); */
+int diameterOpt(struct node *root, int* height)
+{
+  /* lh --> Height of left subtree
+      rh --> Height of right subtree */
+  int lh = 0, rh = 0;
+ 
+  /* ldiameter  --> diameter of left subtree
+      rdiameter  --> Diameter of right subtree */
+  int ldiameter = 0, rdiameter = 0;
+ 
+  if(root == NULL)
+  {
+    *height = 0;
+     return 0; /* diameter is also 0 */
+  }
+ 
+  /* Get the heights of left and right subtrees in lh and rh
+    And store the returned values in ldiameter and ldiameter */
+  ldiameter = diameterOpt(root->left, &lh);
+  rdiameter = diameterOpt(root->right, &rh);
+ 
+  /* Height of current node is max of heights of left and
+     right subtrees plus 1*/
+  *height = max(lh, rh) + 1;
+ 
+  return max(lh + rh + 1, max(ldiameter, rdiameter));
+}
+ Time Complexity: O(n) References: http://www.cs.duke.edu/courses/spring00/cps100/assign/trees/diameter.html Please write comments if you find any of the above codes/algorithms incorrect, or find other ways to solve the same problem.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. achiever01 Thank you, excellent explanation sakimahesh how would the complexity differ if the tree is a BST in both the solutions mentioned above? would it be O(nlogn) for first solution? Nitin is this correct?? int d=0; int dia(node *root) { if(!root) return 0; int h1=dia(root->left); int h2=dia(root->right); d=max(d,h1+h2+1); return d; } http://www.TechProceed.com Snehal Masne The most easy algo for this is: Do a BFS from root.. then find out the node with the largest distance assigned(assuming each edge to be of length = 1) then Do a BFS from that node, the largest assigned node in this case is the Diameter of tree…. Let me know if m incorrect!! babar u are correct. sachin Can you explain a little more? I didn’t get your solution. Thanks in advance. Thanks Gaurav Ramesh what about the direction of the links ? how will you reach any other node from a leaf ?.. the idea is good though its_dark the algo can be used for calculating diameter for an undirected graph, rather than tree DarkProtocol Can any one explain how come the solution provided is O(N^2) … and optimition is O(n),, ,i dnt see much diff vishal11 for a skewed tree the height function has to be called each time for every node and it is doing this for every node that why the first method is o(n^2) and for the second method height of a node is calculated in the function itself and that why the second method is o(n) Ashok why can’t we interpret as levelOf(leftSubTree)+levelOf(RightSubTree)+1. +1 for root. Essentially, we need to traverse the tree in level order. So complexity will be O(n). Any thoughts ? Ashok never mind, this may not be true always, as the longest path need not to go thru root always.. Vivek #include #include struct node { int data; struct node* left; struct node* right; }; /* function to create a new node of tree and returns pointer */ struct node* newNode(int data); /* returns max of two integers */ int max(int a, int b); /* function to Compute height of a tree. */ int height(struct node* node); int max(int a, int b) { return b>a?b:a; } int get_height(struct node *root) { if(root) { return 1+max(get_height(root->left),get_height(root->right)); } else return 0; } int get_diameter(struct node *root) { if(root) return (max((1 + get_height(root->left) + get_height(root->right)),max(get_diameter(root->left),get_diameter(root->right)))); else return 0; } struct node* newNode(int data) { struct node* node = (struct node*) malloc(sizeof(struct node)); node->data = data; node->left = NULL; node->right = NULL; return(node); } int main() { /* Constructed binary tree is 1 / 2 3 / 4 5 */ struct node *root = newNode(1); root->left = newNode(2); root->right = newNode(3); root->left->left = newNode(4); root->left->right = newNode(5); printf(“Diameter of the given binary tree is %dn”, get_diameter(root)); getchar(); return 0; } Neha Garg i have one doubt … please somebody clear it in optimized soluton where we are updating the values of lh and rh ???? Anon I think they’re passed by ref, so they’re being updating already. sumit dey The above solution will not work because for skewed tree the diameter should be zero and tree for example should have diameter 3. 1 \ 2 \ 4 / \ 3 5  
+public class FindDiameter{
+
+	class Tree{
+	
+		Object data;
+		Tree lftChild;
+		Tree rhtChild;
+	}
+    class MaxLengthSoFar{
+	
+		Tree node; // to store the root node that give rise to the diameter
+		int maxLength;// to store the diameter 
+		
+		public int getMaxLength(){
+			return maxLength;
+		}
+	
+		public void setMaxLength(int maxLen){
+			maxLength=maxLen;
+		}
+		public void setNode(Tree pNode){
+			node=pNaode;
+		}
+	}
+
+
+	public int getDiameter(Tree root){
+
+		int heightOfTree=getDiameter(root,this.new MaxLengthSoFar());
+		return maxLengthSofar.getMaxLength();
+	}	
+
+	private int getDiameter(Tree root,MaxLengthSoFar dataTracker){
+	
+		if(root==null)
+			return 0;
+		
+		int hieghtLch=getDiameter(root.lftChild,dataTracker);
+		int heightRch=getDiameter(root.rhtChild,dataTracker);
+	//these two conditions for left-height and right-height foe non zero is added because the solution for skewed tree should be zero
+		if(hieghtLch!=0 && heightRch!=0 && (hieghtLch+heightRch+1)>dataTracker.getMaxLength()){
+			dataTracker.setMaxLength(hieghtLch+heightRch+1);
+			dataTracker.setNode(root);
+		}
+		
+		return (hieghtLch>heightRch?heightLch:heightRch)+1;
+	}
+
+
+}
+ sumit5113 The following solution is elegant and simple. It calculates both height and diameter of the tree.  
+public class FindDiameter{
+
+	class Tree{
+	
+		Object data;
+		Tree lftChild;
+		Tree rhtChild;
+	}
+    class MaxLengthSoFar{
+	
+		Tree node; // to store the root node that give rise to the diameter
+		int maxLength;// to store the diameter 
+		
+		public int getMaxLength(){
+			return maxLength;
+		}
+	
+		public void setMaxLength(int maxLen){
+			maxLength=maxLen;
+		}
+		public void setNode(Tree pNode){
+			node=pNaode;
+		}
+	}
+
+
+	public int getDiameter(Tree root){
+
+		int heightOfTree=getDiameter(root,this.new MaxLengthSoFar());
+		return maxLengthSofar.getMaxLength();
+	}	
+
+	private int getDiameter(Tree root,MaxLengthSoFar dataTracker){
+	
+		if(root==null)
+			return 0;
+		
+		int hieghtLch=getDiameter(root.lftChild,dataTracker);
+		int heightRch=getDiameter(root.rhtChild,dataTracker);
+
+		if((hieghtLch+heightRch+1)>dataTracker.getMaxLength()){
+			dataTracker.setMaxLength(hieghtLch+heightRch+1);
+			dataTracker.setNode(root);
+		}
+		
+		return (hieghtLch>heightRch?heightLch:heightRch)+1;
+	}
+
+
+}
+ sumit5113 Here is the code that is simple and elegant, it calculate both height and diameter of the tree. It’s my request to you guys if you find any test case that invalidate the logic. Please suggest me that case.  
+public class FindDiameter{
+
+	class Tree{
+	
+		Object data;
+		Tree lftChild;
+		Tree rhtChild;
+	}
+    class MaxLengthSoFar{
+	
+		Tree node;
+		int maxLength;
+		
+		public int getMaxLength(){
+			return maxLength;
+		}
+	
+		public void setMaxLength(int maxLen){
+			maxLength=maxLen;
+		}
+		public void setNode(Tree pNode){
+			node=pNaode;
+		}
+	}
+
+
+	public int getDiameter(Tree root){
+
+		int heightOfTree=getDiameter(root,this.new MaxLengthSoFar());
+		return maxLengthSofar.getMaxLength();
+	}	
+
+	private int getDiameter(Tree root,MaxLengthSoFar dataTracker){
+	
+		if(root==null)
+			return 0;
+		
+		int hieghtLch=getDiameter(root.lftChild,dataTracker);
+		int heightRch=getDiameter(root.rhtChild,dataTracker);
+
+		if((hieghtLch+heightRch+1)>dataTracker.getMaxLength()){
+			dataTracker.setMaxLength(hieghtLch+heightRch+1);
+			dataTracker.setNode(root);
+		}
+		
+		return (hieghtLch>heightRch?heightLch:heightRch)+1;
+	}
+
+
+}
+ Code_Addict awesome man!! srinu i did n’t understand this line –> maxLengthSofar.getMaxLength() HarshBalyan  
+int maxNum=0;
+static int diameter(TreeNode root).
+{
+if(root==null) return 0;.
+int left=diameter(root.left);
+int right=diameter(root.right);
+if(left+right+1>maxNum)
+{
+maxNum=left+right+1;
+}
+return Math.max(maxNum,1+Math.max(left, right));
+}
+ sunil last line 1+Math.max(left, right)); “1+” should not be there right? saurabh We can also calculate diameter by making small modification in max_depth code . concept: Maximize diameter at every node when calculating max_depth  
+int diameter=0;
+int max_depth(struct node* root){
+    if(root==NULL)return 0;
+    
+    int h1= max_depth(root->left);
+    int h2= max_depth(root->right);
+    
+    diameter = max(diameter,h1+h2+1);
+    
+    return max(h1,h2)+1;
+    }
+ comment if you find this incorrect. ankitesh it’s correct …  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ankitesh i also thought d same …. It’s correct  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Nitin can u plz explain this? Nitin why r u returning max(h1,h2)+1 pranjalgupta To simplify the implementation of this question, we can return a structure consisting of diameter and height of a node.Following is the function to accomplish this: Firstly we create a node that we will return by our function typedef struct di { int h; int d; } diam; diam diameter(tree* root) { if(root==NULL) { diam temp; temp.h=0; temp.d=0; return temp; } int lh=diameter(root->left).h; int rh=diameter(root->right).h; int ld=diameter(root->left).d; int rd=diameter(root->right).d; int height=max(lh,rh)+1; diam temp; temp.h=height; temp.d=max3(lh+rh+1,ld,rd); return temp; } We can access the final answer using diameter(root).d. This technique simplifies most of the questions in trees, with only identification of the type of traversal to be identified. Nitn its 5 only(1-2-5-7-8) abhishek08aug C++ code:  
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+ 
+class tree_node {
+  private:
+    int data;
+    tree_node * left;
+    tree_node * right;
+  public:
+    tree_node() {
+      left=NULL;
+      right=NULL;
+    }
+    void set_data(int data) {
+      this->data=data;
+    }
+    int get_data() {
+      return this->data;
+    }
+    void set_left(tree_node * left) {
+      this->left=left;
+    }
+    tree_node * get_left() {
+      return this->left;
+    }
+    void set_right(tree_node * right) {
+      this->right=right;
+    }
+    tree_node * get_right() {
+      return this->right;
+    }
+    tree_node ** get_left_ref() {
+      return &(this->left);
+    }
+    tree_node ** get_right_ref() {
+      return &(this->right);
+    }
+};
+ 
+class tree {
+  private:
+    tree_node * root;
+    int size;
+    void _recursive_insert(tree_node ** root_ref, int value);
+    void _print_preorder(tree_node * root);
+    void _print_inorder(tree_node * root);
+    void _print_postorder(tree_node * root);
+    int _find_size(tree_node * root);
+    int _are_identical(tree_node * tn1, tree_node * tn2);
+    int _find_height(tree_node * root);
+    void _delete_tree(tree_node ** root);
+    void _mirror(tree_node * root);
+    void _print_paths(tree_node * root, int * path_nodes, int next_vacant_position);
+    void _print_array(int * array, int len);
+    tree_node * _lowest_common_ancestor(tree_node * parent, tree_node * root, int a, int b);
+    tree_node * _find_node(tree_node * root, int value);
+    tree_node * _min_node(tree_node * root);
+    void _print_level_order(tree_node * root);
+    int _count_leaf_nodes(tree_node * root);
+    int _is_bst(tree_node * root);
+    int _children_sum(tree_node * root);
+    void _ensure_children_sum(tree_node * root);
+    int _diameter(tree_node * root);
+  public:
+    tree() {
+      root=NULL;
+      size=0;
+    }
+    void insert(int value);
+    void recursive_insert(int value);
+    void print_preorder();
+    void print_inorder();
+    void print_postorder();
+    int find_size();
+    int get_size() {
+      return this->size;
+    }
+    int are_identical(tree t);
+    int find_height();
+    void delete_tree();
+    void mirror();
+    void print_paths();
+    tree_node * lowest_common_ancestor(int a, int b);
+    tree_node * find_node(int value);
+    tree_node * min_node();
+    void print_level_order();
+    int count_leaf_nodes();
+    int is_bst();
+    int children_sum();
+    void ensure_children_sum();
+    int diameter();
+};
+ 
+void tree::insert(int value) {
+  if(root==NULL) {
+    root=new tree_node;
+    root->set_data(value);
+  } else {
+    tree_node * parent=NULL;
+    tree_node * current=root;
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    while(current!=NULL) {
+      if(value<=current->get_data()) {
+        parent=current;
+        current=current->get_left();
+      } else {
+        parent=current;
+        current=current->get_right();
+      }
+    }
+    if(value<=parent->get_data() && parent->get_left()==NULL) {
+      parent->set_left(new_node);
+    } else if(value>parent->get_data() && parent->get_right()==NULL) {
+      parent->set_right(new_node);
+    }
+  }
+  size++;
+}
+ 
+void tree::recursive_insert(int value) {
+  _recursive_insert(&root, value);
+  size++;
+}
+ 
+void tree::_recursive_insert(tree_node ** root_ref, int value) {
+  if(*root_ref==NULL) {
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    *root_ref=new_node;   
+  } else {
+    if(value<=(*root_ref)->get_data()) {
+      _recursive_insert((*root_ref)->get_left_ref(), value);
+    } else {
+      _recursive_insert((*root_ref)->get_right_ref(), value);
+    }
+  }
+}
+ 
+void tree::print_preorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_preorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_preorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  cout<<root->get_data()<<" ";
+  if(root->get_left()!=NULL)
+    _print_preorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_preorder(root->get_right());
+}
+ 
+void tree::print_inorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_inorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_inorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_inorder(root->get_left());
+  cout<<root->get_data()<<" ";
+  if(root->get_right()!=NULL)
+    _print_inorder(root->get_right());
+}
+ 
+void tree::print_postorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_postorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_postorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_postorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_postorder(root->get_right());
+  cout<<root->get_data()<<" ";
+}
+
+int tree::find_size() {
+  return _find_size(root);
+}
+
+int tree::_find_size(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else {
+    return 1+_find_size(root->get_left())+_find_size(root->get_right());
+  }
+}
+
+int tree::are_identical(tree t) {
+  return _are_identical(this->root, t.root);
+}
+
+int tree::_are_identical(tree_node * tn1, tree_node * tn2) {
+  if(tn1==NULL && tn2==NULL) {
+    return 1;
+  } else if((tn1==NULL && tn2!=NULL) || (tn1!=NULL && tn2==NULL) || (tn1->get_data()!=tn2->get_data())) {
+    return 0;
+  } else {
+    return _are_identical(tn1->get_left(), tn2->get_left()) && _are_identical(tn1->get_right(), tn2->get_right());
+  }
+}
+
+int tree::find_height() {
+  return _find_height(root);
+}
+
+int tree::_find_height(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  }
+  else {
+    return 1+max(_find_height(root->get_left()), _find_height(root->get_right()));
+  }
+}
+
+void tree::delete_tree() {
+  _delete_tree(&root);
+  size=0;
+}
+
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      _delete_tree((*root)->get_left_ref());
+    }
+    if((*root)->get_right()!=NULL) {
+      _delete_tree((*root)->get_right_ref());
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+
+/* alternate _delete_tree */
+/*
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      tree_node * left_ref=(*root)->get_left();
+      _delete_tree(&left_ref);
+    }
+    if((*root)->get_right()!=NULL) {
+      tree_node * right_ref=(*root)->get_right();
+      _delete_tree(&right_ref);
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+*/
+
+void tree::mirror() {
+  _mirror(root);
+}
+
+void tree::_mirror(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+
+  tree_node * temp=root->get_left();
+  root->set_left(root->get_right());
+  root->set_right(temp);
+  _mirror(root->get_left());
+  _mirror(root->get_right());
+}
+
+void tree::print_paths(){
+   int max_path_length=find_height();
+   int * path_nodes=(int *)calloc(sizeof(int), max_path_length);
+  _print_paths(root, path_nodes, 0);
+}
+
+void tree::_print_paths(tree_node * root, int * path_nodes, int next_vacant_position){
+  if(root==NULL) {
+    return;
+  } else if(root->get_left()==NULL && root->get_right()==NULL) {
+    *(path_nodes+next_vacant_position)=root->get_data();
+    _print_array(path_nodes, next_vacant_position);
+  } else {
+    *(path_nodes+next_vacant_position)=root->get_data();
+    _print_paths(root->get_left(), path_nodes, next_vacant_position+1);
+    _print_paths(root->get_right(), path_nodes, next_vacant_position+1);
+  }
+}
+
+void tree::_print_array(int * array, int len) {
+  int i;
+  for(i=0; i<=len; i++) {
+    cout<<*(array+i)<<" ";
+  }
+  cout<<endl;
+}
+
+tree_node * tree::find_node(int value) {
+  return _find_node(root, value);
+}
+
+tree_node * tree::_find_node(tree_node * root, int value) {
+  if(root==NULL || root->get_data()==value) {
+    return root;
+  } else if(value<=root->get_data()) {
+    return _find_node(root->get_left(), value);
+  } else {
+    return _find_node(root->get_right(), value);
+  }
+}
+
+tree_node * tree::lowest_common_ancestor(int a, int b) {
+  return _lowest_common_ancestor(NULL, root, a, b);
+}
+
+tree_node * tree::_lowest_common_ancestor(tree_node * parent, tree_node * root, int a, int b) {
+  if(root==NULL) {
+    return root;
+  } else if((root->get_data()==a && (root->get_left()->get_data()==b || root->get_right()->get_data()==b))
+             || (root->get_data()==b && (root->get_left()->get_data()==a || root->get_right()->get_data()==a))) {
+    return parent;
+  } else if((_find_node(root->get_left(), a)!=NULL && _find_node(root->get_right(), b)!=NULL)
+        || (_find_node(root->get_left(), b)!=NULL && _find_node(root->get_right(), a)!=NULL)) {
+    return root; 
+  } else if(_find_node(root->get_left(), a)!=NULL && _find_node(root->get_left(), b)!=NULL) {
+    return _lowest_common_ancestor(root, root->get_left(), a, b);
+  } else if(_find_node(root->get_right(), a)!=NULL && _find_node(root->get_right(), b)!=NULL) {
+    return _lowest_common_ancestor(root, root->get_right(), a, b);
+  } else {
+    return NULL;
+  }
+}
+
+tree_node * tree::min_node() {
+  return _min_node(root);
+}
+
+tree_node * tree::_min_node(tree_node * root) {
+  if(root==NULL || root->get_left()==NULL) {
+    return root;
+  } else {
+    return _min_node(root->get_left());
+  }
+}
+
+int tree::count_leaf_nodes() {
+  return _count_leaf_nodes(root);
+}
+
+int tree::_count_leaf_nodes(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else if(root->get_left()==NULL && root->get_right()==NULL) {
+    return 1;
+  } else {
+    return _count_leaf_nodes(root->get_left())+_count_leaf_nodes(root->get_right());
+  }
+}
+
+
+int tree::is_bst() {
+  return _is_bst(root);
+}
+
+int tree::_is_bst(tree_node * root) {
+  static tree_node * previous=NULL;
+  if(root==NULL) {
+    return 1;
+  } else {
+    if(!_is_bst(root->get_left())) {
+      return 0;
+    }
+    if(previous!=NULL && (previous->get_data())>(root->get_data())) {
+      return 0;
+    }
+    previous=root;
+    if(!_is_bst(root->get_right())) {
+      return 0;
+    }    
+  }
+}
+
+int tree::children_sum() {
+  return _children_sum(root);
+}
+
+int tree::_children_sum(tree_node * root) {
+  if(root==NULL) {
+    return 1;
+  }
+  if(root->get_left()==NULL && root->get_right()==NULL) {
+    return 1;
+  }
+  else if(_children_sum(root->get_left()) && _children_sum(root->get_right())){
+    int left_data;
+    int right_data;
+    if(root->get_left()!=NULL) {
+      left_data=root->get_left()->get_data();
+    } else {
+      left_data=0;
+    }
+    if(root->get_right()!=NULL) {
+      right_data=root->get_right()->get_data();
+    } else {
+      right_data=0;
+    }
+
+    if(left_data+right_data==root->get_data()) {
+      return 1;
+    } else {
+      return 0;
+    }
+  } else {
+    return 0;
+  }
+}
+
+void tree::ensure_children_sum() {
+  _ensure_children_sum(root);
+}
+
+void tree::_ensure_children_sum(tree_node * root) {
+  if(root==NULL || (root->get_left()==NULL && root->get_right()==NULL)) {
+    return;
+  } else {
+    _ensure_children_sum(root->get_left());
+    _ensure_children_sum(root->get_right());
+    int left_data;
+    int right_data;
+    if(root->get_left()!=NULL) {
+      left_data=root->get_left()->get_data();
+    } else {
+      left_data=0;
+    }
+    if(root->get_right()!=NULL) {
+      right_data=root->get_right()->get_data();
+    } else {
+      right_data=0;
+    }
+    root->set_data(left_data+right_data);
+  }
+}
+
+int tree::diameter() {
+  return _diameter(root);
+}
+
+int tree::_diameter(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else {
+    return max(_find_height(root->get_left())+_find_height(root->get_right())+1, max(_diameter(root->get_left()), _diameter(root->get_left())));
+  }
+}
+
+int main() {
+  tree t1;
+
+  t1.recursive_insert(5);
+  t1.recursive_insert(3);
+  t1.insert(10);
+  t1.insert(7);
+  t1.recursive_insert(50);
+  t1.recursive_insert(6);
+  t1.recursive_insert(1);
+  t1.recursive_insert(45);
+  t1.recursive_insert(55);
+  t1.recursive_insert(4);
+  t1.recursive_insert(70);
+
+  t1.print_inorder();
+
+  cout<<"Diameter of the tree is: "<<t1.diameter()<<endl;
+
+  return 0;
+}
+ 1 3 4 5 6 7 10 45 50 55 70 Diameter of the tree is: 7 bhengra.amit Why isn’t diameter of a node = lh + rh +2 ?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ shailraj will it work ? int path(struct binary *tree,int &len){ if(tree==NULL) return 0; int p1,p2; p1=p2=0; if(tree-> left){ p1=path(tree->left); } if(tree-> right){ p2=path(tree->right); } if(len < p1+p2+1) len=p1+p2+1; return max(p1,p2)+1; } rohit /*have a look at this O(n) solution*/ #include #include #include #define max(a,b) (a>b?a:b) struct node { int data; struct node *left; struct node *right; }; struct node *newnode(int val) { struct node *l=(struct node *)malloc(sizeof(struct node)); l->data=val; l->left=NULL; l->right=NULL; return(l); } int maxi=0; int height(struct node *root) { int h1=0,h2=0; if(root==NULL) return(0); h1=height(root->left); h2=height(root->right); root->data=max(h1,h2); return(root->data+1); } void dia(struct node *root) { int h1=0,h2=0; if((root==NULL)||((root->left==NULL)&&(root->right==NULL))) return; if(root->left!=NULL) h1=root->left->data+1; if(root->right!=NULL) h2=root->right->data+1; if(h1+h2+1>maxi) maxi=h1+h2+1; dia(root->left); dia(root->right); } int main() { int k; struct node *root=newnode(1); root->left=newnode(2); root->right=newnode(3); root->left->left=newnode(4); root->left->right=newnode(5); root->left->right->right=newnode(8); k=height(root); dia(root); printf(“%d\n”,maxi); return(0); } Navneet I m not very good with recursion and all . Please some body explain me how the lh and rh values increase in the optimized value . Please explain in detail. You can also email me at nnavneet.sinha10@gmail.com Thanks.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ akshat215 @geeks4geeks: can you help me figure out,in what aspects Optimised algo O(n) is different from Naive approach O(n^2) kartik Take a closer look at both implementations. The code for optimized implementation is just tree traversal type where every node is visited once and O(1) work is done for every node being visited. In naive implementation, for every node being visited, O(k) work is node where k is number of nodes under it. This O(k) work is done to find heights of left and right subtrees. Consider skewed tree like following for worst case analysis. The total time for following tree would be O(n) + O(n-1) + …… O(1) which is O(n^2) If we consider the optimized implementation for following tree, we get the time complexity as O(1) + O(1) + ….. + O(1) which is O(n). 
+             1
+            /
+           2
+          /
+         3
+        /
+ 
+     n       
+ Vikrant thanks kartik mrn  
+/* Paste your code here (You may delete these lines if not writing code) */
+int d_so_far=0;
+
+int dmtr(Node *nd,int *d)
+{
+	if(nd==NULL)
+		{*d=0;return 0;}
+		
+	int dl=0,dr=0;
+	int hl=dmtr(nd->l,&dl);
+	int hr=dmtr(nd->r,&dr);
+	if(hl!=0 && hr!=0)
+	{
+		*d=maxx(hl+hr+1 , maxx(dl , dr));
+		d_so_far=d_so_far < *d ? *d : d_so_far;
+	}
+	return maxx(hl+1, hr+1);
+}
+
+in main() - 
+cout<<d_so_far<<endl;
+ mrn  
+/* Paste your code here (You may delete these lines if not writing code) */
+int diameter(Node n,int *d)
+{
+	if(n==NULL) {return 0;}
+	int dl=0,dr=0;
+	int lh=diameter(n->l,&dl);
+	int lr=diameter(n->r,&dr);
+	int newl=lh+lr+1;
+	int newd=dl>dr?(dl>newl?dl:newl):(dr>newl?dr:newl);
+	if(newd > *d) *d=newd;
+	return lh>lr?lh+1:lr+1;
+}
+ kkkmaurya  
+int diameter(struct tree *node, *dia)
+{
+	if(node == NULL)return 0;
+	lh= diameter(node->left,dia);
+	rh=diameter(node->right,dia);
+	total=lh+rh+1;
+	if(total >*dia)
+	*dia=total;
+	return max(lh,rh)+1;
+}
+ AT While I agree with your solution, I am having hard find figuring out why my solution might be incorrect. Please share your comments. As I see, we can maintain a max_sum variable and count the height of the left subtree (lh), height of right subtree (rh) and update the max_sum if lh + rh + 1 is its greater. We calculate this sum at each of the nodes in the tree. From your solution, ultimately the diameters will be calculated based on heights of the left and right subtrees at some point of time in the code. I am only removing the calculation of Max of diameters of left and right subtrees. I think my solution might take a hit in terms of time complexity. Vivek This method is passing both cases through root and not through root. In this temp is having the result of maximum diameter so far and it gets updated. Height is also recursively found. Then pointer *dia contains the max dia and not the value returned by function. Please check if its failing in some scenario. Vivek  
+//to get the diameter of given tree 
+int diameter(node *nodeptr, int *dia) 
+{ 
+ int left_h,right_h,temp; 
+ if(!nodeptr) 
+ 	return 0;	 
+ left_h = diameter(nodeptr->left,dia); 
+ right_h = diameter(nodeptr->right,dia); 
+ temp = left_h + right_h + 1; 
+ if(temp > *dia) 
+ 	*dia = temp; 
+ return (max(left_h,right_h) + 1); 
+} 
+ Vivek Here temp contains the diameter till current level and *dia contains the max diameter. Its fulfilling above two cases with root and without root. Its calculating left subtree height and right subtree height through recursion. The function doesn’t return the max diameter , it returns max height. Please check if something is wrong. Saurabh Vats  
+int diameter(node *nodeptr, int *dia) 
+{ 
+ int left_h,right_h,temp; 
+ if(!nodeptr) 
+    return 0;    
+ left_h = diameter(nodeptr->left,dia); 
+ right_h = diameter(nodeptr->right,dia); 
+ temp = left_h + right_h;  // here was the problem
+ if(temp > *dia) 
+    *dia = temp; 
+ return (max(left_h,right_h) + 1); 
+} 
+ rsingh Is anything wrong this way ?  
+void converttree(node * root){
+    if(root==NULL||root->left==NULL&&root->right==NULL)
+        return;
+    int leftdata = 0,rightdata = 0;
+    if(root->left!=NULL)
+        leftdata = root->left->key;
+    if(root->right!=NULL)
+        rightdata = root->right->key;
+
+    int diff,sum;
+    sum = leftdata+rightdata;
+
+    if(root->key > sum){
+        diff = root->key - sum;
+        root->left->key += diff;
+    }
+    converttree(root->left);
+    converttree(root->right);
+    root->key = root->left->key + root->right->key;
+}
+ rsingh replace last line with the following lines if(root->left!=NULL) root->key += root->left->key; if(root->right!=NULL) root->key += root->right->key; rsingh Is anything is wrong with following code ?  
+void converttree(node * root){
+    if(root==NULL||root->left==NULL&&root->right==NULL)
+        return;
+    int leftdata = 0,rightdata = 0;
+    if(root->left!=NULL)
+        leftdata = root->left->key;
+    if(root->right!=NULL)
+        rightdata = root->right->key;
+
+    int diff,sum;
+    sum = leftdata+rightdata;
+
+    if(root->key > sum){
+        diff = root->key - sum;
+        root->left->key += diff;
+    }
+    converttree(root->left);
+    converttree(root->right);
+    root->key = root->left->key + root->right->key;
+}
+ leet What if the tree is skewed ? then longest path between two leaves ? As there is only one leaf. According to your algo it will return height of the tree. or the definition should change to longest path in the tree piyush  
+int max_dia=0;
+diameter(struct node *T)
+{
+ if(T)
+ {
+  l=diameter(T->lptr);
+  r=diameter(T->rptr);
+  max_dia=maxValue(l+r+1,max);
+  return maxValue(l,r)+1; 
+ }
+ else
+ {
+ return 0;
+ }
+}
+
+//tell me if something wrong in this logic....
+//maxValue is the function which will return max value
+
+ Piyush Kunal Your logic is incorrect as you are always assuming that diameter will go through the root itself. The diameter may be maximum in the sub-tree itself.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ piyush int max_dia=0; diameter(struct node *T) { if(T) { l=diameter(T->lptr); r=diameter(T->rptr); max_dia=maxValue(l+r+1,max); return maxValue(l,r)+1; } else { return 0; } } //tell me if something wrong in this logic…. //maxValue is the function which will return max value piyush int max_dia=0; diameter(struct node *T) { if(T) { l=diameter(T->lptr); r=diameter(T->rptr); max_dia=maxValue(l+r+1,max); return maxValue(l,r)+1; } else { return 0; } } //tell me if something wrong in this logic…. //maxValue is the function which will return max value  
+/* Paste your code here (You may delete these lines if not writing code) */
+ seabird  
+#include<stdio.h>
+#include<stdlib.h>
+
+typedef struct node{
+    int data;
+    struct node *left;
+    struct node *right;
+} node;
+
+void print(node *root)
+{
+    if(root!=NULL) {
+        print(root->left);
+        printf("%d ",root->data);
+        print(root->right);
+    }
+}
+
+int diameter(node *root,int *max)
+{
+    if(root==NULL)return 0;
+    else {
+        int l=diameter(root->left,max);
+        int r=diameter(root->right,max);
+        if(*max < l+r+1)*max=l+r+1;
+        if(l>r) {
+            return l+1;
+        } else {
+            return r+1;
+        }
+    }
+}
+
+node *make_tree(node *root,int num)
+{
+    if(root==NULL) {
+        node *newnode=malloc(sizeof(node));
+        newnode->data=num;
+        newnode->left=NULL;
+        newnode->right=NULL;
+        root=newnode;
+    } else {
+        if((root->data) <= num ) {
+            root->right=make_tree(root->right,num);
+        } else {
+            root->left=make_tree(root->left,num);
+        }
+    }
+    return root;
+}
+
+int main()
+{
+    int n;
+    scanf("%d",&n);
+    int i;
+    node *root=NULL;
+    int num;
+    for(i=0;i<n;i++) {
+        scanf("%d",&num);
+        root=make_tree(root,num);
+    }
+    int max=0;
+    diameter(root,&max);
+    printf("%d\n",max);
+    return 0;
+}
+
+ Aj Quick question, why do we even calculate diameter of left and right subtrees? Wouldn’t the height of the left and right subtrees suffice? I ran the algorithm on the second example and in every step, the diameter of left/right st never won the max predicate. Any helpful insight(s) most welcome! harsh jain  
+
+problem can be easily solved if we take a global variable and 
+use a same function to calculate the height with little modification here is code
+
+#include<cstdio>
+#include<cstdlib>
+
+
+
+struct node {
+       int data;
+       node *left;
+       node *right;
+};
+
+int m;
+int max( int  a , int b )
+{
+    if( a > b )
+        return a;
+    else
+        return b;
+}
+void insert( struct node **x , int n ) {
+     if ( *x == NULL ) {
+          *x = ( struct node*)malloc( sizeof( struct node ) );
+          (*x)->data = n;
+          (*x)->left = NULL;
+          (*x)->right = NULL;
+     } else {
+            if( (*x)->data > n ) {
+                insert( &(*x)->left , n );
+            } else {
+                insert( &(*x)->right , n );
+            }
+     }
+}
+
+int hight( struct node *x ) 
+{
+    
+     int p;
+     if( x == NULL )
+        return 0;
+    
+     int l , r;
+     l = hight( x->left );
+     r = hight( x->right );
+     p = l + r + 1;
+    if( p > m )
+        m = p;
+    
+    
+    return ( max( l , r ) + 1 );
+    
+}
+
+void print( struct node *x )
+{
+     if( x == NULL )
+         return;
+         
+     print( x->left );
+     
+     printf("%d\n" , x->data );
+     
+     print( x->right );
+}
+int main()
+{
+    struct node *root;
+    
+    root = NULL;
+    
+    
+    m = 0;
+    int t , k , i;
+    scanf("%d" , &t );
+    for (  i = 0; i < t; i++  ) {
+        scanf("%d" , &k );
+        insert( &root , k );
+    }
+    
+    hight( root );
+    printf("%d" , m );
+    
+    return 0;
+}
+
+
+
+ MV  
+int mx=0;
+struct node *res=NULL;
+
+int diameter(struct node *nd)
+{
+	if(nd==NULL) 	return 0;
+	int ld=diameter(nd->l);
+	int rd=diameter(nd->r);
+	if(mx < ld+rd+1)
+	{
+		res=nd;
+		mx=ld+rd+1;
+	}
+return ld>rd?ld+1:rd+1;
+}
+ Sam in the optimized version shouldn’t the return statement be return max(height, max(ldiameter, rdiameter)); instead of return max(lh + rh + 1, max(ldiameter, rdiameter)); Sam not height…but I am not really sure why height is computed in this function… sam it should not be replaced with height…but i am not sure why height is used…. sachin Can somebody tell me how to find the nodes which are farthest? atul007 in optimized version , i didnt get what is the use of last return comparison i.e max(ldiameter, rdiameter) replacing return max(lh + rh + 1, max(ldiameter, rdiameter)); with below will give correct ouput return lh + rh + 1;  
+/* Paste your code here (You may delete these lines if not writing code) */
+ atul007 ok it wont work!! http://algods-cracker.blogspot.com/ Cracker http://algods-cracker.blogspot.in/2012/03/microsoft-question-find-diameter-of.html pphanireddy /**************************************************************************** * Calculate the diameter of the Binary tree ****************************************************************************/ public int getDiameter() { int[] diameter = new int[1]; getDiameter(root, diameter); return diameter[0]; } private int getDiameter(Node currNode, int[] diameter) { if(currNode.left == null && currNode.right == null) { return 0; } int myHeight = 0; int myDiameter = 0; int maxHeight; int leftHeight = -1, rightHeight = -1; if(currNode.left != null) { leftHeight = getDiameter(currNode.left, diameter); myDiameter = leftHeight + 1; } if(currNode.right != null) { rightHeight = getDiameter(currNode.right, diameter); myDiameter = rightHeight + 1; } maxHeight = Math.max(leftHeight, rightHeight); if (maxHeight != -1) { myHeight = maxHeight + 1; } if(diameter[0] < myDiameter) { diameter[0] = myDiameter; } return myHeight; } Hi The most easy algo for this is: Do a BFS from root.. then find out the node with the largest distance assigned(assuming each edge to be of length = 1) then Do a BFS from that node, the largest assigned node in this case is the Diameter of tree…. Let me know if m incorrect!! mohit  
+/* Paste your code here (You may delete these lines if not writing code) */
+int diameter_tree(Node n)
+{
+	if(n==NULL) return 0;
+	
+	int l=0,r=0;
+	
+	l=diameter_tree(n->l);
+	r=diameter_tree(n->r);
+	if(l+r > new_diameter) new_diameter=l+r+1;
+	return max(l,r)+1;
+}
+ mohit if condition should be : if(l+r+1 > new_diameter) new_diameter=l+r+1; geek It wont work for the second tree diagram given on the top. It only works for tree diameter via root. Karthick Well, is the following algorithm correct for the given problem? //cur_max is a variable declared above the function  diameter(Node cur)
+{
+     if(cur==null)
+     {
+        return 0;
+      }
+      l=diameter(cur.left);
+      r=diameter(cur.right);
+      if(l+r+1>cur_max&&l!=0&r!=0)
+      {
+          cur_max=l+r+1;
+      }
+      return Math.max(l+r)+1;
+   }
+} Hackme wrong!! heights of left and right trees are added to get diameter. Not diameters. check it again. atul diameter(Node cur) { if(cur==null) { return 0; } l=diameter(cur.left); r=diameter(cur.right); if(l+r+1>cur_max) { cur_max=l+r+1; } return Math.max(l,r)+1; } } this should work  
+/* Paste your code here (You may delete these lines if not writing code) */
+ k  
+
+struct node
+{
+    int value;
+    struct node * left;
+    struct node * right;
+};
+
+int func( struct node* root,int *diameter);
+
+
+int main()
+{
+   int depth_returned;
+   int dia=0;
+
+   struct node * A= (struct node*)malloc(sizeof(struct node ));
+   struct node * B= (struct node*)malloc(sizeof(struct node ));
+   struct node * C= (struct node*)malloc(sizeof(struct node ));
+   struct node * D= (struct node*)malloc(sizeof(struct node ));
+   struct node * E= (struct node*)malloc(sizeof(struct node ));
+   struct node * F= (struct node*)malloc(sizeof(struct node ));
+   struct node * G= (struct node*)malloc(sizeof(struct node ));
+   struct node * H= (struct node*)malloc(sizeof(struct node ));
+   struct node * I= (struct node*)malloc(sizeof(struct node ));
+
+
+   
+   I->value=9;
+   I->left=NULL;
+   I->right=NULL;
+   
+   H->value=8;
+   H->left=NULL;
+   H->right=NULL;
+   
+   G->value=7;
+   G->left=NULL;
+   G->right=H;
+
+   F->value=6;
+   F->left=NULL;
+   F->right=G;
+
+   E->value=5;
+   E->left=NULL;
+   E->right=NULL;
+   
+   D->value=4;
+   D->left=E;
+   D->right=NULL;
+   
+   C->value=3;
+   C->left=D;
+   C->right=NULL;
+
+   B->value=2;
+   B->left=C;
+   B->right=F;
+
+   A->value=1;
+   A->left=B;
+   A->right=I;
+
+   depth_returned=func(A,&dia);
+
+   printf("The maximum  diameter observed is %d",dia);
+   
+   return 0;
+}
+
+int func( struct node* root,int *diameter)
+{ 
+    int l=0;
+    int r=0;
+    int depth;
+    if(root->left==NULL && root->right==NULL)
+        return 1;
+    if(root->left)
+        l=func(root->left,diameter);
+    *diameter=l;
+    if(root->right)
+        r=func(root->right,diameter);
+    
+    if(l>r)
+        depth=l+1;
+    else 
+        depth=r+1;
+    
+    if((*diameter)<l+r)
+      *diameter=l+r;
+    return depth;
+}
+ SymbolofSilence There is one more way to do this You can do DFS twice! First, take an arbirary node in the tree and travel to the farthest point, and then from that farthest point, do a DFS again to find the longest path in the tree! sumit can u please elaborate on your logic  
+/* Paste your code here (You may delete these lines if not writing code) */
+ rohit it is not necessary that the arbitary node is included in final answer…. Raja I dont see any where in the code “height” variable is used except the below initialization. *height = 0; Please correct me if i’m wrong. Raja I mean, height is not used in any calculations. http://vineelkumarreddy.blogspot.com Vineel Kumar Reddy height is not a local variable of function diameterOpt. its a reference to a variable in the caller function. so when ever u modify *height = u are passing the height info to its caller variables lh or rh ….. hope u got it… reader1 This solution doesn’t work. Imagine if you have a BST in preorder {1,2,4,3,5} 
+ 1
+  \
+   2
+    \
+     4
+    / \
+   3   5
+ The algorithm gives 4 but the correct answer would be 3. http://vineelkumarreddy.blogspot.com Vineel Kumar Reddy boss the algo counts number of nodes in the path, not the path length itself… reader1 According to the top of the webpage, Defn: The diameter of a tree (sometimes called the width) is the number of nodes on the longest path between two leaves in the tree. Between leaf ‘3’ and leaf ‘5’, how many nodes are there on the longest path? tyro @reader1..Good one. We need to check at every stage that none of lh and rh should be zero. Only then it’ll be used in calculating max(lh+rh+1,max(rdiam,ldiam)). sumit nyc catch  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Himanshu Aggarwal Hi, Is there any way be which I can use the above algorithm to find the diameter of an n-ary tree. Thanks and Regards, Himanshu nesamani1822 we can find the diameter of tree using the problem “print root to leaf..” Find the two highest length from the path and add those lengths and subtract with 1 to get diameter of tree with including the root node. if we subtract with 2 then we will get the diameter of tree without including the root node. 
+printPathsRecur(tree, path[], pathlen)
+   1) If node is not NULL then
+         a) push data to path array:
+                path[pathlen] = node->data.
+         b) increment pathlen
+                pathlen++
+   2) If node is a leaf node then find the two highest lengths
+   3) Else
+        a) Call printPathsRecur for left subtree
+                 printPathsRecur(node->left, path, pathLen)
+        b) Call printPathsRecur for right subtree.
+                printPathsRecur(node->right, path, pathLen)
+  
+int first=0;
+int second=0;
+void printPathsRecur(struct node* node, int path[], int pathLen)
+{
+  if (node==NULL) return;
+ 
+  /* append this node to the path array */
+  path[pathLen] = node->data;
+  pathLen++;
+ 
+  /* it's a leaf, so print the path that led to here */
+  if (node->left==NULL && node->right==NULL)
+  {
+    printArray(pathLen);
+  }
+  else
+  {
+  /* otherwise try both subtrees */
+    printPathsRecur(node->left, path, pathLen);
+    printPathsRecur(node->right, path, pathLen);
+  }
+}
+ 
+
+void printArray(int len)
+{
+  if(len>first)
+   {
+      second=first;
+      first=len
+   }
+  else if(len>secon)
+   {
+      second=len;
+   }
+} 
+//diameter of tree
+diameter=first+second-1;
+ Nithish @nesamani: That is a cool efficient way to solve the problem. Sandeep @nesamani1822: The code doesn’t work for the cases where root is not in path of diameter, like second tree in the diagram given in post. Let me know if I am wrong. Abhijith K @Sandeep You are right. The code doesn’t work for the cases where root is not in path. gk_manutd In the “optimized implementation” above: if you initialize left & right as 0 everytime… then max always returns 1, right? Shouldn’t left & right be initialized outside the function altogether? satya @sandeep…can you guide how we can find the diameter of tree without recursion..?? i mean in O(N) without using recursion Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

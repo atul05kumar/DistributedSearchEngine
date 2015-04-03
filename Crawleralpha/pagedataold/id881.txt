@@ -1,0 +1,217 @@
+Divide and Conquer | Set 3 (Maximum Subarray Sum) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Divide and Conquer | Set 3 (Maximum Subarray Sum) You are given a one dimensional array that may contain both positive and negative integers, find the sum of contiguous subarray of numbers which has the largest sum. For example, if the given array is {-2, -5, 6, -2, -3, 1, 5, -6}, then the maximum subarray sum is 7 (see highlighted elements). The naive method is to run two loops. The outer loop picks the beginning element, the inner loop finds the maximum possible sum with first element picked by outer loop and compares this maximum with the overall maximum. Finally return the overall maximum. The time complexity of the Naive method is O(n^2). Using Divide and Conquer approach, we can find the maximum subarray sum in O(nLogn) time. Following is the Divide and Conquer algorithm. 1) Divide the given array in two halves 2) Return the maximum of following three ….a) Maximum subarray sum in left half (Make a recursive call) ….b) Maximum subarray sum in right half (Make a recursive call) ….c) Maximum subarray sum such that the subarray crosses the midpoint The lines 2.a and 2.b are simple recursive calls. How to find maximum subarray sum such that the subarray crosses the midpoint? We can easily find the crossing sum in linear time. The idea is simple, find the maximum sum starting from mid point and ending at some point on left of mid, then find the maximum sum starting from mid + 1 and ending with sum point on right of mid + 1. Finally, combine the two and return. 
+// A Divide and Conquer based program for maximum subarray sum problem
+#include <stdio.h>
+#include <limits.h>
+
+// A utility funtion to find maximum of two integers
+int max(int a, int b) { return (a > b)? a : b; }
+
+// A utility funtion to find maximum of three integers
+int max(int a, int b, int c) { return max(max(a, b), c); }
+
+// Find the maximum possible sum in arr[] auch that arr[m] is part of it
+int maxCrossingSum(int arr[], int l, int m, int h)
+{
+    // Include elements on left of mid.
+    int sum = 0;
+    int left_sum = INT_MIN;
+    for (int i = m; i >= l; i--)
+    {
+        sum = sum + arr[i];
+        if (sum > left_sum)
+          left_sum = sum;
+    }
+
+    // Include elements on right of mid
+    sum = 0;
+    int right_sum = INT_MIN;
+    for (int i = m+1; i <= h; i++)
+    {
+        sum = sum + arr[i];
+        if (sum > right_sum)
+          right_sum = sum;
+    }
+
+    // Return sum of elements on left and right of mid
+    return left_sum + right_sum;
+}
+
+// Returns sum of maxium sum subarray in aa[l..h]
+int maxSubArraySum(int arr[], int l, int h)
+{
+   // Base Case: Only one element
+   if (l == h)
+     return arr[l];
+
+   // Find middle point
+   int m = (l + h)/2;
+
+   /* Return maximum of following three possible cases
+      a) Maximum subarray sum in left half
+      b) Maximum subarray sum in right half
+      c) Maximum subarray sum such that the subarray crosses the midpoint */
+   return max(maxSubArraySum(arr, l, m),
+              maxSubArraySum(arr, m+1, h),
+              maxCrossingSum(arr, l, m, h));
+}
+
+/*Driver program to test maxSubArraySum*/
+int main()
+{
+   int arr[] = {2, 3, 4, 5, 7};
+   int n = sizeof(arr)/sizeof(arr[0]);
+   int max_sum = maxSubArraySum(arr, 0, n-1);
+   printf("Maximum contiguous sum is %d\n", max_sum);
+   getchar();
+   return 0;
+}
+ Time Complexity: maxSubArraySum() is a recursive method and time complexity can be expressed as following recurrence relation. T(n) = 2T(n/2) + The above recurrence is similar to Merge Sort and can be solved either using Recurrence Tree method or Master method. It falls in case II of Master Method and solution of the recurrence is . The Kadane’s Algorithm for this problem takes O(n) time. Therefore the Kadane’s algorithm is better than the Divide and Conquer approach, but this problem can be considered as a good example to show power of Divide and Conquer. The above simple approach where we divide the array in two halves, reduces the time complexity from O(n^2) to O(nLogn). References: Introduction to Algorithms by Clifford Stein, Thomas H. Cormen, Charles E. Leiserson, Ronald L. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: Divide and Conquer Tweet Writing code in comment? Please use ideone.com and share the link here. Sameer Sharma it supposed to be the maximum array output: Here is the array with the maximum sum 22 + 500 + -67 + 1 = 456 Sameer Sharma hey, can some one help me please!!! I have a problem where i have to implement 2D Array so i can get output of 456 Here’s my CODE: #include using namespace std; // constants #define NUM_ARRAYS 5 #define NUM_ELEMS 4 // function prototypes (fill in any missing formal parameter lists) int CalcArraySum(int array[], int numItems); void DispArray(int array[], int numItems); int FindMaxArray(0); // ==== main ================================================================== // // ============================================================================ int main(void) { int intArrays[NUM_ARRAYS][NUM_ELEMS] = { {10, 20, 30, 40} // 100 , {1, 2, 3, 4} // 10 , {5, 2, -8, 22} // 21 , {99, 3, 10, 34} // 146 , {22, 500, -67, 1}// 456 }; int *arrayPtr; int sum; int intArrays; sum = FindMaxArray(intArrays, NUM_ARRAYS, &arrayPtr); cout << "Here is the array with the maximum sum:n"; DispArray(arrayPtr, NUM_ELEMS); cout << " = " << sum << endl; return 0; } // end of "main" Aggie This problem can be solved in O(n) time. the code is as following: int maxSubArray(int A[], int n) { int result,i,cur; result=INT_MIN; cur=0; for(i=0;iresult) result=cur; if(cur<0) cur=0; } return result; } Nakul This program can’t be done in O(n) time. And if done then there will be cases on which the algorithm fails. The efficient one is O(nlogn) algorithm. prashant saxena Check the link mentioned in the text about Kadane’s Algorithm. I think its done correctly in o(n). prashant saxena Yes the algo is wrong. You can’t apply divide and conquer here. Your Max sum could as well be Left_MAx+Right_MAx depending on the indices taken to calculate left+Right. Kartik This algo is taken from CLRS book. So can’t be wrong, there may be some slight confusion though. prashant saxena Ah.. yeah looks correct.. the case I mentioned will be taken care by non recursive function call crossingmax function… my bad. Thanks for correcting me Faisal The Algorithm you provide here, is not correct. Test the following case: [-2, -5, 6, -2, 3, -10, 5, -6] Test with the method of Dynamic programming ========================== #include #include #include #define TRUE 1 void main() { int *A=NULL; int n=0; int i,; int *S = NULL; int *started_here=NULL; printf(“n Enter the element n”); scanf(“%d”, &n); int max_sub_seq_sum=0; int start_here=0; int end_here=0; int temp=0; A= (int*)malloc( n * sizeof(int) ); printf(“n Enter the %d elements “, n); S= (int*)malloc( n * sizeof(int) ); started_here= (int*)malloc( n * sizeof(int) ); for(i=0; i<n; i++) scanf("%d", &A[i]); printf("n The entered elements are :n"); for(i=0; i<n; i++) printf("%dt", A[i]); for(i=0; i A[i] ) temp= (S[i-1] + A[i]) ; else { temp= A[i]; //start_here= i; started_here[i]= TRUE; } S[i]= temp; if(max_sub_seq_sum =0; i–) { if(started_here[i] == TRUE) { start_here=i; break; } } printf(“n The Maximal Sub sequence Sum is=%dn”,max_sub_seq_sum); printf(“n Starting Position of seq=%d, ending position of seq=%dn”, start_here,end_here); for(i= start_here; i<=end_here; i++) { printf("%dt",A[i]); } getch(); free(A); free(S); free(started_here); } ========================== output : ======== Enter the element n 8 Enter the 8 elements -2 -5 6 -2 -3 1 5 -6 The entered elements are : -2 -5 6 -2 -3 1 5 -6 The Maximal Sub sequence Sum is=7 Starting Position of seq=2, ending position of seq=6 6 -2 -3 1 5 ======== mrn int max=0,prev=a[0]; for(int i=1;i<n;i++) { if(prev+a[i]<0) prev=0; else{ prev=prev+a[i]; if(max< prev) max=prev; } } numid I think it can be done in a batter way,please point out any invalid test case if any  
+/*You are given a one dimensional array that may contain both positive and negative integers, 
+find the sum of contiguous subarray of numbers which has the largest sum.*/
+
+#include<iostream>
+
+using namespace std;
+
+int main()
+{
+    int arr[]={-2,-5,6,-2,-3,1,-10,-20,5,9,-7,-8,8,14};
+    int i,size,ptr,qtr,sum,prev,diff;
+    size=sizeof(arr)/sizeof(arr[0]);
+    ptr=0;
+    qtr=size-1;
+    
+    while(arr[ptr]<=0)
+          ptr++;
+          
+    while(arr[qtr]<=0)
+          qtr--;
+          
+    sum=0;prev=0;     
+    diff=arr[ptr];
+    for(i=ptr+1;i<=qtr;i++)
+    {
+          diff+=arr[i];                      
+          if(arr[i] > 0)
+          {
+                    if(diff > 0)
+                    {
+                            sum+=diff;
+                            diff=0;
+                    }
+                    else
+                    {
+                         if(sum > prev)
+                                prev=sum;
+                         sum=0;
+                         diff=0;
+                         i--;
+                    }
+          }
+    }
+    if(sum > prev)
+           cout<<"\nSum is : "<<sum;
+    else
+           cout<<"\nSum is : "<<prev;                                 
+                       
+    getchar();
+    return 0;
+}
+
+
+ Nakul When the input is {-2,-5,6} the output is shown by above program is 0 whereas it should be 6. http://www.cse.iitb.ac.in/~saha/ subhasish It can be done in O(n) The time comlexity O(nLogn) is only because of the O(n) part in the recursion. If it were O(1) then we would get total time complexity O(n). The idea is to propagate the maximum sum from left end, right end to top. So the method will return a structure of four elements : l : max sum from left r : max sum from right m : max mum t : total sum For base case (single element) every thing will be equal to that element Now combine step will be as follows :  
+t = L.t + R.t
+l = ((L.t+R.l)>L.l) ?(L.t+R.l) : L.l;
+r = ((R.t+L.r)>R.r) ?(R.t+L.r) : R.r; 
+m = max(L.m, R.m, L.r+R.l);
+ So the combine step becomes O(1), overall time complexity becomes O(n) abhishek08aug Intelligent  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ravisingh3531 The O(n) solution for above problem without divide and concurs  
+#include <stdio.h>
+#define SIZE 9
+int main()
+{
+	int array[SIZE] ={1, 2, 3, -4, -5, -6, 7, 8, 9}; 
+	int index;
+	int finalsum = 0;
+	int sum=0,temp;
+	int flag = 0;
+	for(index=0;index<SIZE;index++)
+	{
+		if(flag == 0)
+		{
+			if(array[index] > 0)
+			{
+				sum = sum + array[index];
+				flag = 1;
+			}
+		}
+		else
+		{
+			temp = sum;
+			sum = sum + array[index];
+			if(temp > sum)
+			{
+				if(temp > finalsum)
+				{
+					finalsum = temp;
+				}
+			}
+			else if(temp < sum)
+			{
+				if(sum > finalsum)
+				{
+					finalsum = sum;
+				}
+			}
+			if(sum < 0)
+			{
+				sum = 0;
+			}
+		}
+	}
+	printf("The final sum %d",finalsum);
+	return 0;
+}
+ Nakul if the input array is {-2,-5,6} the output should be 6 but it shows 0 which is incorrect. Sandip You could reduce the time to merge the solution of sub problems to constant time and hence the complexity of overall algorithm to O(n). For that you would need to additionally return 1) Optimal solution including starting element in subarray, 2) Optimal solution including end element in subarray. Here is the C# code. class Program { class Solution { internal int StartIndex { get; set; } internal int EndIndex { get; set; } internal int Sum { get; set; } internal void CopyValues(Solution s) { StartIndex = s.StartIndex; EndIndex = s.EndIndex; Sum = s.Sum; } } private static Solution[] FindMaxSumSubarray(int[] array, int startIndex, int endIndex) { if (startIndex == endIndex) { return new[] {new Solution {StartIndex = startIndex, EndIndex = endIndex, Sum = array[startIndex]}, new Solution {StartIndex = startIndex, EndIndex = endIndex, Sum = array[startIndex]}, new Solution {StartIndex = startIndex, EndIndex = endIndex, Sum = array[startIndex]}}; } int m = (startIndex + endIndex) /2; var subSolution1 = FindMaxSumSubarray(array, startIndex, m); var subSolution2 = FindMaxSumSubarray(array, m + 1, endIndex); if (subSolution1[0].EndIndex == m && subSolution2[0].Sum > 0) { subSolution1[0].EndIndex = subSolution2[0].EndIndex; subSolution1[0].Sum += subSolution2[0].Sum; } if (subSolution2[2].StartIndex == m + 1 && subSolution1[2].Sum > 0) { subSolution2[2].StartIndex = subSolution1[2].StartIndex; subSolution2[2].Sum += subSolution1[2].Sum; } var bestSubSolution = GetBestSolution(subSolution1[0], subSolution1[1], subSolution2[1], subSolution2[2]); return new[] { subSolution1[0], bestSubSolution, subSolution2[2] }; } private static Solution GetBestSolution(Solution s1, Solution s2, Solution s3, Solution s4) { if (s1.Sum > s2.Sum) s2.CopyValues(s1); if (s4.Sum > s3.Sum) s3.CopyValues(s4); return s2.Sum > s3.Sum ? s2 : s3; } static void Main(string[] args) { int[] arr = {2, 3, -4, 5, 7}; Solution[] solution = FindMaxSumSubarray(arr, 0, arr.Length – 1); Console.WriteLine("Maximum contiguous sum is {0}", solution[1].Sum); arr = new []{2, 3, -6, 5, 7}; solution = FindMaxSumSubarray(arr, 0, arr.Length – 1); Console.WriteLine("Maximum contiguous sum is {0}", solution[1].Sum); } } rspr find the O(n) solution for the above problem:  
+/*-2 -5 6 -2 -3 1 5 -6
+-2 -5 6 4  1  2 7 1
+sum = 7
+*/
+#include<stdio.h>
+int A[100];
+int find_largest_sum(int A[],int n_elements){
+
+	int largest=A[0];
+	int tmp=A[0];
+	for(int i=1;i<n_elements;++i)
+	{
+		if(tmp+A[i] > A[i])
+			tmp+=A[i];
+		else
+			tmp=A[i];
+		
+		if(tmp>largest)
+			largest=tmp;	
+	}
+	return largest;
+		
+}
+int main(){
+	int count;
+	printf("Enter the no. of elements\n");
+	scanf("%d",&count);
+	for(int i=0;i<count;++i)
+		scanf("%d",&A[i]);
+	int l_sum=find_largest_sum(A,count);
+	printf("largest sum is %d\n",l_sum);
+	return 0;
+}
+ GM I think u missed to update largest in your code.  
+if(tmp+A[i] > A[i])
+            tmp+=A[i];
+        else
+            if(tmp>largest)
+                largest = tmp;
+            tmp=A[i];
+ Ravi Chandra My suggestion is re-post the same problem with the updated solution. GeeksforGeeks @Ravi Chandra: The O(n) solution is already published here. The main idea of this post is to show a good and simple example of Divide and Conquer. http://www.tsndiffopera.in/ Sai Nikhil D&C is O(nlg(n)), where as kadane(DP) is just O(n), so why use former instead of later? http://pnadityalabs.com/ Aditya We can solve it with the complicity of ‘n’ ! n log n is expensive and big head to deal Siva Krishna I think max_cross_sum is not the correct way.Let us take the initial array as [ 1 2 3 -4 -5 -6 7 8 9 ] now consider the cross sum it is 30(6(left)+24(right)) but here the sum came from left:[1 2 3]and right:[7 8 9] which was not the crossing sum… /* Paste your code here (You may delete these lines if not writing code) */ [/source code] Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

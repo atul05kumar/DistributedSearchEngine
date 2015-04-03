@@ -1,0 +1,280 @@
+QuickSort on Doubly Linked List - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph QuickSort on Doubly Linked List Following is a typical recursive implementation of QuickSort for arrays. The implementation uses last element as pivot. 
+/* A typical recursive implementation of Quicksort for array*/
+
+/* This function takes last element as pivot, places the pivot element at its
+   correct position in sorted array, and places all smaller (smaller than 
+   pivot) to left of pivot and all greater elements to right of pivot */
+int partition (int arr[], int l, int h)
+{
+    int x = arr[h];
+    int i = (l - 1);
+
+    for (int j = l; j <= h- 1; j++)
+    {
+        if (arr[j] <= x)
+        {
+            i++;
+            swap (&arr[i], &arr[j]);
+        }
+    }
+    swap (&arr[i + 1], &arr[h]);
+    return (i + 1);
+}
+
+/* A[] --> Array to be sorted, l  --> Starting index, h  --> Ending index */
+void quickSort(int A[], int l, int h)
+{
+    if (l < h)
+    {        
+        int p = partition(A, l, h); /* Partitioning index */
+        quickSort(A, l, p - 1);  
+        quickSort(A, p + 1, h);
+    }
+}
+ Can we use same algorithm for Linked List? Following is C++ implementation for doubly linked list. The idea is simple, we first find out pointer to last node. Once we have pointer to last node, we can recursively sort the linked list using pointers to first and last nodes of linked list, similar to the above recursive function where we pass indexes of first and last array elements. The partition function for linked list is also similar to partition for arrays. Instead of returning index of the pivot element, it returns pointer to the pivot element. In the following implementation, quickSort() is just a wrapper function, the main recursive function is _quickSort() which is similar to quickSort() for array implementation. 
+// A C++ program to sort a linked list using Quicksort
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+/* a node of the doubly linked list */
+struct node
+{
+    int data;
+    struct node *next;
+    struct node *prev;
+};
+
+/* A utility function to swap two elements */
+void swap ( int* a, int* b )
+{   int t = *a;      *a = *b;       *b = t;   }
+
+// A utility function to find last node of linked list
+struct node *lastNode(node *root)
+{
+    while (root && root->next)
+        root = root->next;
+    return root;
+}
+
+/* Considers last element as pivot, places the pivot element at its
+   correct position in sorted array, and places all smaller (smaller than
+   pivot) to left of pivot and all greater elements to right of pivot */
+node* partition(node *l, node *h)
+{
+    // set pivot as h element
+    int x  = h->data;
+
+    // similar to i = l-1 for array implementation
+    node *i = l->prev;
+
+    // Similar to "for (int j = l; j <= h- 1; j++)"
+    for (node *j = l; j != h; j = j->next)
+    {
+        if (j->data <= x)
+        {
+            // Similar to i++ for array
+            i = (i == NULL)? l : i->next;
+
+            swap(&(i->data), &(j->data));
+        }
+    }
+    i = (i == NULL)? l : i->next; // Similar to i++
+    swap(&(i->data), &(h->data));
+    return i;
+}
+
+/* A recursive implementation of quicksort for linked list */
+void _quickSort(struct node* l, struct node *h)
+{
+    if (h != NULL && l != h && l != h->next)
+    {
+        struct node *p = partition(l, h);
+        _quickSort(l, p->prev);
+        _quickSort(p->next, h);
+    }
+}
+
+// The main function to sort a linked list. It mainly calls _quickSort()
+void quickSort(struct node *head)
+{
+    // Find last node
+    struct node *h = lastNode(head);
+
+    // Call the recursive QuickSort
+    _quickSort(head, h);
+}
+
+// A utility function to print contents of arr
+void printList(struct node *head)
+{
+    while (head)
+    {
+        cout << head->data << "  ";
+        head = head->next;
+    }
+    cout << endl;
+}
+
+/* Function to insert a node at the beginging of the Doubly Linked List */
+void push(struct node** head_ref, int new_data)
+{
+    struct node* new_node = new node;     /* allocate node */
+    new_node->data  = new_data;
+
+    /* since we are adding at the begining, prev is always NULL */
+    new_node->prev = NULL;
+
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);
+
+    /* change prev of head node to new node */
+    if ((*head_ref) !=  NULL)  (*head_ref)->prev = new_node ;
+
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+/* Driver program to test above function */
+int main()
+{
+    struct node *a = NULL;
+    push(&a, 5);
+    push(&a, 20);
+    push(&a, 4);
+    push(&a, 3);
+    push(&a, 30);
+
+    cout << "Linked List before sorting \n";
+    printList(a);
+
+    quickSort(a);
+
+    cout << "Linked List after sorting \n";
+    printList(a);
+
+    return 0;
+}
+ Output : Linked List before sorting
+30  3  4  20  5
+Linked List after sorting
+3  4  5  20  30 Time Complexity: Time complexity of the above implementation is same as time complexity of QuickSort() for arrays. It takes O(n^2) time in worst case and O(nLogn) in average and best cases. The worst case occurs when the linked list is already sorted. Exercise: The above implementation is for doubly linked list. Modify it for singly linked list. Note that we don’t have prev pointer in singly linked list. Quicksort can be implemented for Linked List only when we can pick a fixed point as pivot (like last element in above implementation). Random QuickSort cannot be efficiently implemented for Linked Lists. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. edward why need swap (&arr[i + 1], &arr[h]); after loop? Javed to put the pivot which is the last element, at its correct place. LinuxWorld sorting the list using linked list #include #include struct Node { int data ; struct Node * next ; }; typedef struct Node Node ; Node *middle(Node *head) { Node *temp ; if(head->next == NULL) return head ; else if(head->next->next == NULL) return head ; // clearly there must be at least three nodes in the list temp = head ; head = head->next ; while(head && head->next) { temp = temp->next ; head = head->next->next ; } return temp ; } Node *merge_sort(Node *head) { Node *list1 ,*list2 ; Node *temp , *newhead = NULL ,*rear; if(!head ||head->next == NULL) return head ; temp = middle(head) ; list2 = temp->next ; temp->next = NULL ; list1 = merge_sort(head) ; list2 = merge_sort(list2) ; while(list1 && list2 ) { if(list1->data > list2->data) { if(newhead == NULL) { newhead = list2 ; rear = newhead ; list2 = list2->next ; } else { rear->next = list2 ; list2 = list2->next ; rear = rear->next ; } } else { if(newhead == NULL) { newhead = list1 ; rear = newhead ; list1 = list1->next ; } else { rear->next = list1 ; list1 = list1->next ; rear = rear->next ; } } } if(list1) rear->next = list1 ; else rear->next = list2 ; return newhead ; } Node *insert(Node *head , int val) { Node *temp = malloc(sizeof(Node)) ; temp->data = val ; temp->next = NULL ; if(!head) return temp ; temp->next = head ; return temp ; } void deleteList(Node *head) { if(!head) return ; deleteList(head->next) ; free(head) ; } void DeleteIter(Node *head) { Node *temp ; while(head) { temp = head->next ; free(head) ; head = temp; } } void display(Node *head) { while(head) { printf(” %d “,head->data) ; head = head->next ; } } int main() { int data[100] = {33, 19, 17, 62, 39, 35, 26, 49, 36, 50, 21, 49, 55, 47, 20, 64, 25, 34, 22, 21, 57, 12, 44, 20, 34, 18, 47, 66, 58, 47, 52, 7, 8, 66, 35, 21, 55, 17, 15, 35, 61, 63, 59, 26, 1, 62, 52, 31, 11, 24, 21, 49, 64, 64, 16, 26, 38, 34, 25, 32, 24, 46, 38, 54, 47, 6, 47, 15, 14, 59, 64, 31, 39, 38, 24, 32, 5, 64, 50, 64, 50, 32, 21, 17, 32, 18, 46, 32, 20, 31, 38, 47, 55, 60, 40, 6, 47, 38, 20, 41} ; Node *head = NULL ; int i ; for(i = 0 ; i < 100 ; i++) head = insert(head , data[i]) ; display(head) ; head = merge_sort(head) ; printf("\n\n\n\n") ; display(head) ; DeleteIter(head) ; return 0 ; } Ronny @GeeksforGeeks In the function _quicksort the condition states that if (h != NULL && l != h && l != h->next) shouldn’t it be h!=l->next since h pointer contains the last node and the l pointer contains the first(head)node so how can head be equal to last->next (Note : It is not a circular linked list) Ronny its not working if I remove that condition. Can anyone explain in which case it is required. nehamahajan h is last node of every sublist so h->next is possible and l!= h->next. It simply means that there must be more than two elements in sublists. numid One doubt,when and why does low becomes equal to high->next ? Please comment  
+void _quickSort(struct node* l, struct node *h)
+{
+    if (h != NULL && l != h && l != h->next)
+    {
+        struct node *p = partition(l, h);
+        _quickSort(l, p->prev);
+        _quickSort(p->next, h);
+    }
+}
+ 
+ Pushkar Hey!.. Here in this code when recursive function “void _quickSort(struct node* l, struct node *h)” is narrowed down to two elements then the pivot element is either the first or second element .so.. case 1:when pivot element is the first element (p==l) _quickSort(l, p->prev); set l as l and h as the previous element of p(or l) so the condition l!=h->next is violated() case 1:when pivot element is the second element (p==h) _quickSort(p->next,h); set h as h and l as the next element of p(or h) so the condition l!=h->next is violated Hope it would help you!!! Akhil @GeeksforGeeks This partition function gives O(n^2) in all cases. It would be better to employ selection sort than to use this partition function (because of the recursion cost). Below, i provide a pivoted partition function with complexity O(nlogn).  
+#include<stdio.h>
+#include<stdlib.h>
+
+struct dnode
+{
+    int info;
+    struct dnode *b;
+    struct dnode *f;
+};
+
+typedef struct dnode *Dnode;
+
+void insert(Dnode *head,int num)
+{
+    Dnode temp  = (Dnode)malloc(sizeof(struct dnode));
+    temp->info = num;
+    temp->b = NULL;
+    temp->f = *head;
+    if(*head)
+        (*head)->b = temp;
+    *head = temp;
+}
+
+void display(Dnode head)
+{
+    while(head)
+    {
+        printf("%d ",head->info);
+        head = head->f;
+    }
+    putchar('\n');
+}
+Dnode partition(Dnode head, Dnode tail)
+{
+    Dnode start = head;
+    int pivot = head->info;
+    int flag = 0;
+
+    while(!flag)
+    {
+        while(head && head->info<=pivot)
+        {
+            head = head->f;
+            if(head == tail)
+                flag = 1;
+        }
+        while(tail && tail->info>pivot)
+        {
+            tail = tail->b;
+            if(head == tail)
+                flag = 1;
+        }
+        if(!flag)
+        {
+            int temp = head->info;
+            head->info = tail->info;
+            tail->info = temp;
+        }
+    }
+    //swap a->tail with pivot
+    int temp = tail->info;
+    tail->info = start->info;
+    start->info = temp;
+    return tail;
+}
+void quicksort(Dnode head, Dnode tail)
+{
+    if(!head || !tail)
+        return;
+	if(head == tail)
+		return;
+    Dnode part = partition(head,tail);
+
+    Dnode a = part->b, b = part->f;
+
+    if(head == part)
+        a = part;
+    if(part == tail)
+        b = part;
+
+    quicksort(head,a);
+    quicksort(b,tail);
+
+}
+
+int main()
+{
+    Dnode head = NULL;
+    insert(&head,2);
+    Dnode tail = head;
+    /*insert(&head,6);
+    insert(&head,5);
+    insert(&head,1);
+    insert(&head,7);
+    insert(&head,9);
+    insert(&head,11);*/
+    insert(&head,1);
+    insert(&head,3);
+    insert(&head,5);
+    insert(&head,4);
+    display(head);
+    
+    quicksort(head,tail);
+    display(head);
+    return 0;
+}
+
+ http://code.scottshipp.com Scott Shipp My thought is that this is good overall, but I wanted to mention variable names could be clearer. Using “l” and “h” for start and end indices is the kind of thing that really interferes with code readability and maintainability. abhishek08aug Intelligent Ronny You seem to have read all the posts/topics of geeksforgeeks. Cool stuff. Maybe I should say it for you : “Intelligent :)” Srinath I have one serious doubt… you are swapping just the data field,in this case it is just a single int but I dont think that is a good practice.You should swap the entire node by adjusting pointers so that no matter what the object that the linked list is holding the code doesn’t change… You didn’t use previous pointer except in one or two cases… To remove it completely,in partition function store pointer to last element of left partition before swapping h->data and i->data..then return this pointer instead of i. then just change quicksort function to accomodate this. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

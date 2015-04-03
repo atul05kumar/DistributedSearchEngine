@@ -1,0 +1,183 @@
+Check divisibility by 7 - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Check divisibility by 7 Given a number, check if it is divisible by 7. You are not allowed to use modulo operator, floating point arithmetic is also not allowed. A simple method is repeated subtraction. Following is another interesting method. Divisibility by 7 can be checked by a recursive method. A number of the form 10a + b is divisible by 7 if and only if a – 2b is divisible by 7. In other words, subtract twice the last digit from the number formed by the remaining digits. Continue to do this until a small number. Example: the number 371: 37 – (2×1) = 37 – 2 = 35; 3 – (2 × 5) = 3 – 10 = -7; thus, since -7 is divisible by 7, 371 is divisible by 7. Following is C implementation of the above method 
+// A Program to check whether a number is divisible by 7
+#include <stdio.h>
+
+int isDivisibleBy7( int num )
+{
+    // If number is negative, make it positive
+    if( num < 0 )
+        return isDivisibleBy7( -num );
+
+    // Base cases
+    if( num == 0 || num == 7 )
+        return 1;
+    if( num < 10 )
+        return 0;
+
+    // Recur for ( num / 10 - 2 * num % 10 ) 
+    return isDivisibleBy7( num / 10 - 2 * ( num - num / 10 * 10 ) );
+}
+
+// Driver program to test above function
+int main()
+{
+    int num = 616;
+    if( isDivisibleBy7(num ) )
+        printf( "Divisible" );
+    else
+        printf( "Not Divisible" );
+    return 0;
+}
+ Output: Divisible How does this work? Let ‘b’ be the last digit of a number ‘n’ and let ‘a’ be the number we get when we split off ‘b’. The representation of the number may also be multiplied by any number relatively prime to the divisor without changing its divisibility. After observing that 7 divides 21, we can perform the following:  10.a + b after multiplying by 2, this becomes  20.a + 2.b and then  21.a - a + 2.b Eliminating the multiple of 21 gives  -a + 2b and multiplying by -1 gives  a - 2b There are other interesting methods to check divisibility by 7 and other numbers. See following Wiki page for details. References: http://en.wikipedia.org/wiki/Divisibility_rule Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: MathematicalAlgo Tweet Writing code in comment? Please use ideone.com and share the link here. Pravin i’d wud lik to create a prgm to check if the given no is divisible by 7 if so den the sum of digits using do-while. Can any1 help me out Dark boolean isDivisibleby7=false; if(num%7==0) return true; else return false; if(true) { int sum=0,rem; do{ rem=num%10; sum=sum + rem; num=num/10; } while(num!=0); sop(“Sum of the digits: “+ sum); } else sop(number+” is not divisible by 7″); a there is no need to play with division by 10, since 7 is almost 2^3, we have unsigned mod7(unsigned long v){ while(v>7) v=(v>>3) + (v&7); if(v==7) v-=7; return v; } ubiquitous public static boolean isDivisible(int x) { while(x>0){ x=x-7; } if(x==0){ return true; } return false; } http://www.nikoo28.blogspot.com nikoo28 @geeks4geeks- the solution provided works only for small numbers that may come in the range of long long…how about a number that has say 39 digits…how to proceed then..?? Please help someone…the function can be like…  
+int isdivisbleby7(char *num)
+{
+// code
+}
+ geekguy There are datatypes available in some languages to deal with large numbers. Like in java , BigInteger. If there is no such datatype then string or arrays are always there to help us ! Lekshmana Perumal M Divisibility by 7 using following method also conside a number: 43747683 Group the numbers by 3digit so 43 747 683 add all the no’s in odd position 43+683=726 do same as even position 747 now substract “odd Pos – even pos” we get 726-747 =-21 this is divided by 7. So give no is divided by 7. Vannu The logic is to find the nearest divisible number by 7 and compare it with the input. If matches then return 1 else 0.  
+/* Paste your code here (You may delete these lines if not writing code) */
+
+int isDivisibleBySeven(int n)
+{
+   if(n == 0)
+      return 1;
+   if(n < 0)
+     n = -1 *n;
+   int a = n >> 3 + 1;
+   if(n == (a << 3) - a)
+       return 1;
+   else
+       return 0;
+} 
+
+Please let me know if I am missing something here.
+
+ http://primeasdivisor.blogspot.com Silvio Moura Velho If you want to know the first real rule for divisibility by 7 access: primeasdivisor.blogspot.com Hongliang With some google search, one can find a much faster and more general way using bitwise: Source: http://stackoverflow.com/questions/48053/is-there-an-alternative-to-using-modulus-in-c-c  
+unsigned char Mod7Byte(unsigned char X)
+{
+ X = (X&7) + ((X>>3)&7) + (X>>6);
+ X = (X&7) + (X>>3);
+
+ return X==7 ? 0 : X;
+}
+ if it returns 0, this number can be divided by 7. The detailed explanation can be found in the source link. sreeram we can also prove this way y is it working … 10a+b = 7a+3a+7b-6b =7(a+b)+3(a-2b) if a-2b is divisible by 7 it fine then … nitin88 That’s simple and great Sunny Mittal http://www.ideasopentoall.blogspot.in/2012/01/divisibility-and-prime-numbers.html I generalized sometime back.Please check the link. http://sites.google.com/site/ankur2136project Ankur Jain /* Convert the number into Binary form. Break them into groups of 3. Add the groups. Repeat if the answer is more than 3 digits. If the final result is 111, then it is a multiple of 7. Actually, this is an extension of octal (base-8) which explain why this works. Similar to the rule of 9 in base 10, there is a rule of 7 in base 8. Since 3 binary digits equate to a single octal digit, you have the same thing. */ http://sites.google.com/site/ankur2136project Ankur Jain Convert the number into binary form Break them into groups of 3. Add the groups. Repeat if the answer is more than 3 digits. If the final result is 111, then it is a multiple of 7. Actually, this is an extension of octal (base-8) which explain why this works. Similar to the rule of 9 in base 10, there is a rule of 7 in base 8. Since 3 binary digits equate to a single octal digit, you have the same thing. bin01  
+boolean isDivisibleBy7(int n) {
+		if(n == 0) {
+			return false;
+		}
+		
+		if(n < 0) {
+			n = -1 * n;
+		}
+		
+		int x = 1;
+		int z = n;
+		int temp = z;
+		while(z > 0) {
+			temp = z;
+			z = z - 7 * x;
+			if(z == 0) {
+				return true;
+			}
+			if(z < 0 && x == 1) {
+				return false;
+			} 
+			if(z < 0) {
+				//we might have overshot
+				z = temp;
+				x = 1;
+			} else {
+				//multiply by 2 if we are still in range
+				x = 2*x;
+			}
+		}
+		return false;
+	}
+ coder mentioned in the question “floating point arithmetic is also not allowed”. – , * , / -> are floating point arithmetic…but code is using these…. so simpley negating 7 from the number is much faster approach as this one is using recursion. /* isDivisibleBy7( num / 10 – 2 * ( num – num / 10 * 10 ) ); */  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Kartik These operators are used for integer arithmetic, not floating point. If floating point arithmetic is allowed, then following is a simple method.  
+// A Program to check whether a number is divisible by 7
+#include <stdio.h>
+
+int isDivisibleBy7( int num )
+{
+   return (num/7 == num/7.0);
+}
+
+// Driver program to test above function
+int main()
+{
+    int num = 616;
+    if( isDivisibleBy7(num ) )
+        printf( "Divisible" );
+    else
+        printf( "Not Divisible" );
+    return 0;
+}
+
+ geekguy Thanks. I didn’t think of this solution ! pradeep gupta  
+ int isDivisibleBy7(int n){
+     
+     int x=(n/7);
+     if(n==(x*7)){
+         return 1;             
+     }else{
+         return 0;
+     }    
+ }
+ int main(){
+     
+     int n;
+     while(cin>>n){
+          if(isDivisibleBy7(n)){
+               cout<<"YES"<<endl;                      
+          }else{
+                cout<<"NO"<<endl;      
+          }              
+     }    
+     
+ }
+
+ pradeep gupta Since we can’t use modulo operator, rest operators we can use, I am not seeing anything wrong in this code. Please comment if I am missing anything. Ashish Wouldnt the code fail for cases like x=64,65 and many more?, the remainder is ignored and only the quotient is considered. Ashish Please excuse my earlier comment, the code seems to be perfectly fine. pradeep gupta Thanks for verification of this code. pradeep gupta In this Question, only we should not use modulo operator. So we can write code like this:  
+/* Paste your code here (You may delete these lines if not writing code) */
+ int isDivisibleBy7(int n){
+     
+     int x=(n/7);
+     if(n==(x*7)){
+         return 1;             
+     }else{
+         return 0;
+     }    
+ }
+ int main(){
+     
+     int n;
+     while(cin>>n){
+          if(isDivisibleBy7(n)){
+               cout<<"YES"<<endl;                      
+          }else{
+                cout<<"NO"<<endl;      
+          }              
+     }    
+     
+ }
+
+ Please comment, if anything wrong in this. avinash same solution came in my mind pradeep gupta Its good.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Rishabh  
+#include<stdio.h>
+#include<stdlib.h>
+int isDivisible(int x){
+if(x==0)
+printf("divisible");
+else{
+if(x<0){
+printf("not divisible");
+exit(0);}
+isDivisible(x-7);
+}
+}
+void main(){
+int x;
+scanf("%d",&x);
+isDivisible(x);
+} Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

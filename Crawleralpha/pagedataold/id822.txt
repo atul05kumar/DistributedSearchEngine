@@ -1,0 +1,245 @@
+Segregate Even and Odd numbers - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Segregate Even and Odd numbers Given an array A[], write a function that segregates even and odd numbers. The functions should put all even numbers first, and then odd numbers. Example Input = {12, 34, 45, 9, 8, 90, 3} Output = {12, 34, 8, 90, 45, 9, 3} In the output, order of numbers can be changed, i.e., in the above example 34 can come before 12 and 3 can come before 9. The problem is very similar to our old post Segregate 0s and 1s in an array, and both of these problems are variation of famous Dutch national flag problem. 
+Algorithm: segregateEvenOdd()
+1) Initialize two index variables left and right:  
+            left = 0,  right = size -1 
+2) Keep incrementing left index until we see an odd number.
+3) Keep decrementing right index until we see an even number.
+4) If lef < right then swap arr[left] and arr[right]
+ Implementation: 
+#include<stdio.h>
+
+/* Function to swap *a and *b */
+void swap(int *a, int *b);
+
+void segregateEvenOdd(int arr[], int size)
+{
+  /* Initialize left and right indexes */
+  int left = 0, right = size-1;
+  while(left < right)
+  {
+     /* Increment left index while we see 0 at left */
+     while(arr[left]%2 == 0 && left < right)
+        left++;
+
+     /* Decrement right index while we see 1 at right */
+     while(arr[right]%2 == 1 && left < right)
+        right--;
+
+     if(left < right)
+     {
+       /* Swap arr[left] and arr[right]*/
+       swap(&arr[left], &arr[right]);
+       left++;
+       right--;
+     }
+  }
+}    
+
+/* UTILITY FUNCTIONS */
+void swap(int *a, int *b)
+{
+  int temp = *a;
+  *a = *b;
+  *b = temp;
+}     
+
+/* driver program to test */
+int main()
+{
+  int arr[] = {12, 34, 45, 9, 8, 90, 3};
+  int arr_size = 7, i = 0;
+
+  segregateEvenOdd(arr, arr_size);
+
+  printf("array after segregation ");
+  for(i = 0; i < arr_size; i++)
+    printf("%d ", arr[i]);
+
+  getchar();
+  return 0;
+}
+ Time Complexity: O(n) References: http://www.csse.monash.edu.au/~lloyd/tildeAlgDS/Sort/Flag/ Please write comments if you find the above code/algorithm incorrect, or find better ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. destroyer #include main() { int a[]={12,34,45,9,8,90,3}; int n=sizeof(a)/sizeof(a[0]); cons(a,n); getch(); } cons(int a[],int n) { int i,j,temp; for(i=0;i<n;i++) { for(j=i+1;j<n;j++) { if(a[i]%2==1 & a[j]%2!=1) { temp=a[i]; a[i]=a[j]; a[j]=temp; } } } for(i=0;i<n;i++) printf("%d ",a[i]); } shelly void segregateEvenAndOdd( int A[], int N ) { int countOfEven = -1, i = 0; while ( i < N ) { if ( !( A[i] & 1 ) ) swap ( A[i], A[++countOfEven] ); i++; } } PS: ordering is also maintained. Vinodhini doesn’t work for this case : 1 3 4 2 5 12 19 10 . Can you check? vivek here the order of numbers are not maintained , input-{12,34,45,9,8,90,3} output-{12,34,90,8,9,45,3} expected -{12,34,8,90,45,9,3} how can we maintain the order? me.abhinav Yet another solution with O(n) time and O(1) space is as follows: 1) Initialize a variable ‘toSwap’ = index of first odd number. 2) Traverse the array from there onwards upto end. If current element (i.e. arr[i]) is odd then proceed to next element or else if current element (i.e. arr[i]) is even then SWAP(arr[i], arr[toSwap]) and increment ‘toSwap’ by 1.  
+#include <iostream>
+//#define SIZ 100
+//#define MAX(a, b) (a>b)?a:b
+
+using namespace std;
+
+void swap(int *a, int *b){
+	int temp = *a;
+	*a = *b;
+	*b = temp;
+}
+
+int main()
+{
+	int a[] = {12, 33, 44, 9, 8, 91, 6}, n;
+	int i, toSwap;
+
+	n = sizeof(a)/sizeof(a[0]);
+
+	for(i=0 ; i<n ; i++){
+		if(a[i]&1){
+			toSwap = i;
+			break;
+		}
+	}
+	for( ; i<n ; i++){
+		if(!(a[i]&1)){
+			swap(&a[toSwap], &a[i]);
+			toSwap++;
+		}
+	}
+	for (i=0 ; i < n ; i++){
+		cout<<a[i]<<" ";
+	}
+	cout<<"\n\n";
+	
+	return 0;
+}
+
+ akshat gupta Analogous to the partition subroutine of quicksort.. except for, instead of comparing ‘>’ or ‘<’ with pivot, we partion for even and odd.. Sandeep void segOddEven(int arr[], int n){ int start = 0; int end = n-1; while(start < end){ if(arr[start]%2 == 1 && arr[end]%2 == 0){ int temp = arr[start]; arr[start] = arr[end]; arr[end] = temp; start++; end–; } else if(arr[start]%2 == 1){ end–; } else{ start++; } } } AKSHAT how to maintain the relative ordering(stable ordering) for even’s and odd’s in context to the input ordering Balasubramanian.N This approach is similar to the Partition algorithm given in CLRS for QuickSort. This avoids the extra checks that are needed in the normal approach.  
+void segregate(int* a,int len)
+{
+	int i=-1;
+	for(int j=0;j<len;++j)
+	{
+		if(a[j]%2==0)
+		{
+			++i;
+			int temp=a[i];
+			a[i]=a[j];
+			a[j]=temp;
+		}
+	}
+}
+
+Please comment, if you find anything wrong.
+
+Thanks,
+Balasubramanian.N
+
+ crazy how to do above problem if we want to maintain the order of the sequence…. i/p {12, 34, 45, 9, 8, 90, 3} o/p {12, 34, 8, 90, 45, 9, 3} http://www.groupme.in Nikin Kumar Jain Java Source Code  
+package com.defaults;
+
+public class MyFirst {
+	
+	
+	public static void main(String[] args) {
+		int a[] = {12,34,45,9,8,90,3};
+		
+		int i=0, j=a.length-1;
+		
+		while(i<j)
+		{
+			while(a[i]%2==0)
+				i++;
+			while(a[j]%2!=0)
+				j--;
+			if(i<j)
+			{
+				int temp = a[i];
+				a[i] = a[j];
+				a[j] = temp;
+			}
+		}
+		
+		for(i=0;i<a.length;i++)
+			System.out.println(a[i]+" ");
+	}
+}
+ Anuj Bansal  
+#include<stdio.h>
+#include<math.h>
+#define MAX 12
+void swap(int *a, int *b) {
+        int temp;
+        temp = *a;
+        *a = *b;
+        *b = temp;
+}
+void segregate(int a[MAX]) {
+        int i,j;
+        i=0;j=MAX-1;
+        while(i < MAX) {
+                if(a[i]%2 == 0) {
+                        while(a[j]%2 == 0)
+                                j--;
+                swap(&a[i],&a[j]);
+                j--;
+                }
+                else 
+                        i++;
+        }
+
+        for(i=0;i < MAX;i++)
+                printf("%d,",a[i]);
+}
+
+int main() {
+        int a[MAX]={1,2,3,4,5,6,7,8,9,10,11,12};
+        segregate(a);
+        return 0;
+}
+ vikram while loop inside a while loop … complexity is 0(n2) right??? dev exactly what I thought initially that it is O(n^2)……but look carefully each index is touched only once and every time left index is incremented if it contains even number and right index is decremented if it contains odd number…and swap happens if odd number is in “left” index and even number is in “right” index…and after swapping again left is incremented and right is decremented..so no index is visited twice….hence it is o(n)… Deborshi   void segregateEvenOdd2(int a[], int size){ int left=0; int right = size-1; while(left < right){ switch (a[left] % 2){ case 0: left++; break; case 1: a[left] ^= a[right]; a[right] ^= a[left]; a[left] ^=a[right]; right –; break; } } } Malathi can you post the code to segregate even and odd without changing its position? Thanks http://abx.com max can we do this question in O(n) if order has to be maintained Pravesh my question is……. a[]={2,4,1,5,6,8,7,5,11,12,18} then out put should be 1 5 2 4 7 15 6 8 12 11 18 swap even number to odd or odd to even vinit The solution provided by GeeksforGeeks will change the order of array. Input = {12, 34, 45, 9, 8, 90, 3} Output = {12, 34, 8, 90, 45, 9, 3} output according to the given solution will come sth like { 12, 34, 90, 8, 9, 45, 3 } which is not as expected. Correct me if i m wrong. GeeksforGeeks @vinit: Take a closer look at the question. It says “In the output, order of numbers can be changed, i.e., in the above example 34 can come before 12 and 3 can come before 9.” vinit I didnt read the question properly, sorry for that. But in expected output, they are maintaining the order of elements in which they are coming in i/p array help please @kartik and justGautam thanks guys for making me clear . i am a noob in optimization techniques. help please  #include<iostream.h>
+
+
+using namespace std;
+
+int main()
+{
+    int t[7] = {12, 34, 45, 9, 8, 90, 3};
+    int odd[100];    int eve[100],count=0,count1=0;
+    for(int i=0;i<7;i++)
+    {
+            if(t[i]%2==0)
+            {
+            eve[count]=t[i];count++;
+            }
+            else
+            {
+            odd[count1]=t[i];count1++;
+            }
+    }
+
+    for(int j=0;j<count;j++)cout<<eve[j]<<endl;
+    for(int j=0;j<count1;j++)cout<<odd[j]<<endl;
+
+    cin.get();
+    cin.ignore();
+    return 0;
+} what wrong with this code ? it will give u the output u needed .. kartik This is also fine, but the difference is of extra space that you use for even[] and odd[]. justGautam Though the solution is technically correct, the solution provided by geeksforgeeks is preferable because of the following two reasons: 1. Exact (not Asymptotic) Time complexity is more in your solution 2. Your solution needs extra space for storing EVEN and ODD elements. gokul really cool good job very useful Saira Gul how abt this one???  
+public void segregate(int a[]){
+
+
+	int last = a.length-1;
+
+	int elast = 0;
+
+	for(int i=0; i<=last; i++){
+
+		if( (a[i]%2) == 0){
+
+			int temp = a[i];
+			a[i]     = a[elast];
+			a[elast] = temp;
+			++elast;
+
+		} // end if
+
+	}
+
+
+
+}// end fun
+ Hari  
+j = 1;
+k = n;
+while(j<k)
+{  
+   if((a[j]%2)!=0)
+     swap(a[j],k--);
+   else 
+     j++;
+}
+ is this works? eclipse Fine………!!! Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

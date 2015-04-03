@@ -1,0 +1,183 @@
+Print all possible combinations of r elements in a given array of size n - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Print all possible combinations of r elements in a given array of size n Given an array of size n, generate and print all possible combinations of r elements in array. For example, if input array is {1, 2, 3, 4} and r is 2, then output should be {1, 2}, {1, 3}, {1, 4}, {2, 3}, {2, 4} and {3, 4}. Following are two methods to do this. Method 1 (Fix Elements and Recur) We create a temporary array ‘data[]’ which stores all outputs one by one. The idea is to start from first index (index = 0) in data[], one by one fix elements at this index and recur for remaining indexes. Let the input array be {1, 2, 3, 4, 5} and r be 3. We first fix 1 at index 0 in data[], then recur for remaining indexes, then we fix 2 at index 0 and recur. Finally, we fix 3 and recur for remaining indexes. When number of elements in data[] becomes equal to r (size of a combination), we print data[]. Following diagram shows recursion tree for same input. Following is C++ implementation of above approach. 
+// Program to print all combination of size r in an array of size n
+#include <stdio.h>
+void combinationUtil(int arr[], int data[], int start, int end, int index, int r);
+
+// The main function that prints all combinations of size r
+// in arr[] of size n. This function mainly uses combinationUtil()
+void printCombination(int arr[], int n, int r)
+{
+    // A temporary array to store all combination one by one
+    int data[r];
+
+    // Print all combination using temprary array 'data[]'
+    combinationUtil(arr, data, 0, n-1, 0, r);
+}
+
+/* arr[]  ---> Input Array
+   data[] ---> Temporary array to store current combination
+   start & end ---> Staring and Ending indexes in arr[]
+   index  ---> Current index in data[]
+   r ---> Size of a combination to be printed */
+void combinationUtil(int arr[], int data[], int start, int end, int index, int r)
+{
+    // Current combination is ready to be printed, print it
+    if (index == r)
+    {
+        for (int j=0; j<r; j++)
+            printf("%d ", data[j]);
+        printf("\n");
+        return;
+    }
+
+    // replace index with all possible elements. The condition
+    // "end-i+1 >= r-index" makes sure that including one element
+    // at index will make a combination with remaining elements
+    // at remaining positions
+    for (int i=start; i<=end && end-i+1 >= r-index; i++)
+    {
+        data[index] = arr[i];
+        combinationUtil(arr, data, i+1, end, index+1, r);
+    }
+}
+
+// Driver program to test above functions
+int main()
+{
+    int arr[] = {1, 2, 3, 4, 5};
+    int r = 3;
+    int n = sizeof(arr)/sizeof(arr[0]);
+    printCombination(arr, n, r);
+}
+ Output: 1 2 3
+1 2 4
+1 2 5
+1 3 4
+1 3 5
+1 4 5
+2 3 4
+2 3 5
+2 4 5
+3 4 5 How to handle duplicates? Note that the above method doesn’t handle duplicates. For example, if input array is {1, 2, 1} and r is 2, then the program prints {1, 2} and {2, 1} as two different combinations. We can avoid duplicates by adding following two additional things to above code. 1) Add code to sort the array before calling combinationUtil() in printCombination() 2) Add following lines at the end of for loop in combinationUtil() 
+        // Since the elements are sorted, all occurrences of an element
+        // must be together
+        while (arr[i] == arr[i+1])
+             i++; See this for an implementation that handles duplicates. Method 2 (Include and Exclude every element) Like the above method, We create a temporary array data[]. The idea here is similar to Subset Sum Problem. We one by one consider every element of input array, and recur for two cases: 1) The element is included in current combination (We put the element in data[] and increment next available index in data[]) 2) The element is excluded in current combination (We do not put the element and do not change index) When number of elements in data[] become equal to r (size of a combination), we print it. This method is mainly based on Pascal’s Identity, i.e. ncr = n-1cr + n-1cr-1 Following is C++ implementation of method 2. 
+// Program to print all combination of size r in an array of size n
+#include<stdio.h>
+void combinationUtil(int arr[],int n,int r,int index,int data[],int i);
+
+// The main function that prints all combinations of size r
+// in arr[] of size n. This function mainly uses combinationUtil()
+void printCombination(int arr[], int n, int r)
+{
+    // A temporary array to store all combination one by one
+    int data[r];
+
+    // Print all combination using temprary array 'data[]'
+    combinationUtil(arr, n, r, 0, data, 0);
+}
+
+/* arr[]  ---> Input Array
+   n      ---> Size of input array
+   r      ---> Size of a combination to be printed
+   index  ---> Current index in data[]
+   data[] ---> Temporary array to store current combination
+   i      ---> index of current element in arr[]     */
+void combinationUtil(int arr[], int n, int r, int index, int data[], int i)
+{
+    // Current cobination is ready, print it
+    if (index == r)
+    {
+        for (int j=0; j<r; j++)
+            printf("%d ",data[j]);
+        printf("\n");
+        return;
+    }
+
+    // When no more elements are there to put in data[]
+    if (i >= n)
+        return;
+
+    // current is included, put next at next location
+    data[index] = arr[i];
+    combinationUtil(arr, n, r, index+1, data, i+1);
+
+    // current is excluded, replace it with next (Note that
+    // i+1 is passed, but index is not changed)
+    combinationUtil(arr, n, r, index, data, i+1);
+}
+
+// Driver program to test above functions
+int main()
+{
+    int arr[] = {1, 2, 3, 4, 5};
+    int r = 3;
+    int n = sizeof(arr)/sizeof(arr[0]);
+    printCombination(arr, n, r);
+    return 0;
+}
+ Output: 1 2 3
+1 2 4
+1 2 5
+1 3 4
+1 3 5
+1 4 5
+2 3 4
+2 3 5
+2 4 5
+3 4 5 How to handle duplicates in method 2? Like method 1, we can following two things to handle duplicates. 1) Add code to sort the array before calling combinationUtil() in printCombination() 2) Add following lines between two recursive calls of combinationUtil() in combinationUtil() 
+        // Since the elements are sorted, all occurrences of an element
+        // must be together
+        while (arr[i] == arr[i+1])
+             i++; See this for an implementation that handles duplicates. This article is contributed by Bateesh. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: MathematicalAlgo, Recursion Tweet Writing code in comment? Please use ideone.com and share the link here. Napender public class FindCombination{ public static void main(String []args){ int[] arr = {1,2,3,4}; int i, j; for(i=0;i<arr.length;i++) { for(j=i+1;j<arr.length;j++) { System.out.println(arr[i] +" " + arr[j]); } } } } Anand Swaroop see this can be a nother solution. http://ideone.com/Mv04Oy can any one tell me how to post code here ? Guest void Combination(int numInPair[], int indexInPair, int numArray[],int startOfArray, int endOfArray, int maxCount) { if(endOfArray == 0 || indexInPair == maxCount) // Termination Condition { for(int i = 0; i< maxCount; i++) // Printing Pair's { // Number One By cout << numInPair[i]<<" "; // One } // cout<<"n"; // Next Line } else { for(int i = startOfArray; i < endOfArray; i++) { numInPair[indexInPair] = numArray[i]; Combination(numInPair,indexInPair+1,numArray,i+1,endOfArray,maxCount); // indexInPair+1 : proceding to next position in pair // i+1 : excluding element by incrementing start of array. // So in next call we iterate for new start to end } } } void Combination(int * intArray,int arrLength, int pairLength) { int * arrPair = new int[pairLength]; Combination(arrPair,0,intArray,0,arrLength,pairLength); delete[] arrPair; } Guest #include using namespace std; void Combination(int numInPair[], int indexInPair, int numArray[],int startOfArray, int endOfArray, int maxCount) { if(endOfArray == 0 || indexInPair == maxCount) // Termination Condition { for(int i = 0; i< maxCount; i++) // Printing Pair's { // Number One By cout << numInPair[i]<<" "; // One } // cout<<"n"; // Next Line } else { for(int i = startOfArray; i < endOfArray; i++) { numInPair[indexInPair] = numArray[i]; Combination(numInPair,indexInPair+1,numArray,i+1,endOfArray,maxCount); // indexInPair+1 : proceding to next position in pair // i+1 : excluding element by incrementing start of array. // So in next call we iterate for new start to end } } } void Combination(int * intArray,int arrLength, int pairLength) { int * arrPair = new int[pairLength]; Combination(arrPair,0,intArray,0,arrLength,pairLength); delete[] arrPair; } int main() { int arrOfNumbers[] = {1, 2, 3, 4, 5}; int length = sizeof(arrOfNumbers)/sizeof(arrOfNumbers[0]); int sizeOfPair = 3; Combination(arrOfNumbers,length,sizeOfPair); return 0; } Guest #include using namespace std; void Combination(int numInPair[], int indexInPair, int numArray[],int startOfArray, int endOfArray, int maxCount) { if(endOfArray == 0 || indexInPair == maxCount) // Termination Condition { for(int i = 0; i< maxCount; i++) // Printing Pair's { // Number One By cout << numInPair[i]<<" "; // One } // cout<<"n"; // Next Line } else { for(int i = startOfArray; i < endOfArray; i++) { numInPair[indexInPair] = numArray[i]; Combination(numInPair,indexInPair+1,numArray,i+1,endOfArray,maxCount); // indexInPair+1 : proceding to next position in pair // i+1 : excluding element by incrementing start of array. // So in next call we iterate for new start to end } } } void Combination(int * intArray,int arrLength, int pairLength) { int * arrPair = new int[pairLength]; Combination(arrPair,0,intArray,0,arrLength,pairLength); delete[] arrPair; } int main() { int arrOfNumbers[] = {1, 2, 3, 4, 5}; int length = sizeof(arrOfNumbers)/sizeof(arrOfNumbers[0]); int sizeOfPair = 3; Combination(arrOfNumbers,length,sizeOfPair); return 0; } abhilash jaiswal i think we should make a copy of the array and make change in that array and then pass it recrsively becoz i think when we pass the name of the array it is call by reference but not call by value so that means we actually are making changes in the same array Prashanth good work guys….. I am beginner to this site. I found very difficult while understanding the code in the begining, coz I am from non CS background. but once after understanding the code,feeling very happy. keep updating guys khizar how we make this program using simple techniques like loops.. not functions using recurrsion etc. just for beginners please!! like me Jamal Maaz public class Recurssion1 { public static void main(String[] args) { int[] a = {1, 2, 3, 4}; int k = 2; recurser(0, k, k, a, “”); } static void recurser(int start, int end, int limit, int[] array, String presentString) { if (presentString.length() == limit) { System.out.println(presentString); return; } for (int i = start; i < end && start < array.length; i++) { String tmp = presentString + array[i]; recurser(++start, ++end, limit, array, tmp); } } } Muthu Good Work. can we get the time and space complexity for those which is listed above Priyank Doshi This is a java version : call it as allCombination(S,0,r,””); void allCombination(char[] S, int s, int r, String output) { int length = S.length; if (r == 1) { for (int i = s; i < length; i++) { System.out.println(output + S[i]); } } else { for (int k = s; k < length - r + 1; k++) { allCombination(S, k + 1, r - 1, output + S[k]); } } } arun kumar #include #include using namespace std; string a; int K, N; void recurse(string instr, int length, int start) { string str; if( length == K) cout<<instr<<"}"<= N) return; else { for(int i= start; i<N; i++) { str = instr + a[i]; if(length < K-1) str = str +", "; recurse(str, length+1, i+1); } } } int main() { cout<<"Please Enter string"<>a; cout<<"Please Enter K"<>K; N = a.length(); recurse("{",0,0); } Anil I think for duplicate case check, the while loop must be while(i+1 <=n && (arr[i] == arr[i+i]) i++; manisha //why not use something simple like this! /*print-all-possible-combinations-of-r-elements-in-a-given-array-of-size-n*/ #include void print(int *num,int size) { int i; printf("n"); for(i=0;i<size;i++) printf("%d ",num[i]); } void print_combinations(int *arr,int n,int r) { int i,j,k,m,num[r]; memset(num,0,r); if(r==1) { for(i=0;i<n;i++) printf("n%d",arr[i]); } else if(r==5) { for(i=0;i<n;i++) printf("%d",arr[i]); } else { //to iterate over the starting number for(i=0;i<=(n-r);i++) { m=i; //to fill the 1st r-1 numbers for(k=0;k<r-1;k++) num[k]=arr[m++]; //to iterate over the end number for(j=m;j<n;j++) { num[k]=arr[j]; print(num,r); } } } } int main() { int arr[]={1,2,3,4,5}; int r=4; print_combinations(arr,sizeof(arr)/sizeof(arr[0]),r); getch(); return 0; } aadi Can we make this kind of combination in case of AVL tree instead of an array. 30 / 20 50 / / 10 40 60 Just say in the above tree I want to search 60: After execution: The output will be: 60 50+10 = 60 40+20 = 60 10+20+30 = 60 kaushik in method 1 : i think within the “for” loop the condition “end-i+1 >= r-index” is unnecessary bcoz that condition will always be satisfied.hence no need to mention it explicitly. amend me if i am wrong.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ amit #include <iostream> #include "stdafx.h" #include "string" using namespace std; void main() { std::string str("12345"); int length = str.length(); int r=5;int y; for(int x=0;x<=(length-r+2);x++) { std::string data(4,’ ‘); int index=0; for(y=x;y<(x+r-1);y++) { data[index++] = str[y]; } for(int j=y;j<length;j++){ std::cout<<data; std::cout<<str[j]<<std::endl; } } } rpatel For Method 1 (Fix Elements and Recur) The condition checked for iteration seems not required. Used and tested with removing additional check, still the o/p is same. for (int i=start; i<=end; i++){ storage[index] = A[i]; combinationUtil(A, storage, i+1, end, index+1, combLen); } Please explain if my understanding is wrong. bateesh @rpatel : The check is used to make sure that we should not start with any invalid/incomplete combination. Say we have 1,2,3,4,5 and r=3 we print 123,124,125,134,135……. then we replace 1 with 2 ans print all combination starting with 2 and same with 3. Now if u remove this check it will check for combination starting with 4.But there will be no such combination.So this check make sure that we should not include any element at index location,which will result in incomplete combination.As we will end up with < r elements. Aravindh Perfect. Was looking for this explanation ! atul for checking duplicates add one more condition to the given code ..which is the following :-  
+while (i < len && arr[i] == arr[i+1])
+{
+   i++;
+} 
+ bateesh This condition is not mandatory as when all the next elements till end are same as current element then even it will compare in the end with the garbage value(after last element),which will terminate the loop. Anil garbage value can be matching condition in rare case for arr[i] == arr[i+1] . As we dont know what the garbage value is. So better to avoid any flaw. S.Kumar What is the time complexity of the algorithm ? spandan Time complexity here is essentialy the total number of output sets possible , which can be easily seen to be : N: total numbers R: size of set to be formed Total possible sets = nCr Ashwin Kumar Time complexity of 1st algorithm = nCr. Time complexity of 2nd algorithm = 2^n (worst case). spandan  
+#include<iostream>
+#include<stdio.h>
+#include<string>
+
+using namespace std;
+
+void print_K_Sets_Of_N_Elements(int a[],int b[],int k,int n)
+{
+	int i,j;
+	
+	for(i=b[k-1];i<n;i++)
+	{
+		for(j=0;j<k-1;j++)
+			cout<<a[b[j]]<<" ";
+		cout<<a[i]<<endl;	
+	}
+	b[k-1]=n-1;
+	
+	while(j>0 && (b[j]-b[j-1])==1 )
+		j--;
+		
+	if(!j) return;
+	else
+	{
+		b[j-1]++;
+		i=b[j-1]+1;
+		for(;j<k;j++)
+			b[j]=i++;
+		
+		print_K_Sets_Of_N_Elements(a,b,k,n);
+	}
+}
+
+
+int main()
+{
+	int a[]={1,2,3,4,5,6};
+	int b[]={0,1,2};
+	
+	print_K_Sets_Of_N_Elements(a,b,3,6);
+	
+}
+ Purushotham one query on the way you are handling duplicates in the given array. // Since the elements are sorted, all occurrences of an element // must be together while (arr[i] == arr[i+1]) i++; In the above approach, how do you print a combination with duplicates? Take my test case below: given array: 1,2,2 valid combination 2,2. how are you including this combination. GeeksforGeeks Please take a closer look at methods. They both print [2, 2] as output. For example, in method 1, we use this loop to avoid fixing the same element more than once (not avoid printing it more than once). Dheeraj @Bateesh Well Done!! Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

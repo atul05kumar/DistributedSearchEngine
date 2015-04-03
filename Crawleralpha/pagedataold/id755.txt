@@ -1,0 +1,205 @@
+XOR Linked List - A Memory Efficient Doubly Linked List | Set 1 - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph XOR Linked List – A Memory Efficient Doubly Linked List | Set 1 An ordinary Doubly Linked List requires space for two address fields to store the addresses of previous and next nodes. A memory efficient version of Doubly Linked List can be created using only one space for address field with every node. This memory efficient Doubly Linked List is called XOR Linked List or Memory Efficient as the list uses bitwise XOR operation to save space for one address. In the XOR linked list, instead of storing actual memory addresses, every node stores the XOR of addresses of previous and next nodes. Consider the above Doubly Linked List. Following are the Ordinary and XOR (or Memory Effiecient) representations of the Doubly Linked List. Ordinary Representation: Node A: prev = NULL, next = add(B) // previous is NULL and next is address of B Node B: prev = add(A), next = add(C) // previous is address of A and next is address of C Node C: prev = add(B), next = add(D) // previous is address of B and next is address of D Node D: prev = add(C), next = NULL // previous is address of C and next is NULL XOR List Representation: Let us call the address variable in XOR representation npx (XOR of next and previous) Node A: npx = 0 XOR add(B) // bitwise XOR of zero and address of B Node B: npx = add(A) XOR add(C) // bitwise XOR of address of A and address of C Node C: npx = add(B) XOR add(D) // bitwise XOR of address of B and address of D Node D: npx = add(C) XOR 0 // bitwise XOR of address of C and 0 Traversal of XOR Linked List: We can traverse the XOR list in both forward and reverse direction. While traversing the list we need to remember the address of the previously accessed node in order to calculate the next node’s address. For example when we are at node C, we must have address of B. XOR of add(B) and npx of C gives us the add(D). The reason is simple: npx(C) is “add(B) XOR add(D)”. If we do xor of npx(C) with add(B), we get the result as “add(B) XOR add(D) XOR add(B)” which is “add(D) XOR 0″ which is “add(D)”. So we have the address of next node. Similarly we can traverse the list in backward direction. We have covered more on XOR Linked List in the following post. XOR Linked List – A Memory Efficient Doubly Linked List | Set 2 References: http://en.wikipedia.org/wiki/XOR_linked_list http://www.linuxjournal.com/article/6828?page=0,0           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. devil Good havens, does anyone ever code in Java here. !crying subhin Can any one publish java code of above program devil Don’t worry. I am going to try and come up with it here. Hold on.. devil http://cocoadev.com/wiki/DesignDoublyXORLinkedList Some explanation. Just incorporate this in your LL implementation. Atul Somehow I didn’t like the “node* next” in the given source code. Since it is the distance between the locations, why can’t it be a simple number? Hence I implemented following.  
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct node
+{
+  int val;
+  unsigned int pnx;  /* prev, next ptr XOR'ed value */
+} NODE;
+NODE *head, *tail;
+
+/* returns XORed value of the node addresses */
+unsigned int XOR (NODE *a, NODE *b)
+{
+  return (unsigned int) ((unsigned int) (a) ^ (unsigned int) (b));
+}
+
+/*
+ * When we add a new node, if it is a first node, pnx value is 0.
+ * Interesting observations:
+ * In case of first node, pnx value is always the address of next node.
+ * In case of last node, pnx value is always the address of last-but-one node.
+ */
+
+NODE *add_node (int val)
+{
+  NODE *tmpNode = (NODE *) malloc (sizeof (NODE));
+  tmpNode->val = val;
+
+  /*
+   * Now we have this node, we can update previous node's pnx value.
+   *
+   * If this is the first node, then ignore this step, as there is nothing
+   * which we want to update.
+   *
+   * If this is not a first node, we have a previous node indeed, which is
+   * pointed by the "tail" pointer. So update the pnx value of previous
+   * node.
+   */
+  if (tail)
+    tail->pnx = XOR ((NODE *) tail->pnx, tmpNode);
+
+  /*
+   * set pnx value of this node. We have a previous node, however the
+   * next node will always be 0 (as we always insert a new node at end).
+   * So as long as this node is the last node, pnx value will always be
+   * the address of last node!
+   */
+  tmpNode->pnx = XOR (tail, (NODE *) 0);
+  tail = tmpNode;
+
+  if (tail) printf ("prev pnx = %x  ", tail->pnx);
+  printf ("this: %p node %d: pnx = %x\n", tmpNode, tmpNode->val, tmpNode->pnx);
+  return (tmpNode);
+}
+
+void print_list (NODE *n)
+{
+  NODE *cur = n;
+  NODE *prev = NULL;
+  NODE *next;
+
+  while (cur)
+  {
+    printf ("this = %p data = %d. pnx = %x\n", cur, cur->val, cur->pnx);
+    next = (NODE *) XOR (prev, (NODE *) cur->pnx);
+    prev = cur;
+    cur = next;
+  }
+}
+
+int main (void)
+{
+  head = tail = 0;
+  head = add_node (10);
+  add_node (20);
+  add_node (30);
+  add_node (40);
+
+  printf ("\n\n");
+  print_list (head);
+  printf ("\n\n");
+  print_list (tail);
+  return (0);
+}
+ Sudha // Insertion, Deletion and Both direction traversal. #include #include struct node { int num; struct node *ptrdiff; }; void insert(struct node**,struct node**,struct node*,struct node*); void displayForward(struct node*,struct node*); void displayBackward(struct node*,struct node*); struct node* newnode(int); struct node *XOR(struct node *, struct node *); void delete_node(struct node **,struct node **,int); int main() { struct node *head,*prev,*tail; head=prev=tail=NULL; insert(&head,&tail,prev,newnode(23)); insert(&head,&tail,prev,newnode(13)); insert(&head,&tail,prev,newnode(33)); insert(&head,&tail,prev,newnode(32)); insert(&head,&tail,prev,newnode(3)); insert(&head,&tail,prev,newnode(73)); insert(&head,&tail,prev,newnode(53)); insert(&head,&tail,prev,newnode(63)); insert(&head,&tail,prev,newnode(2)); insert(&head,&tail,prev,newnode(12)); printf(“\nFoward Traversal\n”); prev=NULL; displayForward(head,prev); printf(“\nBackward Traversal\n”); prev=NULL; displayBackward(tail,prev); delete_node(&head,&tail,2); printf(“\nForward Traversal after Deletion\n”); prev=NULL; displayForward(head,prev); printf(“\nBackward Traversal after Deletion\n”); prev=NULL; displayForward(tail,prev); return 0; } struct node* newnode(int value) { struct node *np; np=(struct node*)malloc(sizeof(struct node)); np->num=value; np->ptrdiff=NULL; return np; } void insert(struct node **head,struct node **tail,struct node *prev,struct node *np) { struct node *current=*head,*prev_prev,*temp,*next; if(*head==NULL) { np->ptrdiff=XOR(prev,NULL); *head=np; *tail=np; } else { if((*head)->num > np->num) { next=XOR((*head)->ptrdiff,prev); if(next==NULL) *tail=*head; (*head)->ptrdiff=XOR(np,next); np->ptrdiff=XOR(NULL,(*head)); *head=np; } else { while(current!=NULL && current->num num) { temp=current; current=XOR(current->ptrdiff,prev); prev=temp; } if(current==NULL) { prev_prev=XOR(prev->ptrdiff,current); prev->ptrdiff=XOR(prev_prev,np); np->ptrdiff=XOR(prev,NULL); *tail=np; } else { prev_prev=XOR(prev->ptrdiff,current); next=XOR(prev,current->ptrdiff); prev->ptrdiff=XOR(prev_prev,np); np->ptrdiff=XOR(prev,current); current->ptrdiff=XOR(np,next); } } } } void delete_node(struct node **start,struct node **end,int value) { struct node *current,*temp,*temp_next,*prev,*prev_prev,*cur_next_next; current=*start; prev=NULL; if(*start==NULL) { printf(“Deletion is not allowed.Becoz, list is Empty”); return; } if((*start)->num == value) { temp=XOR((*start)->ptrdiff,NULL); if(temp==NULL) { printf(“\nThe only node has been deleted. Thus the list is empty”); free((*start)); *start=*end=NULL; } else { temp_next=XOR(*start,temp->ptrdiff); free((*start)); *start=temp; (*start)->ptrdiff=XOR(temp_next,NULL); } return; } else { while(current!=NULL && current->num != value) { temp=current; current=XOR(current->ptrdiff,prev); prev=temp; } if(current==NULL) { printf(“Sorry! node with %d value is not there in the list”,value); return; } else { temp_next=XOR(current->ptrdiff,prev); prev_prev=XOR(prev->ptrdiff,current); if(temp_next==NULL) { prev->ptrdiff=XOR(prev_prev,NULL); *end=prev; } else { cur_next_next=XOR(temp_next->ptrdiff,current); prev->ptrdiff=XOR(prev_prev,temp_next); temp_next->ptrdiff=XOR(prev,cur_next_next); } } } } void displayForward(struct node *start, struct node *prev) { if(start == NULL) return; printf(“%d\t”,start->num); displayForward( XOR(start->ptrdiff, prev), start); } void displayBackward(struct node *end, struct node *prev) { if(end == NULL) return; printf(“%d\t”,end->num); displayBackward( XOR(end->ptrdiff, prev), end); } struct node *XOR(struct node *a, struct node *b) { return (struct node *)((long long)(a)^(long long)(b)); } code1234 Works very well! Great, thanks! raj   /* */ [#include #include typedef struct node { int data; struct node *npx; }node; void createlist(node **p) { node *prev=NULL,*next,*current; int i,j,n,x; current=*p; while(1) { printf(“\nWant to add a node then give 1 else 0 : “); scanf(“%d”,&n); if(n!=1) { if(current==NULL) { current=malloc(sizeof(node)); printf(“\nGive node : “); scanf(“%d”,&current->data); current->npx=NULL; *p=current; } else { next=malloc(sizeof(node)); printf(“\nGive node : “); scanf(“%d”,&next->data); next->npx=NULL; //(node *)((long long)(a)^(long long)(b)) current->npx=(node *)((long long)(prev)^(long long)(next)); prev=current; current=next; } } else break; } } void print(node *p) { node *prev,*current; prev=NULL; current=p; printf(“\nLinked list is : “); while(p!=NULL) { printf(“%d\t”,p->data); p=(node *)((long long)(prev)^(long long)(current->npx)); prev=current; current=p; if(prev->npx==NULL) break; } printf(“\n”); } main() { node *head=NULL; createlist(&head); print(head); } ] Yogesh But we always need the prev node address in order to traverse from a given node pointer. Its more like a single linked list where we rem the prev node of a current node ptr. http://shoutz.in kevindra I think there is something wrong with formatting of code. It’s taking “” as > GeeksforGeeks @kevindra: There seems to be some issue with formatting. We will look into this issue. As a temporary fix, we have updated the code with pre tags and the code is readable. http://shoutz.in kevindra 
+#include < iostream >
+
+using namespace std;
+
+struct node{
+  int v;
+  node *next;
+};
+node *start = NULL;
+node *end = NULL;
+
+node *newNode(int v){
+  node *np = new node;
+  np->v = v;
+  np->next  = NULL;
+  return np;
+}
+
+/** Returns the XOR of two Nodes **/
+node *XOR(node *a, node *b){
+  return (node *)((long long)(a)^(long long)(b));
+}
+
+void insert(node *current, node *prev, node *np){
+  /* if linked list is empty */
+  if(start == NULL){
+    np->next = XOR(prev, NULL);
+    start = np;
+    end = np;
+  }
+  //end node of the linked list
+  else if( XOR(prev, current->next) == NULL ){
+    current->next = XOR(prev,np);
+    np->next      = XOR(current, NULL);
+    end = np;
+  }
+  else{ // move forward
+    insert( XOR(prev, current->next), current, np);
+  }
+}
+
+void displayForward(node *start, node *prev){
+  if(start == NULL) return;
+
+  cout< v< v< <" -> "; displayForward( XOR(start->next, prev), start); } void displayBackward(node *end, node *prev){ if(end == NULL) return; cout< v< <" -> "; displayBackward( XOR(end->next, prev), end); } int main(){ int a[] = {1,2,3,4,5,6,7,8,9,10}, n = 10; for(int i=0; i < n; i++){ node *prev = NULL; insert(start, prev, newNode(a[i])); } cout<<"Forward: \n"; node *prev=NULL; displayForward(start, prev); cout<<"\nBackward: \n"; displayForward(end, prev); return 0; } http://shoutz.in kevindra Here is the working code for insertion and traversal (both directions) in XOR linked list:  
+
+#include <iostream>
+
+using namespace std;
+
+
+struct node{
+  int v;
+  node *next;
+};
+node *start = NULL;
+node *end = NULL;
+
+node *newNode(int v){
+  node *np = new node;
+  np->v = v;
+  np->next  = NULL;
+  return np;
+}
+
+/** Returns the XOR of two Nodes **/
+node *XOR(node *a, node *b){
+  return (node *)((long long)(a)^(long long)(b));
+}
+
+void insert(node *current, node *prev, node *np){
+  /** if linked list is empty **/
+  if(start == NULL){
+    np->next = XOR(prev, NULL); 
+    start = np;
+    end = np;
+  }
+  else if( XOR(prev, current->next) == NULL ){ //end node of the linked list
+    current->next = XOR(prev,np);
+    np->next      = XOR(current, NULL);
+    end = np;
+  }
+  else{ // move forward
+    insert( XOR(prev, current->next), current, np);
+  }
+}
+
+void displayForward(node *start, node *prev){
+  if(start == NULL) return;
+
+  cout<<start->v<<" -> ";
+  displayForward( XOR(start->next, prev), start);
+}
+
+void displayBackward(node *end, node *prev){
+  if(end == NULL) return;
+
+  cout<<end->v<<" -> ";
+  displayBackward( XOR(end->next, prev), end);
+}
+
+int main(){
+  int a[] = {1,2,3,4,5,6,7,8,9,10}, n = 10;
+
+  for(int i=0; i<n; i++){
+    node *prev = NULL;
+    insert(start, prev, newNode(a[i]));
+  }
+
+  cout<<"Forward: \n";
+  node *prev=NULL;
+  displayForward(start, prev);
+
+  cout<<"\nBackward: \n";
+  displayForward(end, prev);
+  return 0;
+}
+
+ ktanay //minor typo npx = add(A) XOR add(C) // bitwise XOR of address of A and address of B // bitwise XOR of address of A and address of C GeeksforGeeks @ktanay: Thanks for pointing this out. We have corrected the typo. rajcools we are able to save memory but per node time of execution is increasing!!!! time – space tradeoff kl struct b { int a; int b; }; Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

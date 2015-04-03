@@ -1,0 +1,138 @@
+Construct Complete Binary Tree from its Linked List Representation - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Construct Complete Binary Tree from its Linked List Representation Given Linked List Representation of Complete Binary Tree, construct the Binary tree. A complete binary tree can be represented in an array in the following approach. If root node is stored at index i, its left, and right children are stored at indices 2*i+1, 2*i+2 respectively. Suppose tree is represented by a linked list in same way, how do we convert this into normal linked representation of binary tree where every node has data, left and right pointers? In the linked list representation, we cannot directly access the children of the current node unless we traverse the list. We are mainly given level order traversal in sequential access form. We know head of linked list is always is root of the tree. We take the first node as root and we also know that the next two nodes are left and right children of root. So we know partial Binary Tree. The idea is to do Level order traversal of the partially built Binary Tree using queue and traverse the linked list at the same time. At every step, we take the parent node from queue, make next two nodes of linked list as children of the parent node, and enqueue the next two nodes to queue. 1. Create an empty queue. 2. Make the first node of the list as root, and enqueue it to the queue. 3. Until we reach the end of the list, do the following. ………a. Dequeue one node from the queue. This is the current parent. ………b. Traverse two nodes in the list, add them as children of the current parent. ………c. Enqueue the two nodes into the queue. Below is the code which implements the same in C++. 
+// C++ program to create a Complete Binary tree from its Linked List
+// Representation
+#include <iostream>
+#include <string>
+#include <queue>
+using namespace std;
+
+// Linked list node
+struct ListNode
+{
+    int data;
+    ListNode* next;
+};
+
+// Binary tree node structure
+struct BinaryTreeNode
+{
+    int data;
+    BinaryTreeNode *left, *right;
+};
+
+// Function to insert a node at the beginning of the Linked List
+void push(struct ListNode** head_ref, int new_data)
+{
+    // allocate node and assign data
+    struct ListNode* new_node = new ListNode;
+    new_node->data = new_data;
+
+    // link the old list off the new node
+    new_node->next = (*head_ref);
+
+    // move the head to point to the new node
+    (*head_ref)    = new_node;
+}
+
+// method to create a new binary tree node from the given data
+BinaryTreeNode* newBinaryTreeNode(int data)
+{
+    BinaryTreeNode *temp = new BinaryTreeNode;
+    temp->data = data;
+    temp->left = temp->right = NULL;
+    return temp;
+}
+
+// converts a given linked list representing a complete binary tree into the
+// linked representation of binary tree.
+void convertList2Binary(ListNode *head, BinaryTreeNode* &root)
+{
+    // queue to store the parent nodes
+    queue<BinaryTreeNode *> q;
+
+    // Base Case
+    if (head == NULL)
+    {
+        root = NULL; // Note that root is passed by reference
+        return;
+    }
+
+    // 1.) The first node is always the root node, and add it to the queue
+    root = newBinaryTreeNode(head->data);
+    q.push(root);
+
+    // advance the pointer to the next node
+    head = head->next;
+
+    // until the end of linked list is reached, do the following steps
+    while (head)
+    {
+        // 2.a) take the parent node from the q and remove it from q
+        BinaryTreeNode* parent = q.front();
+        q.pop();
+
+        // 2.c) take next two nodes from the linked list. We will add
+        // them as children of the current parent node in step 2.b. Push them 
+        // into the queue so that they will be parents to the future nodes
+        BinaryTreeNode *leftChild = NULL, *rightChild = NULL;
+        leftChild = newBinaryTreeNode(head->data);
+        q.push(leftChild);
+        head = head->next;
+        if (head)
+        {
+            rightChild = newBinaryTreeNode(head->data);
+            q.push(rightChild);
+            head = head->next;
+        }
+
+        // 2.b) assign the left and right children of parent
+        parent->left = leftChild;
+        parent->right = rightChild;
+    }
+}
+
+// Utility function to traverse the binary tree after conversion
+void inorderTraversal(BinaryTreeNode* root)
+{
+    if (root)
+    {
+        inorderTraversal( root->left );
+        cout << root->data << " ";
+        inorderTraversal( root->right );
+    }
+}
+
+// Driver program to test above functions
+int main()
+{
+    // create a linked list shown in above diagram
+    struct ListNode* head = NULL;
+    push(&head, 36);  /* Last node of Linked List */
+    push(&head, 30);
+    push(&head, 25);
+    push(&head, 15);
+    push(&head, 12);
+    push(&head, 10); /* First node of Linked List */
+
+    BinaryTreeNode *root;
+    convertList2Binary(head, root);
+
+    cout << "Inorder Traversal of the constructed Binary Tree is: \n";
+    inorderTraversal(root);
+    return 0;
+}
+ Output: Inorder Traversal of the constructed Binary Tree is:
+25 12 30 10 36 15 Time Complexity: Time complexity of the above solution is O(n) where n is the number of nodes. This article is compiled by Ravi Chandra Enaganti. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tags: Queue Tweet Writing code in comment? Please use ideone.com and share the link here. sunil Another way would be to count the number of nodes > send half the nodes to left and the other half to right(if odd number send the extra one to left) recursively build the left subtree (termination condition would be when there are no more nodes) and right subtree (while building the tree keep sending the next node up the tree for building the right subtree). Dave Call me crazy but isn’t a binary tree supposed to be sorted? SYED IMRAN #include #include #include struct tnode { int data; struct tnode *left,*right; }; struct node { int data; struct node *next; }; typedef struct tnode tnode; typedef struct node node; node * head=NULL; void push(node **h,int t) { node * nw=(node *)malloc(sizeof(node)); nw->data=t; nw->next=NULL; if(*h==NULL) { *h=nw; } else { nw->next=*h; *h=nw; } } tnode * newtnode(int n) { tnode *nw=(tnode *)malloc(sizeof(tnode)); nw->data=n; nw->left=nw->right=NULL; return nw; } int getlistnode(node *h,int i) { node * s; s=h; while(i>0) { s=s->next; i–; } return s->data; } tnode * createtree(int i,int size) { if(i>=size) return NULL; tnode * root=(tnode *)malloc(sizeof(tnode)); root->left=createtree(2*i+1,size); root->right=createtree(2*i+2,size); root->data=getlistnode(head,i); return root; } void inorderTraversal(tnode * root) { if (root) { inorderTraversal( root->left ); printf(“%d “,root->data); inorderTraversal( root->right ); } } int main() { tnode * root=NULL; push(&head, 36); /* Last node of Linked List */ push(&head, 30); push(&head, 25); push(&head, 15); push(&head, 12); push(&head, 10); root=createtree(0,6); printf(“inorder is:\n”); inorderTraversal(root); return 0; } sandeep kothapally i have a code table like for example 2 assigned as “10” 3 assigned as “010” 4 assigned as “0110” 5 assigned as “0111” now i wanted to write it as a binary tree so that if i input 10010 i could traverse the tree and decode it as 2 3 my query is to how to design such tree so that i can use it at the decoder nilesh consider this: struct node *createtree(List *head,int count) { List *ptr; while(i++next; } if(!ptr) return; struct node *root=newnode(ptr->data); root->left=createtree(head,2*count); root->right=createtree(head,2*count+1); return root; } AMIT your solution uses o(n) time and o(n) space a similar but much easier solution, I think– 1. copy all the elements of list into an array 2. build the binary tree this will also take o(n) time and o(n)space EOF I was going to comment the same, but saw yours … abhishek08aug Intelligent Vimal There is one bug in the above code. Queue implementation is not correct. After one iteration of while loop above , queue would be {15,12} but it should be { 12,15} Correct me if i am wrong. neon007 #include #include typedef struct list { int data; struct list * next; } list; typedef struct tree { int data; struct tree * left; struct tree * right; struct tree * next; } tree; typedef struct next { struct next * next; } next; typedef struct queue { tree * front; tree * rear; } queue; void add(list ** head, int d) { printf(“inside add\n”); list * temp = (list *) malloc(sizeof(list)); temp->data = d; if (*head == NULL) { *head = temp; temp->next = NULL; } else { temp->next = *head; *head = temp; } } int removeItem(list ** head) { printf(“inside removeItem\n”); int item; if (*head == NULL) return -1; item = (*head)->data; *head = (*head)->next; return item; } void enque(queue ** Q, tree * t_node) { printf(“inside enque\n”); if (((*Q)->front == NULL) && ((*Q)->rear == NULL)) { (*Q)->front = (tree *) malloc(sizeof(tree)); (*Q)->rear = (tree *) malloc(sizeof(tree)); (*Q)->front = t_node; (*Q)->rear = t_node; } else { (*Q)->rear->next = t_node; (*Q)->rear = t_node; } } void dequeue(queue ** Q, tree ** item) { printf(“inside deque\n”); if ((*Q)->front == NULL) { printf(“Queue underflow\n”); return; } *item = (*Q)->front; (*Q)->front = (*Q)->front->next; if ((*Q)->front == NULL) (*Q)->rear = NULL; } void inorderTraversal(tree ** root) { if((*root) == NULL) return; inorderTraversal(&((*root)->left)); printf(“data = %d\n”, (*root)->data); inorderTraversal(&((*root)->right)); } void createTree(list ** head, tree * root) { int item, left, right; tree * temp_l, *temp_r, *node, *ret; queue * Q = (queue *) malloc(sizeof(queue)); root = (tree *) malloc(sizeof(tree)); node = root; item = removeItem(head); if (item == -1) return; node->data = item; node->left = NULL; node->right = NULL; enque(&Q, node); do { dequeue(&Q, &ret); left = removeItem(head); if (left == -1) break; temp_l = (tree *) malloc(sizeof(tree)); temp_l->data = left; temp_l->left = NULL; temp_l->right = NULL; ret->left = temp_l; enque(&Q, temp_l); right = removeItem(head); if (right == -1) break; temp_r = (tree *) malloc(sizeof(tree)); temp_r->data = right; temp_r->left = NULL; temp_r->right = NULL; ret->right = temp_r; enque(&Q, temp_r); } while (1); printf(“calling inorder\n”); inorderTraversal(&root); } int main() { list * head = NULL; tree * root = NULL; add(&head, 10); add(&head, 20); add(&head, 30); add(&head, 40); add(&head, 50); add(&head, 60); add(&head, 70); add(&head, 80); add(&head, 90); createTree(&head, root); return 0; } Aadarsh Can we simply do this?  
+struct node* createTree(int m)
+{
+    if(m<=size)
+    {
+        struct node *q = createNode(arr[m]);
+        q->left = createTree(m*2);
+        q->right = createTree(2*m + 1);
+        return q;
+    }
+    else return NULL;
+ Meghasyam Hi Ravi why so complex solution , we can simply do in 2 steps 1. traverse the list and get one node at a time 2. send this value to complete binary tree functions  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Uddhav What is the time complexity in case of your solution? I think it will be nlogn, whereas we find here the complexity to be n. Ravi Chandra Hi Meghasyam, You have simplified the second step to one sentence. When it actually comes to implementation, you will need the steps that I have given. Can you elaborate step 2 on how are you going to implement? http://www.onzetaal.nl/forums/member/5114/ ceiling fans with lights at walmart You can easily get ceiling fan as market is full of this item but it becomes important to trust only the renowned name. Investing in this type of lighting unit is something that you should do for you can be sitting in your living room, dining room or bedroom and marveling at the lights and beautiful blades that they have plus you get to experience cool breezes at the same time. Enhancing with decorative table lamps not only adds a special touch to your room, but also a soft glow that is guaranteed to improve mood. Uddhav This is nice, much like a BFS traversal for tree or say it is reversing BFS traversal and creating BST out of it .. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

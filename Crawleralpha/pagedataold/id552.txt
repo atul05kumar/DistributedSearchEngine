@@ -1,0 +1,297 @@
+Find a triplet from three linked lists with sum equal to a given number - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find a triplet from three linked lists with sum equal to a given number Given three linked lists, say a, b and c, find one node from each list such that the sum of the values of the nodes is equal to a given number. For example, if the three linked lists are 12->6->29, 23->5->8 and 90->20->59, and the given number is 101, the output should be tripel “6 5 90″. In the following solutions, size of all three linked lists is assumed same for simplicity of analysis. The following solutions work for linked lists of different sizes also. A simple method to solve this problem is to run three nested loops. The outermost loop picks an element from list a, the middle loop picks an element from b and the innermost loop picks from c. The innermost loop also checks whether the sum of values of current nodes of a, b and c is equal to given number. The time complexity of this method will be O(n^3). Sorting can be used to reduce the time complexity to O(n*n). Following are the detailed steps. 1) Sort list b in ascending order, and list c in descending order. 2) After the b and c are sorted, one by one pick an element from list a and find the pair by traversing both b and c. See isSumSorted() in the following code. The idea is similar to Quadratic algorithm of 3 sum problem. Following code implements step 2 only. The solution can be easily modified for unsorted lists by adding the merge sort code discussed here. 
+#include<stdio.h>
+#include<stdlib.h>
+
+/* Link list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+
+/* A utility function to insert a node at the begining of a linked list*/
+void push (struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node =
+        (struct node*) malloc(sizeof(struct node));
+
+    /* put in the data */
+    new_node->data = new_data;
+
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);
+
+    /* move the head to point to the new node */
+    (*head_ref) = new_node;
+}
+
+/* A function to chech if there are three elements in a, b and c whose sum 
+   is equal to givenNumber.  The function assumes that the list b is sorted
+   in ascending order and c is sorted in descending order. */
+bool isSumSorted(struct node *headA, struct node *headB, 
+                 struct node *headC, int givenNumber)
+{
+    struct node *a = headA;
+
+    // Traverse through all nodes of a
+    while (a != NULL)
+    {
+        struct node *b = headB;
+        struct node *c = headC;
+
+        // For every node of list a, prick two nodes from lists b abd c
+        while (b != NULL && c != NULL)
+        {
+            // If this a triplet with given sum, print it and return true
+            int sum = a->data + b->data + c->data;
+            if (sum == givenNumber)
+            {
+               printf ("Triplet Found: %d %d %d ", a->data, b->data, c->data);
+               return true;
+            }
+
+            // If sum of this triplet is smaller, look for greater values in b
+            else if (sum < givenNumber)
+                b = b->next;
+            else // If sum is greater, look for smaller values in c
+                c = c->next;
+        }
+        a = a->next;  // Move ahead in list a
+    }
+
+    printf ("No such triplet");
+    return false;
+}
+
+
+/* Drier program to test above function*/
+int main()
+{
+    /* Start with the empty list */
+    struct node* headA = NULL;
+    struct node* headB = NULL;
+    struct node* headC = NULL;
+
+    /*create a linked list 'a' 10->15->5->20 */
+    push (&headA, 20);
+    push (&headA, 4);
+    push (&headA, 15);
+    push (&headA, 10);
+
+    /*create a sorted linked list 'b' 2->4->9->10 */
+    push (&headB, 10);
+    push (&headB, 9);
+    push (&headB, 4);
+    push (&headB, 2);
+
+    /*create another sorted linked list 'c' 8->4->2->1 */
+    push (&headC, 1);
+    push (&headC, 2);
+    push (&headC, 4);
+    push (&headC, 8);
+
+    int givenNumber = 25;
+
+    isSumSorted (headA, headB, headC, givenNumber);
+
+    return 0;
+}
+ Output: Triplet Found: 15 2 8 Time complexity: The linked lists b and c can be sorted in O(nLogn) time using Merge Sort (See this). The step 2 takes O(n*n) time. So the overall time complexity is O(nlogn) + O(nlogn) + O(n*n) = O(n*n). In this approach, the linked lists b and c are sorted first, so their original order will be lost. If we want to retain the original order of b and c, we can create copy of b and c. This article is compiled by Abhinav Priyadarshi and reviewed by GeeksforGeeks team. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. supershal Solution in nlogn + nlogn+nlogn+ n ————————————————————————————— If we have three lists a, b and c. a = mergeSortDesc(a); b= mergeSortDesc(b); c= mergeSortDesc(c); public boolean findTripletSum ( Node a, Node b, Node c, int sum){ if(a != null && b!= null && c!= null){ if(sum – (a.data+b.data+c.data) == 0){ System.out.println(“found triplets” + a.data + b.data + c.data); return true; } if(sum – (a.data+b.data+c.data) > 0){ return false; } if(sum – a.data <= 0){ return findTripletSum(a.next, b, c, sum); } if(sum – (a.data+b.data) <= 0){ return findTripletSum(a, b.next, c, sum); } if(sum – (a.data+b.data+c.data) < 0{ return findTripletSum(a, b, c.next, sum); } } return false; } Himanshu Dagar Now its done To find no of triplets in O(n^2) Whole code is at below link http://ideone.com/76qcrr Himanshu Dagar can anyone modify the above algorithms for finding Number of such triplets exist in O(n^2) Guest Can you please explain that how is the complexity of this is O(n^2)…? Thank you Soumya Sengupta Doesnt work for inpu array 12-6-29 23-5-8 90-20-59 Sumit Poddar Please find the code for the same in Java. Time Complexity O(h) where h is the length of the first or second list which has maximum element.  
+public class FindTriplet {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+		Node l1 = new Node(29, null);
+		Node l2 = new Node(6, l1);
+		Node n = new Node(12, l2);
+
+		 Node l3 = new Node(20, null);
+		Node l4 = new Node(5, l3);
+		Node m = new Node(23, l4);
+
+		Node l5 = new Node(59, null);
+		Node l6 = new Node(20, l5);
+		Node r = new Node(90, l6);
+
+		checkSum(n, m, r, 101);
+
+	}
+
+	public static void checkSum(Node n, Node m, Node r, int no) {
+		boolean[] bool = new boolean[256];
+		int sum = 0, diff = 0;
+		while (r != null) {
+			bool[r.data] = true;
+			r = r.next;
+		}
+
+		while ((n != null) || (m != null)) {
+			sum = 0;
+			if (n != null) {
+				sum += n.data;
+			}
+			if (m != null) {
+				sum += m.data;
+			}
+			diff = no - sum;
+			if ((diff > 0) && (bool)) {
+				if (n != null) {
+					System.out.println(n.data);
+				}
+				if (m != null) {
+					System.out.println(m.data);
+				}
+
+				System.out.println(diff);
+			}
+			if (n != null) {
+				n = n.next;
+			}
+			if (m != null) {
+				m = m.next;
+			}
+
+		}
+	}
+}
+ Please correct me if I am wrong. Tarik If extra space allowed, an index based data structure allow binary search for elements on B and C where elements less than sum-a in log n on average instead of checking elements one by one for linked lists.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://www.nikoo28.blogspot.com nikoo28 can’t the above code result in a time complexity of O(n^3) in the worst case…?? please correct me if I am wrong.. nishant I also think above code is taking O(n^3) in worse case scenario. please correct if i am wrong.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Raja if binary search can be used over array “C” to find a number with value of (sum – a->data – b->data), we could reduce to n*n*logn. correct me if i’m wrong Raja sorry, number should be search for is (givennumber – a->data – b->data) Rahul Singh No, the code will have time-complexity of O(n^2) even in the worst case! This is so, because for every node in ‘a’, we traverse the full lengths(in the worst case) of ‘b’ and ‘c’. This amounts to n+n=2*n operations for each node in ‘a’, and thus 2*n^2 operations for the whole algorithm.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ mukul_gupta Hashing can also be done in this case which don’t need any sorting of list b,c.We can just hash each of the values of linked list c.Now for each of the element in a and b we can check if hash[sum- (a->data+b->data)] is true or not.If it is true, we have found one such pair, false otherwise.Though the complexity of the algorithm still remains same ( O(n*n) ) but it removes the overhead of sorting the lists b and c. Correct me if I’m wrong. Aashish Do not rush for hashing without knowing the range of data. Hash function is situation specific. mukul_gupta But suppose data is not much large, then can we hashing over the sorting the lists or is it still bad for using extra auxiliary space ? Aashish As said earlier, you don’t know the nature of data. May be the input data is float, negative or may be something else. Yes, if the nature of data is known, then you can go for hashing based on requirements and how much we have. Bharat Kul Ratan Suppose linked list ‘c’ has few nodes, say 10 or 20 but value of each node has large value like |value| <= 10^9 then what method or function would be suitable for hashing? Ruchika  
+/* Paste your code here (You may delete these lines if not writing code) #include<stdio.h>
+#include<malloc.h>
+
+#define space printf("\n \n ");
+
+struct node{
+int data;
+struct node *link;
+}*start,*g=NULL;
+
+int u[100];
+int i=0;
+
+void append(struct node **q, int num)
+{
+    struct node *temp;
+    temp=*q;
+
+    if(*q==NULL)
+    {
+        *q= (struct node*)malloc(sizeof(struct node));
+        temp=*q;
+    }
+
+
+        else{
+             while(temp->link!=NULL)
+              {temp=temp->link;}
+
+        temp->link=(struct node*)malloc(sizeof(struct node));
+        temp=temp->link;
+    }
+
+    temp->data=num;
+    temp->link=NULL;
+
+}
+
+
+
+
+void display(struct node *q)
+{
+    while(q!=NULL)
+    {
+        printf("[%d]---",q->data);
+    q=q->link;
+    }
+
+
+printf("null");
+}
+
+void match(struct node **p,struct node **q, struct node **r,int num)
+{
+int sum=0;
+if(*p==NULL &&*q==NULL && *r==NULL)
+{
+return;
+}
+struct node *a=*p;
+struct node *b=*q;
+struct node *c=*r;
+
+
+while(a!=NULL)
+{ while(b!=NULL)
+{while(c!=NULL)
+{
+
+if((a->data +b->data + c->data)==num)
+{
+   printf("the nodes are %d ... %d .. %d",a->data,b->data,c->data);
+
+return;
+
+}
+
+
+c=c->link;
+
+     }
+
+c=*r;
+b=b->link;
+
+}
+b=*q;
+a=a->link;
+
+}
+
+
+}
+
+int main()
+{
+struct node *list1=NULL;
+struct node *list2=NULL;
+struct node *list3=NULL;
+
+append(&list1,12);
+append(&list1,6);
+append(&list1,29);
+
+append(&list2,23);
+append(&list2,5);
+append(&list2,8);
+append(&list3,90);
+append(&list3,20);
+append(&list3,59);
+
+display(list1);
+space
+
+display(list2);
+space
+
+display(list3);
+
+space
+int n=101;
+
+match(&list1,&list2,&list3,n);
+
+
+
+}*/
+ Ruchika the code is with time complexity O(n^3) ! Abhishek Kumar c code without sorting with 0(n^3) complexity…!! #include #include typedef struct Node { int data; struct Node* next; }lNode; lNode* New_Node(int item) { lNode* temp=(lNode*)malloc(sizeof(lNode)); temp->data=item; temp->next=NULL; return temp; } void push(lNode** head,int data) { lNode* temp=NULL; temp=New_Node(data); temp->next=*head; *head=temp; } bool triplet(lNode* first ,lNode* second,lNode* third,int number) { lNode* p1=NULL; lNode* p2=NULL; lNode* p3=NULL; p1=first; p2=second; p3=third; { while(p1!=NULL) { while(p2!=NULL) { while(p3!=NULL) { int sum=((p1 ? p1->data:0) + (p2 ? p2->data:0) + (p3 ? p3->data:0)); if(sum==number) { printf(“Triplet Found : “); printf(“%d %d %d”,p1->data,p2->data,p3->data); return true; } else { p3=p3->next; } } p2=p2->next; p3=third; } p1=p1->next; p2=second; p3=third; } } printf(“No Such Triplet Found”); return false; } void Print_List(lNode* head) { if(head==NULL) return ; printf(“%d “,head->data); Print_List(head->next); } int main() { lNode* first=NULL; lNode* second=NULL; lNode* third=NULL; push(&first,3); push(&first,6); push(&first,5); push(&first,7); push(&first,2); push(&first,9); printf(“Given First Linked List Is : “); Print_List(first); printf(“nGiven Second Linked List Is : “); push(&second,2); push(&second,4); push(&second,1); push(&second,5); push(&second,4); push(&second,5); push(&second,7); push(&second,2); push(&second,9); Print_List(second); printf(“nGiven Third Linked List Is : “); push(&third,7); push(&third,6); Print_List(third); printf(“n”); triplet(first,second,third,0); return 0; } Animesh Pratap Singh algo!! Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

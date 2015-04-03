@@ -1,0 +1,574 @@
+Foldable Binary Trees - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Foldable Binary Trees Question: Given a binary tree, find out if the tree can be folded or not. A tree can be folded if left and right subtrees of the tree are structure wise mirror image of each other. An empty tree is considered as foldable. 
+Consider the below trees:
+(a) and (b) can be folded.
+(c) and (d) cannot be folded.
+
+(a)
+       10
+     /    \
+    7      15
+     \    /
+      9  11
+
+(b)
+        10
+       /  \
+      7    15
+     /      \
+    9       11
+
+(c)
+        10
+       /  \
+      7   15
+     /    /
+    5   11
+
+(d)
+
+         10
+       /   \
+      7     15
+    /  \    /
+   9   10  12
+ Method 1 (Change Left subtree to its Mirror and compare it with Right subtree) Algorithm: isFoldable(root) 1) If tree is empty, then return true.
+2) Convert the left subtree to its mirror image
+    mirror(root->left); /* See this post */
+3) Check if the structure of left subtree and right subtree is same
+   and store the result.
+    res = isStructSame(root->left, root->right); /*isStructSame()
+        recursively compares structures of two subtrees and returns
+        true if structures are same */
+4) Revert the changes made in step (2) to get the original tree.
+    mirror(root->left);
+5) Return result res stored in step 2.
+ Thanks to ajaym for suggesting this approach. 
+#include<stdio.h>
+#include<stdlib.h>
+
+/* You would want to remove below 3 lines if your compiler
+   supports bool, true and false */
+#define bool int
+#define true 1
+#define false 0
+
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+  int data;
+  struct node* left;
+  struct node* right;
+};
+
+/* converts a tree to its mrror image */
+void mirror(struct node* node);
+
+/* returns true if structure of two trees a and b is same
+   Only structure is considered for comparison, not data! */
+bool isStructSame(struct node *a, struct node *b);
+
+/* Returns true if the given tree is foldable */
+bool isFoldable(struct node *root)
+{
+  bool res;
+
+  /* base case */
+  if(root == NULL)
+    return true;
+
+  /* convert left subtree to its mirror */
+  mirror(root->left);
+
+  /* Compare the structures of the right subtree and mirrored
+    left subtree */
+  res = isStructSame(root->left, root->right);
+
+  /* Get the originial tree back */
+  mirror(root->left);
+
+  return res;
+}
+
+
+bool isStructSame(struct node *a, struct node *b)
+{
+  if (a == NULL && b == NULL)
+  {  return true; }
+  if ( a != NULL && b != NULL &&
+       isStructSame(a->left, b->left) &&
+       isStructSame(a->right, b->right)
+     )
+  {  return true; }
+
+  return false;
+}
+
+
+/* UTILITY FUNCTIONS */
+/* Change a tree so that the roles of the  left and
+    right pointers are swapped at every node.
+    See http://geeksforgeeks.org/?p=662 for details */
+void mirror(struct node* node)
+{
+  if (node==NULL)
+    return;
+  else
+  {
+    struct node* temp;
+
+    /* do the subtrees */
+    mirror(node->left);
+    mirror(node->right);
+
+    /* swap the pointers in this node */
+    temp        = node->left;
+    node->left  = node->right;
+    node->right = temp;
+  }
+}
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+  struct node* node = (struct node*)
+                       malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+
+  return(node);
+}
+
+/* Driver program to test mirror() */
+int main(void)
+{
+  /* The constructed binary tree is
+         1
+       /   \
+      2     3
+      \    /
+       4  5
+  */
+  struct node *root = newNode(1);
+  root->left        = newNode(2);
+  root->right       = newNode(3);
+  root->right->left  = newNode(4);
+  root->left->right = newNode(5);
+
+  if(isFoldable(root) == 1)
+  { printf("\n tree is foldable"); }
+  else
+  { printf("\n tree is not foldable"); }
+
+  getchar();
+  return 0;
+}
+ Time complexity: O(n) Method 2 (Check if Left and Right subtrees are Mirror) There are mainly two functions: // Checks if tree can be folded or not 
+IsFoldable(root)
+1) If tree is empty then return true
+2) Else check if left and right subtrees are structure wise mirrors of
+    each other. Use utility function IsFoldableUtil(root->left,
+    root->right) for this.
+ // Checks if n1 and n2 are mirror of each other. 
+IsFoldableUtil(n1, n2)
+1) If both trees are empty then return true.
+2) If one of them is empty and other is not then return false.
+3) Return true if following conditions are met
+   a) n1->left is mirror of n2->right
+   b) n1->right is mirror of n2->left
+ 
+#include<stdio.h>
+#include<stdlib.h>
+
+/* You would want to remove below 3 lines if your compiler
+   supports bool, true and false */
+#define bool int
+#define true 1
+#define false 0
+
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+  int data;
+  struct node* left;
+  struct node* right;
+};
+
+/* A utility function that checks if trees with roots as n1 and n2
+  are mirror of each other */
+bool IsFoldableUtil(struct node *n1, struct node *n2);
+
+/* Returns true if the given tree can be folded */
+bool IsFoldable(struct node *root)
+{
+     if (root == NULL)
+     {	return true;  }
+
+     return IsFoldableUtil(root->left, root->right);
+}
+
+/* A utility function that checks if trees with roots as n1 and n2
+  are mirror of each other */
+bool IsFoldableUtil(struct node *n1, struct node *n2)
+{
+    /* If both left and right subtrees are NULL,
+      then return true */
+    if (n1 == NULL && n2 == NULL)
+    {  return true;  }
+
+    /* If one of the trees is NULL and other is not,
+      then return false */
+	if (n1 == NULL || n2 == NULL)
+    {  return false; }
+
+    /* Otherwise check if left and right subtrees are mirrors of
+       their counterparts */
+	return IsFoldableUtil(n1->left, n2->right) &&
+           IsFoldableUtil(n1->right, n2->left);
+}
+
+/*UTILITY FUNCTIONS */
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+  struct node* node = (struct node*)
+                       malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+
+  return(node);
+}
+
+/* Driver program to test mirror() */
+int main(void)
+{
+  /* The constructed binary tree is
+         1
+       /   \
+      2     3
+      \    /
+       4  5
+  */
+  struct node *root = newNode(1);
+  root->left        = newNode(2);
+  root->right       = newNode(3);
+  root->left->right  = newNode(4);
+  root->right->left = newNode(5);
+
+  if(IsFoldable(root) == true)
+  { printf("\n tree is foldable"); }
+  else
+  { printf("\n tree is not foldable"); }
+
+  getchar();
+  return 0;
+}
+ Thanks to Dzmitry Huba for suggesting this approach. Please write comments if you find the above code/algorithm incorrect, or find other ways to solve the same problem.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. Guest bool isStructSame(struct node *a, struct node *b) { if (a == NULL && b == NULL) return true; if ( !(a && b)) return false; return (true && isStructSame(a->left, b->left) && isStructSame(a->right,b->right)); } aspire We can solve this problem by putting the left and right trees in queue in preorder fashion. And then comparing their structure while popping them from the queue.  
+#include<stdio.h>
+#include<stdlib.h>
+#include<stdbool.h>
+#include<queue>
+using namespace std;
+typedef struct tree
+{
+    int data;
+    struct tree *left,*right;
+} *Node;
+
+Node newNode(int data)
+{
+    Node temp = (Node)malloc(sizeof(struct tree));
+    temp->left=temp->right=NULL;
+    temp->data=data;
+    return temp;
+}
+
+/**Recursive**/
+void preorder(Node root)
+{
+    if(root==NULL)
+        return;
+
+    printf("%d ",root->data);
+    preorder(root->left);
+    preorder(root->right);
+}
+
+void inorder(Node root)
+{
+    if(root==NULL)
+        return;
+
+    preorder(root->left);
+    printf("%d ",root->data);
+    preorder(root->right);
+}
+
+void postorder(Node root)
+{
+    if(root==NULL)
+        return;
+
+    preorder(root->left);
+    preorder(root->right);
+    printf("%d ",root->data);
+}
+
+
+Node insertTree(Node root,int data)
+{
+    if(root==NULL)
+        return newNode(data);
+    else if(root->data>=data)
+        root->left = insertTree(root->left,data);
+    else
+        root->right = insertTree(root->right,data);
+    return root;
+}
+
+void fillQueue(queue<Node> &s,Node root)
+{
+    if(!root)
+        return;
+
+    s.push(root);
+    fillQueue(s,root->left);
+    fillQueue(s,root->right);
+}
+
+bool isFoldable(Node root)
+{
+    if(!root||(!(root->left)&&!(root->right)))
+        return true;
+
+    queue<Node> left,right;
+    fillQueue(left,root->left);
+    fillQueue(right,root->right);
+    Node a,b;
+    while(!left.empty()||!right.empty())
+    {
+        a=left.front();
+        left.pop();
+        b=right.front();
+        right.pop();
+
+        printf("a = %d b = %d\n",a->data,b->data);
+        if(!(a->left)&&a->right&&!(b->right)&&b->left)
+            continue;
+
+        else if(a->left&&!(a->right)&&a->right&&!(b->left))
+            continue;
+
+        else if(a->left&&a->right&&a->right&&b->left)
+            continue;
+
+        else if(!(a->left)&&!(a->right)&&!(a->right)&&!(b->left))
+            continue;
+        else
+            return false;
+    }
+
+    if(left.empty()&&right.empty())
+        return true;
+    return false;
+}
+
+int main()
+{
+    Node root = newNode(1);
+    root->left        = newNode(2);
+    root->right       = newNode(3);
+    root->left->right  = newNode(4);
+    root->right->left = newNode(5);
+
+    if(isFoldable(root))
+        printf("Is foldable\n");
+    else
+        printf("Is NOT foldable\n");
+    preorder(root);
+    return 0;
+}
+
+ logic_bomber Hope this can be done more easily as follows … Do drop here if i am wrong  
+    bool isFoldableUtil(TreeNode *root1,TreeNode *root2)
+    {
+        if(root1==NULL && root2==NULL)
+            return true;
+        if(root1==NULL || root2==NULL)    
+            return false;
+        return ((root1->val == root2->val)&&          (isFoldableUtil(root1->left,root2->right))&&(isFoldableUtil(root1->right,root2->left)));
+    }
+    bool isFoldable(TreeNode *root) {
+        
+        if(root==NULL)
+            return true;
+        return isFoldableUtil(root->left,root->right);    
+    }
+ Prashant Agarwal We can find the inorder and postorder traversals of the tree and compare both the arrays…. Thats i think easiest way… shek8034 This wont work because you have to consider their structure, not their values. If you store the traversals in arrays, then finally you end up with comparing the two arrays, which is wrong since you have to check if the left structure is mirror of right structure or not, not their values. (See the definition of Folded trees). abhishek08aug Intelligent mrn @geeksforgeeks : I think only one of them is sufficient to check.why both? a) n1->left is mirror of n2->right b) n1->right is mirror of n2->left Here is my code.Plz let me know for what input this code breaks.  
+bool isfoldable(Node *n1,Node *n2)
+{
+	if(n1==NULL && n2==NULL) return true;
+	if(((!n1->l && !n2->r) || (n1->l && n2->r))  && 
+	   ((!n1->r && !n2->l) || (n1->r && n2->l)) && 
+	   isfoldable(n1->l,n2->r) && isfoldable(n1->r,n2->l)
+	   )
+	{
+		return true;
+	}
+	return false;
+}
+
+In main() : calling isfoldable(root->l,root->r);
+ Sarvasva Sawhney u not using double pointers so there will be no change original tree so no need to correct tree to original tree  
+/* Paste your code here (You may delete these lines if not writing code) */
+ seabird  
+#include<stdio.h>
+#include<stdlib.h>
+
+typedef struct node{
+    int data;
+    struct node *left;
+    struct node *right;
+} node;
+
+int foldable(node *rootl,node *rootr) {
+    if(rootl==NULL && rootr==NULL)return 1;
+    if(rootl->left==NULL && rootr->right==NULL &&rootr->left==NULL&&rootl->right==NULL) return 1;
+    if(rootl->left==NULL && rootr->right==NULL &&rootr->left!=NULL&&rootl->right!=NULL) return foldable(rootl->right,rootr->left);
+    else if(rootl->left!=NULL && rootr->right!=NULL &&rootr->left==NULL&&rootl->right==NULL) return foldable(rootl->left,rootr->right);
+    else if(rootl->left!=NULL && rootr->right!=NULL &&rootr->left!=NULL&&rootl->right!=NULL) {
+        foldable(rootl->left,rootr->right);
+        foldable(rootl->right,rootr->left);
+    }
+    else return 0;
+}
+
+node *make_tree(node *root,int num)
+{
+    if(root==NULL) {
+        node *newnode=malloc(sizeof(node));
+        newnode->data=num;
+        newnode->left=NULL;
+        newnode->right=NULL;
+        root=newnode;
+    } else {
+        if((root->data) <= num ) {
+            root->right=make_tree(root->right,num);
+        } else {
+            root->left=make_tree(root->left,num);
+        }
+    }
+    return root;
+}
+
+int main()
+{
+    int n;
+    scanf("%d",&n);
+    int i;
+    node *root=NULL;
+    int num;
+    for(i=0;i<n;i++) {
+        scanf("%d",&num);
+        root=make_tree(root,num);
+    }
+    if(root && root->left && root->right) {
+        int flag=foldable(root->left,root->right);
+        if(flag)
+            printf("YES\n");
+        else printf("NO\n");
+    } else if(root) {
+        printf("NO\n");
+    } else printf("YES\n");
+    return 0;
+}
+
+ Sourabh Goyal I think in the first method, in the function isstructsame() there should be  
+if ( a != NULL && b != NULL &&
+       isStructSame(a->left, b->right) &&
+       isStructSame(a->right, b->left)
+     ) /*b->right and b->left are interchanged*/
+ hemant check if right subtree and left subtree calls are equal in number void foldable(struct node* root, int L, int R ) { if(root == NULL) return; foldable(root->left,L+1,R); foldable_left+= L; foldable_right+= R; foldable(root->right,L,R+1); } void main() { foldable(root,0,0); if(foldable_left == foldable_right) printf(“BST is a foldable BST\n”); else printf(“BST is not a foldable BST\n”); return; } hemant in the code above: foldable_left and foldable_right are global variables intitialised to 0 lekhooo  #include<stdio.h>
+#include<conio.h>
+#include<alloc.h>
+int isfoldable(struct node *,struct node*);
+struct node* newNode(int );
+struct node
+{int info;
+struct node* left;
+struct node* right;
+};
+void main()
+{
+struct node * root;
+root=NULL;
+root = newNode(1);
+root->left        = newNode(2);
+ root->right       = newNode(3);
+  root->right->left  = newNode(4);
+  root->left->right = newNode(5);
+
+  if(isfoldable(root,root) == 1)
+  { printf("\n tree is foldable"); }
+  else
+  { printf("\n tree is not foldable"); }
+
+  getch();
+
+
+}
+int isfoldable(struct node* x,struct node* y)
+{
+static int l=1,r=1;
+if(l==1&&r==1)
+{
+if(x!=NULL&&y==NULL)return 0;
+else if(x==NULL&&y!=NULL)return 0;
+else if(x!=NULL&&y!=NULL)
+{
+l=isfoldable(x->right,y->left);
+r=isfoldable(x->left,y->right);
+return 1;
+}
+}
+else
+return 0;
+}
+struct node* newNode(int data)
+{
+  struct node* node = (struct node*)malloc(sizeof(struct node));
+  node->info = data;
+  node->left = NULL;
+  node->right = NULL;
+
+  return(node);
+}
+ plz correct me donbosio good..!! Shekhu Your approach would print “Not foldable” for below tree, but it is foldable. 
+        10
+     /     \
+    7      15
+    \      /
+     9   11
+ When the pointer comes to node with value 7, it sees that right is not NULL and left is NULL, so returns false. Same is the case with node of value 5. Correct me if I am wrong. http://dzmitryhuba.blogspot.com Dzmitry Huba Nope, it correctly detects that it is a foldable tree as it won’t work with 7th left and right subtrees at the same time but rather 7th left and 15th right. geek4u I concur with @Dzmitry Huba, his solution works fine, and is efficient. GeeksforGeeks @Dzmitry Huba: Thanks for suggesting a mew method. We have included it to the original post. smilinglyqing as long as change the following part:  
+if (n1 == NULL && n2 == NULL)  
+    {  return true;  }    
+
+ /* If one of the trees is NULL and other is not,  
+      then return false */ 
+if (n1 == NULL || n2 == NULL)  
+    {  return false; }  
+ to be  
+if (n1 == NULL && n2 == NULL)  
+    {  return true;  }  
+
+/* If one of the trees is NULL and other is not,  
+      then return false */ 
+else 
+  if (n1 == NULL || n2 == NULL)  
+    {  return false; }
+ kartik @smilinglyqing, They both are same. Presence of “return” statement inside “if” makes “else” optional dev I think we can eliminate the steps of mirroring the left subtree and than resetting it back. We can just rite the condition like this inside the isStructureSame(): if ( a != NULL && b != NULL && isStructSame(a->left, b->right) && isStructSame(a->right, b->left) ) http://dzmitryhuba.blogspot.com/ Dzmitry Huba We can avoid tree modification costs by making the following recursive algorithm. Suppose we have two trees (L1, N1, R1) and (L2, N2, R2) where L and R denote left and right subtrees respectively and N is a root. In order to check if they have mirror structure we need to recursively check whether pairs (L1, R2) and (R1, L2) are foldable. You can find code in C# below: static bool IsFoldable<T>(TreeNode<T> root) where T:IComparable<T> { if (root == null) return true; return IsFoldable(root.Left, root.Right); } static bool IsFoldable<T>(TreeNode<T> n1, TreeNode<T> n2) where T : IComparable<T> { if (n1 == null && n2 == null) return true; if (n1 == null || n2 == null) return false; return IsFoldable(n1.Left, n2.Right) && IsFoldable(n1.Right, n2.Left); } Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

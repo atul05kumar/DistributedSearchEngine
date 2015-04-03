@@ -1,0 +1,449 @@
+Write a C Program to Find the Maximum Depth or Height of a Tree - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Write a C Program to Find the Maximum Depth or Height of a Tree Maximum depth or height of the below tree is 3. Example Tree Recursively calculate height of left and right subtrees of a node and assign height to the node as max of the heights of two children plus 1. See below pseudo code and program for details. Algorithm:  maxDepth()
+1. If tree is empty then return 0
+2. Else
+     (a) Get the max depth of left subtree recursively  i.e., 
+          call maxDepth( tree->left-subtree)
+     (a) Get the max depth of right subtree recursively  i.e., 
+          call maxDepth( tree->right-subtree)
+     (c) Get the max of max depths of left and right 
+          subtrees and add 1 to it for the current node.
+         max_depth = max(max dept of left subtree,  
+                             max depth of right subtree) 
+                             + 1
+     (d) Return max_depth
+ See the below diagram for more clarity about execution of the recursive function maxDepth() for above example tree. 
+            maxDepth('1') = max(maxDepth('2'), maxDepth('3')) + 1
+                               = 2 + 1
+                                  /    \
+                                /         \
+                              /             \
+                            /                 \
+                          /                     \
+               maxDepth('1')                  maxDepth('3') = 1
+= max(maxDepth('4'), maxDepth('5')) + 1
+= 1 + 1   = 2         
+                   /    \
+                 /        \
+               /            \
+             /                \
+           /                    \
+ maxDepth('4') = 1     maxDepth('5') = 1
+ Implementation: 
+#include<stdio.h>
+#include<stdlib.h>
+
+
+/* A binary tree node has data, pointer to left child 
+   and a pointer to right child */
+struct node 
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+/* Compute the "maxDepth" of a tree -- the number of 
+    nodes along the longest path from the root node 
+    down to the farthest leaf node.*/
+int maxDepth(struct node* node) 
+{
+   if (node==NULL) 
+       return 0;
+   else 
+   {
+       /* compute the depth of each subtree */
+       int lDepth = maxDepth(node->left);
+       int rDepth = maxDepth(node->right);
+
+       /* use the larger one */
+       if (lDepth > rDepth) 
+           return(lDepth+1);
+       else return(rDepth+1);
+   }
+} 
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data) 
+{
+    struct node* node = (struct node*)
+                                malloc(sizeof(struct node));
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+  
+    return(node);
+}
+  
+int main()
+{
+    struct node *root = newNode(1);
+
+    root->left = newNode(2);
+    root->right = newNode(3);
+    root->left->left = newNode(4);
+    root->left->right = newNode(5); 
+  
+    printf("Hight of tree is %d", maxDepth(root));
+  
+    getchar();
+    return 0;
+}
+ Time Complexity: O(n) (Please see our post Tree Traversal for details) References: http://cslibrary.stanford.edu/110/BinaryTrees.html           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tags: Height of a Tree, Tree Traveral, Trees Tweet Writing code in comment? Please use ideone.com and share the link here. Marsha Donna int height(struct node *root) { if(root==NULL) return 0; return 1+max(height(root->left),height(root->right)); } RANDOMIZER int maxDepth(treeptr s){ if(s==NULL) return 0; return(maxDepth(s->left)>maxDepth(s->right)?maxDepth(s->left)+1:maxDepth(s->right)+1); } Kaladhar int maxDepth(TreeNode *root){ if(root==NULL)return 0; return max(maxDepth(root->left)+1,maxDepth(root->right)+1); } Musaddique Hossain struct Node{ int val; struct Node *left, *right; }; typedef struct Node node; node* newNode(int val){ node* temp = (node*)malloc(sizeof(node)); temp->val = val; temp->left = NULL; temp->right = NULL; return temp; } int getHeight(node* root){ if(root == NULL) return 0; return max(getHeight(root->left), getHeight(root->right))+1; } int main(){ int height; node* root = newNode(2); root->left = newNode(6); root->right = newNode(3); root->left->left = newNode(9); root->left->right = newNode(8); root->left->right->right = newNode(5); root->left->right->right->right = newNode(2); root->right->right = newNode(1); height = getHeight(root); cout << "nHeight of tree: " " " << height; _getch(); return 0; } Rahul Mahale  
+int maxDepth(BST *root)
+{
+	int ldepth=0,rdepth=0,maxdepth=0;
+	
+	if(root==NULL)
+	  return(0);
+
+	ldepth=maxDepth(root->left);
+	rdepth=maxDepth(root->right);
+	
+	maxdepth=MAX(ldepth,rdepth);
+	return(maxdepth+1);   
+
+}
+ PK’s /* Paste your code here (You may delete these lines if not writing code) */ #include<stdio.h> #include<iostream> struct node { int data; struct node* left; struct node* right; }; void findHieght(struct node*,int); int depth; int main() { struct node* root = new node(); root->data = 0; root->left = new node(); root->right = new node(); root->left->left = new node(); root->left->left->left = new node(); root->right->left = new node(); root->right->left->left = new node(); root->right->left->left->right = new node(); findHieght(root,0); printf("\ndepth is %d",depth); } void findHieght(struct node* root,int d) { if(root==NULL) return; printf("d id %d \n",d); if(d>depth)depth=d; d++; findHieght(root->left,d); findHieght(root->right,d); } hak23  
+#include<stdio.h>
+#include<stdlib.h>
+
+struct node{
+	int data;struct node* left;struct node* right;
+};
+
+int max(a,b)
+{
+	return(a>b?a:b);
+}
+
+int height(struct node* root)
+{
+	if(root == NULL)
+		return 0;
+	return(max(height(root->left),height(root->right))+1);
+
+}
+
+
+struct node*  create_node(int val)
+{
+	struct node* box = (struct node*) malloc(sizeof(struct node));
+	box->data = val;
+	box->left = NULL;
+	box->right = NULL;
+	return box;
+}
+
+int main()
+{
+	struct node* root =  create_node(0);
+	root->left = create_node(1);
+	root->right = create_node(2);
+	root->left->left = create_node(3);
+	root->right->left = create_node(4);
+	root->left->right = create_node(5);
+	printf("Height of tree is %d ",height(root));
+	return 0;//*/
+}
+ initialcoder  
+#include<stdio.h>
+#include<stdlib.h>
+
+typedef struct NodeTag{
+	char SYMBOL;
+	struct NodeTag * LLINK;
+	struct NodeTag * RLINK;
+} TreeNode;
+
+
+int getHeight(TreeNode * root){
+
+	if(root == NULL)
+		return 0;
+	int lHeight =0;
+	int rHeight = 0;
+	
+	lHeight = getHeight(root->LLINK);
+	rHeight = getHeight(root->RLINK);
+	
+	if(lHeight > rHeight)
+		return (lHeight + 1);
+	else
+		return (rHeight + 1);
+}
+ abhishek08aug C++ code: extended from the one I posted in: http://www.geeksforgeeks.org/write-c-code-to-determine-if-two-trees-are-identical/  
+#include<iostream>
+using namespace std;
+ 
+class tree_node {
+  private:
+    int data;
+    tree_node * left;
+    tree_node * right;
+  public:
+    tree_node() {
+      left=NULL;
+      right=NULL;
+    }
+    void set_data(int data) {
+      this->data=data;
+    }
+    int get_data() {
+      return this->data;
+    }
+    void set_left(tree_node * left) {
+      this->left=left;
+    }
+    tree_node * get_left() {
+      return this->left;
+    }
+    void set_right(tree_node * right) {
+      this->right=right;
+    }
+    tree_node * get_right() {
+      return this->right;
+    }
+    tree_node ** get_left_ref() {
+      return &(this->left);
+    }
+    tree_node ** get_right_ref() {
+      return &(this->right);
+    }
+};
+ 
+class tree {
+  private:
+    tree_node * root;
+    int size;
+    void _recursive_insert(tree_node ** root_ref, int value);
+    void _print_preorder(tree_node * root);
+    void _print_inorder(tree_node * root);
+    void _print_postorder(tree_node * root);
+    int _find_size(tree_node * root);
+    int _are_identical(tree_node * tn1, tree_node * tn2);
+    int _find_height(tree_node * root);
+  public:
+    tree() {
+      root=NULL;
+      size=0;
+    }
+    void insert(int value);
+    void recursive_insert(int value);
+    void print_preorder();
+    void print_inorder();
+    void print_postorder();
+    int find_size();
+    int get_size() {
+      return this->size;
+    }
+    int are_identical(tree t);
+    int find_height();
+};
+ 
+void tree::insert(int value) {
+  if(root==NULL) {
+    root=new tree_node;
+    root->set_data(value);
+  } else {
+    tree_node * parent=NULL;
+    tree_node * current=root;
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    while(current!=NULL) {
+      if(value<=current->get_data()) {
+        parent=current;
+        current=current->get_left();
+      } else {
+        parent=current;
+        current=current->get_right();
+      }
+    }
+    if(value<=parent->get_data() && parent->get_left()==NULL) {
+      parent->set_left(new_node);
+    } else if(value>parent->get_data() && parent->get_right()==NULL) {
+      parent->set_right(new_node);
+    }
+  }
+  size++;
+}
+ 
+void tree::recursive_insert(int value) {
+  _recursive_insert(&root, value);
+  size++;
+}
+ 
+void tree::_recursive_insert(tree_node ** root_ref, int value) {
+  if(*root_ref==NULL) {
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    *root_ref=new_node;   
+  } else {
+    if(value<=(*root_ref)->get_data()) {
+      _recursive_insert((*root_ref)->get_left_ref(), value);
+    } else {
+      _recursive_insert((*root_ref)->get_right_ref(), value);
+    }
+  }
+}
+ 
+void tree::print_preorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_preorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_preorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  cout<<root->get_data()<<" ";
+  if(root->get_left()!=NULL)
+    _print_preorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_preorder(root->get_right());
+}
+ 
+void tree::print_inorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_inorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_inorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_inorder(root->get_left());
+  cout<<root->get_data()<<" ";
+  if(root->get_right()!=NULL)
+    _print_inorder(root->get_right());
+}
+ 
+void tree::print_postorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_postorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_postorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_postorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_postorder(root->get_right());
+  cout<<root->get_data()<<" ";
+}
+
+int tree::find_size() {
+  return _find_size(root);
+}
+
+int tree::_find_size(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else {
+    return 1+_find_size(root->get_left())+_find_size(root->get_right());
+  }
+}
+
+int tree::are_identical(tree t) {
+  return _are_identical(this->root, t.root);
+}
+
+int tree::_are_identical(tree_node * tn1, tree_node * tn2) {
+  if(tn1==NULL && tn2==NULL) {
+    return 1;
+  } else if((tn1==NULL && tn2!=NULL) || (tn1!=NULL && tn2==NULL) || (tn1->get_data()!=tn2->get_data())) {
+    return 0;
+  } else {
+    return _are_identical(tn1->get_left(), tn2->get_left()) && _are_identical(tn1->get_right(), tn2->get_right());
+  }
+}
+
+int tree::find_height() {
+  return _find_height(root);
+}
+
+int tree::_find_height(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  }
+  else {
+    return 1+max(_find_height(root->get_left()), _find_height(root->get_right()));
+  }
+}
+
+int main() {
+  tree t1;
+
+  t1.recursive_insert(5);
+  t1.recursive_insert(3);
+  t1.insert(1);
+  t1.insert(7);
+  t1.recursive_insert(50);
+  t1.recursive_insert(6);
+
+  cout<<"Inorder Traversal"<<endl;
+  t1.print_inorder();
+
+  cout<<"Size of the tree is: "<<t1.find_size()<<endl;
+  cout<<"Height of the tree is: "<<t1.find_height()<<endl;
+
+  t1.recursive_insert(1000);
+  cout<<"Size of the tree is: "<<t1.find_size()<<endl;
+  cout<<"Height of the tree is: "<<t1.find_height()<<endl;
+
+  return 0;
+}
+ Inorder Traversal 1 3 5 6 7 50 Size of the tree is: 6 Height of the tree is: 3 Size of the tree is: 7 Height of the tree is: 4 Ankit Sablok Well as is written correctly, the height of the tree is essentially the height of the root node of the tree, hence if there is just a single node in the tree or for the case of leaf nodes present in the tree, the height of the tree should be 0 in that case but this program returns 1, which is false, so one could refrain adding 1 all the time, so the value that one must output is maxDepth(rootNode) – 1, to compensate for the 1 that you add to find the height of the leaf node.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ neha2210 Yes, or we could just make the base case set to return as -1, rather than 0 bikram  
+/* Paste your code here (You may delete these lines if not writing code) */
+ neha2210 @geeksforgeeks Isn’t this program returning 1 for a tree with only root node while it should be 0 and in fact the depth of the given tree example should be 2 and not 3? Please correct me if I am wrong. Sasuke ya..i also think the same .Where should the code be changed to get the correct height of tree ;  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ksharp @neha2210 Yes you are right. See the below wiki link: http://en.wikipedia.org/wiki/Tree_%28data_structure%29 diepakk @neha2210 I think height for a tree with only one node should be 1 and level should be zero.It looks fine to me. Nikin  
+int height(node *sr)
+{
+if(sr == NULL) return 0;
+return max(height(sr->left), height(sr->right)) + 1;
+}
+ http://algods-cracker.blogspot.com/ Cracker http://algods-cracker.blogspot.com/2012/01/find-depth-of-binary-tree.html  
+/* Paste your code here (You may delete these lines if not writing code) */
+ nonlinearly In the diagram in the node 2 (second layer) there is an error. Not maxDepth(‘1′) but maxDepth(‘2′)!!! Keep the good work…Bravo Vinoth This should work  
+private int depth(Node node)
+	{
+		if(node == null)
+		{
+			return 0;
+		}
+		
+		return max (depth(node.left) +1,depth(node.right) +1);
+		
+	}
+
+ Swati Hi can u pls xplain how the func maxdepth is calcutaing the height…i mn whr is d counter updated..i am not able to undersatnd the base condition…suppose the node is not null it will move to left..d func is called again with left node…n dis will keep happening till it reaches the end dat is till it becomes null n wen dis happens it returns….whr is the height calculated.. abhishek I am also not able to understand about the height increase. When the base case become zero and returning zero than how is it going to 1…Please share about your opinion  
+/* Paste your code here (You may delete these lines if not writing code) */
+ neha2210 You yourself have given half the answer.. “it reaches the end dat is till it becomes null” and when it becomes null it returns zero value. which is later taken as 0+1 for height of leaf node. sankalp The function for calculating max. depth can be converted into a little utility !  
+int depth(tree* r,int d)
+{
+   if(r==NULL)
+     return d;
+   return max(depth(r->l,d+1),depth(r->r,d+1));
+}
+ I think that this should work fine.. Correct me if I am wrong! sankalp The arguments to function call should be: depth(root,0); varaprasad Shouldn’t the function “maxDepth” be returning -1 instead of 0 if the root is NULL? Thanks Sandeep @varaprasad: There are two different conventions in different text books for calculating height of a tree. One convetion considers height as number of edges in the path from root to the farthest leaf. And other considers height as number of nodes in thh path from root to the farthest leaf. We have followed the second convetion in above implementation. Dhanya The height of the above tree is not 3 but 2 .Please check A This was helpful. Thanks Aditya Beautifully done! Sandeep @neet: Level order traversal can be used to get the height iteratively. Please see method 2 of the post http://geeksforgeeks.org/?p=2686. You need to make following modifications to level order traversal code: Every queue element will be a structure having two things: (i) node pointer (ii) node’s level.  
+struct queue_element 
+{
+  struct node *node;
+  int level
+}
+ Initialize max_level as 0. When you enqueue an element, enqueued level will be parent’s level + 1. When you dequeue an element, you need to compare element’s level with the max_level, if it is more, then change the max_level. Also, store the level in a variable so that it can be used for its children in the next iteration. Finally, return the max_level. Time Complexity O(n) Space Complexity O(n) This is one of the approaches and may not be the best approach in terms of space complexity. Neet can you give a iterative version? geeksforgeeks @nida: The function works. In each recursive step mas depth is calculated as max(left_child_depth, right_child_depth) + 1. We have added a diagram for showing the recursive execution of maxDepth(). Hope it is clear now. nida how is the frst code calculating maxdepth?? i mean dere is no counter or somethng so how are we calculating dat?? Raghav ohh cmmon nida…it will return the maximum value of i.e d+1 will give the depth. abhishek08aug nida that is the beauty of recursion. You keep on building your solution with the help of function call stack and return values. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

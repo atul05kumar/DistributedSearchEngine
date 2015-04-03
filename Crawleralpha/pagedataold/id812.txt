@@ -1,0 +1,120 @@
+Find the smallest and second smallest element in an array - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find the smallest and second smallest element in an array Question: Write an efficient C program to find smallest and second smallest element in an array. Difficulty Level: Rookie Algorithm: 1) Initialize both first and second smallest as INT_MAX
+   first = second = INT_MAX
+2) Loop through all the elements.
+   a) If the current element is smaller than first, then update first 
+       and second. 
+   b) Else if the current element is smaller than second then update 
+    second Implementation: 
+#include <stdio.h>
+#include <limits.h> /* For INT_MAX */
+
+/* Function to print first smallest and second smallest elements */
+void print2Smallest(int arr[], int arr_size)
+{
+    int i, first, second;
+
+    /* There should be atleast two elements */
+    if (arr_size < 2)
+    {
+        printf(" Invalid Input ");
+        return;
+    }
+
+    first = second = INT_MAX;
+    for (i = 0; i < arr_size ; i ++)
+    {
+        /* If current element is smaller than first then update both
+          first and second */
+        if (arr[i] < first)
+        {
+            second = first;
+            first = arr[i];
+        }
+
+        /* If arr[i] is in between first and second then update second  */
+        else if (arr[i] < second && arr[i] != first)
+            second = arr[i];
+    }
+    if (second == INT_MAX)
+        printf("There is no second smallest element\n");
+    else
+        printf("The smallest element is %d and second Smallest element is %d\n",
+               first, second);
+}
+
+
+/* Driver program to test above function */
+int main()
+{
+    int arr[] = {12, 13, 1, 10, 34, 1};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    print2Smallest(arr, n);
+    return 0;
+}
+ Output: The smallest element is 1 and second Smallest element is 10 The same approach can be used to find the largest and second largest elements in an array. Time Complexity: O(n) Please write comments if you find any bug in the above program/algorithm or other ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: array Tweet Writing code in comment? Please use ideone.com and share the link here. Rajeev One of the solution can be : Create min heap. Get the first node by deleting root node and it is smallest element. Now heapify the tree and again get the second smallest element by deleting root node. Surya Baghrecha what if last element of array is minimum in that case it will update both first and second minimum to that?? how is it correct Marsha Donna when does the case (second==int_max) arise??because array size has to be greater than or equal to 2 help when all elements are equal in given array Guest when does the case (second==int_max) arise?? sirui Why (n+lgn-2)? I think it’s more than that! Abinav We can sort the array and then take the 1st and 2nd element na? ronny Yes indeed we can do But the best sorting technique will be O(nlgn) in the above sol we are doing it in O(n) so considering time complexities the sol provided above is better. Akhil what if we need three smallest elements?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ronny @Akhil We can modify the above algorithm for three numbers by new variable third_smallest, only number of comparisons will increase. And for the ‘k’ smallest or largest element we can use Min heap method (for k largest) and max heap (for k smallest elements), the time complexity will be O(k + (n-k)Logk). We already have a post on GeeksforGeeks : http://www.geeksforgeeks.org/k-largestor-smallest-elements-in-an-array/ Ujjwal we can do this by divide-and-conquer strategy..we will have less #comparisions http://mahajanneha.blogspot.com/ neham we can use Maxheap of two elements to search min and second min. After inserting first two numbers, we can compare if new element is lower than root of tree, replace it. Hence doing it for all elements will give Max heap of smallest two elements in array. I think it is more easier. moonlight what if your input array is {1,1,1,1,1,1,1}. your code will output the smallest is 1 and 2nd smallest is 1 .. is this valid output?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks Thanks for pointing this out. We have updated the code to handle this case. akshat gupta Limitaion: this algo takes at most 2*n comparisons.. 11 66 50 40 30 20 15 min1=11 min2=66, in every iteration 2. a) fails 2. b) passes Total comparisons= 2n, so it no better than Naive Approach:of traversing the array twice akshat gupta aaahhh… forget whatever i wrote.. any inconvinience caused is deeply regretted.. jalajb2k7 The method is very inefficient This can be done in 3n/2 comparisons and also can be done in n+logn-2 comparisions.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Govind  
+public class SecondMaxNum {
+    public static void main(String[] args){
+        int[] num = {1000,2,798,5,5,6,700,8,9,10,11,103,15};
+        
+        int max=0, secMax=0, temp=0;
+        
+        for(int i=0; i<=num.length-1;i++){
+            if(num[i]>max){
+                secMax = max;
+                max=num[i];
+            }else if(num[i]>secMax && num[i]<max){
+                secMax=num[i];
+            }
+        }
+        System.out.println("First maximum number :"+max+"\nSecond maximum number :" +secMax);
+    }
+}
+ harry singh please provide me the algorithm of doubly linked list from last and any node from the doubly linked list.reply now kartik @harry singh: For fast response, please post your question to forum. Also, the comment section is for comments relevant to the post.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Diksha A little modification in the else if part to handle the case when all the elements are duplicated & second smallest doesn’t exist.  
+else if (arr[i] < second && arr[i]!=first)
+    {
+      second = arr[i];
+    }
+ Gautam We Can use Heap method Build Max heap and call maxheap two times Shyam I think you mean a min heap…. levis we can do this way typically reducing the number of comparisons but not the running time !!!!! #include #include struct m { int max; int min; }; void fun(int *arr,int start,int end,struct m **temp) { struct m *temp1=*temp; int stemp; if((end-start+1)==1){ temp1->max=arr[start]; temp1->min=arr[start]; return ; } if((end-start+1)==2) { if(arr[start]>arr[end]) { temp1->max=arr[start]; temp1->min=arr[end]; }else{ temp1->max=arr[end]; temp1->min=arr[start]; } return ; } struct m *ltemp=malloc(sizeof(struct m)); struct m *rtemp=malloc(sizeof(struct m)); fun(arr,start,start+1,&ltemp); fun(arr,start+2,end,&rtemp); if(ltemp->maxmax) temp1->max=ltemp->max; else temp1->max=rtemp->max; if(ltemp->minmin){ temp1->min=ltemp->min; if(rtemp->minmax) temp1->max=rtemp->min;} else{ temp1->min=rtemp->min; if(ltemp->minmax) temp1->max=ltemp->max; } } int main() { int arr[10]={122,45,65,76,3,45,76,32,32,21}; struct m *temp=malloc(sizeof(struct m)); fun(arr,0,9,&temp); printf(“The minimum is %d\n”,temp->min); printf(“The second minimum is %d\n”,temp->max); return 0;} levis sry few typos!!!!!the link for the code is http://ideone.com/v9IBV Shyam dude can you comment or explain ur code? harit I am not getting why its taking logn – 1 to compute the second minimum. I mean if we have kept the numbers in a tree(at the time of tournament) the second minimum is always at the level below the root.So I think it should take constant time. http://geeksforgeeks.org/?page_id=2 Venki Hope “this comment” clarifies your query. zahide what if the input is [1,2,3,4,5,6,1] ? what is the second smallest element ? 1 or 2 ? Gauri Can any one suggest any strategy for finding the second minimum in n+logn -2 ? http://math-puzzles-computing.blogspot.com/ Venki @Gauri, the strategy for finding second minimum in n + log(n) – 2 is tournament method. In tournament method, every number (element) is paired with other number successively to find the maximum number. This forms a tree like structure. We must have n-1 comparisons to find maximum number. The information gained while finding max number will be used in reducing the comparisons for second largest. It meas, we would need to consider only those which will lost against max number to be considered for second largest. From the tree structure, we can conclude such lost numbers can’t be more than [log(n) – 1] (consider tree height). Overall, at minimum we need ( n – log(n) – 2 ) comparisons. kp101090 Very Very nice answer Venki !!! Keep spreading your geek-ness… mohan @venky can u pleese provide the code for it how can we get second smallest in logn comparisons do we need to create tree here. otherwise how to get the elements that are defeated by first smallest? abc The complexity should be: n -1 + log(n) – 1 = n+log(n)-2 and not n – log(n) -2. Do I understand it right, please correct me if I am wrong. Thanks! http://www.linkedin.com/in/ramanawithu Venki @abc, you are right. I forgot to modify it. There is some typo error, correction required. I wrote it correctly in the following post, http://geeksforgeeks.org/?p=11556 apps this tournment method requires extra O(N) space.. is it right..? Red Precise and sufficient. Thanks! aman @venky : one we have found max, now we have two sub-containers which too have their max at their respective roots representing those containers. If we just two of them we can simply find second max. So, i guess the complexity should be N-1+1=N. Am i missing at some point?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ archi @venki: I think the number of comparisons should be n+2*log(n)-2. We also need to compare whether the first maximum is the left or right child of the node. Also, at each node, a second_max is required to be compared to all the lost candidates. This sums up to 2(log n)-1 comparisons. stephen thank you, that is what i am looking for Ankul Use Tournament Tree approach exactly as used for finding smallest and largest of a set. The only modification here is, each time recursively find the smallest and second smallest of left and right halves. Let left_1 = smallest of left part and left_2 = 2nd smallest of left part right_1 = smallest of right part and right_2 = 2nd smallest of right part Then for the bigger set,  
+if (left_1 < right_1)
+        smallest = left_1
+        smallest_2 = min(right_1,left_2)
+else
+        smallest = right_1
+        smallest_2 = min(left_1,right_2)
+ The recursion here too is T(n) = 2*T(n/2)+2 for the number of comparisons involved ie T(n) = 3*n/2-2 http://math-puzzles-computing.blogspot.com/ Venki @Ankul, what will be the output when smallest and second smallest are same? Raja @Venki: How could a game has two winners? OR How could a tree has two roots? Nidhi Awasthi  
+print2small(int a[], int size)
+{
+   int i,min1,min2;
+   min1=min2=99999;
+   for(i=0;i<size;i++)
+   {
+     if(a[i]<min1)
+         min1=a[i];
+   }
+   for(i=0;i<size;i++)
+   {
+      if(a[i]<min2 && a[i]!=min1)
+          min2=a[i];
+   }
+   printf("\nfirst smallest element is %d= and \nsecond smallest element is %d=",min1,min2);
+}
+ GeeksforGeeks @Nidhi Awasthi, your logic looks correct. But your code does more comparisons than the one suggested in the above post. Also, initializing min1 and min2 as 99999 doesn’t sound a good practice. Jayaram Magge @GeeksforGeeks problem intilaizing 9999 can be solved by ffinding and intilaizing max element in tha array, and in your code how to check position of the second minimum elemnt. kartik Storing the position of the second smallest element doesn’t look a big deal to me. It can be stored whenever we assign something to second. Ashish take the sample as 5,9,7,2 essentially when the smallest is the last element, this will loose the second smallest element Sandeep @Ashish: I tried below code and it correctly gave me the output as “The smallest element is 2 and second Smallest element is 5″. Could you please provide the code for which it didn’t work?  
+
+/* Driver program to test above function */
+int main()
+{
+  int arr[] = {5, 9, 7, 2};
+  print2Smallest(arr, 4);
+  getchar();
+  return 0;
+} Beginner You can also use something known as Tournament Method to find the second smallest/largest element. It will also be a O(n) solution but the constant involved in the notation will be less, rather optimal. Here, you are making 2n-2 comparisons, using Tournament Method you can make n+logn-2 comparisons. Sandeep @Beginner: Thanks for suggesting a new approach. Could you please provide code for the same? ram nothing wrong with this code… instead of using INT_MAX ,better to start vth arr[0].. geeksforgeeks @game: Thanks for writing to us. If arr[0] is the smallest element then the approach given by you won’t work. To make the code simple, we have used INT_MAX. Users can modify the code according to their convenience. game Nothing wrong with the code, but it is generally suggested that the initial values of “first and second” be set as arr[0], and start the loop from i = 1 instead of i=0. rohit @game: if u assign first = second = arr[0] and arr[0] is the smallest element in the array. Then the code will print the element arr[0] two times as the two smallest element. So this should not happen, hence we cannot make this assignment in the algo. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

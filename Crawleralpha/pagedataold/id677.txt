@@ -1,0 +1,82 @@
+Difference between sums of odd level and even level nodes of a Binary Tree - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Difference between sums of odd level and even level nodes of a Binary Tree Given a a Binary Tree, find the difference between the sum of nodes at odd level and the sum of nodes at even level. Consider root as level 1, left and right children of root as level 2 and so on. For example, in the following tree, sum of nodes at odd level is (5 + 1 + 4 + 8) which is 18. And sum of nodes at even level is (2 + 6 + 3 + 7 + 9) which is 27. The output for following tree should be 18 – 27 which is -9. 
+      5
+    /   \
+   2     6
+ /  \     \  
+1    4     8
+    /     / \ 
+   3     7   9  A straightforward method is to use level order traversal. In the traversal, check level of current node, if it is odd, increment odd sum by data of current node, otherwise increment even sum. Finally return difference between odd sum and even sum. See following for implementation of this approach. C implementation of level order traversal based approach to find the difference. The problem can also be solved using simple recursive traversal. We can recursively calculate the required difference as, value of root’s data subtracted by the difference for subtree under left child and the difference for subtree under right child. Following is C implementation of this approach. 
+// A recursive program to find difference between sum of nodes at
+// odd level and sum at even level
+#include <stdio.h>
+#include <stdlib.h>
+
+// Binary Tree node
+struct node
+{
+    int data;
+    struct node* left, *right;
+};
+
+// A utility function to allocate a new tree node with given data
+struct node* newNode(int data)
+{
+    struct node* node = (struct node*)malloc(sizeof(struct node));
+    node->data = data;
+    node->left =  node->right = NULL;
+    return (node);
+}
+
+// The main function that return difference between odd and even level
+// nodes
+int getLevelDiff(struct node *root)
+{
+   // Base case
+   if (root == NULL)
+         return 0;
+
+   // Difference for root is root's data - difference for left subtree
+   // - difference for right subtree
+   return root->data - getLevelDiff(root->left) - getLevelDiff(root->right);
+}
+
+// Driver program to test above functions
+int main()
+{
+    struct node *root = newNode(5);
+    root->left = newNode(2);
+    root->right = newNode(6);
+    root->left->left  = newNode(1);
+    root->left->right = newNode(4);
+    root->left->right->left = newNode(3);
+    root->right->right = newNode(8);
+    root->right->right->right = newNode(9);
+    root->right->right->left = newNode(7);
+    printf("%d is the required difference\n", getLevelDiff(root));
+    getchar();
+    return 0;
+}
+ Output: -9 is the required difference Time complexity of both methods is O(n), but the second method is simple and easy to implement. This article is contributed by Chandra Prakash. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. Arun Hi I have implemented it in java. Here is my piece of code. public class OddEvenLevelDiff { public static void main(String[] args) { // Node root = testcase1(); Node root = testcase2(); int oddLevelSum = oddLevelSum(root); int evenLevelSum = evenLevelSum(root); int diff = oddLevelSum – evenLevelSum; System.out.println(“odd sum: “+ oddLevelSum); System.out.println(“even sum: “+ evenLevelSum); System.out.println(“diff: “+diff); } static Node testcase2(){ Node n1 = new Node(5); Node n2 = new Node(2); Node n3 = new Node(6); Node n4 = new Node(1); Node n5 = new Node(4); Node n6 = new Node(8); Node n7 = new Node(3); Node n8 = new Node(7); Node n9 = new Node(9); n1.setLeft(n2); n1.setRight(n3); n2.setLeft(n4); n2.setRight(n5); n3.setRight(n6); n5.setLeft(n7); n6.setLeft(n8); n6.setRight(n9); return n1; } static Node testcase1(){ Node n1 = new Node(1); Node n2 = new Node(2); Node n3 = new Node(3); Node n4 = new Node(4); Node n5 = new Node(5); Node n6 = new Node(6); Node n7 = new Node(7); Node n8 = new Node(8); Node n9 = new Node(9); Node n10 = new Node(10); Node n11 = new Node(11); Node n12 = new Node(12); Node n13 = new Node(13); Node n14 = new Node(14); Node n15 = new Node(15); n1.setLeft(n2); n1.setRight(n3); n2.setLeft(n4); n2.setRight(n5); n3.setLeft(n6); n3.setRight(n7); n4.setLeft(n8); n4.setRight(n9); n5.setLeft(n10); n5.setRight(n11); n6.setLeft(n12); n6.setRight(n13); n7.setLeft(n14); n7.setRight(n15); return n1; } static int oddLevelSum(Node root){ int sum = 0; if(root == null){ return sum; } sum += root.getVal(); Node l = root.getLeft(); Node r = root.getRight(); Node ll = null; Node lr = null; Node rl = null; Node rr = null; if(l != null){ ll = l.getLeft(); lr = l.getRight(); } if(r != null){ rl = r.getLeft(); rr = r.getRight(); } sum += oddLevelSum(ll) + oddLevelSum(lr) + oddLevelSum(rl) + oddLevelSum(rr); return sum; } static int evenLevelSum(Node root){ int sum = 0; if(root == null){ return sum; } Node l = root.getLeft(); Node r = root.getRight(); return oddLevelSum(l) + oddLevelSum(r); } } It gives answer -9. But on interview street this code didn’t pass the test case. The test case was testcase1 which answer should be -74. But interviewstreet ide evaluated it as -12 for the code I have written. The ide gave me oddlevel sum as 54 and even level sum as 66. So answer came to -12. So my question is that can the interviewstreet ide be wrong? anonymous This also works. Please review it. void diff_sum_odd_even_lev(Node root,int* sum,int k) { if(!root) return; if(k%2==1) *sum+=root->data; else *sum-=root->data; diff_sum_odd_even_lev(root->left,sum,k+1); diff_sum_odd_even_lev(root->right,sum,k+1); } int main() { Node root=newnode(1); root->left=newnode(2); root->right=newnode(3); root->left->left=newnode(4); root->left->right=newnode(5); root->right->left=newnode(6); root->right->right=newnode(7); int sum=0; diff_sum_odd_even_lev(root,&sum,1); printf("sum=%d n",sum); } gourav pathak yes that’s correct and works fine Guest void diff_sum_odd_even_lev(Node root,int* sum,int k) { if(!root) return; if(k%2==1) *sum+=root->data; else *sum-=root->data; diff_sum_odd_even_lev(root->left,sum,k+1); diff_sum_odd_even_lev(root->right,sum,k+1); } int main() { Node root=newnode(1); root->left=newnode(2); root->right=newnode(3); root->left->left=newnode(4); root->left->right=newnode(5); root->right->left=newnode(6); root->right->right=newnode(7); int sum=0; diff_sum_odd_even_lev(root,&sum,1); printf("sum=%d n",sum); } Raunak Lakhwani class Node { int data; Node left,right; } public class Main { static Node head; /** * @param args */ public static void main(String[] args) { head = new Node(); head.data = 1; head.left = new Node(); head.left.data = 2; head.right = new Node(); head.right.data = 3; head.left.left = new Node(); head.left.left.data = 4; head.left.right = new Node(); head.left.right.data = 5; head.right.left = new Node(); head.right.left.data = 6; //head.right.right = new Node(); //head.right.right.data = 7; head.left.left.right = new Node(); head.left.left.right.data = 7; System.out.println(calculateSum(head,0)); } public static int calculateSum(Node node, int sign) { int sum = 0; if (node != null) { if (sign == 1) { sum = -node.data; sum = sum + calculateSum(node.left, 0) + calculateSum(node.right, 0); } else { sum = node.data; sum = sum + calculateSum(node.left, 1) + calculateSum(node.right, 1); } } return sum; } } Zubin Can someone please explain the recursion? Thanks in advance! gourav pathak the nodes which are at odd level for t are at even level for t->left and t->right and vice versa…..So diff(t)=t->data-diff(t->lc)-diff(t->rc) bhavneet int alteranteLevelSum( struct node * root, int level) { if( root==NULL) return 0; else if( level%2==0) return 1 + alteranteLevelSum( root->left, level+1) + alteranteLevelSum( root->right, level+1); else return alteranteLevelSum( root->left, level+1) + alteranteLevelSum( root->right, level+1); } int DiffOddEvenLevel( struct node * root) { return alternateLevelSum ( root, 0)- alternateLevelSum( root, 1); // :; } harshal void diffSum(struct tree *root, int level, int *esum, int *osum) { if(root==NULL) return; if(root->left && root->right) { level++; diffSum(root->left,level,esum,osum); diffSum(root->right,level,esum,osum); level–; } if(level%2==0) *esum+=root->data; else *osum+=root->data; } Shiva The sum function returns osum and esum. (osum – esum) gives us the answer.  
+void sum(struct node *root,int level,int *esum,int *osum)
+{
+    if(root == NULL)
+    {
+      return;
+    }
+
+    if(level%2)
+    {
+       *esum +=  root->data;
+    }
+    else
+    {
+       *osum +=  root->data;
+    }
+
+    sum(root->left,level + 1,esum,osum) ;
+    sum(root->right,level + 1,esum,osum);
+}
+
+ rahul23 Nobody can beat the logic in the post. Although ur code works fyn but it is not as elegant as above.:) Ankur Singh This code is ok I did it same way for amazon online test but it was failing in last case (Don’t know what was the case ) sh Commendable. How did you think of this approach?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ rahul23 True that..It is worth to be praised..Hats off to the guy..Awesome logic..I cant even think of that..How did u think of that approach??This is something exceptional Vipul Verma This is power of recursion. How elegant the solution is. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

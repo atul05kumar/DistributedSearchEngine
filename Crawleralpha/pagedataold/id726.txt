@@ -1,0 +1,276 @@
+Construct BST from given preorder traversal | Set 1 - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Construct BST from given preorder traversal | Set 1 Given preorder traversal of a binary search tree, construct the BST. For example, if the given traversal is {10, 5, 1, 7, 40, 50}, then the output should be root of following tree. 
+     10
+   /   \
+  5     40
+ /  \      \
+1    7      50
+ Method 1 ( O(n^2) time complexity ) The first element of preorder traversal is always root. We first construct the root. Then we find the index of first element which is greater than root. Let the index be ‘i’. The values between root and ‘i’ will be part of left subtree, and the values between ‘i+1′ and ‘n-1′ will be part of right subtree. Divide given pre[] at index “i” and recur for left and right sub-trees. For example in {10, 5, 1, 7, 40, 50}, 10 is the first element, so we make it root. Now we look for the first element greater than 10, we find 40. So we know the structure of BST is as following. 
+             10
+           /    \
+          /      \
+  {5, 1, 7}       {40, 50} We recursively follow above steps for subarrays {5, 1, 7} and {40, 50}, and get the complete tree. 
+/* A O(n^2) program for construction of BST from preorder traversal */
+#include <stdio.h>
+#include <stdlib.h>
+
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+    int data;
+    struct node *left;
+    struct node *right;
+};
+
+// A utility function to create a node
+struct node* newNode (int data)
+{
+    struct node* temp = (struct node *) malloc( sizeof(struct node) );
+
+    temp->data = data;
+    temp->left = temp->right = NULL;
+
+    return temp;
+}
+
+// A recursive function to construct Full from pre[]. preIndex is used
+// to keep track of index in pre[].
+struct node* constructTreeUtil (int pre[], int* preIndex,
+                                int low, int high, int size)
+{
+    // Base case
+    if (*preIndex >= size || low > high)
+        return NULL;
+
+    // The first node in preorder traversal is root. So take the node at
+    // preIndex from pre[] and make it root, and increment preIndex
+    struct node* root = newNode ( pre[*preIndex] );
+    *preIndex = *preIndex + 1;
+
+    // If the current subarry has only one element, no need to recur
+    if (low == high)
+        return root;
+
+    // Search for the first element greater than root
+    int i;
+    for ( i = low; i <= high; ++i )
+        if ( pre[ i ] > root->data )
+            break;
+
+    // Use the index of element found in postorder to divide postorder array in
+    // two parts. Left subtree and right subtree
+    root->left = constructTreeUtil ( pre, preIndex, *preIndex, i - 1, size );
+    root->right = constructTreeUtil ( pre, preIndex, i, high, size );
+
+    return root;
+}
+
+// The main function to construct BST from given preorder traversal.
+// This function mainly uses constructTreeUtil()
+struct node *constructTree (int pre[], int size)
+{
+    int preIndex = 0;
+    return constructTreeUtil (pre, &preIndex, 0, size - 1, size);
+}
+
+// A utility function to print inorder traversal of a Binary Tree
+void printInorder (struct node* node)
+{
+    if (node == NULL)
+        return;
+    printInorder(node->left);
+    printf("%d ", node->data);
+    printInorder(node->right);
+}
+
+// Driver program to test above functions
+int main ()
+{
+    int pre[] = {10, 5, 1, 7, 40, 50};
+    int size = sizeof( pre ) / sizeof( pre[0] );
+
+    struct node *root = constructTree(pre, size);
+
+    printf("Inorder traversal of the constructed tree: \n");
+    printInorder(root);
+
+    return 0;
+}
+ Output:  1 5 7 10 40 50 Time Complexity: O(n^2) Method 2 ( O(n) time complexity ) The idea used here is inspired from method 3 of this post. The trick is to set a range {min .. max} for every node. Initialize the range as {INT_MIN .. INT_MAX}. The first node will definitely be in range, so create root node. To construct the left subtree, set the range as {INT_MIN …root->data}. If a values is in the range {INT_MIN .. root->data}, the values is part part of left subtree. To construct the right subtree, set the range as {root->data..max .. INT_MAX}. 
+/* A O(n) program for construction of BST from preorder traversal */
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+    int data;
+    struct node *left;
+    struct node *right;
+};
+
+// A utility function to create a node
+struct node* newNode (int data)
+{
+    struct node* temp = (struct node *) malloc( sizeof(struct node) );
+
+    temp->data = data;
+    temp->left = temp->right = NULL;
+
+    return temp;
+}
+
+// A recursive function to construct BST from pre[]. preIndex is used
+// to keep track of index in pre[].
+struct node* constructTreeUtil( int pre[], int* preIndex, int key,
+                                int min, int max, int size )
+{
+    // Base case
+    if( *preIndex >= size )
+        return NULL;
+ 
+    struct node* root = NULL;
+ 
+    // If current element of pre[] is in range, then
+    // only it is part of current subtree
+    if( key > min && key < max )
+    {
+        // Allocate memory for root of this subtree and increment *preIndex
+        root = newNode ( key );
+        *preIndex = *preIndex + 1;
+        
+        if (*preIndex < size)
+        {
+            // Contruct the subtree under root
+            // All nodes which are in range {min .. key} will go in left
+            // subtree, and first such node will be root of left subtree.
+            root->left = constructTreeUtil( pre, preIndex, pre[*preIndex],
+                                        min, key, size );
+ 
+            // All nodes which are in range {key..max} will go in right
+            // subtree, and first such node will be root of right subtree.
+            root->right = constructTreeUtil( pre, preIndex, pre[*preIndex],
+                                         key, max, size );
+        }
+    }
+ 
+    return root;
+}
+
+// The main function to construct BST from given preorder traversal.
+// This function mainly uses constructTreeUtil()
+struct node *constructTree (int pre[], int size)
+{
+    int preIndex = 0;
+    return constructTreeUtil ( pre, &preIndex, pre[0], INT_MIN, INT_MAX, size );
+}
+
+// A utility function to print inorder traversal of a Binary Tree
+void printInorder (struct node* node)
+{
+    if (node == NULL)
+        return;
+    printInorder(node->left);
+    printf("%d ", node->data);
+    printInorder(node->right);
+}
+
+// Driver program to test above functions
+int main ()
+{
+    int pre[] = {10, 5, 1, 7, 40, 50};
+    int size = sizeof( pre ) / sizeof( pre[0] );
+
+    struct node *root = constructTree(pre, size);
+
+    printf("Inorder traversal of the constructed tree: \n");
+    printInorder(root);
+
+    return 0;
+}
+ Output:  1 5 7 10 40 50 Time Complexity: O(n) We will soon publish a O(n) iterative solution as a separate post. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. danny We can also have another O(nlogn) Time Complexity solution but it uses O(n) Space Complexity also… Step-1: Sort the preorder[] array and store it in another inorder[] array. Step-2: Construct the BST using preorder[] and inorder[] array. O(n) Space Complexity…. Please correct me if I am wrong Guest We can also have another O(n) Time Complexity solution but it uses O(n) Space Complexity also… Step-1: Sort the preorder[] array and store it in another inorder[] array. Step-2: Construct the BST using preorder[] and inorder[] array. O(n) Space and Time Complexity…. Please correct me if I am wrong Rg Method 2: Why do you need min? Since this is a preorder traversal only max is enough. Can you give me a counter example where you would get in incorrect BST if you don’t pass min around Amit Bgl wow code Shubham Singhal Can we just traverse the input array, and insert nodes in BST in that order and get required BST.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Roman Dzhabarov I think it will work but having O(n*n) in the worst case and O(n*log(n)) in average. Suppose, 9,8,7,6,5,4 etc preorder. abhishek08aug Intelligent Soumya Sengupta When we execute the statement… root->right = constructTreeUtil ( pre, preIndex, i, high, size ); preIndex should point to i…..so dat i becomes the root and we proceed further…… isnt it? code_ignitor Should’nt we include these lines..  
+if(min>max || key<min || key > max)
+     return NULL;
+ code_ignitor Sorry !! Got your code Balasubramanian Why is it that we are passing the parameter-“key” to the function. Couldn’t we just pass preIndex as a reference and increment it when we create a new node. That way, we can just use pre[preIndex] to create an element. Sample code:  
+node *buildBST(int pre[],int &idx,int size,int minVal,int maxVal){
+	if(idx==size)
+		return NULL;
+	node *root=NULL;
+	if(minVal<pre[idx] && pre[idx]<maxVal){
+		root=new node(pre[idx++]); // incrementing idx
+		root->left=buildBST(pre,idx,size,minVal,root->data);
+		root->right=buildBST(pre,idx,size,root->data,maxVal);
+	}
+	return root;
+}
+ Please correct me if I am wrong. Thanks, prakash hi geeks, when preindex reaches “size”, you will get segmentation fault (pre[*preindex]) in the following call:: root->left = constructTreeUtil( pre, preIndex, pre[*preIndex], min, key, size ); http://www.facebook.com/barnwal.aashish Aashish Please take a closer look at the code. When the value of *preIndex = size, the function returns NULL.  
+// Base case
+    if (*preIndex >= size || low > high)
+        return NULL;
+ prakash fine. but while passing argument,ie passing key value in argument, pre[*preindex] is out of bound access when *preindex==size, since pre[size -1] is the last element in array. http://www.facebook.com/barnwal.aashish Aashish Thanks for pointing this out. We have updated the code. Keep it up. Nomind #include #include #include /* A binary tree node has key, left child and right child */ struct node { int key; struct node* left; struct node* right; }; /* Helper function that allocates a new node with the given key and NULL left and right pointers.*/ struct node* newNode(int key) { struct node* node = (struct node*)malloc(sizeof(struct node)); node->key = key; node->left = NULL; node->right = NULL; return(node); } // Function to find ceil of a given input in BST. If input is more // than the max key in BST, return -1 int floor(node *root, int input) { // Base case if( root == NULL ) return INT_MAX; // We found equal key if( root->key == input ) return root->key; // If root’s key is smaller, ceil must be in right subtree if( root->key > input ) return floor(root->left, input); // Else, either left subtree or root has the ceil value int Floor = floor(root->right, input); return (Floor key; } // Driver program to test above function int main() { node *root = newNode(8); root->left = newNode(4); root->right = newNode(12); root->left->left = newNode(2); root->left->right = newNode(6); root->right->left = newNode(10); root->right->right = newNode(14); for(int i = 0; i < 16; i++) printf("%d %d\n", i, floor(root, i)); getchar(); return 0; } Rakesh  
+I have doubt regarding the problem.
+Pre Order traversal of BST will not give unique tree.
+taking above example.
+
+{10, 5, 1, 7, 40, 50}
+can be pre order traversal of any of below trees
+       10                               10
+     5    40                         5      40
+   1         50       OR          1     7 
+     7
+
+i.e 7 can be right child of 1 or 5
+
+Can someone please explain the problem?
+Is it ok to just create any BST from the array?
+ Aashish The problem lies in the first BST. Observe node 7. It should lie on the right side of node 5 only. Animesh Pratap Singh  
+
+
+
+method 1 does not compute in O(n^2) time, as it is a recursive function and may split at-most into 2 parts.
+
+1- root will split into at-most ( binary tree)
+2- suppose the 1st largest no. (larger than root) after root 
+   occurs exactly in middle
+
+   eg- 40,1,2,4,(30),5,6,7,8 
+
+3- then
+     T(n)= 2T(n/2)+ O(n)
+
+      {  f(n)=O(n) suppose in worst case (30) ie largest 
+         element than root occurs at last
+      } 
+
+4= by master's theorem
+
+    time complexity = O(n logn)....
+
+
+ Aashish The method#1 will run in NlogN time in best case( when the index to be splitted happens to be in the mid-way always ). Think about the below tree( Skew Tree ): 10, 8, 7, 6 Observe that in case of skew tree, it can split one element on one side and the rest on other side For each index, the for loop runs for O(N). The time complexity can be given by: N-1 + N-2 + ….. + 1 Which is asymptotically equivalent to O(N^2). Sairam I think there is no need to use preIndex variable in Method 1. Instead of passing *preindex, just pass (low + 1) in the recursive function. Correct me if I am wrong.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ hard2code I hope the following code would work in O(n). Is it not? public Node buildTree(int[] arr, int l, int r) { if(r-l < 0 || l = arr.length) return null; Node node = new Node(arr[l]); int lr =l; while(lr < r && arr[lr+1] < arr[l]) lr++; node.left = buildTree(arr, l+1, lr); node.right = buildTree(arr, lr+1, r); return node; } atul given pre order of BST , it can be formed simply by inserting elements into binary search tree. correct me if i am wrong.  
+node *bst(node *root,int val)
+  if(root==NULL)
+  {
+    temp=createNode(val);
+    return temp;
+  }
+  else if(root->data > val)
+  {
+     root->left=bst(root->left,val);
+  }
+  else if(root->data < val)
+  {
+     root->right=bst(root->right,val);
+  }
+
+return root;
+}
+ Kartik @atul: Thanks for sharing your thoughts. Looks like another working solution. The time complexity of this solution will be O(n^2) for a skewed tree. damon @Kartic: i think atual code’s complexity will be atmost nlogn Daniel That’s not exactly correct. Your solution just creates a BST from any list of elements, but it does not recreate the original BST (like method 1). Compare your solution and method 1 on: {5, 30, 15, 10, 50, 40, 20} Aaman I think Daniel is right this method looks wrong to me ,there is no way to check if a bigger value is suppose to come to current node right or the parent nodes right.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

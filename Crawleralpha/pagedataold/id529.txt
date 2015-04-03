@@ -1,0 +1,395 @@
+Remove duplicates from an unsorted linked list - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Remove duplicates from an unsorted linked list Write a removeDuplicates() function which takes a list and deletes any duplicate nodes from the list. The list is not sorted. For example if the linked list is 12->11->12->21->41->43->21 then removeDuplicates() should convert the list to 12->11->21->41->43. METHOD 1 (Using two loops) This is the simple way where two loops are used. Outer loop is used to pick the elements one by one and inner loop compares the picked element with rest of the elements. Thanks to Gaurav Saxena for his help in writing this code. 
+/* Program to remove duplicates in an unsorted array */
+
+#include<stdio.h>
+#include<stdlib.h>
+
+/* A linked list node */
+struct node
+{
+ int data;
+ struct node *next;
+};
+
+/* Function to remove duplicates from a unsorted linked list */
+void removeDuplicates(struct node *start)
+{
+  struct node *ptr1, *ptr2, *dup;
+  ptr1 = start;
+
+  /* Pick elements one by one */
+  while(ptr1 != NULL && ptr1->next != NULL)
+  {
+     ptr2 = ptr1;
+
+     /* Compare the picked element with rest of the elements */
+     while(ptr2->next != NULL)
+     {
+       /* If duplicate then delete it */
+       if(ptr1->data == ptr2->next->data)
+       {
+          /* sequence of steps is important here */
+          dup = ptr2->next;
+          ptr2->next = ptr2->next->next;
+          free(dup);
+       }
+       else /* This is tricky */
+       {
+          ptr2 = ptr2->next;
+       }
+     }
+     ptr1 = ptr1->next;
+  }
+}
+
+/* UTILITY FUNCTIONS */
+/* Function to push a node */
+void push(struct node** head_ref, int new_data);
+
+/* Function to print nodes in a given linked list */
+void printList(struct node *node);
+
+/* Druver program to test above function */
+int main()
+{
+  struct node *start = NULL;
+
+  /* The constructed linked list is:
+   10->12->11->11->12->11->10*/
+  push(&start, 10);
+  push(&start, 11);
+  push(&start, 12);
+  push(&start, 11);
+  push(&start, 11);
+  push(&start, 12);
+  push(&start, 10);
+
+  printf("\n Linked list before removing duplicates ");
+  printList(start);
+
+  removeDuplicates(start);
+
+  printf("\n Linked list after removing duplicates ");
+  printList(start);
+
+  getchar();
+}
+
+/* Function to push a node */
+void push(struct node** head_ref, int new_data)
+{
+  /* allocate node */
+  struct node* new_node =
+            (struct node*) malloc(sizeof(struct node));
+
+  /* put in the data  */
+  new_node->data  = new_data;
+
+  /* link the old list off the new node */
+  new_node->next = (*head_ref);
+
+  /* move the head to point to the new node */
+  (*head_ref)    = new_node;
+}
+
+/* Function to print nodes in a given linked list */
+void printList(struct node *node)
+{
+  while(node != NULL)
+  {
+    printf("%d ", node->data);
+    node = node->next;
+  }
+}
+ Time Complexity: O(n^2) METHOD 2 (Use Sorting) In general, Merge Sort is the best suited sorting algorithm for sorting linked lists efficiently. 1) Sort the elements using Merge Sort. We will soon be writing a post about sorting a linked list. O(nLogn) 2) Remove duplicates in linear time using the algorithm for removing duplicates in sorted Linked List. O(n) Please note that this method doesn’t preserve the original order of elements. Time Complexity: O(nLogn) METHOD 3 (Use Hashing) We traverse the link list from head to end. For every newly encountered element, we check whether it is in the hash table: if yes, we remove it; otherwise we put it in the hash table. Thanks to bearwang for suggesting this method. Time Complexity: O(n) on average (assuming that hash table access time is O(1) on average). Please write comments if you find any of the above explanations/algorithms incorrect, or a better ways to solve the same problem.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. Akash Panda Full source code for solution using the Hashing method. void RemoveDuplicatesInUnsorted(struct node **head_ref) { struct node *current=*head_ref; int a[100]={0}; struct node *prev=current; a[current->data]=1; current=current->next; while(current!=NULL) { if(a[current->data]==1) { prev->next=current->next; free(current); current=prev->next; } else { a[current->data]=1; current=current->next; prev=prev->next; } } } Rich Don’t understand the following statement: /* Pick elements one by one */ while (ptr1 != NULL && ptr1->next != NULL) { . . . } I think we could write like this: /* Pick elements one by one */ while (ptr1 != NULL) { . . . } Codecrawler How can we make hash table for it? Please provide the code Kunal Arora 1.) We will map every value of linked list to hash table. 2.) While mapping we can compare if the two values hash to same location in hash table,then we get the address of the hashed value in linked list and delete it. 3.)Arrange pointers of the linked list . Tandoori node * partition(node *start) { node *l1=start; node *temp1=NULL; node *temp2=NULL; if(start->next==NULL) return start; node * l2=f_b_split(start); if(l1->next!=NULL) temp1=partition(l1); if(l2->next!=NULL) temp2=partition(l2); if(temp1==NULL || temp2==NULL) { if(temp1==NULL && temp2==NULL) temp1=s_m(l1,l2); else if(temp1==NULL) temp1=s_m(l1,temp2); else if(temp2==NULL) temp1=s_m(temp1,l2); } else temp1=s_m(temp1,temp2); return temp1; } node * sort(node * start) { node * temp=partition(start); return temp; } void del_dup(node * start) { node * temp; start=sort(start); while(start!=NULL) { if(start->next!=NULL && start->data==start->next->data ) { temp=start->next; start->next=start->next->next; free(temp); continue; } start=start->next; } } void main() { del_dup(list1); print(list1); } Prashant Rathi here is the code in c void removeduplicates(N **r) { N *temp1=*r; N *temp2=NULL; N *temp3=NULL; while(temp1->next!=NULL) { temp2=temp1; while(temp2!=NULL) { temp3=temp2; temp2=temp2->next; if(temp2==NULL) { break; } if((temp2->data)==(temp1->data)) { temp3->next=temp2->next; free(temp2); temp2=temp3; printf(“na dup deleted”); } } temp1=temp1->next; } //viewall(&r); } ubiquitous void removeDuplicates() { if(head == null)return; if(head.next==null)return; Set<K> s = new HashSet<K>(); s.add(head.k); Node<K> n = head; while(n!=null && n.next!=null) { Node<K> temp = n.next; while(true) { if(temp==null)break; if(s.contains(temp.k)) { n.next = temp.next; temp=temp.next; } else { break; } } if(temp==null)return; n=n.next; s.add(n.k); } } Karshit My Code using Unordered_set.. hope you find it useful..  
+#include <iostream>
+#include <unordered_set>
+
+using namespace std;
+
+struct node {
+    int data;
+    node *next;
+};
+
+node *create(int n)
+{
+    if (n == 0)
+        return NULL;
+
+    node *head = new node();
+
+    cin >> (head -> data);
+
+    head -> next = NULL;
+    node *p = head;
+
+    for (int i = 1; i < n; i++) {
+        head -> next = new node();
+        head = head -> next;
+
+        cin >> (head -> data);
+        head -> next = NULL;
+    }
+
+    return p;
+}
+
+void print(node *head)
+{
+    while (head) {
+        cout << head -> data << " ";
+        head = head -> next;
+    }
+}
+
+void rem_duplicate(node *head)
+{
+    node *temp;
+    unordered_set <int> s;
+    s.insert(head -> data);
+
+    while (head -> next) {
+        if (s.find(head -> next -> data) != s.end()) {
+            temp = head -> next -> next;
+            delete(head -> next);
+            head -> next = temp;
+
+        } else {
+            head = head -> next;
+            s.insert(head -> data);
+        }
+    }
+}
+
+int main()
+{
+    int n;
+    node *head = NULL;
+
+    cin>> n;
+
+    head = create(n);
+
+    print(head);
+
+    rem_duplicate(head);
+
+    cout << "\n\n";
+
+    print(head);
+
+    return 0;
+}
+
+ 12rad For Java: Using hashMaps  
+public Linked_List removeOnlyDuplicates(Linked_List list){
+		HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+		Linked_List.LNode node = list.head;
+		Linked_List.LNode prev = list.head;
+		while(node!=null){
+			if(map.containsKey(node.data)){
+				prev.nextPtr = node.nextPtr;
+				
+			}else{
+				map.put(node.data, 0);
+				prev = node;
+			}
+			node = node.nextPtr;
+		}
+		return list;
+	}/
+ Priyanka  
+void removeDuplicates(struct node *start)
+{
+  struct node *current=start, *save_current=NULL, *next=NULL;
+  int hash_table[INT_MAX]={0};
+  while(current)
+ {
+   if(has_table[current->data])
+   {
+     next=current->next;
+     free(current);
+     current=next;
+     save_current->next=current;     
+   } 
+   else
+   {
+     hash_table[current->data]=1;
+     save_current=current;
+     current=current->next;
+
+ }
+  
+}
+ aravind is save_current node the previous node of the node to be deleted?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ hary @priyanka, correct me if I am wrong here . Just modified your code a bit and also you have not made use of the hashfunc anywhere so you should use that as well. Yes do not forget to initialize your hashtbl with 0 before the start of everything.  
+while(current)
+ {
+   if(has_table[current->data])
+   {
+     save_current->next=current->next;
+     free(current);
+     current=save_current->next;
+   } 
+   else
+   {
+     hash_table[current->data]=1;
+     save_current=current;
+     current=current->next;
+   }
+ 
+ }
+ abcd Can someone please share the code for Method 3 listed here. gr81  
+/* Paste your code here (You may delete these lines if not writing code) */
+void remove_duplicate(struct node *head)
+{
+        map<int, int> freq;
+        struct node *cur = head;
+        struct node *prev = NULL;
+        while(cur != NULL)
+        {
+                if(freq[cur->data])
+                {
+                        struct node *tmp = cur;
+                        prev->next = cur->next;
+                        cur = cur->next;
+                        delete tmp;
+                }
+                else
+                {
+                        freq[cur->data]++;
+                        prev = cur;
+                        cur = cur->next;
+                }
+        }
+}
+ user123 method 2 doesn’t preserve the actual order of nodes… does it? geeksforgeeks @user123: Yes, it doesn’t preserve the original order. We have added a note for the same. pr6989 The code below can be modified a bit to maintain the order of the list. The upside is that the complexity is O(n) since : Step-1 : O(n) Step-3 : O(n) Step-4 : O(n) Therefore total time complexity= O(n)+O(n)+O(n)~ O(n) We are assuming that the list elements are within the range of integers and the list length is not infinite. pr6989 void remdup() { //L is the pointer to the first node if(L==0||L->next==0) //one or no nodes in the list { cout<<"List is empty/too small to have duplicates!"; return; } node*q=L; int max=0; while(q!=0) { if(q->data>max) max=q->data; q=q->next; } q=L; int *count=new int[max+1]; for(int i=0;i<(max+1); i++) count[i]=0; while(q!=0) { count[q->data]++; q=q->next; } q=L; while(q!=0) { if(count[q->data]>1) { count[q->data]–; node*p=q; q=q->next; delnode(p->data); } else { q=q->next; } } delete[] count; } The procedure is as follows: 1. Scan the list and find the maximum element(max) – O(n) 2. Create a dynamic array of size max+1 and initialize it to zero. 3. Scan the list again and keep incrementing the count of the elements as you reach the end – O(n) 4. Scan the list again from the beginning and check if count in array is greater than 1, then decrement the count,point to the next node and delete that node – O(n) The only drawback is that the order of the list changes. For eg. If the original list is : 1 2 1 2 3 4 3 then the new list becomes : 1 2 4 3 kiran for keeping the order you can keep the first occurrence of the nodes whose count value is greater than 1…. And also change the condition according!!!!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ BlackMath Here’s a java code which creates a BST out of the list. Checks and inserts elements into the tree and then forms the list back to original form without the duplicates.  
+/* Paste your code here (You may delete these lines if not writing code) */
+class LNode       // class to represent the linkedlist
+{
+  int value;
+  LNode next;
+  
+  LNode (int val)
+  {
+    value = val;
+  }
+}
+class TNode       // class to represent bst
+{
+  int value;
+  TNode left;
+  TNode right;
+  
+  TNode (int val)
+  {
+    value = val;
+  }
+}
+
+public class RemoveDuplicatesInListByTree
+{
+  static LNode newList;
+  
+  public static TNode insertIntoTree (TNode tree, LNode a)
+  {
+    if (tree == null)
+    {
+      tree = new TNode (a.value);
+      return tree;
+    }
+    if (a.value == tree.value)
+      return tree;
+    if (a.value < tree.value)
+    {
+      tree.left = insertIntoTree (tree.left, a);
+      return tree;
+    }
+    else
+    {
+      tree.right = insertIntoTree (tree.right, a);
+      return tree;
+    }
+  }
+  
+  public static void inorderTraversal (TNode tree)
+  {
+    if (tree != null)
+    {
+      if (newList == null)
+      {
+        newList = new LNode (tree.value);
+        // return head;
+      }
+      else
+      {
+        LNode tmp = new LNode (tree.value);
+        tmp.next = newList;
+        newList = tmp;
+        // return head;
+      }
+      System.out.print(tree.value + "   ");
+      inorderTraversal (tree.left);
+      inorderTraversal (tree.right);
+    }
+  }
+  
+  public static LNode reverseList (LNode head)
+  {
+    LNode prev = null;
+    LNode curr = head;
+    while (curr != null)
+    {
+      LNode tmp = curr.next;
+      curr.next = prev;
+      prev = curr;
+      curr = tmp;
+    }
+    return prev;
+  }
+  
+  public static void printList (LNode head)
+  {
+    while (head != null)
+    {
+      System.out.print (head.value + "   ");
+      head = head.next;
+    }
+    System.out.println();
+  }
+  
+  public static void main (String args[])
+  {
+    LNode a = new LNode (12);
+    LNode b = new LNode (11);a.next = b;
+    LNode c = new LNode (12);b.next = c;
+    LNode d = new LNode (21);c.next = d;
+    LNode e = new LNode (21);d.next = e;
+    LNode f = new LNode (45);e.next = f;
+    LNode g = new LNode (39);f.next = g;
+    
+    LNode head = a;
+    System.out.println ("The linked list before : ");
+    printList (head);
+    LNode tmp = head;
+    TNode tree = null;
+    while (tmp != null)
+    {
+      tree = insertIntoTree (tree, tmp);
+      tmp = tmp.next;
+    }
+    
+    newList = null;
+    inorderTraversal (tree);
+    newList = reverseList (newList);
+    System.out.println();
+    System.out.println ("The linked list after : ");
+    printList (newList);
+    
+  }
+}
+ pegasus solution 1 assumes that there’d be only two instances of any number in the linked list. for handling more than two instances of any value, else should be removed before temp=temp->next pegasus sorry, i meant the else before ptr2=ptr2->next; radhakrishna in hashtable collision might happens because of hash codes. instead prefer tries. another alternate way to do it is while inserting in BST itself, checkAndInsert checks duplicity and insert node into BST and inorder traversal gives list without duplicates Brijesh If you want to use extra space then there is much much better solution than hash table..i.e. Use a BST/AVL tree to store all elements of the list..once you search for a proper position to insert the element if you find , same no. is already present in the tree delete it from original list… thus time complexity is O(n log(n)) and space complexity O(n). it’ll give a guaranteed solution , unlike hash-table where size might vary from n to max-min ! nranjan regarding the hash table algo, what will be the size of the buffer? If we use hash function to map the values in the list, there may be collision for unequal list entries e.g. 73%10=3(key) 33%10=3(key) for hash function %10 so one of the elements should be deleted … If this is not the case then I think I didn’t get the algo … please help me out … Dreamer After applying the sort and removing duplicates in method 2, how will you preserve the actual order of nodes i.e. 12->11->21->41->43. bunty We can create a binary search tree with the list and associate a counter with every node and set it to one, if encountered once and delete the node, it encountered more than once. Order will be O(n*logn). For every node, log n and so for n elements, O(n*logn) jasmin where is code for deleting using hash table ?? gokul really nice answers… thank you geeks4geeks Shekhu Java Code: public class ListNode { int data; ListNode next; } public removeDuplicatesUnSorted( ListNode p ) { while( p != null ) { // Remove all duplicates in list that match p // Need to check all nodes succeeding p since list is unsorted ListNode q = p; // start with p to allow next node delete while( q != null ) { // Is next node to q a duplicate for p? if( q.next != null && q.next.data == p.data ) q.next = q.next.next; // remove successive duplicates else q = q.next; // advance q to next node (non-duplicate) } p = p.next; // advance p } } GeeksforGeeks We have added the Hash Table method to the original post. Thanks all for you contribution, jasmin i need this code for deleting using hash table… dou you have it?? Anshuman Can you please post the code for Hash Table method? Thanks in advance. sathiyan k when it comes to display entries in the hashmap or hashtable after doing whatever manipulation we want, we can’t predict the ordering ajaym By ordering u mean the sequence of elements in the list. How come using a hash table effect that. I don’t understand. Kindly explain by an example. sathiyan k wat is wrong with your approach is HashTable or hashmap doesn’t guarantee the ordering. but linked list is ordered data structure right.. Regards Sathiyan K bearwang How about using an extra hash table? We traverse the link list from head to end. for the newly encountered element, we check whether it is in the hash table: if yes, we remove it; otherwise we put it in the hash table. The running time is O(n) Space complexity is also O(n). kartik @bearwang: How does hashing guarantee O(n) worst case time complexity here ? bearwang We sequentially search the link list. Once we reach the end of the link list, the work is done. So it is O(n), assuming that hash can access the element in O(1). Right? kartik @bearwang: Thanks for the clarification. I am not sure if we can assume that hash can access element in O(1) time. gk_manutd @kartik: We could use a Bitmap. That would be O(1). Kumar Removing the element from hash table if its repeated may not work if the element is repeated odd number of times. (2nd repeat, remove the element and third repeat will cause insert as the element is not there in the hash table). Instead we can store the element as key and number of times repeated as value and print only the keys which are having value as 1. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

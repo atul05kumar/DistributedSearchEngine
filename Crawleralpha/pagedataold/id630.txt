@@ -1,0 +1,290 @@
+Construct Tree from given Inorder and Preorder traversals - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Construct Tree from given Inorder and Preorder traversals Let us consider the below traversals: Inorder sequence: D B E A F C Preorder sequence: A B D E C F In a Preorder sequence, leftmost element is the root of the tree. So we know ‘A’ is root for given sequences. By searching ‘A’ in Inorder sequence, we can find out all elements on left side of ‘A’ are in left subtree and elements on right are in right subtree. So we know below structure now. 
+                 A
+               /   \
+             /       \
+           D B E     F C
+ We recursively follow above steps and get the following tree. 
+         A
+       /   \
+     /       \
+    B         C
+   / \        /
+ /     \    /
+D       E  F
+ Algorithm: buildTree() 1) Pick an element from Preorder. Increment a Preorder Index Variable (preIndex in below code) to pick next element in next recursive call. 2) Create a new tree node tNode with the data as picked element. 3) Find the picked element’s index in Inorder. Let the index be inIndex. 4) Call buildTree for elements before inIndex and make the built tree as left subtree of tNode. 5) Call buildTree for elements after inIndex and make the built tree as right subtree of tNode. 6) return tNode. Thanks to Rohini and Tushar for suggesting the code. 
+/* program to construct tree using inorder and preorder traversals */
+#include<stdio.h>
+#include<stdlib.h>
+
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+  char data;
+  struct node* left;
+  struct node* right;
+};
+
+/* Prototypes for utility functions */
+int search(char arr[], int strt, int end, char value);
+struct node* newNode(char data);
+
+/* Recursive function to construct binary of size len from
+   Inorder traversal in[] and Preorder traversal pre[].  Initial values
+   of inStrt and inEnd should be 0 and len -1.  The function doesn't
+   do any error checking for cases where inorder and preorder
+   do not form a tree */
+struct node* buildTree(char in[], char pre[], int inStrt, int inEnd)
+{
+  static int preIndex = 0;
+
+  if(inStrt > inEnd)
+     return NULL;
+
+  /* Pick current node from Preorder traversal using preIndex
+    and increment preIndex */
+  struct node *tNode = newNode(pre[preIndex++]);
+
+  /* If this node has no children then return */
+  if(inStrt == inEnd)
+    return tNode;
+
+  /* Else find the index of this node in Inorder traversal */
+  int inIndex = search(in, inStrt, inEnd, tNode->data);
+
+  /* Using index in Inorder traversal, construct left and
+     right subtress */
+  tNode->left = buildTree(in, pre, inStrt, inIndex-1);
+  tNode->right = buildTree(in, pre, inIndex+1, inEnd);
+
+  return tNode;
+}
+
+/* UTILITY FUNCTIONS */
+/* Function to find index of value in arr[start...end]
+   The function assumes that value is present in in[] */
+int search(char arr[], int strt, int end, char value)
+{
+  int i;
+  for(i = strt; i <= end; i++)
+  {
+    if(arr[i] == value)
+      return i;
+  }
+}
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(char data)
+{
+  struct node* node = (struct node*)malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+
+  return(node);
+}
+
+/* This funtcion is here just to test buildTree() */
+void printInorder(struct node* node)
+{
+  if (node == NULL)
+     return;
+
+  /* first recur on left child */
+  printInorder(node->left);
+
+  /* then print the data of node */
+  printf("%c ", node->data);
+
+  /* now recur on right child */
+  printInorder(node->right);
+}
+
+/* Driver program to test above functions */
+int main()
+{
+  char in[] = {'D', 'B', 'E', 'A', 'F', 'C'};
+  char pre[] = {'A', 'B', 'D', 'E', 'C', 'F'};
+  int len = sizeof(in)/sizeof(in[0]);
+  struct node *root = buildTree(in, pre, 0, len - 1);
+
+  /* Let us test the built tree by printing Insorder traversal */
+  printf("\n Inorder traversal of the constructed tree is \n");
+  printInorder(root);
+  getchar();
+}
+ Time Complexity: O(n^2). Worst case occurs when tree is left skewed. Example Preorder and Inorder traversals for worst case are {A, B, C, D} and {D, C, B, A}. Please write comments if you find any bug in above codes/algorithms, or find other ways to solve the same problem.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tags: Inorder Traversal, Preorder Traversal, Tree Traveral Tweet Writing code in comment? Please use ideone.com and share the link here. Marsha Donna can sum1 help me correct this http://ideone.com/O6x1Dg Abhishek Kumar somebody plzz tell me wat is instrt and inend used in d above code ??? Ashutosh Litelo How is the complexity of the above code o(n^2).Please explain Narene Nagares Thanks! However, when I used it in a loop, output didn’t work right on the second loop. Hope you’ll help. THanks Here is the code: /* program to construct tree using inorder and preorder traversals */ #include #include /* A binary tree node has data, pointer to left child and a pointer to right child */ struct node { char data; struct node* left; struct node* right; }; /* Prototypes for utility functions */ int search(char arr[], int strt, int end, char value); struct node* newNode(char data); void printGivenLevel(struct node* root, int level); void printPreorder(struct node* root); void printInorder(struct node* root); void printGivenLevelChart(struct node* root, int level); void instructions(); int height(struct node* node); struct node* freetree(struct node* root); struct node* buildTree(char in[],char pre[],int inStrt,int inEnd){ static int preIndex = 0; if(inStrt > inEnd){ return NULL; } struct node *tNode = newNode(pre[preIndex]);++preIndex; if(inStrt == inEnd){ return tNode; } int inIndex = search(in, inStrt, inEnd, tNode->data); tNode->left = buildTree(in, pre, inStrt, inIndex – 1); tNode->right = buildTree(in, pre, inIndex + 1, inEnd); return tNode; } int search(char arr[], int strt, int end, char value) { int i; for(i = strt; i data = data; node->left = NULL; node->right = NULL; return(node); } void printLevelOrder(struct node* root) { int h = height(root); int i; for(i=1; i<=h; i++) printGivenLevel(root, i); } void printChart(struct node* root) { int h = height(root); int i; for(i=1; idata); else if (level > 1) { printGivenLevel(root->left, level-1); printGivenLevel(root->right, level-1); } } void printGivenLevelChart(struct node* root, int level) { if(root == NULL) return; if(level == 1){ if (root->left != NULL) printf(” %ct”, root->left->data); else printf(“t”); printf(” %ct”, root->data); if (root->right !=NULL) printf(” %cn”, root->right->data); else printf(“n”); } else if (level > 1) { printGivenLevelChart(root->left, level-1); printGivenLevelChart(root->right, level-1); } } /* Compute the “height” of a tree — the number of nodes along the longest path from the root node down to the farthest leaf node.*/ int height(struct node* node) { if (node==NULL) return 0; else { /* compute the height of each subtree */ int lheight = height(node->left); int rheight = height(node->right); /* use the larger one */ if (lheight > rheight) return(lheight+1); else return(rheight+1); } } /* Driver program to test above functions */ int main() { char or1[100],or2[100],pathname[100]; int choice; instructions(); do{ printf(“nEnter your number of choice: “); scanf(“%d”,&choice); switch( choice ){ case 1: printf(“Enter preorder set: “); scanf(“%s”,or1); printf(“Enter inorder set: “); scanf(“%s”,or2); char pre[sizeof(or1)], in[sizeof(or1)]; strncpy(pre,or1,sizeof(or1)); strncpy(in,or2,sizeof(or1)); int len = strlen(in); if( strlen( pre ) == strlen( in ) ){ //struct node* root = {NULL,NULL,NULL}; struct node* root = buildTree(in, pre, 0, len -1); printf(“nPreorder set is: “); printPreorder(root); printf(“nInorder set is: “); printInorder(root); printf(“nLevel Order traversal of binary tree is: “); printLevelOrder(root); printf(“nnLSONtINFOtRSONn”); printChart(root); freetree(root); } else{ //fprintf(ofp,”No such level order for this.”); } break; case 2: break; case 3: break; default: printf(“Invalid choice.n”); instructions(); break; } }while(choice!=3); /* Let us test the built tree by printing Insorder traversal */ getchar(); return 0; } void printInorder(struct node* node) { if (node == NULL) return; /* first recur on left child */ printInorder(node->left); printf(“%c “, node->data); printInorder(node->right); } void printPreorder(struct node* node) { if (node == NULL) return; printf(“%c “, node->data); printPreorder(node->left); printPreorder(node->right); } void instructions(){ printf(“Options:n” “1 – Input from keyboardn” “2 – Input from external filen” “3 – Exit”); } struct node* freetree(struct node* root) { if(!root) return NULL; freetree(root->left); freetree(root->right); free(root); return NULL; } http://www.deviltools.net/ prudhvi raj thanks Vcirculate™| New Technologies| Cricket Update |Celeb Gossip Feier Chen Here is My Code. O(n) time && O(1) auxiliary space public class CTree2 { public static class Node{ int val; Node leftChild; Node rightChild; Node next; public Node(int value) { val = value; } } public static void main(String[] args) { int[] pre = {1,2,4,5,3,6}; int[] in = {4,2,5,1,6,3}; Node root = construct(pre , in , Integer.MAX_VALUE); System.out.println(root); } private static int pos = 0; private static int offset = 0; public static Node construct(int[] pre , int[] in , int target) { if(pos == pre.length || in[pos + offset] == target) return null; Node root = new Node(pre[pos]); pos += 1; offset -= 1; root.leftChild = construct(pre , in , root.val); offset += 1; root.rightChild = construct(pre , in , target); return root; } } Ajay Here is my implementation #include typedef struct node { char x; struct node* left; struct node* right; }Node; Node* makeNode(char x) { Node *n = (Node*)malloc(sizeof(Node)); n->x = x; n->left = NULL; n->right = NULL; return n; } Node* inOrderPreOrderTree(char* inOrder, char* preOrder, int n) { if(n==0) return NULL; Node*root = makeNode(preOrder[0]); char *temp1 = inOrder; int leftNodeCount = 0; while(*temp1 != *preOrder && leftNodeCountleft = leftChild; root->right = rightChild; return root; } void inOrder(Node* n) { if(n == NULL) return; else { inOrder(n->left); cout<x; inOrder(n->right); } } void preOrder(Node* n) { if(n == NULL) return; else { cout<x; preOrder(n->left); preOrder(n->right); } } int main() { char inOrd[] = {‘D’,’B’,’E’,’A’,’F’,’C’}; char preOrd[] = {‘A’,’B’,’D’,’E’,’C’,’F’}; Node* root = inOrderPreOrderTree(inOrd, preOrd, 6); inOrder(root); cout<<endl; preOrder(root); cout<<endl; } Prakash. why can’t we do binary search, instead of linear search here, since we are searching in the inorder array which is supposed to be sorted. samsammy Tree mentioned here is Binary Tree, Not Binary Search Tree.. So Binary Search and “Sorted” concepts are not applicable..:) miandfhy Why it is character in search function??  
+/* Paste your code here (You may delete these lines if not writing code) */
+ rahul38 /** * Definition for binary tree * struct TreeNode { * int val; * TreeNode *left; * TreeNode *right; * TreeNode(int x) : val(x), left(NULL), right(NULL) {} * }; */ class Solution { public: TreeNode *convert(vector &v1, vector &v2,int l1,int r1,int l2,int r2) { int i; if(l1>r1) return NULL; TreeNode *t; for( i=l1;i< =r1;i++) if(v1[i]==v2[l2]) break; t=new TreeNode(v1[i]); if(i>l1) t->left= convert(v1,v2,l1,i-1,l2+1,l2+i-l1); if(i t->right=convert(v1,v2,i+1,r1,l2+i-l1+1,r2); return t; } TreeNode *buildTree(vector &v1, vector &v2) { if(v1.size()==0) return NULL; return convert(v2,v1,0,v1.size()-1,0,v2.size()-1); } }; rahul38  
+/* /**
+ * Definition for binary tree
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+this is simple c++ code (recursive .. 
+
+
+class Solution {
+public:
+     TreeNode *convert(vector<int> &v1, vector<int> &v2,int l1,int r1,int l2,int r2)
+     {
+         int i;
+         if(l1>r1)
+           return NULL;
+          TreeNode *t;
+          for( i=l1;i<=r1;i++)
+            if(v1[i]==v2[l2])
+              break;
+          t=new TreeNode(v1[i]);
+          if(i>l1)
+          t->left= convert(v1,v2,l1,i-1,l2+1,l2+i-l1);
+          if(i<r1)
+          t->right=convert(v1,v2,i+1,r1,l2+i-l1+1,r2);
+          return t;
+     }
+     
+    TreeNode *buildTree(vector<int> &v1, vector<int> &v2) {
+        if(v1.size()==0)
+          return NULL;
+       return convert(v2,v1,0,v1.size()-1,0,v2.size()-1);
+        
+    }
+};*/
+ Hacker Please help me!I am unable to find error in this code. int build_cnt=0; struct tree* build_tree(char *in,char *pre, int in_strt, int in_end) { if(in_strt>in_end) return NULL; struct tree *root = new struct tree; int in_pos; for(int i=in_strt;i<=in_end;i++) if(pre[build_cnt]==in[i]) { in_pos=i; break; } root = create_tree(pre[build_cnt]); build_cnt++; if(in_strt == in_end) return root; root->left=build_tree(in,pre,in_strt,in_pos-1); root->right=build_tree(in,pre,in_pos+1,in_end); return root; } sakekuma //Calling the function using below client code //MyBinaryTree bt = new MyBinarytree(); //bt.pre_inorder_tree_helper(……); //Function starts.. public void pre_inorder_tree_helper(int[] preorder, int[] inorder,int pre,int min,int max){ root=pre_inorder_tree(preorder,inorder,pre,min,max); } private Node pre_inorder_tree(int[] preorder, int[] inorder,int pre,int min,int max){ int left =0;int right=0; if(min>max||pre>=preorder.length) return null; int pos=find_pos(preorder,inorder,pre,min,max); left = pos-1; right=pos+1; Node node = new Node(inorder[pos]); node.left=pre_inorder_tree(preorder,inorder,++pre,min,left); node.right=pre_inorder_tree(preorder,inorder,++pre,right,max); return node; } private int find_pos(int[] preorder,int[] inorder,int pre,int min,int max){ while(min<max){ if(preorder[pre]==inorder[min]) return min; min++; } return min; } Inder I have also given a tutorial here http://bloggerplugnplay.blogspot.in/2012/11/construction-of-binary-tree-from.html  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Spock Well here static is the keyword. If you won’t declare preindex as static then the program will fail. kk How does the worst case complexity turn out to be O(n^2) for left-skewed trees? I couldn’t understand it. Can anyone explain it in detail?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik Let the skewed tree be 
+      A
+     /
+    B
+   /
+  D
+ /
+E
+ The given inorder traversal would be E D B A, and preorder would be A, B, D, E. In the above code, we one by one take elements from preorder traversal and search the element in inorder traversal. Searching the first element will take O(n) time, searching the second element will take O(n-1) time, searching the 3rd element will take O(n-2) time, and so on. So total time would be O(n) + O(n-1) + O(n-2) + … + 1. The sum of this series is O(n*(n-1)/2) which is O(n^2) /* Paste your code here (You may delete these lines if not writing code) */ PG We can reduce this search time by using the binary search. right? then it can be done in O(nlogn) time.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik Binary Search can only be applied for sorted arrays. Ameya Yes, but then inorder array will always be a sorted array. Right? Ameya Sorry! I was thinking about just the BST.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ tiger Hi friends, Here is my code. Any suggestions?  
+
+#include<stdio.h>
+struct node
+{
+char val;
+struct node *left;
+struct node *right;
+};
+
+
+struct node *pre_in(char in[],char pre[],int end)
+{
+
+    static pre_ind=0;int pos,i;
+    struct node *temp=(struct node *)malloc(sizeof(struct node));
+
+    temp->val=pre[pre_ind];
+    pre_ind++;
+    temp->right=NULL;
+    temp->left=NULL;
+if(end<0) 
+return NULL;
+    if(end==0)return temp;
+
+    for(i=0;i<=end;i++)
+    if(in[i]==(temp->val)){break;}
+
+    temp->left=pre_in(&(in[0]),pre,i-1);
+    temp->right=pre_in(&(in[i+1]),pre,end-i-1);
+    return temp;
+}
+print_inorder(struct node *p)
+{
+    if(p==NULL)
+    return;
+print_inorder(p->left);
+printf("\t%c",p->val);
+print_inorder(p->right);
+return;
+}
+
+
+
+
+int main()
+{
+char in[] = {'D', 'B', 'E', 'A', 'F', 'C'};
+  char pre[] = {'A', 'B', 'D', 'E', 'C', 'F'};
+int length=sizeof(in)/sizeof(in[0]);
+struct node *p=pre_in(in,pre,length-1);
+print_inorder(p);
+return;
+}
+
+ udaya Good. But try without static variables.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ tiger But why shouldn’t static variables be used? Please help me. kartik @tiger: When you call the same function for different inputs, static variables may cause unexpected results. Because static variables may be storing the values of previous function call for a different input. tiger Ya i get your point. Thank You.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Braga Here is a Java Version of the same problem http://www.technicalypto.com/2011/12/reconstruct-binary-tree-given-its.html Rahul Menon I got a question saying “Illustrate the construction of tree of a binary tree given its in order and post order traversal. Inorder: HDIJEKBALFMCNGO POSTORDER:HIDJKEBLMFNOGCA i got two different trees in my answer. Is it right? pls help me out kartik @Rahul: Looks like you missed something. You can’t get two trees for given Inorder and Postorder traversals. gg the preIndex seems doesn’t change cuz every time it starts from 0? Mohit Ahuja it would change because it is static. mbrao is there a need to send preOrder end index to buildTree right, If we just increment sequentially, we will be making trees out of leaf nodes as well ? Anand Given a pre – order and post – order traversal construct a tree. Assuming that the internal nodes has exactly two children we can uniquely identify the tree. http://anandtechblog.blogspot.com/2011/06/construct-given-tree-from-pre-order-and.html ai Construct a binary tree using the following 10 pre-order and in-order sequences : Pre-order : 35, 31, 15, 7, 33, 32, 43, 38, 40, 49 In-order : 7, 15, 31, 32, 33, 35, 38, 40, 43, 49 how i make it? thanks in advance for help. ankit i think u know that very well,pre order is necessary for making a tree.ok now pre order is like that,root left right. so 35 is our parent node or root. then covered it by a circle in both pre and in order. in pre order the next element is 31,now we search the respective position of 31 in in order form. 31 is in the left side of the root node ’35’ ok that means 31 is the left child of 35. similarly we check for all element. if any other query then contact me on ankitkharkwal@gmail.com ankit i think u know that very well,pre order is necessary for making a tree.ok now pre order is like that,root left right. so 35 is our parent node or root. then covered it by a circle in both pre and in order. in pre order the next element is 31,now we search the respective position of 31 in in order form. 31 is in the left side of the root node ’35’ ok that means 31 is the left child of 35. similarly we check for all element. if any other query then contact me on ankitkharkwal@gmail.com http://www.facebook.com/profile.php?id=100003406015146 Hatlar Iterative DFS, looking for an efinefcit implementation.I know an explicit stack can be used. One way is, use explicit stack, and keep pushing all the adjacent nodes while exploring each path node in unexplored path. Following this approach, in the worst case, explicit stack will have all the adjacent nodes in the longest path of a node in graph.Where as in recursive approach, the system stack will have max nodes proportional to the depth of the longest node.Any thoughts? I am thinking to keep track of visited node and current exploring node in it’s adjacent list. In other words, mitigating system stack functionality by storing stack frame explicitly. Abhishek Use Binary Search in int search(char arr[], int strt, int end, char value) Since INorder is Increasing sequence, and that would make it O(nlogn) solution Kk It is a binary tree that we are trying to construct, not a binary search tree. As a result, the inorder traversal of the tree may / may not yield a sorted array. Additionally, if we wanted to construct a binary search tree, pre-order traversal would have been sufficient. aayush kumar yup for binary tree i think inorder travesal is ncessary and other travesal can be post/level/pre. but for BST preoder/postorder alone are sufficient. but using postoder to construct is very diificult.however preoder traversal alone can be used for constructing binary tree by including some symbol in place of null. see leetcode http://www.leetcode.com/2010/09/serializationdeserialization-of-binary.html. xTristan (assume no duplicate chars allowed, otherwise there is some chance that the tree is ambiguous, like the AAA example above) to optimize, you may pre-process the inorder string, create a hash map between each char and its index. That eliminates the need for a linear search in your search() method, reducing the time complexity of finding the index from linear to constant. poonam I have done this :-  
+public BinaryNode BuildTree(int[] inOrder,int[] preOrder,int start,int end,int preIndex)
+        {
+           if (start > end)
+            {
+                return null;
+            }
+            else
+            {
+                BinaryNode newNode = new BinaryNode(preOrder[preIndex]);
+                if (start == end)
+                {
+                    return newNode;
+                }
+                int inIndex = SearchInIndex(inOrder,start,end,newNode.data);
+                preIndex++;
+                newNode.left = BuildTree(inOrder,preOrder,start,inIndex-1,preIndex);
+                preIndex++;
+                newNode.right = BuildTree(inOrder,preOrder,inIndex+1,end,preIndex);
+                return newNode;
+            }
+       }
+
+        public int SearchInIndex(int[] inord, int s, int e, int num)
+        {
+            int i;
+            for(i=s;i<e;i++)
+            {
+                if (inord[i] == num)
+                    return i;
+            }
+            return 0;
+        }
+ sharat As an optimization: We can have the first two arguments in[] and pre[] to be passed by reference. To save the process stack Harsh If there are duplicates then i don’t think you can construct a tree using preorder and inorder traversal. Try this Inorder : AAA Preorder : AAA rasmit While searching in the inorder list, find the right most un-traversed element. thecodefreak I didn’t get the logic of passing start and end and maintaining static variable. try this  node* BuildFromInorderPreOrder(int *Inorder, int *Preorder, int length)
+{
+	if(length	==	0)	
+		return NULL;
+	if(length	==	1)	
+		return new node(*Preorder);
+	
+	int RootIndex	=	0;
+	for(int i = 0; i < length && Inorder[i]!=*Preorder ; i++, RootIndex++);
+		
+	struct node *CurrentRoot = BuildFromInorderPreOrder(Inorder+RootIndex, Preorder, 1);
+	CurrentRoot->left	=	BuildFromInorderPreOrder(Inorder, Preorder+1, RootIndex);
+	CurrentRoot->right	=	BuildFromInorderPreOrder(Inorder + RootIndex + 1, Preorder + RootIndex + 1, length - RootIndex - 1);		
+	
+	return CurrentRoot;
+} thecodefreak and have the class node as  class node
+{
+public:
+	int data;
+	struct node* left;
+	struct node* right;
+	node(int i): data(i), left(NULL), right(NULL)
+	{}
+};
+ codegeek in 2nd last line: CurrentRoot->right = BuildFromInorderPreOrder(Inorder + RootIndex + 1, Preorder + RootIndex + 1, length – RootIndex – 1); Preorder + RootIndex + 1 does not look correct. sandhya is there any need of the argument ‘len’ in the buildtree function? I guess it’s not being used. GeeksforGeeks @sandhya: Thanks for pointing this out. We have removed ‘len’ from the buildtree function. Keep it up! chakri will the search function work, if there are any duplicates? Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

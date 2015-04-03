@@ -1,0 +1,341 @@
+Dynamic Programming | Set 24 (Optimal Binary Search Tree) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Dynamic Programming | Set 24 (Optimal Binary Search Tree) Given a sorted array keys[0.. n-1] of search keys and an array freq[0.. n-1] of frequency counts, where freq[i] is the number of searches to keys[i]. Construct a binary search tree of all keys such that the total cost of all the searches is as small as possible. Let us first define the cost of a BST. The cost of a BST node is level of that node multiplied by its frequency. Level of root is 1. 
+Example 1
+Input:  keys[] = {10, 12}, freq[] = {34, 50}
+There can be following two possible BSTs 
+        10                       12
+          \                     / 
+           12                 10
+          I                     II
+Frequency of searches of 10 and 12 are 34 and 50 respectively.
+The cost of tree I is 34*1 + 50*2 = 134
+The cost of tree II is 50*1 + 34*2 = 118 
+
+Example 2
+Input:  keys[] = {10, 12, 20}, freq[] = {34, 8, 50}
+There can be following possible BSTs
+    10                12                 20         10              20
+      \             /    \              /             \            /
+      12          10     20           12               20         10  
+        \                            /                 /           \
+         20                        10                12             12  
+     I               II             III             IV             V
+Among all possible BSTs, cost of the fifth BST is minimum.  
+Cost of the fifth BST is 1*50 + 2*34 + 3*8 = 142
+ 1) Optimal Substructure: The optimal cost for freq[i..j] can be recursively calculated using following formula. We need to calculate optCost(0, n-1) to find the result. The idea of above formula is simple, we one by one try all nodes as root (r varies from i to j in second term). When we make rth node as root, we recursively calculate optimal cost from i to r-1 and r+1 to j. We add sum of frequencies from i to j (see first term in the above formula), this is added because every search will go through root and one comparison will be done for every search. 2) Overlapping Subproblems Following is recursive implementation that simply follows the recursive structure mentioned above. 
+// A naive recursive implementation of optimal binary search tree problem
+#include <stdio.h>
+#include <limits.h>
+
+// A utility function to get sum of array elements freq[i] to freq[j]
+int sum(int freq[], int i, int j);
+
+// A recursive function to calculate cost of optimal binary search tree
+int optCost(int freq[], int i, int j)
+{
+   // Base cases
+   if (j < i)      // If there are no elements in this subarray
+     return 0;
+   if (j == i)     // If there is one element in this subarray
+     return freq[i];
+
+   // Get sum of freq[i], freq[i+1], ... freq[j]
+   int fsum = sum(freq, i, j);
+
+   // Initialize minimum value
+   int min = INT_MAX;
+
+   // One by one consider all elements as root and recursively find cost
+   // of the BST, compare the cost with min and update min if needed
+   for (int r = i; r <= j; ++r)
+   {
+       int cost = optCost(freq, i, r-1) + optCost(freq, r+1, j);
+       if (cost < min)
+          min = cost;
+   }
+
+   // Return minimum value
+   return min + fsum;
+}
+
+// The main function that calculates minimum cost of a Binary Search Tree.
+// It mainly uses optCost() to find the optimal cost.
+int optimalSearchTree(int keys[], int freq[], int n)
+{
+     // Here array keys[] is assumed to be sorted in increasing order.
+     // If keys[] is not sorted, then add code to sort keys, and rearrange
+     // freq[] accordingly.
+     return optCost(freq, 0, n-1);
+}
+
+// A utility function to get sum of array elements freq[i] to freq[j]
+int sum(int freq[], int i, int j)
+{
+    int s = 0;
+    for (int k = i; k <=j; k++)
+       s += freq[k];
+    return s;
+}
+
+// Driver program to test above functions
+int main()
+{
+    int keys[] = {10, 12, 20};
+    int freq[] = {34, 8, 50};
+    int n = sizeof(keys)/sizeof(keys[0]);
+    printf("Cost of Optimal BST is %d ", optimalSearchTree(keys, freq, n));
+    return 0;
+}
+ Output: Cost of Optimal BST is 142 Time complexity of the above naive recursive approach is exponential. It should be noted that the above function computes the same subproblems again and again. We can see many subproblems being repeated in the following recursion tree for freq[1..4]. Since same suproblems are called again, this problem has Overlapping Subprolems property. So optimal BST problem has both properties (see this and this) of a dynamic programming problem. Like other typical Dynamic Programming(DP) problems, recomputations of same subproblems can be avoided by constructing a temporary array cost[][] in bottom up manner. Dynamic Programming Solution Following is C/C++ implementation for optimal BST problem using Dynamic Programming. We use an auxiliary array cost[n][n] to store the solutions of subproblems. cost[0][n-1] will hold the final result. The challenge in implementation is, all diagonal values must be filled first, then the values which lie on the line just above the diagonal. In other words, we must first fill all cost[i][i] values, then all cost[i][i+1] values, then all cost[i][i+2] values. So how to fill the 2D array in such manner> The idea used in the implementation is same as Matrix Chain Multiplication problem, we use a variable ‘L’ for chain length and increment ‘L’, one by one. We calculate column number ‘j’ using the values of ‘i’ and ‘L’. 
+// Dynamic Programming code for Optimal Binary Search Tree Problem
+#include <stdio.h>
+#include <limits.h>
+
+// A utility function to get sum of array elements freq[i] to freq[j]
+int sum(int freq[], int i, int j);
+
+/* A Dynamic Programming based function that calculates minimum cost of
+   a Binary Search Tree. */
+int optimalSearchTree(int keys[], int freq[], int n)
+{
+    /* Create an auxiliary 2D matrix to store results of subproblems */
+    int cost[n][n];
+
+    /* cost[i][j] = Optimal cost of binary search tree that can be
+       formed from keys[i] to keys[j].
+       cost[0][n-1] will store the resultant cost */
+
+    // For a single key, cost is equal to frequency of the key
+    for (int i = 0; i < n; i++)
+        cost[i][i] = freq[i];
+
+    // Now we need to consider chains of length 2, 3, ... .
+    // L is chain length.
+    for (int L=2; L<=n; L++)
+    {
+        // i is row number in cost[][]
+        for (int i=0; i<=n-L+1; i++)
+        {
+            // Get column number j from row number i and chain length L
+            int j = i+L-1;
+            cost[i][j] = INT_MAX;
+
+            // Try making all keys in interval keys[i..j] as root
+            for (int r=i; r<=j; r++)
+            {
+               // c = cost when keys[r] becomes root of this subtree
+               int c = ((r > i)? cost[i][r-1]:0) + 
+                       ((r < j)? cost[r+1][j]:0) + 
+                       sum(freq, i, j);
+               if (c < cost[i][j])
+                  cost[i][j] = c;
+            }
+        }
+    }
+    return cost[0][n-1];
+}
+
+// A utility function to get sum of array elements freq[i] to freq[j]
+int sum(int freq[], int i, int j)
+{
+    int s = 0;
+    for (int k = i; k <=j; k++)
+       s += freq[k];
+    return s;
+}
+
+// Driver program to test above functions
+int main()
+{
+    int keys[] = {10, 12, 20};
+    int freq[] = {34, 8, 50};
+    int n = sizeof(keys)/sizeof(keys[0]);
+    printf("Cost of Optimal BST is %d ", optimalSearchTree(keys, freq, n));
+    return 0;
+}
+ Output: Cost of Optimal BST is 142 Notes 1) The time complexity of the above solution is O(n^4). The time complexity can be easily reduced to O(n^3) by pre-calculating sum of frequencies instead of calling sum() again and again. 2) In the above solutions, we have computed optimal cost only. The solutions can be easily modified to store the structure of BSTs also. We can create another auxiliary array of size n to store the structure of tree. All we need to do is, store the chosen ‘r’ in the innermost loop. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: Dynamic Programming Tweet Writing code in comment? Please use ideone.com and share the link here. NB Food for thought – This problem is similar to Huffman coding concept. ( where you want to associate small length prefix code to symbols that occur more frequently ). Huffman coding can be solved in linear time when sorted weights are given. This cant be directly be applied here because the the binary tree formed by this method wont be a binary SEARCH tree. Guest Recursion tree for above example opt(0,2) root0 root1 root2 / / opt(1,2) opt(0,0) opt(2,2) opt(0,1) root1 root2 root0 root1 / / / / opt(2,2) opt(1,1) opt(1,1) opt(0,0) Junyi Hu Very clear explanation! Samar Following code is simple and easy to understand. #include #include using namespace std; struct node { int data; node *left; node *right; }; node * setroot(int n) { node *p; p = new node; p->data = n; p->left = NULL; p->right = NULL; return p; } int insert (int x, node *t1, int a) { if (x data) { if (t1->left != NULL) { a = a + 1; insert(x, t1->left, a); } else { t1->left = setroot(x); return a; } } else if (x > t1->data) { if (t1->right != NULL) { a = a + 1; insert(x, t1->right, a); } else { t1->right = setroot(x); return a; } } } void inorder(node *t1) { if(t1 != NULL) { inorder(t1->left); cout <data <right); } } int freqh(int freq[], int keys[], int n) { int x, y, z; x = freq[0]; y = 0; for(int i = 1; i < n; i++) { if (x < freq[i]) { x = freq[i]; y = i; } } if (x != 0) { freq[y] = 0; return keys[y]; } else { return 999; } } int main() { node *p; int n, k, sum = 0, z = 2, a; int keys[] = {10, 12, 20}; int freq[] = {34, 8, 50}; a = sizeof(keys)/sizeof(keys[0]); n = freqh(freq, keys, a); sum = n; if(n != 999) { p = setroot(n); } else { p = NULL; } while(n != 999) { n = freqh(freq, keys, a); if(n != 999) { k = insert(n, p, z); sum = sum + (n * k); } } cout << "The cost of the tree is : " << sum; cout << "nTree is :n"; inorder(p); return 0; } gautam Example that shows greedy doesn’t work keys[x,y,z,w] frequency[ 2, 8, 1, 9] and given that x<y<z<w so if you build the BST with w(maximum frequency) you will get total cost 34 , while if you build the BST with y(frequency 8) as a root you will get the total cost 33. Which shows that greedy won't work here. gautam Example that shows greedy doesn’t work keys[x,y,z,w] frequency[ 2, 8, 1, 9] and given that x<y<z<w. so choosing greedy w as a root will have cost 34 but choosing the y as root have cost 33. prashant jha #include #define infinity 999999 using namespace std; struct s { int key; int freq; }; int fun(s *arr,int n) { if(n==0) return 0; if(n==1) return (arr[0].freq); s *left,*right; int min=infinity;int i,j,m; for(i=0;i<n;i++) { int r_cost=0,s1=0,s2=0,p1=0,p2=0; for(j=0;j<n;j++) { if(j==i) continue; r_cost=r_cost+arr[j].freq; if(arr[j].key<arr[i].key) s1++; else s2++; } left=new s[s1]; right=new s[s2]; for(j=0;j<n;j++) { if(j==i) continue; if(arr[j].key<arr[i].key) { left[p1].key=arr[j].key; left[p1].freq=arr[j].freq; p1++; } else { right[p2].key=arr[j].key; right[p2].freq=arr[j].freq; p2++; } } m=arr[i].freq+fun(left,s1)+fun(right,s2)+r_cost; if(m<min) min=m; } return min; } int main() { int n; cout<>n; s *arr=new s[n]; for(int i=0;i<n;i++) { cout<<"enter the "<<i+1<>arr[i].key>>arr[i].freq; } cout<<fun(arr,n)<<" is the optimal cost.n"; return 0; } jv regarding 2) In the above solutions, we have computed optimal cost only. The solutions can be easily modified to store the structure of BSTs also. We can create another auxiliary array of size n to store the structure of tree. All we need to do is, store the chosen ‘r’ in the innermost loop. i think this needs any array of NxN as we need to store r at every level and back trace at the end. Can you please explain how this can be done with array of size N only. shiwakant.bharti Awesome post with amazing code and comments. Thank you admin! Meanwhile there is a minor bug which leads to Exception in Java java.lang.ArrayIndexOutOfBoundsException: 3 The issue is in this code we have not created and array of size n+1. Also this issue is not visible in C/C++ as there is no bound checking support there. Fixed code below.  
+            // i is row number in cost[][]
+            for (int i = 0; i < n - L + 1; i++) {
+ Born Actor  
+//to print the minimum cost and inorder traversal of teh tree formed
+
+
+#include <iostream>
+#include<string>
+#include<sstream>
+#include<iomanip>
+#include <stdio.h>
+#include <math.h>
+#include <vector>
+#include <stdlib.h>
+using namespace std;
+int keys[50];
+int n;
+int frequencies[50];
+class node
+
+{
+	public:
+	int value;
+	int freq;
+	node* l;
+	node *r;
+	node *p;
+};
+std::pair < int , node* > a[50][50];
+std::pair<int,node*> function(int i ,int j);
+void print(node*);
+int main()
+{
+
+	int i,j;
+	cout<<"enter the number of nodes"<<endl;
+	cin>>n;
+	cout<<"enter the keys"<<endl;
+	for(i=0;i<n;i++)
+		cin>>keys[i];
+	cout<<"enter the frequencies"<<endl;
+	for(i=0;i<n;i++)
+		cin>>frequencies[i];
+	for(i=0;i<n;i++)
+		for(j=0;j<n;j++)
+			a[i][j].first=0;
+	pair<int,node*> tree;
+	tree=function(0,n-1);
+	cout<<tree.first<<endl;
+	print(tree.second);
+}
+pair<int,node*> function(int i, int j)
+{
+	if((a[i][j]).first!=0)
+		return a[i][j];
+	int ans=999;
+	int temp;
+	int r;
+	if(i==j)
+	{
+		a[i][j].first=frequencies[i];
+		node * answer=new node();
+		answer->l=NULL;
+		answer->r=NULL;
+		answer->p=NULL;
+		answer->value=keys[i];
+		answer->freq=frequencies[i];
+		a[i][j].second=answer;
+		return a[i][j];
+	}
+	int gen;
+	node *gen1;
+	node *gen2;
+	pair<int,node*> temp1;
+	pair<int,node*> temp2; 
+	int flag1=0;
+	int flag2=0;
+	for(r=i;r<=j;r++)
+	{
+		flag1=0;
+		flag2=0;
+		if(r-1>=i)
+		{
+			flag1=1;
+			temp1=function(i,r-1);
+		}
+		if(j>=r+1)
+		{
+			flag2=1;
+			temp2=function(r+1,j);
+		}
+		if(flag1==1 && flag2==1)
+		{
+			temp=temp1.first+temp2.first;
+			if(temp<ans)
+			{
+				ans=temp;
+				gen1=temp1.second;
+				gen2=temp2.second;
+				gen=r;
+			}
+		}
+		else if(flag1==0 && flag2==1)
+		{
+			temp=temp2.first;
+			if(temp<ans)
+			{
+				ans=temp;
+				gen1=NULL;
+				gen2=temp2.second;
+				gen=r;
+			}
+		}
+		else if(flag1==1 && flag2==0)
+		{
+			temp=temp1.first;
+			if(temp<ans)
+			{
+				ans=temp;
+				gen2=NULL;
+				gen1=temp1.second;
+				gen=r;
+			
+			}
+		}
+
+	}
+	node *root=new node();
+	root->l=gen1;
+	root->r=gen2;
+	root->value=keys[gen];
+	root->freq=frequencies[gen];
+	if(gen1!=NULL)
+	gen1->p=root;
+	if(gen2!=NULL)
+	gen2->p=root;
+	int ans2=0;
+	for(r=i;r<=j;r++)
+		ans2=ans2+frequencies[r];
+	a[i][j]=make_pair(ans+ans2,root);
+	return a[i][j];
+
+
+}
+void print(node* root)
+{
+	if(root->l!=NULL)
+		print(root->l);
+	cout<<root->value<<"  ";
+
+	if(root->r!=NULL)
+		print(root->r);
+	return;
+}
+ atul In the given example the output should be :134 (50*1)+(34*2)+(8*2)=134 i.e following tree :_  
+           
+         20           
+        /  \
+       10  12
+
+ but it seems to me the following details about the question is missing which would make this implementation correct:- if ith value is considered as the root then 0 to i-1 elements lies on the left side of the ith node and i+1 to nth element lies on the right side of ith node. considering the fact that this tree is also valid  
+           
+         20           
+        /  \
+       10  12
+
+ then greedy approach will work by making root , one with maximum freq and then considering other nodes in decreasing order of freq. Dheeraj Did u read the question? You don’t even need to read the complete question. See title, it says Binary Search Tree. The example that you have given above is not a binary search tree. rajat rastogi Next problem will be print structure of optimal binary search tree in O(nlogn) time?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ rajat rastogi Correction, problem statment should be…Write algorithm to find Optimal Binary Search Tree in O(nlogn) time. yashraj “We add sum of frequencies from i to j (see first term in the above formula), this is added because every search will go through root and one comparison will be done for every search.” what does this mean.. i could not get. can you please explain in detail jv lets say keys[]={1,2,3} frequency[]={3,10,5} when you are considering 2 as root and finding the min cost mincostof(1, with size 1)+mincostof(3, with size 1) + costof 2(=10) + since now element 1 and elment 3 is moved to second level you need to add there cost also(=3+5) so if see the total will become cost of all keys + minat 1 + mniat 3 hope it clears this now tejas Please change the condition to (i<=n-L). rocker Why is the recurrence relation just considers (i,r-1) and (r+1, j) to be the subproblems. The rest of the elements apart from root can be part of any of the subtrees. The one defined here signifies that, elements from (i to r-1) or (r+1 to j) constitute one subtree which need not be the case. Unknown Because the tree here is a BST. So it is obvious that we consider the smaller elements to the left subtree of root. Same statement follows for the right. sreeram But that requires frequencies to be sorted right ? or am i missing something ,,, sreeram Oh no not frequencies …keys …i think here the assumption is that keys are sorted … ammy Finding optimal BST can be done in o(n^2) using knuth’s algorithm to find roots of optimal sub-trees..root(i,j-1)<=root(i,j)<=root(i+1,j)…isn't it?? Piyush In example 2, tree structure II has the least code, not V Kartik Cost of IInd tree = 1*8 + 34*2 + 50*2 = 176 Which is more than cost of Vth tree. Arvind B R The description is misleading “Construct a binary search tree of all keys such that the total cost of all the searches is as small as possible.” Here you have not constructed any binary search tree ,you have just found the minimum cost. Kartik The main algorithm for the given problem lies in finding out the total cost. The programs can be easily augmented to construct the tree as well. We will soon add code to construct the tree also. BSTlover Can you share that solutions pls? op good explanation …Greedy algorithm…. make the most frequent element root, do the same for left and right subtrees kapser As OP said, Why haven’t you used Greedy algorithm ? (sort the frequencies by descending order and build tree based on the keys). Kartik Geedy algorithm doesn’t always give the optimal solution. We will post the examples soon. Kartik Consider the following example keys[] = {10, 12, 20}; freq[] = {100, 99, 98}; Among the 5 possible BSTs. following BST has the minimum cost  
+   12
+  /  \
+10    20
+Cost = 99*1 + 100*2 + 98*2 = 495 
+ But according to Greedy, we should get following BST  
+    10
+      \
+       12
+         \
+          20 
+
+Cost = 100*1 + 99*2 + 98*3 =  595
+ The cost from Greedy approach is much more than the optimal cost. Guru Greeedy works too. The above example has distributed the keys in a skewed fashion. We can always try to build a complete tree.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Mathan Kumar I think the question is to find optimal binary “search” tree… Not an ordinary binary tree..  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

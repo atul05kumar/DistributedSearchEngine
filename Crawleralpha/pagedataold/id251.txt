@@ -1,0 +1,302 @@
+Backtracking | Set 4 (Subset Sum) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Backtracking | Set 4 (Subset Sum) Subset sum problem is to find subset of elements that are selected from a given set whose sum adds up to a given number K. We are considering the set contains non-negative values. It is assumed that the input set is unique (no duplicates are presented). Exhaustive Search Algorithm for Subset Sum One way to find subsets that sum to K is to consider all possible subsets. A power set contains all those subsets generated from a given set. The size of such a power set is 2N. Backtracking Algorithm for Subset Sum Using exhaustive search we consider all subsets irrespective of whether they satisfy given constraints or not. Backtracking can be used to make a systematic consideration of the elements to be selected. Assume given set of 4 elements, say w[1] … w[4]. Tree diagrams can be used to design backtracking algorithms. The following tree diagram depicts approach of generating variable sized tuple. In the above tree, a node represents function call and a branch represents candidate element. The root node contains 4 children. In other words, root considers every element of the set as different branch. The next level sub-trees correspond to the subsets that includes the parent node. The branches at each level represent tuple element to be considered. For example, if we are at level 1, tuple_vector[1] can take any value of four branches generated. If we are at level 2 of left most node, tuple_vector[2] can take any value of three branches generated, and so on… For example the left most child of root generates all those subsets that include w[1]. Similarly the second child of root generates all those subsets that includes w[2] and excludes w[1]. As we go down along depth of tree we add elements so far, and if the added sum is satisfying explicit constraints, we will continue to generate child nodes further. Whenever the constraints are not met, we stop further generation of sub-trees of that node, and backtrack to previous node to explore the nodes not yet explored. In many scenarios, it saves considerable amount of processing time. The tree should trigger a clue to implement the backtracking algorithm (try yourself). It prints all those subsets whose sum add up to given number. We need to explore the nodes along the breadth and depth of the tree. Generating nodes along breadth is controlled by loop and nodes along the depth are generated using recursion (post order traversal). Pseudo code given below, if(subset is satisfying the constraint)
+    print the subset
+    exclude the current element and consider next element
+else
+    generate the nodes of present level along breadth of tree and
+    recur for next levels Following is C implementation of subset sum using variable size tuple vector. Note that the following program explores all possibilities similar to exhaustive search. It is to demonstrate how backtracking can be used. See next code to verify, how we can optimize the backtracking solution. 
+#include <stdio.h>
+#include <stdlib.h>
+
+#define ARRAYSIZE(a) (sizeof(a))/(sizeof(a[0]))
+
+static int total_nodes;
+// prints subset found
+void printSubset(int A[], int size)
+{
+    for(int i = 0; i < size; i++)
+    {
+        printf("%*d", 5, A[i]);
+    }
+
+    printf("\n");
+}
+
+// inputs
+// s            - set vector
+// t            - tuplet vector
+// s_size       - set size
+// t_size       - tuplet size so far
+// sum          - sum so far
+// ite          - nodes count
+// target_sum   - sum to be found
+void subset_sum(int s[], int t[],
+                int s_size, int t_size,
+                int sum, int ite,
+                int const target_sum)
+{
+    total_nodes++;
+    if( target_sum == sum )
+    {
+        // We found subset
+        printSubset(t, t_size);
+        // Exclude previously added item and consider next candidate
+        subset_sum(s, t, s_size, t_size-1, sum - s[ite], ite + 1, target_sum);
+        return;
+    }
+    else
+    {
+        // generate nodes along the breadth
+        for( int i = ite; i < s_size; i++ )
+        {
+            t[t_size] = s[i];
+            // consider next level node (along depth)
+            subset_sum(s, t, s_size, t_size + 1, sum + s[i], i + 1, target_sum);
+        }
+    }
+}
+
+// Wrapper to print subsets that sum to target_sum
+// input is weights vector and target_sum
+void generateSubsets(int s[], int size, int target_sum)
+{
+    int *tuplet_vector = (int *)malloc(size * sizeof(int));
+
+    subset_sum(s, tuplet_vector, size, 0, 0, 0, target_sum);
+
+    free(tuplet_vector);
+}
+
+int main()
+{
+    int weights[] = {10, 7, 5, 18, 12, 20, 15};
+    int size = ARRAYSIZE(weights);
+
+    generateSubsets(weights, size, 35);
+    printf("Nodes generated %d\n", total_nodes);
+    return 0;
+}
+ The power of backtracking appears when we combine explicit and implicit constraints, and we stop generating nodes when these checks fail. We can improve the above algorithm by strengthening the constraint checks and presorting the data. By sorting the initial array, we need not to consider rest of the array, once the sum so far is greater than target number. We can backtrack and check other possibilities. Similarly, assume the array is presorted and we found one subset. We can generate next node excluding the present node only when inclusion of next node satisfies the constraints. Given below is optimized implementation (it prunes the subtree if it is not satisfying contraints). 
+#include <stdio.h>
+#include <stdlib.h>
+
+#define ARRAYSIZE(a) (sizeof(a))/(sizeof(a[0]))
+
+static int total_nodes;
+
+// prints subset found
+void printSubset(int A[], int size)
+{
+    for(int i = 0; i < size; i++)
+    {
+        printf("%*d", 5, A[i]);
+    }
+
+    printf("\n");
+}
+
+// qsort compare function
+int comparator(const void *pLhs, const void *pRhs)
+{
+    int *lhs = (int *)pLhs;
+    int *rhs = (int *)pRhs;
+
+    return *lhs > *rhs;
+}
+
+// inputs
+// s            - set vector
+// t            - tuplet vector
+// s_size       - set size
+// t_size       - tuplet size so far
+// sum          - sum so far
+// ite          - nodes count
+// target_sum   - sum to be found
+void subset_sum(int s[], int t[],
+                int s_size, int t_size,
+                int sum, int ite,
+                int const target_sum)
+{
+    total_nodes++;
+
+    if( target_sum == sum )
+    {
+        // We found sum
+        printSubset(t, t_size);
+
+        // constraint check
+        if( ite + 1 < s_size && sum - s[ite] + s[ite+1] <= target_sum )
+        {
+            // Exclude previous added item and consider next candidate
+            subset_sum(s, t, s_size, t_size-1, sum - s[ite], ite + 1, target_sum);
+        }
+        return;
+    }
+    else
+    {
+        // constraint check
+        if( ite < s_size && sum + s[ite] <= target_sum )
+        {
+            // generate nodes along the breadth
+            for( int i = ite; i < s_size; i++ )
+            {
+                t[t_size] = s[i];
+
+                if( sum + s[i] <= target_sum )
+                {
+                    // consider next level node (along depth)
+                    subset_sum(s, t, s_size, t_size + 1, sum + s[i], i + 1, target_sum);
+                }
+            }
+        }
+    }
+}
+
+// Wrapper that prints subsets that sum to target_sum
+void generateSubsets(int s[], int size, int target_sum)
+{
+    int *tuplet_vector = (int *)malloc(size * sizeof(int));
+
+    int total = 0;
+
+    // sort the set
+    qsort(s, size, sizeof(int), &comparator);
+
+    for( int i = 0; i < size; i++ )
+    {
+        total += s[i];
+    }
+
+    if( s[0] <= target_sum && total >= target_sum )
+    {
+
+        subset_sum(s, tuplet_vector, size, 0, 0, 0, target_sum);
+
+    }
+
+    free(tuplet_vector);
+}
+
+int main()
+{
+    int weights[] = {15, 22, 14, 26, 32, 9, 16, 8};
+    int target = 53;
+
+    int size = ARRAYSIZE(weights);
+
+    generateSubsets(weights, size, target);
+
+    printf("Nodes generated %d\n", total_nodes);
+
+    return 0;
+}
+ As another approach, we can generate the tree in fixed size tuple analogs to binary pattern. We will kill the sub-trees when the constraints are not satisfied. – – – Venki. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: Backtracking Tweet Writing code in comment? Please use ideone.com and share the link here. disqus_0z6aYV2hDC Isn’t the following wrong; if( target_sum == sum ) { // We found subset printSubset(t, t_size); // Exclude previously added item and consider next candidate subset_sum(s, t, s_size, t_size-1, sum – s[ite], ite + 1, target_sum); return; } We called subset_sum with i = ite+1, and in the loop when sum == target_sum, we are calling subset_sum with again i = ite+1. We should have called it with i = ite. Also, the sum passed is sum – s[ite]. It should be sum-s[ite -1] prashant int fun(int arr[],int low,int high,int s) { if(s==0) return 1; if(s<0) return 0; if(low==high) { if(arr[low]==s) { cout<<arr[low]<s) return fun(arr,low+1,high,s); for(int k=low;k<high;k++) { int p=fun(arr,k+1,high,s-arr[k]); if(p) { cout<<arr[k]<<" "; return 1; } } return 0; } prashant jha /* int fun(int arr[],int low,int high,int s) { if(s==0) return 1; if(s<0) return 0; if(low==high) { if(arr[low]==s) { cout<<arr[low]<s) return fun(arr,low+1,high,s); for(int k=low;k<high;k++) { int p=fun(arr,k+1,high,s-arr[k]); if(p) { cout<<arr[k]<<" "; return 1; } } return 0; } int main() { int arr[]={15,33,21,9,4,13,7}; int n=sizeof(arr)/sizeof(arr[0]); int s;cout<>s; int k=fun(arr,0,n-1,s); if(!k) cout<<"path not exixts.n"; return 0; }int fun(int arr[],int low,int high,int s) { if(s==0) return 1; if(s<0) return 0; if(low==high) { if(arr[low]==s) { cout<<arr[low]<s) return fun(arr,low+1,high,s); for(int k=low;k<high;k++) { int p=fun(arr,k+1,high,s-arr[k]); if(p) { cout<<arr[k]<<" "; return 1; } } return 0; } int main() { int arr[]={15,33,21,9,4,13,7}; int n=sizeof(arr)/sizeof(arr[0]); int s;cout<>s; int k=fun(arr,0,n-1,s); if(!k) cout<<"path not exixts.n"; return 0; } */ Ajp private static void subSetSum(Integer[] arr, Integer[] tArr, int ts, int sum, int ite, int num) { if (num == sum) { printSubset(tArr, ts); } else if (sum < num) { for (int i = ite; i num) { // Nothing do } } C# Rules /// Logic is sort numbers and use this logic. Below method assumes that number are already sorted. public void FindSubset(int sum, int tSum, int[] allInts,ArrayList posibbleset,int currentIndex) { if (sum == tSum) {PrintResult(posibbleset);} else if (sum > tSum){ for (int i = currentIndex; i < allInts.Length; i++) { ArrayList ps = (ArrayList) posibbleset.Clone(); if (tSum + allInts[i] <= sum) { ps.Add(allInts[i]); FindSubset(sum, tSum + allInts[i], allInts, ps, (i + 1)); } else break; } } } private void PrintResult(ArrayList possibleSet) { StringBuilder sb = new StringBuilder(); for (int i = 0; i < possibleSet.Count; i++) { sb.Append(possibleSet[i]).Append(","); } Console.WriteLine(sb.ToString()); } Vijay Kumar public static void select(int i,int n,int k,String output) { if(k==0 && n==0){ count++; System.out.println(output); return; } if(i<1 || n<0 || k==0){return;} select(i-1,n,k,output); // not choosing i select(i-1,n-i,k-1,output+i +" "); } Guest #include #include void sumOfSubsets(int x[],int w[],int n,int s,int k,int r,int m) { int i; x[k]=1; if(s+w[k]==m) { printf(“SOLUTION : “); for(i=1;ik) { x[i]=0; } printf(“%d “,x[i]); } printf(“n”); } else if((s+w[k]+w[k+1])=m)&& (s+w[k+1]<=m)) { x[k]=0; sumOfSubsets(x,w,n,s,k+1,r-w[k],m); } } int main() { int n; printf("Enter the number of values : "); scanf("%d",&n); int x[n+1],w[n+1],i,r=0,m; for(i=1;i<=n;i++) { scanf("%d",&w[i]); x[i]=0; // storing 0 or 1 depicting whether that element is included in tuple or not. r+=w[i]; // r stores total sum } printf("Enter the value of sum : "); scanf("%d",&m); // sum whose subsets are to find out if(m<r) sumOfSubsets(x,w,n,0,1,r,m); else printf("The sum of weights entered is less than m.n!!!! SO NO SOLUTION !!!!"); return 0; } Guest I think this is a better solution if we are not allowed to modify the array by sorting it. #include #include void sumOfSubsets(int x[],int w[],int n,int s,int k,int r,int m) { int i; x[k]=1; if(s+w[k]==m) { printf(“SOLUTION : “); for(i=1;ik) { x[i]=0; } printf(“%d “,x[i]); } printf(“n”); } else if((s+w[k]+w[k+1])=m)&& (s+w[k+1]<=m)) { x[k]=0; sumOfSubsets(x,w,n,s,k+1,r-w[k],m); } } int main() { int n; printf("Enter the number of values : "); scanf("%d",&n); int x[n+1],w[n+1],i,r=0,m; for(i=1;i<=n;i++) { scanf("%d",&w[i]); x[i]=0; // storing 0 or 1 depicting whether that element is included in tuple or not. r+=w[i]; // r stores total sum } printf("Enter the value of sum : "); scanf("%d",&m); // sum whose subsets are to find out if(m<r) sumOfSubsets(x,w,n,0,1,r,m); else printf("The sum of weights entered is less than m.n!!!! SO NO SOLUTION !!!!"); return 0; } abhishek08aug Intelligent rahul23 @venki– Firstly following isnt not needed i think..And it can be modified to handle duplicates if we need this…say 2,4,4 and we need to find 6…2 4 matched..now ite is at 3rd element i.e 4..wta we so….we do sum-s[ite-1],i.e exclude previous and + s[ite]..add next..agin we get 2,4…..correct me if wrng… // it would not be needed in case unique elements…. if( ite + 1 < s_size && sum – s[ite] + s[ite+1] <= target_sum ) { // Exclude previous added item and consider next candidate subset_sum(s, t, s_size, t_size-1, sum – s[ite], ite + 1, target_sum); } return; } bugfinder isnt this code finding repeated same subsets which satisfies the constraint. for example : consider the tree : .. 1 / \ 2 / \ 6 7 suppose 6 leads to a subset … Then if( target_sum == sum ) { // We found sum printSubset(t, t_size); // constraint check if( ite + 1 < s_size && sum – s[ite] + s[ite+1] <= target_sum ) { // Exclude previous added item and consider next candidate subset_sum(s, t, s_size, t_size-1, sum – s[ite], ite + 1, target_sum); } return; } [\code] so node 7 will be invoked .. now when this ends … asuming no more alternatives to try we return to the original for loop where 7 will be called again … Do we require memoization here of solution to check already traversed paths are not traversed again. Balaji Thanks for explaining how to accomplish this through backtracking. Just to be more clear and to verify my belief – i’m thinking we can model this problem as the coin change problem which essentially asks in how many ways can you make change to a given sum ‘N’ using ‘m’ coins S1<S2<..<Sm, the solution to which is simply the recurrence C(N,m) = C(N,m – 1) + C(N – Sm,m) kalyan if( ite + 1 < s_size && sum – s[ite] + s[ite+1] <= target_sum ) { // Exclude previous added item and consider next candidate subset_sum(s, t, s_size, t_size-1, sum – s[ite], ite + 1, target_sum); } i think this condition is redundant ?can some one tell me why is it required …i ran it without that condition its running fine .. Anil  
+
+I feel below check is redundant and not required. Could u please explain the necessity of this.
+
+My point is 
+
+if we got subset whose sum is equal to target sum, then there is no question of being checking to next candidate because its very obvious that the sum would be greater than target sum.
+
+        if(ite + 1 < s_size && sum - s[ite] + s[ite+1] <= target_sum)
+        {
+            subset_sum(s, t, s_size, t_size-1, sum - s[ite], ite + 1, target_sum);
+        } 
+
+
+ Anil I am talking about optimized version. Also in unoptimized version the return statement is redundant. if( target_sum == sum ) { // We found subset printSubset(t, t_size); // Exclude previously added item and consider next candidate subset_sum(s, t, s_size, t_size-1, sum – s[ite], ite + 1, target_sum); return; // AKT the return is not required redundant code } dreamer exactly my point.. this statement is not required.. the exclusion statement… it doesnt make any difference .. plus we should exclude “s[ite-1]” here.. coz it is the previously added item.. wasted hours figuring out why we are excluding s[ite] when we haven’t included it yet  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Mayautobot  
+//this program prints all subsets in the array that sum to the given sum
+
+#include<iostream>
+
+using namespace std;
+
+void Tour(int arr[],int size,int reSum)
+{
+	int *stack=new int[size];
+	int sp=-1;
+	int sum=0;
+	int arrp;
+	
+	for(int i=0;i<size;i++)
+	{
+		sp=-1;
+		stack[++sp]=i;
+		sum+=arr[stack[sp]];
+		arrp=i+1;
+		while(sp!=-1)
+		{
+			if(sum==reSum)
+			{
+				for(int j=0;j<=sp;j++)
+				{
+					cout<<" "<<arr[stack[j]];
+				}
+				cout<<endl;
+				arrp=stack[sp--];
+				sum-=arr[arrp];
+				arrp++;
+			}
+			else if(sum>reSum)
+			{
+				sum-=arr[stack[sp]];
+				arrp=stack[sp--];
+				arrp++;
+			}
+			else if(sum<reSum)
+			{
+				if(arrp<size)
+				{
+					sum+=arr[arrp];
+					stack[++sp]=arrp;
+					arrp++;
+				}
+				else
+				{
+					arrp=stack[sp--];
+					sum-=arr[arrp];
+					arrp++;
+				}
+			}
+		}
+	}
+}
+
+int main()
+{
+	int arr[]={10,7,5,18,12,20,15};
+	int size=7;
+	Tour(arr,size,35);
+	return 0;
+}
+
+ spark9 your code will not work properly when the set will contain 0. like [1,2,0] target sum = 3.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik @spark9: I tried the code for your input. It seems to be working. It produced two subsets as output: 1 2 0 1 2 spark9 Did you try with the first version of the code (the one without sorting) ?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ sachin in the first code, what if sum becomes greater than the target sum,then in that case also,it should exclude current element and consider next? http://geeksforgeeks.org/?page_id=2 Venki @Arvind, thanks for pointing this. You have provided a set with duplicated entries. It was assumed that the elements are unique. With the duplicated entries, during branch generation upon step back by excluding the current element it is assumed that the current element is excluded to consider next elements. In case of duplicate elements it is not true. I have updated the problem description. Arvind The code doesn;t work Example: For int weights[] = {10, 7, 5, 18, 12, 12, 15}; Output 18 7 10 18 7 12 18 5 12 18 5 12 Nodes generated 55 Which is not right Arvind  
+    if( target_sum == sum )
+    {
+        // We found sum
+        printSubset(t, t_size);
+ 
+        // constraint check
+        if( ite + 1 < s_size && sum - s[ite] + s[ite+1] <= target_sum )
+        {
+            // Exclude previous added item and consider next candidate
+            subset_sum(s, t, s_size, t_size-1, sum - s[ite], ite + 1, target_sum);
+        }
+        return;
+    }
+This is not right. why do we do  Exclude previous added item and consider next candidate - not making sense.
+
+Output for {10, 7, 5, 18, 12, 12, 15};
+   10    7   18 (sum = 35)
+   10    7   12 (sum = 29)
+    5   18   12 (sum = 35)
+    5   18   12 
+Nodes generated 124
+ Arvind The code doesn’t work kamlesh what is the time complexity of Backtracking Algorithm for Subset Sum http://effprog.blogspot.com Sambasiva http://effprog.blogspot.com/2011/10/to-print-all-subsets-of-set-whose-sum.html http://geeksforgeeks.org/?page_id=2 Venki @Sambasiva, thanks for the comment. We are missing your comments on GFG :). Welcome back. http://effprog.blogspot.com Sambasiva Hi Venki, Thank you. Really nice posts. rahul @Venki isn’t the complexity exponential can u write exact complexity , also kartik @rahul: Time complexity is exponential in worst case. Same is the case with all other Backtracking algos like Rat in a Mzae, Knight Tour, N Queen.. etc http://geeksforgeeks.org/?page_id=2 Venki @rahul, I hope Karthik clarified your query. Adding further, backtracking explores all solution vectors in a systematic manner. It will stop generating subtrees (pruning) when implicit constraints are not satisfied. So that significant amount of time will be saved. However, in the worst case we need to explore all possibilities. Try to generate the worst case test data for above subset sum problem . Where as in brute force search, we will check each and every option. To understand the fact, try the above two algorithms with the following input  
+    int weights[] = {2, 7, 5, 1, 3};
+    int target = 7; There are two solutions for the above problem. Set {2, 7} and set {7}. The first program generates 28 nodes (including unnecessary leaf node calls) and second program generates 12 nodes. Usually the complexity of backtracking problems will be O(P(n) * n!) or O(P(n) * 2^n) where P(n) is polynomial in ‘n’ that depends on the way nodes are generated. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

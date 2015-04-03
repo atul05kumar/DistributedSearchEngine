@@ -1,0 +1,102 @@
+Print a Binary Tree in Vertical Order | Set 2 (Hashmap based Method) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Print a Binary Tree in Vertical Order | Set 2 (Hashmap based Method) Given a binary tree, print it vertically. The following example illustrates vertical order traversal. 
+           1
+        /    \
+       2      3
+      / \    / \
+     4   5  6   7
+             \   \
+              8   9 
+               
+			  
+The output of print this tree vertically will be:
+4
+2
+1 5 6
+3 8
+7
+9 We strongly recommend to minimize the browser and try this yourself first. We have discussed a O(n2) solution in the previous post. In this post, an efficient solution based on hash map is discussed. We need to check the Horizontal Distances from root for all nodes. If two nodes have the same Horizontal Distance (HD), then they are on same vertical line. The idea of HD is simple. HD for root is 0, a right edge (edge connecting to right subtree) is considered as +1 horizontal distance and a left edge is considered as -1 horizontal distance. For example, in the above tree, HD for Node 4 is at -2, HD for Node 2 is -1, HD for 5 and 6 is 0 and HD for node 7 is +2. We can do inorder traversal of the given Binary Tree. While traversing the tree, we can recursively calculate HDs. We initially pass the horizontal distance as 0 for root. For left subtree, we pass the Horizontal Distance as Horizontal distance of root minus 1. For right subtree, we pass the Horizontal Distance as Horizontal Distance of root plus 1. For every HD value, we maintain a list of nodes in a hasp map. Whenever we see a node in traversal, we go to the hash map entry and add the node to the hash map using HD as a key in map. Following is C++ implementation of the above method. Thanks to Chirag for providing the below C++ implementation. 
+// C++ program for printing vertical order of a given binary tree
+#include <iostream>
+#include <vector>
+#include <map>
+using namespace std;
+
+// Structure for a binary tree node
+struct Node
+{
+    int key;
+    Node *left, *right;
+};
+
+// A utility function to create a new node
+struct Node* newNode(int key)
+{
+    struct Node* node = new Node;
+    node->key = key;
+    node->left = node->right = NULL;
+    return node;
+}
+
+// Utility function to store vertical order in map 'm'
+// 'hd' is horigontal distance of current node from root.
+// 'hd' is initally passed as 0
+void getVerticalOrder(Node* root, int hd, map<int, vector<int>> &m)
+{
+    // Base case
+    if (root == NULL)
+        return;
+
+    // Store current node in map 'm'
+    m[hd].push_back(root->key);
+
+    // Store nodes in left subtree
+    getVerticalOrder(root->left, hd-1, m);
+
+    // Store nodes in right subtree
+    getVerticalOrder(root->right, hd+1, m);
+}
+
+// The main function to print vertical oder of a binary tree
+// with given root
+void printVerticalOrder(Node* root)
+{
+    // Create a map and store vertical oder in map using
+    // function getVerticalOrder()
+    map < int,vector<int> > m;
+    int hd = 0;
+    getVerticalOrder(root, hd,m);
+
+    // Traverse the map and print nodes at every horigontal
+    // distance (hd)
+    map< int,vector<int> > :: iterator it;
+    for (it=m.begin(); it!=m.end(); it++)
+    {
+        for (int i=0; i<it->second.size(); ++i)
+            cout << it->second[i] << " ";
+        cout << endl;
+    }
+}
+
+// Driver program to test above functions
+int main()
+{
+    Node *root = newNode(1);
+    root->left = newNode(2);
+    root->right = newNode(3);
+    root->left->left = newNode(4);
+    root->left->right = newNode(5);
+    root->right->left = newNode(6);
+    root->right->right = newNode(7);
+    root->right->left->right = newNode(8);
+    root->right->right->right = newNode(9);
+    cout << "Vertical order traversal is \n";
+    printVerticalOrder(root);
+    return 0;
+}
+ Output: Vertical order traversal is
+4
+2
+1 5 6
+3 8
+7
+9 Time Complexity of hashing based solution can be considered as O(n) under the assumption that we have good hashing function that allows insertion and retrieval operations in O(1) time. In the above C++ implementation, map of STL is used. map in STL is typically implemented using a Self-Balancing Binary Search Tree where all operations take O(Logn) time. Therefore time complexity of above implementation is O(nLogn). Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. dark_knight For this input , it is giving wrong answer ? Node *root = newNode(1); root->left = newNode(2); root->right = newNode(3); root->left->left = newNode(4); root->left->left->right = newNode(8); root->left->left->right->right = newNode(9); root->left->right = newNode(5); root->right->left = newNode(6); root->right->right = newNode(7); root->right->left->right = newNode(10); root->right->right->right = newNode(11); ANSWER OBTAINED : 4 2 8 1 9 5 6 3 10 7 11 EXPECTED : 4 2 8 1 5 6 9 3 10 7 11 dark_knight We should rather use either BFS or sort the vectors in the end amit isngh //date: 17th april 14 //by: amit kumar singh #include #include #include #include using namespace std; vector v[100]; int min1=1000,max1=-1000; struct node { int data; struct node* left; struct node* right; }; typedef struct node * nodeptr; queue q; nodeptr createNode(int x) { nodeptr temp = (nodeptr)malloc(sizeof(struct node)); temp->data = x; temp->left =NULL; temp->right =NULL; } void inorder(nodeptr node,int width,int *minwidth,int *maxwidth) { if(node == NULL) return ; inorder(node->left,width-1,minwidth,maxwidth); if(width(*maxwidth)) *maxwidth = width; inorder(node->right,width+1,minwidth,maxwidth); } void levelorder(nodeptr node) { int width = 0,i,j; nodeptr u;; int w[100]={0}; q.push(node); w[node->data] = 0; while(!q.empty()) { u = q.front(); q.pop(); v[w[u->data]-min1].push_back(u->data); if(u->left!=NULL) {q.push(u->left); w[(u->left)->data] = w[u->data]-1;} if(u->right!=NULL) {q.push(u-> right); w[(u->right)->data] = w[u->data]+1;} } for(i=0;i<=max1-min1;i++) { for(j=0;jleft = createNode(2); root->right = createNode(3); root->left->left = createNode(4); root->left->right = createNode(5); root->right->left = createNode(6); root->right->right = createNode(7); root->right->left->right = createNode(8); root->right->right->right = createNode(9); inorder(root,0,&min1,&max1); levelorder(root); return 0; } Ankit Jain RECURSIVE SOLUTION /*Print vertical tree*/ #include #include int b[20]; struct BTree { int data; struct BTree *left; struct BTree *right; }; int max(int a,int b) { if(a>b) return a; return b; } int height (struct BTree *root) { if(root==NULL) return 0; else return 1+max(height(root->left),height(root->right)); } void Recursive(struct BTree *root,int h) { if(root==NULL) return; b[h]=root->data; QueueOrder(root->left,h+1); QueueOrder(root->right,h+1); } struct BTree* insert(struct BTree *root,int data) { struct BTree *temp=root; if(temp==NULL) { temp=(struct BTree*)malloc(sizeof(struct BTree)); temp->data=data; temp->left=temp->right=NULL; } else if(temp->data>data) { temp->left=insert(temp->left,data); } else { temp->right=insert(temp->right,data); } return temp; } void inorder(struct BTree *root) { if(root==NULL) return; else { inorder(root->left); printf(“%d “,root->data); inorder(root->right); } } void printArray(int a[],int n) { int i; for(i=0;i<n;i++) { printf("%d ",a[i]); } printf("n"); } main() { struct BTree *root=NULL; int h; //int i,a[]={10,5,20,3,7,15,25,18,30}; int i,a[]={7,5,11,3,6,2,4,1}; for(i=0;i<8;i++) { root=insert(root,a[i]); } h=height(root); Recursive(root,0); printArray(b,h); printf("n"); } Ankit Jain Solution with QUEUE /*Print vertical tree*/ #include #include struct BTree { int data; struct BTree *left; struct BTree *right; }; struct queue { struct BTree *b[100]; int front,rear; }q; void insertQueue (struct BTree *node) { if(q.rear==-1) q.front=0; q.b[++q.rear]=node; } struct BTree* deleteQueue() { if(q.front==-1) return NULL; if(q.front==q.rear) { struct BTree *temp=q.b[q.front]; q.front=q.rear=-1; return temp; } else { return q.b[q.front++]; } } void QueueOrder(struct BTree *root) { struct BTree *temp1,*temp; int data; temp1=(struct BTree*)malloc(sizeof(struct BTree)); temp1->data=-1; temp1->left=temp1->right=NULL; if(root==NULL) return; insertQueue(root); insertQueue(temp1); while(q.front!=-1) { temp=deleteQueue(); if(temp->data!=-1) { if(temp->left) { insertQueue(temp->left); } if(temp->right) { insertQueue(temp->right); } } else { printf(“%d “, data); if(q.front==-1) break; else { insertQueue(temp1); } } data=temp->data; } } struct BTree* insert(struct BTree *root,int data) { struct BTree *temp=root; if(temp==NULL) { temp=(struct BTree*)malloc(sizeof(struct BTree)); temp->data=data; temp->left=temp->right=NULL; } else if(temp->data>data) { temp->left=insert(temp->left,data); } else { temp->right=insert(temp->right,data); } return temp; } void inorder(struct BTree *root) { if(root==NULL) return; else { inorder(root->left); printf(“%d “,root->data); inorder(root->right); } } void printArray(int a[],int n) { int i; for(i=0;i<n;i++) { printf("%d ",a[i]); } printf("n"); } main() { struct BTree *root=NULL; q.front=q.rear=-1; //int i,a[]={10,5,20,3,7,15,25,18,30}; int i,a[]={7,5,11,3,6,2,4,1}; for(i=0;i<8;i++) //8 no of elements { root=insert(root,a[i]); } QueueOrder(root); printf("n"); } Guest queue.enQueue(root); queue.enQueue(null); while(!queue.isEmpty){ temp = queue.deQueue(); if(temp==null) queue.deQueue(); break line; queue.enQueue(null); }else { print(temp.data); if(temp.left!=null) queue.enQueue(temp.left); if(temp.right!=null) queue.enQueue(temp.right); } } Test what if the node 5 has 2 children? The right child will get a positive number which contradicts the binary tree paradigm.. I think the question is plain wrong and even if we consider it right, it is no different from a simple inorder traversal.. Having said that, I am open for criticism.. Guest Can you elaborate what do you mean by “vertical order” ? Why 1,5,6 are treated to be in single column ? Why 3,8 are treated to be in single column ? Babu Start from the root as horizontal distance as 0. Every time you move to a left node do hd=hd-1 and every time you move to a right node do hd=hd+1. Now you need to print nodes according to their horizontal distance from root. For the tree given we have below hd 4 node as hd of -2 2 node as hd of -1 1 5 6 node as hd of 0 3 8 node as hd of +1 7 node as hd of +2 9 node as hd of +3 Hope it helps Babu GFG you are doing a great job but what I see that we don’t any collection of Design Questions that are frequently asked in many interviews. Can you post some Design Questions also and the approach we should take to solve it. Amber This is same as finding columns in a tree and printing them out. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

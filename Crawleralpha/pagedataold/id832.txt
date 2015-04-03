@@ -1,0 +1,443 @@
+Check if array elements are consecutive | Added Method 3 - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Check if array elements are consecutive | Added Method 3 Given an unsorted array of numbers, write a function that returns true if array consists of consecutive numbers. Examples: a) If array is {5, 2, 3, 1, 4}, then the function should return true because the array has consecutive numbers from 1 to 5. b) If array is {83, 78, 80, 81, 79, 82}, then the function should return true because the array has consecutive numbers from 78 to 83. c) If the array is {34, 23, 52, 12, 3 }, then the function should return false because the elements are not consecutive. d) If the array is {7, 6, 5, 5, 3, 4}, then the function should return false because 5 and 5 are not consecutive. Method 1 (Use Sorting) 1) Sort all the elements. 2) Do a linear scan of the sorted array. If the difference between current element and next element is anything other than 1, then return false. If all differences are 1, then return true. Time Complexity: O(nLogn) Method 2 (Use visited array) The idea is to check for following two conditions. If following two conditions are true, then return true. 1) max – min + 1 = n where max is the maximum element in array, min is minimum element in array and n is the number of elements in array. 2) All elements are distinct. To check if all elements are distinct, we can create a visited[] array of size n. We can map the ith element of input array arr[] to visited array by using arr[i] – min as index in visited[]. #include<stdio.h>
+#include<stdlib.h>
+
+/* Helper functions to get minimum and maximum in an array */
+int getMin(int arr[], int n);
+int getMax(int arr[], int n);
+
+/* The function checks if the array elements are consecutive
+  If elements are consecutive, then returns true, else returns
+  false */
+bool areConsecutive(int arr[], int n)
+{
+  if ( n <  1 )
+    return false;
+
+  /* 1) Get the minimum element in array */
+  int min = getMin(arr, n);
+
+  /* 2) Get the maximum element in array */
+  int max = getMax(arr, n);
+
+  /* 3) max - min + 1 is equal to n,  then only check all elements */
+  if (max - min  + 1 == n)
+  {
+      /* Create a temp array to hold visited flag of all elements.
+         Note that, calloc is used here so that all values are initialized 
+         as false */ 
+      bool *visited = (bool *) calloc (n, sizeof(bool));
+      int i;
+      for (i = 0; i < n; i++)
+      {
+         /* If we see an element again, then return false */
+         if ( visited[arr[i] - min] != false )
+           return false;
+
+         /* If visited first time, then mark the element as visited */
+         visited[arr[i] - min] = true;
+      }
+
+      /* If all elements occur once, then return true */
+      return true;
+  }
+
+  return false; // if (max - min  + 1 != n)
+}
+
+/* UTILITY FUNCTIONS */
+int getMin(int arr[], int n)
+{
+  int min = arr[0];
+  for (int i = 1; i < n; i++)
+   if (arr[i] < min)
+     min = arr[i];
+  return min;
+}
+
+int getMax(int arr[], int n)
+{
+  int max = arr[0];
+  for (int i = 1; i < n; i++)
+   if (arr[i] > max)
+     max = arr[i];
+  return max;
+}
+
+/* Driver program to test above functions */
+int main()
+{
+    int arr[]= {5, 4, 2, 3, 1, 6};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    if(areConsecutive(arr, n) == true)
+        printf(" Array elements are consecutive ");
+    else
+        printf(" Array elements are not consecutive ");
+    getchar();
+    return 0;
+}
+ Time Complexity: O(n) Extra Space: O(n) Method 3 (Mark visited array elements as negative) This method is O(n) time complexity and O(1) extra space, but it changes the original array and it works only if all numbers are positive. We can get the original array by adding an extra step though. It is an extension of method 2 and it has the same two steps. 1) max – min + 1 = n where max is the maximum element in array, min is minimum element in array and n is the number of elements in array. 2) All elements are distinct. In this method, the implementation of step 2 differs from method 2. Instead of creating a new array, we modify the input array arr[] to keep track of visited elements. The idea is to traverse the array and for each index i (where 0 <= i < n), make arr[arr[i] - min]] as a negative value. If we see a negative value again then there is repetition. 
+#include<stdio.h>
+#include<stdlib.h>
+
+/* Helper functions to get minimum and maximum in an array */
+int getMin(int arr[], int n);
+int getMax(int arr[], int n);
+
+/* The function checks if the array elements are consecutive
+  If elements are consecutive, then returns true, else returns
+  false */
+bool areConsecutive(int arr[], int n)
+{
+
+    if ( n <  1 )
+        return false;
+
+    /* 1) Get the minimum element in array */
+    int min = getMin(arr, n);
+
+    /* 2) Get the maximum element in array */
+    int max = getMax(arr, n);
+
+    /* 3) max – min + 1 is equal to n then only check all elements */
+    if (max – min  + 1 == n)
+    {
+        int i;
+        for(i = 0; i < n; i++)
+        {
+            int j;
+
+            if (arr[i] < 0)
+                j = -arr[i] – min;
+            else
+                j = arr[i] – min;
+
+            // if the value at index j is negative then
+            // there is repitition
+            if (arr[j] > 0)
+                arr[j] = -arr[j];
+            else
+                return false;
+        }
+
+        /* If we do not see a negative value then all elements
+           are distinct */
+        return true;
+    }
+
+    return false; // if (max – min  + 1 != n)
+}
+
+/* UTILITY FUNCTIONS */
+int getMin(int arr[], int n)
+{
+    int min = arr[0];
+    for (int i = 1; i < n; i++)
+        if (arr[i] < min)
+            min = arr[i];
+    return min;
+}
+
+int getMax(int arr[], int n)
+{
+    int max = arr[0];
+    for (int i = 1; i < n; i++)
+        if (arr[i] > max)
+            max = arr[i];
+    return max;
+}
+
+/* Driver program to test above functions */
+int main()
+{
+    int arr[]= {1, 4, 5, 3, 2, 6};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    if(areConsecutive(arr, n) == true)
+        printf(" Array elements are consecutive ");
+    else
+        printf(" Array elements are not consecutive ");
+    getchar();
+    return 0;
+}
+ Note that this method might not work for negative numbers. For example, it returns false for {2, 1, 0, -3, -1, -2}. Time Complexity: O(n) Extra Space: O(1) Source: http://geeksforgeeks.org/forum/topic/amazon-interview-question-for-software-engineerdeveloper-fresher-9 Please write comments if you find the above codes/algorithms incorrect, or find other ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. gyane Algo: 1)find min in the array 2)get xor of all elements 3)get xor all numbers between min and min +size-1 4)xor the result of step 2 and 3. 5)if result of step 5 is 0 return true else return false time:O(n) space:O(1) Tarzan You can also do this in constant space by taking sum ( but by array modification). Steps: 1.) do one traversal and find min and max values. 2.) in second iteration, subtract the min value from array elements. 3.) Add all the elements of the array in a sum variable. 4.) The sum should be equal to n(n-1)/2 where n is the number of elements. Reason for subtracting min values is to avoid adding large numbers where it may cross integer limit. G Veera Sekhar Use an auxilary array of same size. 1. Find min(array) 2. Pick each element and place at array[i] = array[min + i] 3. Once auxillary array is ready, check size … if not equals to n, then there is duplicate value… failed. 4. If yes, run through the auxillary, check if any array[i] is zero(default) , if yes.. failed..not consecutive Time: O(n) Space: O(n) alien method 3 wont work if the input is as below: -2,-1,0,1,2 Arunkumar Rajendran Than doing this.. we can sort the array and do the following check to find the solution. if(arr[n-1] == arr[0]+(n-1)){ printf(“Truen”); } else printf(“falsen”); where n is the number of elements in the array. Ankit This method uses O(n) time and O(1) space. It is based on mathematical formula of finding sum of n consecutive numbers, ((first_no+last_no)/2)*no_of_elements http://ideone.com/zATIn5 G Veera Sekhar It might fail… check the case, where the array has elements(duplicate etc) that sum up to the sum of n consecutive elements. Guest This method uses O(n) time and O(1) space. It uses mathematical formula that sum of consecutive numbers is ((first_no+last_no)/2)*no_of_elements. #include #include #include using namespace std; bool check_if_consecutive(int arr[], int len){ int minimum=INT_MAX; int sum=0; for(int i=0; iarr[i]) minimum=arr[i]; sum+=arr[i]; } int sum_formula=((minimum+minimum+len-1)/2)*len; if(sum_formula==sum) return true; return false; } int main(){ int arr[]={4, 2, 3, 1, 0}; int len=sizeof(arr)/sizeof(arr[0]); cout<<boolalpha<<check_if_consecutive(arr, len)<<endl; return EXIT_SUCCESS; } shar does the 2nd method work for the input 34 25 27 31 29 26 28 30 33 32 ? shar does the 2nd method work for the input 34 25 27 31 29 26 28 30 33 32 ? shar does the 2nd method work for the input 34 25 27 31 29 26 28 30 33 32 ? Guest #include using namespace std; int getMin(int arr[],int n) { int min=arr[0]; for(int i=1;i<n;i++) if(arr[i]<min) min=arr[i]; return min; } int getMax(int arr[],int n) { int max=arr[0]; for(int i=1;imax) max=arr[i]; return max; } bool areConsecutive(int arr[],int n) { int max,min,i,xori=0; max=getMax(arr,n); min=getMin(arr,n); if(max-min+1==n) { for(i=min;i<=max;i++) xori^=i; for(i=0;i<n;i++) xori^=arr[i]; if(xori==0) return true; } return false; } int main() { int arr[]= {7, 6, 5, 5, 3, 4}; int n = sizeof(arr)/sizeof(arr[0]); if(areConsecutive(arr, n) == true) printf(" Array elements are consecutive "); else printf(" Array elements are not consecutive "); getchar(); return 0; } Nitin Khanna . Upen @admin I have a new method which will work in O(n) time and O(1) extra space : Given Constraints are array elements should be in Consecutive manner and no where mentioned that array can have duplicates elements : My algorithm is : Step 1: Find the total sum of array say Sum; Step 2: Find the min element in array say a; Step 3: Find the max element in array say b; Now calculate the sum of range (a, a+1, a+2, …. , b) Which is say __sum = (b*(b+1)/2 – a*(a+1)/2) + a; if(__sum == Sum) return true; else return false; Correct me if i am wrong !!! Kartik This won’t work. Please see the below comments. Vivek xor = (i+min(arr)) ^ arr[i] ; if(!xor) return true; else return false; Tarzan This would only work if input is sorted. Kuchhu Method 3 is wrong. it wont work for all inputs. chriscracker Find Min , Find max , if(min+(size-1)==max) print true else print false….. t(n)=O(n) wasseypuriyan Oh really? But we get incorrect answer of this sequence 1,2,2,3,4 using the method you have suggested. prakash one o(n) time and o(1)space solution:: influenced by xor elements to find missing number in a given range. find min element in the array.-o(n) time find max element in array – o(n) time if(n!=(min-max+1)) return false; xor_val1=min^(min+1)^…..^(max) -o(max-min) here it must be o(n) xor_val2=arr[0]^arr[1]^….^arr[n-1] if(!(xor_val1^xor_val2)) return true; else return false; Shradha Agrawal this method won’t work. for eg: arr = 5,2,2,5 min = 2 , max=5 , n = 4 so, n = (max-min+1) xor_val1 = 0 xor_val2 = 0 but array doesn’t contain contiguous numbers. Marsha Donna #include #define ele 10000 void consec(int arr[],int n) { int min=arr[0],max=arr[0],i,counter[ele]={0}; for(i=0;imax) max=arr[i]; if(arr[i]<min) min=arr[i]; } for(i=min;i<max;i++) if(counter[i]!=1) break; if(i!=max) printf("the elements r not consecutivn"); else printf("elemnts are consecutiven"); } int main() { int arr[]= {5, 4, 2, 3, 1, 6,2}; int n = sizeof(arr)/sizeof(arr[0]); consec(arr, n); return 0; } Guest #include #define ele 10000 void consec(int arr[],int n) { int min=arr[0],max=arr[0],i; int counter[ele]={0}; for(i=0;imax) max=arr[i]; if(arr[i]<min) min=arr[i]; } for(i=min;i<max;i++) { if(counter[i]!=1) break; } if(i!=max) printf("the elements r not consecutivn"); else printf("elemnts are consecutiven"); } int main() { int arr[]= {5, 4, 2, 3, 1, 6,2}; int n = sizeof(arr)/sizeof(arr[0]); consec(arr, n); return 0; } Suryabhan Singh we can using hashing for O(n) space complexity elements will be hashed from min to max hash-table Guest #include #include using namespace std; int main() { int arr[]={34,36,36,37,37 },n=5,i,max=arr[0],min=max,x_or_all,x_or_arr=arr[0]; for(i=1;imax) { max=arr[i]; } if(arr[i]<min) { min=arr[i]; } x_or_arr^=arr[i]; } if(max-min+1!=n) { cout<<"false";getch();return 0; } x_or_all=min; for(i=min+1;i<=max;i++) { x_or_all^=i; } if(x_or_all^x_or_arr==0) { cout<<"true"; } else { cout<<"false"; } getch(); return 0; } Guest #include #include using namespace std; int main() { int arr[]={34,36,36,37,37 },n=5,i,max=arr[0],min=max,x_or_all,x_or_arr=arr[0]; for(i=1;imax) { max=arr[i]; } if(arr[i]<min) { min=arr[i]; } x_or_arr^=arr[i]; } if(max-min+1!=n) { cout<<"false";getch();return 0; } x_or_all=min; for(i=min+1;i<=max;i++) { x_or_all^=i; } if(x_or_all^x_or_arr==0) { cout<<"true"; } else { cout<<"false"; } getch(); return 0; } Guest #include #include using namespace std; int main() { int arr[]={34,36,36,37,37 },n=5,i,max=arr[0],min=max,x_or_all,x_or_arr=arr[0]; for(i=1;imax) max=arr[i]; if(arr[i]<min) min=arr[i]; x_or_arr^=arr[i]; } if(max-min+1!=n) { cout<<"false";getch();return 0; } x_or_all=min; for(i=min+1;i<=max;i++) { x_or_all^=i; } if(x_or_all^x_or_arr==0) cout<<"true"; else cout<<"false"; getch(); return 0; } Guest O(n) and O(1) time and space respectively using xor #include #include using namespace std; int main() { int arr[]={34,36,36,37,37 },n=5,i,max=arr[0],min=max,x_or_all,x_or_arr=arr[0]; for(i=1;imax) max=arr[i]; if(arr[i]<min) min=arr[i]; x_or_arr^=arr[i]; } if(max-min+1!=n) { cout<<"false";getch();return 0; } x_or_all=min; for(i=min+1;i<=max;i++) { x_or_all^=i; } if(x_or_all^x_or_arr==0) cout<<"true"; else cout<<"false"; getch(); return 0; } Guest Another O(n) solution with O(1) space complexity and without changing the array using XOR #include #include using namespace std; int main() { int arr[]={34,36,36,37,37 },n=5,i,max=arr[0],min=max,x_or_all,x_or_arr=arr[0]; for(i=1;imax) max=arr[i]; if(arr[i]<min) min=arr[i]; x_or_arr^=arr[i]; } if(max-min+1!=n) { cout<<"false";getch();return 0; } x_or_all=min; for(i=min+1;i<=max;i++) { x_or_all^=i; } if(x_or_all^x_or_arr==0) cout<<"true"; else cout<<"false"; getch(); return 0; } asunel Code : Time complexity:O(n) Space complexity:O(1) #include int areConsecutive(int arr[], int n) { int i, min=arr[0], max=arr[0], xor=arr[0]; for(i=1; i<n; i++) { xor^=arr[i]; min = arr[i]max?arr[i]:max; } for(i=min; i<=max; i++) { xor^=i; } return (xor==0 && n==max-min+1)?1:0; } int main() { int arr[]= {5, 4,2, 3, 1, 6}; int n = sizeof(arr)/sizeof(arr[0]); if(areConsecutive(arr, n) == 1) printf(" Array elements are consecutive "); else printf(" Array elements are not consecutive "); getchar(); return 0; } asunel Another solution in O(n) time complexity : a) xor1 = xor of all elements of the given array b) min = minimum element of the array max = maximum element of the array count = max-min+1 c) xor2 = xor of xor1 and all the integers in the range [min, max] d) if (xor2==0 && count==size of the array) return true else return false Abhishek Another solution for the above problem in O(n) time complexity. Main Concept : For a given set of consecutive numbers, the sum of all elements will always be = (Minimum_element-1)* n + n*(n+1)/2. Here n is the number of elements in the array. In above equation, the second part is the sum of first n natural numbers. The first part is added if the series starts from some number other than 1. Hence, traverse the array once, sum all the elements on the go and get the minimum element from the array. Verify the sum to be equal to value from above equation. Cons of above solution : – Special behavior needed if 0 present in the array. – If the consecutive series starts from a high number for ex 1235132. Integer overflow case may come due to multiplication. In that case, we can change the value of the elements by subtracting the (minimum_value-1) from all elements and verify the sum to be equal to n*(n+1)/2. pritybhudolia I think this is very simple approach and works for all cases. 1)get the min number 2)get maximum number 3)calculate the sum from min to max. 4)find sum of arrray elements 5)If both sum are equal , return true else false.  
+int areConsecutive(int arr[], int n)
+{
+  if ( n <  1 )
+    return 0;
+  int i,sumrequired=0,sumofarrayelements=0;
+ 
+  /* 1) Get the minimum element in array */
+  int min = getMin(arr, n);
+ 
+  /* 2) Get the maximum element in array */
+  int max = getMax(arr, n);
+  /* 3)calculate the sum of all elements in array */
+  for (i = 0; i < n; i++)
+      sumofarrayelements+=arr[i];
+  /*4)calculate the sum from minimum element to maximum element */
+  for(i=min;i<=max;i++)
+      sumrequired+=i;
+  /*compare both sum */
+  if(sumrequired==sumofarrayelements)
+      return 1;
+  return 0;
+}
+
+ pritybhudolia sorry ignore it as it wont work for many cases. Asap For your xor solution: What about input {1,2,2,5,5}? bpsingh O(n) time, O(1) space solution without changing original array 1. Get min element(say min) 2. Get max element(say max) 3. let x = (min*(min-1))/2; 4. let y = (max*(max+1))/2; 5. Add all elements(say total) 6. If y = x + total, return true else return false; shek8034 Your multiplication can overflow shek8034 One more simpler approach: 1) Find max and min of array. 2) Take XOR of all the consecutive numbers from min to max with the array elements. (a) if it is 0, return TRUE (b) else FALSE Ex: {5,4,2,1,3} max=5, min=1 find 1^2^3^4^5 and XOR it with every element of array, one by one. Same elements will cancel out in pairs (property of XOR) and final result is 0. So return TRUE anonymous i also thought the same. AMIT The last method can be modified to handle negative numbers..add -min+1 to all the elements of the array..so all element become positive…finally after checking add x-1 to get back original elements  
+/* Paste your code here (You may delete these lines if not writing code) */
+ mohit gupta We can extend method 3 for negative numbers by subtracting every element with the minimum number and then marking arr[arr[i]] as negative..if we find any element already negated then numbers are not consecutive.. Alternatively, after subtracting with minimum element do xor of every element say the result is XOR1. now do the xor of numbers 0 to max-min say the result is XOR2. if XOR1 xor XOR2 is zero..numbers are consecutive  
+/* Paste your code here (You may delete these lines if not writing code) */
+ bhavneet 1) find max element 2) find min element 3)find sum of array 4)return (max-min+1== n && max(max+1) – (min)(m-1) ==2 *sum)); dhirendra Find minimum no; let it be min Take XOR of all numbers in the array with min….. min+n-1. If result is 0 then consecutive, otherwise not. Ankit Malhotra This will not work even for the simplest case of 2 consecutive elements.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ nikhil Find minimum and maximum elements in the array. If maximum-minimum+1 is equal to the number of elements in array return true Else return false dhirendra won’t stand for 5,4,4,4,1. Hence distinct numbers check is necessary. Raghavendra #include #include #define true 1 #define false 0 int areConsecutive(int arr[], int n) { int i,sum1=0,sum2=0,min=INT_MAX; for(i=0;i<n;i++) { sum1+=arr[i]; if(arr[i]<min) min=arr[i]; } sum2=(2*min*n+(n-1)*n)/2; if(sum1==sum2) return true; else return false ; } int main() { int arr[]= {83,78,80,81,79,82}; int n = sizeof(arr)/sizeof(arr[0]); if(areConsecutive(arr, n)==true) printf(" Array elements are consecutive "); else printf( "Array elements are not consecutive "); getchar(); return 0; } Akshat step1. traverse the array,find the minimum element and total elements step2. move through the array and add all the numbers to a temporary variable step3. sum==(min+n-1)*(min+n)/2 – (min-1)*min/2 than all elements are consecutive otherwise not akshat step1. traverse the array,find the minimum element and total elements step2. move through the array and add all the numbers to a temporary variable step3. sum==(min+n-1)*(min+n)/2 – (min-1)*min/2 than all elements are consecutive otherwise not  
+/* Paste your code here (You may delete these lines if not writing code) */
+ lohith public class continuousNumber { /** * @param args */ public static void main(String[] args) { int arr[] = {5, 2, 3, 1, 4}; int min = arr[0]; int sum = 0; for (int i = 0; i arr[i]) min = arr[i]; sum += arr[i]; } sum = (sum – ((min – 1) * arr.length)); int length = arr.length; if (sum == (length * ((length + 1) / 2))) System.out.println(“success”); else System.out.println(“failure”); } } lohith o(n) time-complexity with o(1) space complexity  
+public class continuousNumber {
+
+	
+	public static void main(String[] args) {
+		
+		int arr[] = {5, 2, 3, 1, 4};
+
+		int min = arr[0];
+		int sum = 0;
+		for (int i = 0; i < arr.length; i++) {
+			if (min > arr[i])
+				min = arr[i];
+			sum += arr[i];
+		}
+
+		sum = (sum - ((min - 1) * arr.length));
+		int length = arr.length;
+		if (sum == (length * ((length + 1) / 2)))
+			System.out.println("success");
+		else
+			System.out.println("failure");
+
+	}
+
+}
+
+ shikha 2nd method wont work if there is a repeation of numbers in array.For ex- if input is-{2,3,5,4,5,7} then this method fails.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik @shikha: The 2nd method looks fine and will work for your case. It will return false as the following if condition will not satisfy.  
+  if (max - min  + 1 == n)
+  {
+
+    ...........
+
+  }
+  return false;
+ nijju #include int check_consecutive(int A[11],int n) { int B[11],i,d; for(i=0;i<n;i++) B[i]=0; for(i=0;i<n;i++) { d=abs(A[0],A[i]); if(d<n) B[d]=1; } for(i=0;i0) return d; else return (d*(-1)); } int main() { int A[11],i,n; printf(“\nsize of array : “); scanf(“%d”,&n); for(i=0;i<n;i++) { printf("\nenter %dth element :",i); scanf("%d",&A[i]); } i=check_consecutive(A,n); if(i) printf("\n OUTPUT\t True"); else printf("\n OUTPUT\t False"); return 0; } Shrikanth Is this algo works in all cases??? 1) sum = sum of array elements. 2) min = minimum in array and max = maximum in array. 3) actual_sum = (min + max)n/2; 4) if(actual_sum == sum) return true;  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Venkatesh Seems like second method access out of visit array boundar. for ex: i/p {34, 23, 52, 12, 3 } min 3, max 34. we allocate visit array of size 5. following code accesses out of boundary address. if ( visited[arr[i] – min] != false ) visited[34-3] visited [31] Venkatesh Please ignore my previous comment. we bail out if the following condition fails. so no issues if (max – min + 1 == n) punit This can be done in O(n). Here is the logic- 1. find the min element of the array. 2. subtract every element with this min-1(to keep min at 1). 3. actuslsum = size(size+1)/2 4. get the total sum of array elements. 5. if actualsum == totalsum. return true; else return false; e.g. 7,6,5,5,3,4 size = 6 1. minOfArray = 3; 2. newarray = 5, 4, 3, 3, 1, 2 3. actualsum = 6*7/2 = 21; 4. arraysum = 5+4+3+3+1+2 = 18 5. actualsum != arraysum return false; e.g. 2 83, 78, 79, 82, 81, 80 1. minOfArray = 78; 2. newarray = 1,2,5, 4, 3 3. actualsum = 5*6/2 = 15; 4. arraysum = 5+4+3+1+2 = 15 5. actualsum == arraysum return true; code is also simple to write. Please provide a counter example if you can think of. actualsum = 6*7/2 = 21 Atul There is no need of calling 2 function to find min and max in the given array.  
+
+void findMinMax(int arr[],int len,int *min,int *max)
+{
+  int tempMin,tempMax,i;
+
+  tempMin=arr[0];
+  tempMax=arr[0];
+  for(i=1;i<len;i++)
+  {
+     if(arr[i] < tempMin)
+     {
+         tempMin=arr[i];
+
+     }
+     if(arr[i] > tempMax)
+     {
+         tempMax=arr[i];
+
+     }
+  }
+
+*min=tempMin;
+*max=tempMax;
+}
+
+
+ Ravi Keep counters O(n) solution  
+/* Paste your code here (You may delete these lines if not writing code) */
+#include <stdio.h>
+
+int min(int input[], int len)
+{
+	int min = input[len - 1];
+	while (len != 0) {
+		if (input[len - 1] < min)
+			min = input[len - 1];
+		len--;
+	}
+	return min;
+}
+
+int main()
+{
+	int input[] = {31, 35, 32, 34, 38, 33, 37, 36};
+	int size = sizeof(input) / sizeof(int);
+	int count[size];
+	int m = min(input, size);
+	int i;
+	for (i = 0; i < size; i++) {
+		count[i] = 0;
+	}
+	for (i = 0; i < size; i++) {
+		count[input[i] - m] += 1;
+	}
+	for (i = 0; i < size; i++) {
+		if (count[i] == 1) {
+			if (i == size - 1)
+				printf("True\n");
+			else 
+				continue;
+		}
+		else {
+			printf("False\n");
+			break;
+		}
+	}
+}
+
+ Nohsib does it work for this input :: {31, 35, 32, 34, 38, 33, 100, 38}; it breaks with ArrayIndexOutOfBoundsException  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ravi Hi, I think you have to do make size of the count = max(input) – min(input), This will solve the problem.. correct me if I am wrong. arun In method 3 instead of storing negative numbers or changing the array i guess this can be done: 1). Define a sum variable, initialize it to zero. 2). as we calculate j’s in the for loop, keep adding them to the sum variable. 3). in the end check if sum=(n+1)n/2 4). if not, there are some repeated numbers else good to go Correct me if i am wrong arun sorry check against n(n+1)/2-n there is no n index in the array Surya It may not work if the array contains -ve numbers.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ radhakrishna find absolute distance of array elements w.r.t to first element. so now all elements lies in between 1 to n just do xor of all the array elements + 1 to n elements results 0, then consecutive. here is the example int[] a = {83, 78, 80, 81, 79, 82}; int resultxor = 0; for(int i =2 ; i<= a.length;i++) { resultxor ^= i ^ (Math.abs(a[i-1] – a[0]) +1); } if(resultxor == 0) { System.out.println("consecutive"); } radhakrishna xor logic might not work for some inputs. so don’t consider. Manohar Singh (i)Find the sum of elements of the array and simultaneously find the minimum(say m1) and maximum(say m2) elements also in O(n). (ii) If sum= (m2-m1)(m1+m2+1)/2 then return TRUE else return FALSE. Complexity…O(n) abhinavsingi Check your logic on this input: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10. => 1, 2, 3, 5, 5, 5, 7, 8, 9, 10  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://www.cse.iitk.ac.in/users/chitti mccarthy  
+#define INF 10000
+#define maximum(x,y) (x>y)?x:y
+#define minimum(x,y) (x<y)?x:y
+int isconsecutive(int a[],int n);
+main()
+{
+	int a[]={7, 6, 5, 5, 3, 4};
+	isconsecutive(a,5)?printf("TRUE"):printf("FALSE");
+}
+
+int isconsecutive(int a[10],int n)
+{
+	int max=-INF,min=INF,i;
+	int *visit=(int*) calloc(n,sizeof(int));
+	for(i=0;i<n;i++)
+	{
+		if(visit[a[i]]!=0) return 0;
+		visit[a[i]]++;
+		max=maximum(max,a[i]);
+		min=minimum(min,a[i]);
+	}
+	if(n==max-min+1) return 1;
+	else return 0;
+}
+ Agniswar I think we can do this way too- 1)First traverse the array and find the sum of all the elements of the array,in this pass only find the minimum of the array. 2)Then find the sum of 5 consecutive numbers starting from the minimum element. 3)Compare these two sums, if they are equal then return true, else return false. Agniswar @GeeksforGeeks: Was the method i posted some days back wrong ? Please tell me if its wrong.. viki I thought about this earlier, but then realized it could be wrong. eg: {1, 2, 2, 4, 6, 6} This will give same sun as {1 ,2 ,3, 4, 5, 6} So we need to make sure the elements are unique. Agniswar @Viki : yes..you are right..thanks for pointing this out to me! abc How about duplicate Elements??  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://sachinguptacse.blogspot.com/ sachin gupta MNNIT …method 3 will not work example arr[]={2,1,0,-3,-1,-2}; min=-3; max=2; when i=5; j=-(-2)-(-3)=5; and arr[5] is negative so it will return false ……………………………………….. Correction in method “:3 if (min<0) //make all elements positive {for(i=0;i<n;i++) arr[i]+=|min|; min+=|min|; max+=|min|; } if (max – min + 1 == n) { int i; for(i = 0; i 0) arr[j] = -arr[j]; else return false; } /* If we do not see a negative value then all are distinct */ return true; } return false; // if (max – min + 1 != n) } http://geeksforgeeks.org/ Sandeep @sachin gupta MNNIT: Thanks for pointing out this case. We have added a note for it in method 3. Also, looks like some part of your suggested code has been missed. Could you please post the code again within sourcecode tags. Vinod @Sandeep…. Method suggested by sachin seems to be correct. I haven’t tested the code but it seems like it will handle the case {2,1,0,-3,-1,-2} 1) Find the Minimum element 2) If Min < 0 then, add absolute value of minimum to every element of the array For case {2,1,0,-3,-1,-2}, min=-3, so modified array after adding min would be {5,4,3,0,2,1} Now we can use the same logic which is mentioned in method 3 else we can modified that too. For(i=0; i<n;i++){ j=abs(arr[i]); if( arr[j] < 0) return false; else arr[j] = – arr[j]; } Please correct me here? Vinod I messed up my previous for loop..corrected one is here for(i=0 ; i<n ;i++){ j = abs(arr[i]); if( arr[j] < 0 ) return false; else arr[j] = - arr[j]; } Please correct me? Ritesh How about this?  
+bool areConsecutive(int arr[], int size){
+   int min = getMin(arr,size);
+   int max = getMax(arr,size);
+   if( ( min + (size-1) ) != max )
+      return false
+
+  return true;
+}
+ Sandeep @Ritesh: This approach doesn’t work always. For example, this approach will return true for array {3, 6, 6, 3} veenus 1 way to do it. with O(1) space complexity and O(n) time complexity is: find out min and max and check if (max-min+1)==no. of elements. if its true thn from each element of original arr subtract min i.e arr[i]-min; now trick is we can find the sum of all elements by n(n-1)/2 and check it with the sum of all elements in original arr. if this is true then again we can find the sum of the sqr of elements and check it with the sum of sqr. elements from (0 to n-1)which will be (n-1)(n)(2n-1)/6; if this is also satisfied thn elements in arr are consecutive else false. correct me if i m wrong. Balaji Hi, Instead of negating to mark a seen index, we could instead subtract the value at (number-min)th index by n. When we do this, a visited element becomes less than min. So our check for an already seen number would be to check if the value at (number-min)th index is greater than min. Else, it is repeated. So the condition in your code could become  // if the value at index j is less than min
+// there is repitition
+if (arr[j] > min)
+  arr[j] = arr[j] - n;
+else
+  return false;
+ To restore the array, we could just add ‘n’ to all elements. This way it could work for arrays with negative numbers also. (Unless , min – n goes below INT_MIN) Algoseekar @balaji..we need to worry about restoring array since we are just changing the sign so by multiplying we will get original array isn’t it..?? in case of 3rd method..?? NeoTheSaviour Method 3 simple but effective :).. Just one thing though “Method 3 (Mark visited array elements as negative) This method is O(n) time complexity and O(1) extra space, but it changes the original array and it “.. We always restore the array values at the end. Change the sign if its negative.. udit 1)- find min of array and its length . 2)- than we can arr XOR (min+1) XOR (min+2)…..XOR(Min+length of array) if it is equal to Zero it means this array has consecutive number else retrun false. kartik @udit: Read the old comments before suggesting an approach. This approach won’t work. udit sry dude didnt read and also didnt think abt tht kinda case how did u come to know abt this example Algoseekar @kartik..it will fail in case of duplicates e.g. 1 4 5 4 3 2 all elemenst ar consecutive but it will return false..so we have to take care of situation as well..isn’ it..? correct me if m wrong? http://ashutosh7s.blogspot.com/ WgpShashank Another Tested version of Method 2 https://ideone.com/RhvG6 Buzz One can try with this method traverse the array[1..N] and go on adding all the elements and keep on storing in a variable called SUM, also keep a note of the smallest number in the array using a variable called SMALL. Once done if SUM – (SMALL-1)*N = N*(N+1)/2 Then we have consecutive numbers in the array else not Time – O(n) Space – O(1) kartik @Buzz: Read below comments. This strategy has already been ruled out by some counter examples. m@}{  
+public boolean isConsecutive( int[] arr ){
+		
+		if( arr == null ){
+			throw new IllegalArgumentException("arr is NULL");
+		}
+		
+		if( arr.length < 2 ){
+			return true;
+		}
+		
+		int min  = Math.min( arr[0], arr[1] );
+		int max = Math.max( arr[0], arr[1] );
+		
+		long actualSum = arr[0] + arr[1];
+		
+		for( int i = 2; i < arr.length; i++ ){
+			if( arr[i]  max ){
+				max = arr[i];
+			}
+			
+			actualSum += arr[i];
+		}
+		
+		long expectedSum = (( min + max ) * arr.length) / 2;
+		
+		return actualSum == expectedSum;		
+		
+	}
+ http://www.linkedin.com/in/ramanawithu Venki Counter example, array = {2, 4, 3, 5, 4, 6} expSum = 24, min = 2, max = 6, size = 6, actualSum = (2+6)*6/2 = 24. The program returns true for the above case. vdraceil  int expectedElementCount = max - min + 1;
+if(arr.length != expectedElementCount)
+   return false; I guess, doing this check before computing the sum will help. This is helpful for finding out if there is a repeated number, only in this case & not in other implementations. Here, either this will fail or the sum will not match. Kamal I like it.. I think this should work.. so is the XOR (if we add the check of number of cases in that) nitishgarg To check if the array elements are distinct, we can simply XOR all the array elements, let the result be in xor1 variable. After calculating min and max element in the array, we can calculate another XOR of all the elements from min to max and then compare the two results. If the two XOR’s are equal, then the array elements are distinct otherwise not. Please post any scenario in which this methodology is expected to fail. kartik The XOR trick won’t work here. There can by many examples for which it will fail. See following: {1, 2, 2, 5, 5} {1, 2, 3, 4, 5} Both of them have same XOR and same min and max elements. bunty @kartik: XOR technique will work in all cases, but there need a little change in final check. – Find Max and Min of array. – if((max-min+1)==n), then we can proceed further as: – XOR1 = xor of all elements from min to max in number range. – XOR2 = xor of all elements of the array. – Finally check if (0==(XOR1 xor XOR2)) then return TRUE else return FALSE;  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Vinod @39208de450964f8045d2dc6e23b01df7:disqus… Take a closer look at array set which Kartik has suggested. If you calculate XOR using your method you will get 0 but it’s not correct one. Saurabh Method 3 is incorrect. Saurabh public static boolean areConsecutive(int arr[]) { if (arr.length < 1) return false; /*Get the min and max*/ int min = arr[0]; int max = arr[0]; for (int i = 1; i < arr.length; i++) { if (arr[i] < min) min = arr[i]; if (arr[i] > max) max = arr[i]; } if (max – min + 1 == arr.length) { for (int i = 0; i < arr.length; i++) { int j; if (arr[i] < 0) //Reinstate the number as all we are doing is toggling the numbers j = -arr[i] – min; else j = arr[i] – min; if (arr[j] > 0) arr[j] = -arr[j]; else return false; } return true; } return false; } GeeksforGeeks @Saurabh: Thanks for pointing this out. We have updated the Method 3. Keep it up!! http://www.linkedin.com/in/ramanawithu Venki Approach 1: O(n) time and O(1) space solution. Question is, the array elements are to be in AP, yet shuffled. It can be verified in three steps. Find min & max elements of the array – An O(n) time cost 1. It must satisfy max – min + 1 = n (n is size of array) 2. The sum of all the elements after subtracting min element from each element must be n(n – 1)/2. Requires O(n) time cost. It is because the elements to be in AP. After subtracting min element from each element, we will left with an array whose elements are 0 to n – 1. S(n) must be sum of all natural numbers 0 through n-1. Note that we need not to modify array. 3. Tricky part. The array elements are to be in the range 0 to n-1 (after subtracting min from every element). If not atleast one of the above two conditions will fail. If the array elements are in the range [0, n-1], the sum can mislead us, when an element is up by delta and another element is down by same delta where 0 < delta < n-1. If the array elements are not in the range 0 < = a[i] < n after subtracting min, (or in other words, delta can not be greater than n-1), atleast one of the above two conditions will fail. Assuming above two conditions being correct, and if an element is up by delta and another element is down be same delta, the array exhibits the following property, There will two pairs of elements with same value, of which atleast one pair will occupy side by side places in the array. It can be detected using Ex-OR operation. Logic is given below, prev2 = a[0] ExOR a[1] prev1 = a[0] ExOR a[1] ExOR a[2] for all elements of array (i = 3 to n) —– nextExOr = a[i] ExOR prev1 —– if(nextExOr = prev2) ———–Elements are not from AP (exit) —– prev2 = prev1 —– prev1 = nextExOr Note that prev2 contains ExOR of all the elements till a[i-2] and prev1 contains ExOR of all the elements till a[i-1]. If the next element (a[i]) is same a previous element (a[i-1]), the operation nextExOr = a[i] ExOR prev1 will result in prev2. If the array size is less than or equal to 3, treat it as trivial case. Try this approach with few examples. Logic will be clear. Approach 2: O(n) time and O(n) space solution. Use a bit vector (an integer array) of size N/sizeof(int), i.e. bit vector acts as Hash array. Find the min and max elements. 1. If the elements and range are not satisfying max-min+1 = N, exit. 2. Otherwise, for every element a[i] ———if(bitVector[ a[i] – min ]) is set ————exit(1) – we found duplicate, exit ———-else ————set the i-th bit. panghuhu On method 1, “There will two pairs of elements with same value, of which at least one pair will occupy side by side places in the array.”, but this is not true. One counter example: 0 1 2 3 2 5 6 9 8 9 Eva If space is not restricted. My solution will be putting the number to hash table, if there is collision then immediately return false. Then loop through the array to see if there is any element+1 in the hash table, if there is, then return true. Thanks. Algoseekar @all dear geeks we have to do it in o(1).?? Please Try to Provide The Code fro o91) Space .?? Space Complexity should be O(1) Mayank A Simple solution … take each number and put them in a bst one by one. Traverse bst in inorder, and check for consecutive numbers linearly. Mayank O(n) space n O(n) time Sandeep Time complexity for this method is O(nLogn) if we use balanced BST like AVL. And for a normal BST, it is O(n^2) in worst case. algoboy @vanki,kartik,geeksforgeeks hey we have to do it in O(1) memory ..plz give solution .. http://www.linkedin.com/in/ramanawithu Venki Arithmetic Progression n-th term in the series a + (n-1)d. The elements to be in the following order, a + (m-1)d, a + md, a + (m+1)d, … a + (n-1)d Where the first and last terms are m-th and n-th terms. Find max and min from the array. From which we can deduce m and n. Also, sum up the elements while tracing for min and max elements. We can conclude the sum of number from [a + (m-1)d] to [a + (n-1)d] easily using AP property. If the calculated sum is equal to the expected, the elements are consecutive otherwise not. It is my quick thought in a hurry, not tested. Let me know if I am missing something. I guess, there are three unknowns to be figured out, which may be difficult. http://www.linkedin.com/in/ramanawithu Venki I guess the above method fails, when an element is up by some magnitude and another element is down by same magnitude, overall sum will be same. In that case it return wrong results… Algoseekar Can’t we do it in O(1) Space its Necessary to use extra space..try to give O(1) Soln….. devrandnull It seems like the problem can be solved in O(N) using elementary math:  
+int areConsecutive(int a[], size_t n)
+{
+    if (n < 2) { return 1; }
+
+    int min, max, total;
+    size_t i;
+
+    min = max = total = a[0];
+
+    /* Compute the min, max and total of the array. */
+    for (i = 1; i < n; i++) {
+        total += a[i];
+
+        if (a[i] > max) { max = a[i]; }
+        else if (a[i] < min) { min = a[i]; }
+    }
+
+    if (((max * (max + 1) / 2) - ((min - 1) * min / 2)) == total)
+        return 1; /* yes */
+    else
+        return 0; /* no */
+}
+ I’m not sure if this fails for some case. Please drop a comment if so. Sandeep This approach won’t work for many inputs. For example, following program prints “Array elements are consecutive” for the input array {1, 3, 3, 4, 4, 6}  
+#include<stdio.h>
+
+int areConsecutive(int a[], size_t n)
+{
+    if (n < 2) { return 1; }
+
+    int min, max, total;
+    size_t i;
+
+    min = max = total = a[0];
+
+    /* Compute the min, max and total of the array. */
+    for (i = 1; i < n; i++) {
+        total += a[i];
+
+        if (a[i] > max) { max = a[i]; }
+        else if (a[i] < min) { min = a[i]; }
+    }
+
+    if (((max * (max + 1) / 2) - ((min - 1) * min / 2)) == total)
+        return 1; /* yes */
+    else
+        return 0; /* no */
+}
+
+/* Driver program to test above functions */
+int main()
+{
+    int arr[]= {1, 3, 3, 4, 4, 6};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    if(areConsecutive(arr, n) == true)
+        printf(" Array elements are consecutive ");
+    else
+        printf(" Array elements are not consecutive ");
+    getchar();
+    return 0;
+}
+ devrandnull Thanks for taking the time to invalidate it! In general, it is not so easy to come up with test cases like these. bhaskar I think we can modify the above program to keep track of the total sum *and* product of the numbers in the array. e.g. 1, 3, 3, 4, 4, 6 min = 1, max = 6, sum = 21, pdt = 864 actually 1,2,3,4,5,6 sum = 21, pdt = 720 Please let me know if this works. Sandeep @bhaskar: I think it might also fail for some inputs. I do not have any counter example now. If you feel your method is correct, then please provide proof or some link for the proof. bhaskar from http://www.manhattangmat.com/np-consecutive-integers.cfm The product of n consecutive integers is always divisible by n! Given 6*7*8*9, we have n = 4 consecutive integers. The product of 6*7*8*9, therefore, is divisible by 4! = 4*3*2*1 = 24. I think we can combine the sum, product and the above check. Plz let me know if this makes sense. Thanks. A* as question says Repetition of number is not allowed Point(d).then solution is correct Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

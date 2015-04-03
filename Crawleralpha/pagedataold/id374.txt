@@ -1,0 +1,231 @@
+Add 1 to a given number - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Add 1 to a given number Write a program to add one to a given number. You are not allowed to use operators like ‘+’, ‘-‘, ‘*’, ‘/’, ‘++’, ‘–‘ …etc. Examples: Input: 12 Output: 13 Input: 6 Output: 7 Yes, you guessed it right, we can use bitwise operators to achieve this. Following are different methods to achieve same using bitwise operators. Method 1 To add 1 to a number x (say 0011000111), we need to flip all the bits after the rightmost 0 bit (we get 0011000000). Finally, flip the rightmost 0 bit also (we get 0011001000) and we are done. 
+#include<stdio.h>
+
+int addOne(int x)
+{
+  int m = 1;
+
+  /* Flip all the set bits until we find a 0 */
+  while( x & m )
+  {
+    x = x^m;
+    m <<= 1;
+  }
+
+  /* flip the rightmost 0 bit */
+  x = x^m;
+  return x;
+}
+
+/* Driver program to test above functions*/
+int main()
+{
+  printf("%d", addOne(13));
+  getchar();
+  return 0;
+}
+ Method 2 We know that the negative number is represented in 2’s complement form on most of the architectures. We have the following lemma hold for 2’s complement representation of signed numbers. Say, x is numerical value of a number, then ~x = -(x+1) [ ~ is for bitwise complement ] (x + 1) is due to addition of 1 in 2’s complement conversion To get (x + 1) apply negation once again. So, the final expression becomes (-(~x)). int addOne(int x)
+{
+   return (-(~x));
+}
+
+/* Driver program to test above functions*/
+int main()
+{
+  printf("%d", addOne(13));
+  getchar();
+  return 0;
+}
+ Example, assume the machine word length is one *nibble* for simplicity. And x = 2 (0010), ~x = ~2 = 1101 (13 numerical) -~x = -1101 Interpreting bits 1101 in 2’s complement form yields numerical value as -(2^4 – 13) = -3. Applying ‘-‘ on the result leaves 3. Same analogy holds for decrement. See this comment for implementation of decrement. Note that this method works only if the numbers are stored in 2’s complement form. Thanks to Venki for suggesting this method. Please write comments if you find the above code/algorithm incorrect, or find better ways to solve the same problem           Related Topics: Check if binary representation of a number is palindrome Swap two nibbles in a byte How to turn off a particular bit in a number? Check if a number is multiple of 9 using bitwise operators How to swap two numbers without using a temporary variable? Divide and Conquer | Set 4 (Karatsuba algorithm for fast multiplication) Find position of the only set bit Swap all odd and even bits Tweet Writing code in comment? Please use ideone.com and share the link here. neelabhsingh suppose size of int is 2 bytes. if N= 11111111 then method -1 will not work. If i am wrong then correct me. anonymous i think it will work: let number be x=a0111…1//a be bit pattern containing 1 & 0 y=~x;//y=(~a)1000…0 z=(y&(~y+1));//z=01000…0 x^=(z-1);//a0000…0 x|=z;//a1000…0 bill nicholson yes man u r awesome…. see those people doesnt know Hanish Proof of decrement expression : ~x + 1 = -x Put x = ~x //since the above equation holds for every number => ~(~x) + 1 = -(~x) => (x + 1) = -(~x) Aashish Another approach  
+int add(int num)
+{
+        int n=1;
+        while(num&n)
+        {
+                num&=~n;
+                n<<=1;
+        }
+        return num|n;
+}
+ 
+int main()
+{
+        int n;
+        scanf("%d",&n);
+        printf("%d ",add(n));
+        return 0;
+}
+ http://ideone.com/pArq1 PsychoCoder Question says that without using ‘-‘ sign. The method 2 uses ‘-‘ sign. Otherwise the method is superb. prakhar ques. is not to use binary ‘-‘. Here unary ‘-‘ is used. http://gnapse.com Ernesto A recursive method:  int plusOne(int x) {
+    if ((x & 1) == 0) {
+      return x | 1;
+    } else {
+      return plusOne(x >> 1) << 1;
+    }
+  }
+ And with recursion removed:  int plusOne2(int x) {
+    int accum = 1;
+    while ((x & 1) != 0) {
+      x >>= 1;
+      accum <<= 1;
+    }
+    x |= 1;
+    while (accum > 1) {
+      x <<= 1;
+      accum >>= 1;
+    }
+    return x;
+  }
+ We could count the number of iterations of the first cycle, then do x << count but keeping the counter involves addind 1 each step, and that would not be acceptable. So we keep the count by keeping accum = 2^count. We could then multiply x*accum, but we cannot multiply either, so we count back how many times is accum a power of 2, and we shift-left x that many times. Hope is clear. http://gnapse.com Ernesto After a second review at this code, and some testing, I’ve found that it breaks when x = -1, that is, when the resulting value would be zero. This happens both in the recursive and iterative approach. The obvious solution would be to add a conditional at the top of the function, like this:  
+if (x == -1) return 0;
+ But this could be considered as breaking the rule of not using the minus sign. (Or we could consider that the “-1″ is a literal value, and not a use of the minus operator per se). In any case, does any one knows a workaround on how to handle this edge case? http://gnapse.com Ernesto I found the solution for the edge case without comparing with -1:  
+int plus_one_recursive(int x) {
+    if (x & 1 == 0) return x | 1;
+    if (x >> 1 == x) return 0;
+    return plusOne(x >> 1) << 1;
+}
+
+int plus_one_iterative(int x) {
+    if (x != 0 && x >> 1 == x) return 0;
+    int accum = 1;
+    while ((x & 1) != 0) {
+        x >>= 1;
+        accum <<= 1;
+    }
+    x |= 1;
+    while (accum > 1) {
+        x <<= 1;
+        accum >>= 1;
+    }
+    return x;
+}
+ vikas my solution : int x = 0; int m = 1; while (Convert.ToBoolean(x & m)) { m = m << 1; } x = x | m; while (m < x) { m = m|(m << 1); } x = x & m; Kanagaraj M  
+int addone(short int x)
+{
+	int y = 1;
+	if( 0 == (x & 1) )
+		 x |= 1;
+	else
+	{
+		for( y = 0; y < (sizeof(x) * 8 ) && (x & 1 << y ) ; y++ )
+		{
+			x &= ~( 1 << y );
+		}
+		x |= ( 1 << y );
+	}		
+	return x;
+}
+
+int main()
+{	
+	int a = 16;
+	printf(" Add One : %d", addone( a ));
+}
+ Aakash Johari  int add_one(int x)
+{
+        int y = 1, temp = x;
+
+        while ( temp & 1 != 0 ) {
+                temp >>= 1;
+                y <<= 1;
+                y |= 1;
+        }
+
+        return x^y;
+} Virus  
+int addOne(int x)
+{
+    x=x<<1;
+    x=x|1;
+    return x;
+}
+ balloon This is wrong. addOne(3) = 7 a int add1(int x) { return -~-x; } kartik It doesn’t seem to be working. See below program prints -10.  #include<stdio.h>
+#include<stdlib.h>
+
+int add1(int x)
+{
+   return -~-x;
+}
+
+
+int main()
+{
+  printf("%d", add1(11));
+  getchar();
+  return 0;
+}
+ http://wemeanourthoughts.blogspot.com/ Venki @Karthik, it should work. I guess there is some typo. We know that the negative number is represented in 2’s complement form on most of the architectures. We have the following lemma hold for 2’s complement representation of signed numbers. Say, k is numerical value of a number, then ~k = -(k+1) [ ~ is for bitwise complement ] (k + 1) is due to addition of 1 in 2’s complement conversion To get (k + 1) apply negation once again. So, the final expression becomes  
+
+inline
+int increment(int x)
+{
+    return (-(~x));
+}
+
+inline
+int decrement(int x)
+{
+    return (~(-x));
+}
+
+ Example, assume the machine word length is one *nibble* for simplicity. And k = 2 (0010), ~k = ~2 = 1101 (13 numerical) -~k = -1101 Interpreting bits 1101 in 2’s complement form yeilds numerical vlaue is -(2^4 – 13) = -3. Applying ‘-‘ on the result leaves 3. Same analogy holds for decrement. These results hold only for 2’s complement form. What will be the output of functions at the extremes of bit pattern? For example x = 0x80000000. DreamNik  &((char*)n)[1] Only if “*” is not treated as not allowed symbol in type name. NKS  #include<stdio.h>
+int main()
+{ 
+   int a,b=1;
+   scanf("%d",&a);
+   char *p=a;
+   printf("%d",&(p[b]));
+} Rajendra Line  char *p=a; won’t compile. Even if you do  char *p = (char*)a; It results in undefined behavior! Sergio Nobody says that you can’t use ‘++’ GeeksforGeeks OK, we have added it chandruthala  
+public int addOne(int n){
+        int y=1;
+// Find the position of zero from last
+        while( (n&y) !=0 ){
+            y<<=1;
+        }
+// Set the zero as one
+        n |=y;
+// Set the rest of one after first occurrence of zero
+        n &= y;        
+        return n;
+    }
+    
+    int main() {
+        printf("%d",addOne(3));
+        return 0;
+    }
+ Krunal Modi [IIT Kgp/IISc] @chandruthala : Your code will work only in the case of 3,7,15,…(all 1s) rest will not work. sankalp srivastava  
+int addno(int no)
+{
+        if(no%2)
+                return no&~1;
+        return no|1;
+
+}
+int main()
+{
+        int number=0;
+        printf("%d\n",addno(number));
+}
+ the above code works fine for integers as far as adding one is concerned , just fiddle with the bits neo i don’t think so. try it on 4 and 5 Shekhu how about adding any two given numbers without using ‘+’, ‘-’, ‘*’, ‘/’ …etc? Venki Given below is logic based on Digital Circuits  
+// Based on Full Adder Logic Circuit
+int AddTwoIntegers(int m, int n) {
+
+    // Sum in 'result' (Exclusive OR as usual in Full Adder)
+    int result = m ^ n;
+
+    // Use n as bus to forward the carry to left
+    // Use m as bus to forward previous intermediate addition
+
+    // Iterate till there is no carry
+    while ((m & n) != 0) {
+        // Carry field
+        n = (m & n) << 1;
+        // Sum field
+        m = result;
+
+        // Save the result in 'result'
+        result = m ^ n;
+    }
+
+    return result;
+}
+ Venki Driver run on http://ideone.com/gNi77 Venki a + b = (a&b) + (a|b), try this code. Anand not working for all values.. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

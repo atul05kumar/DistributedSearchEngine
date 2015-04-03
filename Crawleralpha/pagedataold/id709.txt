@@ -1,0 +1,481 @@
+Find the node with minimum value in a Binary Search Tree - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find the node with minimum value in a Binary Search Tree This is quite simple. Just traverse the node from root to left recursively until left is NULL. The node whose left is NULL is the node with minimum value. For the above tree, we start with 20, then we move left 8, we keep on moving to left until we see NULL. Since left of 4 is NULL, 4 is the node with minimum value. 
+#include <stdio.h>
+#include<stdlib.h>
+
+/* A binary tree node has data, pointer to left child 
+   and a pointer to right child */
+struct node 
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+/* Helper function that allocates a new node 
+with the given data and NULL left and right 
+pointers. */
+struct node* newNode(int data) 
+{
+  struct node* node = (struct node*)
+                       malloc(sizeof(struct node));
+  node->data  = data;
+  node->left  = NULL;
+  node->right = NULL;
+  
+  return(node);
+}
+
+/* Give a binary search tree and a number, 
+inserts a new node with the given number in 
+the correct place in the tree. Returns the new 
+root pointer which the caller should then use 
+(the standard trick to avoid using reference 
+parameters). */
+struct node* insert(struct node* node, int data) 
+{
+  /* 1. If the tree is empty, return a new,     
+      single node */
+  if (node == NULL) 
+    return(newNode(data));  
+  else 
+  {
+    /* 2. Otherwise, recur down the tree */
+    if (data <= node->data) 
+        node->left  = insert(node->left, data);
+    else 
+        node->right = insert(node->right, data);
+  
+    /* return the (unchanged) node pointer */
+    return node; 
+  }
+}
+
+/* Given a non-empty binary search tree,  
+return the minimum data value found in that 
+tree. Note that the entire tree does not need 
+to be searched. */
+int minValue(struct node* node) {
+  struct node* current = node;
+
+  /* loop down to find the leftmost leaf */
+  while (current->left != NULL) {
+    current = current->left;
+  }
+  return(current->data);
+}
+
+/* Driver program to test sameTree function*/    
+int main()
+{
+  struct node* root = NULL;
+  root = insert(root, 4);
+  insert(root, 2);
+  insert(root, 1);
+  insert(root, 3);
+  insert(root, 6);
+  insert(root, 5);  
+
+  printf("\n Minimum value in BST is %d", minValue(root));
+  getchar();
+  return 0;    
+}
+ Time Complexity: O(n) Worst case happens for left skewed trees. Similarly we can get the maximum value by recursively traversing the right node of a binary search tree. References: http://cslibrary.stanford.edu/110/BinaryTrees.html           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. DarkProtocol is it O(n) or O(h) where h is height of the tree.. Pls explain,,, GuruSimhe It is actually O(h), but in case of Left skewed tree it will be O(n) and that is our worst case. wannaC  
+int minVal(struct node *root){
+if(!root)
+   return -1;
+if(root->left==NULL)
+{
+   return root->data;
+}
+else
+   minVal (root->left);
+return -1;
+}
+/* Paste your code here (You may delete these lines if not writing code) */
+ Himanshu /* here is recursive method*/ int minValue(struct node* node) { if(node==NULL) { printf(“emptry tree”); return -1; } if(node->left==NULL) { return node->data; } else return minValue(node->left); } amit won’t work for empty binary tree..no NULL check  
+/* Paste your code here (You may delete these lines if not writing code) */
+ abhishek08aug C++ code: extended from my post on: http://www.geeksforgeeks.org/lowest-common-ancestor-in-a-binary-search-tree/  
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+ 
+class tree_node {
+  private:
+    int data;
+    tree_node * left;
+    tree_node * right;
+  public:
+    tree_node() {
+      left=NULL;
+      right=NULL;
+    }
+    void set_data(int data) {
+      this->data=data;
+    }
+    int get_data() {
+      return this->data;
+    }
+    void set_left(tree_node * left) {
+      this->left=left;
+    }
+    tree_node * get_left() {
+      return this->left;
+    }
+    void set_right(tree_node * right) {
+      this->right=right;
+    }
+    tree_node * get_right() {
+      return this->right;
+    }
+    tree_node ** get_left_ref() {
+      return &(this->left);
+    }
+    tree_node ** get_right_ref() {
+      return &(this->right);
+    }
+};
+ 
+class tree {
+  private:
+    tree_node * root;
+    int size;
+    void _recursive_insert(tree_node ** root_ref, int value);
+    void _print_preorder(tree_node * root);
+    void _print_inorder(tree_node * root);
+    void _print_postorder(tree_node * root);
+    int _find_size(tree_node * root);
+    int _are_identical(tree_node * tn1, tree_node * tn2);
+    int _find_height(tree_node * root);
+    void _delete_tree(tree_node ** root);
+    void _mirror(tree_node * root);
+    void _print_paths(tree_node * root, int * path_nodes, int next_vacant_position);
+    void _print_array(int * array, int len);
+    tree_node * _lowest_common_ancestor(tree_node * parent, tree_node * root, int a, int b);
+    tree_node * _find_node(tree_node * root, int value);
+    tree_node * _min_node(tree_node * root);
+  public:
+    tree() {
+      root=NULL;
+      size=0;
+    }
+    void insert(int value);
+    void recursive_insert(int value);
+    void print_preorder();
+    void print_inorder();
+    void print_postorder();
+    int find_size();
+    int get_size() {
+      return this->size;
+    }
+    int are_identical(tree t);
+    int find_height();
+    void delete_tree();
+    void mirror();
+    void print_paths();
+    tree_node * lowest_common_ancestor(int a, int b);
+    tree_node * find_node(int value);
+    tree_node * min_node();
+};
+ 
+void tree::insert(int value) {
+  if(root==NULL) {
+    root=new tree_node;
+    root->set_data(value);
+  } else {
+    tree_node * parent=NULL;
+    tree_node * current=root;
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    while(current!=NULL) {
+      if(value<=current->get_data()) {
+        parent=current;
+        current=current->get_left();
+      } else {
+        parent=current;
+        current=current->get_right();
+      }
+    }
+    if(value<=parent->get_data() && parent->get_left()==NULL) {
+      parent->set_left(new_node);
+    } else if(value>parent->get_data() && parent->get_right()==NULL) {
+      parent->set_right(new_node);
+    }
+  }
+  size++;
+}
+ 
+void tree::recursive_insert(int value) {
+  _recursive_insert(&root, value);
+  size++;
+}
+ 
+void tree::_recursive_insert(tree_node ** root_ref, int value) {
+  if(*root_ref==NULL) {
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    *root_ref=new_node;   
+  } else {
+    if(value<=(*root_ref)->get_data()) {
+      _recursive_insert((*root_ref)->get_left_ref(), value);
+    } else {
+      _recursive_insert((*root_ref)->get_right_ref(), value);
+    }
+  }
+}
+ 
+void tree::print_preorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_preorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_preorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  cout<<root->get_data()<<" ";
+  if(root->get_left()!=NULL)
+    _print_preorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_preorder(root->get_right());
+}
+ 
+void tree::print_inorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_inorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_inorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_inorder(root->get_left());
+  cout<<root->get_data()<<" ";
+  if(root->get_right()!=NULL)
+    _print_inorder(root->get_right());
+}
+ 
+void tree::print_postorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_postorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_postorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_postorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_postorder(root->get_right());
+  cout<<root->get_data()<<" ";
+}
+
+int tree::find_size() {
+  return _find_size(root);
+}
+
+int tree::_find_size(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else {
+    return 1+_find_size(root->get_left())+_find_size(root->get_right());
+  }
+}
+
+int tree::are_identical(tree t) {
+  return _are_identical(this->root, t.root);
+}
+
+int tree::_are_identical(tree_node * tn1, tree_node * tn2) {
+  if(tn1==NULL && tn2==NULL) {
+    return 1;
+  } else if((tn1==NULL && tn2!=NULL) || (tn1!=NULL && tn2==NULL) || (tn1->get_data()!=tn2->get_data())) {
+    return 0;
+  } else {
+    return _are_identical(tn1->get_left(), tn2->get_left()) && _are_identical(tn1->get_right(), tn2->get_right());
+  }
+}
+
+int tree::find_height() {
+  return _find_height(root);
+}
+
+int tree::_find_height(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  }
+  else {
+    return 1+max(_find_height(root->get_left()), _find_height(root->get_right()));
+  }
+}
+
+void tree::delete_tree() {
+  _delete_tree(&root);
+  size=0;
+}
+
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      _delete_tree((*root)->get_left_ref());
+    }
+    if((*root)->get_right()!=NULL) {
+      _delete_tree((*root)->get_right_ref());
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+
+/* alternate _delete_tree */
+/*
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      tree_node * left_ref=(*root)->get_left();
+      _delete_tree(&left_ref);
+    }
+    if((*root)->get_right()!=NULL) {
+      tree_node * right_ref=(*root)->get_right();
+      _delete_tree(&right_ref);
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+*/
+
+void tree::mirror() {
+  _mirror(root);
+}
+
+void tree::_mirror(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+
+  tree_node * temp=root->get_left();
+  root->set_left(root->get_right());
+  root->set_right(temp);
+  _mirror(root->get_left());
+  _mirror(root->get_right());
+}
+
+void tree::print_paths(){
+   int max_path_length=find_height();
+   int * path_nodes=(int *)calloc(sizeof(int), max_path_length);
+  _print_paths(root, path_nodes, 0);
+}
+
+void tree::_print_paths(tree_node * root, int * path_nodes, int next_vacant_position){
+  if(root==NULL) {
+    return;
+  } else if(root->get_left()==NULL && root->get_right()==NULL) {
+    *(path_nodes+next_vacant_position)=root->get_data();
+    _print_array(path_nodes, next_vacant_position);
+  } else {
+    *(path_nodes+next_vacant_position)=root->get_data();
+    _print_paths(root->get_left(), path_nodes, next_vacant_position+1);
+    _print_paths(root->get_right(), path_nodes, next_vacant_position+1);
+  }
+}
+
+void tree::_print_array(int * array, int len) {
+  int i;
+  for(i=0; i<=len; i++) {
+    cout<<*(array+i)<<" ";
+  }
+  cout<<endl;
+}
+
+tree_node * tree::find_node(int value) {
+  return _find_node(root, value);
+}
+
+tree_node * tree::_find_node(tree_node * root, int value) {
+  if(root==NULL || root->get_data()==value) {
+    return root;
+  } else if(value<=root->get_data()) {
+    _find_node(root->get_left(), value);
+  } else {
+    _find_node(root->get_right(), value);
+  }
+}
+
+tree_node * tree::lowest_common_ancestor(int a, int b) {
+  return _lowest_common_ancestor(NULL, root, a, b);
+}
+
+tree_node * tree::_lowest_common_ancestor(tree_node * parent, tree_node * root, int a, int b) {
+  if(root==NULL) {
+    return root;
+  } else if((root->get_data()==a && (root->get_left()->get_data()==b || root->get_right()->get_data()==b))
+             || (root->get_data()==b && (root->get_left()->get_data()==a || root->get_right()->get_data()==a))) {
+    return parent;
+  } else if((_find_node(root->get_left(), a)!=NULL && _find_node(root->get_right(), b)!=NULL)
+        || (_find_node(root->get_left(), b)!=NULL && _find_node(root->get_right(), a)!=NULL)) {
+    return root; 
+  } else if(_find_node(root->get_left(), a)!=NULL && _find_node(root->get_left(), b)!=NULL) {
+    return _lowest_common_ancestor(root, root->get_left(), a, b);
+  } else if(_find_node(root->get_right(), a)!=NULL && _find_node(root->get_right(), b)!=NULL) {
+    return _lowest_common_ancestor(root, root->get_right(), a, b);
+  } else {
+    return NULL;
+  }
+}
+
+tree_node * tree::min_node() {
+  return _min_node(root);
+}
+
+tree_node * tree::_min_node(tree_node * root) {
+  if(root==NULL || root->get_left()==NULL) {
+    return root;
+  } else {
+    return _min_node(root->get_left());
+  }
+}
+
+int main() {
+  tree t1;
+
+  t1.recursive_insert(5);
+  t1.recursive_insert(3);
+  t1.insert(10);
+  t1.insert(7);
+  t1.recursive_insert(50);
+  t1.recursive_insert(6);
+
+  cout<<"Inorder Traversal"<<endl;
+  t1.print_inorder();
+
+  tree_node * min_node=t1.min_node();
+  if(min_node!=NULL) {
+    cout<<"Minimum node value: "<<min_node->get_data()<<endl;
+  } else {
+    cout<<"Tree is empty"<<endl;
+  }
+
+  return 0;
+}
+ Inorder Traversal 3 5 6 7 10 50 Minimum node value: 3 shailraj What will happen if tree is empty ? Ankit Sablok The problem is quite simple for BST’s in general but can anyone tell what is the most efficient way of solving this problem for binary trees in general.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Pranav I think for binary tree you need to traverse the tree(in any of your choice manner), and keep track of the minimum found so far. int minValue(struct node* node) { return minValueUtil(node, INT_MAX); } int minValueUtil(struct node* node, int min) { if(!node) return; // Check left subtree first return minValueUtil(node->left, node->data); //Check current node if(node->data data; // Check right subtree return minValueUtil(node->right, node->data); } vindhya won’t it work if we dont initialize current as node?? I think it will.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ vindhya int minVal(struct node *root){ while(root->left!=NULL) { root=root->left; } return (root->data); }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik It will crash for an empty tree. If root is NULL, then this code will try to access NULL->left which will cause the crash. rohit but now current also points where root point if the bst is empty then then root is null implies current is also null so null->left again leads to crash .how taking current ensures that tree dont crash..plss explain.. Pranay Singhania Can you tell me if the minimum of the tree is not in the left sub tree of root then your program will not work. Let value you entered like this 1 2 3 4 5 then also your program will not work. kartik If the left subtree is empty, then the minimum value will be the root value. That is the reason we initialize current as node. It will work for all cases in a non empty BST. Prashanth Hi, If the Binary Search Tree is balanced. The we can find the node with maximum value or node with minimum value in O(H) time, where H is the height of the tree. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

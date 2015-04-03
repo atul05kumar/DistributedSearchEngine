@@ -1,0 +1,587 @@
+Greedy Algorithms | Set 2 (Kruskal’s Minimum Spanning Tree Algorithm) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Greedy Algorithms | Set 2 (Kruskal’s Minimum Spanning Tree Algorithm) What is Minimum Spanning Tree? Given a connected and undirected graph, a spanning tree of that graph is a subgraph that is a tree and connects all the vertices together. A single graph can have many different spanning trees. A minimum spanning tree (MST) or minimum weight spanning tree for a weighted, connected and undirected graph is a spanning tree with weight less than or equal to the weight of every other spanning tree. The weight of a spanning tree is the sum of weights given to each edge of the spanning tree. How many edges does a minimum spanning tree has? A minimum spanning tree has (V – 1) edges where V is the number of vertices in the given graph. What are the applications of Minimum Spanning Tree? See this for applications of MST. Below are the steps for finding MST using Kruskal’s algorithm 
+1. Sort all the edges in non-decreasing order of their weight.
+
+2. Pick the smallest edge. Check if it forms a cycle with the spanning tree 
+formed so far. If cycle is not formed, include this edge. Else, discard it.  
+
+3. Repeat step#2 until there are (V-1) edges in the spanning tree.
+ The step#2 uses Union-Find algorithm to detect cycle. So we recommend to read following post as a prerequisite. Union-Find Algorithm | Set 1 (Detect Cycle in a Graph) Union-Find Algorithm | Set 2 (Union By Rank and Path Compression) The algorithm is a Greedy Algorithm. The Greedy Choice is to pick the smallest weight edge that does not cause a cycle in the MST constructed so far. Let us understand it with an example: Consider the below input graph. The graph contains 9 vertices and 14 edges. So, the minimum spanning tree formed will be having (9 – 1) = 8 edges. 
+After sorting:
+Weight   Src    Dest
+1         7      6
+2         8      2
+2         6      5
+4         0      1
+4         2      5
+6         8      6
+7         2      3
+7         7      8
+8         0      7
+8         1      2
+9         3      4
+10        5      4
+11        1      7
+14        3      5 Now pick all edges one by one from sorted list of edges 1. Pick edge 7-6: No cycle is formed, include it. 2. Pick edge 8-2: No cycle is formed, include it. 3. Pick edge 6-5: No cycle is formed, include it. 4. Pick edge 0-1: No cycle is formed, include it. 5. Pick edge 2-5: No cycle is formed, include it. 6. Pick edge 8-6: Since including this edge results in cycle, discard it. 7. Pick edge 2-3: No cycle is formed, include it. 8. Pick edge 7-8: Since including this edge results in cycle, discard it. 9. Pick edge 0-7: No cycle is formed, include it. 10. Pick edge 1-2: Since including this edge results in cycle, discard it. 11. Pick edge 3-4: No cycle is formed, include it. Since the number of edges included equals (V – 1), the algorithm stops here. 
+// Kruskal's algortihm to find Minimum Spanning Tree of a given connected,
+// undirected and weighted graph
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// a structure to represent a weighted edge in graph
+struct Edge
+{
+    int src, dest, weight;
+};
+
+// a structure to represent a connected, undirected and weighted graph
+struct Graph
+{
+    // V-> Number of vertices, E-> Number of edges
+    int V, E;
+
+    // graph is represented as an array of edges. Since the graph is
+    // undirected, the edge from src to dest is also edge from dest
+    // to src. Both are counted as 1 edge here.
+    struct Edge* edge;
+};
+
+// Creates a graph with V vertices and E edges
+struct Graph* createGraph(int V, int E)
+{
+    struct Graph* graph = (struct Graph*) malloc( sizeof(struct Graph) );
+    graph->V = V;
+    graph->E = E;
+
+    graph->edge = (struct Edge*) malloc( graph->E * sizeof( struct Edge ) );
+
+    return graph;
+}
+
+// A structure to represent a subset for union-find
+struct subset
+{
+    int parent;
+    int rank;
+};
+
+// A utility function to find set of an element i
+// (uses path compression technique)
+int find(struct subset subsets[], int i)
+{
+    // find root and make root as parent of i (path compression)
+    if (subsets[i].parent != i)
+        subsets[i].parent = find(subsets, subsets[i].parent);
+
+    return subsets[i].parent;
+}
+
+// A function that does union of two sets of x and y
+// (uses union by rank)
+void Union(struct subset subsets[], int x, int y)
+{
+    int xroot = find(subsets, x);
+    int yroot = find(subsets, y);
+
+    // Attach smaller rank tree under root of high rank tree
+    // (Union by Rank)
+    if (subsets[xroot].rank < subsets[yroot].rank)
+        subsets[xroot].parent = yroot;
+    else if (subsets[xroot].rank > subsets[yroot].rank)
+        subsets[yroot].parent = xroot;
+
+    // If ranks are same, then make one as root and increment
+    // its rank by one
+    else
+    {
+        subsets[yroot].parent = xroot;
+        subsets[xroot].rank++;
+    }
+}
+
+// Compare two edges according to their weights.
+// Used in qsort() for sorting an array of edges
+int myComp(const void* a, const void* b)
+{
+    struct Edge* a1 = (struct Edge*)a;
+    struct Edge* b1 = (struct Edge*)b;
+    return a1->weight > b1->weight;
+}
+
+// The main function to construct MST using Kruskal's algorithm
+void KruskalMST(struct Graph* graph)
+{
+    int V = graph->V;
+    struct Edge result[V];  // Tnis will store the resultant MST
+    int e = 0;  // An index variable, used for result[]
+    int i = 0;  // An index variable, used for sorted edges
+
+    // Step 1:  Sort all the edges in non-decreasing order of their weight
+    // If we are not allowed to change the given graph, we can create a copy of
+    // array of edges
+    qsort(graph->edge, graph->E, sizeof(graph->edge[0]), myComp);
+
+    // Allocate memory for creating V ssubsets
+    struct subset *subsets =
+        (struct subset*) malloc( V * sizeof(struct subset) );
+
+    // Create V subsets with single elements
+    for (int v = 0; v < V; ++v)
+    {
+        subsets[v].parent = v;
+        subsets[v].rank = 0;
+    }
+
+    // Number of edges to be taken is equal to V-1
+    while (e < V - 1)
+    {
+        // Step 2: Pick the smallest edge. And increment the index
+        // for next iteration
+        struct Edge next_edge = graph->edge[i++];
+
+        int x = find(subsets, next_edge.src);
+        int y = find(subsets, next_edge.dest);
+
+        // If including this edge does't cause cycle, include it
+        // in result and increment the index of result for next edge
+        if (x != y)
+        {
+            result[e++] = next_edge;
+            Union(subsets, x, y);
+        }
+        // Else discard the next_edge
+    }
+
+    // print the contents of result[] to display the built MST
+    printf("Following are the edges in the constructed MST\n");
+    for (i = 0; i < e; ++i)
+        printf("%d -- %d == %d\n", result[i].src, result[i].dest,
+                                                   result[i].weight);
+    return;
+}
+
+// Driver program to test above functions
+int main()
+{
+    /* Let us create following weighted graph
+             10
+        0--------1
+        |  \     |
+       6|   5\   |15
+        |      \ |
+        2--------3
+            4       */
+    int V = 4;  // Number of vertices in graph
+    int E = 5;  // Number of edges in graph
+    struct Graph* graph = createGraph(V, E);
+
+
+    // add edge 0-1
+    graph->edge[0].src = 0;
+    graph->edge[0].dest = 1;
+    graph->edge[0].weight = 10;
+
+    // add edge 0-2
+    graph->edge[1].src = 0;
+    graph->edge[1].dest = 2;
+    graph->edge[1].weight = 6;
+
+    // add edge 0-3
+    graph->edge[2].src = 0;
+    graph->edge[2].dest = 3;
+    graph->edge[2].weight = 5;
+
+    // add edge 1-3
+    graph->edge[3].src = 1;
+    graph->edge[3].dest = 3;
+    graph->edge[3].weight = 15;
+
+    // add edge 2-3
+    graph->edge[4].src = 2;
+    graph->edge[4].dest = 3;
+    graph->edge[4].weight = 4;
+
+    KruskalMST(graph);
+
+    return 0;
+}
+ Following are the edges in the constructed MST
+2 -- 3 == 4
+0 -- 3 == 5
+0 -- 1 == 10 Time Complexity: O(ElogE) or O(ElogV). Sorting of edges takes O(ELogE) time. After sorting, we iterate through all edges and apply find-union algorithm. The find and union operations can take atmost O(LogV) time. So overall complexity is O(ELogE + ELogV) time. The value of E can be atmost V^2, so O(LogV) are O(LogE) same. Therefore, overall time complexity is O(ElogE) or O(ElogV) References: http://www.ics.uci.edu/~eppstein/161/960206.html http://en.wikipedia.org/wiki/Minimum_spanning_tree This article is compiled by Aashish Barnwal and reviewed by GeeksforGeeks team. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Vertex Cover Problem | Set 1 (Introduction and Approximate Algorithm) Snake and Ladder Problem Tarjan’s Algorithm to find Strongly Connected Components Shortest path with exactly k edges in a directed and weighted graph Count all possible walks from a source to a destination with exactly k edges Euler Circuit in a Directed Graph Given an array of strings, find if the strings can be chained to form a circle Given a sorted dictionary of an alien language, find order of characters Tags: Graph, Greedy Algorithm, Kruskal, Kruskal'sAlgorithm Tweet Writing code in comment? Please use ideone.com and share the link here. Rahul I have a doubt, how will while loop will break, if there is a cycle in the graph ? as we are taking break condition as e < V-1 and e only increments when there is no cycle till now. Anitesh Kumar Please correct me if i am wrong. The compare function used for ::qsort(), mycomp() should be static. I am coding with VC++ and using VS2008 IDE. If i do not make mycomp() function static i am getting following CT error: “function call missing argument list; use ‘&Graph::mycomp’ to create a pointer to member”. Please reply. Guest package kruskalunionfind; class Edge { int src,dest,weight; } class Graph { // V-> Number of vertices, E-> Number of edges int V, E; // graph is represented as an array of edges. Since the graph is // undirected, the edge from src to dest is also edge from dest // to src. Both are counted as 1 edge here. Edge edge[]=null; public void createGraph(int v,int e) { Graph g=new Graph(); V=v; E=e; edge=new Edge[e]; for(int i=0;i<e;i++) edge[i]=new Edge(); } } // structure to represent a subset for union-find class subset { int parent; int rank; // A utility function to find set of an element i // (uses path compression technique) int find(subset subsets[],int i) { // find root and make root as parent of i (path compression) if (subsets[i].parent != i) { subsets[i].parent = find(subsets, subsets[i].parent); } return subsets[i].parent; } // A function that does union of two sets of x and y // (uses union by rank) void Union( subset subsets[], int x, int y) { int xroot = find(subsets, x); int yroot = find(subsets, y); // Attach smaller rank tree under root of high rank tree // (Union by Rank) if (subsets[xroot].rank subsets[yroot].rank) subsets[yroot].parent = xroot; // If ranks are same, then make one as root and increment // its rank by one else { subsets[yroot].parent = xroot; subsets[xroot].rank++; } } } public class KruskalUnionFind { static void srtEdge(Edge[] e) { int min=-1; for(int i=0;i<e.length-1;i++) { int p=e[i].weight; for(int j=i;je[j].weight) min=j; } // swap two edge objects Edge temp; temp=e[i]; e[i]=e[min]; e[min]=temp; } } // The main function to construct MST using Kruskal’s algorithm static void KruskalMST(Graph g) { int V=g.V; Edge result[]=new Edge[V]; // This will store resultant MST int e = 0; // An index variable, used for result[] int i = 0; // An index variable, used for sorted edges System.out.println(“Before sorting:”); for(int j=0;j<g.E;j++) System.out.print(g.edge[j].weight+" "); System.out.println(); srtEdge(g.edge); System.out.println("After sorting:"); for(int j=0;j<g.E;j++) System.out.print(g.edge[j].weight+" "); System.out.println(); subset s[]=new subset[V]; // Create V subsets with single elements for (int v = 0; v < V; ++v) { s[v]=new subset(); s[v].parent = v; s[v].rank = 0; } subset ob=new subset(); // Number of edges to be taken is equal to V-1 while(e<V-1) { Edge next_edge=g.edge[i++]; int x=ob.find(s,next_edge.src); int y=ob.find(s,next_edge.dest); // If including this edge does't cause cycle, include it // in result and increment the index of result for next edge if (x != y) { result[e++] = next_edge; ob.Union(s, x, y); } // Else discard the next_edge } // print the contents of result[] to display the built MST System.out.println("Following are the edges in the constructed MST"); for(i=0;i<e;i++) System.out.println(result[i].src+" "+result[i].dest+" "+result[i].weight); } public static void main(String[] args) { /* Let us create following weighted graph 10 0——–1 | | 6| 5 |15 | | 2——–3 4 */ int V = 4; // Number of vertices in graph int E = 5; // Number of edges in graph Graph g= new Graph(); g.createGraph(V, E); // add edge 0-1 g.edge[0].src = 0; g.edge[0].dest = 1; g.edge[0].weight = 10; // add edge 0-2 g.edge[1].src = 0; g.edge[1].dest = 2; g.edge[1].weight = 6; // add edge 0-3 g.edge[2].src = 0; g.edge[2].dest = 3; g.edge[2].weight = 5; // add edge 1-3 g.edge[3].src = 1; g.edge[3].dest = 3; g.edge[3].weight = 15; // add edge 2-3 g.edge[4].src = 2; g.edge[4].dest = 3; g.edge[4].weight = 4; KruskalMST(g); } } angel Hi, I have one doubt,why do we need to use Union find algorithm for loop detection,if both vertics of current edge are already visited ,then definately they would create loop.so why to spend extra log n processing time in finding of loop.I made a small program of kruskals,in which i used one visited array of vertices only to detect cycle.Please let me know if i am missing something void MinSpanningTree_Kruskals(struct edge *Graph_edge,int count) { bool visited[SIZE]={0,}; int i=0,k=0; struct edge final_edges[SIZE]={0,}; while(k<SIZE-1&& i<count) { if(!visited[Graph_edge[i].dest]||!visited[Graph_edge[i].src]) { visited[Graph_edge[i].dest]=1; visited[Graph_edge[i].src]=1; final_edges[k++]=Graph_edge[i]; } i++; } printf("nKruskals Algorithmn"); for(i=0;i<SIZE-1;i++) { printf("nsrc=%d,dest=%d,weight=%dn",final_edges[i].src,final_edges[i].dest,final_edges[i].weight); } } sudshekhar Hi, Consider the following : 0 1 3 1 2 5 2 3 4 3 4 6 4 5 7 5 6 8 6 0 9 The first two are the src and dest and third is the weight. Here, we first add the edge (0,1) and then (2,3). Then we get the edge (1,2) which has had both its vertices’s visited, BUT it doesn’t form a loop. (since the two components are independent till now) and it will be a part of the MST. This is why we need the union-find algorithm. Kuntal  
+#include<stdio.h>
+#include<malloc.h>
+#define EDGESIZE 10
+struct edge {
+int cost;
+int ver1;
+int ver2;
+};
+struct edge *edges;
+int *vertex;
+void partition(int low,int high){
+int mid;
+if(low<high){
+mid=(low+high)/2;
+partition(low,mid);
+partition(mid+1,high);
+mergeSort(low,mid,high);
+}
+}
+void mergeSort(int low,int mid,int high){
+int i,m,k,l,size;
+size = high+1-low;
+struct edge *temp;
+temp = malloc( size*sizeof(struct edge) );;
+l=low;
+i=low;
+m=mid+1;
+while((l<=mid)&&(m<=high)){
+if(edges[l].cost<=edges[m].cost){
+temp[i].ver1=edges[l].ver1;
+temp[i].ver2=edges[l].ver2;
+temp[i].cost=edges[l].cost;
+l++;
+}
+else{
+temp[i].ver1=edges[m].ver1;
+temp[i].ver2=edges[m].ver2;
+temp[i].cost=edges[m].cost;
+m++;
+}
+i++;
+}
+if(l>mid){
+for(k=m;k<=high;k++){
+temp[i].ver1=edges[k].ver1;
+temp[i].ver2=edges[k].ver2;
+temp[i].cost=edges[k].cost;
+i++;
+}
+}
+else{
+for(k=l;k<=mid;k++){
+temp[i].ver1=edges[k].ver1;
+temp[i].ver2=edges[k].ver2;
+temp[i].cost=edges[k].cost;
+i++;
+}
+}   
+for(k=low;k<=high;k++){
+edges[k].ver1=temp[k].ver1;
+edges[k].ver2=temp[k].ver2;
+edges[k].cost=temp[k].cost;
+}
+free(temp);
+}
+int findSet(int ver)
+{
+int child,root,parent;
+child = ver;
+parent = vertex[child];
+while(parent!=child)
+{
+child = parent;
+parent=vertex[child];
+}
+root = child;
+child = ver;
+parent = vertex[child];
+while(parent!=child)
+{
+child = parent;
+parent=vertex[child];
+vertex[child]=root;
+}
+return root;
+}
+void unionSet(int ver1,int ver2)
+{
+vertex[ver2]=vertex[ver1];
+}
+int main()
+{
+int i,vertexsize,edgesize,v1,v2,cost=0;
+printf("\nNo of Vertex and No of Edges\n");
+scanf("%d %d",&vertexsize,&edgesize);
+vertex = malloc( vertexsize*sizeof(int) ); 
+edges = malloc( edgesize*sizeof(struct edge) );
+printf("\nv1 v2 cost\n");
+for(i=0;i<edgesize;i++)
+{
+scanf("%d %d %d",&v1,&v2,&cost);
+edges[i].ver1 = v1;
+edges[i].ver2 = v2;
+edges[i].cost = cost;
+}
+for(i=0;i<vertexsize;i++)
+{
+vertex[i]=i;
+}
+printf("The path\n");
+partition(0,edgesize-1);
+cost=0;
+for(i=0;i<edgesize;i++)
+{
+if(findSet(edges[i].ver1)!=findSet(edges[i].ver2))
+{
+printf("%d--%d == %d\n",edges[i].ver1,edges[i].ver2,edges[i].cost);
+cost+=edges[i].cost;
+unionSet(findSet(edges[i].ver1),findSet(edges[i].ver2));
+}
+}
+printf("\nCost is %d\n",cost);
+free(edges);
+return 0;
+}
+ JV does rank variable has any importance, in the subset struct GuruSimhe Dude, go through Union by rank algorithm first. piki what is wrong with my code plz tell me when i am trying to submit it on SPOJ it is giving 0 point so please tell me what is wrong with this Thanks in advance  
+/* #include<stdio.h>
+#include<iostream>
+#include<queue>
+#include<vector>
+#include<algorithm>
+#include<string.h>
+
+using namespace std;
+
+struct Edge
+{
+  int start;
+  int end;
+  int weight;
+};
+
+struct compare
+{
+   bool operator()(const Edge &l,const Edge &r)
+   {
+      return l.weight>r.weight;
+   }
+};
+
+struct Subset
+{
+  int parent;
+  int rank;
+};
+
+struct Graph
+{
+   int V,E;
+   struct Edge *edges;
+};
+
+
+Graph * createGraph(int v,int e)
+{
+   Graph *g=new Graph();
+   g->V-v;
+   g->E=e;
+   g->edges=new Edge[g->E];
+}
+
+int find(Subset s[],int v)
+{
+    if(s[v].parent!=v)
+      s[v].parent=find(s,s[v].parent);
+    return s[v].parent;
+}
+
+void union1(Subset s[],int v,int w)
+{
+    int vfind=find(s,v);
+    int wfind=find(s,w);
+    if(s[vfind].rank>s[wfind].rank)
+       s[wfind].parent=vfind;
+    else if(s[vfind].rank<s[wfind].rank)
+       s[vfind].parent=wfind;
+    else
+      {
+          s[vfind].parent=wfind;
+          s[wfind].rank++;
+      }
+}
+
+bool isCycle(Graph *g)
+{
+   Subset *s=new Subset[g->V];
+   for(int i=0;i<g->V;i++)
+   { 
+     s[i].parent=i;
+     s[i].rank=0;
+   }
+  for(int i=0;i<g->E;i++)
+  {
+      int xfind=find(s,g->edges[i].start); 
+      int yfind=find(s,g->edges[i].end); 
+      if(xfind==yfind)
+        return false; 
+      else
+        union1(s,g->edges[i].start,g->edges[i].end);
+  }
+  return true;
+}
+int main()
+{
+  int v,e;
+  cin>>v>>e;
+  Graph *g=createGraph(v,e);
+  priority_queue<Edge,vector<Edge>,compare> Q;
+  int start,end,wt;
+  for(int i=0;i<e;i++)
+  {
+     cin>>start>>end>>wt;
+     Edge edge1;
+     edge1.start=start;
+     edge1.end=end;
+     edge1.weight=wt;
+     Q.push(edge1);
+  }
+  g->E=0;int k=0;
+  while(g->E<g->V-1)
+  {  
+      Edge edge1=Q.top();
+      Q.pop();
+      g->edges[k].start=edge1.start;
+      g->edges[k].end=edge1.end;
+      g->edges[k].weight=edge1.weight;
+      g->E++;
+      if(isCycle(g)==true)
+       k++;
+      else
+       g->E--;
+  }
+  int sum=0;
+  for(int i=0;i<g->E;i++)
+    sum=sum+g->edges[i].weight;
+  cout<<sum<<endl;
+  return 0;
+} */
+ piki what is wrong with my code plz tell me when i am trying to submit it on SPOJ it is giving 0 point so please tell me what is wrong with this Thanks in advance piki what is wrong with my code is it correct or not when i am trying to submit it on spoj it is giving 0 point so plz tell me my mistake Thanks in advance piki  
+/* #include<stdio.h>
+#include<iostream>
+#include<queue>
+#include<vector>
+#include<algorithm>
+#include<string.h>
+
+using namespace std;
+
+struct Edge
+{
+  int start;
+  int end;
+  int weight;
+};
+
+struct compare
+{
+   bool operator()(const Edge &l,const Edge &r)
+   {
+      return l.weight>r.weight;
+   }
+};
+
+struct Subset
+{
+  int parent;
+  int rank;
+};
+
+struct Graph
+{
+   int V,E;
+   struct Edge *edges;
+};
+
+
+Graph * createGraph(int v,int e)
+{
+   Graph *g=new Graph();
+   g->V-v;
+   g->E=e;
+   g->edges=new Edge[g->E];
+}
+
+int find(Subset s[],int v)
+{
+    if(s[v].parent!=v)
+      s[v].parent=find(s,s[v].parent);
+    return s[v].parent;
+}
+
+void union1(Subset s[],int v,int w)
+{
+    int vfind=find(s,v);
+    int wfind=find(s,w);
+    if(s[vfind].rank>s[wfind].rank)
+       s[wfind].parent=vfind;
+    else if(s[vfind].rank<s[wfind].rank)
+       s[vfind].parent=wfind;
+    else
+      {
+          s[vfind].parent=wfind;
+          s[wfind].rank++;
+      }
+}
+
+bool isCycle(Graph *g)
+{
+   Subset *s=new Subset[g->V];
+   for(int i=0;i<g->V;i++)
+   { 
+     s[i].parent=i;
+     s[i].rank=0;
+   }
+  for(int i=0;i<g->E;i++)
+  {
+      int xfind=find(s,g->edges[i].start); 
+      int yfind=find(s,g->edges[i].end); 
+      if(xfind==yfind)
+        return false; 
+      else
+        union1(s,g->edges[i].start,g->edges[i].end);
+  }
+  return true;
+}
+int main()
+{
+  int v,e;
+  cin>>v>>e;
+  Graph *g=createGraph(v,e);
+  priority_queue<Edge,vector<Edge>,compare> Q;
+  int start,end,wt;
+  for(int i=0;i<e;i++)
+  {
+     cin>>start>>end>>wt;
+     Edge edge1;
+     edge1.start=start;
+     edge1.end=end;
+     edge1.weight=wt;
+     Q.push(edge1);
+  }
+  g->E=0;int k=0;
+  while(g->E<g->V-1)
+  {  
+      Edge edge1=Q.top();
+      Q.pop();
+      g->edges[k].start=edge1.start;
+      g->edges[k].end=edge1.end;
+      g->edges[k].weight=edge1.weight;
+      g->E++;
+      if(isCycle(g)==true)
+       k++;
+      else
+       g->E--;
+  }
+  int sum=0;
+  for(int i=0;i<g->E;i++)
+    sum=sum+g->edges[i].weight;
+  cout<<sum<<endl;
+  return 0;
+} */
+ piki what is wrong with my code plz tell me when i am trying to submit it on SPOJ it is giving 0 point so please tell me what is wrong with this Thanks in advance ATul In the condition  
+while ( e < V - 1 )
+ it should be  
+while ( i < V - 1 )
+ because i is the index of gettig edges. ATul sorry i misguied it E with V John Why doesn’t this work with Number of E=3 Number of V=3 SRC DEST WEIGHT 7 8 3 7 9 2 8 9 1 Shiwakant Bharti Because for the vertices, the index are supposed to be from 0 to V-1. Looking at below code snippet, you can realize that the array indexes of src like 7 etc will be actually be ArrayIndexOutOfBound as specified by Java. For C/C++ as there is no bound checking it may appear silent or throw the well known segmentation fault! // Allocate memory for creating V ssubsets struct subset *subsets = (struct subset*) malloc( V * sizeof(struct subset) ); . . int x = find(subsets, next_edge.src); cryingFish please write about Prim and Dijekstra also Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,521 @@
+Design and Implement Special Stack Data Structure | Added Space Optimized Version  - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Design and Implement Special Stack Data Structure | Added Space Optimized Version Question: Design a Data Structure SpecialStack that supports all the stack operations like push(), pop(), isEmpty(), isFull() and an additional operation getMin() which should return minimum element from the SpecialStack. All these operations of SpecialStack must be O(1). To implement SpecialStack, you should only use standard Stack data structure and no other data structure like arrays, list, .. etc. Example: 
+Consider the following SpecialStack
+16  --> TOP
+15
+29
+19
+18
+
+When getMin() is called it should return 15, which is the minimum 
+element in the current stack. 
+
+If we do pop two times on stack, the stack becomes
+29  --> TOP
+19
+18
+
+When getMin() is called, it should return 18 which is the minimum 
+in the current stack.
+ Solution: Use two stacks: one to store actual stack elements and other as an auxiliary stack to store minimum values. The idea is to do push() and pop() operations in such a way that the top of auxiliary stack is always the minimum. Let us see how push() and pop() operations work. Push(int x) // inserts an element x to Special Stack 1) push x to the first stack (the stack with actual elements) 2) compare x with the top element of the second stack (the auxiliary stack). Let the top element be y. …..a) If x is smaller than y then push x to the auxiliary stack. …..b) If x is greater than y then push y to the auxiliary stack. int Pop() // removes an element from Special Stack and return the removed element 1) pop the top element from the auxiliary stack. 2) pop the top element from the actual stack and return it. The step 1 is necessary to make sure that the auxiliary stack is also updated for future operations. int getMin() // returns the minimum element from Special Stack 1) Return the top element of auxiliary stack. We can see that all above operations are O(1). Let us see an example. Let us assume that both stacks are initially empty and 18, 19, 29, 15 and 16 are inserted to the SpecialStack. 
+When we insert 18, both stacks change to following.
+Actual Stack
+18 <--- top     
+Auxiliary Stack
+18 <---- top
+
+When 19 is inserted, both stacks change to following.
+Actual Stack
+19 <--- top     
+18
+Auxiliary Stack
+18 <---- top
+18
+
+When 29 is inserted, both stacks change to following.
+Actual Stack
+29 <--- top     
+19
+18
+Auxiliary Stack
+18 <---- top
+18
+18
+
+When 15 is inserted, both stacks change to following.
+Actual Stack
+15 <--- top     
+29
+19 
+18
+Auxiliary Stack
+15 <---- top
+18
+18
+18
+
+When 16 is inserted, both stacks change to following.
+Actual Stack
+16 <--- top     
+15
+29
+19 
+18
+Auxiliary Stack
+15 <---- top
+15
+18
+18
+18
+ Following is C++ implementation for SpecialStack class. In the below implementation, SpecialStack inherits from Stack and has one Stack object min which work as auxiliary stack. 
+#include<iostream>
+#include<stdlib.h>
+
+using namespace std;
+
+/* A simple stack class with basic stack funtionalities */
+class Stack
+{
+private:
+    static const int max = 100;
+    int arr[max];
+    int top;
+public:
+    Stack() { top = -1; }
+    bool isEmpty();
+    bool isFull();
+    int pop();
+    void push(int x);
+};
+
+/* Stack's member method to check if the stack is iempty */
+bool Stack::isEmpty()
+{
+    if(top == -1)
+        return true;
+    return false;
+}
+
+/* Stack's member method to check if the stack is full */
+bool Stack::isFull()
+{
+    if(top == max - 1)
+        return true;
+    return false;
+}
+
+/* Stack's member method to remove an element from it */
+int Stack::pop()
+{
+    if(isEmpty())
+    {
+        cout<<"Stack Underflow";
+        abort();
+    }
+    int x = arr[top];
+    top--;
+    return x;
+}
+
+/* Stack's member method to insert an element to it */
+void Stack::push(int x)
+{
+    if(isFull())
+    {
+        cout<<"Stack Overflow";
+        abort();
+    }
+    top++;
+    arr[top] = x;
+}
+
+/* A class that supports all the stack operations and one additional
+  operation getMin() that returns the minimum element from stack at
+  any time.  This class inherits from the stack class and uses an
+  auxiliarry stack that holds minimum elements */
+class SpecialStack: public Stack
+{
+    Stack min;
+public:
+    int pop();
+    void push(int x);
+    int getMin();
+};
+
+/* SpecialStack's member method to insert an element to it. This method
+   makes sure that the min stack is also updated with appropriate minimum
+   values */
+void SpecialStack::push(int x)
+{
+    if(isEmpty()==true)
+    {
+        Stack::push(x);
+        min.push(x);
+    }
+    else
+    {
+        Stack::push(x);
+        int y = min.pop();
+        min.push(y);
+        if( x < y )
+          min.push(x);
+        else
+          min.push(y);
+    }
+}
+
+/* SpecialStack's member method to remove an element from it. This method
+   removes top element from min stack also. */
+int SpecialStack::pop()
+{
+    int x = Stack::pop();
+    min.pop();
+    return x;
+}
+
+/* SpecialStack's member method to get minimum element from it. */
+int SpecialStack::getMin()
+{
+    int x = min.pop();
+    min.push(x);
+    return x;
+}
+
+/* Driver program to test SpecialStack methods */
+int main()
+{
+    SpecialStack s;
+    s.push(10);
+    s.push(20);
+    s.push(30);
+    cout<<s.getMin()<<endl;
+    s.push(5);
+    cout<<s.getMin();
+    return 0;
+}
+ Output: 10 5 Space Optimized Version The above approach can be optimized. We can limit the number of elements in auxiliary stack. We can push only when the incoming element of main stack is smaller than or equal to top of auxiliary stack. Similarly during pop, if the pop off element equal to top of auxiliary stack, remove the top element of auxiliary stack. Following is modified implementation of push() and pop(). 
+/* SpecialStack's member method to insert an element to it. This method
+   makes sure that the min stack is also updated with appropriate minimum
+   values */
+void SpecialStack::push(int x)
+{
+    if(isEmpty()==true)
+    {
+        Stack::push(x);
+        min.push(x);
+    }
+    else
+    {
+        Stack::push(x);
+        int y = min.pop();
+        min.push(y);
+ 
+        /* push only when the incoming element of main stack is smaller 
+        than or equal to top of auxiliary stack */
+        if( x <= y )
+          min.push(x);
+    }
+}
+
+/* SpecialStack's member method to remove an element from it. This method
+   removes top element from min stack also. */
+int SpecialStack::pop()
+{
+    int x = Stack::pop();
+    int y = min.pop();
+
+    /* Push the popped element y  back only if it is not equal to x */
+    if ( y != x )
+      min.push(x);
+
+    return x;
+}
+ Thanks to @Venki, @swarup and @Jing Huang for their inputs. Please write comments if you find the above code incorrect, or find other ways to solve the same problem.           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: stack, Stack-Queue, StackAndQueue Tweet Writing code in comment? Please use ideone.com and share the link here. Poulami Biswas In the first code, there is a portion where we are popping an element from the min stack and pushing it back and then we are making the comparison with the new element that has arrived and based on that we are pushing the element again in the stack. What is the need for the first push into the min stack? It seems redundant to me. Poulami Biswas In the first code, there is a portion where we are popping an element from the min stack and pushing it back and then we are making the comparison with the new element that has arrived and based on that we are pushing the element again in the stack. What is the need for the first push into the min stack? It seems redundant to me. pacific02 why we are using a auxilary stack for findiing min, we can just use a variable??? and can any one explain how it takes O(1) time??????? algo1 Say you have some 3 elements in the stack and the min variable tracks the minimum value in the stack.The stack is like 1 3 2 and the min variable value is 1. Now if you perform a pop operation than the stack is 3 2 and for updating the min value of the current stack you have to actually traverse through the entire stack algo1 Say you have some 3 elements in the stack and the min variable tracks the minimum value in the stack.The stack is like 1 3 2 and the min variable value is 1. Now if you perform a pop operation than the stack is 3 2 and for updating the min value of the current stack you have to actually traverse through the entire stack Abhishek Here is the generic stack implementation: Stack.java: package com.example.abhishek; public class Stack { private Object [] stackElements; private int top; Stack(int size) { stackElements=new Object[size]; top=-1; } public Object pop() { if(top==-1) { return null; } top–; return stackElements[top+1]; } public void push(T newElement) { try { stackElements[top+1]=newElement; top++; } catch(ArrayIndexOutOfBoundsException e) { System.out.println(e); } } public boolean isEmpty() { if(top==-1) return true; else return false; } } TestStack.java: package com.example.abhishek; public class TestStack { public static void main(String [] args) { Stack si = new Stack(5); si.push(10); si.push(20); si.push(30); si.push(40); si.push(50); while(!si.isEmpty()) { System.out.println(si.pop().toString()); } Stack sd = new Stack(5); sd.push(10.10); sd.push(20.20); sd.push(30.30); sd.push(40.40); sd.push(50.50); while(!sd.isEmpty()) { System.out.println(sd.pop().toString()); } } } raghson  
+/* 
+
+#include<stdio.h>
+#include<stdbool.h>
+#define MAX 10
+
+struct Stack
+{
+    int top;
+    int *arr;
+};
+
+typedef struct Stack stack;
+
+bool isEmpty(stack *temp)
+{
+    return temp->top==-1;
+}
+
+bool isFull(stack *temp)
+{
+    return temp->top==MAX-1;
+}
+
+stack* createStack()
+{
+    stack * temp = (stack *) malloc(sizeof(stack));
+    temp->top=-1;
+    temp->arr = malloc (sizeof(int)*MAX);
+    return temp;
+}
+
+void push(stack *temp, int x)
+{
+if(isFull(temp))
+   return;
+  ++(temp->top);
+   temp->arr[temp->top]=x;
+}
+
+int pop (stack *temp)
+{
+    if(isEmpty(temp))
+        return;
+    return temp->arr[temp->top--];
+}
+
+struct specialStack
+{
+    stack min;
+    stack *org;
+};
+
+typedef struct specialStack specialStack;
+
+specialStack* createSpecialStack()
+{
+    specialStack *temp = (specialStack *) malloc(sizeof (specialStack));
+    temp->min   = * ((stack *) createStack());
+    temp->org = createStack();
+    return temp;
+}
+
+void pushS(specialStack *temp, int x)
+{
+    if(isEmpty(temp->org)==true)
+    {
+        push(temp->org,x);
+        push(&(temp->min),x);
+    }
+    else
+    {
+        push(temp->org,x);
+        int y = getMinS(temp);
+
+        if(x<=y)
+         push(&(temp->min),x);
+    }
+}
+
+int getMinS(specialStack *temp)
+{
+     int y = pop(&(temp->min));
+     push(&(temp->min),y);
+     return y;
+}
+
+int popS(specialStack *temp)
+{
+    int x = pop(temp->org);
+    int y = getMinS(temp);
+
+    if(x==y)
+      pop(&(temp->min));
+
+    return x;
+}
+
+void display(stack *temp)
+{
+    int i = 0;
+    printf("\n Content");
+    while(i<=temp->top)
+       printf("%d->",temp->arr[i++]);
+}
+
+int main(void)
+{
+specialStack *var = createSpecialStack();
+
+display (var->org);
+
+pushS(var,5);
+pushS(var,25);
+pushS(var,0);
+pushS(var,3);
+
+display (var->org);
+
+printf("\n%d", getMinS(var));
+
+popS(var);
+popS(var);
+
+printf("\n%d", getMinS(var));
+
+return 0;
+}
+*/
+ arun In Space Optimized Version’s pop() operation must have min.push(y) not min.push(x);  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ankur How to implement the same thing with queues Say Design and Implement special queue structure with enqueue,dequeue and getMin operations in O(1) time reg_frenzy Another solution, if using an extra stack is not allowed would be to modify the stack data structure to include the details of the min element. struct node{ int data; struct node* next; int minValue; } So, whenever we would get a new element, we could do a peek on the existing top element and compare its min value with the current node’s value. If the current element is smaller we could insert the new element into the stack and update its min value to be its current value. If the min value stored in the top element is smaller, we could set the min value of the current element as the top’s min value. This way, we could get the min value at any point in O(1) by just checking the min value of the top element. rahulmaximus what do u do when you delete it ….pop operation where is the previous stored reg_frenzy Since every node in the stack stores the minimum in the stack at that point in time, even if we pop the top element, the new top will contain the minimim element from the, current stack at that time. reg_frenzy Consider the following stack. The value in the paranthesis represents in the min value stored in that node, included in the structure along with the data: 10(6) —> Top 45(6) 12(6) 6(6) 53(31) 31(31) Now, suppose we want to instert item 1 into the stack. Upon instert, we do this: if(newNoda.data Top 10(6) 45(6) 12(6) 6(6) 53(31) 31(31) Now, if we want to delete the items 1 and 10 from the stack. The stack becomes 45(6) —> Top 12(6) 6(6) 53(31) 31(31) We can still get the min value from the top in O(1) time. This way the operations will all be O(1). But, however we might have to allocate extra space foe storing the min value in each of the nodes, even though this might be redundant. This will be solution if do not want an extra stack. reg_frenzy My code did not get copied previously   if(newNoda.data < Top.minValue) newNode.minValue = newNode.data; else newNode.minValue = Top.minValue; http://rahulmaximus.wordpress.com Rahul nice http://rahulmaximus.wordpress.com Rahul but space required would be more…anyways a good thought http://rahulmaximus.wordpress.com/ rahulmaximus  
+///used the same thing, but implemented using linked ///list,comments appreciated
+
+using namespace std;
+
+struct node
+{
+     int data;
+     struct node *next;
+};
+
+
+
+class tree
+{    public:
+     struct node *head;
+     int count;
+     
+     tree()
+     {     
+          
+          head=NULL;
+          count=0;
+     }
+     void push(int x);
+     int pop();
+     int stacktop();
+};
+
+int tree::pop()
+{int x;
+
+     if(head==NULL)
+     {
+          printf("\nUnderflow\n");
+          return -1;
+     }
+     else
+     {    x=head->data;
+          struct node * temp;
+          cout<<"\nThe poped element is "<data<next;
+          free(temp);
+          count--;
+          return x;      
+     }
+}
+
+void tree::push(int x)
+{
+     if(count==10)
+     {
+          printf("\noverflow\n");
+     }
+     else
+     {     
+          
+          struct node * temp;
+          temp=(struct node *)malloc(sizeof(node));
+          temp->data=x;
+          temp->next=head;
+          head=temp;
+          count++;
+     }
+}
+
+int tree::stacktop()
+{
+     if(head!=NULL)
+     return head->data;
+     else
+     return INT_MAX;
+} 
+
+
+class bacha:public tree
+{    
+     tree mine; 
+     public:
+    
+    
+     void push()
+     {
+          int x;
+     
+          cout<>x;
+          tree::push(x);
+          cout<<"\nThe stack top in the main is "<=x)      //////most important
+          {
+               mine.push(x);
+          }
+     }
+     
+     
+     
+     void pop()
+     {
+               int x;
+     
+
+               x=tree::pop();
+               cout<<"\nThe element poped in the main is "<<x<<"\n";
+               if(mine.stacktop()==x)
+               {
+                    mine.pop();
+               }
+
+     }
+     
+     
+     void stackmin()
+     {
+          if(mine.head)
+          cout<data;
+     }
+     
+          
+
+
+};
+
+
+
+
+int main()
+{
+     int ans=5;
+     bacha s1;
+     int stacktop=0;
+     
+     do
+     {
+          cout<>ans;
+          cout<<"\n\n";
+          switch(ans)
+          {
+               case 1:
+                    s1.pop();
+                    break;
+               case 2:
+                    s1.push();
+                    break;
+               case 3:
+                    stacktop=s1.stacktop();
+                    cout<<"\n\nThe stack top is "<<stacktop<<"\n";
+                    break;
+               case 4:
+                    s1.stackmin();
+                    break;
+               case 5:
+                    cout<<"\nTHANK U!!!";
+                    break;
+          }
+           
+     }while(ans!=5);
+     system("pause");
+     return 0;
+}
+ http://rahulmaximus.wordpress.com/ rahulmaximus @Jing Huang nice wrk with the equal to http://geeksforgeeks.org/ Sandeep @Venki & @swarup: Your approach is definitely more efficient and should work for all cases. I will update the post and add this approach. http://geeksforgeeks.org/?page_id=2 Venki Why do we need to push auxiliary stack for every push of main stack? We should push only when the incoming element of main stack is smaller than top of auxiliary stack. Similarly during pop, if the pop off element equal to top of auxiliary stack, remove the top element of auxiliary stack. Is there any lacuna in the above approach? Or is there any corner case that fails? Jing Huang I think “We should push only when the incoming element of main stack is smaller than or equal to top of auxiliary stack.” So that dup elements are counted. Gangs How about poping the minimum element from the stack? For example, assume the current value of the stacks are as below Actual Stack 16 <— top 15 29 19 18 Auxiliary Stack 15 <—- top 15 15 18 18 Operation 1: Pop 16, both stacks should have the following Actual Stack 15 <— top 29 19 18 Auxiliary Stack 15 <—- top 15 18 18 Operation 2: Again If I do a POP (15), both stacks will have the following Actual Stack 29 <— top 19 18 Auxiliary Stack 15<—- top 18 18 So, Now If I invoke s.getMin(), the 15 will be returned.But, there is no value 15 in actual stack. Is this correct? swarup I think there is a typo in the last operation > When 16 is inserted, both stacks change to following. the stacks should look like: Actual Stack 16 <— top 15 29 19 18 Auxiliary Stack 15 <—- top 15 18 <—- NOT 15 18 18 Alternative space optimizing approach would be to — * push to min stack only if top element is not minimum (i.e. equal or less). * pop from min stack only if top element is equal. In the best case, if the very first element is minimum then min stack would hold only 1 element. GeeksforGeeks @Gangs & @swarup: Thanks for pointing this out. We have corrected the typo. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

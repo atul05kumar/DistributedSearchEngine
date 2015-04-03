@@ -1,0 +1,257 @@
+Write a function to get the intersection point of two Linked Lists. - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Write a function to get the intersection point of two Linked Lists. There are two singly linked lists in a system. By some programming error the end node of one of the linked list got linked into the second list, forming a inverted Y shaped list. Write a program to get the point where two linked list merge. Above diagram shows an example with two linked list having 15 as intersection point. Method 1(Simply use two loops) Use 2 nested for loops. Outer loop will be for each node of the 1st list and inner loop will be for 2nd list. In the inner loop, check if any of nodes of 2nd list is same as the current node of first linked list. Time complexity of this method will be O(mn) where m and n are the number of nodes in two lists. Method 2 (Mark Visited Nodes) This solution requires modifications to basic linked list data structure. Have a visited flag with each node. Traverse the first linked list and keep marking visited nodes. Now traverse second linked list, If you see a visited node again then there is an intersection point, return the intersecting node. This solution works in O(m+n) but requires additional information with each node. A variation of this solution that doesn’t require modification to basic data structure can be implemented using hash. Traverse the first linked list and store the addresses of visited nodes in a hash. Now traverse the second linked list and if you see an address that already exists in hash then return the intersecting node. Method 3(Using difference of node counts) 1) Get count of the nodes in first list, let count be c1. 2) Get count of the nodes in second list, let count be c2. 3) Get the difference of counts d = abs(c1 – c2) 4) Now traverse the bigger list from the first node till d nodes so that from here onwards both the lists have equal no of nodes. 5) Then we can traverse both the lists in parallel till we come across a common node. (Note that getting a common node is done by comparing the address of the nodes) 
+#include<stdio.h>
+#include<stdlib.h>
+
+/* Link list node */
+struct node
+{
+  int data;
+  struct node* next;
+};
+
+/* Function to get the counts of node in a linked list */
+int getCount(struct node* head);
+
+/* function to get the intersection point of two linked
+   lists head1 and head2 where head1 has d more nodes than
+   head2 */
+int _getIntesectionNode(int d, struct node* head1, struct node* head2);
+
+/* function to get the intersection point of two linked
+   lists head1 and head2 */
+int getIntesectionNode(struct node* head1, struct node* head2)
+{
+  int c1 = getCount(head1);
+  int c2 = getCount(head2);
+  int d;
+
+  if(c1 > c2)
+  {
+    d = c1 - c2;
+    return _getIntesectionNode(d, head1, head2);
+  }
+  else
+  {
+    d = c2 - c1;
+    return _getIntesectionNode(d, head2, head1);
+  }
+}
+
+/* function to get the intersection point of two linked
+   lists head1 and head2 where head1 has d more nodes than
+   head2 */
+int _getIntesectionNode(int d, struct node* head1, struct node* head2)
+{
+  int i;
+  struct node* current1 = head1;
+  struct node* current2 = head2;
+
+  for(i = 0; i < d; i++)
+  {
+    if(current1 == NULL)
+    {  return -1; }
+    current1 = current1->next;
+  }
+
+  while(current1 !=  NULL && current2 != NULL)
+  {
+    if(current1 == current2)
+      return current1->data;
+    current1= current1->next;
+    current2= current2->next;
+  }
+
+  return -1;
+}
+
+/* Takes head pointer of the linked list and
+   returns the count of nodes in the list */
+int getCount(struct node* head)
+{
+  struct node* current = head;
+  int count = 0;
+
+  while (current != NULL)
+  {
+    count++;
+    current = current->next;
+  }
+
+  return count;
+}
+
+/* IGNORE THE BELOW LINES OF CODE. THESE LINES
+   ARE JUST TO QUICKLY TEST THE ABOVE FUNCTION */
+int main()
+{
+  /*
+    Create two linked lists
+
+    1st 3->6->9->15->30
+    2nd 10->15->30
+
+    15 is the intersection point
+  */
+
+  struct node* newNode;
+  struct node* head1 =
+            (struct node*) malloc(sizeof(struct node));
+  head1->data  = 10;
+
+  struct node* head2 =
+            (struct node*) malloc(sizeof(struct node));
+  head2->data  = 3;
+
+  newNode = (struct node*) malloc (sizeof(struct node));
+  newNode->data = 6;
+  head2->next = newNode;
+
+  newNode = (struct node*) malloc (sizeof(struct node));
+  newNode->data = 9;
+  head2->next->next = newNode;
+
+  newNode = (struct node*) malloc (sizeof(struct node));
+  newNode->data = 15;
+  head1->next = newNode;
+  head2->next->next->next  = newNode;
+
+  newNode = (struct node*) malloc (sizeof(struct node));
+  newNode->data = 30;
+  head1->next->next= newNode;
+
+  head1->next->next->next = NULL;
+
+  printf("\n The node of intersection is %d \n",
+          getIntesectionNode(head1, head2));
+
+  getchar();
+}
+ Time Complexity: O(m+n) Auxiliary Space: O(1) Method 4(Make circle in first list) Thanks to Saravanan Man for providing below solution. 1. Traverse the first linked list(count the elements) and make a circular linked list. (Remember last node so that we can break the circle later on). 2. Now view the problem as find the loop in the second linked list. So the problem is solved. 3. Since we already know the length of the loop(size of first linked list) we can traverse those many number of nodes in second list, and then start another pointer from the beginning of second list. we have to traverse until they are equal, and that is the required intersection point. 4. remove the circle from the linked list. Time Complexity: O(m+n) Auxiliary Space: O(1) Method 5 (Reverse the first list and make equations) Thanks to Saravanan Mani for providing this method. 
+1) Let X be the length of the first linked list until intersection point.
+   Let Y be the length of the second linked list until the intersection point.
+   Let Z be the length of the linked list from intersection point to End of
+   the linked list including the intersection node.
+   We Have
+           X + Z = C1;
+           Y + Z = C2;
+2) Reverse first linked list.
+3) Traverse Second linked list. Let C3 be the length of second list - 1. 
+     Now we have
+        X + Y = C3
+     We have 3 linear equations. By solving them, we get
+       X = (C1 + C3 – C2)/2;
+       Y = (C2 + C3 – C1)/2;
+       Z = (C1 + C2 – C3)/2;
+      WE GOT THE INTERSECTION POINT.
+4)  Reverse first linked list.
+ Advantage: No Comparison of pointers. Disadvantage : Modifying linked list(Reversing list). Time complexity: O(m+n) Auxiliary Space: O(1) Method 6 (Traverse both lists and compare addresses of last nodes) This method is only to detect if there is an intersection point or not. (Thanks to NeoTheSaviour for suggesting this) 
+1) Traverse the list 1, store the last node address
+2) Traverse the list 2, store the last node address.
+3) If nodes stored in 1 and 2 are same then they are intersecting.
+ Time complexity of this method is O(m+n) and used Auxiliary space is O(1) Please write comments if you find any bug in the above algorithm or a better way to solve the same problem.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. Dilip Kumar If the address of last node is same then there is intersection otherwise not. To find the intersection node, we reverse both the list and compare the adddress. We traverse till we get the address of the node in both list same. If the address differs then the previous node is the intersection node. Neha Garg in method no. 5 i m not getting which is c3 .. there is confusion in 3rd step … somebody plz explain what is c3 and how it is equals to sum of x and y nij #include #include //#include struct student { struct student *next; char name[10]; int clas; }*first,*current,*last,*data,*temp,*te; void append(struct student *); void delet(struct student *); void display(struct student *data,struct student *first); void main() { int choice; data=(struct student*)malloc(sizeof(struct student)); last=NULL; first=data; printf(“enter the record of studentsnn”); printf(“nName:”); scanf(“%s”,data->name); printf(“Class:”); scanf(“%d”,&data->clas); data->next=NULL; printf(“**ENTER YOUR CHOICE**n”); while(1) { printf(“n1:Append a recordn2:Delete last recordn3:Displayn4:To quitn”); scanf(“%d”,&choice); switch(choice) { case 1: append(data); break; case 2: delet(data); break; case 3: display(data,first); break; case 4: exit(0); } } } void append(struct student *data) { printf(“Enter new recordnName:”); if(data->next==NULL) { last=(struct student*)malloc(sizeof(struct student)); data->next=last; data=data->next; data=(struct student*)malloc(sizeof(struct student)); data->next=NULL; scanf(“%s”,last->name); printf(“nClass:”); scanf(“%d”,&last->clas); } else { while(data->next!=NULL) { data=data->next; } last=(struct student*)malloc(sizeof(struct student)); data->next=last; data=data->next; data=(struct student*)malloc(sizeof(struct student)); data->next=NULL; scanf(“%s”,last->name); printf(“nClass:”); scanf(“%d”,&last->clas); } } void delet(struct student *data) { temp=first; while(data->next!=NULL) { te=data; data=data->next; temp=data; } if(temp!=first) { data=te; data->next=NULL; last=data; free(temp); } else { free(data); first=NULL; } } void display(struct student *data,struct student *first) { data=first; if(data!=NULL) { while(data!=NULL) { printf(“Name:%sn”,data->name); printf(“Class:%dn”,data->clas); data=data->next; } } else { printf(“n****EMPTY RECORD****”); Himanshu Dagar Can anyone explain method 5 in more detail I am not getting that how to implement it and what should be the final condition for checking the intersection point trishul shetty HI,*finding intersection this program is more easier than this*/ /*trishul shetty*/ struct node { int data; struct node *next; }; int main() { struct node *temp2,*temp1,*head1,*head2; struct node *newnode1,*newnode2; /* 1st node of new 1 */ newnode1=(struct node*)malloc(sizeof(struct node)); newnode1->data=10; newnode1->next=NULL; temp1=newnode1; head1=newnode1; /*second node of new 1*/ newnode1=(struct node*)malloc(sizeof(struct node)); newnode1->data=30; newnode1->next=NULL; temp1->next=newnode1; temp1=temp1->next; /* 1st node of new 2 */ newnode2=(struct node*)malloc(sizeof(struct node)); newnode2->data=15; newnode2->next=NULL; temp2=newnode2; head2=newnode2; /*second node of new 2*/ newnode2=(struct node*)malloc(sizeof(struct node)); newnode2->data=35; newnode2->next=NULL; temp2->next=newnode2; temp2=temp2->next; /*second node of new 2*/ newnode2=(struct node*)malloc(sizeof(struct node)); newnode2->data=25; newnode2->next=NULL; temp2->next=newnode2; temp2=temp2->next; /*common node*/ newnode2=(struct node*)malloc(sizeof(struct node)); newnode2->data=40; newnode2->next=NULL; temp1->next=newnode2; temp2->next=newnode2; for(temp2=head2;temp2!=NULL;temp2=temp2->next) { printf(“%dt”,temp2->data); } /* printf(“n The node of intersection is %d n”,*/ getIntesectionNode(head1, head2); getchar(); } /*inter section*/ int getIntesectionNode(struct node *head1,struct node * head2) { int count1=0,count2=0,i,j; struct node *cur1=head1; struct node *cur2=head2; while(cur1!=NULL) { cur2=head2; while(cur2!=NULL) { if(cur1==cur2) { printf(“inter”); printf(“%d”,cur2->data); return; } cur2=cur2->next; } cur1=cur1->next; } } N30pHyT3 Doubt in Method 6 : – An intersection between the linked-lists cannot guarantee the last node to be same. After intersection, it may be possible that one list ends early and other lasts long. So I think this method will not work even if there is a intersection. Jayanth I don’t get your point…When there is an intersection point it means that from that intersection point both the lists are essentially the same…So naturally Method 6 will work…Can u explain ur thought with an example… neelabhsingh Please check for first method-1 Node * isIntersect(Node *L1, Node *L2 ) { while(L1) { while(L2) { if(L1==L2) return L1 else L2=L2->next; } L1=L1->next; } return NULL } BarathVutukuri One can traverse the list in reverse order and at the intersecting point there will be 2 addresses to be pointing by a node,so we can easily find the intersecting node. ottobert i think this is the most basic solution, it also came to my mind before others. vijaynitj Alogorithm: step1: Take 1st list and set all its node with value 0. step2: Take 2nd list and set all its node with value 1. step3: Now traverse 1st list until its node value change to 1. step4: Save that node address and it wii be the intersection point of two Linked Lists. abc But if you will change the node value by 0 and 1 then you will lose original intersected node value. c programer yes c programer Please describe with logic teja method -6 l1= 1->2->3->4>-5>->6 l2 = 8->3->7 if we traverse the first list and store the last node’s(6) address would be x and now traverse the list l2 and store the last node’s(7) address would be definitely y which is different from x. Is this what approach says, pls correct me if i am wrong? Induct after node 3 there will be only one linked list not two ,so there address will be same satya Hi, If we can store each link list’s node address in 2 different stack a&b and than start poping element till we find a != b. Then a->next will be the intersection point. koolkeshaw @geeksforgeeks I think the following linked list are not intersecting L1:- 1->2->3->4->5->null L2:- 3->4->5->null But as per method 6 the linked list are intersecting please do rectify me if I am wrong…. rakesh mahadasa Arey here last node is 5 Not NULL Last node means the node before null rakesh mahadasa oops sorry the last node address of both the linked list will be different we are comparing the address not the value in a node koolkeshaw @rakesh mahadasa can’t give a pictorial representation. So wrote in that manner. L2 is a subset of L1 i.e. L2 points to node 3 of L1. Node 4& node 5 r common to both L1 & L2.. wrote null just to show the end of linked list rakesh mahadasa if l2 is a subset of l1 then there is no point of intersection ryt :p 4m7u1 Method 3 is beautiful but I’ve got a small doubt, what if the given lists are 15->3->6->9 and 10->15; after taking the difference and traversing difference number of nodes in list 1 , we miss out on on the intersection element itself.. Help me clarify my doubt..Thank you.. rakesh mahadasa U Got that completely wrong… Once draw the linked list u told on a paper… u will get it as 10->15->3->6->9 so there is no intersection dudeee its just a single linked list :p  
+/* Paste your code here (You may delete these lines if not writing code) */
+ 4m7u1 haha..silly me ! I understood the code now, thanks btw abhishek08aug Intelligent Ramesh.Mxian Method 4 will not work if the length of second linked list before the inter section is greater than the length of the first linked list. For Example: L1: 1->2->3->4 L2: 10->2–>30->40->50->60->70->3 Here the intersection point is 3. But method 4 will not give the correct result. rakesh mahadasa anything after the intersection must be same for both the linked lists so in ur example the second linked must be L2: 10->2–>30->40->50->60->70->3->4 thepace Hi, Please verify this solution using implementation. Code link void getIntesectionNode(struct node* head1, struct node* head2) { if(head1!=NULL && head1->next!=NULL) getIntesectionNode(head1->next,head2); if(head2!=NULL && head2->next!=NULL) getIntesectionNode(head1,head2->next); if((head1!=head2)&& (head1->next==head2->next)) printf(“INTERSECTION POINT =%d”,head2->next->data); } Maya I have this following solution based on merge sort. It takes Sorted lists only. Please correct me if you find any bug.  
+/* Paste your code here (You may delete these lines if not writing code) */
+public void findIntersect ( SortedList list1 , SortedList list2)
+	{
+		List l1 = list1.head;
+		List l2 = list2.head;
+		SortedList newlist = new SortedList();
+		boolean flag = true;
+		List mylist = null;
+		
+		if( l1 == null | l2 == null	)
+		{
+			System.out.println("Either List is Empty Can not Proceed");
+		}
+		else
+		{
+			while(l1 != null && l2!=null )
+			{
+				if( l1.data < l2.data & flag)
+				{
+					l1 = l1.next;
+				}
+				else if ( l1.data > l2.data & flag)
+				{
+					l2 = l2.next;
+				}
+				else if ( l1.data == l2.data)
+				{
+					newlist.insert(l1.data);
+					l1 = l1.next;
+					l2 = l2.next;
+					flag = false;
+				}
+				else
+				{
+					flag = true;
+					break;
+				}
+			}
+		}
+		if(flag)
+			System.out.println("No Y Intersection Found");
+		else
+			System.out.println("They have common Y Intersection");
+		
+		
+ ABHINAV OK for this just take mappings of values in link list 1 e.g 1->2->4->6(list 1) and 3->4->6 now for each 1,2,4,6 make its map value to 1 now traverse 2nd list value at 3 is not 1 but of 4 is 1 now check if its next nodes value i.e 6 has also 1 (#imp)if next nodei.e 6 till null is not 1 then 4 is not intersection plz tell me if you find something wrong akshat gupta @geeksforgeeks: just a minor correction in Method 5: C3 = X + Y + 1(intersecting point) Guest @admin: Please update the relevant changes which suggested by akash gupta in the post. Peiyao Hi, if extra storage is allowed here. I think we could use two stacks based on your illustration chart. First iterate two linkedList and push each Node into corresponding stack. Next, pop up the nodes until different one. /* Paste your code here (You may delete these lines if not writing code) */ pubic static LinkedListNode findIntersection(LinkedListNode a, LinkedListNode b){ // allocate two stacks Stack<Item> stackA = new Stack<Item>(); Stack<Item> stackB = new Stack<Item>(); LinkedListNode currentA = a; LinkedListNode currentB = b; // push items into corresponding stacks while(currentA.next! = null){ stackA.push(currentA.data); currentA = currentA.next; } while(currentB.next! = null){ stackB.push(currentB.data); currentB = currentB.next; } // pop up the item and compare to find different one and return one before different // one LinkedList lastNode = new LinkedListNode(); while(!stackA.isEmpty()&& !stackB.isEmpty()){ nodeA = stackA.pop(); nodeB = stackB.pop(); if(nodeA.data != nodeB.data) return lastNode; else lastNode = nodeA; } return; } khushi thanx alot sir…  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://fishoilbenefits.in/ Fish Oil Benefits Hello, this weekend is fastidious designed for me, for the reason that this moment i am reading this wonderful educational piece of writing here at my home. http://www.nikoo28.blogspot.com nikoo28 the last method is completely futile..it uses time O(m+n) and then also we do not get any useful result.. ABC In Method 3, counting number of nodes again requires O(n), Isn’it, so complexity increases. codinglearner the problem cud also be solved by the use of stacks….. Spider gud one Pranay Singhania @codinglearner Can You tell me how this problem can be solved by using STACK  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Mayautobot This problem can be solved using two stacks for each linked list. Traverse both linked list and push addresses in their respective stacks. Now, pop elements one by one from both stacks if their address are same and remember the last popped address. The moment their top addresses differ your last popped address will be your intersection of the two linked list. Neha Garg but this will take extra space of o(m+n)… so we can just reverse both the list and come up with same approach laddoo  
+int getIntesectionNode(struct node* head1, struct node* head2)
+{
+    if(head1==NULL && head2!=NULL)
+    getIntesectionNode(head1,head2->next);
+    else if(head2==NULL && head1!=NULL)
+    getIntesectionNode(head1->next,head2);
+    else if(head1==NULL && head2==NULL)
+    return 1;
+    else
+    getIntesectionNode(head1->next,head2->next);
+    
+    if(head1->next==head2->next)
+    printf("Intersection Point is = %d.",head1->next->data);
+    
+    return 1;
+}
+ Guyz..wat abt this? http://www.nikoo28.blogspot.com nikoo28 this code will not work… Richa Is it really necessary to use current1 and current2 in the function? I guess just one current is enough for the first for loop. For while we can use head1 and head2 only right? Why take extra space. ravi hari please reply. Steve 1.) Reverse both the lists. 2.)loop until both of the data are equal 2.1 store data in temporary variable. 2.2 move to the next element in both the list 3.) the temporary variable contains the intersection element. radhe Solution 3 is incorrect kartik See this comment. Amby Solution 3 doesn;t seems to be work for below example, List1: 1,2,3,4,5,6,7 List2: 1,2,3,4  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik I think it should work for the example. Could you provide the code that you tried? SilverSurfer I m bit confused abt 3rd soln of above problem(By finding out difference.) Lets consider a scenario.My lists are as follows L1=1->2->3->4->5 L2=7->2 For my L1,head is at 1.For L2 ,head is at 7. so as per solution proposed,difference of number nodes is 3. so we will traverse L1 till this difference will not get clear.So we will traverse up to node 3. After that we will compare values.And we will get no value same.So we will return 0. But intersection point is 2 as per given lists. Is my understanding is proper? If not, plz clarify. If yes,then this solution is wrong. radhe Yes. Solution 3 seems to be incorrect. kartik @SilverSurfer & @radhe: Take a closer look at the problem statement. The example linked lists given by you is not a valid example. If 2 is intersection point of given linked lists then nodes after 2 have to be common in both the lists. sreekanth @Kartik, The 3rd soln returns the 1st equal node in both the lists. Consider this 8->9->1->10->2->3->4->5->6 10->15->3->4->5->6 The function getIntesectionNode will return 10 but the correct node is 3. Prabhakar @sreekanth The checking for common node is done through addresses so solution 3 is correct. rakesh mahadasa here we r not comparing the value stored in nodes instead we r comparing the addresses read carefully  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Prasad how about hashing the address of the node so if the nodes are revisited we can find it out and hence the intersection point Correct me if i am wrong sukhmeet2390 But it Requires auxiliary space.. !! intel2390 In method 1: I think can’t there be a possibility that the two LL have a common element and it is still not the intersection point.. EG: LL1: 1->2->3->4->5->6->NULL LL2: 2->7->8->5->6->NULL.. Here we will find 2 form method 1 .. which is not the case.. Fanendra the equality will be checked on the whole node. i mean to say the node data as well as the next pointer. So it will work fine. NeoTheSaviour Method 6, I do not understand, why we need to do so much if it does not give intersection point. Method 6 can simply be replaced with 1) Traverse the list 1, store the last node address 2) Traverse the list 2, store the last node address. If nodes stored in 1 and 2 are same they are intersecting. GeeksforGeeks @NeoTheSaviour: Thanks for suggesting this method. We have replaced method 6 with this one. curious Can you please clarify whether this means traverse both lists to their ends and compare the end nodes? kartik @curious: Yes, @NeoTheSaviour means the same. Boing I have been here all day .:) Boing This is awesome . I have been here all day .:) Swagatika 1. reverse both the linked list so (30, 15, 10 ) and (30, 15, 9, 6, 3) 2. take the biggerlist in outer loop and small one in the inner loop 3. keep checking every element in outer should match with inner element. 4. keep storing the last matched value in a variable. 5. At the node where it does not match come out of loop and the value stored in the variable is the merging point. mit This solution is given for sorted link list. How wil we do if list is unsorted and constraints are: O(1) space and less than O(n^2) complexity ? bala @mit: The example given for the problem in sorted but all the solutions given work for unsorted lists too . kevalvora Amazing solutions! I have a solution which works for numerical values (for other types, some changes may be required): 1. Compute the sum of all nodes in list1, let it be old_sum 2. Traverse list2 and add ‘1’ to each node of list2 3. Re-compute the sum of all nodes in list1, let it be new_sum 4. Difference between new_sum and old_sum is the number of common nodes, let diff = (new_sum – old_sum). If diff == 0, lists do not intersect, Else, intersection is at (size(list1) – diff) 5. Traverse list2 and subtract ‘1’ from each node of list2 to get the original list back aravind646 No way!! Yur solution fails if the point of intersection is the last node of LLs. chk tat. kevalvora I can’t see why it fails. Eg: LL1: 2 4 6 8 10 LL2: 1 3 6 7 10 LL1 and LL2 intersect at last node 10. Now, old_sum = 2+4+6+8+10 = 30 LL2 is incremented by 1: LL2 becomes: 2 4 7 8 11 LL1 becomes: 2 4 6 8 11 new_sum = 2+4+6+8+11 = 31 diff = new_sum – old_sum = 31 – 30 = 1 no. of common nodes = diff = 1 intersection point = (size(list1)–diff) = 5-1 = 4 LL2 is decremented by 1: LL2 becomes: 1 3 6 7 10 LL1 becomes: 2 4 6 8 10 Let me know which case you were talking about. anuj This method does not guarantees that two linked list are actually intersecting or not… The solution is actually for finding the number of common nodes with same data value only but not the exactly the same node for the given two linked list. Sumeet Talking about method 5: I find the definitions of X and Y ambiguous. Should you consider the node at intersection while calculating X and Y? If that is the case then C3 = X + Y – 1; else C3 = X + Y + 1; shantanu hi! i think method3 is the most preferrable method.. so, i m going to use that only…….. i also do’nt understood the method 4 and 2.. so please would you eloborate………… http://effprog.blogspot.com Sambasiva  
+
+typedef struct node node;
+
+node**  listtoarray(node *h)
+{
+        node* *tmp = NULL;
+        int count = 0;
+        while(h)
+        {
+                count++;
+                h = h->next;
+        }
+        if(count)
+                tmp = malloc(sizeof(node *) * count);
+
+        int i = 0;
+        while(h)
+        {
+                tmp[i++] = h;
+                h = h->next;
+        }
+
+        return tmp;
+}
+
+node *intersectNode(node **a, node **b, int m, int n)
+{
+        while(a[m--] == b[n--])
+        return a[m+1];
+}
+ Viv A simple problem but tons of confusing solutions !!!! ‘Einstein once said things should be kept as simple as possible but not simpler’… On this remark; I would say why should we be altering the underlying data structure ? Changing the internal generalised structure of the abstract data type just to solve the underlying problem is an extremely bad usage of OOPs concept(where you model your objects according to there behavior rather than going the other way around). My views on above implementations: a). Method 5 is a big NO !!!! I would not alter the structure at all because of above reasons. Moreover, how have you come up with the estimation of O(M+N) ? Did you neglect the fact that if your linked list is an exceptionally long chain of nodes; your list reversal time will dominate your actual problem solving time ? b). Method 4 is again an extraneous approach of solving this simple problem. Why do you need to traverse the entire list to get a count ? ‘Remember you already have a linked list in hand which is an ADT – and has a size method defined within its interface; so why not to use that’ ? If you have taken the assumption that you dont have any helper methods even in that case creation of a circular linked list would consume your time in situations of long linked lists. c). Method 2 also alters the underlying structure. So, out for me. d). Method 1 is simple and does not change the data struture but would be defeated due to the O(mn) time complexity. As per me; Method 3 being the most simple and practical approach. Beautifully designed. You are not changing the LinkedList implementation rather using its features to solve the problem. Moreover, does have a good time complexity of O(m+n); should have no bottlenecks even if a long linked list chain is passed. Let me know your views guys !!! lalit mohan a) Time complexity is measured correctly in method 5, reverse is linear operation b) It is assumed that you don’t have the count. In C++ std library std::list::size() method, the complexity is “Constant (recommended). Linear in some implementations.” c) Agree that the best methods are the non-intrusive ones. Sembium Varun Hey Hari, Your method can be used only to detect if the 2 linked lists intersect. It can’t be used for finding the intersection point. If only detection is needed, we could have traversed both the linked lists to reach their last node & check if it is same or not. There is no need to modify (reverse) a linked list. lalit mohan correct Baskaran Addresses are boundary aligned. Set the last bit for all next field in list 1. Traverse the second list, checking next->next &0x1. If it is set next is the intersection node. Reset the last bit for next field in list1. Time complexity: O(m+n). Twice of list 1 + uncommon number of nodes in list2. Space Complexity: O(1) geeksforgeeks @Saravanan Mani: Thanks again for providing the nice solution. We sincerely appreciate your contribution to the portal. Keep writing to us! Saravanan Mani 1) Let X be the length of the first linked list until intersection point. Let Y be the length of the second linked list until the intersection point. Let Z be the length of the linked list from intersection point to End of linked list. We Have X + Z = C1; Y + Z = C2; 2) Reverse first linked list. 3) Traverse Second linked list. Now we have X + Y = C3; We have 3 linear equations. By solving them, we get X = (C1 + C3 – C2)/2; Y = (C2 + C3 – C1)/2; Z = (C1 + C2 – C3)/2; WE GOT THE INTERSECTION POINT. 4) Reverse first linked list. Advantage: No Comparison of pointers. Disadvantage : Modifying linked list(Reversing list). geeksforgeeks @Saravanan Mani: Superb!! We have included this approach in our post Saravanan Mani 1. Traverse the first linked list(count the elements) and make a circular linked list. (Remember last node so that we can break the circle later on). 2. Now view the problem as find the loop in the second linked list. So the problem is solved. 3. Since we already know the length of the loop(size of first linked list) we can traverse those many number of nodes in second list, and then start another pointer from the beginning of second list. we have to traverse until they are equal, and that is the required intersection point. 4. remove the circle from the linked list. sathiyan k Hi, i can’t understand the point we have to traverse until they are equal. can u explain me it in above linklist diagram sudheer Thanks Hari for your good solution.Good work geeksforgeeks @Hari Prasad Perabattula: We have added the solution to the original post. geeksforgeeks @Hari Prasad Perabattula: Thanks for writing a new method. This method can be used to check if there is an intersection or not, but can we use this to get the intersection point also? Hari Prasad Perabattula 1). Store the header node of list l1. 2). Reverse the first list l1. 3). Traverse the second list until reaches NULL. 4). Check if the node just before NULL is the same as the header in step (1). 5). Reverse the list l1 to make it restore the original list. (I was asked this question in an interview. Btw, I was selected and still working for the same company..:-) ) ctwy My problem with this method is how to determine if the node just before NULL is the same as the header in step (1). For example, the last element, called B, in list 2 happens to be the same as the first one, called A, in the original list 1. If it is the case, we could not say if B is A unless we check their addresses. Any comments? ravi i think step 2 should come first then step 1. trace the above example the linked list in ‘Y’ shape. Patil l1 = 3->6->9->15->30->NULL l2 = 10->15->30->NULL as per u r algo. if we reverse the 1st list then list becomes 30->15->9->6->3->NULL then l2 becomes 10->15->9->6->3->NULL right.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

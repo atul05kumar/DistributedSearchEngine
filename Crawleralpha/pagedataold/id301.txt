@@ -1,0 +1,29 @@
+Multiply two integers without using multiplication, division and bitwise operators, and no loops - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Multiply two integers without using multiplication, division and bitwise operators, and no loops Asked by Kapil By making use of recursion, we can multiply two integers with the given constraints. To multiply x and y, recursively add x y times. Thanks to geek4u for suggesting this method. 
+#include<stdio.h>
+/* function to multiply two numbers x and y*/
+int multiply(int x, int y)
+{
+   /* 0  multiplied with anything gives 0 */
+   if(y == 0)
+     return 0;
+
+   /* Add x one by one */ 
+   if(y > 0 )
+     return (x + multiply(x, y-1));
+ 
+  /* the case where y is negative */ 
+   if(y < 0 )
+     return -multiply(x, -y);
+}
+
+int main()
+{
+  printf("\n %d", multiply(5, -11));
+  getchar();
+  return 0;
+}
+ Time Complexity: O(y) where y is the second argument to function multiply(). Please write comments if you find any of the above code/algorithm incorrect, or find better ways to solve the same problem.           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: MathematicalAlgo Tweet Writing code in comment? Please use ideone.com and share the link here. ARUN just compare the a,b ; run the loop less time , then add the number to avoid the time complexcity . abhishek08aug Intelligent st0le sorry, if (abs(x) < abs(y) ) return multiply (x,y) Hongjoo Lee But this will add two abs() calls and one comparison for each recursion. Hence, when there is no significant difference between the number of figures of the two parameters, or the smaller number has less figures than the difference of figures between the two numbers, I guess it will harm rather than reducing the complexity. st0le I suggest the following improvement. In the begining, if (x < y) return multiply(y,x); Complexity becomes O(min(x,y)) anji.swe public int multiplyOLogn(int a, int b) { int product=0; product = multiplyOLogn(a, b / 2); product = product + product; if (b%2==0) product = product + b; return product; } kartik The question says without division operator Mathmo For multiplying large ints may be better to compare and reorder so the smallest is the smallest (may need a calling function to handle this with out making lots of unnecessary comparisons). Also : if (y 0) … else uses 1 less comparison Also, nomenclature aside, this is effectively a do-while loop but with extra function calls. I am not sure what the function of this is. Mathmo sorry this didn’t post the way i wanted it to, the if-else bit should be:  
+if (y < 0){}
+else if (y > 0){}
+else{/*Here y is known to be 0, no need to check*/}
+ Ethan A recursive function is a function that keeps calling itself until the answer is found. Thus it IS a loop. Sabarish Super… Fantastic… Kkk. Plz give the detailed explanation of recursive function. Plz send to mail. GeeksforGeeks @gevorgk & @Mahesh: We have removed method 2 as the method was using division. Thanks for pointing this out. gevorgk very nice. question says – WITHOUT MULTIPLICATION, DIVISION AND BITWISE OPERATORS. And we have result = _multiply(x, y/2); Very funny Mahesh The question says do not use division and the second method uses division for ‘y/2′ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

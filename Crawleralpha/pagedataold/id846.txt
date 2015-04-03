@@ -1,0 +1,587 @@
+Count smaller elements on right side - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Count smaller elements on right side Write a function to count number of smaller elements on right of each element in an array. Given an unsorted array arr[] of distinct integers, construct another array countSmaller[] such that countSmaller[i] contains count of smaller elements on right side of each element arr[i] in array. Examples: 
+Input:   arr[] =  {12, 1, 2, 3, 0, 11, 4}
+Output:  countSmaller[]  =  {6, 1, 1, 1, 0, 1, 0} 
+
+(Corner Cases)
+Input:   arr[] =  {5, 4, 3, 2, 1}
+Output:  countSmaller[]  =  {4, 3, 2, 1, 0} 
+
+Input:   arr[] =  {1, 2, 3, 4, 5}
+Output:  countSmaller[]  =  {0, 0, 0, 0, 0}
+ Method 1 (Simple) Use two loops. The outer loop picks all elements from left to right. The inner loop iterates through all the elements on right side of the picked element and updates countSmaller[]. 
+void constructLowerArray (int *arr[], int *countSmaller, int n)
+{
+  int i, j;
+
+  // initialize all the counts in countSmaller array as 0
+  for  (i = 0; i < n; i++)
+     countSmaller[i] = 0;
+
+  for (i = 0; i < n; i++)
+  {
+    for (j = i+1; j < n; j++)
+    {
+       if (arr[j] < arr[i])
+         countSmaller[i]++;
+    }
+  }
+}
+
+/* Utility function that prints out an array on a line */
+void printArray(int arr[], int size)
+{
+  int i;
+  for (i=0; i < size; i++)
+    printf("%d ", arr[i]);
+
+  printf("\n");
+}
+
+// Driver program to test above functions
+int main()
+{
+  int arr[] = {12, 10, 5, 4, 2, 20, 6, 1, 0, 2};
+  int n = sizeof(arr)/sizeof(arr[0]);
+  int *low = (int *)malloc(sizeof(int)*n);
+  constructLowerArray(arr, low, n);
+  printArray(low, n);
+  return 0;
+}
+ Time Complexity: O(n^2) Auxiliary Space: O(1) Method 2 (Use Self Balancing BST) A Self Balancing Binary Search Tree (AVL, Red Black,.. etc) can be used to get the solution in O(nLogn) time complexity. We can augment these trees so that every node N contains size the subtree rooted with N. We have used AVL tree in the following implementation. We traverse the array from right to left and insert all elements one by one in an AVL tree. While inserting a new key in an AVL tree, we first compare the key with root. If key is greater than root, then it is greater than all the nodes in left subtree of root. So we add the size of left subtree to the count of smaller element for the key being inserted. We recursively follow the same approach for all nodes down the root. Following is C implementation. 
+#include<stdio.h>
+#include<stdlib.h>
+
+// An AVL tree node
+struct node
+{
+    int key;
+    struct node *left;
+    struct node *right;
+    int height;
+    int size; // size of the tree rooted with this node
+};
+
+// A utility function to get maximum of two integers
+int max(int a, int b);
+
+// A utility function to get height of the tree rooted with N
+int height(struct node *N)
+{
+    if (N == NULL)
+        return 0;
+    return N->height;
+}
+
+// A utility function to size of the tree of rooted with N
+int size(struct node *N)
+{
+    if (N == NULL)
+        return 0;
+    return N->size;
+}
+
+// A utility function to get maximum of two integers
+int max(int a, int b)
+{
+    return (a > b)? a : b;
+}
+
+/* Helper function that allocates a new node with the given key and
+    NULL left and right pointers. */
+struct node* newNode(int key)
+{
+    struct node* node = (struct node*)
+                        malloc(sizeof(struct node));
+    node->key   = key;
+    node->left   = NULL;
+    node->right  = NULL;
+    node->height = 1;  // new node is initially added at leaf
+    node->size = 1;
+    return(node);
+}
+
+// A utility function to right rotate subtree rooted with y
+struct node *rightRotate(struct node *y)
+{
+    struct node *x = y->left;
+    struct node *T2 = x->right;
+
+    // Perform rotation
+    x->right = y;
+    y->left = T2;
+
+    // Update heights
+    y->height = max(height(y->left), height(y->right))+1;
+    x->height = max(height(x->left), height(x->right))+1;
+
+    // Update sizes
+    y->size = size(y->left) + size(y->right) + 1;
+    x->size = size(x->left) + size(x->right) + 1;
+
+    // Return new root
+    return x;
+}
+
+// A utility function to left rotate subtree rooted with x
+struct node *leftRotate(struct node *x)
+{
+    struct node *y = x->right;
+    struct node *T2 = y->left;
+
+    // Perform rotation
+    y->left = x;
+    x->right = T2;
+
+    //  Update heights
+    x->height = max(height(x->left), height(x->right))+1;
+    y->height = max(height(y->left), height(y->right))+1;
+
+    // Update sizes
+    x->size = size(x->left) + size(x->right) + 1;
+    y->size = size(y->left) + size(y->right) + 1;
+
+    // Return new root
+    return y;
+}
+
+// Get Balance factor of node N
+int getBalance(struct node *N)
+{
+    if (N == NULL)
+        return 0;
+    return height(N->left) - height(N->right);
+}
+
+// Inserts a new key to the tree rotted with node. Also, updates *count
+// to contain count of smaller elements for the new key
+struct node* insert(struct node* node, int key, int *count)
+{
+    /* 1.  Perform the normal BST rotation */
+    if (node == NULL)
+        return(newNode(key));
+
+    if (key < node->key)
+        node->left  = insert(node->left, key, count);
+    else
+    {
+        node->right = insert(node->right, key, count);
+
+        // UPDATE COUNT OF SMALLER ELEMENTS FOR KEY
+        *count = *count + size(node->left) + 1;
+    }
+
+
+    /* 2. Update height and size of this ancestor node */
+    node->height = max(height(node->left), height(node->right)) + 1;
+    node->size   = size(node->left) + size(node->right) + 1;
+
+    /* 3. Get the balance factor of this ancestor node to check whether
+       this node became unbalanced */
+    int balance = getBalance(node);
+
+    // If this node becomes unbalanced, then there are 4 cases
+
+    // Left Left Case
+    if (balance > 1 && key < node->left->key)
+        return rightRotate(node);
+
+    // Right Right Case
+    if (balance < -1 && key > node->right->key)
+        return leftRotate(node);
+
+    // Left Right Case
+    if (balance > 1 && key > node->left->key)
+    {
+        node->left =  leftRotate(node->left);
+        return rightRotate(node);
+    }
+
+    // Right Left Case
+    if (balance < -1 && key < node->right->key)
+    {
+        node->right = rightRotate(node->right);
+        return leftRotate(node);
+    }
+
+    /* return the (unchanged) node pointer */
+    return node;
+}
+
+// The following function updates the countSmaller array to contain count of
+// smaller elements on right side.
+void constructLowerArray (int arr[], int countSmaller[], int n)
+{
+  int i, j;
+  struct node *root = NULL;
+
+  // initialize all the counts in countSmaller array as 0
+  for  (i = 0; i < n; i++)
+     countSmaller[i] = 0;
+
+  // Starting from rightmost element, insert all elements one by one in
+  // an AVL tree and get the count of smaller elements
+  for (i = n-1; i >= 0; i--)
+  {
+     root = insert(root, arr[i], &countSmaller[i]);
+  }
+}
+
+/* Utility function that prints out an array on a line */
+void printArray(int arr[], int size)
+{
+  int i;
+  printf("\n");
+  for (i=0; i < size; i++)
+    printf("%d ", arr[i]);
+}
+
+// Driver program to test above functions
+int main()
+{
+  int arr[] = {10, 6, 15, 20, 30, 5, 7};
+  int n = sizeof(arr)/sizeof(arr[0]);
+
+  int *low = (int *)malloc(sizeof(int)*n);
+
+  constructLowerArray(arr, low, n);
+
+  printf("Following is the constructed smaller count array");
+  printArray(low, n);
+  return 0;
+}
+ Output: Following is the constructed smaller count array
+3 1 2 2 2 0 0 Time Complexity: O(nLogn) Auxiliary Space: O(n) Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. Guest This is same as “Count Inversions in an array” http://www.geeksforgeeks.org/counting-inversions/ Guest A simple O(nlogn) algorithm that works with repeated integers also but the drawback of this one is that input array will be modified. countSmaller[n-1] = 0; for( int i = n -2; i >= 0 ;i–) { /* This return the index of the element just smaller than this element arr[i] int position = find(arr, i+1, n-1); countSmaller[i] = position – i; // Insert the arr[i] element to its proper position so that i to n-1 is sorted insert(arr, i, n -1); } Guest The insert method takes quadratic time overall. It’s not O(nlogn) Prakhar Jain Done in O(nlogn) time. Works for repeated integers. Used BIT. // // countSmallerRight.cpp // geeksforgeeks // // Created by Prakhar Jain on 25/08/13. // Copyright (c) 2013 Prakhar Jain. All rights reserved. // #include #include #include #include #include #include #include #include #include #include #include #include #include #include #include #include #include #include #define LL long long #define MOD 1000000007 #define MAXN 10 using namespace std; typedef pair ii; int BIT[MAXN+1]; int a[MAXN+1]; vector temp; int countSmallerRight[MAXN+1]; int read(int idx) { int sum = 0; while (idx > 0) { sum += BIT[idx]; idx -= (idx & -idx); } return sum; } void update(int idx, int val) { while (idx <= MAXN) { BIT[idx] += val; idx += (idx & -idx); } } int main(int argc, const char * argv[]) { #ifndef ONLINE_JUDGE freopen("input.txt", "r", stdin); //freopen("output.txt", "w", stdout); #endif int N; scanf("%d", &N); for (int i = 1; i <= N; i++) { scanf("%d", &a[i]); temp.push_back(ii(a[i], i)); } sort(temp.begin(), temp.end()); countSmallerRight[temp[0].second] = 0; update(1, 1); update(temp[0].second, -1); for (int i = 1; i < N; i++) { countSmallerRight[temp[i].second] = read(temp[i].second); update(1, 1); update(temp[i].second, -1); } for (int i = 1; i <= N; i++) { printf("%d,", countSmallerRight[i]); } putchar('n'); return 0; } abhishek08aug Intelligent Marsha Donna pls help,…i m not able to copy paste c code from vc++ as comment here..after it gets uploaded as comment it is not displayed correctly abhishek08aug You say: Given an unsorted array arr[] of “distinct” integers and then you put two 1s in the input: :/ Input: arr[] = {12, 1, 2, 3, 0, 11, 1} Correct it please.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks Thanks for pointing this out. We have corrected the example. Hanish There is a typo in Method 2 – 1st argument of this function. void constructLowerArray (int *arr[], int countSmaller[], int n) It should be int * arr . Please correct this GeeksforGeeks @Hanish: Thanks for pointing this out. We have fixed the typo error. Keep it up! nitin gupta iitian //Count smaller elements on right side /* this logic use either array or stack we use array . Logic: we travers the main array from right to left and keep inserting the current element in the temp array s.t temp array always a sorted one ex. index 0 1 2 3 4 5 main array 12 1 3 0 11 1 for this from right to left i = 5 ele= 1 since its right most so put zero in that index of Ans. array and push it into temp array index 0 1 2 3 4 5 main array 12 1 3 0 11 1 temp array 1 Ans. array 0 i = 4: ele = 11 and compair this element to temp array index k-1 ( its k = 1 now ) so we compair it to index 0 means 1 which shows its max so all the element before index 0 are smaller so number of element we (0-0+1) = 1 index 0 1 2 3 4 5 main array 12 1 3 0 11 1 temp array 1 11 Ans. array 1 0 i = 3 ele = 0 compair it wiht index k=2-1 = 1 so 11 > 0(ele) shift 11 to right and put 0 at his previous place s.t temp array: 1 0 11 now again compair 0 with its previous index means with 1 and 1> 0 so shift 1 to right and put 0 at his place temp array: 0 1 11 anc comparision over hence 0 index 0 1 2 3 4 5 main array 12 1 3 0 11 1 temp array 0 1 11 Ans. array 0 1 0 follow same procedure index 0 1 2 3 4 5 main array 12 1 3 0 11 1 temp array 0 1 1 3 11 12 Ans. array 5 1 2 0 1 0 complexity : Time / space complexity : O(n)/ O(n) because working on temp array will be O(1 ) average case and very less than O(n) in worst case tell me if any thing is wrong with this soon i’ll post the code too */  
+/* Paste your code here (You may delete these lines if not writing code) */
+ nitin gupta iitian sorry temp array operation in worst case is not less then O(n) its O(n) here is my code…. don’t mind its big …but cover all cases and make temp_array operation under O(n) complexity to cut out worst case  
+/* //Count smaller elements on right side
+/*
+
+#include <iostream>
+#include <cstdlib>
+using namespace std ;
+
+//This function checks for Sorted Sequence if its find this sequence then its calculate Ans_array
+short checkForSorted (int *A , size_t size, int *Ans_array )
+{
+    int i =0,Ans_index=0 ;
+    short Sorted_order = -1 ; // -1 for in case all element are equal ;  0 for decressing and 1 for incressing sequence
+    //checking for
+
+    for ( i =1 ; i<size ; i++)
+    {
+            if ( A[i-1] < A[i])
+            {
+                Sorted_order = 1 ; // incressing sequence
+                break ;
+
+            }
+            else if ( A[i-1] > A[i])
+                {
+                    Sorted_order = 0 ; // Decressing sequence
+
+                    break ;
+                }
+            else
+            {
+
+                Sorted_order = -1 ; // for equality
+            }
+
+
+    }
+    if ( i == size-1   || Sorted_order == -1) // since if the all element are equal or except last one
+    {
+        if ( i==size-1 && (!(Sorted_order==-1)) )// if all element are equal except last one then
+        {
+
+                if ( Sorted_order == 0) // then it must be either decressing
+                {
+                    // then put 1 in all element except last one
+                    for ( Ans_index = 0 ; Ans_index < size-1 ; Ans_index++)
+                        Ans_array[Ans_index] = 1 ;
+                     //put 0 for last one
+                    Ans_array[Ans_index] = 0 ;
+
+                }
+                else  // then it must be either decressing
+                {
+                    // then put 0  in all element
+                    //which is already done
+
+                }
+        }
+
+        return Sorted_order ; // tell to next procedure that all element are equal
+    }
+    else
+    {
+
+        if ( Sorted_order==0) // if the order is decressing order
+            {
+
+
+                for ( i = 1; i<size ; i++)
+                {
+
+                    if ( A[i-1] > A[i])
+                    {
+                        Ans_array[Ans_index] =  0 ; // storing the resulf from right to left
+                        Ans_index -- ;
+                    }
+                    else
+                    break ;
+                }
+            }
+            else
+            {
+
+                Ans_index = size-1 ;
+                Ans_array[0] = Ans_index ;
+                for ( i = 1; i<size ; i++)
+                {
+                    if ( A[i-1] < A[i])
+                    {
+                        Ans_array[Ans_index] =  size - Ans_index  - 1 ;  ; // storing the resulf from right to left
+                        Ans_index -- ;
+                    }
+                    else
+                    break ;
+                }
+            }
+
+
+    }
+   // cout <<"\n final i =" << i ;
+
+    if ( i == size ){
+        return Sorted_order ; }// for telling next procedure that we Don't need to calculate Ans_array
+    else
+    {
+
+        for ( i = 0 ; i<size ; i++)
+        Ans_array[i] = 0 ;
+
+
+        return 3 ; // for telling next procedure that we need to calculate Ans_array
+
+    }
+
+}
+
+// THis funtion shift the temp_array for making sorted temp array and calculate how many element are less then in left side of temp array
+int shift_left_side ( int *temp_array, int &Last_index , int element ) // Last index is for position of last element
+{ // element is the element which is to be insert
+
+int lesser_element_count =0 ;
+    if ( temp_array[Last_index] <= element ) // checking that last element in temp array is < or = to current element
+    {
+        if( temp_array[Last_index] == element) // if last element is = to current element than total less element are Last index
+        lesser_element_count = Last_index ;
+        else
+        lesser_element_count = Last_index + 1 ; // other wise more then 1
+
+        temp_array[++Last_index] = element ;
+    }
+    else // if last element of temp array is > current element then we need to shift it
+    { lesser_element_count = Last_index ; // assuming only last element is greater to current element in this case less element on left
+                                         //side is Last index
+        temp_array[++Last_index] = element ; // inserting element at last + 1
+        for ( int i = Last_index-1 ; i>=0 ; i--)
+        {
+            swap(temp_array[i+1] , temp_array[i] ) ;
+            if ( i-1 >=0 && (temp_array[i] <= temp_array[i-1]))
+            // " <= " due to that we dont want that if 1 1 is sequence then ans is:  1 0 rather it should be  0 0
+             {
+                 lesser_element_count -- ;
+             }
+             else
+             break ;
+
+        }
+    }
+    return lesser_element_count ;
+
+}
+// This procedure Calculate Ans array
+bool Calculate_Count_of_Right_side ( int *A , size_t size , int *Ans)
+{
+int return_value = checkForSorted(A,size,Ans) ;
+cout <<"\n return value: " << return_value <<endl;
+
+    if ( return_value == 0 || return_value == 1 || return_value == -1)
+    {
+        //then no need to calculate Ans array
+        return true ;
+    }
+    else
+    {
+
+        // now we need to calculate Ans array
+        int i = size-1 ;
+        Ans[i++] = 0 ; //since for tha last element of main array , there is no element in right side so count = 0
+        int temp_array[size]  ;
+        int temp_index = 0 ;
+        temp_array[temp_index] = A[size-1] ; // put last element of main array in temp array in advance
+
+
+        for ( i = size-2 ; i>=0 ; i--)
+        {
+
+            int shift = shift_left_side( temp_array, temp_index , A[i]) ; // calculating Ans array using Shift function
+      //  cout <<"\n come shift : " << shift ;
+            Ans[i] = shift ;
+        }
+
+
+
+    }
+    return true ;
+
+}
+
+int main ()
+{
+    int Arr[] = {1,1,1,2};//{1,1,1,1,0};//{1,1,1,1,1,1};//{1,2,5,3,6,9,10,2,0,1,6};//{1,2,3,4,5};//{5,4,3,2,1};//////{12,1,3,0,11,1} ;
+   const size_t size = sizeof(Arr) / sizeof(Arr[0]) ;
+    int Ans_array[size]={0};
+    cout <<"\n Ans array\n";
+if ( Calculate_Count_of_Right_side(Arr, size , Ans_array) )
+   {
+   cout <<"\n"  ;
+    for ( int i =0 ; i<size; i++)
+        cout <<Ans_array[i] << " ";
+   }
+
+
+}
+ */
+ nitin gupta iitian @geeksforgeeks if any thing wrong , let me know  
+/* Paste your code here (You may delete these lines if not writing code) */
+ nitin gupta iitian /* #include <iostream> #include <cstdlib> using namespace std ; //This function checks for Sorted Sequence if its find this sequence //then its calculate Ans_array short checkForSorted (int *A , size_t size, int *Ans_array ) { int i =0,Ans_index=0 ; short Sorted_order = -1 ; // -1 for in case all element are equal ; //0 for decressing and 1 for incressing sequence checking for // for ( i =1 ; i<size ; i++) { if ( A[i-1] < A[i]) { Sorted_order = 1 ; // incressing sequence break ; } else if ( A[i-1] > A[i]) { Sorted_order = 0 ; // Decressing sequence break ; } else { Sorted_order = -1 ; // for equality } } if ( i == size-1 || Sorted_order == -1) // since if the all element are equal or except last one { if ( i==size-1 && (!(Sorted_order==-1)) )// if all element are equal except last one then { if ( Sorted_order == 0) // then it must be either decressing { // then put 1 in all element except last one for ( Ans_index = 0 ; Ans_index < size-1 ; Ans_index++) Ans_array[Ans_index] = 1 ; //put 0 for last one Ans_array[Ans_index] = 0 ; } else // then it must be either decressing { // then put 0 in all element //which is already done } } return Sorted_order ; // tell to next procedure that all element are equal } else { if ( Sorted_order==0) // if the order is decressing order { for ( i = 1; i<size ; i++) { if ( A[i-1] > A[i]) { Ans_array[Ans_index] = 0 ; // storing the resulf from right to left Ans_index — ; } else break ; } } else { Ans_index = size-1 ; Ans_array[0] = Ans_index ; for ( i = 1; i<size ; i++) { if ( A[i-1] < A[i]) { Ans_array[Ans_index] = size – Ans_index – 1 ; ; // storing the resulf from right to left Ans_index — ; } else break ; } } } // cout <<"\n final i =" << i ; if ( i == size ){ return Sorted_order ; }// for telling next procedure that we Don’t need to calculate Ans_array else { for ( i = 0 ; i<size ; i++) Ans_array[i] = 0 ; return 3 ; // for telling next procedure that we need to calculate Ans_array } } // THis funtion shift the temp_array for making sorted temp array and calculate how many element are less then in left side of temp array int shift_left_side ( int *temp_array, int &Last_index , int element ) // Last index is for position of last element { // element is the element which is to be insert int lesser_element_count =0 ; if ( temp_array[Last_index] <= element ) // checking that last element in temp array is < or = to current element { if( temp_array[Last_index] == element) // if last element is = to current element than total less element are Last index lesser_element_count = Last_index ; else lesser_element_count = Last_index + 1 ; // other wise more then 1 temp_array[++Last_index] = element ; } else // if last element of temp array is > current element then we need to shift it { lesser_element_count = Last_index ; // assuming only last element is greater to current element in this case less element on left //side is Last index temp_array[++Last_index] = element ; // inserting element at last + 1 for ( int i = Last_index-1 ; i>=0 ; i–) { swap(temp_array[i+1] , temp_array[i] ) ; if ( i-1 >=0 && (temp_array[i] <= temp_array[i-1])) // " <= " due to that we dont want that if 1 1 is sequence then ans is: 1 0 rather it should be 0 0 { lesser_element_count — ; } else break ; } } return lesser_element_count ; } // This procedure Calculate Ans array bool Calculate_Count_of_Right_side ( int *A , size_t size , int *Ans) { int return_value = checkForSorted(A,size,Ans) ; cout <<"\n return value: " << return_value <<endl; if ( return_value == 0 || return_value == 1 || return_value == -1) { //then no need to calculate Ans array return true ; } else { // now we need to calculate Ans array int i = size-1 ; Ans[i++] = 0 ; //since for tha last element of main array , there is no element in right side so count = 0 int temp_array[size] ; int temp_index = 0 ; temp_array[temp_index] = A[size-1] ; // put last element of main array in temp array in advance for ( i = size-2 ; i>=0 ; i–) { int shift = shift_left_side( temp_array, temp_index , A[i]) ; // calculating Ans array using Shift function // cout <<"\n come shift : " << shift ; Ans[i] = shift ; } } return true ; } int main () { int Arr[] = {1,1,1,2};//{1,1,1,1,0};//{1,1,1,1,1,1};//{1,2,5,3,6,9,10,2,0,1,6};//{1,2,3,4,5};//{5,4,3,2,1};//////{12,1,3,0,11,1} ; const size_t size = sizeof(Arr) / sizeof(Arr[0]) ; int Ans_array[size]={0}; cout <<"\n Ans array\n"; if ( Calculate_Count_of_Right_side(Arr, size , Ans_array) ) { cout <<"\n" ; for ( int i =0 ; i<size; i++) cout <<Ans_array[i] << " "; } } */ Arpit Gupta stack implementation in O(n) #include #include using namespace std; stacks; stackt; void count(int a[],int n) { int next,i,x,y,z,cnt; for(i=n-1;i>0;i–) s.push(a[i]); for(i=0;iy) cnt++; s.pop(); t.push(y); if(!s.empty()) next=s.top(); } } while(!t.empty()) { z=t.top(); t.pop(); s.push(z) ; } if(!s.empty()) s.pop(); printf(“%d “,cnt); } } int main() { int arr[] = {10, 6, 15, 20, 30, 5, 7}; int n = sizeof(arr)/sizeof(arr[0]); count(arr, n); return 0; } Arpit Gupta dont know my the complete code cannot b copied geeksforgeeks @Arpit Gupta: Thanks for sharing the code. Could you please post the code again between the sourcecode tags. Arpit Gupta Here is the stack implementation in O(n) #include #include using namespace std; stacks; stackt; void count(int a[],int n) { int next,i,x,y,z,cnt; for(i=n-1;i>0;i–) s.push(a[i]); for(i=0;iy) cnt++; s.pop(); t.push(y); if(!s.empty()) next=s.top(); } } while(!t.empty()) { z=t.top(); t.pop(); s.push(z) ; } if(!s.empty()) s.pop(); printf(“%d “,cnt); } } int main() { int arr[] = {10, 6, 15, 20, 30, 5, 7}; int n = sizeof(arr)/sizeof(arr[0]); count(arr, n); return 0; } pankaj use of stack will give O(n) solution. this problem is same as finding first larger number on left  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik @pankaj: Use of stacks seems like a promising idea. Could you please provide more details of algorithm. Ali Your program didn’t give right answer to the following input: 12 1 2 3 0 11 1 Your program produced: 6 2 2 2 0 1 0 whereas the right output is: 6 1 2 2 0 1 0 could you please notify me by email with your answer , this would help me a lot thank you kartik @Ali: Take a closer look at the problem statement. It says distinct integers. The example given by you is not a valid one. Mad Coder This problem can also be solved by using Binary Indexed Tree.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ramesh how can we modify the above method 2 to get the sum of smaller elements on the right? I think in the insert function , instead of doing coun+=size(node->left) , we need to traverse the left subtree and add the node values. Is there any better way? Thanks. adithya  
+#include <stdio.h>
+
+int main()
+{
+	int a[20],i,n,j,count[20];
+	for(i=0;i<n;i++)
+	{
+		count[i]=0;
+	}
+	printf("Enter the no of no's");
+	scanf("%d",&n);
+	printf("Enter the no's");
+	for(i=0;i<n;i++)
+	{
+		scanf("%d",&a[i]);
+	}
+	for(i=0;i<n;i++)
+	{
+		for(j=i+1;j<n;j++)
+		{
+			if(a[i]>a[j])
+			{
+				count[i]++;
+			}
+		}
+	}
+	for(i=0;i<n;i++)
+	{
+		printf("%d",count[i]);
+	}
+  	return 0;
+}
+
+
+ pranay for the second method, can it be done by some in-build data structure in cpp as priority queue,etc? Thanks. GeeksforGeeks @Vinothkumar and @PsychoCoder: There were problems in the original version of the second method. We have updated it with the correct version. We have also added code for the same. Vinothkumar can anyone explain the second method with example? PsychoCoder In the 1st example for Method 2. 12 -> 2 -> 1 makes a rearrangement. Before rearrangement the left subtree count of 12 is 2. So after rearrangement will it be 0 ?? Rahul Sharma #include void rightsmaller(int a[]) { int count[20]={0},i=0,j=0; count[0]=0; for( i=0;i0) { for(j=0;j<i;j++) { if(a[j]<a[i]) { count[i]++; } } } } // display the array count for(i=0;i<8;i++) printf("%d ",count[i]); } int main() { int array[]={2,1,3,4,6,1,9,8}; rightsmaller(array); } kartik @Rahul Sharm: Could you please post the code again within the sourcecode tags murali529 we can even do this with a simple recursive method right  
+public int numSmaller(int[] elements, int position){
+
+if(position == (elements.length-1)){
+return 0;
+}
+
+return numSmaller(int[] elements, position+1) + isMin(int[] elements, position);
+
+}
+
+public int isMin(int elements[], int presentPosition){
+
+if(elements[presentPosition] > elements[presentPosition+1]){
+return 1;
+}
+return 0;
+
+}
+ Time Complexity will be O(n) Sanju Your second algorithm is wrong as per the question. Questions says smaller elements to the right, not all smaller elements.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks @Sanju: Please take a closer look at the algorithm. After finding smaller elements for an elemenet, we delete the element from tree. By Deletion, we make sure that this node is not considered when we are processing elements to its right. kenny can someone explain the approach with an example ? Dheeraj Second case source code pass the following parameters arr=input arr; min=array where the value to be stored n=size of array arr  
+typedef struct node
+{
+        int data;
+        node *left,*right;
+        int small;
+        };
+void fun(int arr[],int mins[],int n)
+{
+     node *root=NULL;
+     for(int i=n-1;i>=0;i--)
+     {
+             int num=arr[i];
+             if(root==NULL) //to check if root tree 
+                            //exist or not,executed only once
+             {
+                           root=new node;
+                           root->data=num;
+                           root->left=root->right=NULL;
+                           root->small=0;
+                           mins[i]=0;
+                           }
+             else
+             {
+                 node *mover=root;
+                 int count=0;
+                 while(1)
+                 {
+                         if((mover->data)<num) 
+                         {
+                                               //if the value is bigger at the current node into count
+                                              count++;
+                                              //add the number of nodes which are smaller then current node
+                                              count+=mover->small;
+                                              if(mover->right!=NULL)
+                                              mover=mover->right;
+                                              else
+                                              break;
+                                              }
+                         else
+                         {
+                             mover->small=mover->small+1;  //add one more node in the number of "small nodes" 
+                             if(mover->left!=NULL)
+                             mover=mover->left;
+                             else
+                             break;
+                             }
+                         }
+                                      node *x= new node;
+                                      x->data=arr[i];
+                                      x->left=x->right=NULL;
+                                      x->small=0;
+                 if((mover->data)<num)
+                                     mover->right=x;
+                 else
+                                     mover->left=x;
+                 
+                 mins[i]=count;
+                 }
+             }
+     }
+ nick i guess your tree isn’t balance ………. so at the worst case scenario complexity will be again O(0logN)………. however it can be improved using AVL tree …. i had tried and its working fine but code is too lengthy …………..  
+/* Paste your code here (You may delete these lines if not writing code) */
+ nick i mean to say complexity will be O(n2) not O(nlogn) Dheeraj yup..for skewed trees it would be O(n^2)  
+/* Paste your code here (You may delete these lines if not writing code) */
+ lomash goyal you can first sort the array which can be done in O(nlogn) and after that fill the countsmaller array with the value=n-index of element in count smaller array. one thing that need to be kept in mind that if the array is containing the duplicate elements that an additional check is also required to account that.but that also can be done in O(n). so overall complexity would be O(nlogn). sidh Looks like you didn’t get the question. It is not about all smaller elements, but elements only on the right side. sidh A good example that shows use of self balancing BSTs. Can somebody please share the code for method 2? Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

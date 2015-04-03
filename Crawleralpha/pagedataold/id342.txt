@@ -1,0 +1,38 @@
+Russian Peasant Multiplication - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Russian Peasant Multiplication Given two integers, write a function to multiply them without using multiplication operator. There are many other ways to multiply two numbers (For example, see this). One interesting method is the Russian peasant algorithm. The idea is to double the first number and halve the second number repeatedly till the second number doesn’t become 1. In the process, whenever the second number become odd, we add the first number to result (result is initialized as 0) The following is simple algorithm. 
+Let the two given numbers be 'a' and 'b'
+1) Initialize result 'res' as 0.
+2) Do following while 'b' is greater than 0
+   a) If 'b' is odd, add 'a' to 'res'
+   b) Double 'a' and halve 'b'
+3) Return 'res'. 
+#include <iostream>
+using namespace std;
+
+// A method to multiply two numbers using Russian Peasant method
+unsigned int russianPeasant(unsigned int a, unsigned int b)
+{
+    int res = 0;  // initialize result
+
+    // While second number doesn't become 1
+    while (b > 0)
+    {
+         // If second number becomes odd, add the first number to result
+         if (b & 1)
+             res = res + a;
+
+         // Double the first number and halve the second number
+         a = a << 1;
+         b = b >> 1;
+     }
+     return res;
+}
+
+// Driver program to test above function
+int main()
+{
+    cout << russianPeasant(18, 1) << endl;
+    cout << russianPeasant(20, 12) << endl;
+    return 0;
+}
+ Output: 18
+240 How does this work? The value of a*b is same as (a*2)*(b/2) if b is even, otherwise the value is same as ((a*2)*(b/2) + a). In the while loop, we keep multiplying ‘a’ with 2 and keep dividing ‘b’ by 2. If ‘b’ becomes odd in loop, we add ‘a’ to ‘res’. When value of ‘b’ becomes 1, the value of ‘res’ + ‘a’, gives us the result. Note that when ‘b’ is a power of 2, the ‘res’ would remain 0 and ‘a’ would have the multiplication. See the reference for more information. Reference: http://mathforum.org/dr.math/faq/faq.peasant.html This article is compiled by Shalki Agarwal. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: MathematicalAlgo Tweet Writing code in comment? Please use ideone.com and share the link here. Alok Kumar Here is a code snippet that works for both +ve and -ve integers. inline int abs(int m) { if(m>1); else return m; } int f(int a,int b) { if(a==0||b==0) return 0; if(b>a) return f(b,a); int res=0; if(b>1; a=a<<1; } res+=a; return res-(res<<1); } else { while(b!=0) { if((b&1)==1) res+=a; a=a<>1; } return res; } } Alok Kumar Pretty Good algorithm, but in terms of implementation it has to be tweaked little for making it work for negative numbers. Please mention it on the blog itself. Hiren Pandya Don’t you think you should first check with number is lesser than the other, So that we can reduce the number of iterations..? I mean, consider 13 and 259, if you take b=259, the iterations will be more as compared to b=13… Please correct me if I am wrong… Kartik The idea is to keep the code and algorithm simple. There can be many enhancements. For example, it can be changed to work for negative numbers also. Hiren Pandya There can be a drastic change with purposed solution. But yes you are right, keeping it simple is more important. Thnx. Anonym Please correct : “halve the first number repeatedly” => “halve the second number repeatedly” GeeksforGeeks Thanks for pointing this out. We have updated the line. Guest good work Shalki Agarwal Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

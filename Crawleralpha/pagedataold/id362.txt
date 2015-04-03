@@ -1,0 +1,61 @@
+Detect if two integers have opposite signs - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Detect if two integers have opposite signs Given two signed integers, write a function that returns true if the signs of given integers are different, otherwise false. For example, the function should return true -1 and +100, and should return false for -100 and -200. The function should not use any of the arithmetic operators. Let the given integers be x and y. The sign bit is 1 in negative numbers, and 0 in positive numbers. The XOR of x and y will have the sign bit as 1 iff they have opposite sign. In other words, XOR of x and y will be negative number number iff x and y have opposite signs. The following code use this logic. 
+#include<stdbool.h>
+#include<stdio.h>
+
+bool oppositeSigns(int x, int y)
+{
+    return ((x ^ y) < 0);
+}
+
+int main()
+{
+    int x = 100, y = -100;
+    if (oppositeSigns(x, y) == true)
+       printf ("Signs are opposite");
+    else
+      printf ("Signs are not opposite");
+    return 0;
+}
+ Output: Signs are opposite Source: Detect if two integers have opposite signs We can also solve this by using two comparison operators. See the following code.  
+bool oppositeSigns(int x, int y)
+{
+    return (x < 0)? (y >= 0): (y < 0);
+}
+ The first method is more efficient. The first method uses a bitwise XOR and a comparison operator. The second method uses two comparison operators and a bitwise XOR operation is more efficient compared to a comparison operation. We can also use following method. It doesn’t use any comparison operator. The method is suggested by Hongliang and improved by gaurav. 
+bool oppositeSigns(int x, int y)
+{
+    return ((x ^ y) >> 31);
+}
+ The function is written only for compilers where size of an integer is 32 bit. The expression basically checks sign of (x^y) using bitwise operator ‘>>’. As mentioned above, the sign bit for negative numbers is always 1. The sign bit is the leftmost bit in binary representation. So we need to checks whether the 32th bit (or leftmost bit) of x^y is 1 or not. We do it by right shifting the value of x^y by 31, so that the sign bit becomes the least significant bit. If sign bit is 1, then the value of (x^y)>>31 will be 1, otherwise 0. Please write comments if you find any of the above codes/algorithms incorrect, or find other ways to solve the same problem.           Related Topics: Check if binary representation of a number is palindrome Swap two nibbles in a byte How to turn off a particular bit in a number? Check if a number is multiple of 9 using bitwise operators How to swap two numbers without using a temporary variable? Divide and Conquer | Set 4 (Karatsuba algorithm for fast multiplication) Find position of the only set bit Swap all odd and even bits Tweet Writing code in comment? Please use ideone.com and share the link here. divyansh8063 main() { int i=-5,j=-7; i=i&(1<<31); j=j&(1<<31); if(i==j) printf("same"); else printf("diff"); } atiqwhiz // can be done by these ways too.. unsigned int oppositeSign(unsigned int x,unsigned int y) { return !(x&y>>31); //or return (y&1(<<31))^(x&(1<<31)); } Balasubramanian.N In the last line of the last paragraph, it says: “If sign bit is 1, then the value of (x^y)>>31 will be 1, otherwise 0″ But, if sign extension takes place,wherein the leftmost bits will be filled with 1 instead of 0 when shifting, the resulting value will be -1 and not 1. So, I think it is better to say that, if the sign bit is 1, then the value of (x^y)>>31 will be a non-zero value. That makes it more generic. Thanks, Balasubramanian.N dexterltd why u people simply multiply them. int of opposite sign when multiple alwyz produce -ve value. why to complex simple logic.  
+if ( x * y < 0 )
+   return true  // means they are opposite signs 
+return false // they are of same sign 
+ dexterltd I meant why don’t you simply multiply . Sorry for the Typo. dexterltd sorry didn’t read the question completely. missed the part “not to use the airthmetic operator. Ravi Hi, small addition to Hongliang’s idea.  
+(x^y) >> ((1<<sizeof(int))-1) /* or */
+(x^y) >> ~(1<<sizeof(int))
+ makes code independent of compiler used. For the second solution, gcc raises warning though. http:www.sudshekhar.blogspot.com sudhanshu @Ravi, The 1<<sizeof(int) doesn't work on my computer atleast. it gives sizeof(int) as 4 and and thus, you get 15 instead of 31 on subtracting 1. Vignesh sizeof() operator returns the size in bytes. so you need to multiply it with 8 to convert to bits – which is a violation of the prerequisite ‘no arithmetic op’ GeeksforGeeks @Hongliang and @gaurav: Thanks for your inputs. We have added the new method to the original post. partik Why XOR is more efficient compared to comparison operator? Sree ram XOR is an operator which is done bitwise … its more close to hardware because in hardware the numbers are represented by bits and you are just XORing the bits … its efficient … Sree ram XOR is an operator which is done bitwise … its more close to hardware because in hardware the numbers are represented by bits and you are just XORing the bits … and as suggested by kartik ((x ^ y) & 1 << 31); is more efficient … Hongliang Nice solution, but it still uses “>” for comparison (you might know that comparisons are slow). Assuming 32 bit numbers, here it is one without using comparisons:  
+bool opp = ((x ^ y) & >> 31)
+ P.S. actually the webpage for bit hack is worth reading, highly recommended. Hongliang I clicked “Have your say” too fast The explanation: the sign is determined by the highest bit of the number. To just if they have opposite sign, one can logically XOR it as in the original post, and then check the highest bit for 1 (opposite) or 0 (same). >>31 means to move 31 bit which gives the highest bit. It saves one comparison. kartik @Hongliang: Thanks for suggesting the optimization. I think, there should be a 1 after the ‘&’ operator. Following is the complete code.  
+#include<stdbool.h>
+#include<stdio.h>
+
+bool oppositeSigns(int x, int y)
+{
+    return ((x ^ y) & 1 << 31);
+}
+
+int main()
+{
+    int x = 100, y = -1000;
+    if (oppositeSigns(x, y) == true)
+       printf ("Signs are opposite");
+    else
+      printf ("Signs are not opposite");
+    return 0;
+}
+
+ Pravesh Kartik, Can you please explain it in deep, why return ((x ^ y) & 1 << 31 ? kartik @Pravesh: The program is written only for compilers where size of an integer is 32 bit. Two numbers are negative if the value of their XOR is negative. The sign bit for negative numbers is always 1, and the sign bit is the leftmost bit in binary representation. The expression basically checks whether the 32th bit (or leftmost bit) of x^y is 1 or not. It does it by doing bitwise and of (x^y) with 1000…0 (1 followed by 31 0s) gaurav I think what you are trying to say is bool opp = (x ^ y) >> 31) but this would not work as right shift is arithmetic shift in c. So, the result would be -1 instead of 1. ((x ^ y) & 1 << 31) would work as suggested by kartik. /* Paste your code here (You may delete these lines if not writing code) */ Abhay Just like XOR, multiplication of two numbers would be less than zero if they have opposite signs.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ vijay . The function should not use any of the arithmetic operators.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Dheeraj Also multiplication method is not good because it may cause arithmetic overflow. Abhay My bad. i missed that part of statement Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

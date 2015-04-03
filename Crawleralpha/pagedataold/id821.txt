@@ -1,0 +1,183 @@
+A Product Array Puzzle - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph A Product Array Puzzle Given an array arr[] of n integers, construct a Product Array prod[] (of same size) such that prod[i] is equal to the product of all the elements of arr[] except arr[i]. Solve it without division operator and in O(n). Example: arr[] = {10, 3, 5, 6, 2} prod[] = {180, 600, 360, 300, 900} Algorithm: 1) Construct a temporary array left[] such that left[i] contains product of all elements on left of arr[i] excluding arr[i]. 2) Construct another temporary array right[] such that right[i] contains product of all elements on on right of arr[i] excluding arr[i]. 3) To get prod[], multiply left[] and right[]. Implementation: 
+#include<stdio.h>
+#include<stdlib.h>
+
+/* Function to print product array for a given array
+ arr[] of size n */
+void productArray(int arr[], int n)
+{
+  /* Allocate memory for temporary arrays left[] and right[] */
+  int *left = (int *)malloc(sizeof(int)*n);
+  int *right = (int *)malloc(sizeof(int)*n);
+
+  /* Allocate memory for the product array */
+  int *prod = (int *)malloc(sizeof(int)*n);
+
+  int i, j;
+
+  /* Left most element of left array is always 1 */
+  left[0] = 1;
+
+  /* Rightmost most element of right array is always 1 */
+  right[n-1] = 1;
+
+  /* Construct the left array */
+  for(i = 1; i < n; i++)
+    left[i] = arr[i-1]*left[i-1];
+
+  /* Construct the right array */
+  for(j = n-2; j >=0; j--)
+    right[j] = arr[j+1]*right[j+1];
+
+  /* Construct the product array using
+    left[] and right[] */
+  for (i=0; i<n; i++)
+    prod[i] = left[i] * right[i];
+
+  /* print the constructed prod array */
+  for (i=0; i<n; i++)
+    printf("%d ", prod[i]);
+
+  return;
+}
+
+/* Driver program to test above functions */
+int main()
+{
+  int arr[] = {10, 3, 5, 6, 2};
+  int n = sizeof(arr)/sizeof(arr[0]);
+  printf("The product array is: \n");
+  productArray(arr, n);
+  getchar();
+}
+ Time Complexity: O(n) Space Complexity: O(n) Auxiliary Space: O(n) The above method can be optimized to work in space complexity O(1). Thanks to Dileep for suggesting the below solution. 
+void productArray(int arr[], int n)
+{
+  int i, temp = 1;
+
+  /* Allocate memory for the product array */
+  int *prod = (int *)malloc(sizeof(int)*n);
+
+  /* Initialize the product array as 1 */
+  memset(prod, 1, n);
+
+  /* In this loop, temp variable contains product of
+    elements on left side excluding arr[i] */
+  for(i=0; i<n; i++)
+  {
+    prod[i] = temp;
+    temp *= arr[i];
+  }
+
+  /* Initialize temp to 1 for product on right side */
+  temp = 1;
+
+  /* In this loop, temp variable contains product of
+    elements on right side excluding arr[i] */
+  for(i= n-1; i>=0; i--)
+  {
+    prod[i] *= temp;
+    temp *= arr[i];
+  }
+
+  /* print the constructed prod array */
+  for (i=0; i<n; i++)
+    printf("%d ", prod[i]);
+
+  return;
+}
+ Time Complexity: O(n) Space Complexity: O(n) Auxiliary Space: O(1) Please write comments if you find the above code/algorithm incorrect, or find better ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. nikita we can use this algo: take product of all the elements of the array and store it in a variable,say, product. then again go through the array from left to right and then a[i]=product/a[i]; now the modified array contains the result. Please let me know if there is any test case which may fail this algo. #include void main() { int a[20],n,i; scanf(“%d”,&n); for(i=0;i<n;i++) scanf("%d",&a[i]); int product=1; for(i=0;i<n;i++) product*=a[i]; for(i=0;i<n;i++) { a[i]=product/a[i]; } printf("n requited product array: "); for(i=0;i<n;i++) printf("%d ",a[i]); } Rahul Kumar we can also use recursion to solve this problem…we can traverse the array from beginning and call the recursively by updating the leftprod and every call will return the rightprod and we can print leftprod*rightprod lost_in_coding if there is one or more than one zeros(0) in the array, how will u handle the case? sandeep In second optimized solution you are using array prod which is using O(n) space then how this solution is constant in space ?? sandeep Ohh gt it … Its an output array… Its easyapproach though :p jani In second optimized solution we are using two loops for calculating left and right side product of each element separatly. So I think time complexity should be O(n^2) ??? Can anyone please explain how the time complexity is O(n) here ???  
+/* Paste your code here (You may delete these lines if not writing code) */
+ NOBODY!! If for() Loop is followed by another for() Loop.. Its O(2n) -> almost = O(n) Eg : for O(n^2): //1st Loop for(;;) { //body } //2nd Loop for(;;){ //body } If a for() if inside another then its O(n * n) -> O(n^2) Eg : for O(n^2): for(;;) { //Outside Loop Body for(;;){ // Loop Body } } NOBODY!! If for() Loop is followed by another for() Loop.. Its O(2n) -> almost = O(n) Eg : for O(n^2): //1st Loop for(;;) { //body } //2nd Loop for(;;){ //body } If a for() if inside another then its O(n * n) -> O(n^2) Eg : for O(2n) == O(n) for(;;) { //Outside Loop Body for(;;){ // Loop Body } } jani In second optimized solution we are using two loops for calculating left and right side product of each element separatly. So I think time complexity should be O(n^2) ??? Can anyone please explain how the time complexity is O(n) here ??? Marsha Donna ur code doesnt work buddy Bhavya We can use power function and multiply the product of complete array to pow(array[i],-1) to each number. It no where violates the question. Will it be correct ?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Marsha Donna nice idea..moderators could u pls reply if this method is right?? hunter //o(n^2)complexity void productofarrayele(int a[]) { int i,j,prod; for(i=0;i<n;i++) { prod=1; for(j=0;j<n;j++) { if(i==j); else prod*=a[j]; } product[i]=prod; } Priyanshu This can be implemented using simple recursion with two variables forward and backward.  
+/* Paste your code here (You may delete these lines if not writing code) */
+#include<iostream>
+using namespace std;
+int A[]={7,2,3,4,1},bwd=1;
+void func(int n,int i,int fwd)
+{
+   
+    if(i>=n-1)
+    return ;
+    fwd=fwd*A[i];
+    func(n,i+1,fwd);
+    int temp=A[i+1];
+    A[i+1]=fwd*bwd;
+    bwd*=temp;
+   // cout<<i<<" "<<A[i]<<" "<<fwd<<" "<<bwd<<"\n";
+    
+}
+int main()
+{
+    
+    func(5,0,1);
+    A[0]=bwd;
+    for(int i=0;i<5;i++)
+    {
+        cout<<A[i]<<" ";
+    }
+}
+ Happy Coding Ganesh You can find java code here: /** * Given an array arr[] of n integers, construct a Product Array prod[] (of same size) such that * prod[i] is equal to the product of all the elements of arr[] except arr[i]. * Solve it without division operator and in O(n). * Example: arr[] = {10, 3, 5, 6, 2} prod[] = {180, 600, 360, 300, 900} * * @author GAPIITD * */ public class ProductArrayPuzzle { public static void main(String[] args) { int arr[] = {10, 3, 5, 6, 2}; int prod[] = productArray(arr); for (int i : prod) System.out.println(i); } private static int[] productArray(int[] arr) { int prod[] = new int[arr.length], temp = 1; for (int i = 0; i < arr.length; i++) { prod[i] = temp; temp *= arr[i]; } temp = 1; for (int i = arr.length – 1; i >= 0; i–) { prod[i] *= temp; temp *= arr[i]; } return prod; } } Rediff you can use time_spec structure defined in c doom A possible recursive formulation: #include <iostream> using namespace std; int findProductArray(int input[], int pos, int N, int previousValue); int main() { int N; cin>>N; int input[N]; for(int i=0;i<N;i++) cin>>input[i]; findProductArray(input,0, N, 1); for(int i=0; i<N; i++) cout<<input[i]<<" "; return 0; } int findProductArray(int input[], int pos, int N, int previousValue) { int originalValue = input[pos]; if(pos==0) input[pos]=1; else input[pos] = input[pos-1]* previousValue; if (pos==N-1) return originalValue; else { int rev = findProductArray(input, pos+1, N, originalValue); input[pos] = input[pos]*rev; return originalValue * rev; } } xx O(n) O(1)  
+/* Paste your code here (You may delete these lines if not writing code) */
+void array_multiplication(int A[], int OUTPUT[], int n) {
+ int left = 1;
+  int right = 1;
+  for (int i = 0; i < n; i++)
+  OUTPUT[i] = 1;
+  for (int i = 0; i < n; i++) {
+    OUTPUT[i] *= left;
+    OUTPUT[n - 1 - i] *= right;
+    left *= A[i];
+    right *= A[n - 1 - i];
+  }
+}
+ http://www.geeksforgeeks.org/archives/7527 suresh #include #include /* Function to print product array for a given array arr[] of size n */ void productArray(int arr[], int n) { int i,prod=1; for (i = 0; i < n; ++i) { prod *= arr[i]; } for (i = 0; i < n; ++i) { arr[i] = prod / arr[i]; } /* print the constructed prod array */ for (i=0; i<n; i++) printf("%d ", arr[i]); return; } /* Driver program to test above functions */ int main() { int arr[] = {10, 3, 5, 6, 2}; int n = sizeof(arr)/sizeof(arr[0]); printf("The product array is: \n"); productArray(arr, n); return 0; } anonymous you are not allowed to use Division operator..:) skulldude Well, instead of having two auxilary arrays that store leftproducts of i and rightproducts of i,why can’t we have just right product array alone. We can compute the left product as we go by.  lproduct=1;
+if(i==0){res[i]=rproduct[i+1];}
+else if(i==n-1){res[i]=lproduct;}
+else
+{
+res[i]=lprod*rproduct[i+1];
+}
+lprod*=cur[i];
+} I think this approach will be correct. abhamish27  
+a1[]={5,4,3,2,1};
+        p=a1[0];
+        for(i=1;i<sizeOfArray;i++){
+              p*=a1[i];
+        }
+         f=log(p);
+        for(j=0;j<sizeOfArray;j++){
+             y=log(a1[j]);
+             t=f-y;
+             print(antilog(t));
+        }
+ The logic behind this is taking the log of the product of the array and then subtracting each element from the product and taking its antilog. This is a constant space O(n) algo. Hari ha ha nice one keep posting Sudhanshu everything appears good but correct me if I am wrong… taking log will result in floating number and antilog will do the same… so there is chance of error… I haven’t verified it but I think so… abhamish2 It works dude. In case you are worried about the floating points round off the results. Let me paste a working code in Java  
+public static void productArray(int arr[], int size){
+        int p = arr[0];
+        for(int i=1;i<size;i++){
+            p = p * arr[i];
+        }
+        double f = Math.log(p);
+
+       for(int i=0;i<size;i++){
+           double g = Math.log(arr[i]);
+           System.out.println(Math.round(Math.exp(f-g)));
+       }
+}
+ akshat gupta limitation: log(0) in not defined modification: if array contains more(>1) ‘0’s , all the element would be zero, but if it contain only one(1) ‘0’, all element excet one element would be zero, and we can filter that case very easily… Saurya Log case fails if one of the element in the array is 0. As log(0) is undefined. akshat gupta gud one akshat gupta if array contains more(>1) ‘0’s , all the element would be zero, but if it contain only one(1) ‘0’, all element excet one element would be zero, and we can filter that case very easily… salil tiwari While seeing this code an idea stroked in my mind that if array does not contain 0 then we can solve by another method. First we will get product of all elements after wards while entering element in required arrray we will divide same index element of given array. arr[] = {10, 3, 5, 6, 2} product=1800=10*3*5*6*2 prod={1800/10,1800/3,1800/5,1800/6,1800/2} I think same complexity is maintained. kartik @salil tiwari: Read the question statement carefully, it says that you cannot use the division operator. Dileep we can do it in Space complexity – O(1) Time complexity – O(n) logic: Same as the above algorithm. Instead of storing in left and right arrays, multiply those values to the prod[] array while traversing.  
+temp=1;
+memset(prod,1,n);
+for(i=0;i&lt;n;i++)
+{
+prod[i]=temp;
+temp*=arr[i];
+}
+
+temp=1;
+for(i=n-1;i&gt;=0;i--)
+{
+prod[i]*=temp;
+temp*=arr[i];
+}
+ GeeksforGeeks @Dileep: Thanks for suggesting the optimized code. We have included it to the original post. Keep it up! LPlay I think your algorithm requires O(n) space. Since for input of size N you need one more array of size N, instead of some constant space. Only small constant space is said having space complexity O(1). padhu The problem specification allows us to use one more array….in fact, they asked to construct a new array…hence,i guess, it wont come under space complexity of solution… Vinoth It still has a product array whose size is proportional to the input array. I am sorry how is this having an O(1) space ? ronny great thinking. O(1) memory thanks for sharing. Keep up the good work guys. Keep posting. Keep Coding. jani here time complexity should be O(n^2) because we are using two for loops for key step(calculating value of prod[i]). Can anyone please explain why time complexity is O(n) instead of O(n^2)?????? HPotter i guess its because the two loops are seperate if it was loop within loop like for(—-) { for(–) { }} then the complexity will be O(n^2)…. In this case it is O(n) duke87 sorry i had n’t read question properly we can’t use devision operator duke87 i think i have batter solution just multyply all the element and store value in a variable temp after this just use a for loop 0 to n and store the temp/a[i] in prod[] array crazyFrog If you read the question carefully you will find that its NOT allowed to use a division ( / ) operator. RAJ and there can be int/long overflow if you multiply all the numbers. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

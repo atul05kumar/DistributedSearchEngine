@@ -1,0 +1,169 @@
+Searching for Patterns | Set 4 (A Naive Pattern Searching Question) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Searching for Patterns | Set 4 (A Naive Pattern Searching Question) Question: We have discussed Naive String matching algorithm here. Consider a situation where all characters of pattern are different. Can we modify the original Naive String Matching algorithm so that it works better for these types of patterns. If we can, then what are the changes to original algorithm? Solution: In the original Naive String matching algorithm , we always slide the pattern by 1. When all characters of pattern are different, we can slide the pattern by more than 1. Let us see how can we do this. When a mismatch occurs after j matches, we know that the first character of pattern will not match the j matched characters because all characters of pattern are different. So we can always slide the pattern by j without missing any valid shifts. Following is the modified code that is optimized for the special patterns. 
+#include<stdio.h>
+#include<string.h>
+
+/* A modified Naive Pettern Searching algorithn that is optimized
+   for the cases when all characters of pattern are different */
+void search(char *pat, char *txt)
+{
+    int M = strlen(pat);
+    int N = strlen(txt);
+    int i = 0;
+
+    while(i <= N - M)
+    {
+        int j;
+
+        /* For current index i, check for pattern match */
+        for (j = 0; j < M; j++)
+        {
+            if (txt[i+j] != pat[j])
+                break;
+        }
+        if (j == M)  // if pat[0...M-1] = txt[i, i+1, ...i+M-1]
+        {
+           printf("Pattern found at index %d \n", i);
+           i = i + M;
+        }
+        else if (j == 0)
+        {
+           i = i + 1;
+        }
+        else
+        {
+           i = i + j; // slide the pattern by j
+        }
+    }
+}
+
+/* Driver program to test above function */
+int main()
+{
+   char *txt = "ABCEABCDABCEABCD";
+   char *pat = "ABCD";
+   search(pat, txt);
+   getchar();
+   return 0;
+}
+ Output: Pattern found at index 4 Pattern found at index 12 Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Suffix Tree Application 5 – Longest Common Substring Generalized Suffix Tree 1 Suffix Tree Application 4 – Build Linear Time Suffix Array Suffix Tree Application 3 – Longest Repeated Substring Suffix Tree Application 2 – Searching All Patterns Suffix Tree Application 1 – Substring Check Ukkonen’s Suffix Tree Construction – Part 6 Ukkonen’s Suffix Tree Construction – Part 5 Tags: Pattern Searching Tweet Writing code in comment? Please use ideone.com and share the link here. zyzz  
+/#include<stdio.h>
+#include<string.h>
+
+
+void pattern(char *s,char *p){
+    int n=strlen(p);
+int i,flag=0;
+while(*p!=*s)
+{s++;}
+
+for(i=0;i<n;i++){
+
+    if(*p==*s){
+
+        p++;
+        s++;
+
+        flag++;
+    }
+
+
+}
+
+if(flag==n){
+
+    printf("pattern matched ");
+}
+else  printf("pattern not matched ");
+}
+
+
+int main(){
+
+char s[]="asdbc";
+char p[]="sa";
+
+pattern(s,p);
+
+return 0;}
+
+
+
+
+ seeker it can easily be done using following simple loop  
+void search(char *pat, char *txt)
+{
+    int M = strlen(pat);
+    int N = strlen(txt);
+    int i = 0;  //points to location in text
+    int j =0; //points to location for pattern
+    for( int i = 0 ; i <= N-M ;i++)
+    {
+        if( txt[i] == pat[j] ) {
+                j++;
+        }else {
+                j=0;
+        }
+        if( j == M ) {
+                printf("Pattern found at index %d \n", i-M);
+                 j=0;
+        }
+   }
+ 
+}
+ saurabh Above algorithm not work for char *txt = “AgneepathAgneepathkanchaAgneepathKancha”; char *pat = “Kancha”; GeeksforGeeks @saurabh: Please take a closer look at the problem statement. The pattern given by you is not a valid pattern as ‘a’ occurs two times. You can apply the algorithm discussed here. Naveen Makwana I think , i got a better solution to this …accepting all types of patterns and yes with just O(n) time complexity…… so here is the code……. int main() { char *s="ARAARAJAAARAJAAJARRAARAJRARAJAA"; char *p="ARAJAA"; int i=0,j=0,ls,lp; lp=strlen(p); // length of pattern ls=strlen(s); // length of text while(ls–){ if((s[i]==p[j])){ j++; } else{ j=0; if((s[i]==p[j])){ j++; } } if(j==lp){ printf("Pattern found at %d\n",i-j+1); j=0; } i++; } return 0; } point me if i m wrong somewhere…… Naveen Makwana u can remove use of strlen here….like int main() { char *s="ARAARAJAAARAJAAJARRAARAJRARAJAA"; char *p="ARAJAA"; int i=0,j=0; while(s[i]){ if((s[i]==p[j])){ j++; } else{ j=0; if((s[i]==p[j])){ j++; } } if(p[j+1]==’\0’){ printf("Pattern found at %d\n",i-j+1); j=0; } i++; } return 0; } Agniswar @Naveen:Hi,your code gives wrong output in case of inputs like char *s=”aabaacaaba” and char *p=”aaba”.Accd to your code the output is “Pattern found at 0″ and “Pattern found at 6″..but it essentially missed out position 1..I guess it’s because you have incremented i one place always in the same loop as j.So,i guess you will need two loops in order to print all the positions ! http://www.crazylearner.com/ student still the solution will not work for cases like this  
+char *txt = "AABCD";
+char *pat = "ABCD";
+ GeeksforGeeks @student: Thanks for pointing this out. We have changed the code to handle this case. student thanks for correcting the error. Raja Will it work for “RARAJA” if the pattern is “RAJA” http://geeksforgeeks.org/ Sandeep @Raja: Please take a closer look at the question. The pattern “RAJA” is not a valid pattern for the given question as all characters of the pattern must be different. http://www.linkedin.com/in/ramanawithu Venki The above function misses few corner cases. For example see the following input,  
+char *txt = "AABAACAADAABAAAABA&quot"
+char *pat = "AABA&quot"
+ There are three matching patterns. But the code prints only two. Here is the correct version of program (or increment i by (M + 1) in original program after match is found (if clause)),  
+#include <stdio.h>
+#include <string.h>
+
+#define TEXT "AABAACAADAABAAAABA"
+#define PATT "AABA"
+
+// Improvded pattern matching
+int patternSearchImproved(char text[], char patt[])
+{
+    int n = strlen(text);
+    int m = strlen(patt);
+
+    int index = -1;
+
+    // For current index i, check for pattern match
+    for( int i = 0; i <= (n - m); i++ )
+    {
+        int j = 0;
+
+        while( j < m && text[i + j] == patt[j] )
+        {
+            j++;
+        }
+
+        // if patt[0...M-1] = text[i, i+1, ...i+M-1]
+        if( j == m )
+        {
+            printf("Pattern Found at %dn", i);
+            i += m;
+        }
+        else
+        {
+            // slide the pattern by j+1
+            i += j;
+        }
+    }
+
+    return index;
+}
+
+int main(void)
+{
+    char text[] = TEXT;
+    char patt[] = PATT;
+
+    patternSearchImproved(text, patt);
+
+    return 0;
+}
+ http://geeksforgeeks.org/ Sandeep @venki: Please take a closer look at the question. The pattern “AABA” is not a valid pattern for the given question as all characters of the pattern must be different. shanker @geeksfoegeesk..can you post Boyce Moorrie string matching algo with explanation keep it up Simran This code is not right.. I feel you have modified the algorithm from Cormen a little.. In the lowermost else case of your function, you cannot increment ‘i’ by ‘j+1′.. It has to be incremented by 1 only.. Test Case where your code fails.. char *txt = “ABAABABACBCABCABABA”; char *pat = “ABABAC”; Simran Sorry, didn’t see your statement about pattern string having different characters.. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

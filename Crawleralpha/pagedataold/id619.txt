@@ -1,0 +1,579 @@
+Level Order Tree Traversal - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Level Order Tree Traversal Level order traversal of a tree is breadth first traversal for the tree. Example Tree Level order traversal of the above tree is 1 2 3 4 5 METHOD 1 (Use function to print a given level) Algorithm: There are basically two functions in this method. One is to print all nodes at a given level (printGivenLevel), and other is to print level order traversal of the tree (printLevelorder). printLevelorder makes use of printGivenLevel to print nodes at all levels one by one starting from root. /*Function to print level order traversal of tree*/
+printLevelorder(tree)
+for d = 1 to height(tree)
+   printGivenLevel(tree, d);
+
+/*Function to print all nodes at a given level*/
+printGivenLevel(tree, level)
+if tree is NULL then return;
+if level is 1, then
+    print(tree->data);
+else if level greater than 1, then
+    printGivenLevel(tree->left, level-1);
+    printGivenLevel(tree->right, level-1);
+ Implementation: 
+#include <stdio.h>
+#include <stdlib.h>
+
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+/*Function protoypes*/
+void printGivenLevel(struct node* root, int level);
+int height(struct node* node);
+struct node* newNode(int data);
+
+/* Function to print level order traversal a tree*/
+void printLevelOrder(struct node* root)
+{
+  int h = height(root);
+  int i;
+  for(i=1; i<=h; i++)
+    printGivenLevel(root, i);
+}     
+
+/* Print nodes at a given level */
+void printGivenLevel(struct node* root, int level)
+{
+  if(root == NULL)
+    return;
+  if(level == 1)
+    printf("%d ", root->data);
+  else if (level > 1)
+  {
+    printGivenLevel(root->left, level-1);
+    printGivenLevel(root->right, level-1);
+  }
+}
+
+/* Compute the "height" of a tree -- the number of
+    nodes along the longest path from the root node
+    down to the farthest leaf node.*/
+int height(struct node* node)
+{
+   if (node==NULL)
+       return 0;
+   else
+   {
+     /* compute the height of each subtree */
+     int lheight = height(node->left);
+     int rheight = height(node->right);
+
+     /* use the larger one */
+     if (lheight > rheight)
+         return(lheight+1);
+     else return(rheight+1);
+   }
+} 
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+  struct node* node = (struct node*)
+                       malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+
+  return(node);
+}
+
+/* Driver program to test above functions*/
+int main()
+{
+  struct node *root = newNode(1);
+  root->left        = newNode(2);
+  root->right       = newNode(3);
+  root->left->left  = newNode(4);
+  root->left->right = newNode(5); 
+
+  printf("Level Order traversal of binary tree is \n");
+  printLevelOrder(root);
+
+  getchar();
+  return 0;
+}
+ Time Complexity: O(n^2) in worst case. For a skewed tree, printGivenLevel() takes O(n) time where n is the number of nodes in the skewed tree. So time complexity of printLevelOrder() is O(n) + O(n-1) + O(n-2) + .. + O(1) which is O(n^2). METHOD 2 (Use Queue) Algorithm: For each node, first the node is visited and then it’s child nodes are put in a FIFO queue. printLevelorder(tree)
+1) Create an empty queue q
+2) temp_node = root /*start from root*/
+3) Loop while temp_node is not NULL
+    a) print temp_node->data.
+    b) Enqueue temp_node’s children (first left then right children) to q
+    c) Dequeue a node from q and assign it’s value to temp_node
+ Implementation: Here is a simple implementation of the above algorithm. Queue is implemented using an array with maximum size of 500. We can implement queue as linked list also. 
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX_Q_SIZE 500
+
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+/* frunction prototypes */
+struct node** createQueue(int *, int *);
+void enQueue(struct node **, int *, struct node *);
+struct node *deQueue(struct node **, int *);
+
+/* Given a binary tree, print its nodes in level order
+   using array for implementing queue */
+void printLevelOrder(struct node* root)
+{
+  int rear, front;
+  struct node **queue = createQueue(&front, &rear);  
+  struct node *temp_node = root; 
+
+  while(temp_node)
+  {
+    printf("%d ", temp_node->data);
+
+    /*Enqueue left child */
+    if(temp_node->left)
+      enQueue(queue, &rear, temp_node->left);
+
+    /*Enqueue right child */
+    if(temp_node->right)
+      enQueue(queue, &rear, temp_node->right);
+
+    /*Dequeue node and make it temp_node*/
+    temp_node = deQueue(queue, &front);
+  }
+}
+
+/*UTILITY FUNCTIONS*/
+struct node** createQueue(int *front, int *rear)
+{
+  struct node **queue =
+   (struct node **)malloc(sizeof(struct node*)*MAX_Q_SIZE);  
+
+  *front = *rear = 0;
+  return queue;
+} 
+
+void enQueue(struct node **queue, int *rear, struct node *new_node)
+{
+  queue[*rear] = new_node;
+  (*rear)++;
+}     
+
+struct node *deQueue(struct node **queue, int *front)
+{
+  (*front)++;
+  return queue[*front - 1];
+}     
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+  struct node* node = (struct node*)
+                       malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+
+  return(node);
+}
+
+/* Driver program to test above functions*/
+int main()
+{
+  struct node *root = newNode(1);
+  root->left        = newNode(2);
+  root->right       = newNode(3);
+  root->left->left  = newNode(4);
+  root->left->right = newNode(5); 
+
+  printf("Level Order traversal of binary tree is \n");
+  printLevelOrder(root);
+
+  getchar();
+  return 0;
+}
+ Time Complexity: O(n) where n is number of nodes in the binary tree References: http://en.wikipedia.org/wiki/Breadth-first_traversal Please write comments if you find any bug in the above programs/algorithms or other ways to solve the same problem.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. yewD queue.enQueue(root); queue.enQueue(null); while(!queue.isEmpty){ temp = queue.deQueue(); if(temp==null) queue.deQueue(); break line; queue.enQueue(null); }else { print(temp.data); if(temp.left!=null) queue.enQueue(temp.left); if(temp.right!=null) queue.enQueue(temp.right); } } Secord Please I need the implementation of level order traversal into source please help me #include #include #include #include #include #include using namespace std; class Node { public: int value; Node* left; Node* right; Node(int value, Node* left = NULL, Node* right = NULL) { this->left = left; this->right = right; this->value = value; } ~Node(); private: }; class Btree { public: Btree() { root = NULL; } void print_subtree(Node* x) { if (x != NULL) { print_subtree(x->left); cout <value << " " <right); } } void print() { print_subtree(root); } void insert(int new_value) { if (root == NULL) { root = new Node(new_value); } else { insert_node(new_value,root); } } void insert_node(int new_value, Node* c) { if (c->value > new_value) { if (c->left == NULL) { c->left = new Node(new_value); return; } else { insert_node(new_value, c->left); } } else { if (c->right == NULL) { c->right = new Node(new_value); return; } else { insert_node(new_value, c->right); } } } ~Btree(); private: Node* root; }; int main() { Btree* v = new Btree(); v->insert(10); v->insert(7); v->insert(15); v->insert(6); v->insert(17); v->insert(8); v->insert(16); v->insert(19); v->print(); return 0; } http://www.phoenixuser.blogspot.com GOPI GOPINATH here is the implementation of level order traversal using linked list queue #include #include #include struct Treenode { int data; struct Treenode * left; struct Treenode *right; }; struct Treenode* newnode(int data) { struct Treenode* temp=(struct Treenode *)malloc(sizeof(struct Treenode)); temp->data=data; temp->left=NULL; temp->right=NULL; return temp; } struct List { struct Treenode* node; struct List *next; }; struct queue { struct List * front; struct List *rear; }; struct queue* createqueue() { struct queue* ptr= (struct queue *)malloc(sizeof(struct queue)); if(!ptr)return NULL; ptr->front= NULL; ptr->rear=NULL; return ptr; } void enqueue(struct queue* q,struct Treenode *root ) { struct List *newnode=(struct List *)malloc(sizeof(struct List)); newnode->node=root; newnode->next=NULL; if(q->rear==NULL) { q->rear=newnode; } else { q->rear->next=newnode; q->rear=newnode; } if(q->front==NULL) q->front=q->rear; } int isempty(struct queue* q) { return (q->front==NULL); } struct Treenode* dequeue(struct queue* q) { struct Treenode* dq; struct List *temp; if(isempty(q)) { printf(“No elements in queue”); return NULL; } else { temp=q->front; dq=q->front->node; q->front=q->front->next; free(temp); } return dq; } void levelordertraversal(struct Treenode *root) { struct Treenode* temp; struct queue* q=createqueue(); enqueue(q,root); while(!isempty(q)) { temp=dequeue(q); printf(” %d->”,temp->data); if(temp->left) { enqueue(q,temp->left); } if(temp->right) { enqueue(q,temp->right); } } } int main() { struct Treenode* root=newnode(5); root->left =newnode(1); root->right =newnode(7); root->left->right =newnode(4); root->left->left =newnode(9); root->right->left =newnode(10); root->right->right =newnode(3); levelordertraversal(root); return 0; } Ankit while(front<=rear) should be used instead of while(temp_node) because we are not putting any NULL values in temp_node variable and it will crash the programme. Guest deleted. Srikanth K S Let us say I have implemented the queue using a Linked List. Then I don’t need to de-queue the element every time I want to print it right?. I can simply traverse through the the queue from head to tail. Am I right? Please correct me if I am wrong. Anish Thomas The queue is being used as a temporary data structure..Once done with printing/processing, we need not store the data in it..This helps to store only the number of elements at a particular level in the queue instead of all the elements. Guest Getting segmentation fault in second method, even after adding (*front==*rear) check condition. Is any correction required or it worked for anyone?? Pushkar if((front)!=(rear)) temp_node = deQueue(queue, &front); else break; use this in printLevelOrder() function. Ankit while(front<=rear) should be used instead of while(temp_node) in second method Veracity123 // BinaryTree.cpp : Defines the entry point for the console application. #include "stdafx.h" #include using namespace std; struct Node { Node * left; int data; int HD; Node * right; }; struct QNode { QNode *next; Node *qdata; }; class Queue { public: QNode *front; QNode *rear; Queue() { front = NULL; rear = NULL; } void Enqueue(Node *node) { if (rear == NULL) { rear = new QNode; rear->qdata = node; rear->next = NULL; front = rear; } else { // set front correctly rear->next = new QNode; rear->next->qdata = node; rear->next->next = NULL; rear = rear->next; // set the new rear; } } Node* Dequeue() { QNode *temp; Node *node; if (front) { temp = front; node = temp->qdata; front = front->next; if (front == NULL) rear = NULL; delete temp; return node; } else { return NULL; } } bool IsEmpty() { if (front == NULL) return true; return false; } }; class Tree { public: Node *root; bool r; bool l; Tree() { r = false; l = false; } void Inorder(Node *node) { if (node) { Inorder(node->left); cout << "[" <data <right); } } void LevelOrder() { Queue q; if (root) { q.Enqueue(root); } while (1) { if (!q.IsEmpty()) { // dequeue node and print it, enqueue its children Node * node = q.Dequeue(); cout << "[" <data <left) q.Enqueue(node->left); if (node->right) q.Enqueue(node->right); } else return; } } void InsertNode(int data)// pass head node here { Node * node = root; r = false; l = false; if (!root) { node = new Node; node->data = data; node->left = NULL; node->right = NULL; root = node; return; } else { Node * parent; while (1) { if (data data) // go left { parent = node; node = node->left; r = false;; l = true; } else { parent = node; node = node->right; r = true; l = false; } if (node == NULL) { if (r) { parent->right = new Node; parent->right->data = data; parent->right->left = NULL; parent->right->right = NULL; return; } if (l) { parent->left = new Node; parent->left->data = data; parent->left->left = NULL; parent->left->right = NULL; return; } } } } } }; int _tmain(int argc, _TCHAR* argv[]) { Tree t; t.InsertNode(6); t.InsertNode(4); t.InsertNode(5); t.InsertNode(2); t.InsertNode(3); t.InsertNode(1); t.InsertNode(0); t.InsertNode(9); t.InsertNode(8); t.InsertNode(7); t.InsertNode(15); t.InsertNode(14); t.InsertNode(13); t.InsertNode(12); t.LevelOrder(); return 0; } anonymous temp=root; while(temp) { printf: temp->data; if(temp->left) enque(temp->left); if(temp->right) enque(temp->right); temp=deque(); } gaurav I used queue as linked list for above problem. For linking different nodes in queue, I had to modify tree node and use an extra field “link”. Is there some way to do so without the need to modify tree node? Thanks. iamcoded i cant understand how the worst case time complexity is o(n^2) vaibhav see in right skewed tree every time a node is seen at new level , all the previous level nodes are visited b4 getting to it…. vaibhav y do we use double pointer for creating a queue?? Meenal In struct node** queue, first pointer i.e struct node* denotes type of elements of queue, that are tree nodes of type struct node*, second * is just for passing reference to queue. Amar  
+/* Paste your code here (You may delete these lines if not writing code) */
+ In the solution for traversal using queue the function deQueue should be as below else a crash may/will happen when trying to dequeue malloc’d array beyond valid data within queue.(may be garbage/null) Preferably memory should be calloc’d for queue and check as below should be given in deQueue struct node *deQueue(struct node **queue, int *front) { (*front)++; if(queue[*front – 1]==NULL) return NULL; else return queue[*front – 1]; } vinodhinic Shouldn’t the following function() have  
+if(*front==*rear) 
+return NULL;
+ condition??  
+struct node *deQueue(struct node **queue, int *front)
+{
+  (*front)++;
+  return queue[*front - 1];
+}
+ If it is not necessary please explain. P.S: As far as I know, malloc doesn’t initialize the memory allocated only calloc does. Anirudh Singh using namespace std; #include #include #include #include /* A binary tree node has data, pointer to left child and a pointer to right child */ struct Node { int data; struct Node* left; struct Node* right; }; void levelorder(struct Node* n) { queue q; q.push(n); while(!q.empty()) { Node *node = q.front(); cout<data; q.pop(); if(node->left != NULL) q.push(node->left); if (node->right != NULL) q.push(node->right); } } struct Node* newNode(int data) { struct Node* n = (struct Node*) malloc(sizeof(struct Node)); n->data = data; n->left = NULL; n->right = NULL; return(n); } int main() { struct Node *n = newNode(1); n->left = newNode(2); n->right = newNode(3); n->left->left = newNode(4); n->left->right = newNode(5); levelorder(n); return 0; jaskaran1 Time complexity will be O(n) in case of complete and O(n^2) in case of skew. Let us say time complexity of printlevel is T(k).Then,T(k)=2*T(k-1)+c[The case when the tree is complete] Thus,T(k)=2^(k-1). Summing this over all levels: We get T=2^h-1 where h is the height.In case of balanced tree h=logN . So in the best case it is O(N). When tree is skew T(k)=T(k-1)+c T(k)=O(k) Since there are n levels as n are the nodes.So 1+2+…n=n(n+1)/2 which is O(n^2) abhishek08aug Intelligent Navneet Jain #include #include #include using namespace std; struct node { int data; struct node* left; struct node* right; }; void printLevelOrder(struct node* root) { list queue; queue.push_back(root); while(!queue.empty()) { struct node *temp_node=queue.front(); queue.pop_front(); printf(“%d “, temp_node->data); if(temp_node->left) queue.push_back (temp_node->left); if(temp_node->right) queue.push_back (temp_node->right); } } struct node* newNode(int data) { struct node* node = (struct node*) malloc(sizeof(struct node)); node->data = data; node->left = NULL; node->right = NULL; return(node); } /* Driver program to test above functions*/ int main() { struct node *root = newNode(1); root->left = newNode(2); root->right = newNode(3); root->left->left = newNode(4); root->left->right = newNode(5); printf(“Level Order traversal of binary tree is \n”); printLevelOrder(root); getchar(); return 0; } Nikin Kumar Jain Code to Perform Both Inorder and Level-Order Without Recursion, Using a same kind of Datastucture. But with modified Implementation method.  
+struct node
+{
+	int data;
+	node *left, *right;
+};
+
+struct stack
+{
+	stack *next;
+	node *data;
+};
+
+void pushQueue(node *sr, stack **s1)
+{
+	stack *point = new stack;
+	point->data = sr;
+	point->next = NULL;
+
+	if(!*s1)
+		*s1 = point;
+	else
+	{
+		stack *pointer = *s1;
+		while(pointer->next)
+			pointer = pointer->next;
+		pointer->next = point;
+	}
+}
+void push(node *sr, stack **s1)
+{
+	stack *point = new stack;
+	point->data = sr;
+	point->next = NULL;
+
+	if(!*s1)
+		*s1 = point;
+	else
+	{
+		point->next = *s1;
+		*s1 = point;
+	}
+}
+node* pop(stack **s1)
+{
+	stack *point = *s1;
+	*s1 = (*s1)->next;
+	return point->data;
+}
+bool isEmpty(stack *s)
+{
+	if(s == NULL)
+		return true;
+	return false;
+}
+
+void levelOrderNoRecurs(node *sr)
+{
+	if(sr == NULL)
+		return;
+
+	stack *s = NULL;
+	pushQueue(sr, &s);
+	bool done1 = true;
+	while(done1)
+	{
+		if(isEmpty(s))
+			return;
+
+		node *dt = pop(&s);
+		cout<<dt->data<<" ";
+
+		if(dt->left)
+			pushQueue(dt->left, &s);
+		if(dt->right)
+			pushQueue(dt->right, &s);
+	}
+}
+
+void inorderNoRecurs(node *sr)
+{
+	if(sr == NULL)
+		return;
+
+	stack *s = NULL;
+	bool done1 = true;
+	while(done1)
+	{
+		if(sr != NULL)
+		{
+			push(sr, &s);
+			sr = sr->left;
+		}
+		else
+		{
+			if(isEmpty(s))
+			{
+				done1 = false;
+				return;
+			}
+			node *dt = pop(&s);
+			cout<<dt->data<<" ";
+
+			sr = dt->right;
+		}
+	}
+}
+ Ravi I think the deQueue method should be something like this, for checking if the queue is empty. I tried to use your code, it resulted in coredump. If the code is modified like this, it is working fine. Please check once.  
+struct node *deQueue(struct node **queue, int *front,int *rear)
+{
+	if(*front == *rear)
+		return NULL;
+
+  (*front)++;
+  return queue[*front - 1];
+}
+ Thanks ethanjyx What’s the best case time complexity for method 1 then?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Bhupendra @geeksforgeeks Complexity of first method given is wrong for level l print level will visit all nodes upto level l so complexity is: 2^1+2^2…..2^h (h = height of tree) which is basically 2^(nlogn) or n^n kartik I could not understand your explanation. I still believe time complexity is O(n^2). You can get O(n^2) using following logic. Let n be the number of nodes in a Binary Tree 1) printGivenLevel() will take at most O(n) time. It is similar to tree traversal functions, like inorder. 2) printGivenLevel() is called for every level and there can be at most O(n) levels. We will have O(n) levels in a skewed tree. So the upper bound on worst case time complexity is O(n)*O(n) which is O(n^2) Bhupendra Worst case won’t be in case of skewed tree. It’s actually best case! Worst case would be in case of complete tree! number of nodes upto level l is 2^l (l in case of skewed tree) and printlevel node will visit all nodes at-least once upto level l. So complexity will be some of this GP 2^1 +2^2….2^h May be I am still wrong! So please correct! Mo 2^1 +2^2….2^h <= n where h is O(logn),if it is a complete tree. Anyway, to visit a node, you have visited at most (n-1) nodes down to it. Ankush In second method i think, instead of malloc ,calloc should be used to allocate memory for queue. anil arya   /* Paste your code here (You may delete these lines if not writing code) */ {{{ #include #include /* A tree node structure */ struct node { int data; struct node *left; struct node *right; }; int height(struct node *root) { if(root==NULL) return 0; int lh=height(root->left); int rh=height(root->right); return lh>rh?(lh+1):(rh+1); } /* Utility function to create a new Binary Tree node */ struct node* newNode(int data) { struct node *temp = new struct node; temp->data = data; temp->left = NULL; temp->right = NULL; return temp; } void inorder(struct node *root,int k,int i) { if(root==NULL) return ; else { inorder(root->left,k,i+1); if(i==k) { printf(“%d “,root->data); } inorder(root->right,k,i+1); } } /* Driver function to test above functions */ int main() { struct node *root = new struct node; /* Constructing tree given in the above figure */ root = newNode(3); root->left = newNode(2); root->right = newNode(5); root->left->left = newNode(1); root->left->right = newNode(4); root->left->left->left = newNode(11); root->left->right->left = newNode(14); root->left->left->right = newNode(12); root->left->right ->right= newNode(44); int i; int ht=height(root); for(i=1;i<=ht;i++) { inorder(root,i,1); printf("\n");} x = 6; getchar(); return 0; } }}} vivek i guess this one is simple enough plus no adverse effects of pointer  
+#include <stdio.h>
+
+#define N 10
+
+void bfs(int adj[][N],int visited[],int start)
+{
+	int q[N],rear=-1,front=-1,i;
+	q[++rear]=start;
+	visited[start]=1;
+	while(rear != front)
+	{
+		start = q[++front];
+		if(start==9)
+			printf("10\t");
+		else
+			printf("%c \t",start+49); //change to 65 in case of alphabets
+
+		for(i=0;i<N;i++)
+		{
+			if(adj[start][i] && !visited[i])
+			{
+				q[++rear]=i;
+				visited[i]=1;
+			}
+		}
+	}
+}
+
+int main()
+{
+	int visited[N]={0};
+	int adj[N][N]={{0,1,1,0,0,0,0},
+	{0,0,0,1,1,0,0},
+	{0,0,0,0,0,1,1},
+	{0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0},
+	};
+
+	bfs(adj,visited,0);
+	return 0;
+
+	
+}
+
+ Avinash  
+/* Paste your code here (You may delete these lines if not writing code) */
+void printlevelorder(struct node *tree)
+{
+	struct queue *Q=createQueue();
+	If (!tree) return NULL;
+	Enqueue(Q,root)
+	while(!IsEmptyQueue(Q))
+	{
+		struct node *temp=DeQueue(Q);
+		printf("%d",Q->data);
+		If temp->left EnQueue(Q, temp->left);
+		If temp->right EnQueue(Q, temp->right);
+	}
+	
+	DeleteQueue(Q);
+}	
+ PsychoCoder Same thins as method 2. But dynamic Same complexity : O(n)  
+#include<stdio.h>
+#include<stdlib.h>
+#include<limits.h>
+
+typedef struct node {
+  int data ;
+  struct node *left ;
+  struct node *right ;
+}node;
+
+typedef struct list {
+  node *data ;
+  struct list *next;
+}list;
+
+typedef struct queue {
+  int count ;
+  struct list *front ;
+  struct list *rear;
+}queue ;
+
+void createQueue (queue **head) {
+  *head = (queue *) malloc (sizeof(queue)) ;
+  (*head)->count = 0 ;
+  (*head)->front = NULL ;
+  (*head)->rear = NULL ;
+}
+
+list* newList (node* data) {
+  list *head ;
+  head = (list *) malloc (sizeof(list)) ;
+  head->next = NULL ;
+  head->data = data ;
+  return head ;
+}
+
+queue* enqueue (queue *head, node* data) {
+  list *temp = newList (data) ;
+  if (head->front == NULL) {
+    head->front = temp ;
+    head->rear = temp ;
+    head->count ++ ;
+  }
+  else {
+    head->rear->next = temp ;
+    head->rear = head->rear->next ;
+    head->count ++ ;
+  }
+  return head;
+}
+
+list* dequeue (queue **head) {
+  list *temp ;
+  if ((*head)->count == 0)
+    return NULL ;
+  if ((*head)->front != NULL) {
+    temp = (*head)->front ;
+    if ( (*head)->front == (*head)->rear ) {
+      (*head)->front = NULL ;
+      (*head)->rear = NULL ;
+      (*head)->count -- ;
+    }
+    else 
+      (*head)->front = (*head)->front->next ;
+      (*head)->count -- ;
+  } 
+  return temp ;
+}
+
+int isEmpty (queue *q) {
+  return (q->count == 0);
+}
+
+node* newnode (int data) {
+  node *head ;
+  head = (node *) malloc (sizeof(node)) ;
+  head->data = data ;
+  head->left = NULL ;
+  head->right = NULL ;
+  return head ;
+}
+
+void printLevelBFS (node *tree) {
+  queue *q ;
+  list *temp ;
+  /* Initialize the queue */
+  createQueue (&q) ;
+
+  enqueue (q,tree) ;
+  /* Use INT_MAX as delimiter */
+  enqueue (q,newnode(INT_MAX)) ;
+
+  while ( !isEmpty (q) ) {
+    temp = dequeue (&q) ;
+  
+    /* Check whether it is a delimiter or not */
+    if ( temp->data->data != INT_MAX ) {
+      /* If not then extreme right of this level
+         is not reached till now. Enqueue its
+         child */
+      printf ( "%d ", temp->data->data ) ;
+      if (temp->data->left)
+        q = enqueue (q, temp->data->left) ;
+
+      if (temp->data->right)
+        q = enqueue (q, temp->data->right) ;
+    } else {
+      printf ( "\n" ) ;
+      /* If a delimiter is reached, then set the 
+         delimiter of the next level. Because 
+         extreme right is reached for this level */
+      if ( !isEmpty(q) )
+        enqueue (q,newnode(INT_MAX)) ;
+    }
+  }
+
+  while (!isEmpty (q))
+    dequeue (&q) ;
+  free (q) ;
+}
+
+int main() {
+
+  node *root 	    = newnode(10);
+  root->left        = newnode(8);
+  root->right       = newnode(2);
+  root->left->left  = newnode(3);
+  root->right->left = newnode(6) ;
+  root->right->right = newnode(7) ;
+
+  printLevelBFS (root ) ;
+  free (root);
+  return 1 ;
+} PsychoCoder There is a small mistake in this fucntion . I have Updated it. Here it is :  
+list* dequeue (queue **head) {
+  list *temp ;
+  if ((*head)->count == 0)
+    return NULL ;
+  if ((*head)->front != NULL) {
+    temp = (*head)->front ;
+    if ( (*head)->front == (*head)->rear ) {
+      (*head)->front = NULL ;
+      (*head)->rear = NULL ;
+      (*head)->count -- ;
+    }
+    else {
+      (*head)->front = (*head)->front->next ;
+      (*head)->count -- ;
+    }
+  }
+  return temp ;
+} Manish_Dawar your code wont work if we have a tree have a root only because there is nothing in the queue and we are still dequeueing it.. kartik Take a closer look at the program. It works for this case also. Also see this run Manish_Dawar i tried it on gcc. Not working.. So, i jst add on a condition jst before dequeue i.e if front and rear are equal break.. Correct me, if i m wrng.. kartik @Manish_Dawar: could you post the error message that you got. sachin my solution is.. #include typedef struct node { int value; struct node *right; struct node *left; }mynode; mynode *root; add_node(int value); void levelOrderTraversal(mynode *root); int main(int argc, char* argv[]) { root = NULL; add_node(5); add_node(1); add_node(-20); add_node(100); add_node(23); add_node(67); add_node(13); printf(“\n\n\nLEVEL ORDER TRAVERSAL\n\n”); levelOrderTraversal(root); system(“pause”); return 0; } add_node(int value) { mynode *prev, *cur, *temp; temp = (mynode *) malloc(sizeof(mynode)); temp->value = value; temp->right = NULL; temp->left = NULL; if(root==NULL) { printf(“\nCreating the root..\n”); root = temp; return; } prev=NULL; cur=root; while(cur!=NULL) { prev=cur; cur=(valuevalue)?cur->left:cur->right; } if(value value) prev->left=temp; else prev->right=temp; } // Level order traversal.. void levelOrderTraversal(mynode *root) { mynode *queue[100] = {(mynode *)0}; // Important to initialize! int size = 0; int queue_pointer = 0; while(root) { printf(“[%d] “, root->value); if(root->left) { queue[size++] = root->left; } if(root->right) { queue[size++] = root->right; } root = queue[queue_pointer++]; } } Decompiler What about storing each node data in multimap and printing them at last ?  
+void level_order( struct node* root, int l )
+{
+	int m;
+	if ( root == NULL )
+		return;
+	m = root -> data;	
+	M.insert ( pair<int,int>(l,m) );	
+	l++;	
+	level_order(root->left, l);
+	level_order(root->right, l);			
+}
+ satya @geeksforgeeks,,,Can you guys please make your post error free ..m getting 100 of error but just cut & paste in ideone.. don’t belive click here https://ideone.com/txVW8 like prog.cpp:4: error: stray ‘\302’ in program prog.cpp:4: error: stray ‘\240’ in program prog.cpp:9: error: stray ‘\302’ in program prog.cpp:9: error: stray ‘\240’ in program prog.cpp:9: error: stray ‘\302’ in program prog.cpp:9: error: stray ‘\240’ in program prog.cpp:9: error: stray ‘\302’ in program prog.cpp:9: error: stray ‘\240’ in program & so on GeeksforGeeks @satya: We tried to run both the given programs using ideone. They both worked fine for us. See the following links. https://ideone.com/XEpQw https://ideone.com/2PkJ9 To avoid selecting extra characters when copying, double click anywhere on the code segment and copy the code. Pragya @Satya- Even me too encountered with same error many times but now i got the reason behind it. Actually, whenever u copy and paste source code in your .c file some characters are not read properly by ur editor. Mostly , u can see this when u will copy and paste any printf() then the color of characters written inside ” ” is pink in linux, but sometimes when u copy and paste the color remains black, it means it is not yet read properly… So delete double quotes (” “) and type by your own keyboard the quotes only and then u will find the color changes to pink …so now no error will come… I hope u got it… If not got then do let me know please… mike Hey guys! so what is the time complexity of the first code? it it (O)n or (O)n^2 ??? Sandeep @mike: We have updated the post and added explaination for the time complexity of method 1. rohith in the first solution in the height function, with out counting how will the height of left an right subtree caculated?? kartik @rohith I am not able to understand your question :(. Please elaborate. Pragya @Rohith- In height function of the first solution,u can see the inner if-else statement there you can find that height of left subtree(lheight) and height of right subtree (rheight) is increment as per condition, and thus able to count height. Lakshmi What is the time complexity of the first method? kartik I think time complexity is O(n^2). We can see this for a skewed tree. Bhupendra It will be exponential!! See my comment for explanation Bhupendra for level l print level will visit all nodes upto level l so complexity is: 2^1+2^2…..2^h (h = height of tree) which is basically 2^(nlogn) or n^n kartik I could not understand your explanation. I still believe time complexity is O(n^2). You can get O(n^2) using following logic. Let n be the number of nodes in a Binary Tree 1) printGivenLevel() will take at most O(n) time. It is similar to tree traversal functions, like inorder. 2) printGivenLevel() is called for every level and there can be at most O(n) levels. So the upper bound on worst case time complexity is O(n)*O(n) which is O(n^2) jaskaran1 @admin I believe the time complexity for the first method is stated wrong. Let us say time complexity of printlevel is T(k).Then,T(k)=2*T(k-1)+c Thus,T(k)=2^(k-1). Summing this over all levels: We get T=2^h-1 where h is the height.In case of balanced tree h=logN and in skew case h=N.So in the worst case it is O(2^N).  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://whois.domaintools.com/jesswilson.com Anshul will this give this output: 1 2 3 4 5 i.e by printing at each level in seperate line. How this can be done? also this line: /*Dequeue node and make it temp_node*/ temp_node = deQueue(queue, &front); will only print a Node while we are filling left and right again and again? gauravs What will be the time complexity of recursive solution of level order traversal ? Shrijeet void printLevelOrder(struct node* root) { int rear, front; struct node **queue = createQueue(&front, &rear); struct node *temp_node = root; while(temp_node) { printf("%d ", temp_node->data); /*Enqueue left child */ if(temp_node->left) enQueue(queue, &rear, temp_node->left); /*Enqueue right child */ if(temp_node->right) enQueue(queue, &rear, temp_node->right); /*Dequeue node and make it temp_node*/ temp_node = deQueue(queue, &front); } } There is an error in code, note the correction needed. Thanks! GeeksforGeeks @Shrijeet: Thanks for pointing this out. We have made the suggested changes. Rosy Thanks..Yeah It will work perfectly..After writing the comments only, I realized that but did n’t know how to delete my comments..:)..But thanks for the explanation.. Its really a great site..:) geeksforgeeks @Rosy: The first solution will work as printGivenLevel() prints the data when level becomes 1. For i = 1 (i.e. root) there won’t be any recursive calls as level is 1 so root node will be printed. For other levels, passed level will be more than 1, traversal will start from root and level will be decremented as we move down the tree recursively. When we reach the required level, level will become 1 and nodes will be printed. You can try the code with different trees. Rosy Hi, I do n’t think the first solution is going to work.. 
+Inside printLevelOrder(struct node* root)
+{
+  ....
+  printGivenLevel(root, i); //here its starting from i=0
+}
+ And Inside 
+printGivenLevel(struct node* root, int level)
+{
+  ...
+  if(level >1)
+   //calling recursively by passing the left and right child 
+   // as the first argument and (level-1) as the 2nd argument.
+   //Here level starts from zero..so how the revursive calls 
+   //are going to happen..
+}
+ Please comment if my understanding is incorrect.. geeksforgeeks @Shikha: Thanks for pointing out this. There was a typo. We have corrected it. Keep it up!! Shikha “Time Complexity: O(n) Space Complexity: O(n) Space complexity will be equal to height of the tree and for a skewed tree height can be O(n).” Space complexity will be equal to number of nodes in the tree. ‘n’ refers to number of nodes in tree. neelabhsingh Hello Shikha, Time Complexity -O(n) and Space complexity is O(2^(height of Tree)) and as you mentioned that for skewed tree space complexity is will be always O(1) because you always storing only one child at a time. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

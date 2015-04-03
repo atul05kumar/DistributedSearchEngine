@@ -1,0 +1,31 @@
+Check if a number is multiple of 9 using bitwise operators - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Check if a number is multiple of 9 using bitwise operators Given a number n, write a function that returns true if n is divisible by 9, else false. The most simple way to check for n’s divisibility by 9 is to do n%9. Another method is to sum the digits of n. If sum of digits is multiple of 9, then n is multiple of 9. The above methods are not bitwise operators based methods and require use of % and /. The bitwise operators are generally faster than modulo and division operators. Following is a bitwise operator based method to check divisibility by 9. 
+#include<iostream>
+using namespace std;
+
+// Bitwise operator based function to check divisibility by 9
+bool isDivBy9(int n)
+{
+    // Base cases
+    if (n == 0 || n == 9)
+        return true;
+    if (n < 9)
+        return false;
+
+    // If n is greater than 9, then recur for [floor(n/9) - n%8]
+    return isDivBy9((int)(n>>3) - (int)(n&7));
+}
+
+// Driver program to test above function
+int main()
+{
+    // Let us print all multiples of 9 from 0 to 100
+    // using above method
+    for (int i = 0; i < 100; i++)
+       if (isDivBy9(i))
+         cout << i << " ";
+    return 0;
+} Output: 0 9 18 27 36 45 54 63 72 81 90 99 How does this work? n/9 can be written in terms of n/8 using the following simple formula. 
+n/9 = n/8 - n/72 Since we need to use bitwise operators, we get the value of floor(n/8) using n>>3 and get value of n%8 using n&7. We need to write above expression in terms of floor(n/8) and n%8. n/8 is equal to “floor(n/8) + (n%8)/8″. Let us write the above expression in terms of floor(n/8) and n%8 
+n/9 = floor(n/8) + (n%8)/8 - [floor(n/8) + (n%8)/8]/9
+n/9 = floor(n/8) - [floor(n/8) - 9(n%8)/8 + (n%8)/8]/9
+n/9 = floor(n/8) - [floor(n/8) - n%8]/9 From above equation, n is a multiple of 9 only if the expression floor(n/8) – [floor(n/8) – n%8]/9 is an integer. This expression can only be an integer if the sub-expression [floor(n/8) – n%8]/9 is an integer. The subexpression can only be an integer if [floor(n/8) – n%8] is a multiple of 9. So the problem reduces to a smaller value which can be written in terms of bitwise operators. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Check if binary representation of a number is palindrome Swap two nibbles in a byte How to turn off a particular bit in a number? How to swap two numbers without using a temporary variable? Divide and Conquer | Set 4 (Karatsuba algorithm for fast multiplication) Find position of the only set bit Swap all odd and even bits Add two bit strings Tweet Writing code in comment? Please use ideone.com and share the link here. Lohith Ravi dude you are using subtration, i would rather subtract 9, until the original number gets less than 9 isDivisbleby9(int n) { if(n==0) return true; else if(n < 9) return false; return isDivisbleby9(n-9); } inquisitive Are we expected to come up with this solution during an interview? Even if I do because i have read it, it’s quite apparent. Mayank Rajani You are eventually using minus(-) which is not a bitwise operator.Not a very efficient one even if it is written iteratively. I would use n%9 instead. Pls correct me if I m wrong. Mayank Rajani You are eventually using minus(-) which is not a bitwise operator.Not a very efficient one even if it is written iteratively. I would use n%9 instead. Pls correct me if I m wrong. Abhishek Kumar gud one…!!!! sachi059 Nice idea Koushik Good Solution…… Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

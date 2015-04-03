@@ -1,0 +1,746 @@
+Connect nodes at same level using constant extra space - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Connect nodes at same level using constant extra space Write a function to connect all the adjacent nodes at the same level in a binary tree. Structure of the given Binary Tree node is like following. 
+struct node {
+  int data;
+  struct node* left;
+  struct node* right;
+  struct node* nextRight;
+}
+ Initially, all the nextRight pointers point to garbage values. Your function should set these pointers to point next right for each node. You can use only constant extra space. Example 
+Input Tree
+       A
+      / \
+     B   C
+    / \   \
+   D   E   F
+
+Output Tree
+       A--->NULL
+      / \
+     B-->C-->NULL
+    / \   \
+   D-->E-->F-->NULL
+ We discussed two different approaches to do it in the previous post. The auxiliary space required in both of those approaches is not constant. Also, the method 2 discussed there only works for complete Binary Tree. In this post, we will first modify the method 2 to make it work for all kind of trees. After that, we will remove recursion from this method so that the extra space becomes constant. A Recursive Solution In the method 2 of previous post, we traversed the nodes in pre order fashion. Instead of traversing in Pre Order fashion (root, left, right), if we traverse the nextRight node before the left and right children (root, nextRight, left), then we can make sure that all nodes at level i have the nextRight set, before the level i+1 nodes. Let us consider the following example (same example as previous post). The method 2 fails for right child of node 4. In this method, we make sure that all nodes at the 4’s level (level 2) have nextRight set, before we try to set the nextRight of 9. So when we set the nextRight of 9, we search for a nonleaf node on right side of node 4 (getNextRight() does this for us). 
+            1            -------------- Level 0
+          /    \
+        2        3       -------------- Level 1
+       / \      /  \
+      4   5    6    7    -------------- Level 2
+     / \           / \
+    8   9        10   11 -------------- Level 3
+ 
+void connectRecur(struct node* p);
+struct node *getNextRight(struct node *p);
+
+// Sets the nextRight of root and calls connectRecur() for other nodes
+void connect (struct node *p)
+{
+    // Set the nextRight for root
+    p->nextRight = NULL;
+
+    // Set the next right for rest of the nodes (other than root)
+    connectRecur(p);
+}
+
+/* Set next right of all descendents of p. This function makes sure that
+nextRight of nodes ar level i is set before level i+1 nodes. */
+void connectRecur(struct node* p)
+{
+    // Base case
+    if (!p)
+       return;
+
+    /* Before setting nextRight of left and right children, set nextRight
+    of children of other nodes at same level (because we can access 
+    children of other nodes using p's nextRight only) */
+    if (p->nextRight != NULL)
+       connectRecur(p->nextRight);
+
+    /* Set the nextRight pointer for p's left child */
+    if (p->left)
+    {
+       if (p->right)
+       {
+           p->left->nextRight = p->right;
+           p->right->nextRight = getNextRight(p);
+       }
+       else
+           p->left->nextRight = getNextRight(p);
+
+       /* Recursively call for next level nodes.  Note that we call only
+       for left child. The call for left child will call for right child */
+       connectRecur(p->left);
+    }
+
+    /* If left child is NULL then first node of next level will either be
+      p->right or getNextRight(p) */
+    else if (p->right)
+    {
+        p->right->nextRight = getNextRight(p);
+        connectRecur(p->right);
+    }
+    else
+       connectRecur(getNextRight(p));
+}
+
+/* This function returns the leftmost child of nodes at the same level as p.
+   This function is used to getNExt right of p's right child
+   If right child of p is NULL then this can also be used for the left child */
+struct node *getNextRight(struct node *p)
+{
+    struct node *temp = p->nextRight;
+
+    /* Traverse nodes at p's level and find and return
+       the first node's first child */
+    while(temp != NULL)
+    {
+        if(temp->left != NULL)
+            return temp->left;
+        if(temp->right != NULL)
+            return temp->right;
+        temp = temp->nextRight;
+    }
+
+    // If all the nodes at p's level are leaf nodes then return NULL
+    return NULL;
+}
+
+ An Iterative Solution The recursive approach discussed above can be easily converted to iterative. In the iterative version, we use nested loop. The outer loop, goes through all the levels and the inner loop goes through all the nodes at every level. This solution uses constant space. 
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node
+{
+    int data;
+    struct node *left;
+    struct node *right;
+    struct node *nextRight;
+};
+
+/* This function returns the leftmost child of nodes at the same level as p.
+   This function is used to getNExt right of p's right child
+   If right child of is NULL then this can also be sued for the left child */
+struct node *getNextRight(struct node *p)
+{
+    struct node *temp = p->nextRight;
+
+    /* Traverse nodes at p's level and find and return
+       the first node's first child */
+    while (temp != NULL)
+    {
+        if (temp->left != NULL)
+            return temp->left;
+        if (temp->right != NULL)
+            return temp->right;
+        temp = temp->nextRight;
+    }
+
+    // If all the nodes at p's level are leaf nodes then return NULL
+    return NULL;
+}
+
+/* Sets nextRight of all nodes of a tree with root as p */
+void connect(struct node* p)
+{
+    struct node *temp;
+
+    if (!p)
+      return;
+
+    // Set nextRight for root
+    p->nextRight = NULL;
+
+    // set nextRight of all levels one by one
+    while (p != NULL)
+    {
+        struct node *q = p;
+
+        /* Connect all childrem nodes of p and children nodes of all other nodes
+          at same level as p */
+        while (q != NULL)
+        {
+            // Set the nextRight pointer for p's left child
+            if (q->left)
+            {
+                // If q has right child, then right child is nextRight of
+                // p and we also need to set nextRight of right child
+                if (q->right)
+                    q->left->nextRight = q->right;
+                else
+                    q->left->nextRight = getNextRight(q);
+            }
+
+            if (q->right)
+                q->right->nextRight = getNextRight(q);
+
+            // Set nextRight for other nodes in pre order fashion
+            q = q->nextRight;
+        }
+
+        // start from the first node of next level
+        if (p->left)
+           p = p->left;
+        else if (p->right)
+           p = p->right;
+        else
+           p = getNextRight(p);
+    }
+}
+
+/* UTILITY FUNCTIONS */
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newnode(int data)
+{
+    struct node* node = (struct node*)
+                        malloc(sizeof(struct node));
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+    node->nextRight = NULL;
+
+    return(node);
+}
+
+/* Driver program to test above functions*/
+int main()
+{
+
+    /* Constructed binary tree is
+              10
+            /   \
+          8      2
+        /         \
+      3            90
+    */
+    struct node *root = newnode(10);
+    root->left        = newnode(8);
+    root->right       = newnode(2);
+    root->left->left  = newnode(3);
+    root->right->right       = newnode(90);
+
+    // Populates nextRight pointer in all nodes
+    connect(root);
+
+    // Let us check the values of nextRight pointers
+    printf("Following are populated nextRight pointers in the tree "
+           "(-1 is printed if there is no nextRight) \n");
+    printf("nextRight of %d is %d \n", root->data,
+           root->nextRight? root->nextRight->data: -1);
+    printf("nextRight of %d is %d \n", root->left->data,
+           root->left->nextRight? root->left->nextRight->data: -1);
+    printf("nextRight of %d is %d \n", root->right->data,
+           root->right->nextRight? root->right->nextRight->data: -1);
+    printf("nextRight of %d is %d \n", root->left->left->data,
+           root->left->left->nextRight? root->left->left->nextRight->data: -1);
+    printf("nextRight of %d is %d \n", root->right->right->data,
+           root->right->right->nextRight? root->right->right->nextRight->data: -1);
+
+    getchar();
+    return 0;
+}
+ Output: 
+Following are populated nextRight pointers in the tree (-1 is printed if 
+there is no nextRight)
+nextRight of 10 is -1
+nextRight of 8 is 2
+nextRight of 2 is -1
+nextRight of 3 is 90
+nextRight of 90 is -1
+ Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. Tushar K Gupta We do not need the extra function getNextRight(struct node *p), and logic can be simplified very easily.Simply do a level order traversal , using a queue (order is left to right). Keep a prevNode pointer to the first node of every level, when we get next node on same level , point prevNode ->rightconnect to current and modify prevNode to current. Only thing is while initializing the nodes , we have to set rightconnect = NULL else we can do simple modification in below code. void LevelOrderTraverse(node * root) { if(root == NULL) return; queue qTree ; qTree.push(root); while(qTree.size() > 0) { node * prevNode = NULL ; int nSize = qTree.size(); for(int nIndex = 0 ; nIndex nextRight = temp; } prevNode = temp ; if(temp->left) qTree.push(temp->left); if(temp->right) qTree.push(temp->right); } } } abi what is the worst case time complexity? wgpshashank We need to calculate the getNextRight if we can make sure while doing preorder traversal , that nextRight will be set correct node.Check the below code and let me know if anything wrong in that. #include #include /* A binary tree node has data, pointer to left child and a pointer to right child */ struct node { int data; struct node* left; struct node* right; struct node* nextRight; }; /* Helper function that allocates a new node with the given data and NULL left and right pointers. */ struct node* newNode(int data) { struct node* node = (struct node*) malloc(sizeof(struct node)); node->data = data; node->left = NULL; node->right = NULL; node->nextRight=NULL; return(node); } void connect(struct node* p) { if (!p) return; if (p->left) { if(p->right)//its necessary else NULL Pointer Exception p->left->nextRight = p->right; else if(p->nextRight) { if(p->nextRight->left)/// we can add one more if(p->nextRight) p->left->nextRight=p->nextRight->left; else if(p->nextRight->right) p->left->nextRight=p->nextRight->right; } else p->left->nextRight=NULL;//if all are null except that node at that level } if (p->right) { if(p->nextRight) { if(p->nextRight->left)//skipping checking the root null or not p->right->nextRight =p->nextRight->left; else if(p->nextRight->right)//skipping checking the root null or not p->right->nextRight =p->nextRight->right; } else p->right->nextRight=NULL; } connect(p->left); connect(p->right); } /* Driver program to test above functions*/ int main() { struct node *root = newNode(1); root->left = newNode(2); root->right = newNode(3); root->left->left = newNode(4); root->left->right = newNode(5); root->right->left= newNode(6); root->right->right= newNode(7); root->left->left->left = newNode(8); root->left->left->right = newNode(9); root->left->right->left = newNode(10); root->left->right->right = newNode(11); root->right->left->left= newNode(12); root->right->left->right= newNode(13); root->right->right->left= newNode(14); root->right->right->right= newNode(15); connect(root); printf( ” %d %d %d “, root->left->nextRight->data,root->left->right->nextRight->data,root->right->left->nextRight->data); printf(” %d %d %d “,root->left->left->left->nextRight->data,root->left->left->right->nextRight->data,root->right->right->left->nextRight->data);//,root->right->right->right->nextRight->data); it will be null getchar(); return 0; } Run Here http://ideone.com/V1v5mX Yash Here is my Implementation: Add nodes at each level to vector followed by NULL that stands for end of a level. Set nextRight to the next element in vector until u get a null. After setting the nextrights of a level, simply process each element and add its node to the end of the vector and repeat the process. void connetNodeAtLevels(node * head) { vector queue; int processingIndex=0,levelIndex; queue.push_back(head); queue.push_back(NULL); while(queue[processingIndex]) { levelIndex = processingIndex; while(queue[levelIndex]) { queue[levelIndex]->nextRight = queue[levelIndex+1]; levelIndex++; } while(queue[processingIndex]) { if(queue[processingIndex]->left) queue.push_back(queue[processingIndex]->left); if(queue[processingIndex]->right) queue.push_back(queue[processingIndex]->right); processingIndex++; } queue.push_back(NULL); processingIndex++; //Move processing Index beyond NULL } return; } what’s in a name #include #include #include class node{ public: int val; class node *left; class node *right; class node *next; }; typedef class node *NODEPTR; NODEPTR newnode(int val){ NODEPTR ptr = new node(); ptr->val = val; ptr->left = NULL; ptr->right = NULL; ptr->next = NULL; return ptr; } NODEPTR findRight(NODEPTR root){ while(root){ if(root->left != NULL){ return root->left; } if(root->right != NULL){ return root->right; } root = root->next; } } void connectLevel(NODEPTR root){ if(root == NULL) return; if(root->next != NULL){ connectLevel(root->next); } if(root->left != NULL){ if(root->right != NULL){ root->left->next = root->right; root->right->next = findRight(root->next); }else{ root->left->next = findRight(root->next); } connectLevel(root->left); } else if(root->right != NULL){ root->right->next = findRight(root->next); connectLevel(root->right); }else connectLevel(root->right); } void printRight(NODEPTR root){ if(root == NULL) { printf(“n”); return; } printf(“%d ” , root->val); printRight(root->next); } void printLevel(NODEPTR root){ if(root == NULL) return; printf(“%d ” , root->val); printRight(root->next); if(root->left != NULL){ printLevel(root->left); }else if(root->right != NULL){ printLevel(root->right); }else{ printLevel(findRight(root->next)); } } int main(){ //Make the tree with root struct node *root = newnode(10); root->left = newnode(8); root->right = newnode(2); root->left->left = newnode(3); root->right->right = newnode(90); connectLevel(root); printLevel(root); } numid //We can use two queues instead for simplicity,this is a simple solution #include typedef struct node { int data; struct node *right,*left,*sibling; }node; void sibling(node **root) { if(*root==NULL) return; node *queue1[10],*queue2[10],*temp,*prev; int f1,f2,r1,r2; f1=f2=r1=r2=0; temp=*root; queue1[r1++]=temp; while(f1<r1 || f2<r2) { temp=queue1[f1]; prev=NULL; while(f1left) queue2[r2++]=temp->left; if(temp->right) queue2[r2++]=temp->right; if(prev) prev->sibling=temp; temp->sibling=NULL; prev=temp; f1++; if(f1<r1) temp=queue1[f1]; } temp=queue2[f2]; prev=NULL; while(f2left) queue1[r1++]=temp->left; if(temp->right) queue1[r1++]=temp->right; if(prev) prev->sibling=temp; temp->sibling=NULL; prev=temp; f2++; if(f2left=temp->right=NULL; temp->data=num; return temp; } void pre_sib(node *root) { if(root) { printf(“t%d”,root->data); if(root->sibling) printf(” sib->%d”,root->sibling->data); pre_sib(root->left); pre_sib(root->right); } } venkat /* Set next right of all descendents of p. This function makes sure that nextRight of nodes ar level i is set before level i+1 nodes. */ void connectRecur(struct node* p) { // Base case if (!p) return; /* Before setting nextRight of left and right children, set nextRight of children of other nodes at same level (because we can access children of other nodes using p’s nextRight only) */ if (p->nextRight != NULL) connectRecur(p->nextRight); /* Set the nextRight pointer for p’s left child */ if (p->left) { if (p->right) { p->left->nextRight = p->right; p->right->nextRight = getNextRight(p); } else p->left->nextRight = getNextRight(p); /* Recursively call for next level nodes. Note that we call only for left child. The call for left child will call for right child */ connectRecur(p->left); } /* If left child is NULL then first node of next level will either be p->right or getNextRight(p) */ else if (p->right) { p->right->nextRight = getNextRight(p); connectRecur(p->right); } else connectRecur(getNextRight(p)); } I think in the above function provided, ” Else part ( else connectRecur(getNextRight(p)); )” is not required, as that subtree is already have nodes of level are connected. Let me know if I am correct. I think that for first solution the complexity for the worst case will be O(n^2). pavan code in java ….pls validate me…i used level order traversal …. void fillRight(){ Node temp = root; Queue q = new LinkedList(); q.add(temp); q.add(null); while (!q.isEmpty()) { temp = q.remove(); if(temp == null){ if(!q.isEmpty()){ q.add(null); } } else{ temp.rightSibling = q.peek(); if (temp.leftChild != null) { q.add(temp.leftChild); } if (temp.rightChild != null) { q.add(temp.rightChild); } } } } hary Hey Venkat, I agree to the fact that the else part i.e. ” Else part ( else connectRecur(getNextRight(p)); )” is not required as it is already processed in the very beginning of the recursion. Further, it’s inefficient in the sense that many of the nodes in the tree are processed multiple times – as and how recursion goes deep – this will become more inefficient. I believe the iterative version is much more efficient than the recursive approach. venkat /* Set next right of all descendents of p. This function makes sure that nextRight of nodes ar level i is set before level i+1 nodes. */ void connectRecur(struct node* p) { // Base case if (!p) return; /* Before setting nextRight of left and right children, set nextRight of children of other nodes at same level (because we can access children of other nodes using p’s nextRight only) */ if (p->nextRight != NULL) connectRecur(p->nextRight); /* Set the nextRight pointer for p’s left child */ if (p->left) { if (p->right) { p->left->nextRight = p->right; p->right->nextRight = getNextRight(p); } else p->left->nextRight = getNextRight(p); /* Recursively call for next level nodes. Note that we call only for left child. The call for left child will call for right child */ connectRecur(p->left); } /* If left child is NULL then first node of next level will either be p->right or getNextRight(p) */ else if (p->right) { p->right->nextRight = getNextRight(p); connectRecur(p->right); } else connectRecur(getNextRight(p)); } I think in the above function provided, ” Else part ( else connectRecur(getNextRight(p)); )” is not required, as that subtree is already have nodes of level are connected. Let me know if I am correct. I think that for first solution the complexity for the worst case will be O(n^2). CodeC0mmit Could someone comment on the time complexity in recursive approach? Vibhu Tiwari In the worst case the time complexity would be when you have to traverse all the nodes within the tree and also as it is doing the traversal in preorder traversal for which the time complexity is O(n) so overall the time complexity for this recursive approach is also O(n). vignesh m public Node toSiblingTree(){ this.root.next = null; return toSiblingTree(root); } public Node toSiblingTree(Node root){ if(root == null) return null; Node left = root.left; Node right = root.right; if(right != null){ if(left!=null) left.next = right; if(root.next == null){ right.next = null; } else{ right.next = root.next.left != null ? root.next.left : root.next.right ; } } else if (left!=null){ if(root.next == null) left.next = null; else{ left.next = root.next.left != null ? root.next.left : root.next.right ; } } root.left = toSiblingTree(left); root.right = toSiblingTree(right); return root; } public void printLevelOrder(Node root){ if(root == null) return; Node temp =root; while(temp!=null){ System.out.print(temp.num+" "); temp = temp.next; } System.out.println(""); temp = root; Node left = temp.left != null ? temp.left : temp.right; while(left == null){ if(temp == null || temp.next == null) break; temp = temp.next; left = temp.left != null ? temp.left : temp.right; } printLevelOrder(left); return; } hunter //my solution is using queue void connectnodes(*root) { t=root; enqueue(t); enqueue(NULL); while(!isempty()) { t=dequeue(); if(t==NULL) { if(isempty()) break; else enqueue(NULL); } else { t->sibling=queuefront(); if(t->left) enqueue(t->left); if(t->right) enqueue(t->right); } } logic_bomber In worst case each node is traversed twice,so complexity of this algorithm is O(2*n) i.e O(n).Am i right?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ pranshu Is condition given in else part (connectRecur(getNextRight(p));). in recursive solution necessary? abhishek08aug Intelligent kartik why do you comment same thing on every single post ? Neo Java implementation  
+public static void fixNextLink(Node root) {
+			if(root == null) return;
+			// The right most child for root
+			Node rightmostChild = (root.rightChild != null) ? root.rightChild : root.leftChild;
+			// Return, if there are no childs
+			if(rightmostChild == null) return;
+			// Continue to identify the sibling for root.rightmost (The right most child for root)
+			Node temp = root.nextRight;
+			Node leftmostSibling=null;
+			while(temp != null && leftmostSibling == null){
+				// Left most sibling to the right in the current level from the right most node of the current node
+				 leftmostSibling = (temp.leftChild != null) ? temp.leftChild : temp.rightChild;
+				if(leftmostSibling != null) {
+					rightmostChild.nextRight = leftmostSibling;
+				}
+				temp = temp.nextRight;
+			}
+			// Finally if the left and right child exists, connect left to right
+			if (rightmostChild != root.leftChild&&root.leftChild!=null) {
+				root.leftChild.nextRight = root.rightChild;
+			}
+			// Go down the tree to fix other links
+			fixNextLink(root.leftChild);
+			fixNextLink(root.rightChild);
+		}
+ Paparao Veeragandham void connectRecur(struct node* p) { // Base case if (!p) return; /* Before setting nextRight of left and right children, set nextRight of other nodes at same level */ if (p->nextRight != NULL) connectRecur(p->nextRight); /* Set the nextRight pointer for p’s left child */ if (p->left) { if (p->right) { p->left->nextRight = p->right; p->right->nextRight = getNextRight(p); } else p->left->nextRight = getNextRight(p); /* Recursively call for next level nodes. Note that we call only for left child. The call for left child will call for right child */ connectRecur(p->left); } /* If left child is NULL then first node on next level will be either right child or getNextRight(p) */ else if (p->right) connectRecur(p->right); else connectRecur(getNextRight(p)); } From the above code : else connectRecur(getNextRight(p)); Is not required. Because this scenirio already covered in below code if (p->nextRight != NULL) connectRecur(p->nextRight); Paparao Veeragandham  
+/* Paste your code here (You may delete these lines if not writing code) */
+
+
+
+if (p->nextRight != NULL)
+       connectRecur(p->nextRight);
+ 
+    /* Set the nextRight pointer for p's left child */
+    if (p->left)
+    {
+       if (p->right)
+       {
+           p->left->nextRight = p->right;
+           p->right->nextRight = getNextRight(p);
+       }
+       else
+           p->left->nextRight = getNextRight(p);
+ 
+       /* Recursively call for next level nodes.  Note that we call only
+       for left child. The call for left child will call for right child */
+       connectRecur(p->left);
+    }
+ 
+    /* If left child is NULL then first node on next level will be either
+      right child or getNextRight(p) */
+    else if (p->right)
+       connectRecur(p->right);
+    else
+       connectRecur(getNextRight(p));
+
+
+
+From the above code :
+
+  else
+       connectRecur(getNextRight(p));
+
+Above statement is not required. Because it is already covered by below statement:
+
+if (p->nextRight != NULL)
+       connectRecur(p->nextRight);
+
+
+Correct me If i was wrong. 
+
+
+
+
+
+ rahul sundar You are correct!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ priso Why cant it be much simplified? by traversing the right sub-tree first and then traversing the left sub-tree?  
+/* Paste your code here (You may delete these lines if not writing code) */
+// Sets the nextRight of root and calls connectRecur() for other nodes
+void connect (struct node *p)
+{
+    // Set the nextRight for root
+    p->nextRight = NULL;
+ 
+    // Set the next right for rest of the nodes (other than root)
+    connectRecur(p);
+}
+ 
+/* Set next right of all descendents of p. */
+void connectRecur(struct node* p)
+{
+  // Base case
+  if (!p)
+    return;
+ 
+  // Set the nextRight pointer for p's left child
+  if (p->left)
+    p->left->nextRight = (p->right)? p->right : getNextRight(p);
+ 
+  // Set the nextRight pointer for p's right child
+  // p->nextRight will be NULL if p is the right most child at its level
+  if (p->right)
+    p->right->nextRight = getNextRight(p);
+ 
+  // First populate the right tree and then come to left sub-tree
+  
+  connectRecur(p->right);
+  connectRecur(p->left);
+}
+
+struct node *getNextRight(struct node *p)
+{
+    struct node *temp = p->nextRight;
+ 
+    /* Traverse nodes at p's level and find and return
+       the first node's first child */
+    while(temp != NULL)
+    {
+        if(temp->left != NULL)
+            return temp->left;
+        if(temp->right != NULL)
+            return temp->right;
+        temp = temp->nextRight;
+    }
+ 
+    // If all the nodes at p's level are leaf nodes then return NULL
+    return NULL;
+}
+ Palash Yeah, it’ll work.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ N.Balasubramanian I have one doubt in the recursive version of the solution: Supposing, we have the following tree  
+        A
+       / \
+      B   C
+         / \
+        D   E
+ Now, after completing the operations in the sub-tree rooted at C, we check if B has a left or right child. Since it doesn’t have any, we call the function on the getNextRight(B) which will again call the function with p as D, for which we have already finished everything. So, my question is: Is the last call necessary? Please tell me if I have missed something here. Thanks, Balasubramanian.N Palash Yeah, it’ll work. Palash Sorry, the above reply is for the comment above. Your website seems to have a very messed up commenting system. Maybe, you guys should do something about it. avikodak int max_index_array,max_index_power_2,index=0; void initializeArrayInDFSOrder(int,int,int); int checkLastNodesAreNULL(int); int sumOfPowersOfTwo(int number); void joinNodesInLevelWithLinkedList(); void initializeArrayInDFSOrder(int index,int traversalIndex,int level) { if(arrayOfNodesInDFSOrder[traversalIndex] != NULL) { if (arrayOfNodesInDFSOrder[traversalIndex]->left != NULL) { arrayOfNodesInDFSOrder[index] = arrayOfNodesInDFSOrder[traversalIndex]->left; } else { arrayOfNodesInDFSOrder[index] = NULL; } index++; if (arrayOfNodesInDFSOrder[traversalIndex]->right != NULL) { arrayOfNodesInDFSOrder[index] = arrayOfNodesInDFSOrder[traversalIndex]->right; } else { arrayOfNodesInDFSOrder[index] = NULL; } index++; } else{ arrayOfNodesInDFSOrder[index] = NULL;index++; arrayOfNodesInDFSOrder[index] = NULL;index++; } if((traversalIndex==sumOfPowersOfTwo(level)-1)) { //power of 2 if(!checkLastNodesAreNULL(level)) { arrayOfNodesInDFSOrder[0]->next = NULL; joinNodesInLevelWithLinkedList(); int j=0; int i=pow(2,j)-1; while(j<max_index_power_2-1) { printf("\nLEVEL %d",j); printf("\n========"); display(arrayOfNodesInDFSOrder[i]); j++; i=pow(2,j)-1; } return; }else{ level=level+1; } } ++traversalIndex; initializeArrayInDFSOrder(index,traversalIndex,level); } int checkLastNodesAreNULL(int level) { int index = pow(2,level-1)-1; int max_index=pow(2, level)-1; int i,count=0; for (i = index; i < max_index; i++) { if (arrayOfNodesInDFSOrder[i] == NULL) { count++; } } if(count!=0) { count = count&(count-1); if(!(count)){ max_index_array = i-1; max_index_power_2=level; return 0; } } return 1; } int sumOfPowersOfTwo(int number) { int sumPower=0,i; for(i=0;i<number;i++) { sumPower = sumPower + pow(2,i); } return sumPower; } int getIndexWhichIsNotNull(int index) { int i; for(i=index;i<=max_index_array;i++) { if(arrayOfNodesInDFSOrder[i]!=NULL) { return i; } } } void joinNodesInLevelWithLinkedList() { int level=2,i,nextPtrIndex; node *getNextPtr; for(i=1;inext = arrayOfNodesInDFSOrder[i+1]; } else { nextPtrIndex = getIndexWhichIsNotNull(i+1); getNextPtr = arrayOfNodesInDFSOrder[nextPtrIndex]; if(getNextPtr!=NULL) { arrayOfNodesInDFSOrder[i]->next =getNextPtr; i = nextPtrIndex; } else { arrayOfNodesInDFSOrder[i]->next =NULL; } } } } else { arrayOfNodesInDFSOrder[i]->next = NULL; level++; } } } void display(node *root) { printf(“\n”); while(root->next != NULL) { printf(“%d->”,root->num); root=root->next; } printf(“%d->NULL\n”,root->num); return; } Sharat  
+breadth_recursion(tree* root){
+tree *left, *right;
+
+push (root->right);  // push right child to stack
+push (root->left);   //push left child to stack
+left = pop();        //pop left child from stack
+right = pop();       //pop right child from stack
+left->next = right;
+breadth_recursion(left);
+breadth_recursion(right);
+}
+
+ sparco Calling connect((p->left)->nextRight) and connect((p->nextRight)->left) twice which are one and the same can be optimised. We can omit calling connect((p->nextRight)->left) by using a flag  
+/* Paste your code here (You may delete these lines if not writing code) */
+ sparco My apologies for my repeated comments… Network down Please omit my other queries Below is even an optimised version of the solution.  
+
+void connectRecur(struct node* p,int nextflag)
+{
+
+    // Base case
+    if (!p)
+       return;
+    /* Before setting nextRight of left and right children, set nextRight
+    of children of other nodes at same level (because we can access
+    children of other nodes using p's nextRight only) */
+    if (p->nextRight != NULL) {
+       connectRecur(p->nextRight,1);
+    } 
+    /* Set the nextRight pointer for p's left child */
+    if (p->left )
+    {
+       if (p->right)
+       {
+           p->left->nextRight = p->right;
+           p->right->nextRight = getNextRight(p);
+       }
+       else
+           p->left->nextRight = getNextRight(p);
+ 
+       /* Recursively call for next level nodes.  Note that we call only
+       for left child. The call for left child will call for right child */
+
+		if (! nextflag ) {  
+			if ( isLeaf(p->left) ) {
+				connectRecur(getNextRight(p),0); 
+			} else {
+				connectRecur(p->left,0); 
+			}
+		}
+    }
+    /* If left child is NULL then first node of next level will either be
+      p->right or getNextRight(p) */
+    else if (p->right)
+    {
+        p->right->nextRight = getNextRight(p);
+ 		if (! nextflag ) { 
+			if ( isLeaf(p->left) ) {
+			connectRecur(getNextRight(p),0); 
+			} else {
+			connectRecur(p->right,0); 
+			}
+		}
+    }
+    else {
+    if (! nextflag ) {    
+        connectRecur(getNextRight(p),0); 
+    }
+    }
+
+}
+
+// Routine to print next
+
+void printnext (struct node *p) {
+   struct node* temp=p;
+   while ( temp->nextRight != NULL ) {
+       printf("%d -> %d \n",temp->data,temp->nextRight->data);
+       temp=temp->nextRight;
+   }
+   printf("%d -> 0 \n",temp->data);
+   if (p->left) { printnext(p->left); }
+}
+
+ sparco Giving print statement inside the Recursive function , Calling connect((p->left)->nextRight) and connect((p->nextRight)->left) twice which are one and the same can be optimised. We can omit calling connect((p->nextRight)->left) by using a flag connect(1) — connect decideright(1) connect p->left connect(2) connect p->nextRight connect(3) — connect decideright(3) connect p->left connect(6) connect p->nextRight connect(7) — connect decideright(7) connect getnextright — connect decideright(6) connect getnextright — connect decideright(2) connect p->left connect(4) connect p->nextRight connect(5) connect p->nextRight connect(6) connect p->nextRight connect(7) — connect decideright(7) connect getnextright — connect decideright(6) connect getnextright — connect decideright(5) connect getnextright — connect decideright(4) connect getnextright sparco Giving print statement inside the Recursive function , Calling connect((p->left)->nextRight) and connect((p->nextRight)->left) twice which are one and the same can be optimised. We can omit calling connect((p->left)->nextRight) by using a flag connect(1) — connect decideright(1) connect p->left connect(2) connect p->nextRight connect(3) — connect decideright(3) connect p->left connect(6) connect p->nextRight connect(7) — connect decideright(7) connect getnextright — connect decideright(6) connect getnextright — connect decideright(2) connect p->left connect(4) connect p->nextRight connect(5) connect p->nextRight connect(6) connect p->nextRight connect(7) — connect decideright(7) connect getnextright — connect decideright(6) connect getnextright — connect decideright(5) connect getnextright — connect decideright(4) connect getnextright ashish I don’t think that the last else part is required as it is already taken care by  
+connectRecur(p->nextRight);
+ so exlude last  
+else
+       connectRecur(getNextRight(p));
+ atul this can be done by level order traversal…  
+/* Paste your code here (You may delete these lines if not writing code) */
+ camster @Atul, Yes , it can be done by level order traversal but is it more complicated than just level order traversal because you have to do it constant extra space. Please test my proposed solution. Thank you, Camster,  
+/* Paste your code here (You may delete these lines if not writing code) */
+ atul if i am not wrong you are doing level order traversal using queue…and completing the given job.. if that so…then actually that was in mind before posting this post…and level order traversal should be done using queue as its complexity would be O(n)..using recursion it would cost O(n^2) at worst case.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ atul @cramster : here is how we can do it using queue…its not a code..just algo with more details to make it more clear…. setLevelOrderNext(BinaryTree *root) { node *temp; enqueue(root); nod=0; idx=0; i=0; BinaryTree *nextPtr; while((temp=dequeue()) != NULL) { if(nod==idx) { idx=0; i++; if(i!=1) { enqueue(DelimeterNode); nod=pow(2,i); } } if(i!=1) nextPtr=dequeue(); if(nextPtr!=DelimeterNode) { temp->next=nextPrt; enqueue(nextPrt); } } if (temp->left) { enqueue(temp->left); } if ( temp->right) { enqueue(temp->right); } idx=idx+2; } } i just setting some delimiter node after end of each level..i.e when all nodes of x level are in queue..hope you get the idea.. comments are welcome thanks camster Here is a program that connects binary tree nodes at the same level using constant extra space. Thank, Camster.  
+struct Tree{
+   int value;
+   Tree* left;
+   Tree* right;
+   Tree* next;
+};
+void ConnectNodesAtSameLevel(Tree*& root){
+	if (root == NULL){
+		return;
+	}
+	Tree* prev = NULL;
+	std::queue<Tree*> nodesQueue;
+	int nodesInCurrentLevel = 1;
+	int nodesinNextLevel = 0;
+
+	nodesQueue.push(root);
+
+	while (!nodesQueue.empty()){
+		Tree* currNode = nodesQueue.front();
+		if (currNode == NULL){
+			break;
+		}
+		nodesQueue.pop();
+		nodesInCurrentLevel -= 1;
+		if (currNode){
+		  if (prev){
+			  prev->next = currNode;
+		  }	
+		  prev = currNode;
+		  nodesQueue.push(currNode->left);
+          nodesQueue.push(currNode->right);
+		  nodesinNextLevel += 2;
+
+		}
+		if (nodesInCurrentLevel == 0){
+			if (currNode){
+				currNode->next = NULL;
+			}
+			prev = NULL;
+			nodesInCurrentLevel = nodesinNextLevel;
+			nodesinNextLevel = 0;
+		}
+	}
+}
+/* Paste your code here (You may delete these lines if not writing code) */
+ Karthick I seem to find a small glitch in the recursive solution. But, I am not sure about it. So, if I am wrong, I am sorry. Suppose, we have the following tree 
+10
+  \
+   2
+  / \
+ 3   9
+ First, we start at 10. Here, we have not set the nextRight value of 2 to be NULL. Since 10 has no left child, we move over to its right child, which is 2. Here, we check if the nextRight of 2 is NULL. Now, it is possible that the nextRight of 2 might contain garbage values, since we have not set its nextRight pointer to NULL. GeeksforGeeks @Karthick: Thanks for pointing this case. We have made changes to handle this case. We added ” p->right->nextRight = getNextRight(p);” in following else if block. This problem didn’t occur in testing because newNode() function sets nextRight as NULL. Keep it up!  
+    else if (p->right)
+    {
+        p->right->nextRight = getNextRight(p);
+        connectRecur(p->right);
+    }
+ Rahul What is the time Complexity here..I guess O(2n) http://www.cppblog.com/flyinghearts flyinghearts  
+
+//recursive version:
+static void set_nextRight(node* root, node* nextRight)
+{
+  root->nextRight   = nextRight;
+  node* const left  = root->left;
+  node* const right = root->right;
+  if (left == NULL && right == NULL) return;
+  
+  while (nextRight) {
+    if (nextRight->left)  { nextRight = nextRight->left;  break;}
+    if (nextRight->right) { nextRight = nextRight->right; break;}
+    nextRight = nextRight->nextRight;
+  }
+  
+  if (right) { 
+    set_nextRight(right, nextRight);  
+    nextRight = right;
+  }    
+  
+  if (left) set_nextRight(left, nextRight);
+}
+
+void connect(struct node *root)
+{
+  if (root) set_nextRight(root, NULL);
+}
+
+
+//nonrecursive version
+void connect(node* root)
+{
+  if (root == NULL) return;
+  root->nextRight = NULL;
+  
+  node* level_start = NULL;
+  while (root) {   
+    node* const left  = root->left;
+    node* const right = root->right;
+
+    if (level_start == NULL) level_start = left ? left : right;
+    node* nextRight = NULL;
+    while (true) {
+      root = root->nextRight;
+      if (root == NULL) { root = level_start; level_start = NULL; break; }
+      if (root->left)   { nextRight = root->left;  break; }
+      if (root->right)  { nextRight = root->right; break; }
+    }
+    if (right) { right->nextRight = nextRight;  nextRight = right; }
+    if (left)  { left->nextRight  = nextRight;}
+  }
+}
+
+ Bugaboo I don’t think your iterative version takes care of the root not having a left child but just a right child. kartik The iterative version also takes care of root not having left child. Take a closer look at the following piece of code in iterative version.  
+        // start from the first node of next level
+        if (p->left)
+           p = p->left;
+        else if (p->right)
+           p = p->right;
+        else
+           p = getNextRight(p);
+ stat i don’t think the recursive solution is working for a tree with the root not having a left child. what is the use of *temp variable in void connectRecur(struct node* p) ???  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks Thanks for pointing out this case. We have updated the code so that it handles this case as well. Keep it up!! Following is an example run of recursive method.  
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node
+{
+    int data;
+    struct node *left;
+    struct node *right;
+    struct node *nextRight;
+};
+
+void connectRecur(struct node* p);
+struct node *getNextRight(struct node *p);
+
+// Sets the nextRight of root and calls connectRecur() for other nodes
+void connect (struct node *p)
+{
+    // Set the nextRight for root
+    p->nextRight = NULL;
+
+    // Set the next right for rest of the nodes (other than root)
+    connectRecur(p);
+}
+
+/* Set next right of all descendents of p. This function makes sure that
+nextRight of nodes ar level i is set before level i+1 nodes. */
+void connectRecur(struct node* p)
+{
+    // Base case
+    if (!p)
+       return;
+
+    /* Before setting nextRight of left and right children, set nextRight
+    of other nodes at same level */
+    if (p->nextRight != NULL)
+       connectRecur(p->nextRight);
+
+    /* Set the nextRight pointer for p's left child */
+    if (p->left)
+    {
+       if (p->right)
+       {
+           p->left->nextRight = p->right;
+           p->right->nextRight = getNextRight(p);
+       }
+       else
+           p->left->nextRight = getNextRight(p);
+
+       /* Recursively call for next level nodes.  Note that we call only
+       for left child. The call for left child will call for right child */
+       connectRecur(p->left);
+    }
+
+    /* If left child is NULL then first node on next level will be either
+      right child or getNextRight(p) */
+    else if (p->right)
+       connectRecur(p->right);
+    else
+       connectRecur(getNextRight(p));
+}
+
+/* This function returns the leftmost child of nodes at the same level as p.
+   This function is used to getNExt right of p's right child
+   If right child of is NULL then this can also be sued for the left child */
+struct node *getNextRight(struct node *p)
+{
+    struct node *temp = p->nextRight;
+
+    /* Traverse nodes at p's level and find and return
+       the first node's first child */
+    while(temp != NULL)
+    {
+        if(temp->left != NULL)
+            return temp->left;
+        if(temp->right != NULL)
+            return temp->right;
+        temp = temp->nextRight;
+    }
+
+    // If all the nodes at p's level are leaf nodes then return NULL
+    return NULL;
+}
+
+/* UTILITY FUNCTIONS */
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newnode(int data)
+{
+    struct node* node = (struct node*)
+                        malloc(sizeof(struct node));
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+    node->nextRight = NULL;
+
+    return(node);
+}
+
+/* Driver program to test above functions*/
+int main()
+{
+
+    /* Constructed binary tree is
+              10
+                \
+                 2
+               /   \
+              3     90
+    */
+    struct node *root = newnode(10);
+    root->right       = newnode(2);
+    root->right->left  = newnode(3);
+    root->right->right = newnode(90);
+
+    // Populates nextRight pointer in all nodes
+    connect(root);
+
+    // Let us check the values of nextRight pointers
+    printf("Following are populated nextRight pointers in the tree "
+           "(-1 is printed if there is no nextRight) \n");
+    printf("nextRight of %d is %d \n", root->data,
+           root->nextRight? root->nextRight->data: -1);
+    printf("nextRight of %d is %d \n", root->right->data,
+           root->right->nextRight? root->right->nextRight->data: -1);
+    printf("nextRight of %d is %d \n", root->right->left->data,
+           root->right->left->nextRight? root->right->left->nextRight->data: -1);
+    printf("nextRight of %d is %d \n", root->right->right->data,
+           root->right->right->nextRight? root->right->right->nextRight->data: -1);
+
+    getchar();
+    return 0;
+}
+ Output: 
+Following are populated nextRight pointers in the tree 
+(-1 is printed if there is no nextRight)
+nextRight of 10 is -1
+nextRight of 2 is -1
+nextRight of 3 is 90
+nextRight of 90 is -1
+ Paparao Veeragandham if (p->nextRight != NULL) connectRecur(p->nextRight); Above code is already covering this case: else connectRecur(getNextRight(p)); Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

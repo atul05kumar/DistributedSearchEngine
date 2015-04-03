@@ -1,0 +1,543 @@
+Find the largest BST subtree in a given Binary Tree - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find the largest BST subtree in a given Binary Tree Given a Binary Tree, write a function that returns the size of the largest subtree which is also a Binary Search Tree (BST). If the complete Binary Tree is BST, then return the size of whole tree. Examples: 
+Input: 
+      5
+    /  \
+   2    4
+ /  \
+1    3
+
+Output: 3 
+The following subtree is the maximum size BST subtree 
+   2  
+ /  \
+1    3
+
+
+Input: 
+       50
+     /    \
+  30       60
+ /  \     /  \ 
+5   20   45    70
+              /  \
+            65    80
+Output: 5
+The following subtree is the maximum size BST subtree 
+      60
+     /  \ 
+   45    70
+        /  \
+      65    80
+ Method 1 (Simple but inefficient) Start from root and do an inorder traversal of the tree. For each node N, check whether the subtree rooted with N is BST or not. If BST, then return size of the subtree rooted with N. Else, recur down the left and right subtrees and return the maximum of values returned by left and right subtrees. 
+/* 
+  See http://www.geeksforgeeks.org/archives/632 for implementation of size()
+
+  See Method 3 of http://www.geeksforgeeks.org/archives/3042 for
+  implementation of isBST() 
+
+  max() returns maximum of two integers 
+*/   
+int largestBST(struct node *root)
+{
+   if (isBST(root))
+     return size(root); 
+   else
+    return max(largestBST(root->left), largestBST(root->right));
+}
+ Time Complexity: The worst case time complexity of this method will be O(n^2). Consider a skewed tree for worst case analysis. Method 2 (Tricky and Efficient) In method 1, we traverse the tree in top down manner and do BST test for every node. If we traverse the tree in bottom up manner, then we can pass information about subtrees to the parent. The passed information can be used by the parent to do BST test (for parent node) only in constant time (or O(1) time). A left subtree need to tell the parent whether it is BST or not and also need to pass maximum value in it. So that we can compare the maximum value with the parent’s data to check the BST property. Similarly, the right subtree need to pass the minimum value up the tree. The subtrees need to pass the following information up the tree for the finding the largest BST. 1) Whether the subtree itself is BST or not (In the following code, is_bst_ref is used for this purpose) 2) If the subtree is left subtree of its parent, then maximum value in it. And if it is right subtree then minimum value in it. 3) Size of this subtree if this subtree is BST (In the following code, return value of largestBSTtil() is used for this purpose) max_ref is used for passing the maximum value up the tree and min_ptr is used for passing minimum value up the tree. 
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+  struct node* node = (struct node*)
+                      malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+
+  return(node);
+}
+
+int largestBSTUtil(struct node* node, int *min_ref, int *max_ref,
+                             int *max_size_ref, bool *is_bst_ref);
+
+/* Returns size of the largest BST subtree in a Binary Tree
+  (efficient version). */
+int largestBST(struct node* node)
+{
+  // Set the initial values for calling largestBSTUtil()
+  int min = INT_MAX;  // For minimum value in right subtree
+  int max = INT_MIN;  // For maximum value in left subtree
+
+  int max_size = 0;  // For size of the largest BST
+  bool is_bst = 0;
+
+  largestBSTUtil(node, &min, &max, &max_size, &is_bst);
+
+  return max_size;
+}
+
+/* largestBSTUtil() updates *max_size_ref for the size of the largest BST
+   subtree.   Also, if the tree rooted with node is non-empty and a BST,
+   then returns size of the tree. Otherwise returns 0.*/
+int largestBSTUtil(struct node* node, int *min_ref, int *max_ref,
+                            int *max_size_ref, bool *is_bst_ref)
+{
+
+  /* Base Case */
+  if (node == NULL)
+  {
+     *is_bst_ref = 1; // An empty tree is BST
+     return 0;    // Size of the BST is 0
+  }
+
+  int min = INT_MAX;
+
+  /* A flag variable for left subtree property
+     i.e., max(root->left) < root->data */
+  bool left_flag = false;
+
+  /* A flag variable for right subtree property
+     i.e., min(root->right) > root->data */
+  bool right_flag = false;
+
+  int ls, rs; // To store sizes of left and right subtrees
+
+  /* Following tasks are done by recursive call for left subtree
+    a) Get the maximum value in left subtree (Stored in *max_ref)
+    b) Check whether Left Subtree is BST or not (Stored in *is_bst_ref)
+    c) Get the size of maximum size BST in left subtree (updates *max_size) */
+  *max_ref = INT_MIN;
+  ls = largestBSTUtil(node->left, min_ref, max_ref, max_size_ref, is_bst_ref);
+  if (*is_bst_ref == 1 && node->data > *max_ref)
+     left_flag = true;
+
+  /* Before updating *min_ref, store the min value in left subtree. So that we
+     have the correct minimum value for this subtree */
+  min = *min_ref;
+
+  /* The following recursive call does similar (similar to left subtree) 
+    task for right subtree */
+  *min_ref =  INT_MAX;
+  rs = largestBSTUtil(node->right, min_ref, max_ref, max_size_ref, is_bst_ref);
+  if (*is_bst_ref == 1 && node->data < *min_ref)
+     right_flag = true;
+
+  // Update min and max values for the parent recursive calls
+  if (min < *min_ref)
+     *min_ref = min;
+  if (node->data < *min_ref) // For leaf nodes
+     *min_ref = node->data;
+  if (node->data > *max_ref)
+     *max_ref = node->data;
+
+  /* If both left and right subtrees are BST. And left and right
+     subtree properties hold for this node, then this tree is BST.
+     So return the size of this tree */
+  if(left_flag && right_flag)
+  {
+     if (ls + rs + 1 > *max_size_ref)
+         *max_size_ref = ls + rs + 1;
+     return ls + rs + 1;
+  }
+  else
+  {
+    //Since this subtree is not BST, set is_bst flag for parent calls
+     *is_bst_ref = 0; 
+     return 0;
+  }
+}
+
+/* Driver program to test above functions*/
+int main()
+{
+    /* Let us construct the following Tree
+          50
+       /      \
+     10        60
+    /  \       /  \
+   5   20    55    70
+            /     /  \
+          45     65    80
+  */
+
+  struct node *root = newNode(50);
+  root->left        = newNode(10);
+  root->right       = newNode(60);
+  root->left->left  = newNode(5);
+  root->left->right = newNode(20);
+  root->right->left  = newNode(55);
+  root->right->left->left  = newNode(45);
+  root->right->right = newNode(70);
+  root->right->right->left = newNode(65);
+  root->right->right->right = newNode(80);
+
+  /* The complete tree is not BST as 45 is in right subtree of 50.
+     The following subtree is the largest BST
+        60
+      /  \
+    55    70
+   /     /  \
+  5     65    80
+  */
+  printf(" Size of the largest BST is %d", largestBST(root));
+
+  getchar();
+  return 0;
+}
+ Time Complexity: O(n) where n is the number of nodes in the given Binary Tree. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. abhilash jaiswal @disqus_sDew3tj9gA:disqus yaa we can do a inorder traversal and then find the longest incresing subsequence but time complexity is the worry abhilash jaiswal @disqus_sDew3tj9gA:disqus yaa we can do a inorder traversal and then find the longest incresing subsequence AlienOnEarth Amazing solution.. ! Ninja Can’t we do Inorder Traversal instead. We can store previous value and check if current value is greater or not and keep track of maximum size of BST. We will start new counter if current node is smaller than previous node.Correct me If I am wrong. dev_c# static bool FindMax(BTreeNode currNode, ref int max, ref int sum) { if (currNode == null) { sum = 0; return true; } int lsum = 0, rsum = 0; ? bool isBstL = FindMax(currNode.left, ref max, ref lsum); bool isBstR = FindMax(currNode.right, ref max, ref rsum); if (isBstL && isBstR) { isBstL = currNode.left != null ? currNode.left.value currNode.value : true; } if(isBstL && isBstR) { sum = lsum + rsum + 1; if (max < sum) max = sum; } return (isBstL && isBstR); } Christian Vielma Great post! Here is my implementation in Java: http://www.librethinking.com/2013/09/find-largest-binary-search-tree-in-tree.html deb largestBST() returns size of the subtree rooted at ‘root’ if it is a BST else it returns -1. This is approach is similar to what is given in leetcode. int largestBST(node *root, int *min, int *max, node **sub_root, int *max_size) { if (root == NULL) { *min = INT_MAX; *max = INT_MIN; return 0; } int isbst; int l_size = largestBST(root->left, min, max, sub_root, max_size); int currMin = (l_size == 0) ? root->data : *min; if (root->data right, min, max, sub_root, max_size); int currMax = (r_size==0) ? root->data : *max; if (root->data > *min ) isbst = 0; if (isbst) { if (l_size + r_size + 1 > *max_size ) { *max_size = l_size + r_size + 1; *sub_root = root; } *min = currMin; *max = currMax; return l_size + r_size +1; } return -1; } Shubham Singhal Can we do inorder traversal of tree and store in an array and find size of longest increasing subarray.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ninja We don’t need to store the result also, We can store previous value and check if current value is greater or not and keep track of maximum size of BST. We will start new counter if current node is smaller than previous node. Correct me If I am wrong. xxmajia agree, can go for a morris traversal, and keep the previous node, if prev < cur, count++, else reset prev = cur, count = 0 Shubham Singhal can we do inorder traversal of tree and store in an array,Does finding a longest increasing subarray will work?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Sohini Majumdar  
+/* Paste your code here (You may delete these lines if not writing code) */
+bool find_largest_subtree_size(Node *root,int *count)
+{
+	if(!root)
+		return(false);
+	bool check1=true, check2=true;
+	if(root->left)
+		check1=(root->left->data<root->data) && find_largest_subtree_size(root->left,count);
+	if(root->right)
+		check2=(root->right->data>root->data) && find_largest_subtree_size(root->right,count);
+	if(check1 && check2)
+	{
+		(*count)++;
+		return(true);
+	}
+	return(false);
+}
+ bateesh @Geeksforgeeks:- In the code the statement if (min < *min_ref) *min_ref = min; should be changed to *min_ref = min;//if is removed min contains minimum of left subtree and *min_ref contains minimum of right subtree. So as if minimum is comming from right subtree it means this is not BST.We can remove this if and allow minimum to be value of left subtree,Please correct if m getting it wrng. gurusreekanth What happens if root does n’t have a left child?. with out if condition does it work?. abhishek08aug Intelligent sush  
+
+int largestBSTUtil(struct node* r, int *s, int *l,
+                            int  *is_bst)
+{
+ if(!r)
+ {
+	*is_bst=1;
+	return 0;
+ }
+ *s=INT_MAX;*l=INT_MIN;*is_bst=0;
+ int x=largestBSTUtil(r->left,s,l,is_bst);
+ int ls=*s,ll=*l,f1=*is_bst;
+ *s=INT_MAX;*l=INT_MIN;*is_bst=0;
+ int y=largestBSTUtil(r->right,s,l,is_bst);
+ int rs=*s,rl=*l,f2=*is_bst;
+ if(rs>ls)
+ *s=ls;
+ if(r->data<*s)
+ *s=r->data;
+ if(rl<ll)
+ *l=ll;
+ if(r->data>*l)
+ *l=r->data;
+ if(f1 && f2 && r->data > ll && r->data < rs)
+ {
+	*is_bst=1;
+	return x+y+1;
+ }
+ *is_bst=0;
+ return max(x,y);
+}
+ 
+/* Returns size of the largest BST subtree in a Binary Tree
+  (efficient version). */
+int largestBST(struct node* node)
+{
+  // Set the initial values for calling largestBSTUtil()
+  int min = INT_MAX;  // For minimum value in right subtree
+  int max = INT_MIN;  // For maximum value in left subtree
+ 
+  int max_size = 0;  // For size of the largest BST
+  int is_bst = 0;
+ 
+  return largestBSTUtil(node, &min, &max, &is_bst);//returns answer
+ 
+}
+ Omar Salem Inspired by Kadane’s Algorithm int totalSize = 0; int sizeSoFar = 0; SizeOfLargestBSTSubtree(treeWithBSTSubset.root, ref totalSize, ref sizeSoFar); private static void SizeOfLargestBSTSubtree(Node node, ref int totalSize, ref int sizeSoFar) { if (node != null && node.leftChild != null && node.rightChild != null) { if (node.leftChild.item <= node.item && node.rightChild.item > node.item) { sizeSoFar += sizeSoFar == 0 ? 3 : 2; } else { sizeSoFar = 0; } if (sizeSoFar > totalSize) { totalSize = sizeSoFar; } SizeOfLargestBSTSubtree(node.leftChild, ref totalSize, ref sizeSoFar); SizeOfLargestBSTSubtree(node.rightChild, ref totalSize, ref sizeSoFar); } } Rahul I think in the program return 0 is wrong. There can be a scenario that the left node is not a subtree but has a subtree of size 3 in it. Likewise the immediate right node is not a subtree but has a subtree of size 3 in it. In that case a 0 will always be returned by the father of this left and right node. It should in fact me more complex like; if the left subtree is not a subtree but has a subtree of size 3 and the same being true for right subtree but the size of the right subtree being 4; in that case the father of these two should return 4 as the answer.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Voldemort Rahul we have passed the reference of max_size in largestBSTUtil function and we are returning the value of max_size not the value returned by largestBSTUtil(node, &min, &max, &max_size, &is_bst); correct me if I am wrong. ramkumarp I think we can use preorder traversal, check for BST property, keep track of number of nodes traversed (sum) and max.If sum > max update max and if the BST is broken then reset sum to zero and continue till end of the tree denial  
+             5
+            /  \
+           2    4
+          /\    /\
+         1  3  7  9
+              /\
+             6  8 Check your solution for this tree and you will know. kris Can’t we do an inorder traversal of binary tree, and find the largest increasing subsequence? algopiggy Largest increasing subsequence won’t give the answer. You will have to find largest increasing subarray I think.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Paparao Veeragandham Can please explain the base source code to below tree: 18 — root node 18->left = 90 18->right = 24 maximum length of BST is : 2 But I think the code is returns 1. Correct me if i was wrong……. Paparao Veeragandham  
+Small changes to above method:
+
+1) while doing in-order traversal of tree maintain the variables like max_len & nodeCount 
+If  nodes are not in BST order then set nodeCount = 0 and check max_len < nodeCount then update max_len = nodeCount.
+
+Finally length of longest BST length is present in max_len variable;
+
+T.C = O(n)
+S.c = O(1)
+
+
+ pr6989 Can we not store the in-order traversal of the binary tree in an array and then simply find the length of the longest increasing subsequence in it using Dynamic Programming? This is not a space efficient solution (certainly not for very large trees) but I guess it should work otherwise. Correct me if I’m wrong. Aashish  
+int largestBSTUtil(struct node* node, int *min, int *max,int *max_size_ref,int *is_bst)
+{
+  if (node == NULL)
+  {
+     *max_size_ref=0;
+     *min=INT_MAX;
+     *max=INT_MIN;
+     *is_bst=1;
+     return 0;
+  }
+ 
+  int isBSTLeft=0, isBSTRight=0;
+ 
+  int maxleft=INT_MIN,minleft,maxright,minright=INT_MAX;
+  int sizeLeft=0,sizeRight=0;
+ 
+  sizeLeft = largestBSTUtil(node->left, &minleft, &maxleft, max_size_ref,&isBSTLeft);
+  
+  sizeRight = largestBSTUtil(node->right, &minright, &maxright, max_size_ref, &isBSTRight);
+  
+  if(isBSTLeft && isBSTRight && node->data>maxleft && node->data<minright)
+  {
+        if(sizeLeft+sizeRight+1 > *max_size_ref)
+        {
+                *max_size_ref=sizeLeft+sizeRight+1;
+                if(node->data<minleft)
+                        *min=node->data;
+                else
+                        *min=minleft;
+ 
+                if(node->data>maxright)
+                        *max=node->data;
+                else
+                        *max=maxright;
+                *is_bst=1;
+                return *max_size_ref;
+        }
+  }
+  else
+  {
+        *is_bst=0;
+        return 0;
+  }
+} 
+ 
+ 
+int largestBST(struct node* node)
+{
+  int min = INT_MAX;  // For minimum value in right subtree
+  int max = INT_MIN;  // For maximum value in left subtree
+ 
+  int max_size = 0;  // For size of the largest BST
+  int is_bst=0;
+  largestBSTUtil(node, &min, &max, &max_size,&is_bst);
+ 
+  return max_size;
+}
+ http://ideone.com/uckyd Sarvasva Sawhney struct node { int data; struct node* left; struct node* right; int count; }; struct node* createnode(int data1) { struct node* new=(struct node*)malloc(sizeof(struct node)); new->data=data1; new->left=NULL; new->right=NULL; return new; } boolean maxbst(struct node* root) { if(root==NULL) { root->count=0; return true; } else if(maxbst(root->left)||maxbst(root->right)||(root->left)->datadata||(root->right)->data>=root->data) { root->count=(root->left)->count+(root->right)->count+1; return true; } else { root->count=max((root->left)->count,(root->right)->count); return false; } } Sarvasva Sawhney #include #include #include struct node { int data; struct node* left; struct node* right; int count; }; struct node* createnode(int data1) { struct node* new=(struct node*)malloc(sizeof(struct node)); new->data=data1; new->left=NULL; new->right=NULL; return new; } boolean maxbst(struct node* root) { if(root==NULL) { root->count=0; return true; } else if(maxbst(root->left)||maxbst(root->right)||(root->left)->datadata||(root->right)->data>=root->data) { root->count=(root->left)->count+(root->right)->count+1; return true; } else { root->count=max((root->left)->count,(root->right)->count); return false; } } int main() { struct node* root=createnode(1); root->left=createnode(2); root->right=createnode(3); root->left->left=createnode(4); root->left->right=createnode(5); (root->right)->left=createnode(6); (root->right)->right=createnode(7); b=maxbst(root); getch(); return 0; }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Sarvasva Sawhney //i have implemented this by using extra pointor in node count //which counts the no of nodes in bst #include #include #include struct node { int data; struct node* left; struct node* right; int count; }; struct node* createnode(int data1) { struct node* new=(struct node*)malloc(sizeof(struct node)); new->data=data1; new->left=NULL; new->right=NULL; return new; } boolean maxbst(struct node* root) { if(root==NULL) { root->count=0; return true; } else if(maxbst(root->left)||maxbst(root->right)||(root->left)->datadata||(root->right)->data>=root->data) { root->count=(root->left)->count+(root->right)->count+1; return true; } else { root->count=max((root->left)->count,(root->right)->count); return false; } } int main() { struct node* root=createnode(1); root->left=createnode(2); root->right=createnode(3); root->left->left=createnode(4); root->left->right=createnode(5); (root->right)->left=createnode(6); (root->right)->right=createnode(7); b=maxbst(root); getch(); return 0; } //tell if there is a mistake in this approach it solves in //order of n time  
+/* Paste your code here (You may delete these lines if not writing code) */
+ cmon public bool largestBST(Node node, ref int count,ref int prev) { if (node == null) { count = 0; return true; } int lcount=0,rcount=0; bool val1 = largestBST(node.left, ref lcount, ref prev); if (node.data < prev) return false; prev = node.data; bool val2 = largestBST(node.right, ref rcount, ref prev); if (val1 && val2) { count = lcount + rcount + 1; return true; } else { count = max(lcount, rcount); return false; } } Red just do an inorder traversal of the entire tree. Return the length of the largest contiguous increasing subsequence in the inorder sequence kartik That won’t work. See this comment. Algogeeks why will it not work ? He said contiguous substring and not subsequence. I dont understand why it will not work. Help ! kartik @Algogeeks: Longest substring will also not work. I could come up with following example for now. Will provide more example if you need. 
+    5
+   / \
+  6   10
+ /    / \ 
+3    8   12
+ Inoder traversal is 3 6 5 8 10 12. The longest substring is 5 8 10 12. But this substring doesn’t represent a subtree. /* Paste your code here (You may delete these lines if not writing code) */ johnny 1.Do Inorder traversal of binary tree 2.Find longest subsequence which is in increasing order 3.Scan through the sequence and check if the element till it corresponds to a leaf node. 4. Compute the size of the remaining sequence from that index rohit @kartik: if we do an inorder traversal and break it in two parts one left to the root and other right to root and calculate longest substring in both parts and ans will be max of both…correct me if i am wrong..?? rocky Does the subtree mean that all children under the node should be included or can partial inclusion also happen ?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik All the children should be included. ubiquitous A subtree of a tree T is a tree consisting of a node in T and all of its descendants in T.[1] Nodes thus correspond to subtrees (each node corresponds to the subtree of itself and all its descendants) – the subtree corresponding to the root node is the entire tree, and each node is the root node of the subtree it determines; the subtree corresponding to any other node is called a proper subtree (in analogy to the term proper subset). from wikipedia. sjsj The given program does not update the max correctly. it saves the min of the left subtree before making the call for right subtree. similarly It should save the max of left subtree, before making a call for the right subtree. If we replace 20 of th tree constructed in main() by “200”. we will not get the right max. anonymous  
+tree* largestSubtree(tree *t ,int *sizeMax)
+{
+        int sizeLeft,sizeRight,size;
+        if(t == NULL)
+        {
+                return 0;
+        }
+
+        sizeLeft = largestSubtree(t -> left ,sizeMax);
+        sizeRight = largestSubtree(t -> right ,sizeMax);
+        size = 1;
+        if((!t ->left)|| (t -> left -> num < t -> num))
+        {
+
+                size = sizeLeft + size;
+        }
+        if((!t -> right) || (t -> right -> num > t -> num))
+        {
+
+                size = sizeRight + size;
+        }
+
+
+        if(size > *sizeMax)
+                *sizeMax = size;
+        if(sizeLeft > *sizeMax)
+                *sizeMax = sizeLeft;
+        if(sizeRight > *sizeMax)
+                *sizeMax = sizeRight;
+
+return size;
+    
+
+ //calling Function int size = -1; largestSubtree(t,&size); Anonymous You are missing the case when max value of left subtree is greater than root’s value and min value of right subtree is less than root’s value. 50 / \ 10 60 / \ / \ 5 55 55 70 / / \ 45 65 80 your code will fail in this case. Kumar  
+/* int MaxBST(struct node* root)
+ {
+   static int maxlen=0;
+   static struct node* prev=NULL;
+   static int currlen=0;
+   
+   if(!root)
+     return maxlen;
+   
+   MaxBST(root->left);
+
+   if(prev==NULL)  //U HAVE SEEN ONE NODE
+    currlen++;
+    
+   if(prev!=NULL)
+    {
+      if(prev->data <= root->data)
+      {             
+        currlen++;
+       if(maxlen<currlen)
+        maxlen=currlen;  
+      }
+      else
+       currlen=1;
+    }
+    prev=root;
+    
+    
+    MaxBST(root->right);        
+    
+    return maxlen;          
+                  
+} */
+ kunalgupta1991  
+   int maxvalue=0;
+   int mxbst(node *root)
+   {
+       int l,r,max;
+       if(root == NULL)
+       return 0;
+       l= mxbst(root->left);
+       r=mxbst(root->right);
+   if(l!=0 && r != 0)
+     {
+       if((root ->data > root->left->data) && (root->data <root->right->data))
+       max= l+r+1;
+       else  if((root ->data < root->left->data) && (root->data >root->right->data)) // not a bst
+       max =1;
+       else if(root->data >root ->left ->data)
+       max= l +1;
+       else 
+       max =r+1;
+     }
+    else if(l==0 && r==0)
+    {
+         max = 1;
+         
+    } 
+    else 
+    {
+        if(l !=0 && root->data >root ->left ->data)
+       max= l +1; 
+       else if(r !=0 && root->data >root ->left ->data)
+       max= r +1;
+       else 
+       max =1;
+     } 
+     if( max > maxvalue)
+     maxvalue=max;
+     return max;
+   }
+// time comlexity O(n)
+ adithya  
+int c=0;
+void postorder(node *root) {
+	if(root!=NULL) {
+		postorder(root->lc);
+		postorder(root->rc);
+		printf("%d ",root->no);
+		c++;
+	}
+	return;
+}
+
+void findmax(node *root) {
+	node *temp;
+	int l,r;
+	temp=root;
+	if(temp!=NULL) {
+		node *left,*right;
+		left=NULL;
+		right=NULL;
+		left=temp->lc;
+		right=temp->rc;
+		c=0;
+		printf("\n");
+		postorder(left);
+		l=c;
+		c=0;
+		printf("\n");
+		postorder(right);
+		r=c;
+		if(l>r) {
+			printf("\nLarget subtree is leftsubtree");
+			postorder(left);
+			printf("\nSize : %d",l);
+		}
+		else {
+			printf("\nLarget subtree is rightsubtree\n");
+			postorder(right);
+			printf("\nSize : %d",r);
+		}
+	}
+	else {
+		printf("%s","list is empty");
+	}
+	return;
+}
+ swapnil09  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartikaditya class MaxSubBst { private static class Node { int key; Node left; Node right; } private Node root; private int getSubBstSize(Node node, int lowerBound, int upperBound) { if (node == 0) { return null; } if (!(lowerBound <= node.key & node.key < upperBound)) { return 0; } return 1 + getSubBstSize(node.left, lowerBound, node.key) + getSubBstSize(node.right, node.key + 1, upperBound); } private int getMaxSubBstSize(Node node) { if (node == null) { return 0; } int sizeOfRootedBst = getSubBstSize(node, Integer.MIN_VALUE, Integer.MAX_VALUE); int sizeOfLeftRootedBst = getMaxSubBstSize(node.left); int sizeOfRightRootedBst = getMaxSubBstSize(node.right); return Math.max(sizeOfRootedBst, Math.max(sizeOfLeftRootedBst, sizeOfRightRootedBst)); } public int getMaxSubBstSize() { return getMaxSubBstSize(root); } } kartik @kartikaditya: This looks similar to method 1. Time complexity of this method will be O(n^2) in worst case. kartikaditya O(N log N) actually…  
+Let f(i) denote complexity of method getSubBstSize when the tree size if i.
+Let g(i) denote complexity of method getMaxSubBstSize when the tree size if i.
+
+Now its easy to see for method getSubBstSize:
+f(i) = O(i) [Since f(i) ~ 2 * f(i / 2), in avg case]
+
+Now if you look at method getMaxSubBstSize:
+g(i) ~ f(i) + 2 * g(i / 2), in avg case
+=> g(i) = O(n) + 2 * g(i / 2)
+This should remind you of Merge-sort, which is O(N log N).
+ kartikaditya Sorry, yes worst case this will be O(N*N) and O(N log N) avg case. saurabh there is some thing wrong here size of subtree should be 5 instead 4 for the example !! ?? ?? GeeksforGeeks Thanks for pointing this out. We have updated the example. Keep it up! sankalp If we do inorder traversal and finds the longest increasing sequence won’t that be the same as the maximum BST. kartik That won’t work. Consider the following Binary Tree. 
+       30
+     /    \
+  10       40
+ /  \     /  \
+5   20   45    55
+              /  \
+            50    59
+ The inorder traversal is “5 10 20 30 45 40 50 55 59″. The longest increasing subsequence is 5 10 20 30 45 50 55 59. But the largest BST is of size 3. Neeraj I don’t follow. Why is the largest BST of size 3? The entire tree seems like a BST to me?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartikaditya Dude 45 is to the left of 40 Neeraj Need new glasses  
+/* Paste your code here (You may delete these lines if not writing code) */
+ anurag108 I think it should be longest substring instead of longest subsequence.That would work Step 1) Inorder traversal of tree O(n) Step 2) Find Longest Substring of the inorder array we get. It can be found in O(n). So overall complexity is O(n) too. Paparao Veeragandham Small changes to above method: 1) while doing in-order traversal of tree maintain the variables like max_len & nodeCount If nodes are not in BST order then set nodeCount = 0 and check max_len < nodeCount then update max_len = nodeCount. Finally length of longest BST length is present in max_len variable; T.C = O(n) S.c = O(1) ashish Can you pls post ur code?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ neo longest increasing contiguous sequence AND longest increasing subsequence seems correct but in some cases they won’t work. See http://leetcode.com/2010/11/largest-binary-search-tree-bst-in_22.html Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,172 @@
+Union-Find Algorithm | Set 1 (Detect Cycle in a an Undirected Graph) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Union-Find Algorithm | Set 1 (Detect Cycle in a an Undirected Graph) A disjoint-set data structure is a data structure that keeps track of a set of elements partitioned into a number of disjoint (non-overlapping) subsets. A union-find algorithm is an algorithm that performs two useful operations on such a data structure: Find: Determine which subset a particular element is in. This can be used for determining if two elements are in the same subset. Union: Join two subsets into a single subset. In this post, we will discuss an application of Disjoint Set Data Structure. The application is to check whether a given graph contains a cycle or not. Union-Find Algorithm can be used to check whether an undirected graph contains cycle or not. Note that we have discussed an algorithm to detect cycle. This is another method based on Union-Find. This method assumes that graph doesn’t contain any self-loops. We can keeps track of the subsets in a 1D array, lets call it parent[]. Let us consider the following graph: 
+        0
+        |  \
+        |    \
+        1-----2
+ For each edge, make subsets using both the vertices of the edge. If both the vertices are in the same subset, a cycle is found. Initially, all slots of parent array are initialized to -1 (means there is only one item in every subset). 
+0   1   2
+-1 -1  -1 Now process all edges one by one. Edge 0-1: Find the subsets in which vertices 0 and 1 are. Since they are in different subsets, we take the union of them. For taking the union, either make node 0 as parent of node 1 or vice-versa. 
+0   1   2    <----- 1 is made parent of 0 (1 is now representative of subset {0, 1})
+1  -1  -1 Edge 1-2: 1 is in subset 1 and 2 is in subset 2. So, take union. 
+0   1   2    <----- 2 is made parent of 1 (2 is now representative of subset {0, 1, 2})
+1   2  -1 Edge 0-2: 0 is in subset 2 and 2 is also in subset 2. Hence, including this edge forms a cycle. How subset of 0 is same as 2? 0->1->2 // 1 is parent of 0 and 2 is parent of 1 Based on the above explanation, below is the code: 
+// A union-find algorithm to detect cycle in a graph
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// a structure to represent an edge in graph
+struct Edge
+{
+    int src, dest;
+};
+
+// a structure to represent a graph
+struct Graph
+{
+    // V-> Number of vertices, E-> Number of edges
+    int V, E;
+
+    // graph is represented as an array of edges
+    struct Edge* edge;
+};
+
+// Creates a graph with V vertices and E edges
+struct Graph* createGraph(int V, int E)
+{
+    struct Graph* graph = (struct Graph*) malloc( sizeof(struct Graph) );
+    graph->V = V;
+    graph->E = E;
+
+    graph->edge = (struct Edge*) malloc( graph->E * sizeof( struct Edge ) );
+
+    return graph;
+}
+
+// A utility function to find the subset of an element i
+int find(int parent[], int i)
+{
+    if (parent[i] == -1)
+        return i;
+    return find(parent, parent[i]);
+}
+
+// A utility function to do union of two subsets 
+void Union(int parent[], int x, int y)
+{
+    int xset = find(parent, x);
+    int yset = find(parent, y);
+    parent[xset] = yset;
+}
+
+// The main function to check whether a given graph contains cycle or not
+int isCycle( struct Graph* graph )
+{
+    // Allocate memory for creating V subsets
+    int *parent = (int*) malloc( graph->V * sizeof(int) );
+
+    // Initialize all subsets as single element sets
+    memset(parent, -1, sizeof(int) * graph->V);
+
+    // Iterate through all edges of graph, find subset of both
+    // vertices of every edge, if both subsets are same, then there is
+    // cycle in graph.
+    for(int i = 0; i < graph->E; ++i)
+    {
+        int x = find(parent, graph->edge[i].src);
+        int y = find(parent, graph->edge[i].dest);
+
+        if (x == y)
+            return 1;
+
+        Union(parent, x, y);
+    }
+    return 0;
+}
+
+// Driver program to test above functions
+int main()
+{
+    /* Let us create following graph
+         0
+        |  \
+        |    \
+        1-----2 */
+    struct Graph* graph = createGraph(3, 3);
+
+    // add edge 0-1
+    graph->edge[0].src = 0;
+    graph->edge[0].dest = 1;
+
+    // add edge 1-2
+    graph->edge[1].src = 1;
+    graph->edge[1].dest = 2;
+
+    // add edge 0-2
+    graph->edge[2].src = 0;
+    graph->edge[2].dest = 2;
+
+    if (isCycle(graph))
+        printf( "Graph contains cycle" );
+    else
+        printf( "Graph doesn't contain cycle" );
+
+    return 0;
+}
+ Output: Graph contains cycle Note that the implementation of union() and find() is naive and takes O(n) time in worst case. These methods can be improved to O(Logn) using Union by Rank or Height. We will soon be discussing Union by Rank in a separate post. This article is compiled by Aashish Barnwal and reviewed by GeeksforGeeks team. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Vertex Cover Problem | Set 1 (Introduction and Approximate Algorithm) Snake and Ladder Problem Tarjan’s Algorithm to find Strongly Connected Components Shortest path with exactly k edges in a directed and weighted graph Count all possible walks from a source to a destination with exactly k edges Euler Circuit in a Directed Graph Given an array of strings, find if the strings can be chained to form a circle Given a sorted dictionary of an alien language, find order of characters Tags: Graph Tweet Writing code in comment? Please use ideone.com and share the link here. Guest A Union Find Data structure implementation in C# http://onestopinterviewprep.blogspot.com/2014/03/union-find-datastructure.html Wellwisher Here is a nice C# implementation …. http://onestopinterviewprep.blogspot.com/2014/03/union-find-datastructure.html Gaurav int xset = find(parent, x); int yset = find(parent, y); Lines inside Union function are not necessary. rohan how cum it is 0(n) in wort case??it is n^2… if tree is skewed 0 / 1 / 2 / 3 / 4 / 5 when 4-5 is inserted 1 operations….//to get parent. when 5-3 is inserted 2 operations…//to get parent when 5-2 inserted 3 operations when 5-1 inserted n-2 when 5-0 insserted…n-1 operations.. so isnt it 0(n^2) in worst case? @Geeksforgeeks,plz calarify? rohan My bad….Its true that its e*n worst case..n is for union only…i was taking n as total complexity…we can handle self loop by checking source and dest if same KC The theoretical explanation is very confusing. I am really trying to understand this as part of the Minimum Spanning Tree problem. I wish you could be more clear on all the 0’s, 1’s and 2’s and properly indicate what they each mean. sumit i think a much better explanation is available here , may be you may update . as its confusing above http://www.users.csbsju.edu/~lziegler/CS162/UnionFind2.html alien #include #define V 3 int find(int parent[], int i) { if(parent[i] == -1) return i; else return (find(parent,parent[i])); } void Union(int parent[], int src,int dest) { parent[src] = dest; } int isCyclic(int graph[V][V]) { int x, y; int i,j; int parent[V]; for(i=0;i<V;i++){ parent[i] = -1; } for(i=0;i<V;i++) { // j = i: only process half of the matrix because it is an undirected graph for(j=i;j<V;j++) { // process only if there is an edge from i to j and i!=j if(i!=j && graph[i][j] !=0) { x = find(parent, i); y = find(parent, j); if(x == y) return 1; Union(parent, x,y); } } } return 0; } int main() { int graph[V][V] = {{0,1,1},{1,0,1},{1,1,0}}; if(isCyclic(graph) != 0) printf( "Graph contains cycle" ); else printf( "Graph doesn't contain cycle" ); return 0; } Akshay Jindal Consider the above example of 0,1,2. Suppose if instead of parent[0]=1 it is the other way round, i.e. parent[1]=0. Then if we consider edge 1-2, so going by the find() function wouldn’t it be parent[0]=2…is it correct..?? uva How will this work for directed graph ?? eg G= 0->1 0->2 1->2 do not form a cycle, but union find will report that cycle exits. swpnlmehta There is no need of “xset” and “yse” in Union() function. As x and y are already the parents of their respective set. Correct me if i am wrong…  
+/* Paste your code here (You may delete these lines if not writing code) */
+ NNavneet hmm … me too think the same their is no need for union() function even , just parent[x]=y ; is enough .  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks @swpnlmehta & @NNavneet Thanks for suggesting this optimization. We will soon add it to the original post. Keep it up! Max In the union() function, you need an extra conditional, otherwise an infinite loop may occur when xset = yset. if(xset != yset) parent[xset] = yset; For example, for edges: 1-2, 2-3, 1-3  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Anonymous Let us assume that we’ve a graph having edges : 1-2,2-3,3-6,1-4,2-5,1-7 . Now, we’re facing problem with the parent[] array. how can we solve it ? Anonymous Below is the source Code for graph having having edges : 1-2,2-3,3-6,1-4,2-5,1-7 and showing correct result  
+public class UnionFindCycle {
+private int[] id;
+public boolean isCycle=false;
+
+    public UnionFindCycle(int N)
+    {
+        id = new int[N];
+        for (int i = 0; i < N; i++)
+            id[i] = -1;
+    }
+    
+    public boolean connected(int id1, int id2) {
+        return id[id1] == id[id2];
+    }
+    
+    public void union(int id1, int id2) {
+    
+        if (id[id2]==-1) 
+               id[id1]=id2;
+        else
+            id[id1]=id[id2];
+        
+        if(id[id1]==id[id2])
+            this.isCycle=true;
+        
+    }
+    
+    public void isCycle()
+    {
+        System.out.println(this.isCycle);
+    }
+      public static void main(String[] args) {        
+             UnionFindCycle q = new UnionFindCycle(8);
+        q.union(1, 4);
+        q.union(1, 7);
+        q.union(1, 2);
+        
+        q.union(2, 3);
+        q.union(2, 5);
+        q.union(3, 6);
+        
+        
+        q.isCycle();
+       // for (int i = 0; i < 10; i++)
+        //    System.out.print(q.id[i] + " ");
+    
+    }
+}
+
+ Anonymous in isCycle function , we’re finding x such that parent[x]==-1 , and again in Union function , we’re doing the same . Is it necessary ?? Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,1109 @@
+Segregate even and odd nodes in a Linked List - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Segregate even and odd nodes in a Linked List Given a Linked List of integers, write a function to modify the linked list such that all even numbers appear before all the odd numbers in the modified linked list. Also, keep the order of even and odd numbers same. Examples: Input: 17->15->8->12->10->5->4->1->7->6->NULL Output: 8->12->10->4->6->17->15->5->1->7->NULL Input: 8->12->10->5->4->1->6->NULL Output: 8->12->10->4->6->5->1->NULL // If all numbers are even then do not change the list Input: 8->12->10->NULL Output: 8->12->10->NULL // If all numbers are odd then do not change the list Input: 1->3->5->7->NULL Output: 1->3->5->7->NULL Method 1 The idea is to get pointer to the last node of list. And then traverse the list starting from the head node and move the odd valued nodes from their current position to end of the list. Thanks to blunderboy for suggesting this method. Algorithm: …1) Get pointer to the last node. …2) Move all the odd nodes to the end. ……..a) Consider all odd nodes before the first even node and move them to end. ……..b) Change the head pointer to point to the first even node. ……..b) Consider all odd nodes after the first even node and move them to the end. 
+#include <stdio.h>
+#include <stdlib.h>
+
+/* a node of the singly linked list */
+struct node
+{
+    int data;
+    struct node *next;
+};
+
+void segregateEvenOdd(struct node **head_ref)
+{
+    struct node *end = *head_ref;
+
+    struct node *prev = NULL;
+    struct node *curr = *head_ref;
+
+    /* Get pointer to the last node */
+    while (end->next != NULL)
+        end = end->next;
+
+    struct node *new_end = end;
+
+    /* Consider all odd nodes before the first even node
+       and move then after end */
+    while (curr->data %2 != 0 && curr != end)
+    {
+        new_end->next = curr;
+        curr = curr->next;
+        new_end->next->next = NULL;
+        new_end = new_end->next;
+    }
+
+    // 10->8->17->17->15
+    /* Do following steps only if there is any even node */
+    if (curr->data%2 == 0)
+    {
+        /* Change the head pointer to point to first even node */
+        *head_ref = curr;
+
+        /* now current points to the first even node */
+        while (curr != end)
+        {
+            if ( (curr->data)%2 == 0 )
+            {
+                prev = curr;
+                curr = curr->next;
+            }
+            else
+            {
+                /* break the link between prev and current */
+                prev->next = curr->next;
+
+                /* Make next of curr as NULL  */
+                curr->next = NULL;
+
+                /* Move curr to end */
+                new_end->next = curr;
+
+                /* make curr as new end of list */
+                new_end = curr;
+
+                /* Update current pointer to next of the moved node */
+                curr = prev->next;
+            }
+        }
+    }
+
+    /* We must have prev set before executing lines following this
+       statement */
+    else prev = curr;
+
+    /* If there are more than 1 odd nodes and end of original list is
+      odd then move this node to end to maintain same order of odd
+      numbers in modified list */
+    if (new_end!=end && (end->data)%2 != 0)
+    {
+        prev->next = end->next;
+        end->next = NULL;
+        new_end->next = end;
+    }
+    return;
+}
+
+/* UTILITY FUNCTIONS */
+/* Function to insert a node at the beginning of the Doubly Linked List */
+void push(struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node =
+        (struct node*) malloc(sizeof(struct node));
+
+    /* put in the data  */
+    new_node->data  = new_data;
+
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);
+
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+/* Function to print nodes in a given doubly linked list
+   This function is same as printList() of singly linked lsit */
+void printList(struct node *node)
+{
+    while (node!=NULL)
+    {
+        printf("%d ", node->data);
+        node = node->next;
+    }
+}
+
+/* Drier program to test above functions*/
+int main()
+{
+    /* Start with the empty list */
+    struct node* head = NULL;
+
+    /* Let us create a sample linked list as following
+      0->2->4->6->8->10->11 */
+
+    push(&head, 11);
+    push(&head, 10);
+    push(&head, 8);
+    push(&head, 6);
+    push(&head, 4);
+    push(&head, 2);
+    push(&head, 0);
+
+    printf("\n Original Linked list ");
+    printList(head);
+
+    segregateEvenOdd(&head);
+
+    printf("\n Modified Linked list ");
+    printList(head);
+
+    return 0;
+}
+ Output: 
+ Original Linked list 0 2 4 6 8 10 11
+ Modified Linked list 0 2 4 6 8 10 11
+ Time complexity: O(n) Method 2 The idea is to split the linked list into two: one containing all even nodes and other containing all odd nodes. And finally attach the odd node linked list after the even node linked list. To split the Linked List, traverse the original Linked List and move all odd nodes to a separate Linked List of all odd nodes. At the end of loop, the original list will have all the even nodes and the odd node list will have all the odd nodes. To keep the ordering of all nodes same, we must insert all the odd nodes at the end of the odd node list. And to do that in constant time, we must keep track of last pointer in the odd node list. Time complexity: O(n) Please write comments if you find the above code/algorithm incorrect, or find other ways to solve the same problem.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. http://www.harshssd.appspot.com/ Harsha public void segregateEvenOddLL(){ Node evenHead = null; Node evenCurrent = null; Node oddHead = null; Node oddCurrent = null; Node current = head; while(current!=null){ if(current.getData()%2==0){ if(evenHead==null){ evenHead = current; evenCurrent = current; }else{ System.out.println(“Even :”+current.getData()); evenCurrent.next = current; evenCurrent = evenCurrent.next; } }else{ if(oddHead==null){ oddHead = current; oddCurrent = current; }else{ System.out.println(“Odd :”+current.getData()); oddCurrent.next = current; oddCurrent = oddCurrent.next; } } current = current.getNext(); } if(evenHead!=null){ evenCurrent.setNext(oddHead); head = evenHead; } } Kunal Arora Easy implementation….. Time complexity:0(n) Space complexity:0(n) @geeksforgeeks:disqus any suggestions on this struct node *segregate(struct node *head,struct node *root) { struct node *p=head; while(p!=NULL) { if((p->data%2)==0) root=create(root,p->data);\a function to create a new linked list p=p->next; } p=head; while(p!=NULL) { if(p->data%2!=0) root=create(root,p->data); p=p->next; } return root; } Himanshu Dagar In first method space complexity is O(1) So prefer first method where memory is less can refer to below link for first method http://ideone.com/4YyxAG Himanshu Dagar we have to use the concept of Dummy node in the second method to push the info part to the another lists bdbr053 my code pls check if any test cases fail…. http://ideone.com/FfeuQw Marsha Donna could u elaborate wat hav u used found variable for?? ravi kumar 2nd method is easy and 1st one is quite difficult #include #include struct list{ int data; struct list*next; }; void insert_end(struct list**head,int num) { struct list*temp=*head; struct list*temp1=(struct list*)malloc(sizeof(struct list)); temp1->data=num; if(*head==NULL) { temp=temp1; temp1->next=NULL; *head=temp; } while(temp->next!=NULL) { temp=temp->next; } temp->next=temp1; temp1->next=NULL; } void segrigate_list(struct list**head) { struct list*temp=*head; struct list*evenhead=NULL; struct list*eventail=NULL; struct list*oddhead=NULL; struct list*oddtail=NULL; while(temp!=NULL) { if((temp->data)%2==0) { if(evenhead==NULL) { evenhead=temp; eventail=evenhead; } else { eventail->next=temp; eventail=eventail->next; } } else { if(oddhead==NULL) {oddhead=temp; oddtail=oddhead;} else {oddtail->next=temp; oddtail=oddtail->next; } } temp=temp->next; } eventail->next=NULL; oddtail->next=NULL; *head=evenhead; eventail->next=oddhead; } void display(struct list*head) { struct list*temp=head; while(temp!=NULL) { printf(“%dn”,temp->data); temp=temp->next; } } int main() { struct list*p=NULL; insert_end(&p,2); insert_end(&p,3); insert_end(&p,7); insert_end(&p,9); insert_end(&p,1); insert_end(&p,6); insert_end(&p,8); display(p); segrigate_list(&p); printf(“segrigate list is=n”); display(p); return 0; } Sumit Monga The code for 2nd method is given below: #include #include struct node { int data; struct node * next; }; void newnode(struct node ** headRef,int data) { struct node * temp = (struct node *)malloc(sizeof(struct node)); temp->data = data; temp->next = *headRef; *headRef = temp; } struct node * seg_even_odd(struct node * head) { if(!head || !(head->next)) return head; struct node * current; struct node * odd_list = NULL; struct node ** oddRef = &(odd_list); while(head && (head->data)% 2 != 0) { *oddRef = head; head = head->next; (*oddRef)->next = NULL; oddRef = &((*oddRef)->next); } current = head; if(current) { while(current->next) { if(current->next->data % 2 != 0) { *oddRef = current->next; current->next = (*oddRef)->next; (*oddRef)->next = NULL; oddRef = &((*oddRef)->next); } else current = current->next; } current->next = odd_list; return (head); } else return odd_list; } int main() { struct node * head = NULL; newnode(&head,6); newnode(&head,7); newnode(&head,1); newnode(&head,4); newnode(&head,5); newnode(&head,10); newnode(&head,12); newnode(&head,8); newnode(&head,15); newnode(&head,17); struct node * current = head; printf(“The original Linked List is n”); while(current) { printf(” %d “,current->data); current = current->next; } head = seg_even_odd(head); current = head; printf(“nThe new modified Linked List is n”); while(current) { printf(” %d “,current->data); current = current->next; } } Vinodhini A function for the second method. variable names could be a bit misleading. But the use of dummy node is adapted from http://www.geeksforgeeks.org/merge-two-sorted-linked-lists/ A working code : http://ideone.com/QzXEZV void evenOdd(struct node **head){ struct node oDummy,eDummy; oDummy.next=NULL; eDummy.next=NULL; //dummies to store the starting node of odd and even sequence struct node *oddHead=&oDummy; struct node *evenHead=&eDummy; struct node *current = *head; //oddHead and evenHead would always be pointing to the last element in the respective sequence while(current!=NULL){ if(current->data%2==0){ evenHead->next=current; evenHead=evenHead->next; } else{ oddHead->next=current; oddHead=oddHead->next; } current=current->next; } //finally, since even should appear before odd, *head=eDummy.next;//make even’s head as the head evenHead->next=oDummy.next;//and even’s tail to point to the odd’s head } correct me if anything is wrong. Ronny @GeeksforGeeks There is a small bug in the code posted above. When the linked list has only one odd node and that is present at the last position, then it does not print the last element(the only odd element) Here is the link link to ideone.com/Lp3DNR The following line if((end->data)%2 != 0) should be modified to if(new_end!=end && (end->data)%2 != 0) Here is the link for final code ideone.com/sgyvhN  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks Thanks for pointing this out. We have updated the if condition. GeeksforGeeks Thanks for pointing this out. We have updated the if condition. Vibhu Tiwari Here you can just take out the odd nodes from a linked list and place it another list and then merge the two  
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct node node_t;
+struct node
+{
+    int data;
+    node_t *next;
+};
+void push(node_t **head_ref,int data)
+{
+    node_t *n=(node_t *)malloc(sizeof(node_t));
+    n->data=data;
+    n->next=(*head_ref);
+    (*head_ref)=n;
+}
+void printList(node_t *head)
+{
+    node_t *temp=head;
+    while(temp!=NULL)
+    {
+        printf(" %d ",temp->data);
+        temp=temp->next;
+    }
+}
+node_t *mergeTwoLists(node_t *head,node_t *head1)
+{
+    node_t *current=head;
+    while(current->next!=NULL)
+    {
+        current=current->next;
+    }
+    current->next=head1;
+    return head;
+}
+void segregate(node_t *head,node_t *head1)
+{
+    node_t *current=head;
+    node_t *c=head1;
+    node_t *temp;
+    int arr[50],i=0,j;
+    while(current!=NULL&&current->next!=NULL)
+    {
+        if(current==head&&current->data%2!=0)
+        {
+            arr[i]=current->data;
+            i++;
+            temp=head;
+            current=current->next;
+            head=current;
+            current=head;
+            free(temp);
+        }
+        else if(current->next->data%2!=0)
+        {
+            arr[i]=current->next->data;
+            i++;
+            temp=current->next;
+            current->next=current->next->next;
+            free(temp);
+            current=current->next;
+        }
+        else if(current->data%2==0)
+            current=current->next;
+    }
+    for(j=0;j<i;j++)
+        push(&head1,arr[j]);
+    node_t *n=mergeTwoLists(head,head1);
+    printList(n);
+}
+
+int main()
+{
+    node_t *head=NULL,*head1=NULL;
+    push(&head,3);
+    push(&head,4);
+    push(&head,5);
+    push(&head,7);
+    segregate(head,head1);
+}
+
+ Vibhu Tiwari Here just take out the nodes from a linked list and place it another list and then at last merge the two lists  
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct node node_t;
+struct node
+{
+    int data;
+    node_t *next;
+};
+void push(node_t **head_ref,int data)
+{
+    node_t *n=(node_t *)malloc(sizeof(node_t));
+    n->data=data;
+    n->next=(*head_ref);
+    (*head_ref)=n;
+}
+void printList(node_t *head)
+{
+    node_t *temp=head;
+    while(temp!=NULL)
+    {
+        printf(" %d ",temp->data);
+        temp=temp->next;
+    }
+}
+node_t *mergeTwoLists(node_t *head,node_t *head1)
+{
+    node_t *current=head;
+    while(current->next!=NULL)
+    {
+        current=current->next;
+    }
+    current->next=head1;
+    return head;
+}
+void segregate(node_t *head,node_t *head1)
+{
+    node_t *current=head;
+    node_t *c=head1;
+    node_t *temp;
+    int arr[50],i=0,j;
+    while(current!=NULL&&current->next!=NULL)
+    {
+        if(current==head&&current->data%2!=0)
+        {
+            arr[i]=current->data;
+            i++;
+            temp=head;
+            current=current->next;
+            head=current;
+            current=head;
+            free(temp);
+        }
+        else if(current->next->data%2!=0)
+        {
+            arr[i]=current->next->data;
+            i++;
+            temp=current->next;
+            current->next=current->next->next;
+            free(temp);
+            current=current->next;
+        }
+        else if(current->data%2==0)
+            current=current->next;
+    }
+    for(j=0;j<i;j++)
+        push(&head1,arr[j]);
+    node_t *n=mergeTwoLists(head,head1);
+    printList(n);
+}
+
+int main()
+{
+    node_t *head=NULL,*head1=NULL;
+    push(&head,3);
+    push(&head,4);
+    push(&head,5);
+    push(&head,7);
+    segregate(head,head1);
+}
+
+ Kaushik  
+void seggregate(struct node** head)
+{
+	struct node* temp=*head;
+	struct node *last,*curr,*prev=NULL,*stop;
+	while(temp->next!=NULL)
+		temp=temp->next;
+	last=temp;
+	temp=*head;
+	stop=last;
+
+	while(temp->next!=NULL && temp!=stop)
+	{
+		if(temp->data%2)
+		{
+			if(prev!=NULL)
+			{
+				prev->next=temp->next;
+				temp->next=NULL;
+				last->next=temp;
+				last=temp;
+				temp=prev->next;
+
+			}
+			else
+			{
+				*head=temp->next;
+				temp->next=NULL;
+				last->next=temp;
+				last=temp;
+				temp=*head;
+				prev=NULL;
+				continue;
+			}
+		}
+		else
+		{
+			prev=temp;
+			temp=temp->next;
+		}
+	}
+
+}
+ sonali gupta  
+/* Paste your code here (You may delete these lines if not writing code) */
+ #include #include #include #include typedef struct NODE {int info; struct NODE *next; }node; node *temp; node *getnode() {return((node *)malloc(sizeof(node))); } void traverse(node *head) { node *s; s=head; while(s!=NULL) {printf(“%d “,s->info); s=s->next; } } int main() {int count=8; node *head,*p,*ptr,*q,*locp,*curr; int x,max; char ch=’y'; printf(“enter info part\n”); scanf(“%d”,&x); temp=getnode(); temp->info=x; temp->next=NULL; head=temp; p=head; while(ch==’y’) {printf(“enter the info part\n”); scanf(“%d”,&x); temp=getnode(); temp->info=x; p->next=temp; temp->next=NULL; p=temp; printf(“do u want to enter more?\n”); fflush(stdin); scanf(“%c”,&ch); } curr=head; while(curr->info %2 != 0 ) { p->next = curr; curr = curr->next; p->next->next = NULL; p= p->next; } ptr=curr; q=curr; locp=NULL; while(count!=0) { if(ptr->info%2!=0) { p->next=ptr; locp->next=ptr->next; ptr->next=NULL; p=ptr; ptr=locp->next; } else {locp=ptr; ptr=ptr->next; } count–; } traverse(q); getch(); return 0; } Prateek Sharma C code with o(n) time complexity and o(1) space complexity……  
+#include<conio.h>
+#include<stdio.h>
+#include<stdlib.h>
+struct Node {
+       int value;
+       struct Node *next;
+       };
+struct LinkedList {
+       struct LinkedList *first;
+       struct Node *second;
+       //struct LinkedList *prev;
+       };       
+       
+int insertAtEnd(struct Node *node,int val) {
+    struct Node *temp;
+    struct Node *ne;
+    temp = node;
+    while(temp->next!= NULL) {
+          temp = temp->next;
+}
+    ne = (struct Node *) malloc(sizeof(struct Node));
+    ne->value = val;
+    ne->next = NULL;
+    temp->next = ne;    
+    return 0;                          
+}         
+int sortingEvenOdd(struct Node * node,struct LinkedList *one, int size){
+    struct Node *temp;
+    struct LinkedList *head,*tail;
+    head =tail= one;
+    int dummy;
+    temp = node;
+    for(int i =1;i<=size;i++){
+    if ((temp->value)%2 == 0) {
+      if (head->second !=NULL ){
+       dummy = head->second->value;
+       head->second->value = temp->value;
+       temp->value = dummy;
+       head->second = temp;
+       if (head->first != NULL){
+             head = head->first;
+             tail= tail->first;          
+       }          } 
+       temp = temp->next;}
+    else {if (tail->second ==NULL){
+        tail->second = temp;
+        }
+       else{  
+       struct LinkedList *two;
+       two = (struct LinkedList *) malloc(sizeof(struct LinkedList));
+       two->second = temp;
+       two->first = tail;
+       //two->prev = tail;
+       tail->first = two;
+       tail = two;
+       }
+       temp = temp->next;
+       }}
+    return 0;}   
+                                     
+int main() {
+   int n,s,i =1; 
+   struct Node *node,*temp;
+   struct LinkedList *one;
+   one = (struct LinkedList *) malloc(sizeof(struct LinkedList));
+   one->first = NULL;
+   one->second = NULL;
+   //one->prev = NULL;
+   node = (struct Node *) malloc(sizeof(struct Node));
+   printf("enter size of linked list");
+   scanf("%d",&s);
+   printf("enter value of root node:\n");
+   scanf("%d",&n);
+   node->value = n;
+   node->next = NULL;
+   while(i<=s-1) {
+   printf("enter next element of linked list\n");
+   scanf("%d",&n);
+   insertAtEnd(node,n);
+   i++;}
+   sortingEvenOdd(node,one,s);    
+   temp = node;
+   printf("Linked List is\n");
+   while(temp != NULL) {
+       printf("%d",temp->value);
+       temp = temp->next;
+}
+getch();
+return 0;
+}                   
+   
+   
+
+ abhishek08aug Intelligent Ankit Chaudhary simple and small code for method 1  
+node* seg(node *head)
+{
+    if(!head || head->next==NULL)   return head;
+    node *p=head;
+    while(p->next)  // find last node
+        p=p->next;
+    node *last=p,*cur=head,*prev=NULL;
+    while(cur!=p->next)     // till next of last node: (for test cases like )1,3,5 and 2,5,7
+                            // basically if last node(p) is odd, then we need to move it to end of new end(last)
+    {
+        if(cur->data%2==0)
+            prev=cur;
+        else
+        {
+            last->next=cur; // append cur to end of list
+            last=cur;
+            if(prev)
+                prev->next=cur->next;   // delete cur from list
+            else
+                head=cur->next; // if till now we do not find an even node, then move head ahead each time
+        }
+        cur=cur->next;
+    }
+    last->next=NULL;    // this is necessary, otherwise, circular loop will be created 
+    return head;
+}
+ codinggeek16 @admin Move this question to linklist category Ankit if we take a linked list with all numbers even except the last one(only last one is odd)then program shows wrong output.Make a small change in last block of function segregateEvenOdd()  
+/* 
+ if((end->data)%2 != 0 && new_end!=end) //SMALL CHANGE
+  {
+      prev->next = end->next;
+      end->next = NULL;
+      new_end->next = end;
+  }
+ */
+ Nishantfirst administer, Please see if the code of method 1 is working for edge case 4->2->6->7 According to me it’s a bug when we reach node 7  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Chintu Here is a version that does it in a single iteration of the list.  
+/* Here is a version that does it in a single iteration of the list. */
+int segregateEvenOdd(NODE **HEAD) {
+    NODE *ptr = *HEAD;
+    NODE *evenptr = NULL;
+    NODE *oddptr = NULL;
+    NODE *firstoddptr = NULL;
+    
+    if (*HEAD == NULL){
+       return 0;
+    }
+    for (ptr = *HEAD; ptr != NULL;ptr = ptr->next){
+          //cout << ptr->data << endl;
+          if (ptr->data % 2 == 0){ 
+             if (evenptr == NULL){
+                //cout << "evenptr is NULL" << endl;
+                *HEAD = ptr;
+                evenptr = ptr;
+             }
+             else{
+                  evenptr->next = ptr;
+                  evenptr = ptr;
+             }
+          }
+          else{
+               if (oddptr == NULL){
+                  //cout << "oddptr is NULL" << endl;
+               //save the address of first odd-ptr, so that we can point
+               // the last even-node to it.
+                  firstoddptr = ptr;
+                  oddptr = ptr;
+             }
+             else{
+                  oddptr->next = ptr;
+                  oddptr = ptr;
+             } 
+          }           
+                          
+    }
+    if (evenptr != NULL){        
+       evenptr->next = firstoddptr;                
+    }
+    if (oddptr != NULL){
+       oddptr->next = NULL;
+    }
+    return 0;
+}
+
+ rk_roy VERY EASY ….THNX  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://www.thewebinspire.com Sambhav Sharma this is working in my case and is pretty short.. and i know it will fail in some cases.. please check this.. void changeOrder(struct node **head_ref) { struct node *current=*head_ref,*end=*head_ref,*new_last,*temp; while(end->next!=NULL) end=end->next; new_end=end; while(current->data%2!=0 && current!=end) { printf(“\n\n%d”,current->data); new_end->next=current; current=current->next; new_end->next->next=NULL; new_end=new_end->next; } if(current->data%2==0) { (*head_ref)=current; while(current!=end) { if(current->next->data%2==1) { temp=current->next; current->next=current->next->next; temp->next=NULL; new_end->next=temp; new_end=new_end->next; } current=current->next; } } } Animesh Pratap Singh  
+#include "linked_list_library.c"
+
+struct node* seperate( struct node* head)
+{
+    struct node* mover=head, *p=head,*end, *current=NULL;
+    int i=0;
+    while(mover->next!=NULL)
+    {
+        if(mover->info%2==0&&i==0)
+        {
+            i=1;
+            head=mover;
+        }
+        mover=mover->next;
+    }
+    end=mover;
+
+    while(p!=end)
+    {
+
+        if(p->info%2!=0&&current==NULL)
+        {
+            printf("1");
+            mover->next=p;
+            mover=p;
+            p=p->next;
+            mover->next=NULL;
+            continue;
+        }
+        if(p->info%2==0)
+        {
+            printf("\n2");
+            current=p;
+            p=p->next;
+            continue;
+        }
+        if(p->info%2!=0)
+        {
+            printf("here%d",p->info);
+            current->next=p->next;
+            p->next=NULL;
+            mover->next=p;
+            mover=mover->next;
+            p=current->next;
+            continue;
+        }
+    }
+    return head;
+}
+
+int main()
+{
+    struct node* head;
+    head=insert(1,NULL);
+    insert(2,head);
+    insert(3,head);
+    insert(4,head);
+    insert(5,head);
+    insert(6,head);
+    insert(7,head);
+    insert(8,head);
+    insert(9,head);
+    head=seperate(head);
+    display(head);
+    return 0;
+}
+
+ http://www.nikoo28.blogspot.com nikoo28 one more method might be to keep a track of the last even node we come across in the list..if the next node is odd simply move ahead..if even, insert it after the last even node we kept a track of…change the pointer of last even node.. Amateur_coder what if the input contains some od numbers before the first even number..den ur code wont work….  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Manish An implementation of Method 2 in the post. The code is easy to understand. Please clarify if you have any doubts or find any mistakes.  
+struct node * segre(struct node *head)
+{
+	struct node *evenhead=NULL;		//head pointer for even list
+	struct node *oddhead=NULL;		//head pointer for odd list
+	struct node *eventr=NULL;		//tail pointer for even list
+	struct node *oddtr=NULL;		//tail pointer for odd list
+	while(head!=NULL)
+	{
+		if((head->data&1)==0)
+		{
+			if(evenhead)
+			{
+				eventr->next=head;
+				eventr=eventr->next;
+			}
+			else
+			{
+				evenhead=head;
+				eventr=evenhead;
+			}
+		}
+		else
+		{
+			if(oddhead)
+			{
+				oddtr->next=head;
+				oddtr=oddtr->next;
+			}
+			else
+			{
+				oddhead=head;
+				oddtr=oddhead;
+			}
+		}
+		head=head->next;
+	}
+	
+	if(oddtr)
+		oddtr->next=NULL;
+	
+	if(evenhead)
+	{
+		eventr->next=oddhead;
+	}
+	else
+	{
+		evenhead=oddhead;
+	}
+	return evenhead;
+}
+
+
+ Manish Indented code , sorry to have forgotten the sourcecode tags in the previous code ..  
+/* Paste your code here (You may delete these lines if not writing code) */
+
+struct node * segre(struct node *head)
+{
+	struct node *evenhead=NULL;		//head pointer for even list
+	struct node *oddhead=NULL;		//head pointer for odd list
+	struct node *eventr=NULL;		//tail pointer for even list
+	struct node *oddtr=NULL;		//tail pointer for odd list
+	while(head!=NULL)
+	{
+		if((head->data&1)==0)
+		{
+			if(evenhead)
+			{
+				eventr->next=head;
+				eventr=eventr->next;
+			}
+			else
+			{
+				evenhead=head;
+				eventr=evenhead;
+			}
+		}
+		else
+		{
+			if(oddhead)
+			{
+				oddtr->next=head;
+				oddtr=oddtr->next;
+			}
+			else
+			{
+				oddhead=head;
+				oddtr=oddhead;
+			}
+		}
+		head=head->next;
+	}
+
+	if(oddtr)
+		oddtr->next=NULL;
+
+	if(evenhead)
+	{
+		eventr->next=oddhead;
+	}
+	else
+	{
+		evenhead=oddhead;
+	}
+	return evenhead;
+}
+ y2km11  
+/* Paste your code here (You may delete these lines if not writing code) */
+if( !head )
+{
+	head1 = NULL;
+	head2 = NULL;
+	return;
+}
+
+head1 = head;
+head2 = head->next;
+
+list1 = head1;
+list2 = head2; // iterators
+while( list2 && list2->next )
+{
+	list1->next = list2->next;
+	if( list1->next )
+		list2->next = list1->next->next;
+	list1 = list1->next;
+	list2 = list2->next;
+}
+return;
+ surya How about this? It is also O(n)  
+
+//The code is written assuming the first node of head is a dummy node.
+void seggregateEvenodd(struct node** head){
+    struct node* lastEvenNode = *head;
+    struct node* curNode ;
+    for(curNode=*head;curNode->next!=NULL;curNode=curNode->next){
+    	while(!(curNode->next->data&1)){
+    		//Even Node : Move it to the next of the last even Node
+    		struct node* tempNode = lastEvenNode->next;
+    		lastEvenNode->next = curNode->next;
+    		tempNode->next = curNode->next->next;
+    		lastEvenNode->next->next = tempNode;
+    		lastEvenNode = lastEvenNode->next;
+    	}
+    }
+}
+}
+ Harjit Singh You can use below algorithm as well to do the same. 1) keep a pointer to head node. 2) traverse the link list to find an even element. 3) delete that even node from the linked list and insert it to the begining of link list. 4) keep on searching next even node,deleting it from link list and inserting it after the last inserted even node. ~Harjit phanikiran good one regarding step 3 Instead of saying it as deleting and inserting, may be we can refer it as moving node from one position to another. Unknown public void segregateOddEven(){ Node curr=first; Node odd=null; while(curr!=null){ System.out.println(“processing node : ” + curr); if(curr.item%2!=0){ if(odd==null){ odd=curr; curr=curr.next; System.out.println(“odd points to “+ odd); }else{ curr=curr.next; } }else if(odd!=null){ int data=odd.item; odd.item=curr.item; curr.item=data; odd=odd.next; curr=curr.next; System.out.println(“processed even ,odd points to “+ odd); }else{ curr=curr.next; } } Unknown output generated List items from first to last : [80] [60] [50] [40] [31] [20] [10] processing node : 80 processing node : 60 processing node : 50 processing node : 40 processing node : 31 odd points to 31 processing node : 20 processed even ,odd points to 31 processing node : 10 processed even ,odd points to 31 List items from first to last : [80] [60] [50] [40] [20] [10] [31] AshJ public static void SegregateEvenOdd(ref List head) { List evenHead = null, oddHead = null, evenTemp = null, oddTemp = null, temp = head; while (temp!=null) { if (temp.data % 2 == 0) { if (evenHead == null) { evenHead = temp; evenTemp = temp; } else { evenTemp.next = temp; evenTemp = evenTemp.next; } } else { if (oddHead == null) { oddHead = temp; oddTemp = temp; } else { oddTemp.next = temp; oddTemp = oddTemp.next; } } temp = temp.next; } evenTemp.next = oddHead; } seekers very helpful………….:-) Aashray How about this one , i guess its a little simpler than method 1. —–Correction to previous comment——- void segregateEvenOdd(struct node **head) { int flag=0; struct node *last=*head,*cur=*head,*stop,*temp,*prev=NULL,*oldhead=*head; while(last->next!=NULL && last!=NULL) last=last->next; stop=last; while(cur!=stop->next && flag==0) { if(cur->info%2!=0) { if(cur==*head){(*head)=cur->next;if(*head==oldhead)flag=1;} temp=cur->next; cur->next=NULL; last->next=cur; last=last->next; cur=temp; if(prev!=NULL)prev->next=cur; } else {prev=cur;cur=cur->next;} } } aashray Add this before the second while loop in the below comment  if(stop==*head)return; Aashray How about this one , i guess its a little simpler than method 1.  
+void segregateEvenOdd(struct node **head)
+{
+	int flag=0;
+	struct node *last=*head,*cur=*head,*stop,*temp,*prev=NULL,*oldhead=*head;
+	while(last->next!=NULL && last!=NULL)
+		last=last->next;
+	stop=last;
+	
+	while(cur!=stop->next && flag==0)
+	{
+		if(cur->info%2!=0)
+		{
+			if(cur==*head){(*head)=cur->next;if(*head==oldhead)flag=1;}
+			temp=cur->next;
+			cur->next=NULL;
+			last->next=cur;
+			last=last->next;
+			cur=temp;
+			if(prev!=NULL)prev->next=cur;	
+		}
+		else {prev=cur;cur=cur->next;} 
+	}
+} Gaurav Agarwal Java O(n) Solution. public class SegregateEvenOdd { public static Node segregateEvenOdd(Node head) { Node headEven = null; Node tailEven = null;; Node headOdd = null; Node tailOdd = null; Node current = head; while (current!=null) { while (current!=null&&current.value % 2 != 0) { if(headOdd==null) headOdd = current; tailOdd = current; current = current.next; } if(tailEven!=null) tailEven.next = current; while (current!=null&&current.value % 2 == 0) { if(headEven==null) headEven = current; tailEven = current; current = current.next; } if(tailOdd!=null) tailOdd.next = current; } if(headEven!=null) { tailEven.next = headOdd; return headEven; } else return headOdd; } public static void printList(Node n){ Node l = n; while(l!=null){ System.out.print(l.value + ” “); l = l.next; } } public static Node createList(int[] a){ Node head = new Node(a[0], null);; Node current = head; for (int i = 1; i < a.length; i++) { Node temp = new Node(a[i], null); current.next = temp; current = temp; } return head; } public static void main(String[] args) { int[] a = {1,2,3,4,5,6,7,8,9,0,11,12,13,15,14,16}; Node head = createList(a); printList(head); System.out.println(); printList(segregateEvenOdd(head)); } http://athiruban.blogspot.com athiruban I think we can use two queues one for even and another for odd elements . Traverse the list from first to last check if it is odd or even and put the element to the corresponding queue. Finally print the elements in the even and odds queues. Am I correct?. If not correct me. Prashant You are right, provided you were given extra space to work with. athiruban I think Method-2 is better. Prashant I have written this in Java. Similar to Method 1 described above:  
+	public Node segregateEvenOdd(Node head) {
+		if(head == null || head.next == null)
+			return head;
+		
+		Node previous=null, next=null, tail=null, current=head, tailStart=null;
+		int i = 1, listSize = 1;
+		//Iterate till last node
+		while(current.next != null) {
+			current = current.next;
+			listSize++;
+		}
+		
+		tail = current;
+		
+		//Reset current to head
+		current = head;
+ 		
+		
+		//3,1,2,4,5,6,8 -> 2,4,6,8,3,1,5
+		while(current != null) {
+			//Check for i<listSize to avoid a list with all odd elements to
+			//run into an infinite loop.
+			while( (i<=listSize) && previous == null) {
+				if(current.data%2 != 0) {
+					next=current.next;
+					current.next=null;
+					tail.next = current;
+					tail = tail.next;
+					//For the first odd element moved, mark
+					//it as the start of Tail.
+					if(i==1)
+						tailStart = tail;
+					current=next;
+					i++;
+				}
+				else {
+					head = current;
+					previous = current;
+					current = current.next;
+				}
+				
+			}
+			
+			//If the pointer has reached start of tail, break the while loop.
+			if(current == tailStart)
+				break;
+			
+			if(current.data%2 != 0) {
+				previous.next = current.next;
+				next = current.next;
+				current.next=null;
+				tail.next=current;
+				tail = tail.next;
+				if(i==1)
+					tailStart = tail;
+				current=next;
+				i++;
+			}
+			else {
+				previous=current;
+				current=current.next;
+			}
+		}
+		
+		return head;
+	}
+
+ http://firatatagun.com foobar C# Solutions: Segregate even and odd nodes in a Linked List using C# http://firatatagun.com foobar OK, lets say, you dont have previous pointer in the list, lets say it s singly linked list with forward pointer only. Then you can have two pointers at the begginning. One , even pointer, one odd pointer. Similar idea. Ash  
+
+typedef struct List
+{
+	int val;
+	struct List *next;
+} List;
+
+void appendList (List **last, int n)
+{
+	List *temp;
+	temp = (List*)malloc(sizeof(List));
+	temp->val = n;
+	temp->next = temp;
+	if (*last == NULL)
+		*last = temp;
+	else
+	{
+		temp->next = (*last)->next;
+		(*last)->next = temp;
+		*last = temp;
+	}
+}
+
+void segregateList (List **last)
+{
+	/* 
+	cur = current node pointer being checked 
+	prev = previous node pointer w.r.t current node 
+	insert = the last known even node pointer after which the next even node needs to be inserted
+	*/
+	   
+	List *cur = *last, *prev = *last, *insert = *last;
+	int oddPresent = 0;
+	if (cur == NULL)
+		return;
+	if (cur->next == *last)
+		return;
+	cur = cur->next;
+	do
+	{
+		if ((cur->val) % 2 == 0 ) /* cur is even */
+		{
+			if (oddPresent)
+			{
+				prev->next = cur->next;
+				cur->next = insert->next;
+				insert->next = cur;
+			}
+			insert = cur;
+		} /* cur is odd */
+		else
+			oddPresent = 1;
+	} while (prev = cur, cur = cur->next, cur != *last);
+	
+	if ((cur->val) % 2 != 0)
+		oddPresent = 1;
+	if (((cur->val) % 2 == 0) && oddPresent)
+	{
+		if (insert != *last)
+		{
+			prev->next = cur->next;
+			cur->next = insert->next;
+			insert->next = cur;
+		}
+		*last = prev;
+	}
+}
+
+void printList (List *last)
+{
+	List *t = last;
+	if (t == NULL)
+	{
+		printf ("NULL\n");
+		return;
+	}
+	while (t = t->next, t != last)
+	{
+		printf ("%d->", t->val);
+	}
+	printf ("%d->NULL\n", t->val);
+}
+
+int main()
+{
+	int n;
+	List *last = NULL;
+	while (scanf ("%d", &n), n != -1)
+	{
+		appendList (&last, n);
+	}
+	printList (last);
+	printf ("After conversion\n");
+	segregateList (&last);
+	printList (last);
+	return 0;
+}
+ Raja if each node doesn’t hold much satellite data, we could exchange data in the nodes instead of changing pointers. Its same like partition method in Quicksort solution. Please let me know if this takes much time. kartik Exchanging data is another approach. But exchanging satellite data is more costly in general. Could you please let me know how is it similar to partition method? varun Hi, In first solution i am not getting use of else part in last  
+else
+    prev = curr; // here prev curr and end all are same so this 
+//else is not required
+ 
+  /* If the end of the original list is odd then move this node to
+    end to maintain same order of odd numbers in modified list */
+  if((end->data)%2 != 0)
+  {
+      prev->next = end->next; // u can simply ignore this
+      end->next = NULL;
+      new_end->next = end;
+  }
+ kartik @varun: Consider the case where all nodes are odd. For example 1->3->5->7. The else is needed to handle this case. varun Hi karthik, I think even in the case all data is odd we donnot need else consider the case : 1-3-5-7-9 now before your else executed your list is in this position curr end head_ref new_end 9——-1——–3——–5———–7 and in else statement you are pointing prev to curr if(end->data%2!=0) { end->next=NULL; new_end->next=end; } Only this is required which will work for all odds in list no need of else because you are pointing prev to curr. here prev curr and end all r pointing to same location. I have checked and for me it is working fine. Please let me know if i am mistaking somewhere. Regards varun jain kartik @varun: The following code is common and is exceuted in all the cases. We need to change the next of prev to disconnect the the node from its original position. For the cases where we have all odd nodes, we don’t need prev pointer.    if((end->data)%2 != 0)
+  {
+    prev->next = end->next;
+    end->next = NULL;
+    new_end->next = end;
+  } An alternate could be    if((end->data)%2 != 0)
+  {
+    if (curr->data%2 != 0)
+      prev->next = end->next;
+    end->next = NULL;
+    new_end->next = end;
+  } Let me know if I am wrong. varun @karthik, prev->next=end->next is not at all required here. Because prev, end and curr all are representing same node in last. so prev->next and end->next are already same and not diffrent. Sandeep @Varun & Kartik: We will take another look at the program and update it if needed. avi can we do like theis avi hey, can we do like this.. start traversing from last and if u find any even numbers, insert them at first(place them as first node).. thats all.. all even nos now will be placed first followed by all odd nos.. aravindhramu @avi: isnt ur method similar to Method2? But to do so in d same linked list, u need a lot of “cleanup code” i guess.. i mean if u put even nodes at first place, u need 2 shift the already first node to right and so on..correct me if wrong.. aravindhramu And to do so..i think it ll take a lot of time.. Algorist Hi, I wrote a code in C++ for Method 2… Hope It would be helpful for readers.  
+using namespace std;
+
+class LinkedList
+{
+	struct node
+	{
+		int info;
+		struct node *next;
+	};
+	typedef struct node * Node;
+
+	Node head;
+
+public:
+	LinkedList()	{
+		head = NULL;
+	}
+
+	~LinkedList()	{
+		Node curr = head;
+		while(curr != NULL)
+		{
+			head = head->next;
+			free(curr);
+			curr = head;
+		}
+	}
+
+	/*
+	 * Inserts a new node in the linked list.
+	 */
+	void insert(int info);
+	void traverse();
+
+	/*
+	 * Function to modify the linked list such that all even numbers appear before
+	 * all the odd numbers in the modified linked list.
+	 * Also, keep the order of even and odd numbers same.
+	 */
+	void segregateEvenOdd();
+};
+
+void LinkedList::insert(int info)
+{
+	Node curr = (Node)malloc(sizeof(struct node));
+	curr->info = info;
+	curr->next = NULL;
+
+	if(head == NULL)
+	{
+		head = curr;
+		return;
+	}
+
+	Node temp = head;
+	while(temp->next != NULL)
+		temp = temp->next;
+
+	temp->next = curr;
+
+	return;
+}
+
+void LinkedList::traverse()
+{
+	Node curr = head;
+	while(curr != NULL)
+	{
+		cout<info<next;
+	}
+}
+
+void LinkedList::segregateEvenOdd()
+{
+	Node eStart = NULL, eEnd = NULL;
+	Node oStart = NULL, oEnd = NULL;
+
+	Node curr = head;
+	while(curr != NULL)
+	{
+		if(curr->info % 2 == 0 && eStart == NULL)
+		{
+			eStart = curr;
+			eEnd = curr;
+		}
+
+		else if(curr->info % 2 == 0)
+		{
+			eEnd->next = curr;
+			eEnd = curr;
+		}
+
+		if(curr->info % 2 != 0 && oStart == NULL)
+		{
+			oStart = curr;
+			oEnd = curr;
+		}
+
+		else if(curr->info % 2 != 0)
+		{
+			oEnd->next = curr;
+			oEnd = curr;
+		}
+
+		curr = curr->next;
+	}
+	if(eEnd != NULL)
+		eEnd->next = NULL;
+
+	if(oEnd != NULL)
+		oEnd->next = NULL;
+
+	if(eStart != NULL)
+	{
+		head = eStart;
+		eEnd->next = oStart;
+	}
+	else
+		head = oStart;
+}
+
+int main(int argc, char **argv) {
+
+	LinkedList ll;
+
+	int arr[] = {};
+	int n = sizeof(arr) / sizeof(int);
+
+	int i;
+	for (i = 0; i < n; ++i) {
+		ll.insert(arr[i]);
+	}
+
+	ll.traverse();
+	ll.segregateEvenOdd();
+	cout<<endl;
+	ll.traverse();
+
+	return EXIT_SUCCESS;
+}
+ algoseekar @geeksfrogeeks.sambasiva solution is much easier & cool as well in the post of inetrview question.. kartik @Algoseekar: I think that solution is for a slightly different problem where we can put either even nodes first or odd nodes. Also, the solution looks like an implementation of method 2. Correct me if I am wrong. Algoseekar @kartik..yes its impl of method 2 & we can either shows the o/p as even followed by odd & vice versa isn’t it.so we can modify the sambasiva solution..yes we can man….no problems in sambasiva soln jaya @kartik i tried the problem as suggested by you ..but m not able to get desired o/p i eman if we have tree of depth d then we should have d linked list ..cann u please look @ that here is my solution plz reply ASAP… http://geeksforgeeks.org/forum/topic/amazon-interview-question-for-software-engineerdeveloper-fresher-about-algorithms-14#post-21651 sorry i m pasting my problem here becoz u didn’t reply there..so please correct the above code & let me know..?? jaya @kartik i tried the problem as suggested by you ..but m not able to get desired o/p i eman if we have tree of depth d then we should have d linked list ..cann u please look @ that here is my solution plz reply ASAP… http://geeksforgeeks.org/forum/topic/amazon-interview-question-for-software-engineerdeveloper-fresher-about-algorithms-14#post-21651 sorry i m pasting my problem here becoz u didn’t reply there..so please correct the above code & let me know..?? Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

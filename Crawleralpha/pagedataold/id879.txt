@@ -1,0 +1,118 @@
+A Pancake Sorting Problem - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph A Pancake Sorting Problem We have discussed Pancake Sorting in the previous post. Following is a problem based on Pancake Sorting. Given an an unsorted array, sort the given array. You are allowed to do only following operation on array. 
+flip(arr, i): Reverse array from 0 to i Imagine a hypothetical machine where flip(i) always takes O(1) time. Write an efficient program for sorting a given array in O(nLogn) time on the given machine. If we apply the same algorithm here, the time taken will be O(n^2) because the algorithm calls findMax() in a loop and find findMax() takes O(n) time even on this hypothetical machine. We can use insertion sort that uses binary search. The idea is to run a loop from second element to last element (from i = 1 to n-1), and one by one insert arr[i] in arr[0..i-1] (like standard insertion sort algorithm). When we insert an element arr[i], we can use binary search to find position of arr[i] in O(Logi) time. Once we have the position, we can use some flip operations to put arr[i] at its new place. Following are abstract steps. 
+// Standard Insertion Sort Loop that starts from second element
+for (i=1; i < n; i++) ----> O(n)
+{
+  int key = arr[i];
+
+  // Find index of ceiling of arr[i] in arr[0..i-1] using binary search
+  j = celiSearch(arr, key, 0, i-1); ----> O(logn) (See this)
+    
+  // Apply some flip operations to put arr[i] at correct place
+} Since flip operation takes O(1) on given hypothetical machine, total running time of above algorithm is O(nlogn). Thanks to Kumar for suggesting above problem and algorithm. Let us see how does the above algorithm work. ceilSearch() actually returns the index of the smallest element which is greater than arr[i] in arr[0..i-1]. If there is no such element, it returns -1. Let the returned value be j. If j is -1, then we don’t need to do anything as arr[i] is already the greatest element among arr[0..i]. Otherwise we need to put arr[i] just before arr[j]. So how to apply flip operations to put arr[i] just before arr[j] using values of i and j. Let us take an example to understand this. Let i be 6 and current array be {12, 15, 18, 30, 35, 40, 20, 6, 90, 80}. To put 20 at its new place, the array should be changed to {12, 15, 18, 20, 30, 35, 40, 6, 90, 80}. We apply following steps to put 20 at its new place. 1) Find j using ceilSearch (In the above example j is 3). 2) flip(arr, j-1) (array becomes {18, 15, 12, 30, 35, 40, 20, 6, 90, 80}) 3) flip(arr, i-1); (array becomes {40, 35, 30, 12, 15, 18, 20, 6, 90, 80}) 4) flip(arr, i); (array becomes {20, 18, 15, 12, 30, 35, 40, 6, 90, 80}) 5) flip(arr, j); (array becomes {12, 15, 18, 20, 30, 35, 40, 6, 90, 80}) Following is C implementation of the above algorithm. 
+#include <stdlib.h>
+#include <stdio.h>
+
+/* A Binary Search based function to get index of ceiling of x in
+   arr[low..high] */
+int ceilSearch(int arr[], int low, int high, int x)
+{
+    int mid;
+
+    /* If x is smaller than or equal to the first element,
+      then return the first element */
+    if(x <= arr[low])
+        return low;
+
+    /* If x is greater than the last element, then return -1 */
+    if(x > arr[high])
+        return -1;
+
+    /* get the index of middle element of arr[low..high]*/
+    mid = (low + high)/2;  /* low + (high – low)/2 */
+
+    /* If x is same as middle element, then return mid */
+    if(arr[mid] == x)
+        return mid;
+
+    /* If x is greater than arr[mid], then either arr[mid + 1]
+      is ceiling of x, or ceiling lies in arr[mid+1...high] */
+    if(arr[mid] < x)
+    {
+        if(mid + 1 <= high && x <= arr[mid+1])
+            return mid + 1;
+        else
+            return ceilSearch(arr, mid+1, high, x);
+    }
+
+    /* If x is smaller than arr[mid], then either arr[mid]
+       is ceiling of x or ceiling lies in arr[mid-1...high] */
+    if (mid - 1 >= low && x > arr[mid-1])
+        return mid;
+    else
+        return ceilSearch(arr, low, mid - 1, x);
+}
+
+/* Reverses arr[0..i] */
+void flip(int arr[], int i)
+{
+    int temp, start = 0;
+    while (start < i)
+    {
+        temp = arr[start];
+        arr[start] = arr[i];
+        arr[i] = temp;
+        start++;
+        i--;
+    }
+}
+
+/* Function to sort an array using insertion sort, binary search and flip */
+void insertionSort(int arr[], int size)
+{
+    int i, j;
+
+    // Start from the second element and one by one insert arr[i]
+    // in already sorted arr[0..i-1]
+    for(i = 1; i < size; i++)
+    {
+        // Find the smallest element in arr[0..i-1] which is also greater than
+        // or equal to arr[i]
+        int j = ceilSearch(arr, 0, i-1, arr[i]);
+
+        // Check if there was no element greater than arr[i]
+        if (j != -1)
+        {
+            // Put arr[i] before arr[j] using following four flip operations
+            flip(arr, j-1);
+            flip(arr, i-1);
+            flip(arr, i);
+            flip(arr, j);
+        }
+    }
+}
+
+/* A utility function to print an array of size n */
+void printArray(int arr[], int n)
+{
+    int i;
+    for (i = 0; i < n; ++i)
+        printf("%d ", arr[i]);
+}
+
+/* Driver program to test insertion sort */
+int main()
+{
+    int arr[] = {18, 40, 35, 12, 30, 35, 20, 6, 90, 80};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    insertionSort(arr, n);
+    printArray(arr, n);
+    return 0;
+}
+ Output: 6 12 18 20 30 35 35 40 80 90 Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. vinod Following is a divide and conquer method for this problem. Used a special flip function which flips elements between two indices. (the flip function given in the problem statement can also be used, but it needs more flips). http://ideone.com/6vOUmk Prateek Caire We can also build max heap. top most element will give the position of max amon non sorted array. Time complexity NLogN  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartheek J We Can Also Merge Sort Right.. In The Merge Instead Replacing Reversing/Flip Will be there as Flip O(1) Opreation in NLOGN Complexity it will complete.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ reallyunreal Doesn’t binary search take place on an already sorted array? algobard Yes, it does. And that’s what is being *correctly* used here. This approach uses insertion sort. So going by how insertion sort works – for i, the array from 0 to i-1 stands sorted. Just pen down an example and observe  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ibnipun10 Bubble sort can also work here, right? sreeram Lets say we know how to swap two elements,we can apply any one O(nlogn) algorithms to sort an array say i 2 ){ flip(arr,j-1); flip(arr,j-i-2); flip(arr,j-1);} flip(arr,j); flip(arr,j-i); flip(arr,j); } Please let me know if I am wrong ! sreeram [say i < j swap(int *arr,int i ,int j ){ flip(arr,j-1); flip(arr,j-i-2); flip(arr,j-1);} flip(arr,j); flip(arr,j-i); flip(arr,j); }] sreeram sorry for typos I meant this say i 2){ flip(arr,j-1); flip(arr,j-i-2); flip(arr,j-1);} flip(arr,j); flip(arr,j-i); flip(arr,j); } Suku facebook interview question Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

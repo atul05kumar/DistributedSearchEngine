@@ -1,0 +1,173 @@
+Construct BST from given preorder traversal | Set 2 - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Construct BST from given preorder traversal | Set 2 Given preorder traversal of a binary search tree, construct the BST. For example, if the given traversal is {10, 5, 1, 7, 40, 50}, then the output should be root of following tree. 
+     10
+   /   \
+  5     40
+ /  \      \
+1    7      50  We have discussed O(n^2) and O(n) recursive solutions in the previous post. Following is a stack based iterative solution that works in O(n) time. 1. Create an empty stack. 2. Make the first value as root. Push it to the stack. 3. Keep on popping while the stack is not empty and the next value is greater than stack’s top value. Make this value as the right child of the last popped node. Push the new node to the stack. 4. If the next value is less than the stack’s top value, make this value as the left child of the stack’s top node. Push the new node to the stack. 5. Repeat steps 2 and 3 until there are items remaining in pre[]. 
+/* A O(n) iterative program for construction of BST from preorder traversal */
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+typedef struct Node
+{
+    int data;
+    struct Node *left, *right;
+} Node;
+
+// A Stack has array of Nodes, capacity, and top
+typedef struct Stack
+{
+    int top;
+    int capacity;
+    Node* *array;
+} Stack;
+
+// A utility function to create a new tree node
+Node* newNode( int data )
+{
+    Node* temp = (Node *)malloc( sizeof( Node ) );
+    temp->data = data;
+    temp->left = temp->right = NULL;
+    return temp;
+}
+
+// A utility function to create a stack of given capacity
+Stack* createStack( int capacity )
+{
+    Stack* stack = (Stack *)malloc( sizeof( Stack ) );
+    stack->top = -1;
+    stack->capacity = capacity;
+    stack->array = (Node **)malloc( stack->capacity * sizeof( Node* ) );
+    return stack;
+}
+
+// A utility function to check if stack is full
+int isFull( Stack* stack )
+{
+    return stack->top == stack->capacity - 1;
+}
+
+// A utility function to check if stack is empty
+int isEmpty( Stack* stack )
+{
+    return stack->top == -1;
+}
+
+// A utility function to push an item to stack
+void push( Stack* stack, Node* item )
+{
+    if( isFull( stack ) )
+        return;
+    stack->array[ ++stack->top ] = item;
+}
+
+// A utility function to remove an item from stack
+Node* pop( Stack* stack )
+{
+    if( isEmpty( stack ) )
+        return NULL;
+    return stack->array[ stack->top-- ];
+}
+
+// A utility function to get top node of stack
+Node* peek( Stack* stack )
+{
+    return stack->array[ stack->top ];
+}
+
+// The main function that constructs BST from pre[]
+Node* constructTree ( int pre[], int size )
+{
+    // Create a stack of capacity equal to size
+    Stack* stack = createStack( size );
+
+    // The first element of pre[] is always root
+    Node* root = newNode( pre[0] );
+
+    // Push root
+    push( stack, root );
+
+    int i;
+    Node* temp;
+
+    // Iterate through rest of the size-1 items of given preorder array
+    for ( i = 1; i < size; ++i )
+    {
+        temp = NULL;
+
+        /* Keep on popping while the next value is greater than
+           stack's top value. */
+        while ( !isEmpty( stack ) && pre[i] > peek( stack )->data )
+            temp = pop( stack );
+
+        // Make this greater value as the right child and push it to the stack
+        if ( temp != NULL)
+        {
+            temp->right = newNode( pre[i] );
+            push( stack, temp->right );
+        }
+
+        // If the next value is less than the stack's top value, make this value
+        // as the left child of the stack's top node. Push the new node to stack
+        else
+        {
+            peek( stack )->left = newNode( pre[i] );
+            push( stack, peek( stack )->left );
+        }
+    }
+
+    return root;
+}
+
+
+// A utility function to print inorder traversal of a Binary Tree
+void printInorder (Node* node)
+{
+    if (node == NULL)
+        return;
+    printInorder(node->left);
+    printf("%d ", node->data);
+    printInorder(node->right);
+}
+
+// Driver program to test above functions
+int main ()
+{
+    int pre[] = {10, 5, 1, 7, 40, 50};
+    int size = sizeof( pre ) / sizeof( pre[0] );
+
+    Node *root = constructTree(pre, size);
+
+    printf("Inorder traversal of the constructed tree: \n");
+    printInorder(root);
+
+    return 0;
+}
+ Output:  1 5 7 10 40 50 Time Complexity: O(n). The complexity looks more from first look. If we take a closer look, we can observe that every item is pushed and popped only once. So at most 2n push/pop operations are performed in the main loops of constructTree(). Therefore, time complexity is O(n). Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. Mukul Rawal http://ideone.com/zPoUAM sg If we insert the elements of array one by one from left to right into a tree, it will also give the same bst as constructed above !!!! Sriharsha g.r.v thats just a happy coincidence mrn Node *makeTree(int *pre,int *in,int l,int r,int &index,int n){ if(index >= n || r=n || rv=in[rootIndex]; nd->l=makeTree(pre,in,l,rootIndex-1,++index,n); nd->r=makeTree(pre,in,rootIndex+1,r,++index,n); return nd; } mohan above code was wrong GeeksforGeeks Could you please provide more details or an example for which it didn’t work? Trilok Sharma /* c++ version */ Node* constructTree ( int pre[], int size ) { stack<Node *> mystack; Node* root = newNode( pre[0] ); mystack.push(root ); Node* temp; // Iterate through rest of the size-1 items of given preorder array for (int i = 1; i < size; ++i ) { temp = NULL; while ( !mystack.empty() && pre[i] > mystack.top()->data ) { temp = mystack.top(); mystack.pop(); } if ( temp != NULL) { temp->right = newNode( pre[i] ); mystack.push(temp->right ); } else { mystack.top()->left = newNode( pre[i] ); mystack.push(mystack.top()->left ); } } return root; } abhishek08aug Intelligent anonymous do you have some problem?? why do you comment the same thing on every single post? Soumya Sengupta sweet nd smooth……..  
+/* Paste your code here (You may delete these lines if not writing code) */
+ midhun After pushing 7 and insert into BST,the next value is 40. New value:40 ; Pop 1; Pop 7; Push 40; Stack: 40, 10 so according to your code it will be Tree: 10 / 5 / \ 1 7 \ 40 it’s wrong na?Please do correct me,if i am wrong atul just do simple insert as we insert elements in BST….moving from left to right. correct me if i am wrong.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Aashish The worst case( Skew tree ) time complexiy of insertion in a BST is O(N). We need N insertions. This leads to time complexity of O( N^2 ). Andreea If the following input is given: int pre[] = {10, 5, 1, 7, 3, 40, 50}; The output is: Inorder traversal of the constructed tree: 1 5 3 7 10 40 50 Node 3 should have been attached to node 1, but here is what happens: Stack: 10 New value: 5; Stack : 5 , 10 Tree: 10 / 5 New value: 1; Stack : 1, 5, 10 Tree: 10 / 5 / 1 New value: 7; Pop 1; Pop 5; Push 7; Stack: 7, 10 Tree: 10 / 5 / \ 1 7 New value: 3; Stack : 3, 7, 10 Tree: 10 / 5 / \ 1 7 / 3 -> Wrong Node 1 should have been reintroduced in the stack in order to build a correct BST. Andreea Sorry, I read again the problem and saw the input was a preorder traversal. What I said before doesn’t count. I would have deleted my previous comment if I could:). midhun If the following input is given: int pre[] = {10, 5, 1, 7, 3, 40, 50}; The output is: Inorder traversal of the constructed tree: 1 5 3 7 10 40 50 Node 3 should have been attached to node 1, but here is what happens: Stack: 10 New value: 5; Stack : 5 , 10 Tree: 10 / 5 New value: 1; Stack : 1, 5, 10 Tree: 10 / 5 / 1 New value: 7; Pop 1; Pop 5; Push 7; Stack: 7, 10 Tree: 10 / 5 / \ 1 7 New value:40 ; Pop 1; Pop 7; Push 40; Stack: 40, 10 so according to your code it will be Tree: 10 / 5 / \ 1 7 \ 40 na?Please do correct me,if i am wrong Rahul I dont understand how 10 5 1 7 3 … can be a correct tree. Shouldnt it be 10 5 1 3 7 … ? 
+    10
+    /
+   5
+  / \
+1    7
+ \
+  3
+10 5 1 3 7 ?
+
+ /* Paste your code here (You may delete these lines if not writing code) */ http://apeirogon.prime Apeirogon The peek function can cause stack underflow. Correct code is  
+Node* peek (Stack *stack) {
+	if (is_empty (stack)) {
+		return NULL;
+	} else {
+		return (stack->array [stack->top]);
+	}
+}
+ Aashish Please observe that peek() is being called only if stack is not empty.  
+while ( !isEmpty( stack ) && pre[i] > peek( stack )->data )
+ So, no issues. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,367 @@
+Connect nodes at same level - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Connect nodes at same level Write a function to connect all the adjacent nodes at the same level in a binary tree. Structure of the given Binary Tree node is like following. 
+struct node{
+  int data;
+  struct node* left;
+  struct node* right;
+  struct node* nextRight;  
+}
+ Initially, all the nextRight pointers point to garbage values. Your function should set these pointers to point next right for each node. Example 
+Input Tree
+       A
+      / \
+     B   C
+    / \   \
+   D   E   F
+
+
+Output Tree
+       A--->NULL
+      / \
+     B-->C-->NULL
+    / \   \
+   D-->E-->F-->NULL
+ Method 1 (Extend Level Order Traversal or BFS) Consider the method 2 of Level Order Traversal. The method 2 can easily be extended to connect nodes of same level. We can augment queue entries to contain level of nodes also which is 0 for root, 1 for root’s children and so on. So a queue node will now contain a pointer to a tree node and an integer level. When we enqueue a node, we make sure that correct level value for node is being set in queue. To set nextRight, for every node N, we dequeue the next node from queue, if the level number of next node is same, we set the nextRight of N as address of the dequeued node, otherwise we set nextRight of N as NULL. Time Complexity: O(n) Method 2 (Extend Pre Order Traversal) This approach works only for Complete Binary Trees. In this method we set nextRight in Pre Order fashion to make sure that the nextRight of parent is set before its children. When we are at node p, we set the nextRight of its left and right children. Since the tree is complete tree, nextRight of p’s left child (p->left->nextRight) will always be p’s right child, and nextRight of p’s right child (p->right->nextRight) will always be left child of p’s nextRight (if p is not the rightmost node at its level). If p is the rightmost node, then nextRight of p’s right child will be NULL. 
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node
+{
+  int data;
+  struct node *left;
+  struct node *right;
+  struct node *nextRight;
+};
+
+void connectRecur(struct node* p);
+
+// Sets the nextRight of root and calls connectRecur() for other nodes
+void connect (struct node *p)
+{
+    // Set the nextRight for root
+    p->nextRight = NULL;
+
+    // Set the next right for rest of the nodes (other than root)
+    connectRecur(p);
+}
+
+/* Set next right of all descendents of p.
+   Assumption:  p is a compete binary tree */
+void connectRecur(struct node* p)
+{
+  // Base case
+  if (!p)
+    return;
+
+  // Set the nextRight pointer for p's left child
+  if (p->left)
+    p->left->nextRight = p->right;
+
+  // Set the nextRight pointer for p's right child
+  // p->nextRight will be NULL if p is the right most child at its level
+  if (p->right)
+    p->right->nextRight = (p->nextRight)? p->nextRight->left: NULL;
+
+  // Set nextRight for other nodes in pre order fashion
+  connectRecur(p->left);
+  connectRecur(p->right);
+}
+
+/* UTILITY FUNCTIONS */
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newnode(int data)
+{
+  struct node* node = (struct node*)
+                       malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+  node->nextRight = NULL;
+
+  return(node);
+}
+
+/* Driver program to test above functions*/
+int main()
+{
+
+  /* Constructed binary tree is
+            10
+          /   \
+        8      2
+      /
+    3
+  */
+  struct node *root = newnode(10);
+  root->left        = newnode(8);
+  root->right       = newnode(2);
+  root->left->left  = newnode(3);
+
+  // Populates nextRight pointer in all nodes
+  connect(root);
+
+  // Let us check the values of nextRight pointers
+  printf("Following are populated nextRight pointers in the tree "
+          "(-1 is printed if there is no nextRight) \n");
+  printf("nextRight of %d is %d \n", root->data,
+         root->nextRight? root->nextRight->data: -1);
+  printf("nextRight of %d is %d \n", root->left->data,
+        root->left->nextRight? root->left->nextRight->data: -1);
+  printf("nextRight of %d is %d \n", root->right->data,
+        root->right->nextRight? root->right->nextRight->data: -1);
+  printf("nextRight of %d is %d \n", root->left->left->data,
+        root->left->left->nextRight? root->left->left->nextRight->data: -1);
+
+  getchar();
+  return 0;
+}
+ Thanks to Dhanya for suggesting this approach. Time Complexity: O(n) Why doesn’t method 2 work for trees which are not Complete Binary Trees? Let us consider following tree as an example. In Method 2, we set the nextRight pointer in pre order fashion. When we are at node 4, we set the nextRight of its children which are 8 and 9 (the nextRight of 4 is already set as node 5). nextRight of 8 will simply be set as 9, but nextRight of 9 will be set as NULL which is incorrect. We can’t set the correct nextRight, because when we set nextRight of 9, we only have nextRight of node 4 and ancestors of node 4, we don’t have nextRight of nodes in right subtree of root. 
+            1
+          /    \
+        2        3
+       / \      /  \
+      4   5    6    7
+     / \           / \  
+    8   9        10   11
+ See next post for more solutions. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. Pradeep H N Below code works for a binary tree void *reform(struct node *f) { if (f == NULL) { return NULL; } if (f->left != NULL) { f->left->nextRight = f->rlink; } reform(f->left); reform(f->right); if(f->right != NULL && f->nextRight != NULL) { if (f->nextRight->left != NULL) { f->right->nextRight = f->nextRight->left; } else { f->right->nextRight = f->nextRight->right; } } else if (f->right == NULL && f->nextRight != NULL && f->left != NULL) { if (f->nextRight->left != NULL) { f->left->nextRight = f->nextRight->left; } else { f->left->nextRight = f->nextRight->right; } } } Pradeep H N return; instead of return NULL Pradeep H N f->left->nextRight = f->right instead of f->left->nextRight = f->rlink; Meenal Can you please give an idea as to how to check whether one level is complete in level order travel using queue. i.e how to store level info in method 1. newalgolearner hi geeks for geeks this is my recursive solution that is valid for all trees. void connect_same_level(node **tree) { connect(tree, NULL, 0); } void connect(node **tree, node *parent, bool l) { if(*tree == NULL) return; if(parent == NULL) (*tree)->nextRight = NULL; else { if(l == 0) { if(parent->left != NULL) (*tree)->nextRight = parent->left; else connect(tree, parent, 1); } else if(l == 1) { if(parent->right != NULL) (*tree)->nextRight = parent->right; else connect(tree, parent->nextRight, 0); } connect(&((*tree)->left), *tree, 1); connect(&((*tree)->left), (*tree)->nextRight, 0); } Sri Krishna V { Map map = new HashMap(); //To save the height as key, and nodes as values. Run a loop for all the keys and traverse each node to print the data. if (temp != null) connectNextRight(temp, 0, map); } public void connectNextRight(Node node, int h, Map map) { if (node == null) return; Node temp = map.get(h); if (temp == null) { map.put(h, node); } else { while (temp.getNextRight() != null) temp = temp.getNextRight(); temp.setNextRight(node); } connectNextRight(node.getleft(), h + 1, map); connectNextRight(node.getRight(), h + 1, map); } Chetan Perfect Vivek #include #include struct node { int data; struct node *left; struct node *right; struct node *nextRight; }; int max(int a, int b) { return a>b?a:b; } int find_height(struct node *root) { if(root) { return 1+max(find_height(root->left),find_height(root->right)); } else return 0; } void connect_nodesUtil(struct node *root, int l, struct node **arr) { if(root) { if(!arr[l]) { root->nextRight=NULL; arr[l]=root; } else { root->nextRight=NULL; (arr[l])->nextRight=root; arr[l]=root; } connect_nodesUtil(root->left, l+1, arr); connect_nodesUtil(root->right, l+1, arr); } } void connect_nodes(struct node *root) { struct node **arr= (struct node **)malloc(sizeof(struct node *)*find_height(root)); connect_nodesUtil(root,0,arr); } struct node* newnode(int data) { struct node* node = (struct node*) malloc(sizeof(struct node)); node->data = data; node->left = NULL; node->right = NULL; node->nextRight = NULL; return(node); } /* Driver program to test above functions*/ int main() { /* Constructed binary tree is 10 / 8 2 / 3 */ struct node *root = newnode(10); root->left = newnode(8); root->right = newnode(2); root->left->left = newnode(3); // Populates nextRight pointer in all nodes connect_nodes(root); // Let us check the values of nextRight pointers printf("Following are populated nextRight pointers in the tree " "(-1 is printed if there is no nextRight) n"); printf("nextRight of %d is %d n", root->data, root->nextRight? root->nextRight->data: -1); printf("nextRight of %d is %d n", root->left->data, root->left->nextRight? root->left->nextRight->data: -1); printf("nextRight of %d is %d n", root->right->data, root->right->nextRight? root->right->nextRight->data: -1); printf("nextRight of %d is %d n", root->left->left->data, root->left->left->nextRight? root->left->left->nextRight->data: -1); getchar(); return 0; } Vivek hi geeks for geeks… i have implemented this using preorder traversal. It would work for any given tree. In this i have used an array which keeps track of the last node traversed in any particular level. As soon as i come across a node in the level(suppose l) nextRight pointer of the node in the array(arr[l]) (last traversed node in level “l”) is set to point to the current node at the level ‘l’ .i.e.(arr[l]->nextRight = current) . next store the “cuurent ” node as the last traversed node in level “l”. i.e arr[l] = current. here’s my solution above pavan code in java ….pls validate me…i used level order traversal …. void fillRight(){ Node temp = root; Queue q = new LinkedList(); q.add(temp); q.add(null); while (!q.isEmpty()) { temp = q.remove(); if(temp == null){ if(!q.isEmpty()){ q.add(null); } } else{ temp.rightSibling = q.peek(); if (temp.leftChild != null) { q.add(temp.leftChild); } if (temp.rightChild != null) { q.add(temp.rightChild); } } } } Jake Here is a very simple solution for full binary tree, please verify this- void connectAdj(tNode* l, tNode* r) { if( l==NULL || r==NULL) return; l->nextRight = r; r->nextRight = NULL; connectAdj(l->left,l->right); connectAdj(l->right,r->left); connectAdj(r->left,r->right); } void connect(tNode* root) { root->nextRight = NULL; connectAdj(root->left, root->right); } vinodhinic Hi, I have been trying to solve the method 1 using Level order traversal, without storing the level for each node. My idea is to have a delimiter (let us say NULL) between each levels. The Pseudocode is below. Please check if it is correct.  
+queue.enqueue(root)
+queue.enqueue(DELIMITER)
+
+while(queue is not Empty AND queue.front()!=DELIMITER){
+       NODE temp=queue.dequeue()
+       if(temp->left){ queue.enqueue(temp->left) }
+       if(temp->right){ queue.enqueue(temp->right) }
+       NODE top=q.front()
+       if(top==DELIMITER){
+              temp->nextRight = NULL;
+              queue.dequeue()
+              queue.enqueue(DELIMITER)
+       }
+       else{
+              temp->nextRight=top
+       }
+}
+ Thanks in advance pavan are we doing the same? pls validate me…i used level order traversal …. void fillRight(){ Node temp = root; Queue q = new LinkedList(); q.add(temp); q.add(null); while (!q.isEmpty()) { temp = q.remove(); if(temp == null){ if(!q.isEmpty()){ q.add(null); } } else{ temp.rightSibling = q.peek(); if (temp.leftChild != null) { q.add(temp.leftChild); } if (temp.rightChild != null) { q.add(temp.rightChild); } } } } Ameet Chhatwal Beautiful solution thanks for sharing! Pavan  
+// code for method 1
+
+void connect (struct node *root)
+{
+struct node *prev, *next;
+queue<struct node*>q;
+prev=NULL;
+q.push(root);
+q.push(NULL);
+while(1)
+{
+    if(prev==NULL)
+    {
+    prev=q.front();
+    q.pop();
+    }
+    if(prev!=NULL)
+    {
+        if(prev->left) q.push(prev->left);
+        if(prev->right) q.push(prev->right);
+    }
+    if(q.empty()) break;
+    next=q.front();
+    q.pop();
+    if(prev!=NULL)
+    {
+        prev->nextRight=next;
+        prev=next;
+    }
+    if(prev==NULL)
+    q.push(NULL);
+}
+}
+ denial @Pavan(Google), Nice…….. sakekuma //Java Code to connect Siblings to any type of binary tree public void connectSiblings(){ connectSiblings(root); printSiblings(root); } private void connectSiblings(Node node){ LinkedList<Node> queue = new LinkedList<Node>(); if(node!=null) queue.addLast(node); queue.addLast(null); Node prev=null; while(!queue.isEmpty()){ Node temp = queue.removeFirst(); if(prev!=null) prev.sibling=temp; if(temp==null ){ if(queue.peekFirst()==null) return; queue.addLast(null); } else { if(temp.left!=null) queue.addLast(temp.left); if(temp.right!=null) queue.addLast(temp.right); } prev = temp; } } codinggeek16 We can use two queues instead of storing the level in our queue node in method one. abhishek08aug Intelligent Jinu void connect(TreeLinkNode *root) { // Start typing your C/C++ solution below // DO NOT write int main() function int i,j; TreeLinkNode *temp=NULL; int h=height(root); for(i=1;inext=root; *temp=root; } } else { levelorder(root->left,i,n+1,temp); levelorder(root->right,i,n+1,temp); } } } int height(TreeLinkNode * root) { if(root==NULL) return 0; else return 1+max(height(root->left),height(root->right)); } CODED We can do this by using an array of pointers, of size at least as the level of the tree, which stores the rightmost element visited in that level or NULL if that level is not visited yet. I am using size 100 for simplicity sake. #define MAX 100 /* Using a global array of pointer to simplify the algo Note that all the elements in arr are set to NULL and not garbage */ struct node* arr[MAX]; connectRight(struct node *root, int level) { if(!root) { return; } if( !arr[level]) // first element of that level { arr[level] = root; } else // point the nextRight of the rightmost element // visited in that level to the current node { arr[level]->nextRight = root; arr[level] = root; } connectRight(root->left, level+1); connectRight(root->right, level+1); return; } hemant Here is another logic that may work. Perform a reverse order BFS and connect the previously visited nodes with the present visited nodes /*—–connect nodes at same level——-*/ void connect_nodes_at_same_level_Utility(struct node* root) { int num; num= height(root); struct node* prev= NULL; int i; if(root == NULL) return; //printf(“%d\n”,root->data);//print root data before moving further to any level if(root->left == NULL && root->right== NULL) return; root->next= NULL; for(i=1; iright,n+1,k,prev); if( n== k) { root->next= *prev; *prev= root; } connect_nodes_at_same_level(root->left,n+1,k,prev); } else return 0; } /*—–connect nodes at same level——-*/ void main() { connect_nodes_at_same_level_Utility(root); } hemant seems it will not let me paste the complete code……… i will paste the missing code { connect_nodes_at_same_level(root,0,i,&prev);//keep printing elements at a particular level from the root prev= NULL; } } void connect_nodes_at_same_level(struct node* root, int n , int k, struct node** prev) { if(root != NULL) { connect_nodes_at_same_level(root->right,n+1,k,prev); if( n== k) { root->next= *prev; *prev= root; } connect_nodes_at_same_level(root->left,n+1,k,prev); } else return 0; } hemant Perform a reverse order BFS and connect the previously visited nodes with the present visited nodes /*—–connect nodes at same level——-*/ void connect_nodes_at_same_level_Utility(struct node* root) { int num; num= height(root); struct node* prev= NULL; int i; if(root == NULL) return; //printf(“%d\n”,root->data);//print root data before moving further to any level if(root->left == NULL && root->right== NULL) return; root->next= NULL; for(i=1; iright,n+1,k,prev); if( n== k) { root->next= *prev; *prev= root; } connect_nodes_at_same_level(root->left,n+1,k,prev); } else return 0; } /*—–connect nodes at same level——-*/ void main() { connect_nodes_at_same_level_Utility(root); } hemant i will re paste the code…. it is incomplete hemant Perform a reverse order BFS and keep connecting the previously visited nodes at a particular level to the present visited. Here is the code for the same: /*—–connect nodes at same level——-*/ void connect_nodes_at_same_level_Utility(struct node* root) { int num; num= height(root); struct node* prev= NULL; int i; if(root == NULL) return; //printf(“%d\n”,root->data);//print root data before moving further to any level if(root->left == NULL && root->right== NULL) return; root->next= NULL; for(i=1; iright,n+1,k,prev); if( n== k) { root->next= *prev; *prev= root; } connect_nodes_at_same_level(root->left,n+1,k,prev); } else return 0; } /*—–connect nodes at same level——-*/ void main() { connect_nodes_at_same_level_Utility(root); } SK The logic is to BFS while inserting a delimeter (NULL) into the queue of node pointers while chaning levels. The code follows : f(Node * T) { if (!T) return; enqueue(T); enqueue(NULL); /* BFS commences … */ Node *last = NULL; while (queue_is_not_empty()) { Node *p = dequeue(); if (last) last->next = p; if (p) { enqueue(p->left); enqueue(p->right); } else { enqueue(NULL); } last = p; } } SK Here’s an alternative I figured, which pushes a NULL into the queue when we are changing level. Rest is the BFS algorithm. Let me know if there are any errors in the logic.  
+f(Node * T)
+{
+  if (!T) return;
+  enqueue(T);
+  enqueue(NULL);
+
+  Node* last = NULL;
+  while (!queue.empty()) {
+    Node *p = dequeue();
+    if (last) last->next = p;
+    if (p) {
+      enqueue(T->left);
+      enqueue(T->right);
+    }
+    else {
+      enqueue(NULL);
+    }
+    last = p;
+  }
+}
+ PsychoCoder BFS Implementation.  
+#include<stdio.h>
+#include<stdlib.h>
+#include<limits.h>
+
+typedef struct node {
+  int data ;
+  struct node *left ;
+  struct node *right ;
+  struct node* nextRight;
+}node;
+
+typedef struct list {
+  node *data ;
+  struct list *next;
+}list;
+
+typedef struct queue {
+  int count ;
+  struct list *front ;
+  struct list *rear;
+}queue ;
+
+void createQueue (queue **head) {
+  *head = (queue *) malloc (sizeof(queue)) ;
+  (*head)->count = 0 ;
+  (*head)->front = NULL ;
+  (*head)->rear = NULL ;
+}
+
+list* newList (node* data) {
+  list *head ;
+  head = (list *) malloc (sizeof(list)) ;
+  head->next = NULL ;
+  head->data = data ;
+  return head ;
+}
+
+queue* enqueue (queue *head, node* data) {
+  list *temp = newList (data) ;
+  if (head->front == NULL) {
+    head->front = temp ;
+    head->rear = temp ;
+    head->count ++ ;
+  }
+  else {
+    head->rear->next = temp ;
+    head->rear = head->rear->next ;
+    head->count ++ ;
+  }
+  return head;
+}
+
+list* dequeue (queue **head) {
+  list *temp ;
+  if ((*head)->count == 0)
+    return NULL ;
+  if ((*head)->front != NULL) {
+    temp = (*head)->front ;
+    if ( (*head)->front == (*head)->rear ) {
+      (*head)->front = NULL ;
+      (*head)->rear = NULL ;
+      (*head)->count -- ;
+    }
+    else 
+      (*head)->front = (*head)->front->next ;
+      (*head)->count -- ;
+  } 
+  return temp ;
+}
+
+int isEmpty (queue *q) {
+  return (q->count == 0);
+}
+
+node* newnode (int data) {
+  node *head ;
+  head = (node *) malloc (sizeof(node)) ;
+  head->data = data ;
+  head->left = NULL ;
+  head->right = NULL ;
+  head->nextRight = NULL ;
+  return head ;
+}
+
+void printLevelBFS (node *tree) {
+  queue *q ;
+  list *temp ;
+  node *prev = NULL, *cur = NULL;
+
+  /* Initialize the queue */
+  createQueue (&q) ;
+
+  enqueue (q,tree) ;
+  /* Use INT_MAX as delimiter */
+  enqueue (q,newnode(INT_MAX)) ;
+
+  while ( !isEmpty (q) ) {
+    temp = dequeue (&q) ;
+  
+    /* Check whether it is a delimiter or not */
+    if ( temp->data->data != INT_MAX ) {
+      /* If not then extreme right of this level
+         is not reached till now. Enqueue its
+         child */
+      printf ( "%d ", temp->data->data ) ;
+      prev = cur ;
+      cur = temp->data ;
+
+      if ( prev )
+        prev->nextRight = cur ;
+
+      if (temp->data->left)
+        q = enqueue (q, temp->data->left) ;
+
+      if (temp->data->right)
+        q = enqueue (q, temp->data->right) ;
+    } else {
+      printf ( "\n" ) ;
+      /* If a delimiter is reached, then set the 
+         delimiter of the next level. Because 
+         extreme right is reached for this level */
+      if ( !isEmpty(q) ) {
+        prev = cur ;
+        prev->nextRight = NULL ;
+        prev = NULL ;
+        cur = NULL ;
+        enqueue (q,newnode(INT_MAX)) ;
+      }
+    }
+  }
+
+  while (!isEmpty (q))
+    dequeue (&q) ;
+  free (q) ;
+}
+
+int main() {
+
+  node *root 	    = newnode(10);
+  root->left        = newnode(8);
+  root->right       = newnode(2);
+  root->left->left  = newnode(3);
+  root->right->left = newnode(6) ;
+  root->right->right = newnode(7) ;
+
+  connectLevelBFS (root ) ;
+  free (root);
+  return 1 ;
+}
+ PsychoCoder Sorry Here also I have done a same mistake !!!  
+list* dequeue (queue **head) {
+  list *temp ;
+  if ((*head)->count == 0)
+    return NULL ;
+  if ((*head)->front != NULL) {
+    temp = (*head)->front ;
+    if ( (*head)->front == (*head)->rear ) {
+      (*head)->front = NULL ;
+      (*head)->rear = NULL ;
+      (*head)->count -- ;
+    }
+    else{
+      (*head)->front = (*head)->front->next ;
+      (*head)->count -- ;
+    }
+  }
+  return temp ;
+} PsychoCoder Another mistake function name : This code actually Last tym I forget to modify it: Function name should be connectLevelBFS instead of printLevelBFS PsychoCoder Another mistake function name : This code actually Last tym I forget to modify it: Function name should be “connectLevelBFS” instead of “printLevelBFS” nitin struct node { int data; struct node *left ; struct node *right; struct node *nextRight; }; sir can you plss explain me the meaning of line 3 or 4. how does does this work in computer memory… Karthick In method-2, the post says that we do a post-order traversal. But, the code actually visits the root, then the left child and then the right child. So, I think it is pre-order traversal. Am I right? GeeksforGeeks @Karthick: Thanks for pointing this out. We have updated the post. Keep it up! sidh Can we do it without using any extra space, this has been asked in MS interview GeeksforGeeks @sidh: It can be done with O(1) extra memory. We will soon be publishing another post on this. ashwani I can think of a O(1) space solution but will require O(nlogn) time for a balanced tree. Can you we do it it O(1) space and O(n) time? Dheeraj i think this post order code will work the above mentioned tree void connectNode(node *p) { if(p!=NULL) { p->nextRight=NULL; connectNode(p->left); connectNode(p->right); if(p->left!=NULL && p->right!=NULL) p->left->nextRight=p->right; } } Rahul no it wnt wrk as well vipul Awesome! what is the time complexity of method 1? GeeksforGeeks @vipul: Time complexity of method is also O(n). We have updated the same in post. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

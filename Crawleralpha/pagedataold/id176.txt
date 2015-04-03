@@ -1,0 +1,159 @@
+Dynamic Programming | Set 11 (Egg Dropping Puzzle) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Dynamic Programming | Set 11 (Egg Dropping Puzzle) The following is a description of the instance of this famous puzzle involving n=2 eggs and a building with k=36 floors. Suppose that we wish to know which stories in a 36-story building are safe to drop eggs from, and which will cause the eggs to break on landing. We make a few assumptions: …..An egg that survives a fall can be used again. …..A broken egg must be discarded. …..The effect of a fall is the same for all eggs. …..If an egg breaks when dropped, then it would break if dropped from a higher floor. …..If an egg survives a fall then it would survive a shorter fall. …..It is not ruled out that the first-floor windows break eggs, nor is it ruled out that the 36th-floor do not cause an egg to break. If only one egg is available and we wish to be sure of obtaining the right result, the experiment can be carried out in only one way. Drop the egg from the first-floor window; if it survives, drop it from the second floor window. Continue upward until it breaks. In the worst case, this method may require 36 droppings. Suppose 2 eggs are available. What is the least number of egg-droppings that is guaranteed to work in all cases? The problem is not actually to find the critical floor, but merely to decide floors from which eggs should be dropped so that total number of trials are minimized. Source: Wiki for Dynamic Programming In this post, we will discuss solution to a general problem with n eggs and k floors. The solution is to try dropping an egg from every floor (from 1 to k) and recursively calculate the minimum number of droppings needed in worst case. The floor which gives the minimum value in worst case is going to be part of the solution. In the following solutions, we return the minimum number of trails in worst case; these solutions can be easily modified to print floor numbers of every trials also. 1) Optimal Substructure: When we drop an egg from a floor x, there can be two cases (1) The egg breaks (2) The egg doesn’t break. 1) If the egg breaks after dropping from xth floor, then we only need to check for floors lower than x with remaining eggs; so the problem reduces to x-1 floors and n-1 eggs 2) If the egg doesn’t break after dropping from the xth floor, then we only need to check for floors higher than x; so the problem reduces to k-x floors and n eggs. Since we need to minimize the number of trials in worst case, we take the maximum of two cases. We consider the max of above two cases for every floor and choose the floor which yields minimum number of trials. 
+  k ==> Number of floors
+  n ==> Number of Eggs
+  eggDrop(n, k) ==> Minimum number of trails needed to find the critical
+                    floor in worst case.
+  eggDrop(n, k) = 1 + min{max(eggDrop(n - 1, x - 1), eggDrop(n, k - x)): 
+                 x in {1, 2, ..., k}}
+ 2) Overlapping Subproblems Following is recursive implementation that simply follows the recursive structure mentioned above. 
+# include <stdio.h>
+# include <limits.h>
+
+// A utility function to get maximum of two integers
+int max(int a, int b) { return (a > b)? a: b; }
+
+/* Function to get minimum number of trails needed in worst
+  case with n eggs and k floors */
+int eggDrop(int n, int k)
+{
+    // If there are no floors, then no trials needed. OR if there is
+    // one floor, one trial needed.
+    if (k == 1 || k == 0)
+        return k;
+
+    // We need k trials for one egg and k floors
+    if (n == 1)
+        return k;
+
+    int min = INT_MAX, x, res;
+
+    // Consider all droppings from 1st floor to kth floor and
+    // return the minimum of these values plus 1.
+    for (x = 1; x <= k; x++)
+    {
+        res = max(eggDrop(n-1, x-1), eggDrop(n, k-x));
+        if (res < min)
+            min = res;
+    }
+
+    return min + 1;
+}
+
+/* Driver program to test to pront printDups*/
+int main()
+{
+    int n = 2, k = 10;
+    printf ("\nMinimum number of trials in worst case with %d eggs and "
+             "%d floors is %d \n", n, k, eggDrop(n, k));
+    return 0;
+}
+ 
+Output:
+Minimum number of trials in worst case with 2 eggs and 10 floors is 4
+ It should be noted that the above function computes the same subproblems again and again. See the following partial recursion tree, E(2, 2) is being evaluated twice. There will many repeated subproblems when you draw the complete recursion tree even for small values of n and k. 
+
+                         E(2,4)
+                           |                      
+          ------------------------------------- 
+          |             |           |         |   
+          |             |           |         |       
+      x=1/\          x=2/\      x=3/ \    x=4/ \
+        /  \           /  \       ....      ....
+       /    \         /    \
+ E(1,0)  E(2,3)     E(1,1)  E(2,2)
+          /\  /\...         /  \
+      x=1/  \               .....
+        /    \
+     E(1,0)  E(2,2)
+            /   \
+            ......
+
+Partial recursion tree for 2 eggs and 4 floors.
+ Since same suproblems are called again, this problem has Overlapping Subprolems property. So Egg Dropping Puzzle has both properties (see this and this) of a dynamic programming problem. Like other typical Dynamic Programming(DP) problems, recomputations of same subproblems can be avoided by constructing a temporary array eggFloor[][] in bottom up manner. Dynamic Programming Solution Following is C/C++ implementation for Egg Dropping problem using Dynamic Programming. 
+# include <stdio.h>
+# include <limits.h>
+
+// A utility function to get maximum of two integers
+int max(int a, int b) { return (a > b)? a: b; }
+
+/* Function to get minimum number of trails needed in worst
+  case with n eggs and k floors */
+int eggDrop(int n, int k)
+{
+    /* A 2D table where entery eggFloor[i][j] will represent minimum
+       number of trials needed for i eggs and j floors. */
+    int eggFloor[n+1][k+1];
+    int res;
+    int i, j, x;
+
+    // We need one trial for one floor and0 trials for 0 floors
+    for (i = 1; i <= n; i++)
+    {
+        eggFloor[i][1] = 1;
+        eggFloor[i][0] = 0;
+    }
+
+    // We always need j trials for one egg and j floors.
+    for (j = 1; j <= k; j++)
+        eggFloor[1][j] = j;
+
+    // Fill rest of the entries in table using optimal substructure
+    // property
+    for (i = 2; i <= n; i++)
+    {
+        for (j = 2; j <= k; j++)
+        {
+            eggFloor[i][j] = INT_MAX;
+            for (x = 1; x <= j; x++)
+            {
+                res = 1 + max(eggFloor[i-1][x-1], eggFloor[i][j-x]);
+                if (res < eggFloor[i][j])
+                    eggFloor[i][j] = res;
+            }
+        }
+    }
+
+    // eggFloor[n][k] holds the result
+    return eggFloor[n][k];
+}
+
+/* Driver program to test to pront printDups*/
+int main()
+{
+    int n = 2, k = 36;
+    printf ("\nMinimum number of trials in worst case with %d eggs and "
+             "%d floors is %d \n", n, k, eggDrop(n, k));
+    return 0;
+}
+ Output:
+Minimum number of trials in worst case with 2 eggs and 36 floors is 8
+ Time Complexity: O(nk^2) Auxiliary Space: O(nk) As an exercise, you may try modifying the above DP solution to print all intermediate floors (The floors used for minimum trail solution). References: http://archive.ite.journal.informs.org/Vol4No1/Sniedovich/index.php Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: Dynamic Programming Tweet Writing code in comment? Please use ideone.com and share the link here. ameya This problem can be solved in O(1) using just a simple formula: seal( sqrt(2*n)-0.5 ) // n = number of floors in building #include “stdio.h” #include “math.h” int main() { int n,ans; float x; Printf(“Enter Number of floors in building: “); scanf(“%d”,&n); x=sqrt(2*n)-0.5; ans=x; if(x>ans) ++ans; printf(“%dn”,ans); return 0; } Mihir What you call a ‘Simple Formula’ has a derivation behind it. If this is an interview question indeed, you’ll either have to mathematically prove this formula first or do the dynamic programming solution. anju r u trying to say something similar to this post:: http://bit.ly/1biTdXo Code_Addict Thanks for sharing above formula for cross-checking the answer, but can you post some link for its prove that minimum number of trials in worst case is independent of number of eggs(except for case when number of eggs is 1). Code_Addict Formula above gives wrong result for case: no. of eggs=3 and no. of floors = 92. By using DP: answer is 8 By using formula: answer is 14 ameya http://www.datagenetics.com/blog/july22012/index.html?utm_source=hackernewsletter&utm_medium=email Code_Addict Thanks for link! prakash plz clarify my doubt DP version of this problem solution, why we need 3 for loops?(.ie,x=1;x<=j;x++) since this is overlapping sub problem, res = 1 + max(eggFloor[i-1][x-1], eggFloor[i][j-x]); itself will give min 'res' for eggfloor[i][j] why are we doing it in for loop? AMIT also wikipedia gives various other methods to modify time complexity upto nlogk http://en.wikipedia.org/wiki/Dynamic_programming#Egg_dropping_puzzle rajx int rj_eggDrop(int eggs, int floors) { if(eggs==1)return floors; int i, step=2; int arr1[eggs], arr2[eggs]; for(i=0;i<eggs;i++)arr1[i]=1; int *v1=arr1, *v2=arr2, *tmp; while(1) { v2[0] = step; for(i=1;i= floors) return step; } step++; tmp = v1;v1=v2;v2=tmp; } } Time Complexity: O(floors) Auxiliary Space: O(eggs) kavita @venki how u arrived at this solution:General solution – n * k^(1\n), where n is # eggs, k is # of floors. I am not getting results. please explain. ronny Can anyone explain this problem for k eggs. Niks What is the time complexity of recursive solution??  
+/* Paste your code here (You may delete these lines if not writing code) */
+ AG x is out of scope in the line : int min = INT_MAX, x, res; of the recursive solution. leet How to do the exercise that is to print the floors? Please give some guidance.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ parashu plz,anybody can paste the code using greedy method. Cameron91 @Parashu, The first approach is: The Egg-Drop Numbers Author(s): Michael BoardmanSource: Mathematics Magazine, Vol. 77, No. 5 (Dec., 2004), pp. 368-372Published by: Mathematical Association of AmericaStable URL: http://www.jstor.org/stable/3219201 The second approach is: Suppose we have k = 3 eggs. We drop the first egg at Floor FL/2 and it breaks. Then we have 2 eggs left but we now know the tallest height at which an egg will break is floor FL/2 Now to solve the remaining 2 egg drop problem . we solve the equation: (i) * (i + 1) = FL/2. The solution is i = sqrt(FL) – sqrt(sqrt(FL)). So the total eggs dropped is i + 1. e. g. k = 3 eggs FL = 92 Floor Therefore i + 1 = sqrt(92) – sqrt(sqrt(92)) + 1 = 8 egg drops . This agrees with Dr. Michael Boardman egg drop number = 92. Thank you.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ parashu nice solution GeeksforGeeks @Hari: Thanks for pointing out the typo. We have corrected it. Keep it up! Hari At the start of dynamic programming solution there is a comment saying “function to check whether two strings are anagram of each other”. It needs to be deleted. Venki General solution – n * k^(1\n), where n is # eggs, k is # of floors. AMIT it should be (1+n*k)^(1/n),i think…please check AMIT I verified by putting n=2,k=36 in arun’s equation..no other source kartik @Arun: Thanks for sharing this solution for 2 Egg problem. Can we generalize it for n eggs? Arun  
+/*
+ #include<iostream>
+using namespace std;
+
+int main()
+{
+cout<<"Enter the No of floors: ";
+int fl;
+cin>>fl;
+
+if(fl < 0)
+{
+        cout<<"Not a valid no\n";
+        return 0;
+}
+
+int ans;
+ans=(int) ((-1+sqrt(1+8*fl))/2 + 0.5);
+        cout<<"Minimum number of trials in worst case : "<<ans<<endl;
+return 0;
+}
+ */
+ Arun /* #include<iostream> using namespace std; int main() { cout<<"Enter the No of floors: "; int fl; cin>>fl; if(fl < 0) { cout<<"Not a valid no\n"; return 0; } int ans; ans=(int) ((-1+sqrt(1+8*fl))/2 + 0.5); cout<<"Minimum number of trials in worst case : "<<ans<<endl; return 0; } */ Hi for this egg drop problem we have mathematical solution.. here to choose the possible worst case trail we can use the below logic. consider no of floors are 36. and worst case trails as x. assume that you are at x floor and using your first trail, If egg broken you are remaining x-1 trails which you can test using another egg from 1 to x-1. if the egg is not broken then you lost 1 chance out of x now you have x-1 choice left. so second time you should go to x+(x-1)floor and try.. so now we can calculate x using below expression x+(x-1)+(x-2)+…+1=36 x(x+1)/2=36 x^2+x-72=0 . Now solve for x you get 8. cp good to see this problem coded nicely. the 2 egg problem can be solved using greedy. http://classic-puzzles.blogspot.in/2006/12/google-interview-puzzle-2-egg-problem.html Guest This problem can be solved in O(1) -constant time using just a simple formula: seal( sqrt(2*n)-0.5 ); // n = #of floors in building // program is as follows #include #include int main() { int n,ans; float x; Printf(“Enter Number of floors in building: “); scanf(“%d”,&n); x=sqrt(2*n)-0.5; ans=x; if(x>ans) ++ans; printf(“%dn”,ans); return 0; } Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,153 @@
+Construct a Maximum Sum Linked List out of two Sorted Linked Lists having some Common nodes - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Construct a Maximum Sum Linked List out of two Sorted Linked Lists having some Common nodes Given two sorted linked lists, construct a linked list that contains maximum sum path from start to end. The result list may contain nodes from both input lists. When constructing the result list, we may switch to the other input list only at the point of intersection (which mean the two node with the same value in the lists). You are allowed to use O(1) extra space. 
+Input:
+List1 =  1->3->30->90->120->240->511
+List2 =  0->3->12->32->90->125->240->249
+
+Output: Following is maximum sum linked list out of two input lists
+list =  1->3->12->32->90->125->240->511
+we switch at 3 and 240 to get above maximum sum linked list
+ We strongly recommend to minimize the browser and try this yourself first. The idea here in the below solution is to adjust next pointers after common nodes. 1. Start with head of both linked lists and find first common node. Use merging technique of sorted linked list for that. 2. Keep track of sum of the elements too while doing this and set head of result list based on greater sum till first common node. 3. After this till the current pointers of both lists don’t become NULL we need to adjust the next of prev pointers based on greater sum. This way it can be done in-place with constant extra space. Time complexity of the below solution is O(n). 
+// C++ program to construct the maximum sum linked
+// list out of two given sorted lists
+#include<iostream>
+using namespace std;
+
+//A linked list node
+struct Node
+{
+    int data; //data belong to that node
+    Node *next; //next pointer
+};
+
+// Push the data to the head of the linked list
+void push(Node **head, int data)
+{
+    //Alocation memory to the new node
+    Node *newnode = new Node;
+
+    //Assigning data to the new node
+    newnode->data = data;
+
+    //Adjusting next pointer of the new node
+    newnode->next = *head;
+
+    //New node becomes the head of the list
+    *head = newnode;
+}
+
+// Method that adjusts the pointers and prints the final list
+void finalMaxSumList(Node *a, Node *b)
+{
+    Node *result = NULL;
+
+    // Assigning pre and cur to the head of the
+    // linked list.
+    Node *pre1 = a, *curr1 = a;
+    Node *pre2 = b, *curr2 = b;
+
+    // Till either of the current pointers is not
+    // NULL execute the loop
+    while (curr1 != NULL || curr2 != NULL)
+    {
+        // Keeping 2 local variables at the start of every
+        // loop run to keep track of the sum between pre
+        // and cur pointer elements.
+        int sum1 = 0, sum2 = 0;
+
+        // Calculating sum by traversing the nodes of linked
+        // list as the merging of two linked list.  The loop
+        // stops at a common node
+        while (curr1!=NULL && curr2!=NULL && curr1->data!=curr2->data)
+        {
+            if (curr1->data < curr2->data)
+            {
+                sum1 += curr1->data;
+                curr1 = curr1->next;
+            }
+            else // (curr2->data < curr1->data)
+            {
+                sum2 += curr2->data;
+                curr2 = curr2->next;
+            }
+        }
+
+        // If either of current pointers becomes NULL
+        // carry on the sum calculation for other one.
+        if (curr1 == NULL)
+        {
+            while (curr2 != NULL)
+            {
+                sum2 += curr2->data;
+                curr2 = curr2->next;
+            }
+        }
+        if (curr2 == NULL)
+        {
+            while (curr1 != NULL)
+            {
+                sum1 += curr1->data;
+                curr1 = curr1->next;
+            }
+        }
+
+        // First time adjustment of resultant head based on
+        // the maximum sum.
+        if (pre1 == a && pre2 == b)
+            result = (sum1 > sum2)? pre1 : pre2;
+
+        // If pre1 and pre2 don't contain the head pointers of
+        // lists adjust the next pointers of previous pointers.
+        else
+        {
+            if (sum1 > sum2)
+                pre2->next = pre1->next;
+            else
+                pre1->next = pre2->next;
+        }
+
+        // Adjusting previous pointers
+        pre1 = curr1, pre2 = curr2;
+
+        // If curr1 is not NULL move to the next.
+        if (curr1)
+            curr1 = curr1->next;
+        // If curr2 is not NULL move to the next.
+        if (curr2)
+            curr2 = curr2->next;
+    }
+
+    // Print the resultant list.
+    while (result != NULL)
+    {
+        cout << result->data << " ";
+        result = result->next;
+    }
+}
+
+//Main driver program
+int main()
+{
+    //Linked List 1 : 1->3->30->90->110->120->NULL
+    //Linked List 2 : 0->3->12->32->90->100->120->130->NULL
+    Node *head1 = NULL, *head2 = NULL;
+    push(&head1, 120);
+    push(&head1, 110);
+    push(&head1, 90);
+    push(&head1, 30);
+    push(&head1, 3);
+    push(&head1, 1);
+
+    push(&head2, 130);
+    push(&head2, 120);
+    push(&head2, 100);
+    push(&head2, 90);
+    push(&head2, 32);
+    push(&head2, 12);
+    push(&head2, 3);
+    push(&head2, 0);
+
+    finalMaxSumList(head1, head2);
+    return 0;
+}
+ Output: 
+1 3 12 32 90 110 120 130 Time complexity = O(n) where n is the length of bigger linked list Auxiliary space = O(1) However a problem in this solution is that the original lists are changed. Exercise 1. Try this problem when auxiliary space is not a constraint. 2. Try this problem when we don’t modify the actual list and create the resultant list. This article is contributed by Kumar Gautam. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

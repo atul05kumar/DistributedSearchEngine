@@ -1,0 +1,58 @@
+Reversal algorithm for array rotation - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Reversal algorithm for array rotation Write a function rotate(arr[], d, n) that rotates arr[] of size n by d elements. Rotation of the above array by 2 will make array Method 4(The Reversal Algorithm) Please read this for first three methods of array rotation. Algorithm: rotate(arr[], d, n)
+  reverse(arr[], 1, d) ;
+  reverse(arr[], d + 1, n);
+  reverse(arr[], l, n);
+ Let AB are the two parts of the input array where A = arr[0..d-1] and B = arr[d..n-1]. The idea of the algorithm is: Reverse A to get ArB. /* Ar is reverse of A */ Reverse B to get ArBr. /* Br is reverse of B */ Reverse all to get (ArBr) r = BA. For arr[] = [1, 2, 3, 4, 5, 6, 7], d =2 and n = 7 A = [1, 2] and B = [3, 4, 5, 6, 7] Reverse A, we get ArB = [2, 1, 3, 4, 5, 6, 7] Reverse B, we get ArBr = [2, 1, 7, 6, 5, 4, 3] Reverse all, we get (ArBr)r = [3, 4, 5, 6, 7, 1, 2] Implementation: 
+/*Utility function to print an array */
+void printArray(int arr[], int size);
+
+/* Utility function to reverse arr[] from start to end */
+void rvereseArray(int arr[], int start, int end);
+
+/* Function to left rotate arr[] of size n by d */
+void leftRotate(int arr[], int d, int n)
+{
+  rvereseArray(arr, 0, d-1);
+  rvereseArray(arr, d, n-1);
+  rvereseArray(arr, 0, n-1);
+}
+
+/*UTILITY FUNCTIONS*/
+/* function to print an array */
+void printArray(int arr[], int size)
+{
+  int i;
+  for(i = 0; i < size; i++)
+    printf("%d ", arr[i]);
+  printf("%\n ");
+}
+
+/*Function to reverse arr[] from index start to end*/
+void rvereseArray(int arr[], int start, int end)
+{
+  int i;
+  int temp;
+  while(start < end)
+  {
+    temp = arr[start];
+    arr[start] = arr[end];
+    arr[end] = temp;
+    start++;
+    end--;
+  }
+}
+
+/* Driver program to test above functions */
+int main()
+{
+   int arr[] = {1, 2, 3, 4, 5, 6, 7};
+   leftRotate(arr, 2, 7);
+   printArray(arr, 7);
+   getchar();
+   return 0;
+}
+ Time Complexity: O(n) References: http://www.cs.bell-labs.com/cm/cs/pearls/s02b.pdf           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: array Tweet Writing code in comment? Please use ideone.com and share the link here. shashi jey its a clockwise rotation of array,,ther is not any code for anticlockwise rotation of array in this site rajx Above algorithm iterates Array two time. Here is solution that will do the same in one iteration. Idea is very basic to put every element to the position where it need to be after rotation. Main challenge is to avoid the loop(same element is moved more than once.). See the code… void rotateArray(int *arr, int size, int d) { int count=size, start = 0, i = 0, j; int old = arr[0], tmp; while(count) { j = (i-d < 0)?i-d+size:i-d; tmp = arr[j]; arr[j] = old; old = tmp; // to avoid shifting same element more than once if(j == start){ i += 1; start = i; old = arr[start]; }else i=j; count–; } } shek8034 Best solution …. Nirdesh GeeksforGeeks team,you are missing another algorightm named “Gries-Mills” with complexity ,which has the better performance than Juggling and Reversal. The algorithm swaps the largest equal-sized non-overlapping blocks available at each step. The main idea is to use swap as an operation as follows : * A is the left subarray, B is the right subarray — that is, the starting point is AB * If A is shorter, divide B into BL and BR, such that length of BR equals the length of A * Swap A and BR to change ABLBR into BRBLA * Recur on the two pieces of B * Once A and B are of equal lengths, swap A and B One can find in comparasion of above 3 algorithem in : http://www.drdobbs.com/parallel/benchmarking-block-swapping-algorithms/232900395?pgno=3 Nirdesh This is really a simple and great solution with O(n) time. Chinmaya Wow…Mazza aagaya….elegant solution. Thanks GeekforGeeks… moonlight this algorithm is o(lg n)..correct me if I am wrong.. void reverse(int arr[],int first,int last) { int temp=0; for(int i=first;i<last/2;i++) { temp=arr[i]; arr[i]=arr[last-i-1]; arr[last-i-1]=temp; } } void arrayRotation3(int arr[],int size,int shifts) { reverse(arr,0,shifts); reverse(arr,shifts,size+shifts); reverse(arr,0,size); } alien It is the same algorithm written here in the post.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ganesh You can find java code here: /** * Write a function to rotate arr[] of size n by d elements. * * @author GAPIITD * */ public class ArrayRotation { public static void main(String[] args) { int arr[] = {1, 2, 3, 4, 5, 6, 7}, toBeShifted = 2; rotateArray(arr, toBeShifted); } private static void rotateArray(int[] arr, int toBeShifted) { if (toBeShifted > arr.length) { System.out.println(" NO OF ROTATIONS IS GREATER THAN THE ARRAY SIZE."); return; } reverse(arr, 0, toBeShifted – 1); reverse(arr, toBeShifted, arr.length – 1); reverse(arr, 0, arr.length – 1); for (int i : arr) System.out.print(i + " "); } private static void reverse(int[] arr, int i, int j) { int start = i, end = j; while (start < end) { int temp = arr[end]; arr[end] = arr[start]; arr[start] = temp; start++; end–; } } } kirubakaran I have some thought about another algorithm. current = start_of_array next = d-1 while ( next < n-d) swap array[current], array[next] current = current + 1 next = next + 1 Correct me if something is wrong. alien your algorithm does not work for following case: arr[] = {1,2,3,4,5,6} d=4 Tracing: initially current = 1, next = arr[3], which means next = 4 first pass: 4,2,3,1,5,6 second pass: 4,5,3,1,2,6 third pass: 4,5,6,1,2,3 which is incorrect. Answer should be 3,4,5,6,1,2  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://wemeanourthoughts.blogspot.com/ Venki Assume the string S is composed of strings M and N, and also reversal of reversal of S is S itself. S = MN S = R(R(S)) R(S) = R(N)R(M) = N’M’ (new names) Rotate(S) = R(N’)R(M’) manjusha chava V can use reversing in an another way to achieve rotation. first v hav to reverse the whole string then reverse the n-d and d elements seperately. eg: I/p {1,2,3,4,5,6,7} d=2 first reversing whole array —-> {7,6,5,4,3,2,1} then reverse n-d i.e, from 7 to 3—>{3,4,5,6,7,2,1} finally reverse last d elements 2 to 1—->{3,4,5,6,7,1,2} which is our desired o/p Jagdish It can be solved in O(n)- 1) put the first element arr[0] in a temp 2) identify its destination index ( n +(currentIndex – d) %7 3) one by one swap all the elements. Gaurav Kishan Its superb.So simple to conceive the solution. Thank you geeksforgeeks. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,455 @@
+Ugly Numbers - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Ugly Numbers Ugly numbers are numbers whose only prime factors are 2, 3 or 5. The sequence 1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 15, … shows the first 11 ugly numbers. By convention, 1 is included. Write a program to find and print the 150’th ugly number. METHOD 1 (Simple) Thanks to Nedylko Draganov for suggesting this solution. Algorithm: Loop for all positive integers until ugly number count is smaller than n, if an integer is ugly than increment ugly number count. To check if a number is ugly, divide the number by greatest divisible powers of 2, 3 and 5, if the number becomes 1 then it is an ugly number otherwise not. For example, let us see how to check for 300 is ugly or not. Greatest divisible power of 2 is 4, after dividing 300 by 4 we get 75. Greatest divisible power of 3 is 3, after dividing 75 by 3 we get 25. Greatest divisible power of 5 is 25, after dividing 25 by 25 we get 1. Since we get 1 finally, 300 is ugly number. Implementation: 
+# include<stdio.h>
+# include<stdlib.h>
+
+/*This function divides a by greatest divisible 
+  power of b*/
+int maxDivide(int a, int b)
+{
+  while (a%b == 0)
+   a = a/b; 
+  return a;
+}	
+
+/* Function to check if a number is ugly or not */
+int isUgly(int no)
+{
+  no = maxDivide(no, 2);
+  no = maxDivide(no, 3);
+  no = maxDivide(no, 5);
+  
+  return (no == 1)? 1 : 0;
+}    
+
+/* Function to get the nth ugly number*/
+int getNthUglyNo(int n)
+{
+  int i = 1; 
+  int count = 1;   /* ugly number count */ 
+
+  /*Check for all integers untill ugly count 
+    becomes n*/ 
+  while (n > count)
+  {
+    i++;      
+    if (isUgly(i))
+      count++; 
+  }
+  return i;
+}
+
+/* Driver program to test above functions */
+int main()
+{
+    unsigned no = getNthUglyNo(150);
+    printf("150th ugly no. is %d ",  no);
+    getchar();
+    return 0;
+}
+ This method is not time efficient as it checks for all integers until ugly number count becomes n, but space complexity of this method is O(1) METHOD 2 (Use Dynamic Programming) Here is a time efficient solution with O(n) extra space Algorithm: 
+1 Declare an array for ugly numbers:  ugly[150]
+2 Initialize first ugly no:  ugly[0] = 1
+3 Initialize three array index variables i2, i3, i5 to point to 
+   1st element of the ugly array: 
+        i2 = i3 = i5 =0; 
+4 Initialize 3 choices for the next ugly no:
+         next_mulitple_of_2 = ugly[i2]*2;
+         next_mulitple_of_3 = ugly[i3]*3
+         next_mulitple_of_5 = ugly[i5]*5;
+5 Now go in a loop to fill all ugly numbers till 150:
+For (i = 1; i < 150; i++ ) 
+{
+    /* These small steps are not optimized for good 
+      readability. Will optimize them in C program */
+    next_ugly_no  = Min(next_mulitple_of_2,
+                                  next_mulitple_of_3,
+                                  next_mulitple_of_5); 
+    if  (next_ugly_no  == next_mulitple_of_2) 
+    {             
+        i2 = i2 + 1;        
+        next_mulitple_of_2 = ugly[i2]*2;
+    } 
+    if  (next_ugly_no  == next_mulitple_of_3) 
+    {             
+        i3 = i3 + 1;        
+        next_mulitple_of_3 = ugly[i3]*3;
+     }            
+     if  (next_ugly_no  == next_mulitple_of_5)
+     {    
+        i5 = i5 + 1;        
+        next_mulitple_of_5 = ugly[i5]*5;
+     } 
+     ugly[i] =  next_ugly_no       
+}/* end of for loop */ 
+6.return next_ugly_no
+ Example: Let us see how it works 
+initialize
+   ugly[] =  | 1 |
+   i2 =  i3 = i5 = 0;
+
+First iteration
+   ugly[1] = Min(ugly[i2]*2, ugly[i3]*3, ugly[i5]*5)
+            = Min(2, 3, 5)
+            = 2
+   ugly[] =  | 1 | 2 |
+   i2 = 1,  i3 = i5 = 0  (i2 got incremented ) 
+
+Second iteration
+    ugly[2] = Min(ugly[i2]*2, ugly[i3]*3, ugly[i5]*5)
+             = Min(4, 3, 5)
+             = 3
+    ugly[] =  | 1 | 2 | 3 |
+    i2 = 1,  i3 =  1, i5 = 0  (i3 got incremented ) 
+
+Third iteration
+    ugly[3] = Min(ugly[i2]*2, ugly[i3]*3, ugly[i5]*5)
+             = Min(4, 6, 5)
+             = 4
+    ugly[] =  | 1 | 2 | 3 |  4 |
+    i2 = 2,  i3 =  1, i5 = 0  (i2 got incremented )
+
+Fourth iteration
+    ugly[4] = Min(ugly[i2]*2, ugly[i3]*3, ugly[i5]*5)
+              = Min(6, 6, 5)
+              = 5
+    ugly[] =  | 1 | 2 | 3 |  4 | 5 |
+    i2 = 2,  i3 =  1, i5 = 1  (i5 got incremented )
+
+Fifth iteration
+    ugly[4] = Min(ugly[i2]*2, ugly[i3]*3, ugly[i5]*5)
+              = Min(6, 6, 10)
+              = 6
+    ugly[] =  | 1 | 2 | 3 |  4 | 5 | 6 |
+    i2 = 3,  i3 =  2, i5 = 1  (i2 and i3 got incremented )
+
+Will continue same way till I < 150
+ Program: 
+# include<stdio.h>
+# include<stdlib.h>
+# define bool int
+
+/* Function to find minimum of 3 numbers */
+unsigned min(unsigned , unsigned , unsigned );
+
+/* Function to get the nth ugly number*/
+unsigned getNthUglyNo(unsigned n)
+{
+    unsigned *ugly =
+             (unsigned *)(malloc (sizeof(unsigned)*n));
+    unsigned i2 = 0, i3 = 0, i5 = 0;
+    unsigned i;
+    unsigned next_multiple_of_2 = 2;
+    unsigned next_multiple_of_3 = 3;
+    unsigned next_multiple_of_5 = 5;
+    unsigned next_ugly_no = 1;
+    *(ugly+0) = 1;
+
+    for(i=1; i<n; i++)
+    {
+       next_ugly_no = min(next_multiple_of_2,
+                           next_multiple_of_3,
+                           next_multiple_of_5);
+       *(ugly+i) = next_ugly_no;                    
+       if(next_ugly_no == next_multiple_of_2)
+       {
+           i2 = i2+1;       
+           next_multiple_of_2 = *(ugly+i2)*2;
+       }
+       if(next_ugly_no == next_multiple_of_3)
+       {
+           i3 = i3+1;
+           next_multiple_of_3 = *(ugly+i3)*3;
+       }
+       if(next_ugly_no == next_multiple_of_5)
+       {
+           i5 = i5+1;
+           next_multiple_of_5 = *(ugly+i5)*5;
+       }
+    } /*End of for loop (i=1; i<n; i++) */
+    return next_ugly_no;
+}
+
+/* Function to find minimum of 3 numbers */
+unsigned min(unsigned a, unsigned b, unsigned c)
+{
+    if(a <= b)
+    {
+      if(a <= c)
+        return a;
+      else
+        return c;
+    }
+    if(b <= c)
+      return b;
+    else
+      return c;
+}
+
+/* Driver program to test above functions */
+int main()
+{
+    unsigned no = getNthUglyNo(150);
+    printf("%dth ugly no. is %d ", 150, no);
+    getchar();
+    return 0;
+}
+ Algorithmic Paradigm: Dynamic Programming Time Complexity: O(n) Storage Complexity: O(n) Please write comments if you find any bug in the above program or other ways to solve the same problem.           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: Dynamic Programming Tweet Writing code in comment? Please use ideone.com and share the link here. Srikant Aggarwal I am using the method but getting nos. repeated … Prateek Better approach to improve the storage complexity from 0[N] by using the Bit array where each bit as 1 represent as Ugly number and 0 represent non ugly number. public class UglyNumbers { byte[] uglyNumbersList = new byte[10000000]; public int getUglyNumber(int kth) { int uglyNumberCount =0; int currentNum=1; while(true) { if(currentNum==1 || currentNum==2 || currentNum==3 || currentNum==5 || isUglyNumber(currentNum)) { uglyNumbersList[currentNum]=1; uglyNumberCount++; if(kth==uglyNumberCount) { return currentNum; } } currentNum++; } } private boolean isUglyNumber(int value){ if(uglyNumbersList[value]==1) { return true; } if(value%2==0) { return isUglyNumber(value/2); } if(value%3==0) { return isUglyNumber(value/3); } if(value%5==0) { return isUglyNumber(value/5); } return false; } } Abhinav Aggarwal int main() { int n=150; priority_queue<int, vector, greater> pq; pq.push(1); int cnt = 1; int prev = 0; while (cnt < 150) { int val = pq.top(); pq.pop(); if (val == prev) continue; // cout << cnt << " " << val << "n"; prev = val; pq.push(val * 2); pq.push(val * 3); pq.push(val * 5); if (cnt == 150) break; cnt++; } cout <> n; return 0; } We can use priority queue also for this. Bill These are not called ugly numbers by mathematicians. They are called “5-smooth numbers”, “regular numbers” or “Hamming numbers”. Where did you get the name “ugly” from?? shashi jey yeah u r right,,but they are also called ugly numbers jakab922 EDIT2: Ah not I misread the description. My ugly numbers are the ones which don’t have 2, 3 or 5 as a prime factor. Can be solved in O(log n) time and O(1) space complexity with the following sieve for the beautiful numbers + binary search(first_good func can be replaced with something smarter I just didn’t bother) def beautiful(x): return x/2 + x/3 + x/5 – x/6 – x/10 – x/15 + x/30 def first_good(x): while x % 2 == 0 or x % 3 == 0 or x % 5 == 0: x -= 1 return x def smart_ugly_number(x): y = 1 while y – beautiful(y) 1 and mid – beautiful(mid) != x: if mid – beautiful(mid) > x: high = mid else: low = mid mid = (low + high) / 2 if mid – beautiful(mid) == x: return first_good(mid) elif low – beautiful(low): return first_good(low) else: return first_good(high) If instead 2, 3 and 5 one has m coprime numbers the sieve methods blows up to O(2^m) steps but if m << n the O(2^m log n) time bound can still be good. There might be a smart method which calculates the alternating sum in the subset lattice faster than 2^m but I just don't see it how. Space complexity for this is still O(m) since walking on the lattice can be easily done by dynamic programming. EDIT: Identation removed from the snippet. It's python though sh Why is 14 not an ugly number? jv 7 is the prime factor of 14. where as we can only have 2,3,5 abc you are right but the code will print 14 according to 2 code Here is the code in jAVA and its output: void printN_UglyNUmbers(int n){ if(n>=1){ System.out.println(1); int i_2=1; int i_3=1; int i_5=1; int value; int mul_2; int mul_3; int mul_5; for(int i=2;i<=n;i++){ mul_2=i_2*2; mul_3=i_3*3; mul_5=i_5*5; value= min(mul_2, mul_3, mul_5); System.out.println(mul_2+" "+ mul_3+" "+mul_5); System.out.println(value); if(value==mul_2)i_2++; if(value==mul_3)i_3++; if(value==mul_5)i_5++; } } Output for 15 ugly numbers: 1 2 3 5 2 4 3 5 3 4 6 5 4 6 6 5 5 6 6 10 6 8 9 10 8 10 9 10 9 10 12 10 10 12 12 15 12 14 15 15 14 abc Please ignore previous cooment It was my bad I didn’t use array as DP Unique  
+// By mistake I have given the code of max function istead of min.. Correct is  as follows.. :- 
+int min(int a,int b,int c)
+{
+    return ((a<b)?(a<c?a:c):(b<c?b:c));
+}
+ Unique  
+// What's d problem wd this code.. This is nt giving d correct output...Plz help !!!!
+#include<stdio.h>
+#include<conio.h>
+int min(int a,int b,int c)
+{
+    return ((a>b)?(a>c?a:c):(b>c?b:c));
+}
+int getUglyNum(int num)
+{
+    int *ugly=(int *)malloc(sizeof(int)*num);
+    int i2=0,i3=0,i5=0;
+    int i;
+    *(ugly+0)=1;
+    int next_ugly=1;
+    for(i=1;i<num;i++)
+    {
+                    next_ugly=min(ugly[i2]*2,ugly[i3]*3,ugly[i5]*5);
+                    *(ugly+i)=next_ugly;
+                    if(next_ugly==2)
+                                    i2++;
+                     if(next_ugly==3)
+                                     i3++;
+                     if(next_ugly==5)
+                                     i5++; 
+                     }
+                     return next_ugly;
+}
+int main()
+{
+    printf("150th Ugly Num is %d", getUglyNum(150));
+    getch();
+    return 0;
+}
+
+ Unique  
+//Take this min instead above min..
+int min(int a,int b,int c)
+{
+    return ((a<b)?(a<c?a:c):(b<c?b:c));
+}
+ nirmal @unique .. /*if(next_ugly==2) i2++; if(next_ugly==3) i3++; if(next_ugly==5) i5++; }*/ should be changed in order to get d correct output. .. i think we need to compare it for the multiples of 2 or 3 or 5.. not for 2 or 3 or 5.. mani does the following recursion works? ugly[i]=min{ ugly[i-1]*2,3,5 ugly[i-2]*2,3,5 ugly[i-3]*2,3,5 } gopi  
+/* #include <stdio.h>
+
+
+
+int Ugly(int );
+
+
+
+
+
+int main()
+{
+	int n;
+	printf("Enter the number\n");
+	scanf("%d",&n);
+	Ugly(n);
+}
+
+int Ugly(int n)
+{
+	int m;
+	int p,k;
+	p=1;
+	m=2;
+	k=1;
+	while(p>0)
+	{
+		if(n==1)
+		return (1);
+		else
+		if((m%2==0)||(m%3==0)||(m%5==0))
+		{
+			k=k+1;
+			if(k==n)
+		{	
+		printf("THE %d number element is %d ",n,m);
+		p=0;
+		}else
+		m=m+1;
+		}else
+		m=m+1;
+	}
+}
+		) */
+ bhargav  
+/* Paste your code here (You may delete these lines if not writing code) */
+#include <stdio.h>
+main() {
+	int a[151],n=151,j;
+	a[150]=ugly(150,a);
+	for(j=0;j<n;j++) {
+        printf("%d\n",a[j] );
+    }
+	getch();
+}
+int ugly(int n,int a[]) {
+	if(n<0) return -1;
+	if(n==0) return 1;
+	a[n-1]= ugly(n-1,a);
+	int k=a[n-1];
+	if((k+1)%2==0||(k+1)%5==0||(k+1)%3==0) return k+1;
+	if((k+2)%2==0||(k+2)%5==0||(k+2)%3==0) return k+2;
+	if((k+3)%2==0||(k+3)%5==0||(k+3)%3==0) return k+3;
+	if((k+5)%2==0||(k+5)%5==0||(k+5)%3==0) return k+4;
+}
+
+
+ Mani Method to check if number is Ugly number or not. public static int uglyNo(int n){ if(n==1){ return 0; } if(n%2==0 || n%3 ==0 || n%5 ==0){ n=(n%2==0)?n/2:(n%3==0)?n/3:n/5; return uglyNo(n); } return n; } In main method public static void main(String[] args) { // TODO Auto-generated method stub if(uglyNo(13) == 0){ System.out.println(“Ugly number “); } else System.out.println(“Not ugly number”); } Pavi My perspective of logic behind maintaining i2, i3 and i5 and reasoning behind it:  
+i2, i3 and i5 mark the minimum index in the array: ugly[] which are the candidates for the next ugly number 
+after being multiplied by the corresponnding factor (i2 for 2, i3 for 3 and i5 for 5).
+Therefore, initially i2 = i3 = i5 = 0 because the next candidate for ugly number (i.e, ugly[1])
+ will be the min of (ugly[0]*2, ugly[0]*3, ugly[0]*5).
+
+ Now, once the min is found to be 2, algo increments i2 by 1 to suggest that the candidate for next ugly number which
+must be multiplied by 2 must be ugly[1] , because ugly[0] has already been considered for multiplication by 2.
+ At this point i3 and i5 still point to zero coz ugly[0]*3 and ugly[0]*5 are still in race for the next ugly number.
+ Hope it will clarify the logic a bit for others (and for me as well when I return back to this question after a long gap ) Jagat Intuition: Each number needs to be multiplied by 2, 3, 5. But we don’t know which one is smaller: The smaller number multiplied by 5 or the largest number multiplied by 2? You’ll have no idea unless you actually try it out, which is exactly what you’re doing. However, for each of 2, 3 and 5 you advance to the next trial only if you’re sure that there is no smaller ugly number that can be formed by multiplying the other two with the existing ugly number. I find geeksforgeeks quite helpful as a catalog of questions. However, they do an extremely poor job in providing the intuition as to how they arrived at the solution. One bad effect of not having the logical path to the solution is that the website users will tend to memorise the solutions, which will cause more harm than benefit in the long run, besides forgetting the solution itself shortly. coderAce Beautiful! Your comment about the intuition actually made me realise how this falls under the DP category. Although I don’t quite agree with GeeksForGeeks not providing intuition part though. But in this case once you provided the intuition I could actually analyse and come up with the DP solution on my own. Lot of thanks db In Algorithm (not Program) section of method 2 ugly[i] = next_ugly_no should go before the three if statements. The program is correct. skoppala Here’s my attempt to print the first 150 Ugly Numbers using DP. I wonder though if the recurrence relation t(n) = MIN_{j=1 to n-1} [t(n-j)*2, t(n-j)*3, t(n-j)*5)] and > t(n-1) can be improved.  
+/* Paste your code here (You may delete these lines if not writing code) */
+// ugly numbers
+
+# include <stdio.h>
+
+int ugly (int *arr, int n){
+    int j, lim, min, a1, a2, a3;
+    lim = arr[n-1];
+    min = -1;
+    for (j = 0; j < n; j++){
+        a1 = arr[j]*2;
+        a2 = arr[j]*3;
+        a3 = arr[j]*5;        
+        if (min == -1)
+        {
+                if (a1 > lim)
+                   min = a1;
+                else if (a2 > lim)
+                     min = a2;
+                else if (a3 > lim)
+                     min = a3;
+        }
+        else 
+        {        
+             if ((a1 > lim) && (a1 < min))
+                min = a1;
+             if ((a2 > lim) && (a2 < min))                  
+                min = a2;
+             if ((a3 > lim) && (a3 < min))
+                min = a1;
+        }
+    }
+    if (min == -1)
+       return -1;
+    arr[n] = min;
+    return 0;
+}
+
+int main(){
+    int arr[150], i;
+    arr[0] = 1;
+    printf("\n ugly[0] = 1");
+    for (i = 1; i < 150; i++){
+     //printf("\n return = %d",ugly(arr, i));
+     if (ugly(arr,i) == 0)
+        printf("\n ugly[%d] = %d", i, arr[i]);
+    }    
+    getchar();
+    return 0;
+}
+
+ pappu We can even implement using a heap. But it is O(nlogn). #include<iostream> #include<queue> using namespace std; int getUglyNumber(int n) { priority_queue<int, vector<int>, greater<int> > h; int a[3], temp; a[0] = 2; a[1] = 3; a[2] = 5; h.push(1); for(int i = 1; i < n; i++) { temp = h.top(); h.pop(); for(int j = 0; j < 3; j++) { h.push(temp*a[j]); } } return h.top(); } int main(void) { cout << getUglyNumber(150) << endl; } Naveen This gives wrong answers. For example, number 6 is added twice and so is fetched twice. Naveen C N naveentiptur@gmail.com levis recursive way for the first method …. isUgly(int n) { printf(“before recursion %d\n”,n); if(n==1) return 1; if(n%2==0) return isUgly(n/2); else if(n%3==0) return isUgly(n/3); else if(n%5==0) return isUgly(n/5); else return 0; } http://ashutosh7s.blogspot.com/ WgpShashank Simplified Version of the nth Ugly Number Using DP  
+using namespace std; 
+#define MAXSIZE 15
+ 
+ 
+ 
+int minimum(int x,int y,int z)
+{
+    if (x<y) return (x<z?x:z);
+      return (y<z?y:z);
+}
+ 
+int nextUgly(int nth)//nth
+{
+    int num2,num3,num5;
+    int ugly[MAXSIZE], ptr2, ptr3, ptr5;
+        ugly[0]=1;int i=0;
+        ptr2=ptr3=ptr5=0;
+  
+   for(i=1;i<nth;i++)    
+  {
+    num2=ugly[ptr2]*2;
+    num3=ugly[ptr3]*3;
+    num5=ugly[ptr5]*5;
+ 
+    ugly[i]=minimum(num2,num3,num5);
+ 
+    if(ugly[i]==num2) ptr2++;
+    if(ugly[i]==num3) ptr3++;
+    if(ugly[i]==num5) ptr5++;
+ 
+   }
+ 
+    return ugly[nth-1];
+}
+ 
+int main()
+{
+   
+    printf("15th Ugly number is %d\n",nextUgly(15));
+}
+ priya awesome shashank , keep it up  
+/* Paste your code here (You may delete these lines if not writing code) */
+ J_Addict Nice…. naresh Simply awesome… But one minor correction needed: Fourth iteration ugly[4] = Min(ugly[i2]*2, ugly[i3]*3, ugly[i5]*5) = Min(8, 6, 5) = 5 ugly[] = | 1 | 2 | 3 | 4 | 5 | i2 = 2, i3 = 1, i5 = 1 (i5 got incremented ) During fourth iteration, it will be (6, 6, 5) And in next iteration it will be (8, 9, 10) GeeksforGeeks @naresh: Thanks for pointing this out. We have made corrections. zhiwei gu The second one is incorrect, which calculates the sequence according to 2^a,3^b,5^c instead of 2^a*3^b,5^c That’s why dayanand verifies that these two results are not equal………………. Sandeep @zhiwei gu: Take a closer look at the algorithm or code, it doesn’t calculate the sequence according to 2^a,3^b,5^c. The idea of second one is simple: It stores already generated Ugly numbers and then generate new numbers by comparing the next multiples of 2, 3 and 5. ravikant Awesomeness!!!! geeksforgeeks @Ajinkya: There was a typo, thanks for pointing it out. We have corrected the same. Ajinkya There is a mistake in the example : It should be “…after dividing 75 by 3 we get 25.” rather than “…after dividing 300 by 3 we get 25. “ geeksforgeeks @dayanand: The output is same for both the programs. Could you please let us know the compiler you used for testing? dayanand why the outputs of the two programs are different: the output of first program is: 150th ugly no. is 212 the output of the second program is : 150th ugly no. is 5832 why is this difference? geeksforgeeks @Nedylko Draganov: Thanks for providing another solution, we have updated the post with your solution. The solution is definitely simple and short, but not efficient. Nedylko Draganov There is a more elegant and short solution: 
+int isDivide (int a, int b)
+{
+    int m=0;
+    int n=0;
+    n=a;
+
+    while((0==m) && (n>1))
+    {
+        m=n%b;
+        if (m==0)
+        {
+	   n=n/b;
+        }
+    }
+    return n;
+}	
+
+int uglyNumber(int nNum)
+{
+    int i = 1;
+    int tmp = 0;
+    int tmp1 = 0;
+    int count = 0;
+
+    while (nNum > count)
+    {
+        tmp  = isDivide(i, 2);
+        tmp1 = isDivide(tmp, 3);
+        tmp1 = isDivide(tmp1, 5);
+        if (1 == tmp1)
+        {
+            count++;
+            tmp=i;
+	    // i is ugly number
+        }
+        i++;
+    }
+    return tmp;
+} // In nNum == 150, the function will return 150-th ugly number
+ geeksforgeeks @Minjie Zha: Thanks a lot for these pointing out. We have made corrections. Minjie Zha Some mistakes in the algorithm and program. In the algorithm descriptions, the max(…) should be min(…). And in the program, the comments for min(…) should be “/* Function to find minimum of 3 numbers */” Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

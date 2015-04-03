@@ -1,0 +1,584 @@
+Pairwise swap elements of a given linked list - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Pairwise swap elements of a given linked list Given a singly linked list, write a function to swap elements pairwise. For example, if the linked list is 1->2->3->4->5 then the function should change it to 2->1->4->3->5, and if the linked list is 1->2->3->4->5->6 then the function should change it to 2->1->4->3->6->5. METHOD 1 (Iterative) Start from the head node and traverse the list. While traversing swap data of each node with its next node’s data. 
+/* Program to pairwise swap elements in a given linked list */
+#include<stdio.h>
+#include<stdlib.h>
+
+/* A linked list node */
+struct node
+{
+  int data;
+  struct node *next;
+};
+
+/*Function to swap two integers at addresses a and b */
+void swap(int *a, int *b);
+
+/* Function to pairwise swap elements of a linked list */
+void pairWiseSwap(struct node *head)
+{
+  struct node *temp = head;
+
+   /* Traverse further only if there are at-least two nodes left */
+  while (temp != NULL && temp->next != NULL)
+  {
+    /* Swap data of node with its next node's data */
+    swap(&temp->data, &temp->next->data);
+
+    /* Move temp by 2 for the next pair */
+    temp = temp->next->next;
+  }
+}
+
+/* UTILITY FUNCTIONS */
+/* Function to swap two integers */
+void swap(int *a, int *b)
+{
+  int temp;
+  temp = *a;
+  *a = *b;
+  *b = temp;
+}
+
+/* Function to add a node at the begining of Linked List */
+void push(struct node** head_ref, int new_data)
+{
+  /* allocate node */
+  struct node* new_node =
+            (struct node*) malloc(sizeof(struct node));
+
+  /* put in the data  */
+  new_node->data  = new_data;
+
+  /* link the old list off the new node */
+  new_node->next = (*head_ref);
+
+  /* move the head to point to the new node */
+  (*head_ref)    = new_node;
+}
+
+/* Function to print nodes in a given linked list */
+void printList(struct node *node)
+{
+  while (node != NULL)
+  {
+    printf("%d ", node->data);
+    node = node->next;
+  }
+}
+
+/* Druver program to test above function */
+int main()
+{
+  struct node *start = NULL;
+
+  /* The constructed linked list is:
+   1->2->3->4->5 */
+  push(&start, 5);
+  push(&start, 4);
+  push(&start, 3);
+  push(&start, 2);
+  push(&start, 1);
+
+  printf("\n Linked list before calling  pairWiseSwap() ");
+  printList(start);
+
+  pairWiseSwap(start);
+
+  printf("\n Linked list after calling  pairWiseSwap() ");
+  printList(start);
+
+  getchar();
+  return 0;
+}
+ Time complexity: O(n) METHOD 2 (Recursive) If there are 2 or more than 2 nodes in Linked List then swap the first two nodes and recursively call for rest of the list. 
+/* Recursive function to pairwise swap elements of a linked list */
+void pairWiseSwap(struct node *head)
+{
+  /* There must be at-least two nodes in the list */
+  if(head != NULL && head->next != NULL)
+  {
+    /* Swap the node's data with data of next node */
+    swap(&head->data, &head->next->data);
+   
+    /* Call pairWiseSwap() for rest of the list */
+    pairWiseSwap(head->next->next);
+  }  
+}
+ Time complexity: O(n) The solution provided there swaps data of nodes. If data contains many fields, there will be many swap operations. See this for an implementation that changes links rather than swapping data. Please write comments if you find any bug in above code/algorithm, or find other ways to solve the same problem.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. sijayaraman void swap_pair(struct node* root) { if(root==NULL || root->link==NULL) return; struct node* current = root; struct node* next = current->link; while(current->link!=NULL) { swap(&current->data,&next->data); if(current->link == NULL || next->link==NULL) { break; } current=next->link; next=current->link; } } Himanshu Dagar can refer to below link to see code in combined way http://ideone.com/gcHwba Himanshu Dagar (y) Simple technique used in recursion (good way to learn recursion) github #include #include struct node { int data; struct node *next; }; void create_n(struct node **ll,int num) { struct node *temp; temp=(struct node *)malloc(sizeof(struct node)); temp->data=num; if(*ll==NULL) { temp->next=NULL; *ll=temp; } else { temp->next=*ll; *ll=temp; } } void reverse_ll(struct node **ll) { struct node *prev,*curr,*jod,*temp; prev=*ll; curr=prev->next; temp=curr->next; //for cases where only 2 items in LL or 3 items in LL……………………….. if(temp==NULL || temp->next==NULL) { *ll=curr; curr->next=prev; if(temp==NULL) prev->next=NULL; else { prev->next=temp; temp->next=NULL; } } //cases for 2 and 3 end,…………………………………………………….. else { *ll=curr; curr->next=prev; int sum=0; while (temp!=NULL) { if(temp->next==NULL) { break; } jod=prev; curr=temp->next; prev=temp;; temp=curr->next; jod->next=curr; curr->next=prev; prev->next=temp; sum++; } } } int main() { struct node *ll; ll=NULL; // create_n(&ll,8); // create_n(&ll,7); // create_n(&ll,6); // create_n(&ll,5); // create_n(&ll,4); create_n(&ll,3); create_n(&ll,2); create_n(&ll,1); reverse_ll(&ll); //PRINT THE LINK LIST while(ll!=NULL) { printf(“%d “,ll->data); ll=ll->next; } return 0; } Sameer http://codingrecipies.blogspot.in/2014/01/linked-list-pair-swapping.html http://codingrecipies.blogspot.in/2014/01/linked-list-pair-swapping-recursive.html Marsha Donna void pairwise_swap_ele(struct node **head) { int var=0; struct node *temp=*head; while(temp!=NULL && temp->link!=NULL) { var=temp->data; temp->data=temp->link->data; temp->link->data=var; temp=temp->link->link; } } Amit Kumar struct Node* add_Recursively(struct Node *itr){ struct Node *prev,*temp; if(itr == NULL){ return NULL; } prev = add_Recursively(itr->next->next); temp = itr->next; itr->next->next = itr; itr->next=prev; return temp; } void main(){ struct Node *var; addNode(1); addNode(2); addNode(5); addNode(9); addNode(15); addNode(20); var= add_Recursively(root); } guest Here is the code which swap the nodes rather than data. Imagine the case where data in each nodes contains many field, rather than swapping each elements we should consider to swap the nodes . void pairWiseSwap(struct node **head) { if(*head == NULL || (*head)->next==NULL) return; struct node *prev = *head; struct node *curr = (*head)->next; *head = curr; // this will be head struct node *next; while(curr != NULL) { next = curr->next; curr->next = prev; if(next == NULL) { prev->next = NULL; break; } else { if(next->next == NULL) {prev->next = next; break;} else { prev->next = next->next; prev = next; curr = prev->next; } } } } Vivek // swapping pairwise using pointers. struct node *pairwise_swap(struct node *head) { struct node *temp, *t, *p =NULL; if(!head || !head->next) return head; else { temp = head; while(temp && temp->next) { if(!p) head = temp->next; else p->next=temp->next; t=temp->next; temp->next=temp->next->next; t->next =temp; p =temp; temp= temp->next; } return head; } } Kush Pandey According to me swapping data is not right as the question is to swap the nodes. This can be done by using the algorithm of reversing k nodes . the program is given below  
+#include<stdio.h>
+#include<stdlib.h>
+
+/* Link list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+
+/* Reverses the linked list in groups of size k and returns the
+   pointer to the new head node. */
+struct node *reverse (struct node *head, int k)
+{
+    struct node* current = head;
+    struct node* next;
+    struct node* prev = NULL;
+    int count = 0;
+
+    /*reverse first k nodes of the linked list */
+    while (current != NULL && count < k)
+    {
+       next  = current->next;
+       current->next = prev;
+       prev = current;
+       current = next;
+       count++;
+    }
+
+    /* next is now a pointer to (k+1)th node
+       Recursively call for the list starting from current.
+       And make rest of the list as next of first node */
+    if(next !=  NULL)
+    {  head->next = reverse(next, k); }
+
+    /* prev is new head of the input list */
+    return prev;
+}
+
+/* UTILITY FUNCTIONS */
+/* Function to push a node */
+void push(struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node =
+            (struct node*) malloc(sizeof(struct node));
+
+    /* put in the data  */
+    new_node->data  = new_data;
+
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);
+
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+/* Function to print linked list */
+void printList(struct node *node)
+{
+    while(node != NULL)
+    {
+        printf("%d  ", node->data);
+        node = node->next;
+    }
+}
+
+/* Drier program to test above function*/
+int main(void)
+{
+    /* Start with the empty list */
+    struct node* head = NULL;
+
+     /* Created Linked list is 1->2->3->4->5->6->7->8 */
+     push(&head, 8);
+     push(&head, 7);
+     push(&head, 6);
+     push(&head, 5);
+     push(&head, 4);
+     push(&head, 3);
+     push(&head, 2);
+     push(&head, 1);
+
+     printf("\n Given linked list \n");
+     printList(head);
+     head = reverse(head, 2);
+
+     printf("\n Reversed Linked list \n");
+     printList(head);
+
+     getchar();
+     return(0);
+}
+
+ Kaushik  
+void swapAlt(struct node** head)
+{
+	struct node* temp=*head;
+	if(temp->next!=NULL)
+	{
+		struct node *a_prev,*a,*b_prev,*b,*b_next;
+		a=b=temp;
+		a_prev=NULL;
+		while(b!=NULL && b->next!=NULL)
+		{
+			b=b->next;
+			b_prev=a;
+			b_next=b->next;
+
+			a->next=b_next;
+			if(a_prev!=NULL)
+			{
+				a_prev->next=b;
+			}
+			else
+				*head=b;
+			b->next=a;
+			a_prev=a;
+			a=b_next;
+			b=b_next;
+
+		}
+	}
+}
+ Sumit This code just exchanges the pointers in place of swapping the values  
+# include <stdio.h>
+# include <stdlib.h>
+
+struct node{
+  int data;
+  struct node *next;
+};
+
+void push(struct node **head, int data)
+{
+  if ((*head) == NULL)
+  {
+    (*head) = malloc(sizeof(struct node));
+    (*head)->next = NULL;
+    (*head)->data = data;
+  }
+  else
+  {
+    struct node *temp = malloc(sizeof(struct node));
+    temp->data = data;
+    temp->next = *head;
+    *head = temp;
+  }
+}
+
+void pairwise_swap(struct node **head, struct node **new_head)
+{
+  // swap the pointers to make everything shaba shaba
+  struct node *temp = *head, *n;
+  *new_head = (*head)->next;
+  while(temp != NULL && temp->next != NULL)
+  {
+    n = temp->next->next;
+    temp->next->next = temp;
+    if (n != NULL)
+      temp->next = n->next;
+    else
+      temp->next = NULL;
+    temp = n;
+  }
+}
+
+void print_list(struct node *head)
+{
+  while(head)
+    printf("%d ", head->data), head = head->next;
+}
+
+int main()
+{
+  struct node *head=NULL, *new_head=NULL;
+  push(&head, 2);
+  push(&head, 1);
+  push(&head, 0);
+  push(&head, 7);
+  push(&head, 9);
+  push(&head, 18);
+  print_list(head);
+  printf("\n");
+  pairwise_swap(&head, &new_head);
+  print_list(new_head);
+  return 0;
+}
+
+ Murali S Iyengar @Sumit When there are odd number of elements, your code removes last element from the list. anonymous We can solve the question by changing pointers. Both iterative and recursive methods are applicable. That would be a very good solution as swapping records could be tedious. anonymous In fact,it is a special case of “reverse every k nodes of a linked list” with k=2 whizkid08  
+void swapPairsRec(struct Node *first)
+{
+	struct Node *second = first->next;
+	int temp;
+
+	if(first == 0 || second == 0)
+	return;
+
+	temp = second->data;
+	second->data = first->data;
+	first->data = temp;
+
+	swapPairsRec(second->next);
+}
+
+ Rajdeep May be for the cure of cough, I am giving a medicine of TB. But it can also be solved by algo posted by geeks for “Reverse a Linked List in groups of given size” http://www.geeksforgeeks.org/archives/8014 Here the size would be 2 KARTHIKEYAN.V.B void pairWiseSwap(struct node **head) { struct node *p = *head,*q=(*head)->next,*r=(*head)->next,*prev=NULL; while(p && q) { if(prev) prev->next=q; p->next=q->next; q->next=p; prev=p; p=p->next; if(p) q=p->next; } *head=r; } SK Hi, Can u help me to achive this using C# code… how can i do the this in C#… SK Guys, Can any one help me…. FB can you not able to change this logic in C#. shame on you.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ PsychoCoder This is not the value swapping. Basically pairwise pointer swapping.  
+#include<stdio.h>
+#include<stdlib.h>
+
+typedef struct node {
+  int data ;
+  struct node *next ;
+}node;
+
+node* newNode (int data) {
+  node *temp ;
+  temp = (node *) malloc (sizeof(node)) ;
+  temp->data = data ;
+  temp->next = NULL ;
+  return temp ;
+}
+
+node* getInput () {
+  node *list = NULL , *temp;
+  int index,num,i=0 ;
+  printf ( "\nEnter the number of elements:\t " ) ;
+  scanf( "%d", &index ) ;
+  while (i<index) {
+    printf ( "\nEnter the %d th number : ", i++ );
+    scanf ( "%d", &num ) ;
+    temp = newNode (num) ;
+    if ( list == NULL )
+      list = temp ;
+    else {
+      temp->next = list ;
+      list = temp ;
+    }
+  }
+  return list ;
+}
+
+void printList (node* list) {
+  node *temp = list ;
+  printf ( "\n\n" ) ;
+  while (temp) {
+    printf ( "%d ", temp->data ) ;
+    temp = temp->next ;
+  }
+}
+
+node* pairWiseSwap (node* head) {
+  node *temp = head , *dup;
+  if (temp && temp->next) {
+    head = head->next ;
+    temp->next = head->next ;
+    head->next = temp ;
+  } else return head ;
+
+  while (temp->next && temp->next->next) {
+    dup = temp->next ;
+    temp->next = dup->next ;
+    dup->next = temp->next->next ;
+    temp->next->next = dup ;
+    temp = dup ;
+  }
+  return head ;
+}
+
+int main() {
+  node *list ;
+  list = getInput () ;
+  printList (list);
+  list = pairWiseSwap (list) ;
+  printList (list);
+  free (list) ;
+  return 0;
+}
+ Fanendra Please find the java code for the same.  
+        public void pairwiseSwap() {
+		startNode = pairwiseSwap(this.startNode);
+        }
+
+	public Node pairwiseSwap(Node start) {
+		Node current = start;
+		if (current.next != null) {
+			Node next = current.next;
+			next.next = current;
+			if (current.next.next != null) {
+				current.next =    pairwiseSwap(current.next.next);
+			} else {
+				current.next = null;
+			}
+			return next;
+		}
+		return current;
+	}
+ sharat Instead of swapping the just the data, to be more generic, We can use the solution to “reverse groups of elements ” and use k = 2. This would swap the nodes instead of the data. sharat http://geeksforgeeks.org/?p=8014 http://effprog.blogspot.com Sambasiva  
+
+list pairwise(list l)
+{
+        Node *newlist = l->next;
+        Node *temp, *prev = NULL;
+
+        if(!newlist) return l;
+
+        while(l && (temp = l->next))
+        {
+                if(prev)
+                        prev->next = temp;
+                prev = l;
+                l->next = temp->next;
+                temp->next = l;
+                l = l->next;
+        }
+
+        return newlist;
+}
+ http://effprog.blogspot.com Sambasiva  
+
+#include <stdio.h>
+#include <stdlib.h>
+ 
+struct Node
+{
+        int data;
+        struct Node *next;
+        struct Node *arb;
+};
+ 
+typedef struct Node Node;
+typedef Node* list;
+ 
+Node *appendNode(list l, int elm);
+ 
+list intersect(list l1, list l2)
+{
+        list l3 = NULL;
+        while(l1 && l2)
+        {
+                if(l1->data < l2->data)
+                        l1 = l1->next;
+                else if(l1->data > l2->data)
+                        l2 = l2->next;
+                else
+                {
+                        l3 = appendNode(l3, l1->data);
+                        l1 = l1->next;
+                        l2 = l2->next;
+                }
+        }
+ 
+        return l3;
+}
+ 
+//Utility functions
+ 
+Node *appendNode(list l, int elm)
+{
+        Node *p;
+        Node *temp = calloc(sizeof(Node), 1);
+        temp->data = elm;
+ 
+        if(!l)
+                return temp;
+        for(p = l;p->next; p = p->next);
+        p->next = temp;
+        return l;
+}
+ 
+void print(list l)
+{
+        for(; l ; l = l->next)
+                printf("%d\n", l->data);
+}
+ 
+int main()
+{
+        list l1 = NULL;
+        list l2 = NULL;
+        int i;
+ 
+        for(i = 0; i < 10; ++i)
+        {
+                l1 = appendNode(l1,i);
+        }
+        for(i = 5; i < 10; ++i)
+        {
+                l2 = appendNode(l2,i);
+        }
+ 
+        printf("list 1: \n");
+        print(l1);
+        printf("list 2: \n");
+        print(l2);
+        list l3 = intersect(l1, l2);
+        printf("intersect: \n");
+        print(l3);
+}
+ http://effprog.blogspot.com Sambasiva  
+
+list pairwise(list l)
+{
+        Node *newlist = l->next;
+
+        if(!newlist) return l;
+
+        Node *p = NULL, *n;
+
+        while( l && (n = l->next))
+        {
+                if(p)
+                        p->next = n;
+
+                p = l;
+                l = n->next;
+                n->next = p;
+        }
+        if(p)
+          p->next = NULL;
+
+        return newlist;
+}
+ http://effprog.blogspot.com Sambasiva  
+
+list pairwise(list l)
+{
+        Node *newlist = l->next;
+ 
+        if(!newlist) return l;
+ 
+        Node *p = NULL, *n;
+ 
+        while( l && (n = l->next))
+        {
+                if(p)
+                        p->next = n;
+ 
+                p = l;
+                l = n->next;
+                n->next = p;
+        }
+        if(p)
+          p->next = l;
+ 
+        return newlist;
+}
+ Sam Real pointer switching version using prev, cur and temp pointers.  
+public static LinkedList PairwiseSwapPointer(LinkedList head)
+        {
+            LinkedList cur = head;
+            LinkedList prev = null;
+            bool bFirst = true;
+            while ((null != cur) && (null != cur.Next))
+            {
+                if (bFirst)
+                {
+                    head = cur.Next;
+                    bFirst = false;
+                }
+
+                LinkedList pTemp = cur.Next;
+                cur.Next = cur.Next.Next;
+                pTemp.Next = cur;
+                if (null != prev)
+                {
+                    prev.Next = pTemp;
+                }
+
+                prev = cur;
+                cur = cur.Next;
+            }
+
+            return head;
+        }
+ aravindh Thnx sam..s nt a recursive version much simpler ??? g33k I was about the type the same algo after seing people some sort of crazy work. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

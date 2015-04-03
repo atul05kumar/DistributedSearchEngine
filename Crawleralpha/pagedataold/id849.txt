@@ -1,0 +1,324 @@
+Find subarray with given sum  - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find subarray with given sum Given an unsorted array of nonnegative integers, find a continous subarray which adds to a given number. Examples: 
+Input: arr[] = {1, 4, 20, 3, 10, 5}, sum = 33
+Ouptut: Sum found between indexes 2 and 4
+
+Input: arr[] = {1, 4, 0, 0, 3, 10, 5}, sum = 7
+Ouptut: Sum found between indexes 1 and 4
+
+Input: arr[] = {1, 4}, sum = 0
+Output: No subarray found
+ There may be more than one subarrays with sum as the given sum. The following solutions print first such subarray. Source: Google Interview Question Method 1 (Simple) A simple solution is to consider all subarrays one by one and check the sum of every subarray. Following program implements the simple solution. We run two loops: the outer loop picks a starting point i and the inner loop tries all subarrays starting from i. 
+/* A simple program to print subarray with sum as given sum */
+#include<stdio.h>
+
+/* Returns true if the there is a subarray of arr[] with sum equal to 'sum'
+   otherwise returns false.  Also, prints the result */
+int subArraySum(int arr[], int n, int sum)
+{
+    int curr_sum, i, j;
+
+    // Pick a starting point
+    for (i = 0; i < n; i++)
+    {
+        curr_sum = arr[i];
+
+        // try all subarrays starting with 'i'
+        for (j = i+1; j <= n; j++)
+        {
+            if (curr_sum == sum)
+            {
+                printf ("Sum found between indexes %d and %d", i, j-1);
+                return 1;
+            }
+            if (curr_sum > sum || j == n)
+                break;
+           curr_sum = curr_sum + arr[j];
+        }
+    }
+
+    printf("No subarray found");
+    return 0;
+}
+
+// Driver program to test above function
+int main()
+{
+    int arr[] = {15, 2, 4, 8, 9, 5, 10, 23};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    int sum = 23;
+    subArraySum(arr, n, sum);
+    return 0;
+}
+ Output: 
+Sum found between indexes 1 and 4
+ Time Complexity: O(n^2) in worst case. Method 2 (Efficient) Initialize a variable curr_sum as first element. curr_sum indicates the sum of current subarray. Start from the second element and add all elements one by one to the curr_sum. If curr_sum becomes equal to sum, then print the solution. If curr_sum exceeds the sum, then remove trailing elemnents while curr_sum is greater than sum. Following is C implementation of the above approach. 
+/* An efficient program to print subarray with sum as given sum */
+#include<stdio.h>
+
+/* Returns true if the there is a subarray of arr[] with sum equal to 'sum'
+   otherwise returns false.  Also, prints the result */
+int subArraySum(int arr[], int n, int sum)
+{
+    /* Initialize curr_sum as value of first element
+       and starting point as 0 */
+    int curr_sum = arr[0], start = 0, i;
+
+    /* Add elements one by one to curr_sum and if the curr_sum exceeds the
+       sum, then remove starting element */
+    for (i = 1; i <= n; i++)
+    {
+        // If curr_sum exceeds the sum, then remove the starting elements
+        while (curr_sum > sum && start < i-1)
+        {
+            curr_sum = curr_sum - arr[start];
+            start++;
+        }
+
+        // If curr_sum becomes equal to sum, then return true
+        if (curr_sum == sum)
+        {
+            printf ("Sum found between indexes %d and %d", start, i-1);
+            return 1;
+        }
+
+        // Add this element to curr_sum
+        if (i < n)
+          curr_sum = curr_sum + arr[i];
+    }
+
+    // If we reach here, then no subarray
+    printf("No subarray found");
+    return 0;
+}
+
+// Driver program to test above function
+int main()
+{
+    int arr[] = {15, 2, 4, 8, 9, 5, 10, 23};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    int sum = 23;
+    subArraySum(arr, n, sum);
+    return 0;
+}
+ Output: 
+Sum found between indexes 1 and 4
+ Time complexity of method 2 looks more than O(n), but if we take a closer look at the program, then we can figure out the time complexity is O(n). We can prove it by counting the number of operations performed on every element of arr[] in worst case. There are at most 2 operations performed on every element: (a) the element is added to the curr_sum (b) the element is subtracted from curr_sum. So the upper bound on number of operations is 2n which is O(n). Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. Aditya Murgai #include using namespace std; int findSubArray(int arr[], int sum, int n) { int curSum=arr[0]; int start=0, end=0; while((end<n)&&(start<=end)) { if(curSumsum) { curSum=curSum-arr[start]; start++; } else if(curSum==sum) { cout<<"from: "<<start<<" to: "<<end; break; } } } Lexie The efficient algorithm doesn’t handle the case when negative values exists in the array OP You can help of this link: http://stackoverflow.com/questions/5534063/zero-sum-subarray Search for every element (sum[i] – give_sum), if this element is present in j index, then j+1 to i will be that subarray. This will work for finding both positive and negative sum. anonymous Please tell me if my approach is correct. I first change the original array, and store the cumulative sum till arr[i] in that. For example, in the first case, it becomes. 1 5 25 28 38 43. Now I traverse the array, till I find the first number greater than the sum to be found, i.e. 38. Let this be e. I fix this place. And traverse again from the first position to this number, as soon as I encounter the first number, s, such that e-s=sum, occurs at i=1, s=5. I have found my two indices. Priyanka Singh @GeeksforGeeks: How to handle the case where negative integers are also present in the array? OP You can help of this link: http://stackoverflow.com/quest… Search for every element (sum[i] – give_sum), if this element is present in j index, then j+1 to i will be that subarray. This will work for finding both positive and negative sum. Lets take an example Give array: a[] = 2 8 5 -7 and sum = 6 Make a[i] = a[i] + a[i-1] so the array would become a[]: 2 10 15 8. for each element see if (a[i] – sum) present in index j then [ j+1, i] will be that subarray. So for i = 3 ( a[3] – 6) -> ( 2) and 2 is present in index 0 so sub array will be [ 0+1, 3] -> [1, 3]. Mohan public static void SubarrayWithGivenSum(int a[],int sum){ if(a.length == 0) return; if(a[0] == sum) System.out.println(0); else{ int start = 0; int i = 0; int csum = a[0]; for(i = 1; i sum && start <= i){ csum = csum – a[start]; start++; } if(csum == sum){ System.out.println(start +" "+ (i)); return; } } System.out.println("No solution"); } } public static void main(String[] args) { // TODO Auto-generated method stub int a[] = {15, 2, 4, 8, 9, 5, 10, 23}; SubarrayWithGivenSum(a,23); } Dinesh Domma If the First element is greater than the sum then the following block of code which was supposed to execute will not execute while (curr_sum > sum && start 0 jinzhi chen it works, if the first element is greater than the sum, then in the next loop it will be minus from the sum. the algorithm always delete the greater sum in the next loop. Sorry for my bad English , hope helpful. hektor espinosa Hey guys, what about this solution? It’s in C# public static bool GetSubArraysWithSumOptimized(int[] input, int sum) { int current_sum = 0; int begin = 0; int end = 0; for (int i = 0; i sum) { current_sum = 0; i = begin++; } } return false; } 4m7u1 how do we handle negative numbers? Whyvra Tail-recursive Caml solution: let subarraysum t s = let n = vect_length t in let rec aux i j c = if j > n || i > j then (- 1, – 1), false else if c = s then (i, j), true else if c < s then aux i (j + 1) (c + t.(j)) else aux (i + 1) j (c – t.(i)) in aux 0 0 0 ;; subarraysum [|23; 4; 21; 13; 54; 2; 3; 9|] 69;; subarraysum [|23; 4; 21; 13; 54; 2; 3; 9|] 12;; subarraysum [|23; 4; 21; 13; 54; 2; 3; 9|] 14;; subarraysum [|23; 4; 21; 13; 54; 2; 3; 9|] 25;; skulldude By changing the order of statements inside the for-loop of the second solution, I think we can avoid the extra check of ( i less than n ) in every iteration of the loop. This might not be a big improvement, but the code becomes a bit more intuitive and clean. Code:  
+bool subArraySum(int a[],int len,int reqSum){
+
+	int curSum=0;
+	int start=0;
+	
+	for(int i=0;i<len;++i){
+		curSum += a[i];
+		
+		while(start<i && curSum>reqSum)
+			curSum -= a[start++];
+		
+		if(curSum==reqSum){
+			printf("Sum found between indexes %d and %d\n",start,i);
+			return true;
+		}
+	}
+	
+	printf("No subarray found\n");
+	return false;
+}
+ Please comment, if you find bugs in the code. -Balasubramanian.N aspire Can you explain me why is s<i-1 in the above code? /* Paste your code here (You may delete these lines if not writing code) */ prathik How do you do it if the array contains negative integers? Srb (start < i-1 ) this is for the case when we have to find sum =0; so,we can handle this case in O(n) as number are non negative. so if we add extra constraint of zero than we can remove this as this is little bit confusing.. plz clarify this @Geeks for geeks…thanx in advance Paparao Veeragandham int i =0, temp =0, start = 0; while( i <= n && start sum ) temp = temp – data[start++]; else temp = temp + data[i++]; } return 0;  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Priyanka @GeeksforGeeks: Solution given fails for this input: a[] = {3, 34, 4, 12, 5, 2}, sum = 9 GeeksforGeeks There is no subarray with sum 9 in given array and the above solution prints same ( See http://ideone.com/HyX1tA ). Where do u see problem? abhishek08aug  
+#include<stdio.h>
+
+void find_subarray_with_sum(int array[], int n, int sum) {
+  int i, j, current_sum;
+  for(i=0, j=i, current_sum=0; i<n; i++) {
+    if(current_sum<sum) {
+      current_sum=current_sum+array[i];
+    }
+
+    if(current_sum>sum) {
+      while(current_sum>sum) {
+        current_sum=current_sum-array[j];
+        j++;
+      }
+    }
+
+    if(current_sum==sum) {
+        printf("sum of the subarray between %d and %d is %d\n", j, i, sum);
+        return;
+    }
+  }
+  printf("there is no subarray with sum %d\n", sum);
+}
+ 
+int main(){
+  int array[]={23, 4, 21, 13, 54, 2, 3, 9};
+  int n=sizeof(array)/sizeof(array[0]);
+  find_subarray_with_sum(array, n, 69);
+  find_subarray_with_sum(array, n, 12);
+  find_subarray_with_sum(array, n, 14);
+  find_subarray_with_sum(array, n, 25);
+  return 0;
+}
+ sum of the subarray between 3 and 5 is 69 sum of the subarray between 6 and 7 is 12 sum of the subarray between 5 and 7 is 14 sum of the subarray between 1 and 2 is 25 Gupt Alaternate Solution – Time = O(n), memory = O(n)  
+
+prefixsum = 0;
+hashmap;
+
+for (int i = 0; i < n; i++
+{
+	prefixsum += A[i];
+	if (hashmap.contains (prefixsum - k) || hashmap.contains (prefixsum - k))
+	{
+		// output the range
+	}
+	else
+	{
+		hashmap.insert (prefixsum, i);
+	}
+} Ganesh /** * Given an unsorted array of nonnegative integers, find a continous subarray which adds to a given number. * Examples: Input: arr[] = {1, 4, 20, 3, 10, 5}, sum = 33 * Ouptut: Sum found between indexes 2 and 4 * * @author GAPIITD * */ public class FindSubarrayWithGivenSum { public static void main(String[] args) { int arr[] = {15, 2, 4, 8, 9, 5, 10, 23}; int sum = 24, start = 0, current_sum = 0, flag = 0; for (int i = 0; i < arr.length; i++) { // Add elements one by one to curr_sum and if the curr_sum exceeds the // sum, then remove starting element current_sum += arr[i]; if (current_sum > sum) { while (current_sum > sum) { current_sum -= arr[start++]; } } if (current_sum == sum) { for (int j = start; j <= i; j++) { System.out.print(arr[j] + " "); } flag = 1; break; } } if (flag == 0) System.out.println("NOT FOUND"); } } Sree Ram just try second method with this input 4, 6, 3, -9, -5, 1, 3, 0, 2 and sum =0 kartik Please take a closer look at the problem statement. It says that the array should contain nonnegative integers. Sree Ram Yeah I got it ..But can we solve it in O(n) if it does contains negative numbers … Naga An effective recursive code with less time complexity  
+void findindexs(int a[],int i,int j,int n,int sum)
+{
+     static int findsum=0;
+     if(j>n||sum==0)
+     printf("no such indexs");
+     else if(findsum<sum)
+     {
+     findsum=findsum+a[j++];
+     findindexs(a,i,j,n,sum);
+     }
+     else if(findsum>sum)
+     {
+        findsum=findsum-a[i++];
+        findindexs(a,i,j,n,sum);
+     }
+     else if(findsum==sum)
+     printf("indexs %d to %d ",i,j-1);
+}
+// Driver program to test above function
+#include<stdio.h>
+void main()
+{
+int a[10],i,sum,i1=0,i2=0,n;
+printf("enter the size of the array");
+scanf("%d",&n);
+printf("enter the %d ele",n);
+for(i=0;i<10;i++)
+scanf("%d",&a[i]);
+printf("enter the sum ");
+scanf("%d",&sum);
+findindexs(a,i1,i2,n,sum);
+}
+ TheAnonymous  
+int subarraySum(int arr[], int n, int sum)
+{
+	int back=0,front=0,checkSum=arr[0];
+	while(front<n && back<n && sum!=checkSum)
+	{
+		if(checkSum<sum)
+			checkSum=checkSum+arr[++front];
+		else
+			checkSum=checkSum-arr[back++];
+		if(back>front)
+		{
+			front=back;
+			checkSum=arr[front];
+		}
+	}
+	if(sum == checkSum)
+		cout<<"Subarray with given sum lies from the index "<<back<<" to "<<front<<endl;
+	else
+		cout<<"Subarray with given sum does not exist"<<endl;
+}
+ manish you must correct the output of second method geeksforgeeks Thanks for pointing this out. We have corrected the o/p of method 2. Keep it up! gautam What can be wrong in the below code? I did not use a while for finding startindex. startIndex will be updated in the next iteration if currentSum is still higher than required sum. Also i’m ignoring sum=0 case. private static void subArraySum(int[] array, int sum) { int currentSum=0; int startIndex=0; int endIndex=0; for(int i =0;i<array.length;i++){ currentSum = currentSum+array[i]; if(currentSum>sum){ currentSum=currentSum-array[startIndex]; startIndex++; } if(currentSum==sum){ endIndex=i; System.out.println("Start Index: "+startIndex +" and end Index: "+endIndex); break; } } } Aniket I think, here you are summing up in each iteration. You should stop your end index till you get appropriate start index. e.g. 1,1,3,4,6 is an array. If you want sum to be 7. your end index should stop at 4. But you are adding currentSum in all the iterations. currentSum = currentSum+array[i]; sabertooth1990  
+void fun(int arr[], int n, int sum)
+{
+	int a, b, s;
+	a=b=s=0;
+	
+	while(s!=sum && b!=n){
+		while(s < sum){
+			s += arr[b];
+			b++;
+		}
+		
+		while(s > sum){
+			s -= arr[a];
+			a++;
+		}
+	}
+	if(a==n & b==n){
+		cout << "not found\n";
+	} else{
+		cout << a << ":" << b-1;
+	}
+}
+ kunal Through this method we could find the multiple solutions for the given sum . The change we have to make is that when the curr_element==sum , then we would not return 1. Rather we would continue to find the other solution . http://google.com Pranav You should use size_t for keeping length of array not int. an iitian a HUMBLE REQUEST FOR FELLOW GEEKS. PLEASE EXPLAIN THIS WHY IS THE CONDITION ” start < i-1" IS PUT UP IN THE CODE /* Paste your code here (You may delete these lines if not writing code) */ GeeksforGeeks @an iitian: If we remove the condition and the given sum is 0, then the inner while loop will remove all elements and make curr_sum as 0. And the function will return true even if there is no element with value 0. For example, if we remove the condition and run the code, then we get the incorrect output “Sum found between indexes 1 and 0″  
+/* An efficient program to print subarray with sum as given sum */
+#include<stdio.h>
+
+/* Returns true if the there is a subarray of arr[] with sum equal to 'sum'
+   otherwise returns false.  Also, prints the result */
+int subArraySum(int arr[], int n, int sum)
+{
+    /* Initialize curr_sum as value of first element
+       and starting point as 0 */
+    int curr_sum = arr[0], start = 0, i;
+
+    /* Add elements one by one to curr_sum and if the curr_sum exceeds the
+       sum, then remove starting element */
+    for (i = 1; i <= n; i++)
+    {
+        // If curr_sum exceeds the sum, then remove the starting elements
+        while (curr_sum > sum)
+        {
+            curr_sum = curr_sum - arr[start];
+            start++;
+        }
+
+        // If curr_sum becomes equal to sum, then return true
+        if (curr_sum == sum)
+        {
+            printf ("Sum found between indexes %d and %d", start, i-1);
+            return 1;
+        }
+
+        // Add this element to curr_sum
+        if (i < n)
+          curr_sum = curr_sum + arr[i];
+    }
+
+    // If we reach here, then no subarray
+    printf("No subarray found");
+    return 0;
+}
+
+// Driver program to test above function
+int main()
+{
+    int arr[] = {15, 1, 4, 8, 9, 5, 10, 23};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    int sum = 0;
+    subArraySum(arr, n, sum);
+    return 0;
+}
+ http://www.geeksforgeeks.org/archives/19267 mit #include #define MAX 6 void subarray(int *,int,int); void display(int *,int ,int); void main() { int arr[MAX]; int i,no; printf(“Enter array elements\n”); for(i=0;i=MAX) return; for(i=strt;i no) break; if(sum==no) display(arr,strt,i+1); } subarray(arr,no,strt+1); } void display(int arr[],int strt,int end) { int i; printf(“\n\n”); for(i=strt;i<end;i++) { printf("%d\t",arr[i]); } } Peerless Forgive me if it is frivolous but in the second condition why is that ” start < i " necessary. i mean why is this condition put there. /* Paste your code here (You may delete these lines if not writing code) */ kartik @Peerless: This is to handle following type of cases (cases where given sum is 0 and there is a 0 present in array) arr[] = {1, 0, 2} sum = 0 GeeksforGeeks @Peerless and @kartik It makes the code more readale to move this condition up with the while loop. So we have moved the condtion up. The code still works for all cases. Venki  
+void ContinuousSubarray(int A[], int size, int sumToThis)
+{
+    int sum = 0;
+    for( int i = -1, j = 0; j < size; j++ )
+    {
+        sum += A[j];
+
+        while( i < j && sum > sumToThis )
+            sum -= A[++i];
+
+        if( sum == sumToThis )
+        {
+            printf("Range Indices %4d and %4d\n", i+1, j);
+            break;
+        }
+    }
+}
+ srb @venki this code is not working,check for the case of 0 GeeksforGeeks @prakhar and @sundar: Thanks for pointing this out. We have added a condition to handle the last element case. Shyam wow..thanks  
+/* Paste your code here (You may delete these lines if not writing code) */
+ dead void sumseqC(int a[], int size ,int k) { int i,j,sum; sum=0; for(i=0; i<size; i++ ) {if(a[i]==k ) { cout<<"–found "<<k<<endl; return ; } else if( a[i]0 && j<size ; j++) { sum-=a[j]; } } if(sum==0){ cout<<"found -"<<i<<" "<<j-1<<endl; } } } Sundar With the following array “{1, 3, 4, 0, 9, 5, 10, 11}” and a sum of 11, it said “No subarray found”. The answer should’ve been the last element. dead void sumseqC(int a[], int size ,int k) { int i,j,sum; sum=0; for(i=0; i<size; i++ ) {if(a[i]==k ) { cout<<"–found "<<k<<endl; return ; } else if( a[i]0 && j<size ; j++) { sum-=a[j]; } } if(sum==0){ cout<<"found -"<<i<<" "<<j-1<<endl; } } } prakhar changing array arr to {1, 1, 3, 0, 9, 5, 10, 11}, it gives “No subaaray found”. Please correct it. prakhar Changing array arr to {1, 1, 3, 0, 9, 5, 10, 11}, it gives answer as “No subarray found”. Please correct it. prakhar Again a great post but in second method, changing array arr to {1, 1, 3, 0, 9, 5, 10, 11}, it gives the answer as “No subarray found” while there is last element with value 11. Please include the condition for last element also. priyesh Awesome! Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

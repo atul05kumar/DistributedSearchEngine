@@ -1,0 +1,58 @@
+Print Postorder traversal from given Inorder and Preorder traversals - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Print Postorder traversal from given Inorder and Preorder traversals Given Inorder and Preorder traversals of a binary tree, print Postorder traversal. Example: 
+Input:
+Inorder traversal in[] = {4, 2, 5, 1, 3, 6}
+Preorder traversal pre[] = {1, 2, 4, 5, 3, 6}
+
+Output:
+Postorder traversal is {4, 5, 2, 6, 3, 1} Trversals in the above example represents following tree 
+         1
+      /     \   
+     2       3
+   /   \      \
+  4     5      6
+ A naive method is to first construct the tree, then use simple recursive method to print postorder traversal of the constructed tree. We can print postorder traversal without constructing the tree. The idea is, root is always the first item in preorder traversal and it must be the last item in postorder traversal. We first recursively print left subtree, then recursively print right subtree. Finally, print root. To find boundaries of left and right subtrees in pre[] and in[], we search root in in[], all elements before root in in[] are elements of left subtree and all elements after root are elements of right subtree. In pre[], all elements after index of root in in[] are elements of right subtree. And elements before index (including the element at index and excluding the first element) are elements of left subtree. 
+// C++ program to print postorder traversal from preorder and inorder traversals
+#include <iostream>
+using namespace std;
+
+// A utility function to search x in arr[] of size n
+int search(int arr[], int x, int n)
+{
+    for (int i = 0; i < n; i++)
+      if (arr[i] == x)
+         return i;
+    return -1;
+}
+
+// Prints postorder traversal from given inorder and preorder traversals
+void printPostOrder(int in[], int pre[], int n)
+{
+   // The first element in pre[] is always root, search it
+   // in in[] to find left and right subtrees
+   int root = search(in, pre[0], n);
+
+   // If left subtree is not empty, print left subtree
+   if (root != 0)
+      printPostOrder(in, pre+1, root);
+
+   // If right subtree is not empty, print right subtree
+   if (root != n-1)
+      printPostOrder(in+root+1, pre+root+1, n-root-1);
+
+   // Print root
+   cout << pre[0] << " ";
+}
+
+// Driver program to test above functions
+int main()
+{
+   int in[] = {4, 2, 5, 1, 3, 6};
+   int pre[] =  {1, 2, 4, 5, 3, 6};
+   int n = sizeof(in)/sizeof(in[0]);
+   cout << "Postorder traversal " << endl;
+   printPostOrder(in, pre, n);
+   return 0;
+}
+ Output 
+Postorder traversal
+4 5 2 6 3 1 Time Complexity: The above function visits every node in array. For every visit, it calls search which takes O(n) time. Therefore, overall time complexity of the function is O(n2) Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. arun kumar I have an O(n) solution for the same problem #include #include #include using namespace std; int IN[] = {8,9,2,1,6,7,3,5,10,4}; int PRE[] = {1,2,8,9,5,3,6,7,4,10}; map pos; void printPostorder(int s, int e, int count) { if(s==e) { cout<<IN[s]<<endl; return; } int root = PRE[count]; int rpos = pos[root]; count++; if(rpos != s) printPostorder(s, rpos-1, count); if(rpos != e) printPostorder(rpos+1, e, count+rpos-s); cout<<root<<endl; } int main() { for(int i=0; i<10; i++) pos[IN[i]] = i; printPostorder(0,9,0); } bhavneet #include int search( int arr[], int start , int end , int se) { int index; for(index=start ; index end ) return ; int in_index = search ( inorder, start , end , preorder[*index]); (*index)++; inprePost( inorder, start, in_index-1, preorder, index); inprePost( inorder, in_index+1, end , preorder, index); printf(“%d”, inorder[in_index]); return; } int main() { int in[] = {4, 2, 5, 1, 3, 6}; int pre[] = {1, 2, 4, 5, 3, 6}; int n = sizeof(in)/sizeof(in[0]); int index=0; inprePost( in, 0, n-1, pre, &index); } GeeksforGeeks @All: Thanks for your inputs. We have updated the post and added time complexity as O(n^2). Guest @geeksforgeeks:disqus Why won’t the complexity be O(n^2) In case of a skewed tree for each node in pre we will have to search till the end in the inorder traversal. If there is some ammortized analysis then please add it to the post Ravi chandra What would be time complexity of the above algorithm? With some preliminary analysis I am assuming it is O(n^2) and space complexity would be O(n). Please correct me if I am wrong. GeeksforGeeks Ravi Chandra: Time complexity seems to be O(n). The recurrence for time complexity would be. T(n) = T(k) + T(n-k) + O(1) The above recurrence has solution as O(n), it is same as recurrence of inorder tree traversal. rahul23 @geeksforgeeks:disqus Wat about Searching in inorder arrary?In normal inorder we are given a tree and we traverse n nodes.But in this we need to search in inorder array also.In case it is right tree?Then wouldn’t it be n^2? GeeksforGeeks Please tale a closer look, the code searches in inorder array only. Also the solution of recurrence “T(n) = T(k) + T(n-k-1) + O(1)” is always O(n) irrespective of value of k. rahul23 @geeksforgeeks:disqus Please clear following doubt:- take a left skew tree with 6 nodes 1 Inorder is :- 6 5 4 3 2 1 preorder:- 1 2 3 4 5 6 For 1 you search n elements For 2 it will search n-1 elements For 3 it will search n-2 and so on so isnt it n^2 For normal inorder it wiuld acces it node twice so its 0(n), rahul23 @geeksforgeeks:disqus Please clear following doubt:- take a left skew tree with 6 nodes 1 Inorder is :- 6 5 4 3 2 1 preorder:- 1 2 3 4 5 6 For 1 you search n elements For 2 it will search n-1 elements For 3 it will search n-2 and so on so isnt it n^2 For normal inorder it wiuld acces it node twice so its 0(n), rahul23 In this k turns out to be n so wouldnt it be n^2 Ronny @GeeksforGeeks:disqus How is it T(n)=T(k)+T(n-k-1)+O(1) ?? Shouldn’t it be T(n)=T(k)+T(n-k-1)+O(n) because for each recursion we are doing O(n) search. Kindly let us know your thoughts. GeeksforGeeks Ronny: Thanks for pointing this out. It should be T(n)=T(k)+T(n-k-1)+O(n) Apologies for the confusion. GeeksforGeeks Ronny: Thanks for pointing this out. It should be T(n)=T(k)+T(n-k-1)+O(n) Apologies for the confusion. Ronny So the complexity of the code is O(n^2). GeeksforGeeks Yes, it is O(n^2). Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

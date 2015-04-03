@@ -1,0 +1,106 @@
+A Boolean Array Puzzle - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph A Boolean Array Puzzle Input: A array arr[] of two elements having value 0 and 1 Output: Make both elements 0. Specifications: Following are the specifications to follow. 1) It is guaranteed that one element is 0 but we do not know its position. 2) We can’t say about another element it can be 0 or 1. 3) We can only complement array elements, no other operation like and, or, multi, division, …. etc. 4) We can’t use if, else and loop constructs. 5) Obviously, we can’t directly assign 0 to array elements. There are several ways we can do it as we are sure that always one Zero is there. Thanks to devendraiiit for suggesting following 3 methods. Method 1 
+void changeToZero(int a[2])
+{
+   a[ a[1] ] = a[ !a[1] ];
+}
+
+int main()
+{
+   int a[] = {1, 0};
+   changeToZero(a);
+
+   printf(" arr[0] = %d \n", a[0]);
+   printf(" arr[1] = %d ", a[1]);
+   getchar();
+   return 0;
+}
+ Method 2 
+void changeToZero(int a[2])
+{
+    a[ !a[0] ] = a[ !a[1] ]
+}
+ Method 3 This method doesn’t even need complement. 
+void changeToZero(int a[2])
+{
+    a[ a[1] ] = a[ a[0] ]
+}
+ Method 4 Thanks to purvi for suggesting this method. 
+void changeToZero(int a[2])
+{
+  a[0] = a[a[0]];
+  a[1] = a[0];
+}
+ There may be many more methods. Source: http://geeksforgeeks.org/forum/topic/google-challenge Please write comments if you find the above codes incorrect, or find other ways to solve the same problem.           Related Topics: Check if binary representation of a number is palindrome Swap two nibbles in a byte How to turn off a particular bit in a number? Check if a number is multiple of 9 using bitwise operators How to swap two numbers without using a temporary variable? Divide and Conquer | Set 4 (Karatsuba algorithm for fast multiplication) Find position of the only set bit Swap all odd and even bits Tweet Writing code in comment? Please use ideone.com and share the link here. rihansh a[1-a[0]]=a[1-a[1]] a[0]-=a[0] a[1]-=a[1] Nidhi Hooda a[0]=a[0]&a[1]; a[1]=a[0]; Chandresh Another method: a[1]=a[!a[1]]; a[0]=a[!a[1]]; For converting into 11, a[1]=a[!a[0]]; a[0]=a[!a[0]]; aseemgoyal a[0]=a[1]=a[0]&a[1] aseemgoyal sorry..cant use & Panther  
+static void convertArr00(int arr[])
+        { arr[((~arr[0])&1)]=arr[arr[0]];
+	System.out.println(arr[0]+","+arr[1]);
+	}
+ elena  
+   a[!a[0]]=a[a[0]] <=> a[a[1]]=a[a[0]]
+we always know that a[a[0]] is zero, and also a[!a[1]] is zero
+ Sweety  
+/* Paste your code here (You may delete these lines if not writing code) */
+a[1]=a[a[0]];
+a[0]=a[1];
+ http://cracktheinterview.org/ vinay Nice question !!!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://www.wikipedia.com Ela McIntyre Hello! I know this is kinda off topic however I’d figured I’d ask. Would you be interested in trading links or maybe guest authoring a blog article or vice-versa? My site covers a lot of the same subjects as yours and I think we could greatly benefit from each other. If you happen to be interested feel free to shoot me an e-mail. I look forward to hearing from you! Superb blog by the way! rahul goyal hey canu please send me ur website link to my id:: rahul.26goyal@rediffmail.com i m really interested to this kind of stuffs.. Ankita  
+/* Could you please send me the links so that it would be very beneficial for me. 
+vgncr515e@gmail.com
+Thanks !!! */
+ Rahul Attuluri void changeToZero(int a[2]){ a[0] = a[1] = a[!a[1]]; } Nikhil can we use bitwise and? shalu what if the array size is n and the boolean nos(0,1) can be randomly placed anyhow..say the size would be known..what to do in that case?? http://param-techie.blogspot.com param another possible solution is a[!a[0]] = a[a[0]] tyro a[!a[0]]=0 Anushree We cant directly assign 0 to any array element Chandan Here’s another. void changeToZero(int a[2]) { a[0] = a[1 – !(a[0])]; a[1] = a[0]; } http://www.linkedin.com/in/ramanawithu Venki Good to see a new method. Please read the conditions. http://www.linkedin.com/in/ramanawithu Venki As it is guaranteed there will be one 0, the idea is to make one location (either a[1] or a[0]) zero with any possible input (satisfying atleast one zero) and assign the new value to other location (i.e. either a[0] or a[1] respectively). Based on the above strategy the following method also works,  
+void changeToZero(int a[2])
+{
+    a[1] = a[ !a[1] ];
+    a[0] = a[1];
+}
+
+// Test code
+void printArray(int a[])
+{
+    printf("arr[0] = %d ", a[0]);
+    printf(" arr[1] = %d \n", a[1]);
+}
+
+// Test driver
+int main()
+{
+    int a[] = {0, 0};
+    changeToZero(a);
+    printArray(a);
+
+    a[0] = 1;
+    a[1] = 0;
+    changeToZero(a);
+    printArray(a);
+
+    a[0] = 0;
+    a[1] = 1;
+    changeToZero(a);
+    printArray(a);
+
+    return 0;
+}
+ There can be many more methods applying the same strategy multiple times. sreekanth a[0] = 1 – a[0]; Have a blast…!!! http://geeksforgeeks.org/ Sandeep @sreekanth: It doesn’t seem to work for {0, 1}. Following program prints {1, 1} as output.  
+void changeToZero(int a[2])
+{
+  a[0] = 1 - a[0];
+}
+ 
+int main()
+{
+   int a[] = {0, 1};
+   changeToZero(a);
+ 
+   printf("arr[0] = %d \n", a[0]);
+   printf("arr[1] = %d ", a[1]);
+   getchar();
+   return 0;
+}
+ sreekanth @sandeep: yes u r correct. I thought we need to make both are 1 or both are 0. Thanks. shalu @sandip..we are not supposed to use minus(-) purvi Here is another one  
+void changeToZero(int a[2])
+{
+  a[0] = a[a[0]];
+  a[1] = a[0];
+}
+ GeeksforGeeks @purvi: Thanks for suggesting a new method. We have added it to the original post. vishesh can anybody please explain me how they thought of the solution i wanna know what was the thought process for solving the question Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

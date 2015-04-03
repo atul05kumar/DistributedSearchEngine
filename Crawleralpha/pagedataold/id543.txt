@@ -1,0 +1,748 @@
+Reverse alternate K nodes in a Singly Linked List - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Reverse alternate K nodes in a Singly Linked List Given a linked list, write a function to reverse every alternate k nodes (where k is an input to the function) in an efficient way. Give the complexity of your algorithm. 
+Example:
+Inputs:   1->2->3->4->5->6->7->8->9->NULL and k = 3
+Output:   3->2->1->4->5->6->9->8->7->NULL. 
+ Method 1 (Process 2k nodes and recursively call for rest of the list) This method is basically an extension of the method discussed in this post. 
+kAltReverse(struct node *head, int k)
+  1)  Reverse first k nodes.
+  2)  In the modified list head points to the kth node.  So change next 
+       of head to (k+1)th node
+  3)  Move the current pointer to skip next k nodes.
+  4)  Call the kAltReverse() recursively for rest of the n - 2k nodes.
+  5)  Return new head of the list.
+ 
+#include<stdio.h>
+#include<stdlib.h>
+
+/* Link list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+
+/* Reverses alternate k nodes and
+   returns the pointer to the new head node */
+struct node *kAltReverse(struct node *head, int k)
+{
+    struct node* current = head;
+    struct node* next;
+    struct node* prev = NULL;
+    int count = 0;   
+
+    /*1) reverse first k nodes of the linked list */
+    while (current != NULL && count < k)
+    {
+       next  = current->next;
+       current->next = prev;
+       prev = current;
+       current = next;
+       count++;
+    }
+  
+    /* 2) Now head points to the kth node.  So change next 
+       of head to (k+1)th node*/ 
+    if(head != NULL)
+      head->next = current;   
+
+    /* 3) We do not want to reverse next k nodes. So move the current 
+        pointer to skip next k nodes */
+    count = 0;
+    while(count < k-1 && current != NULL )
+    {
+      current = current->next;
+      count++;
+    }
+
+    /* 4) Recursively call for the list starting from current->next.
+       And make rest of the list as next of first node */
+    if(current !=  NULL)
+       current->next = kAltReverse(current->next, k); 
+
+    /* 5) prev is new head of the input list */
+    return prev;
+}
+
+/* UTILITY FUNCTIONS */
+/* Function to push a node */
+void push(struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node =
+            (struct node*) malloc(sizeof(struct node));
+
+    /* put in the data  */
+    new_node->data  = new_data;
+
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);    
+
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+/* Function to print linked list */
+void printList(struct node *node)
+{
+    int count = 0;
+    while(node != NULL)
+    {
+        printf("%d  ", node->data);
+        node = node->next;
+        count++;
+    }
+}    
+
+/* Drier program to test above function*/
+int main(void)
+{
+    /* Start with the empty list */
+    struct node* head = NULL;
+
+    // create a list 1->2->3->4->5...... ->20
+    for(int i = 20; i > 0; i--)
+      push(&head, i);
+
+     printf("\n Given linked list \n");
+     printList(head);
+     head = kAltReverse(head, 3);
+
+     printf("\n Modified Linked list \n");
+     printList(head);
+
+     getchar();
+     return(0);
+}
+ Output: Given linked list 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 Modified Linked list 3 2 1 4 5 6 9 8 7 10 11 12 15 14 13 16 17 18 20 19 Time Complexity: O(n) Method 2 (Process k nodes and recursively call for rest of the list) The method 1 reverses the first k node and then moves the pointer to k nodes ahead. So method 1 uses two while loops and processes 2k nodes in one recursive call. This method processes only k nodes in a recursive call. It uses a third bool parameter b which decides whether to reverse the k elements or simply move the pointer. 
+_kAltReverse(struct node *head, int k, bool b)
+  1)  If b is true, then reverse first k nodes.
+  2)  If b is false, then move the pointer k nodes ahead.
+  3)  Call the kAltReverse() recursively for rest of the n - k nodes and link 
+       rest of the modified list with end of first k nodes. 
+  4)  Return new head of the list.
+ #include<stdio.h>
+#include<stdlib.h>
+
+/* Link list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+
+/* Helper function for kAltReverse() */
+struct node * _kAltReverse(struct node *node, int k, bool b);
+
+/* Alternatively reverses the given linked list in groups of 
+   given size k. */
+struct node *kAltReverse(struct node *head, int k)
+{
+  return _kAltReverse(head, k, true);
+}
+ 
+/*  Helper function for kAltReverse().  It reverses k nodes of the list only if
+    the third parameter b is passed as true, otherwise moves the pointer k 
+    nodes ahead and recursively calls iteself  */ 
+struct node * _kAltReverse(struct node *node, int k, bool b)
+{
+   if(node == NULL)
+       return NULL;
+
+   int count = 1;
+   struct node *prev = NULL;
+   struct node  *current = node;
+   struct node *next;
+ 
+   /* The loop serves two purposes
+      1) If b is true, then it reverses the k nodes 
+      2) If b is false, then it moves the current pointer */
+   while(current != NULL && count <= k)
+   {
+       next = current->next;
+
+       /* Reverse the nodes only if b is true*/
+       if(b == true)
+          current->next = prev;
+            
+       prev = current;
+       current = next;
+       count++;
+   }
+   
+   /* 3) If b is true, then node is the kth node. 
+       So attach rest of the list after node. 
+     4) After attaching, return the new head */
+   if(b == true)
+   {
+        node->next = _kAltReverse(current,k,!b);
+        return prev;        
+   }
+   
+   /* If b is not true, then attach rest of the list after prev. 
+     So attach rest of the list after prev */    
+   else
+   {
+        prev->next = _kAltReverse(current, k, !b);
+        return node;       
+   }
+}
+ 
+
+/* UTILITY FUNCTIONS */
+/* Function to push a node */
+void push(struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node =
+            (struct node*) malloc(sizeof(struct node));
+ 
+    /* put in the data  */
+    new_node->data  = new_data;
+ 
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);
+ 
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+ 
+/* Function to print linked list */
+void printList(struct node *node)
+{
+    int count = 0;
+    while(node != NULL)
+    {
+        printf("%d  ", node->data);
+        node = node->next;
+        count++;
+    }
+}
+ 
+/* Drier program to test above function*/
+int main(void)
+{
+    /* Start with the empty list */
+    struct node* head = NULL;
+    int i;
+ 
+    // create a list 1->2->3->4->5...... ->20
+    for(i = 20; i > 0; i--)
+      push(&head, i);
+ 
+    printf("\n Given linked list \n");
+    printList(head);
+    head = kAltReverse(head, 3);
+ 
+    printf("\n Modified Linked list \n");
+    printList(head);
+ 
+    getchar();
+    return(0);
+}
+ Output: Given linked list 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 Modified Linked list 3 2 1 4 5 6 9 8 7 10 11 12 15 14 13 16 17 18 20 19 Time Complexity: O(n) Source: http://geeksforgeeks.org/forum/topic/amazon-interview-question-2 Please write comments if you find the above code/algorithm incorrect, or find other ways to solve the same problem.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. Himanshu Dagar can refer to below code for above question http://ideone.com/vEfXwP vinod We can do it in O(n) also by just taking a stack of size K and storing values of k nodes in stack than once stack is full then replace the values of those K nodes in linked list by the values in stack by popping out one by one. After then repeat the same for the next K nodes until we hit NULL…!! Trying public class LinkListRotateK<T> implements Iterable<T> { transient private Element<T> head; transient private int size; private void writeObject(ObjectOutputStream objectOutputStream) throws IOException { objectOutputStream.defaultWriteObject(); objectOutputStream.writeInt(size); Element e = head; while(e!=null) { objectOutputStream.writeObject(e.t); e = e.next; } } private void readObject(ObjectInputStream inputStream)throws IOException, ClassNotFoundException { inputStream.defaultReadObject(); size = inputStream.readInt(); int k = size; while(k!=0) { if(k==0) { head = new Element<T>((T)inputStream.readObject()); } else { Element e = head; T t = (T)inputStream.readObject(); while(e.next!=null) { e = e.next; } e.next = new Element(t); } k–; } } public void rotate(int k) { head = rotateK(head, k); } public void insert(T t) { if(head == null) { head = new Element<T>(t); } else { Element temp = head; while(temp.next != null) { temp = temp.next; } temp.next = new Element(t); } size++; } @Override public Iterator<T> iterator() { return new Iterator<T>() { Element<T> e = head; @Override public boolean hasNext() { if(e!=null) { return true; } return false; } @Override public T next() { T t = e.t; e = e.next; return t; } @Override public void remove() { throw new IllegalStateException(); } }; } private Element<T> rotateK(Element<T> root, int k) { Element current = root, next; Element previous = null; int count = 0; while(current != null && count < k) { next = current.next; current.next = previous; previous = current; current = next; count++; } if(root!=null) { root.next = rotateK(current, k); } return previous; } private static class Element<T> { private T t; private Element next; private Element(T t) { this.t = t; } } public static void main(String[] args) { LinkListRotateK<Integer> linkListRotateK = new LinkListRotateK<Integer>(); linkListRotateK.insert(10); linkListRotateK.insert(20); linkListRotateK.insert(30); linkListRotateK.insert(40); linkListRotateK.insert(50); Iterator<Integer> it1 = linkListRotateK.iterator(); while(it1.hasNext()) { System.out.println(it1.next()); } linkListRotateK.rotate(3); System.out.println("*************************************************************"); it1 = linkListRotateK.iterator(); while(it1.hasNext()) { System.out.println(it1.next()); } } } vinod We can do it in O(n) also by just taking a stack of size K and storing values of k nodes in stack than once stack is full then replace the values of those K nodes in linked list by the values in stack by popping out one by one. After then repeat the same for the next K nodes until we hit NULL. Coder Nice Recursive code easily understandable. Can we have an iterative solutions with O(n) time complexity and O(1) or O(n) space complexity..  
+/* Paste your code here (You may delete these lines if not writing code) */
+ abhishek08aug Intelligent ChellaVignesh  
+#include<stdio.h>
+#include<stdlib.h>
+ 
+/* Link list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+ 
+/* Function to reverse the linked list */
+static void reverse(struct node** head_ref,int count)
+{
+    int ct=0;
+    struct node* prev   = NULL;
+    struct node* current = *head_ref;
+    struct node* next;
+    while (current != NULL && ct<count)
+    {
+        next  = current->next; 
+        current->next = prev;  
+        prev = current;
+        current = next;
+	ct++;
+    }
+    *head_ref = prev;
+    while(prev->next!=NULL)
+	prev=prev->next;
+    prev->next=current;
+}
+ 
+/* Function to push a node */
+void push(struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node =
+            (struct node*) malloc(sizeof(struct node));
+            
+    /* put in the data  */
+    new_node->data  = new_data;
+                
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);   
+        
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+ 
+/* Function to print linked list */
+void printList(struct node *head)
+{
+    struct node *temp = head;
+    while(temp != NULL)
+    {
+        printf("%d  ", temp->data);   
+        temp = temp->next; 
+    }
+}   
+ 
+/* Drier program to test above function*/
+int main()
+{
+    /* Start with the empty list */
+    struct node* head = NULL;
+    int count=0;
+     push(&head, 20);
+     push(&head, 4);
+     push(&head, 15);
+     push(&head, 85);     
+     push(&head, 100);
+     push(&head, 23);
+     
+     printList(head);   
+     printf("\n Enter the k th value upto be reversed:");
+     scanf("%d",&count); 
+     reverse(&head,count);                    
+     printf("\n Reversed Linked list \n");
+     printList(head);   
+     getchar();
+}
+ Ankit Chaudhary iterative version: 1. reverse k nodes 2. make next of last node of previous sub-list pointing to first node of reversed k nodes.(temp->next=prev (in code)) 3. move ahead k nodes 4. save last node of this sub-list goto step 1  
+/* Paste your code here (You may delete these lines if not writing code) */
+node *reverseKAlt(node *head,int k)
+{
+    if(!head)
+        return head;
+    int i;
+    node *p,*temp,*cur,*next,*prev,*t;
+    p=temp=cur=next=prev=t=NULL;
+    p=head;
+    while(p)
+    {
+        t=cur=p;
+        prev=NULL;
+        for(i=0;cur&&i<k;i++) //reverse loop
+        {
+            next=cur->next;
+            cur->next=prev;
+            prev=cur;
+            cur=next;
+        }
+        if(temp)
+            temp->next=prev;
+        else
+            head=prev;
+        p->next=cur;
+        for(i=0;p&&i<k;i++)     //skip k nodes
+            p=p->next;
+        temp=p;         //  save last node of previous sub-list of 2k nodes
+        if(p)           // if length of list is not multiple of 2k, then p will be NULL
+            p=p->next;
+    }
+    return head;
+}
+ anurag I have one question. Cant we just find the required nodes and reverse the content(current–>info) inside them?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Anuj I have more concise code: pasting below:  
+class LNode
+{
+public:
+	LNode(int data) : data(data),next(NULL) {}
+
+	int data;
+	LNode* next; 
+
+};
+
+
+// enter nodes till num node
+LNode* CreateList(int num)
+{
+	LNode* firstpos = NULL;
+	for (int idx=num; idx > 0;  idx--)
+	{
+		LNode* newNode = new LNode(idx);
+		newNode->next = firstpos;
+		firstpos = newNode;
+	}
+
+	return firstpos;
+}
+
+
+void PrintList(LNode* root)
+{
+	while (root)
+	{
+		std::cout<<" "<<root->data;
+		root = root->next;
+	}
+	std::cout<<"\n";
+}
+
+
+LNode* ReverseNumNodes(LNode* root, int numOfNodes, LNode* &newStart, LNode*& newEnd)
+{
+	if (root == NULL) return NULL;
+
+	LNode* firstPos = root;
+	LNode* secPos = root->next;
+
+	numOfNodes -- ;
+	while(secPos && numOfNodes )
+	{
+		root->next = root->next->next;
+		secPos->next = firstPos;
+		firstPos = secPos;
+
+		secPos = root->next;
+
+		numOfNodes--;
+	}
+	
+	newStart = firstPos;
+	newEnd = root;
+	return secPos;
+}
+
+void LimitedRevTest()
+{
+	LNode* listP = CreateList(23);
+	PrintList(listP);
+
+	LNode* tnewStart, *tnewEnd;
+
+	// record new root node
+	LNode * newRoot = NULL;
+	LNode* pstart = NULL, *pend = NULL;
+
+	while (listP)
+	{
+		listP = ReverseNumNodes(listP, 5,tnewStart, tnewEnd);
+		if (newRoot == NULL)
+			newRoot = tnewStart;
+
+		if (pend)
+			pend->next = tnewStart;
+		pstart = tnewStart;
+		pend = tnewEnd;
+	}
+	PrintList(newRoot);
+}
+ nahid why to skip k item after reversing 1 set  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Animesh Pratap Singh  
+#include "linked_list_library.c"
+
+struct node* alt(struct node* head, int k)
+{
+    struct node *mover=head,*p=head, *current ;
+    int i=0;
+    if(head==NULL)
+    {
+        return head;
+    }
+    while(mover!=NULL&&i<k-1)
+    {
+        i++;
+        if(mover->next==NULL)
+        {
+            return head;
+        }
+        mover=mover->next;
+        p->next=mover->next;
+        mover->next=head;
+        head=mover;
+        mover=p;
+    }
+
+    current=mover;
+    current->next=alt(mover->next,k);
+    return head;
+}
+
+
+int main()
+{
+    int a;
+    struct node*head=insert(1,NULL),*res;
+
+    insert(4,head);
+    insert(0,head);
+    insert(6,head);
+    insert(8,head);
+    insert(3,head);
+    insert(60,head);
+    insert(9,head);
+    insert(2,head);
+    insert(3,head);
+    insert(5,head);
+    display(head);
+    res=alt(head,1);
+    display(res);
+    printf("\n");
+    return 0;
+}
+
+
+
+ Animesh Pratap Singh  
+#include "linked_list_library.c"
+
+struct node* alt(struct node* head, int k)
+{
+    struct node *mover=head,*p=head, *current ;
+    int i=0;
+    if(head==NULL)
+    {
+        return head;
+    }
+    while(mover!=NULL&&i<k-1)
+    {
+        i++;
+        if(mover->next==NULL)
+        {
+            return head;
+        }
+        mover=mover->next;
+        p->next=mover->next;
+        mover->next=head;
+        head=mover;
+        mover=p;
+    }
+
+    current=mover;
+    current->next=alt(mover->next,k);
+    return head;
+}
+
+
+int main()
+{
+    int a;
+    struct node*head=insert(1,NULL),*res;
+
+    insert(4,head);
+    insert(0,head);
+    insert(6,head);
+    insert(8,head);
+    insert(3,head);
+    insert(60,head);
+    insert(9,head);
+    insert(2,head);
+    insert(3,head);
+    insert(5,head);
+    display(head);
+    res=alt(head,1);
+    display(res);
+    printf("\n");
+    return 0;
+}
+
+
+
+ Suresh D. Kumar Reverse alternate K nodes in a Singly Linked List ANS: This is my code for K reverse the linked list. Input: Enter no. to be reversed 2 Enter list(0 at last) 1 2 3 4 5 6 7 8 9 10 0 Output 1->2->3->4->5->6->7->8->9->10->END 2->1->4->3->6->5->8->7->10->9->END #include typedef struct node { struct node *next; int data; }mynode; void insert(struct node **head, int data) { mynode *temp,*cur; temp=(mynode *)malloc(sizeof(mynode)); temp->next =NULL; temp->data = data; if(*head == NULL) *head= temp; else { for(cur=*head;cur->next!=NULL;cur=cur->next); cur->next=temp; } } void kreverse(mynode **head,int k) { mynode *temp,*cur,*p,*q,*r,*s; int i,flag=0; temp=*head; p=(mynode *)malloc(sizeof(mynode)); q=(mynode *)malloc(sizeof(mynode)); r=(mynode *)malloc(sizeof(mynode)); *head=(mynode *)NULL; while(temp) { i=k; cur=temp; while(temp && i–) { temp=temp->next; } p=cur; q=p->next; r=(mynode *) NULL; p->next=(mynode *)NULL; while(q!=temp) { r=q->next; q->next=p; p=q; q=r; } if( flag==0) { *head=p; flag=1; } else { for(s=*head;s->next!=NULL;s=s->next); s->next=p; } } } void print_list(struct node *head) { mynode *temp; if(head==NULL) printf(“\n\tTHE LIST IS NULL\n”); for(temp=head;temp!=NULL;temp=temp->next) { printf(“[%d]->”,temp->data); } printf(“END\n”); } int main() { mynode *head; int x,k; printf(“Enter no. to be reversed\n”); scanf(“%d”,&k); printf(“Enter list(0 at last)\n”); head=(mynode *)NULL; scanf(“%d”,&x); while(x) { insert(&head,x); scanf(“%d”,&x); } print_list(head); getche(); kreverse(&head,k); print_list(head); getche(); return 0; } Rajdeep One Correction in method two, without which the program crashes;  
+   /* 3) If b is true, then node is the kth node.
+       So attach rest of the list after node.
+     4) After attaching, return the new head */
+   if(b == true)
+   {
+        if(current)
+           node->next = _kAltReverse(current,k,!b);
+        return prev;       
+   }
+    
+   /* If b is not true, then attach rest of the list after prev.
+     So attach rest of the list after prev */   
+   else
+   {
+        if(current)
+           prev->next = _kAltReverse(current, k, !b);
+        return node;      
+   }
+ Kartik I don’t think that the program needs if(current) condition as the function _kAltReverse() checks for NULL in first line. Please let me know if you think otherwise or please provide an example list for which the program crashes. sasuke Iterative solution in C# public void ReverseKnodes(int k) { Node current = Head; Node nextNode = null; Node prev = null; Node start = null; Node end = null; int currentPosition = 0; int count = 0; if (k == 0) { Console.WriteLine("invalid K"); return; } if (k == 1) { Console.WriteLine("list will not be modified for K=1 "); return; } while (current != null) { while (current != null && count < k) { nextNode = current.Next; current.Next = prev; prev = current; current = nextNode; count++; currentPosition++; } if (currentPosition == k) { start = Head; Head = prev; } else { if (start != null) start.Next = prev; start = end; } end = current; prev = null; count = 0; } } naddy  
+#include<stdio.h>
+#include<stdlib.h>
+struct linklist
+{
+int info;
+struct linklist *next;
+};
+typedef struct linklist node;
+node *head=NULL,*tail,*temp,*headb=NULL;;
+
+void add(int);
+void print(node*);
+node *rev(node*);
+
+int main()
+{
+node *p,*q;
+int k,c;
+add(1);add(2);add(3);add(4);add(5);
+print(head);
+printf("\nhow many nodes you want to reverse ");
+scanf("%d",&k);
+for(p=head,c=1;c!=k;p=p->next,c++);
+headb=p->next;
+p->next=NULL;
+if(head!=NULL)
+{
+temp=rev(head);
+temp->next=headb;
+}
+print(head);
+}
+
+void add(int n)
+{
+temp=(node*)malloc(sizeof(node));
+temp->info=n;
+temp->next=NULL;
+if(head==NULL)
+{
+head=temp;
+tail=temp;
+}
+else
+{
+tail->next=temp;
+tail=temp;
+}}
+
+void print(node *head)
+{
+for(temp=head;temp!=NULL;temp=temp->next)
+printf("%d-->",temp->info);
+printf("NULL");
+}
+
+node *rev(node *root)
+{
+if(root->next!=NULL)
+{
+rev(root->next);
+root->next->next=root;
+return(root);
+}
+else
+head=root;
+}
+
+ naddy here given list is 1->2->3->4->5->NULL and k=3 and output is 3->2->1->4->5->NULL http://www.linkedin.com/in/ramanawithu Venki Reversing from second sub-k lists. For example, Given linked list 1 2 3 4 5 6 7 8 9 10 modified linked list 1 2 3 6 5 4 7 8 9 10  
+struct node *kAltReverse2(struct node *head, int k)
+{
+    struct node *pCrawl = head;
+    struct node *pRHead;
+    struct node *pNext;
+    // Reference to last node of first sublist
+    struct node *pLastInFirstList;
+    // Reference to last node of reversed (second) sublist
+    struct node *pLastInSecondList;
+    int count;
+
+    while(pCrawl)
+    {
+        count = 0;
+        pRHead = NULL;
+
+        // Skip first k nodes
+        while( pCrawl && count < k )
+        {
+            pLastInFirstList = pCrawl;
+            pCrawl = pCrawl->next;
+            count++;
+        }
+        
+        // Next node will be last in reversed sublist
+        pLastInSecondList = pCrawl;
+        count = 0;
+        
+        // Reverse k nodes
+        while( pCrawl && count < k )
+        {
+            pNext = pCrawl->next;
+            pCrawl->next = pRHead;
+            pRHead = pCrawl;
+            pCrawl = pNext;
+
+            count++;
+        }
+
+        // Attach both the nodes
+        pLastInFirstList->next = pRHead;
+
+        // If the list doesn't exhausts, append remainder
+        if(pLastInSecondList)
+        {
+            pLastInSecondList->next = pNext;
+        }
+    }
+
+    return head;
+}
+
+// Recursive version
+struct node *kAltReverse3(struct node *head, int k)
+{
+    struct node *pCrawl = head;
+    struct node *pRHead;
+    struct node *pNext;
+    struct node *pLastInFirstList;
+    struct node *pLastInSecondList;
+    int count;
+
+    if(pCrawl)
+    {
+        count = 0;
+        pRHead = NULL;
+
+        // Skip first k nodes
+        while( pCrawl && count < k )
+        {
+            count++;
+            pLastInFirstList = pCrawl;
+            pCrawl = pCrawl->next;
+        }
+        
+        pLastInSecondList = pCrawl;
+        count = 0;
+        
+        while( pCrawl && count < k )
+        {
+            pNext = pCrawl->next;
+            pCrawl->next = pRHead;
+            pRHead = pCrawl;
+            pCrawl = pNext;
+
+            count++;
+        }
+
+        pLastInFirstList->next = pRHead;
+
+        if(pLastInSecondList)
+        {
+            pLastInSecondList->next = kAltReverse3(pNext, k);
+        }
+    }
+
+    return head;
+}
+ sukhmeet2390 what is the use of step 2 in Method1.. isn’t it redundant.. http://shashank7s.blogspot.com WgpShashank @sukhmeet. step is necessary becoz we wants to reverse alternative k nodes only , after reversing every k nodes , head will points to kth , 2kth, 3kth …..nkth , so to need to make sure to not to reversing another k nodes , we need to set head->next to (k+1)th nodes , so that we can just traverse the list for these k nodes simple & then repeat the same call for another n-2k nodes ? please let me know if i missed anything ?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Tianrific Can we just reverse the whole list, and divide size of the list by K, keep the quotient and remainder. Take the first remainder number of nodes from the reversed list, and connect every k chunk to that. this way every node is visited twice, complexity = O(n). Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

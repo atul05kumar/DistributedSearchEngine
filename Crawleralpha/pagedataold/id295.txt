@@ -1,0 +1,242 @@
+Write an Efficient Method to Check if a Number is Multiple of 3 - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Write an Efficient Method to Check if a Number is Multiple of 3 The very first solution that comes to our mind is the one that we learned in school. If sum of digits in a number is multiple of 3 then number is multiple of 3 e.g., for 612 sum of digits is 9 so it’s a multiple of 3. But this solution is not efficient. You have to get all decimal digits one by one, add them and then check if sum is multiple of 3. There is a pattern in binary representation of the number that can be used to find if number is a multiple of 3. If difference between count of odd set bits (Bits set at odd positions) and even set bits is multiple of 3 then is the number. Example: 23 (00..10111) 1) Get count of all set bits at odd positions (For 23 it’s 3). 2) Get count of all set bits at even positions (For 23 it’s 1). 3) If difference of above two counts is a multiple of 3 then number is also a multiple of 3. (For 23 it’s 2 so 23 is not a multiple of 3) Take some more examples like 21, 15, etc… 
+Algorithm: isMutlipleOf3(n)
+1) Make n positive if n is negative.
+2) If number is 0 then return 1
+3) If number is 1 then return 0
+4) Initialize: odd_count = 0, even_count = 0
+5) Loop while n != 0
+    a) If rightmost bit is set then increment odd count.
+    b) Right-shift n by 1 bit
+    c) If rightmost bit is set then increment even count.
+    d) Right-shift n by 1 bit
+6) return isMutlipleOf3(odd_count - even_count)
+ Proof: Above can be proved by taking the example of 11 in decimal numbers. (In this context 11 in decimal numbers is same as 3 in binary numbers) If difference between sum of odd digits and even digits is multiple of 11 then decimal number is multiple of 11. Let’s see how. Let’s take the example of 2 digit numbers in decimal AB = 11A -A + B = 11A + (B – A) So if (B – A) is a multiple of 11 then is AB. Let us take 3 digit numbers. ABC = 99A + A + 11B – B + C = (99A + 11B) + (A + C – B) So if (A + C – B) is a multiple of 11 then is (A+C-B) Let us take 4 digit numbers now. ABCD = 1001A + D + 11C – C + 999B + B – A = (1001A – 999B + 11C) + (D + B – A -C ) So, if (B + D – A – C) is a multiple of 11 then is ABCD. This can be continued for all decimal numbers. Above concept can be proved for 3 in binary numbers in the same way. Time Complexity: O(logn) Program: 
+#include<stdio.h>
+
+/* Fnction to check if n is a multiple of 3*/
+int isMultipleOf3(int n)
+{
+    int odd_count = 0;
+    int even_count = 0;
+
+    /* Make no positive if +n is multiple of 3
+       then is -n. We are doing this to avoid
+       stack overflow in recursion*/
+    if(n < 0)   n = -n;
+    if(n == 0) return 1;
+    if(n == 1) return 0;
+
+    while(n)
+    {
+        /* If odd bit is set then
+           increment odd counter */
+        if(n & 1) 
+           odd_count++;
+        n = n>>1;
+
+        /* If even bit is set then
+           increment even counter */
+        if(n & 1)
+            even_count++;
+        n = n>>1;
+    }
+
+     return isMultipleOf3(abs(odd_count - even_count));
+}
+
+/* Program to test function isMultipleOf3 */
+int main()
+{
+    int num = 23;
+    if (isMultipleOf3(num))    
+        printf("num is multiple of 3");
+    else
+        printf("num is not a multiple of 3");
+    getchar();
+    return 0;
+}
+           Related Topics: Check if binary representation of a number is palindrome Swap two nibbles in a byte How to turn off a particular bit in a number? Check if a number is multiple of 9 using bitwise operators How to swap two numbers without using a temporary variable? Divide and Conquer | Set 4 (Karatsuba algorithm for fast multiplication) Find position of the only set bit Swap all odd and even bits Tags: MathematicalAlgo Tweet Writing code in comment? Please use ideone.com and share the link here. iamcoded can any one explain how is complexity o(log n)? shhrohan19 #include #include int main() { int i=0,n, p = 0, d, n_original; printf(“Enter number : “); scanf(“%d”,&n); printf(“Enter Diviser : “); scanf(“%d”,&d); n_original = n; while(n>1) { i++; n>>=1; } n=pow(2,i); while(n) { p = (n & n_original )?( (p< <1) + 1): p<<1; p = p>=d ? p-d : p; n>>=1; } printf(“\n%d is %s by %d\n”,n_original,(p==0)?”divisible”:”not divisible”,d); return 0; } jugal complexity of method 4 is not log(n). because we are performing constant operations on every input. so it is constant time. please check. jugal sorry misplaced previous comment as it is for next-power-of-2 post. abhishek08aug Why can’t we just take modulo of number with 3 and if it comes out to be a zero it means that the number is a multiple of 3? Why so much of unnecessary extra mind work? abhishek08aug Probably because taking modulo is O(n/3)? lakshay Modulo involves division which takes O(m)(atleast theoretically) steps to perform.. When a no is a power of 2, the modulo internally does it by bitwise operators bcoz they are more efficient! correct me if i am wrong. http://www.j4nu5.com/ Kushagra Sinha @admin Correct me if I am wrong but the complexity of the posted solution is not O(log n). In the first step of recursion, we need log(n) steps (since there are log2(n) numbers in the binary representation of n. Then further down the recursion chain, the complexity in *worst* case will be log(log n) (log n will contain log2(log2(n)) digits) and then log(log (log n)) and so on. Therefore the complexity is sigma[logn + loglogn + …] Let us be sloppy for a second and assume the complexity is O(log n) which is to say it is asymptotic to log2(n) Now, let us consider the “school” algorithm. It sums the digits of n in its decimal representation. By the same logic as above, its complexity will be log10(n). Since, log10(n) < log2(n) as n tends to infinity, the "school" algorithm is more efficient than the posted algorithm. Common sense explanation: Since we are looking at each digit anyhow, it makes sense to look at digits in a large base so that the number of digits considered is less. Therefore a solution in base 10 will beat a solution in base 2. Please clarify. Akhil base 2 solution involves checking bits of the number only. If we find the digits and sum them, it will take much more time.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ HLS.nirma The code can be optimized here:  
+if(n == 0) return 1;
+if(n == 1) return 0;
+
+/*Improvement */
+if(n == 0) return 1;
+if(n <= 2) return 0;
+/* One function call will be less. */
+
+ Arpitha The simple way of doing that will be , convert the given number into string using itoa, then add get the sum of the given number, check whether sum is 3 6 or 9 , if yes then its divisible AG Brilliant ! pritybhudolia @Arpita I am not sure whether i got u or not. But if u mean 42= 4+2=6 hence divisible by 3 12=1+2=3 hence divisible by 3 then wat about 39 as 3+9=12 if u ask again to add until it becomes single digit, then i think simple modulo is a better option. Prateek There is a small error in explanation: Instead of: Let us take 4 digit numbers now. ABCD = 1001A + D + 11C – C + 999B + B – A = (1001A – 999B + 11C) + (D + B – A -C ) So, if (B + D – A – C) is a multiple of 11 then is ABCD. it should be: ABCD = 1001A + 99B + 11C – A + B – C + D ABCD = (1001A + 99B + 11C) + (D + B – A – C)  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Dhaval Patel public static void main(String[] args) { int number = 23; int andOperation = 0; int oddCount = 0; int evenCount = 0; while (number != 0) { andOperation = number & 1; if (andOperation == 1) { oddCount++; } number = number >>> 1; andOperation = number & 1; if (andOperation == 1) { evenCount++; } number = number >>> 1; } System.out.println(oddCount); System.out.println(evenCount); if ((oddCount – evenCount) % 3 == 0) { System.out.println("yes"); } else { System.out.println("no"); } } Red Lv I think the idea DFA would work perfectly here with the time complexity O(lgn), int rem=0; while(n) { int bit=n&1; rem=(rem*2+bit)%3; n=n>>1; } return (rem==0);  
+/* Paste your code here (You may delete these lines if not writing code) */
+ shal like it  
+/* Paste your code here (You may delete these lines if not writing code) */
+ praveen Raj  
+int checkdiv(int num)
+{
+  int n;
+  aim:
+     while(num!=0)
+      { n=+(num&0x0f);
+          num>>=4;
+      }
+     if((n>>4)!=0)
+         {num=n;
+          goto aim;
+         }
+       else
+        {
+            if((n==0)||(n==3)||(n==6)||(n==9))
+                return 1;
+            else
+             return 0;
+         }
+}  
+ KK123 Here’s a clean and working code:  
+#include<iostream>
+using namespace std;
+
+int bitCount(int n)
+{
+    int count = 0;
+    while(n)
+    {
+            count++;
+            n = n & (n - 1);
+    }
+    return count;
+}
+
+int main()
+{
+    int n;
+    //cin >> n;
+    //cout << bitCount(n) << endl;
+    
+    /*Algo for checking if a no is a multiple of 3*/
+    cin >> n;
+    int countEven = bitCount(n & 0xaaaa);
+    int countOdd = bitCount(n & 0x5555);
+    if(abs(countEven - countOdd) % 3 == 0)
+       cout << n << " is a multiple of 3" << endl;
+
+    system("Pause"); 
+    return 0;
+}
+ MD03 liked it!! john  
+boolean isMultipleOfThree(int n) {
+
+	boolean oddBit = true;
+	int diff = 0;
+	for (; n > 0; n >>= 1, oddBit = !oddBit) {
+		diff += oddBit ? n & 1 : -(n & 1);
+	}
+	return diff % 3 == 0;
+}
+ john  
+boolean isMultipleOfThree(int n) {
+	n = Math.abs(n);
+	boolean oddBit = true;
+	int diff = 0;
+	for (; n > 0; n >>= 1, oddBit = !oddBit) {
+		diff += oddBit ? n & 1 : -(n & 1);
+	}
+	return diff % 3 == 0;
+}
+ varnika can you generalize divisibility by any no.? atiqwhiz Not possible…  
+/* Paste your code here (You may delete these lines if not writing code) */
+ atiqwhiz I mean no better method….. Frank can someone explain (In this context 11 in decimal numbers is same as 3 in binary numbers) arnav.agarwal Also:  
+#include<stdio.h>
+int remainderby3(unsigned int i) { /* good for 32-bit unsigned int */
+  i = (i & 65535) + (i >> 16);
+  i = (i & 65535) + (i >> 16);
+  i = (i & 255) + (i >> 8);
+  i = (i & 255) + (i >> 8);
+  i = (i & 15) + (i >> 4);
+  i = (i & 15) + (i >> 4);
+  i = (i & 3) + (i >> 2);
+  i = (i & 3) + (i >> 2);
+  return (i != 3)? i : 0;
+}
+
+void main()
+{
+     int n;
+     scanf("%d", &n);
+     int a= remainderby3(n);
+     if(a==0)
+          printf("Divisible by 3");
+     else
+          printf("not divisible by 3");
+}
+ tech.login.id2 @Geeks4Geeks: Please provide a proof of this theory too. A derivation showing why a number would be divisible by 3 if diff in its odd and even count is divisible by 3 must be there before we accept its correctness. @game: Please elaborate a little what you mean. I could not understand anything. pennypecker The quotient for ‘B’ should be 99 in: “ABCD = 1001A + D + 11C – C + 999B + B – A = (1001A – 999B + 11C) + (D + B – A -C )” sunny321 please comment on soln of “game”.. game Hello, I would like to extend the question to finding the divisibility of any number with any number WITHOUT any % operator (its VERY costly). The following code does the same, hope u enjoy the beauty of the algorithm  
+#include<stdio.h>
+int main()
+{
+   int n, p = 0, d, t;
+   scanf("%d%d",&n,&d); /* n is number and d is divisor */
+   t = n;
+   n--;
+   n |= n>>1;
+   n |= n>>2;
+   n |= n>>4;
+   n |= n>>8;
+   n |= n>>16;
+   n++;
+   if ( (t&(t-1) ) != 0)
+     n>>=1;
+  
+   /* n is now pointing to the MSB of t and now we will    
+     iterate over the bits of t from MS to LSB and develop 
+     the remainder. This is a use of finite state automata  to   
+    compute remainder on division of any number by any 
+    number without using any fancy operator */
+  while ( n )
+  {
+     p = (n&t)?( (p<<1) + 1):(p<<=1);
+     p = p>=d?p-d:p;
+  }
+  printf("\n%d is %s by %d\n",t,
+        (p==0)?"divisible":"not divisible",d);
+  return 0;
+ getchar();
+}
+ The logic of the program is based on DFAs. How would you construct a DFA which checks if a bit sequence is divisible by a number? In such a qns we traverse over the bits from MSB to LSB and we maintain a remainder with us, whenever we see a ‘1’ bit we, which means the number till now has to be ‘multiplied by 2 and add 1′ so the same we do to the remainder. BUT since the remainder will be less than the divisor, we put a check that whenever remainder goes above divisor we round it up, as done in 2nd line of while loop (p is the remainder maintained) and if the bit is 0, we just multiply the remainder by 2 and do the same check. Now when the bits of the number will exhaust i.e. LSB is passed, the remainder which we will be left with will be the remainder which would be left on dividing the number with the divisor. I hope I could make some sense :). You can try it out on any combination to get a feel, eg. let the number be 10110011 and divisor be 3, take remainder = 0, start from MSB, and work your way till the LSB, eg. remainders will be Step 1: bit= 1: rem. = 2*0 + 1 = 1 Step 2: bit= 0:rem = 1*2 = 2 Step 3: bit= 1:rem = 2*2 + 1 = 5 : rem = 5-3=2 Step 4: bit= 1:rem = 2*2 + 1 = 5 : rem = 5-3=2 Step 5: bit= 0:rem = 2*2 = 4 : rem = 4-3 = 1 .. so on. Thus in the code , the part above the BIG comment sets a 1 to point to the MSB of the number and in while loop I iterate over all the bits from MSB to LSB. BTW, nice work with the site mannirulz this doesnt seems to be working… can u check with values(27 4) Surabhi A slight correction to the code. while(n) is an infinite loop here. it should be:  
+  while ( n )
+  {
+     p = (n&t)?( (p<<1) + 1):(p<<=1);
+     p = p>=d?p-d:p;
+     n>>=1;
+  }
+ kas Great work shhrohan19 Perhaps a more straight forward way to point at MSB.  
+#include <stdio.h>
+#include <math.h>
+int main()
+{
+   int i=0,n, p = 0, d, n_original;
+   printf("Enter number : ");
+   scanf("%d",&n);
+   printf("Enter Diviser : ");
+   scanf("%d",&d);
+
+   n_original = n;
+
+   while(n>1) {
+	   i++;
+	   n>>=1;
+   }
+   n=pow(2,i);
+
+   while(n)
+   {
+	 p = (n & n_original )?( (p<<1) + 1): p<<1;
+	 p = p>=d ? p-d : p;
+	 n>>=1;
+   }
+
+  printf("\n%d is %s by %d\n",n_original,(p==0)?"divisible":"not divisible",d);
+  return 0;
+
+}
+ geeksforgeeks @Arun: Your solution is correct. While you are using a construct provided by programming language, we have implemented an algorithm for multiple of 3. Time complexity of % operator will also be O(logn) as it is also dependent on the number of bits required to represent n. candis i prbably m not getting how is it working for the cases lyk, 1000(8) even count=1 odd count=0 remainder -1 absolute(-1)=1 but the expected answer was 2…. tiger Could you please explain me how it is O(logn) in the method you have proposed as well as for % operator… Please… Arun I am not sure i am right if Num%3==0 {print(“Num is multiple of 3″)} else{print(“Num is not multiple of 3″)} Time complexity : O(1) vishal.mnnit u r rt Devender Rao missed the whole point. here we are not taking just about the % operator but what modulo does internally too. geeksforgeeks @Joe: It works for 6 and 9 also. For 6 (110), difference of set bit count at even position and odd position is 0(multiple of 3). Same is true for 9. You can verify it by replacing 23 with 3 or 6 in the above program. kg1020 binary of 21 is 00…010101 so how it will work for 21 ? plse explain… joe blow Does that algorithm work? It doesn’t work for numbers like 6 or 9 Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

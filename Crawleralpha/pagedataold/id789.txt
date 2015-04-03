@@ -1,0 +1,262 @@
+Find the k most frequent words from a file - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find the k most frequent words from a file Given a book of words. Assume you have enough main memory to accommodate all words. design a data structure to find top K maximum occurring words. The data structure should be dynamic so that new words can be added. A simple solution is to use Hashing. Hash all words one by one in a hash table. If a word is already present, then increment its count. Finally, traverse through the hash table and return the k words with maximum counts. We can use Trie and Min Heap to get the k most frequent words efficiently. The idea is to use Trie for searching existing words adding new words efficiently. Trie also stores count of occurrences of words. A Min Heap of size k is used to keep track of k most frequent words at any point of time(Use of Min Heap is same as we used it to find k largest elements in this post). Trie and Min Heap are linked with each other by storing an additional field in Trie ‘indexMinHeap’ and a pointer ‘trNode’ in Min Heap. The value of ‘indexMinHeap’ is maintained as -1 for the words which are currently not in Min Heap (or currently not among the top k frequent words). For the words which are present in Min Heap, ‘indexMinHeap’ contains, index of the word in Min Heap. The pointer ‘trNode’ in Min Heap points to the leaf node corresponding to the word in Trie. Following is the complete process to print k most frequent words from a file. Read all words one by one. For every word, insert it into Trie. Increase the counter of the word, if already exists. Now, we need to insert this word in min heap also. For insertion in min heap, 3 cases arise: 1. The word is already present. We just increase the corresponding frequency value in min heap and call minHeapify() for the index obtained by “indexMinHeap” field in Trie. When the min heap nodes are being swapped, we change the corresponding minHeapIndex in the Trie. Remember each node of the min heap is also having pointer to Trie leaf node. 2. The minHeap is not full. we will insert the new word into min heap & update the root node in the min heap node & min heap index in Trie leaf node. Now, call buildMinHeap(). 3. The min heap is full. Two sub-cases arise. ….3.1 The frequency of the new word inserted is less than the frequency of the word stored in the head of min heap. Do nothing. ….3.2 The frequency of the new word inserted is greater than the frequency of the word stored in the head of min heap. Replace & update the fields. Make sure to update the corresponding min heap index of the “word to be replaced” in Trie with -1 as the word is no longer in min heap. 4. Finally, Min Heap will have the k most frequent words of all words present in given file. So we just need to print all words present in Min Heap. 
+// A program to find k most frequent words in a file
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+# define MAX_CHARS 26
+# define MAX_WORD_SIZE 30
+
+// A Trie node
+struct TrieNode
+{
+    bool isEnd; // indicates end of word
+    unsigned frequency;  // the number of occurrences of a word
+    int indexMinHeap; // the index of the word in minHeap
+    TrieNode* child[MAX_CHARS]; // represents 26 slots each for 'a' to 'z'.
+};
+
+// A Min Heap node
+struct MinHeapNode
+{
+    TrieNode* root; // indicates the leaf node of TRIE
+    unsigned frequency; //  number of occurrences
+    char* word; // the actual word stored
+};
+
+// A Min Heap
+struct MinHeap
+{
+    unsigned capacity; // the total size a min heap
+    int count; // indicates the number of slots filled.
+    MinHeapNode* array; //  represents the collection of minHeapNodes
+};
+
+// A utility function to create a new Trie node
+TrieNode* newTrieNode()
+{
+    // Allocate memory for Trie Node
+    TrieNode* trieNode = new TrieNode;
+
+    // Initialize values for new node
+    trieNode->isEnd = 0;
+    trieNode->frequency = 0;
+    trieNode->indexMinHeap = -1;
+    for( int i = 0; i < MAX_CHARS; ++i )
+        trieNode->child[i] = NULL;
+
+    return trieNode;
+}
+
+// A utility function to create a Min Heap of given capacity
+MinHeap* createMinHeap( int capacity )
+{
+    MinHeap* minHeap = new MinHeap;
+
+    minHeap->capacity = capacity;
+    minHeap->count  = 0;
+
+    // Allocate memory for array of min heap nodes
+    minHeap->array = new MinHeapNode [ minHeap->capacity ];
+
+    return minHeap;
+}
+
+// A utility function to swap two min heap nodes. This function
+// is needed in minHeapify
+void swapMinHeapNodes ( MinHeapNode* a, MinHeapNode* b )
+{
+    MinHeapNode temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+// This is the standard minHeapify function. It does one thing extra.
+// It updates the minHapIndex in Trie when two nodes are swapped in
+// in min heap
+void minHeapify( MinHeap* minHeap, int idx )
+{
+    int left, right, smallest;
+
+    left = 2 * idx + 1;
+    right = 2 * idx + 2;
+    smallest = idx;
+    if ( left < minHeap->count &&
+         minHeap->array[ left ]. frequency <
+         minHeap->array[ smallest ]. frequency
+       )
+        smallest = left;
+
+    if ( right < minHeap->count &&
+         minHeap->array[ right ]. frequency <
+         minHeap->array[ smallest ]. frequency
+       )
+        smallest = right;
+
+    if( smallest != idx )
+    {
+        // Update the corresponding index in Trie node.
+        minHeap->array[ smallest ]. root->indexMinHeap = idx;
+        minHeap->array[ idx ]. root->indexMinHeap = smallest;
+
+        // Swap nodes in min heap
+        swapMinHeapNodes (&minHeap->array[ smallest ], &minHeap->array[ idx ]);
+
+        minHeapify( minHeap, smallest );
+    }
+}
+
+// A standard function to build a heap
+void buildMinHeap( MinHeap* minHeap )
+{
+    int n, i;
+    n = minHeap->count - 1;
+
+    for( i = ( n - 1 ) / 2; i >= 0; --i )
+        minHeapify( minHeap, i );
+}
+
+// Inserts a word to heap, the function handles the 3 cases explained above
+void insertInMinHeap( MinHeap* minHeap, TrieNode** root, const char* word )
+{
+    // Case 1: the word is already present in minHeap
+    if( (*root)->indexMinHeap != -1 )
+    {
+        ++( minHeap->array[ (*root)->indexMinHeap ]. frequency );
+
+        // percolate down
+        minHeapify( minHeap, (*root)->indexMinHeap );
+    }
+
+    // Case 2: Word is not present and heap is not full
+    else if( minHeap->count < minHeap->capacity )
+    {
+        int count = minHeap->count;
+        minHeap->array[ count ]. frequency = (*root)->frequency;
+        minHeap->array[ count ]. word = new char [strlen( word ) + 1];
+        strcpy( minHeap->array[ count ]. word, word );
+
+        minHeap->array[ count ]. root = *root;
+        (*root)->indexMinHeap = minHeap->count;
+
+        ++( minHeap->count );
+        buildMinHeap( minHeap );
+    }
+
+    // Case 3: Word is not present and heap is full. And frequency of word
+    // is more than root. The root is the least frequent word in heap,
+    // replace root with new word
+    else if ( (*root)->frequency > minHeap->array[0]. frequency )
+    {
+
+        minHeap->array[ 0 ]. root->indexMinHeap = -1;
+        minHeap->array[ 0 ]. root = *root;
+        minHeap->array[ 0 ]. root->indexMinHeap = 0;
+        minHeap->array[ 0 ]. frequency = (*root)->frequency;
+
+        // delete previously allocated memoory and
+        delete [] minHeap->array[ 0 ]. word;
+        minHeap->array[ 0 ]. word = new char [strlen( word ) + 1];
+        strcpy( minHeap->array[ 0 ]. word, word );
+
+        minHeapify ( minHeap, 0 );
+    }
+}
+
+// Inserts a new word to both Trie and Heap
+void insertUtil ( TrieNode** root, MinHeap* minHeap,
+                        const char* word, const char* dupWord )
+{
+    // Base Case
+    if ( *root == NULL )
+        *root = newTrieNode();
+
+    //  There are still more characters in word
+    if ( *word != '\0' )
+        insertUtil ( &((*root)->child[ tolower( *word ) - 97 ]),
+                         minHeap, word + 1, dupWord );
+    else // The complete word is processed
+    {
+        // word is already present, increase the frequency
+        if ( (*root)->isEnd )
+            ++( (*root)->frequency );
+        else
+        {
+            (*root)->isEnd = 1;
+            (*root)->frequency = 1;
+        }
+
+        // Insert in min heap also
+        insertInMinHeap( minHeap, root, dupWord );
+    }
+}
+
+
+// add a word to Trie & min heap.  A wrapper over the insertUtil
+void insertTrieAndHeap(const char *word, TrieNode** root, MinHeap* minHeap)
+{
+    insertUtil( root, minHeap, word, word );
+}
+
+// A utility function to show results, The min heap
+// contains k most frequent words so far, at any time
+void displayMinHeap( MinHeap* minHeap )
+{
+    int i;
+
+    // print top K word with frequency
+    for( i = 0; i < minHeap->count; ++i )
+    {
+        printf( "%s : %d\n", minHeap->array[i].word,
+                            minHeap->array[i].frequency );
+    }
+}
+
+// The main funtion that takes a file as input, add words to heap
+// and Trie, finally shows result from heap
+void printKMostFreq( FILE* fp, int k )
+{
+    // Create a Min Heap of Size k
+    MinHeap* minHeap = createMinHeap( k );
+   
+    // Create an empty Trie
+    TrieNode* root = NULL;
+
+    // A buffer to store one word at a time
+    char buffer[MAX_WORD_SIZE];
+
+    // Read words one by one from file.  Insert the word in Trie and Min Heap
+    while( fscanf( fp, "%s", buffer ) != EOF )
+        insertTrieAndHeap(buffer, &root, minHeap);
+
+    // The Min Heap will have the k most frequent words, so print Min Heap nodes
+    displayMinHeap( minHeap );
+}
+
+// Driver program to test above functions
+int main()
+{
+    int k = 5;
+    FILE *fp = fopen ("file.txt", "r");
+    if (fp == NULL)
+        printf ("File doesn't exist ");
+    else
+        printKMostFreq (fp, k);
+    return 0;
+}
+ Output: your : 3
+well : 3
+and : 4
+to : 4
+Geeks : 6
+ The above output is for a file with following content. Welcome to the world of Geeks 
+This portal has been created to provide well written well thought and well explained 
+solutions for selected questions If you like Geeks for Geeks and would like to contribute 
+here is your chance You can write article and mail your article to contribute at 
+geeksforgeeks org See your article appearing on the Geeks for Geeks main page and help 
+thousands of other Geeks
+ Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: Advance Data Structures Tweet Writing code in comment? Please use ideone.com and share the link here. john how we run it i copy it and paste it give me error? please help me rahul just copy the content of file written in a paragraphn below….and name of the file should be same as given in program n then run it., john thanks for reply i need the c code above how i run it? john i copy it from beginning to main and it give me syntax error i used codeblock? rahul dude copy the entire program in dev/turbo/any compiler..copy all the content in a file named file.txt in same folder/desktop and run this… else i am not getting wat u are asking:) rahul u need to save the following in file.txt “Welcome to the world of Geeks This portal has been created to provide well written well thought and well explained solutions for selected questions If you like Geeks for Geeks and would like to contribute here is your chance You can write article and mail your article to contribute at geeksforgeeks org See your article appearing on the Geeks for Geeks main page and help thousands of other Geeks” john i copy this directly to the code blocks program and it give syntax error?? / A program to find k most frequent words in a file #include #include #include # define MAX_CHARS 26 # define MAX_WORD_SIZE 30 // A Trie node struct TrieNode { bool isEnd; // indicates end of word unsigned frequency; // the number of occurrences of a word int indexMinHeap; // the index of the word in minHeap TrieNode* child[MAX_CHARS]; // represents 26 slots each for ‘a’ to ‘z’. }; // A Min Heap node struct MinHeapNode { TrieNode* root; // indicates the leaf node of TRIE unsigned frequency; // number of occurrences char* word; // the actual word stored }; // A Min Heap struct MinHeap { unsigned capacity; // the total size a min heap int count; // indicates the number of slots filled. MinHeapNode* array; // represents the collection of minHeapNodes }; // A utility function to create a new Trie node TrieNode* newTrieNode() { // Allocate memory for Trie Node TrieNode* trieNode = new TrieNode; // Initialize values for new node trieNode->isEnd = 0; trieNode->frequency = 0; trieNode->indexMinHeap = -1; for( int i = 0; i child[i] = NULL; return trieNode; } // A utility function to create a Min Heap of given capacity MinHeap* createMinHeap( int capacity ) { MinHeap* minHeap = new MinHeap; minHeap->capacity = capacity; minHeap->count = 0; // Allocate memory for array of min heap nodes minHeap->array = new MinHeapNode [ minHeap->capacity ]; return minHeap; } // A utility function to swap two min heap nodes. This function // is needed in minHeapify void swapMinHeapNodes ( MinHeapNode* a, MinHeapNode* b ) { MinHeapNode temp = *a; *a = *b; *b = temp; } // This is the standard minHeapify function. It does one thing extra. // It updates the minHapIndex in Trie when two nodes are swapped in // in min heap void minHeapify( MinHeap* minHeap, int idx ) { int left, right, smallest; left = 2 * idx + 1; right = 2 * idx + 2; smallest = idx; if ( left count && minHeap->array[ left ]. frequency array[ smallest ]. frequency ) smallest = left; if ( right count && minHeap->array[ right ]. frequency array[ smallest ]. frequency ) smallest = right; if( smallest != idx ) { // Update the corresponding index in Trie node. minHeap->array[ smallest ]. root->indexMinHeap = idx; minHeap->array[ idx ]. root->indexMinHeap = smallest; // Swap nodes in min heap swapMinHeapNodes (&minHeap->array[ smallest ], &minHeap->array[ idx ]); minHeapify( minHeap, smallest ); } } // A standard function to build a heap void buildMinHeap( MinHeap* minHeap ) { int n, i; n = minHeap->count – 1; for( i = ( n – 1 ) / 2; i >= 0; –i ) minHeapify( minHeap, i ); } // Inserts a word to heap, the function handles the 3 cases explained above void insertInMinHeap( MinHeap* minHeap, TrieNode** root, const char* word ) { // Case 1: the word is already present in minHeap if( (*root)->indexMinHeap != -1 ) { ++( minHeap->array[ (*root)->indexMinHeap ]. frequency ); // percolate down minHeapify( minHeap, (*root)->indexMinHeap ); } // Case 2: Word is not present and heap is not full else if( minHeap->count capacity ) { int count = minHeap->count; minHeap->array[ count ]. frequency = (*root)->frequency; minHeap->array[ count ]. word = new char [strlen( word ) + 1]; strcpy( minHeap->array[ count ]. word, word ); minHeap->array[ count ]. root = *root; (*root)->indexMinHeap = minHeap->count; ++( minHeap->count ); buildMinHeap( minHeap ); } // Case 3: Word is not present and heap is full. And frequency of word // is more than root. The root is the least frequent word in heap, // replace root with new word else if ( (*root)->frequency > minHeap->array[0]. frequency ) { minHeap->array[ 0 ]. root->indexMinHeap = -1; minHeap->array[ 0 ]. root = *root; minHeap->array[ 0 ]. root->indexMinHeap = 0; minHeap->array[ 0 ]. frequency = (*root)->frequency; // delete previously allocated memoory and delete [] minHeap->array[ 0 ]. word; minHeap->array[ 0 ]. word = new char [strlen( word ) + 1]; strcpy( minHeap->array[ 0 ]. word, word ); minHeapify ( minHeap, 0 ); } } // Inserts a new word to both Trie and Heap void insertUtil ( TrieNode** root, MinHeap* minHeap, const char* word, const char* dupWord ) { // Base Case if ( *root == NULL ) *root = newTrieNode(); // There are still more characters in word if ( *word != ” ) insertUtil ( &((*root)->child[ tolower( *word ) – 97 ]), minHeap, word + 1, dupWord ); else // The complete word is processed { // word is already present, increase the frequency if ( (*root)->isEnd ) ++( (*root)->frequency ); else { (*root)->isEnd = 1; (*root)->frequency = 1; } // Insert in min heap also insertInMinHeap( minHeap, root, dupWord ); } } // add a word to Trie & min heap. A wrapper over the insertUtil void insertTrieAndHeap(const char *word, TrieNode** root, MinHeap* minHeap) { insertUtil( root, minHeap, word, word ); } // A utility function to show results, The min heap // contains k most frequent words so far, at any time void displayMinHeap( MinHeap* minHeap ) { int i; // print top K word with frequency for( i = 0; i count; ++i ) { printf( “%s : %dn”, minHeap->array[i].word, minHeap->array[i].frequency ); } } // The main funtion that takes a file as input, add words to heap // and Trie, finally shows result from heap void printKMostFreq( FILE* fp, int k ) { // Create a Min Heap of Size k MinHeap* minHeap = createMinHeap( k ); // Create an empty Trie TrieNode* root = NULL; // A buffer to store one word at a time char buffer[MAX_WORD_SIZE]; // Read words one by one from file. Insert the word in Trie and Min Heap while( fscanf( fp, “%s”, buffer ) != EOF ) insertTrieAndHeap(buffer, &root, minHeap); // The Min Heap will have the k most frequent words, so print Min Heap nodes displayMinHeap( minHeap ); } // Driver program to test above functions int main() { int k = 5; FILE *fp = fopen (“file.txt”, “r”); if (fp == NULL) printf (“File doesn’t exist “); else printKMostFreq (fp, k); return 0; } rahul @john…please dnt copy n paste code here..its looks clumsy..copy n paste on ideone.com and share the link..anyways it will work in c++..c has no bool data type..u need to use some header file to use bool in c…and also..u need to use struct keyword before structure to access in c..so it will run fine in c++ but for c..u need to modify it a bit so that it will be compatible with c..hope m clear.. john i copy it in http://ideone.com/146zcR it give me a lot of error and this is c syntax not c++ can you modified it to work in c? thanks in advanced rahul john..please go through my prev comment..its a c++ syntax… whr ever u have used trie node..add prefix struct and do #include. john i add struct before trie node and i #include but i still have error can you modified it to? rahul u add strcut keyword before trienode n minheap structures and convert every new to malloc as new is c++…shre the ideone for the same..i will do the remaining for u:) john i do as you say but have errors http://ideone.com/DtKi07 so if you help me i will consider this portal best ever. rahul http://ideone.com/xt7QbU here is the C version…bye….. john thank you very much you are the best. Code_Addict Can someone post Java version of above implementation? Thanks Guest I have written java version of above code, but null pointer exception is coming: if possible have a look at the code: package kfrequentwords; import java.io.*; import java.util.Scanner; import java.util.logging.Level; import java.util.logging.Logger; class TrieNode { public static final int MAX_CHARS=26; int indexMinHeap; // the index of the word in minHeap TrieNode[] child=new TrieNode[MAX_CHARS]; // represents 26 slots each for ‘a’ to ‘z’. int isEnd; // indicates end of word int freq; // frequency of occurence of a word public void TrieNode() { // Allocate memory for Trie Node // TrieNode trieNode = new TrieNode(); // Initialize values for new node isEnd = 0; freq = 0; indexMinHeap = -1; // for( int i = 0; i < MAX_CHARS; ++i ) // trieNode.child[i] = NULL; // return trieNode; } } class MinHeapNode { TrieNode root= new TrieNode(); // indicates the leaf node of TRIE int frequency; // number of occurrences char[] word; // the actual word stored public MinHeapNode() { frequency=0; word =new char[30]; } } class MinHeap { int capacity; // total size of min Heap int count; // indicates the number of slots filled. MinHeapNode[] array; // represents the collection of minHeapNodes public MinHeap(int capacity) { // MinHeap minHeap=new MinHeap(); this.capacity=capacity; count=0; // Allocate memory for array of min heap nodes array=new MinHeapNode[capacity]; //return minHeap; } // A utility function to swap two min heap nodes. This function // is needed in minHeapify public void swapMinHeapNodes(MinHeapNode a,MinHeapNode b) { MinHeapNode t=a; a=b; b=t; } // This is the standard minHeapify function. It does one thing extra. // It updates the minHapIndex in Trie when two nodes are swapped in // in min heap public void minHeapify(MinHeap minHeap,int idx) { int left, right, smallest; left = 2 * idx + 1; right = 2 * idx + 2; smallest = idx; if ( left < minHeap.count && minHeap.array[left].frequency <minHeap.array[smallest].frequency) smallest = left; if ( right < minHeap.count && minHeap.array[ right ]. frequency = 0; –i ) minHeapify( minHeap, i ); } // Inserts a word to heap, the function handles the 3 cases explained above void insertInMinHeap( MinHeap minHeap, TrieNode root, char[] word ) { // Case 1: the word is already present in minHeap if( (root).indexMinHeap != -1 ) { System.out.println(“Freq = “+minHeap.array[ (root).indexMinHeap ].frequency); minHeap.array[ (root).indexMinHeap ]. frequency =minHeap.array[ (root).indexMinHeap ]. frequency+1; // percolate down minHeapify( minHeap, (root).indexMinHeap ); } // Case 2: Word is not present and heap is not full else if( minHeap.count minHeap.array[0]. frequency ) { minHeap.array[ 0 ]. root.indexMinHeap = -1; minHeap.array[ 0 ]. root = root; minHeap.array[ 0 ]. root.indexMinHeap = 0; minHeap.array[ 0 ]. frequency = (root).freq; // delete previously allocated memoory and minHeap.array[ 0 ]. word=null; minHeap.array[ 0 ]. word = new char [( word.length ) + 1]; minHeap.array[ 0 ]. word=word.clone() ; minHeapify ( minHeap, 0 ); } } // A utility function to show results, The min heap // contains k most frequent words so far, at any time public void displayMinHeap( MinHeap minHeap ) { int i; // print top K word with frequency for( i = 0; i < minHeap.count; ++i ) { System.out.println( minHeap.array[i].word +" , "+ minHeap.array[i].frequency ); } } void insertTrieAndHeap(char[] word,TrieNode root,MinHeap minHeap) { insertUtil(root, minHeap, word, word, 0); } void insertUtil( TrieNode root, MinHeap minHeap, char[] word, char[] dupWord,int i) { // Base Case if ( root == null ) root = new TrieNode(); // There are still more characters in word if (i<word.length) { // System.out.println("Address = "+ ((int)word[i] – 97)); insertUtil ( (root.child[ (int)word[i] – 97 ]), minHeap, word, dupWord,i+1 ); } else // The complete word is processed { // word is already present, increase the frequency if ( (root).isEnd==1) (root).freq +=1; else { (root).isEnd = 1; (root).freq= 1; } // Insert in min heap also // MinHeap mH=new MinHeap(); insertInMinHeap( minHeap, root, dupWord ); } } // The main funtion that takes a file as input, add words to heap // and Trie, finally shows result from heap void printKMostFreq(String filename, int k ) { int MAX_WORD_SIZE=30; // Create a Min Heap of Size k MinHeap minHeap= new MinHeap(k); // Create an empty Trie TrieNode root = null; // A buffer to store one word at a time // char buffer[]=new char[MAX_WORD_SIZE]; // Read words one by one from file. Insert the word in Trie and Min Heap // while( fscanf( fp, "%s", buffer ) != EOF ) File fname=new File(filename); FileReader fr = null; try { fr = new FileReader(fname); } catch (FileNotFoundException ex) { Logger.getLogger(MinHeap.class.getName()).log(Level.SEVERE, null, ex); } Scanner scanner = new Scanner(fr); while (scanner.hasNextLine()) { String nextToken = scanner.next(); insertTrieAndHeap(nextToken.toCharArray(), root, minHeap); } // The Min Heap will have the k most frequent words, so print Min Heap nodes displayMinHeap(minHeap); } } public class KFrequentWords { public static void main(String[] args) { int k=5; String fname="C:\Users\N1K$$\Desktop\dict.txt"; MinHeap mH=new MinHeap(k); mH.printKMostFreq(fname, k); } } Guest I have written Java version of above code , but still null pointer Exception is coming: If possible have a look at the code: package kfrequentwords; import java.io.*; import java.util.Scanner; import java.util.logging.Level; import java.util.logging.Logger; class TrieNode { public static final int MAX_CHARS=26; int indexMinHeap; // the index of the word in minHeap TrieNode[] child=new TrieNode[MAX_CHARS]; // represents 26 slots each for ‘a’ to ‘z’. int isEnd; // indicates end of word int freq; // frequency of occurence of a word public void TrieNode() { // Allocate memory for Trie Node // TrieNode trieNode = new TrieNode(); // Initialize values for new node isEnd = 0; freq = 0; indexMinHeap = -1; // for( int i = 0; i < MAX_CHARS; ++i ) // trieNode.child[i] = NULL; // return trieNode; } } class MinHeapNode { TrieNode root= new TrieNode(); // indicates the leaf node of TRIE int frequency; // number of occurrences char[] word; // the actual word stored public MinHeapNode() { frequency=0; word =new char[30]; } } class MinHeap { int capacity; // total size of min Heap int count; // indicates the number of slots filled. MinHeapNode[] array; // represents the collection of minHeapNodes public MinHeap(int capacity) { // MinHeap minHeap=new MinHeap(); this.capacity=capacity; count=0; // Allocate memory for array of min heap nodes array=new MinHeapNode[capacity]; //return minHeap; } // A utility function to swap two min heap nodes. This function // is needed in minHeapify public void swapMinHeapNodes(MinHeapNode a,MinHeapNode b) { MinHeapNode t=a; a=b; b=t; } // This is the standard minHeapify function. It does one thing extra. // It updates the minHapIndex in Trie when two nodes are swapped in // in min heap public void minHeapify(MinHeap minHeap,int idx) { int left, right, smallest; left = 2 * idx + 1; right = 2 * idx + 2; smallest = idx; if ( left < minHeap.count && minHeap.array[left].frequency <minHeap.array[smallest].frequency) smallest = left; if ( right < minHeap.count && minHeap.array[ right ]. frequency = 0; –i ) minHeapify( minHeap, i ); } // Inserts a word to heap, the function handles the 3 cases explained above void insertInMinHeap( MinHeap minHeap, TrieNode root, char[] word ) { // Case 1: the word is already present in minHeap if( (root).indexMinHeap != -1 ) { System.out.println(“Freq = “+minHeap.array[ (root).indexMinHeap ].frequency); minHeap.array[ (root).indexMinHeap ]. frequency =minHeap.array[ (root).indexMinHeap ]. frequency+1; // percolate down minHeapify( minHeap, (root).indexMinHeap ); } // Case 2: Word is not present and heap is not full else if( minHeap.count minHeap.array[0]. frequency ) { minHeap.array[ 0 ]. root.indexMinHeap = -1; minHeap.array[ 0 ]. root = root; minHeap.array[ 0 ]. root.indexMinHeap = 0; minHeap.array[ 0 ]. frequency = (root).freq; // delete previously allocated memoory and minHeap.array[ 0 ]. word=null; minHeap.array[ 0 ]. word = new char [( word.length ) + 1]; minHeap.array[ 0 ]. word=word.clone() ; minHeapify ( minHeap, 0 ); } } // A utility function to show results, The min heap // contains k most frequent words so far, at any time public void displayMinHeap( MinHeap minHeap ) { int i; // print top K word with frequency for( i = 0; i < minHeap.count; ++i ) { System.out.println( minHeap.array[i].word +" , "+ minHeap.array[i].frequency ); } } void insertTrieAndHeap(char[] word,TrieNode root,MinHeap minHeap) { insertUtil(root, minHeap, word, word, 0); } void insertUtil( TrieNode root, MinHeap minHeap, char[] word, char[] dupWord,int i) { // Base Case if ( root == null ) root = new TrieNode(); // There are still more characters in word if (i<word.length) { // System.out.println("Address = "+ ((int)word[i] – 97)); insertUtil ( (root.child[ (int)word[i] – 97 ]), minHeap, word, dupWord,i+1 ); } else // The complete word is processed { // word is already present, increase the frequency if ( (root).isEnd==1) (root).freq +=1; else { (root).isEnd = 1; (root).freq= 1; } // Insert in min heap also // MinHeap mH=new MinHeap(); insertInMinHeap( minHeap, root, dupWord ); } } // The main funtion that takes a file as input, add words to heap // and Trie, finally shows result from heap void printKMostFreq(String filename, int k ) { int MAX_WORD_SIZE=30; // Create a Min Heap of Size k MinHeap minHeap= new MinHeap(k); // Create an empty Trie TrieNode root = null; // A buffer to store one word at a time // char buffer[]=new char[MAX_WORD_SIZE]; // Read words one by one from file. Insert the word in Trie and Min Heap // while( fscanf( fp, "%s", buffer ) != EOF ) File fname=new File(filename); FileReader fr = null; try { fr = new FileReader(fname); } catch (FileNotFoundException ex) { Logger.getLogger(MinHeap.class.getName()).log(Level.SEVERE, null, ex); } Scanner scanner = new Scanner(fr); while (scanner.hasNextLine()) { String nextToken = scanner.next(); insertTrieAndHeap(nextToken.toCharArray(), root, minHeap); } // The Min Heap will have the k most frequent words, so print Min Heap nodes displayMinHeap(minHeap); } } public class KFrequentWords { public static void main(String[] args) { int k=5; String fname="C:\Users\N1K$$\Desktop\dict.txt"; MinHeap mH=new MinHeap(k); mH.printKMostFreq(fname, k); } } chintan What is the advantage of using tries over Hashing? In fact the insert’s take longer. We can have pointer from min heap into the hashtable.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Kartik Following are the advantages of Trie over hash table. From Wiki page of Trie. Tries support ordered iteration, whereas iteration over a hash table will result in a pseudorandom order given by the hash function (and further affected by the order of hash collisions, which is determined by the implementation). Tries facilitate longest-prefix matching, but hashing does not, as a consequence of the above. Performing such a “closest fit” find can, depending on implementation, be as quick as an exact find. Tries tend to be faster on average at insertion than hash tables because hash tables must rebuild their index when it becomes full – a very expensive operation. Tries therefore have much better bounded worst-case time costs, which is important for latency-sensitive programs. Since no hash function is used, tries are generally faster than hash tables for small keys. Anmol Trie is always better for dictionary operations like in this problem. search and insert operations for Trie take O(word_length), much better than any hashing technique. chinmay Kindly add the complexity too of each method and conditions under which a particular method is favourable  
+/* Paste your code here (You may delete these lines if not writing code) */
+ vamshig When the first word is inserted, buildMinHeap is called. Again, when the second word is inserted, buildMinHeap is called. This happens till the heap is full, giving a complexity of O(1+2+…+k). Instead, we can let the heap get to maximum capacity before calling buildMinHeap only once!! In this way, minHeap initialization only takes O(k) time. The rest of the algorithm is same. Aashish Nice observation. BuildMinHeap() is called to keep the code simple. It also handles the cases where the input is less than K words. Again, it can be done calling BuildMinHeap() only once. But to avoid including many conditions, we are calling BuildMinHeap() to make it easy to follow. Thanks. vivek what about complexity? Kartik I think the time complexity should be n + NLogk Where N is number of words in file, n is number of characters in file. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

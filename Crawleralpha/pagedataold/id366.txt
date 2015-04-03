@@ -1,0 +1,143 @@
+Add two numbers without using arithmetic operators - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Add two numbers without using arithmetic operators Write a function Add() that returns sum of two integers. The function should not use any of the arithmetic operators (+, ++, –, -, .. etc). Sum of two bits can be obtained by performing XOR (^) of the two bits. Carry bit can be obtained by performing AND (&) of two bits. Above is simple Half Adder logic that can be used to add 2 single bits. We can extend this logic for integers. If x and y don’t have set bits at same position(s), then bitwise XOR (^) of x and y gives the sum of x and y. To incorporate common set bits also, bitwise AND (&) is used. Bitwise AND of x and y gives all carry bits. We calculate (x & y) << 1 and add it to x ^ y to get the required result. 
+#include<stdio.h>
+
+int Add(int x, int y)
+{
+    // Iterate till there is no carry  
+    while (y != 0)
+    {
+        // carry now contains common set bits of x and y
+        int carry = x & y;  
+
+        // Sum of bits of x and y where at least one of the bits is not set
+        x = x ^ y; 
+
+        // Carry is shifted by one so that adding it to x gives the required sum
+        y = carry << 1;
+    }
+    return x;
+}
+
+int main()
+{
+    printf("%d", Add(15, 32));
+    return 0;
+}
+ Following is recursive implementation for the same approach. 
+int Add(int x, int y)
+{
+    if (y == 0)
+        return x;
+    else
+        return Add( x ^ y, (x & y) << 1);
+}
+ Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Check if binary representation of a number is palindrome Swap two nibbles in a byte How to turn off a particular bit in a number? Check if a number is multiple of 9 using bitwise operators How to swap two numbers without using a temporary variable? Divide and Conquer | Set 4 (Karatsuba algorithm for fast multiplication) Find position of the only set bit Swap all odd and even bits Tweet Writing code in comment? Please use ideone.com and share the link here. Patil How to make Substraction of two numbers without using any arithmatic operator? hiya83 Correct me if I am wrong, but I think this will work? int subtract(int x, int y) { if (y == 0) return x; int sub = x ^ y; int sub_carry = (sub & y) << 1; return subtract(sub, sub_carry); } http://www.google.com/ fox_3 You lost the complete logic. http://www.google.com/ fox_3 int sub(int x,int y) { y=add(~x,1); x=add(x,y); return x; } toxic_inside  
+//This code will work for both positive and negative integers..
+
+#include<stdio.h>
+int main()
+{
+int a=7,b=-6,flag;
+
+if(a>0)
+{
+for(flag=0;flag<a;flag++)
+b++;
+}
+
+if(a<0)
+{
+    for(flag=0;flag>a;flag--)
+    b--;
+}
+
+printf("the output is: %d",b);
+
+}
+ Rafi Kamal isn’t increment operation is an arithmetic operation? Arjun #include #include int main() { int a,b,flag; printf(“enter 2 no.s: “); scanf(“%d %d”,&a,&b); if(a>0) { for(flag=0;flag<a;flag++) b++; } else if(aa;flag–) b–; } printf(“the output is: %d”,b); getch(); } arjun #include #include int main() { int a,b,flag; printf(“enter 2 no.s: “); scanf(“%d %d”,&a,&b); if(a>0){ for(flag=0;flag<a;flag++) b++; } else if(aa;flag–) b–; } printf(“the output is: %d”,b); getch(); } Amit  
+/* Paste your code here (You may delete these lines if not writing code) */
+int add(int a, int b) {
+if (b == 0) return a;
+int sum = a ^ b; 
+int carry = (a & b) << 1; 
+return add(sum, carry); 
+}
+ sanjana when v r dng xor v r getting the sum of two num “int sum=x^y”..then what the use of carry… http://www.google.com/ fox_3 see the logic of Half adder. You will understand. aseemgoyal  
+/* Paste your code here (You may delete these lines if not writing code) */
+ chan ultimate solution.. Thangaraj  
+
+#include"stdio.h"
+#include"conio.h"
+
+void main()
+{
+   int a,b,sum;
+   char *p;
+   clrscr();
+   printf("Enter 2 values : ");
+   scanf("%d%d",&a,&b);
+   p = (char *)a;
+   sum = (int)&p[b];
+   printf("\nSum : %d",sum);
+   getch();
+}
+
+ Ranga Can you tell me how this works? I’m not able to figure it out.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://www.sudshekhar.blogspot.com sudhanshu From what I checked, the above code simply adds them, using char instead of int. Try using sum =(int)(p+b); And you will get what I mean. &p[b] does the same thing. http://www.google.com/ fox_3 nice.! decaptchers Fabulous, what a webpage it is! This web site presents valuable facts to us, keep it up. mayautobot //for adding two integers without using any arithmetic operator void add(int a, int b) { int temp=((a&b)<<1)|(a^b); std::out<<temp; } //this program is also giving sum of two integers. Rajesh Hi, How does this works for a = 6 and b = 10, where just one shifting of the carry doesn’t works …  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Amor  
+/* Paste your code here (You may delete these lines if not writing code) */
+ #include #include using std::setw; using namespace std; void displaybit(unsigned int); int add(int,int); int main() { unsigned int x=5; unsigned int y=3; cout<<”\n x= “; displaybit(x); cout<<”\n y= “; displaybit(y); int l=add(x,y); cout< return 0; } void displaybit(unsigned int value) { const int shift=8*sizeof(unsigned)-1; const unsigned MASK=1< cout< for(unsigned int i=1;i<=shift+1;i++) { cout<<(value&MASK?”1″:”0″); value<<=1; if(i%8==0) cout<<” “; } cout< } int add(int x,int y) { cout<<”\n Addition : \n”; do { int carry=x&y; x=x^y; y=carry<<1; } while(y!=0); displaybit(x); } Amor This is the code for addition of two numbers without arithmetic operator. Spider  
+#include<stdio.h>
+int main()
+{
+int x=-5,y=12;
+
+char *p=x;
+printf("%d",&p[y]);
+}
+ Nihal how does it work??  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Spider pointer p point the memory location denoted by x and p[y]==(p+y). so &p[y] give the address of memory location x+y. rkmlmp Hi Spider, Will you please justify that 1. How can a int be assigned to char*? 2. p is the address of x, so p[y] yields *(&x + y) i.e. some long value(address of x) + y that will give new address location not the some of X and Y. Spider @rkmlmp let see this example  
+#include<stdio.h>
+int main()
+{
+int x=10,y=2;
+ 
+char *p=x;
+printf("%d",&p[y]);
+}
+ char *p=x => (genrally we assign *p =&x than p locate the memory location which hold the varible x)but here p locate the memory location 10.. &p[y] = &(p+y) (not (&x+y))..so p[y]=content of the memory location 10+2(p+y)..and &p[y] retur the address of that location abc Brilliant!!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ATul 1. printf returns the length of the string it outputs. i.e. printf(“%d”,printf(“pqrt”)) ==> will give 4 as output. 2. Also in printf(“%*s) , %*s tells to read the precision field from the next argument provided in printf(). Here printf(“%*s%*s”,a,””,b,””) is equivalent to  
+printf("%9s,%3s,"","");  //As a=9 and b=3.
+ Thus two strings of length 9 and 3 are printed. And due to the nested printf, it returns the sum 12(9+3).  
+printf("\n%d\n",printf("%9s%3s","","")); //will also return 12.
+ harsh here is the another solution  
+int main()
+{
+        int a=9;
+        int b=3;
+        printf("%d\n",printf("%*s%*s",a,"",b,""));
+       
+return 0;
+}
+ Anurag Gupta Doesn’t works for negative numbers  
+/* Paste your code here (You may delete these lines if not writing code) */
+ hina can u xplain how it works harsh hey wahat abt this code ?? without any operator ……….  
+int main()
+{
+        int a=9;
+        int b=3;
+        printf("%d\n",printf("%*s%*s",a,"",b,""));
+        
+return 0;
+}
+ udp @harsh, your solution is works. Please explain your logic. cleek it doesn’t really satisfy the terms of the question. it’s just relying on printf to indirectly do the arithmetic. harshitha Could u explain how it works? harsh you can read about * operator in printf here The width is specified as an additional integer value argument preceding the argument that has to be formatted using * operator . So a and b specifies the width and printf returns the number of characters printed to the outer printf and thus the result gets printed harsh read here about * in printf http://www.cplusplus.com/reference/clibrary/cstdio/printf/ deovrat the code is working properly but am unable to understand the working of inner printf function. adi inner printf returns the no of chars and outer printf prints it. Saty This is a wonderful way to illustrate assembly programming.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ravida it’s work….correctly but i not undestand what is comman set of bit?? and how decimal number 15 and 32 convert to binary ..? rkmlmp Dear not only C but all Languages, internally work on Binary numbers(Machine Language) only so all operation are carried on after conversion into Binary. http://www.ashokraju.in yash the above code gives wrong results.. example give 13,9 output is given as 31 instead of 22 GeeksforGeeks @yash: The program produces correct result. See this for a sample run. http://www.ashokraju.in yash sorry i was confused in the inputs… it works correctly. i realized later.. my fault.. n00b kewl!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ani why u are using s as a format specifier why u wouldn’t use d as aformat specifier  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

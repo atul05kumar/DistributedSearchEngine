@@ -1,0 +1,409 @@
+Print all permutations in sorted (lexicographic) order  - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Print all permutations in sorted (lexicographic) order Given a string, print all permutations of it in sorted order. For example, if the input string is “ABC”, then output should be “ABC, ACB, BAC, BCA, CAB, CBA”. We have discussed a program to print all permutations in this post, but here we must print the permutations in increasing order. Following are the steps to print the permutations lexicographic-ally 1. Sort the given string in non-decreasing order and print it. The first permutation is always the string sorted in non-decreasing order. 2. Start generating next higher permutation. Do it until next higher permutation is not possible. If we reach a permutation where all characters are sorted in non-increasing order, then that permutation is the last permutation. Steps to generate the next higher permutation: 1. Take the previously printed permutation and find the rightmost character in it, which is smaller than its next character. Let us call this character as ‘first character’. 2. Now find the ceiling of the ‘first character’. Ceiling is the smallest character on right of ‘first character’, which is greater than ‘first character’. Let us call the ceil character as ‘second character’. 3. Swap the two characters found in above 2 steps. 4. Sort the substring (in non-decreasing order) after the original index of ‘first character’. Let us consider the string “ABCDEF”. Let previously printed permutation be “DCFEBA”. The next permutation in sorted order should be “DEABCF”. Let us understand above steps to find next permutation. The ‘first character’ will be ‘C’. The ‘second character’ will be ‘E’. After swapping these two, we get “DEFCBA”. The final step is to sort the substring after the character original index of ‘first character’. Finally, we get “DEABCF”. Following is C++ implementation of the algorithm. 
+// Program to print all permutations of a string in sorted order.
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* Following function is needed for library function qsort(). Refer
+   http://www.cplusplus.com/reference/clibrary/cstdlib/qsort/ */
+int compare (const void *a, const void * b)
+{  return ( *(char *)a - *(char *)b ); }
+
+// A utility function two swap two characters a and b
+void swap (char* a, char* b)
+{
+    char t = *a;
+    *a = *b;
+    *b = t;
+}
+
+// This function finds the index of the smallest character
+// which is greater than 'first' and is present in str[l..h]
+int findCeil (char str[], char first, int l, int h)
+{
+    // initialize index of ceiling element
+    int ceilIndex = l;
+
+    // Now iterate through rest of the elements and find
+    // the smallest character greater than 'first'
+    for (int i = l+1; i <= h; i++)
+      if (str[i] > first && str[i] < str[ceilIndex])
+            ceilIndex = i;
+
+    return ceilIndex;
+}
+
+// Print all permutations of str in sorted order
+void sortedPermutations ( char str[] )
+{
+    // Get size of string
+    int size = strlen(str);
+
+    // Sort the string in increasing order
+    qsort( str, size, sizeof( str[0] ), compare );
+
+    // Print permutations one by one
+    bool isFinished = false;
+    while ( ! isFinished )
+    {
+        // print this permutation
+        printf ("%s \n", str);
+
+        // Find the rightmost character which is smaller than its next
+        // character. Let us call it 'first char'
+        int i;
+        for ( i = size - 2; i >= 0; --i )
+           if (str[i] < str[i+1])
+              break;
+
+        // If there is no such chracter, all are sorted in decreasing order,
+        // means we just printed the last permutation and we are done.
+        if ( i == -1 )
+            isFinished = true;
+        else
+        {
+            // Find the ceil of 'first char' in right of first character.
+            // Ceil of a character is the smallest character greater than it
+            int ceilIndex = findCeil( str, str[i], i + 1, size - 1 );
+
+            // Swap first and second characters
+            swap( &str[i], &str[ceilIndex] );
+
+            // Sort the string on right of 'first char'
+            qsort( str + i + 1, size - i - 1, sizeof(str[0]), compare );
+        }
+    }
+}
+
+// Driver program to test above function
+int main()
+{
+    char str[] = "ABCD";
+    sortedPermutations( str );
+    return 0;
+}
+ Output: 
+ABCD
+ABDC
+....
+....
+DCAB
+DCBA
+ The upper bound on time complexity of the above program is O(n^2 x n!). We can optimize step 4 of the above algorithm for finding next permutation. Instead of sorting the subarray after the ‘first character’, we can reverse the subarray, because the subarray we get after swapping is always sorted in non-increasing order. This optimization makes the time complexity as O(n x n!). See following optimized code. 
+// An optimized version that uses reverse instead of sort for
+// finding the next permutation
+
+// A utility function to reverse a string str[l..h]
+void reverse(char str[], int l, int h)
+{
+   while (l < h)
+   {
+       swap(&str[l], &str[h]);
+       l++;
+       h--;
+   }
+}
+
+// Print all permutations of str in sorted order
+void sortedPermutations ( char str[] )
+{
+    // Get size of string
+    int size = strlen(str);
+
+    // Sort the string in increasing order
+    qsort( str, size, sizeof( str[0] ), compare );
+
+    // Print permutations one by one
+    bool isFinished = false;
+    while ( ! isFinished )
+    {
+        // print this permutation
+        printf ("%s \n", str);
+
+        // Find the rightmost character which is smaller than its next
+        // character. Let us call it 'first char'
+        int i;
+        for ( i = size - 2; i >= 0; --i )
+           if (str[i] < str[i+1])
+              break;
+
+        // If there is no such chracter, all are sorted in decreasing order,
+        // means we just printed the last permutation and we are done.
+        if ( i == -1 )
+            isFinished = true;
+        else
+        {
+            // Find the ceil of 'first char' in right of first character.
+            // Ceil of a character is the smallest character greater than it
+            int ceilIndex = findCeil( str, str[i], i + 1, size - 1 );
+
+            // Swap first and second characters
+            swap( &str[i], &str[ceilIndex] );
+
+            // reverse the string on right of 'first char'
+            reverse( str, i + 1, size - 1 );
+        }
+    }
+}
+ The above programs print duplicate permutation when characters are repeated. We can avoid it by keeping track of the previous permutation. While printing, if the current permutation is same as previous permutation, we won’t print it. This article is compiled by Aashish Barnwal and reviewed by GeeksforGeeks team. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Suffix Tree Application 5 – Longest Common Substring Generalized Suffix Tree 1 Suffix Tree Application 4 – Build Linear Time Suffix Array Suffix Tree Application 3 – Longest Repeated Substring Suffix Tree Application 2 – Searching All Patterns Suffix Tree Application 1 – Substring Check Ukkonen’s Suffix Tree Construction – Part 6 Ukkonen’s Suffix Tree Construction – Part 5 Tags: MathematicalAlgo Tweet Writing code in comment? Please use ideone.com and share the link here. pankaj @admin– the simplest code/ method would be– in the original question to find all the permutations of a string,just remove the last line in the loop i.e. the line which does backtrack, and then what we will get all strings in lexicographic sorted order. isn’t it simple enough admin?? bani If we follow the second method, then we need to put a ‘=’ sign also in the findceil() function’s for loop….. i.e the correct way would be to write as if (str[i] > first && str[i] <= str[ceilIndex]) since we are going right and we should swap the content with the farthest smallest value so that after reversing we get a sorted rightside of i. check it for cases like abbbbbbb, your answer would not be correct… Rajan Here is my algorithm for the problem: 1. First sort the array and give sorted array as input to the function. 2. If my input is ABC, and now I after generating all the permutations of A & B, I want to generate permutations for C, then I will shift all the elements to the right and put C in the front. Hence ABC –> CAB. 3. Call the method recursively for remaining characters. E.g. For the remaining characters in the String, C AB –> C BA conversion will happen. B is put in the front and other elements shifted to the right). 4. Restore the original array again, but method in Step2 won’t be useful. For example, we will convert CAB –> ABC, so I will shift all the elements in the left and put C in the last. Time Complexity remains same: n*n! Code is extremely simplified! Here is mine in Java. Edit: The code was all jumbled up here: please see the below link for code: http://ideone.com/HrNtbZ Jayanth This is actually the simplest way of doing it…Just an extension to printing the permutation of string problem…I dont understand the need for such a long code… Vinod If we remove second part of the if condition “str[i] < str[ceilIndex]" in the findCeil function, this will print all permutation in lexicographical order without repetitions. http://en.wikipedia.org/wiki/Permutation#Generation_in_lexicographic_order Sanyam Kapoor Why does this code fail for strings: “012345678” and “0123456789” but works for strings under “01234567”. #include<iostream> #include<string> #include<algorithm> using namespace std; void swap(string& s,int a, int b){ char temp = s[a]; s[a] = s[b]; s[b] = temp; } int num=1; int firstchar(string s){ int pos = s.length()-2; for(int i=pos;i>=0;i–){ if(s[i]<s[i+1]){ pos = i; break; } } return pos; } int ceilchar(string s, int fc){ int ceil = fc+1; int diff=27; for(unsigned int i=ceil;i<s.length();i++){ if(s[i]>s[fc] && s[i]-s[fc]<diff){ ceil = i; diff = s[i]-s[fc]; } } return ceil; } void nextpermute(string& s){ int fc = firstchar(s); int cc = ceilchar(s,fc); swap(s,fc,cc); sort(&s[fc]+1,&s[fc]+s.length()-fc); num++; if(num<1000000){ cout<<s<<"\n"; nextpermute(s); } else cout<<s<<"\n"; } int main(){ string test="0368475912"; nextpermute(test); return 0; } pradheep another simple method in O O(n*n!) algo: 1.sort the input 2.apply /* Function to print permutations of string This function takes three parameters: 1. String 2. Starting index of the string 3. Ending index of the string.  
+void permute(char *a, int i, int n) 
+{
+   int j; 
+   if (i == n)
+     printf("%s\n", a);
+   else
+   {
+        for (j = i; j <= n; j++)
+       {
+          swap((a+i), (a+j));
+          permute(a, i+1, n);
+          swap((a+i), (a+j)); //backtrack
+       }
+   }
+} 
+
+ Rajdeep pradheep..your program is really excellent.But it has one small bug.It is not lexicographic.You can store these strings in a list and sort the list later to get the correct order pradheep Thanks for your suggestion @Rajdeep  
+/* Paste your code here (You may delete these lines if not writing code) */
+ pradheep hey could any one explain how the complexity of first and second method abhishek08aug Intelligent Niks Using Bitmasking….Its looks more simple.Please look.  
+// Program to print all permutations of a string in sorted order.
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <string>
+
+using namespace std;
+
+void sortedPermutations(char* str, int len, int mask, string temp)
+{
+	if(mask == 0)
+	{
+		printf("%s \n", temp.c_str());
+		return;
+	}
+
+	for(int i=0; i<len; i++)
+	{
+		if(mask & (1<<i))
+		{
+			
+			sortedPermutations( str,len, mask^(1<<i), temp+str[i]);
+		}
+	}
+}
+
+
+// Driver program to test above function
+int main()
+{
+    char str[] = "ABCD";
+    sortedPermutations( str,4, 15, "");
+    return 0;
+}
+ RAUHL please explain the complexity of your code. cyberWolf Sort the string s[] and keep the original string in k[]. Modify the permute function to generate permutations for Rank. While generating the permutations, keep a count and match the string to be found with all permutations. When it matches store the rank. Its not completely optimized but works great. Also suggest if it could be more optimized.  
+void permute(char s[], char k[], int i, int last, int* r)
+{
+        static int count = 0;
+        int j;  
+        if(i==last)
+        {   
+                count++;
+                if(strcmp(s,k)==0)
+                *r = count;
+        }   
+        else
+        {   
+                for(j=i;j<=last;j++)
+                {   
+                        swap(s+i,s+j);
+                        permute(s,k,i+1,last,r);
+                        swap(s+i,s+j);
+                }   
+        }   
+}
+ KK This wont print in sorted order !!!!!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ sreeram I think we can use binary search for finding ceil index since we know its sorted …not good for overall complexity though … ARINDAM #include #include #include void main(){ clrscr(); char str[100]; printf(“\nenter the string…”); scanf(“%s”,&str); int k=strlen(str); int m=1; int g=strlen(str); while(k>0){ m=m*k; k–; } int i=0,j=0; while(j<m){ char temp=str[i+1]; str[i+1]=str[i]; str[i]=temp; printf("\n%s",str); i++; j++; if(i+1==g) i=0; } getch(); } http://www.efnet.net CStubing Here’s a C++ implementation I have been working on for some arbitrary interview prep: #include <string> #include <algorithm> /* * Dijkstra’s Permutation Algorithm * ——————————– * * Given a string (start with a sorted string for all permutations), this algorithm * will modify the string in-place to the next permutation in lexicographical (dictionary) * order. If no such string exists, i.e. the "last" or reverse-sorted string was passed * to this function, it will return false. * * Example: * ——– * * To print all permutations of a given string: * * string perm = "hello world!"; * std::sort(perm.begin(), perm.end()); * std::cout << perm << "\n"; * while (NextDijkstra(perm)); * std::cout << perm << "\n"; */ bool NextDijkstra(std::string& s) { size_t s_len = s.length(); int i = s_len – 2; // Step 1: From right to left, starting at the second to last character, // find the first character, i, that is <= its neighbor to the right. // e.g. in "abcd", i is 2 for ‘c’ while (i >= 0 && s[i] >= s[i+1]) –i; if (i < 0) // If no such character exists, this string is the last perm, e.g. "dcba" return false; // Step 2: From the end of the string, leftward, find the first character, j, // that is >= the character at position i and to the right of position i. // e.g. in "abcd", j is 3 for ‘d’ int j = s_len – 1; while (j > i && s[j] <= s[i]) –j; // Step 3: Swap the characters at positions i and j std::swap(s[i], s[j]); // Step 4: Reverse the rest of the string to the right of position i ++i; std::reverse(&s[i], &s[s_len]); return true; } mahesh /* Can be done using recursion with few lines of code*/ // Assuming input is already sorted. def permutations(head, tail=”): if len(head) == 0: print tail else: for i in range(len(head)): permutations(head[0:i] + head[i+1:], tail+head[i]) qwerty Does the code run if String has duplicate characters ? ? Vin permutations in sorted lexicographic order :-  
+#include<stdio.h>
+#include<string.h>
+
+void permutLexico(char *str,char *dis,int index)    
+{
+      
+      if(index == strlen(str))
+      {	
+      	printf("%s\n",dis);
+      	return ;
+      }
+      
+      int i;
+      for(i=0;i<strlen(str);i++)
+      {
+      	int j,var=1;
+      	
+      	for(j=0;j<index;j++)
+      	{
+      		if(dis[j]==str[i])
+      		{
+      			var=0;
+      			break;
+     		}
+     	}
+     	
+     	if(var)
+     	{
+     		dis[index]=str[i];
+     		permutLexico(str,dis,index+1);
+     	}
+     }
+}
+    
+int main()
+{
+    char str[]="ABC";
+    int len=strlen(str);
+    
+    char *dis;
+    dis=(char *)calloc((len+1),sizeof(char));
+    dis[len]='\0';
+    
+    permutLexico(str,dis,0);
+    
+    getchar();
+    return 0;
+}
+ VikasG Doesn’t print any permutations for “aabc” Shashank I have a given a simpler code implemented in c++. Basically gives a recursive call to the string with smaller lengths.The string is reduced in size by deleting a character from the string.Deletion of character is done in lexicographically increasing order.For example on ABC the call will move from (ABC to BC(returns {BC,CB}) to C{returns{C} to B(returns{B}))concatenates with s[i](A) to form {ABC,ACB} increments i to point to ‘B’ to( AC(returns {AC,CA}) to C{returns{C}} to A(returns{A}))concatenates with s[i](B) to form {BAC,BCA} increments i to point to ‘C’ to (AB(returns {AB,BA}) to B(returns{B}) to A(returns{A})) concatenates with s[i](C) to form {CAB,CBA} returns from function #include <iostream> using namespace std; int fact(int x) { int ans=1; for(int i=1;i<=x;i++)ans=ans*i; return ans; } string* perm(string s) { if(s.length()==1) { string* perm_temp=new string[1]; perm_temp[0]=s; return perm_temp; } else { string* perm_temp=new string[fact(s.length())]; for(int i=0;i<s.length();i++) { string s_temp=s.substr(0,i)+s.substr(i+1); string* perm_temp1=perm(s_temp); int len_temp=fact(s_temp.length()); for(int j=0;j<len_temp;j++) { perm_temp[i*len_temp+j]=s[i]+perm_temp1[j]; } } return perm_temp; } } int main() { string* s_perm=perm("ABCDE"); for(int i=0;i<fact(5);i++) cout<<s_perm[i]<<endl; } Neville Personally i prefer this logic because it’s more similar to the way i generate permutations normally. I just had to change the data structure i use to a TreeSet. Also, the complexity of this one seems to be O( lgN * N! ), great if someone could confirm the same. I am assuming that adding a value in a TreeSet would be lg N complexity.  
+import java.util.Iterator;
+import java.util.Set;
+import java.util.TreeSet;
+
+public class SortedPermutations {
+	
+	public static void main(String args[]) {
+		
+		SortedPermutations sp=new SortedPermutations();
+		Set<String> ret = sp.sortedPermutations(0, "abc");
+		System.out.println(ret);
+		
+	}
+	
+	public Set<String> sortedPermutations(int level, String word) {
+		
+		if ( level == word.length() ) {
+			// empty set
+			Set<String> empty = new TreeSet<String>();
+			empty.add("");
+			return empty;
+		}
+		
+		// for every returned permutations, permute with current character
+		Set<String> ret = new TreeSet<String>();
+		Iterator<String> permIterator = sortedPermutations(level+1, word).iterator();
+		while ( permIterator.hasNext() ) {
+			
+			String tmp = permIterator.next();
+			// permute tmp with current char, add char at each position!
+			for ( int i = 0; i <= tmp.length() ; i++ ) {
+				String left = tmp.substring(0, i);
+				String right = tmp.substring(i, tmp.length());
+				ret.add(left + word.charAt(level) + right);
+			}
+			
+		}
+		
+		return ret;
+		
+	}
+	
+}
+ Suriya As simple as this..  
+void swap(char *arr, int i, int j) {
+     int t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+}
+void lex_perm(char *arr, int fixed, int n) {
+     if(fixed==n) {
+                  cout << arr << endl; return;
+     }
+     for(int i=fixed; i<n;i++) {
+             swap(arr, i, fixed);
+             lex_perm(arr, fixed+1, n);
+     }
+     for(int i=n-1; i>=fixed;i--) {
+             swap(arr, i, fixed);
+     }
+}
+ Suriya Caller functions is: If not sorted, The main function would be: —————————————————– int main() { char arr[20] = “DCBA”; int n = strlen(arr); sort(arr, arr+n); //include STL algorithm lex_perm(arr, 0, n); //call to the function return 0; } —————————————————– sanjaykulkarni Could you please explain me what exactly you’re doing in the 2nd for loop? Thanks  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Rishab  
+/* Paste your code here (You may delete these lines if not writing code) */
+
+#include <stdio.h>
+#include <conio.h>
+
+void swap(char *arr, int s, int d)
+{
+     int temp = arr[s];
+     arr[s] = arr[d];
+     arr[d] = temp;
+}
+
+void rot_r(char *arr, int s, int e)
+{
+     int temp = arr[e];
+     int i;
+     for(i = e; i > s; --i)
+     {
+         arr[i] =arr[i - 1];
+     }
+     arr[i] = temp;
+}  
+
+void rot_l(char *arr, int s, int e)
+{
+     int temp = arr[s];
+     int i;
+     for(i = s; i < e; ++i)
+     {
+         arr[i] =arr[i + 1];
+     }
+     arr[i] = temp;
+}  
+
+
+void per(char *arr, int s, int e)
+{
+     static int c = 0;
+     int index;
+     
+     if(s == e)
+     {
+         printf("\n%d. %s", ++c, arr);
+         return;
+     }
+     
+     for(index = s; index <= e; ++index)
+     {
+         rot_r(arr, s, index);
+         per(arr, s + 1, e);
+     
+        // swap(arr, s, s + 1);
+        rot_l(arr, s, index);
+         
+     }
+     
+}
+         
+int main()
+{
+    char ch[]="abcd";
+    per(ch, 0, 3);
+    getch();
+    return 0;
+}     
+
+
+
+ Prateek Chadha x is sorted string void permute(char *x,int from,int l) { char *y=new char[l]; char t; strcpy(y,x); if(from<l) { permute(y,from+1,l); for(int i=from+1;i<l;i++) { t=y[from] ; y[from]=y[i]; y[i]=t; c++; printf("%s\n",y); permute(y,from+1,l); } } } void main() { char *x="AKNR"; int l=strlen(x); printf("%s\n",x); c++; permute(x,0,l); printf("%d",c); getch(); } /* Paste your code here (You may delete these lines if not writing code) */ Sharat Awesome Problem and a solution! Thank you. saurav import java.util.Arrays; public class Main{ static void printAll(char a[],int i){ if(i==a.length-1) System.out.println(a); else{ char temp[]; for(int j=i;j<a.length;j++){ char c=a[j]; a[j]=a[i]; a[i]=c; temp=a.clone(); Arrays.sort(a,i+1,a.length); printAll(a,i+1); a=temp; c=a[j]; a[j]=a[i]; a[i]=c; } } } public static void main(String[] args) { String s="ABCD"; char a[]=s.toCharArray(); Arrays.sort(a); printAll(a,0); } } Palash You don’t need to sort the string after first character, you could just reverse it in O(n).  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Kartik Thanks for the suggestion. It looks good, we will check it further and add it to the original post. Aashish Doesn’t work in the below case: Find next higher permutation of 4 1 2 3 After swapping 1 and 2, it becomes 4 2 1 3 Which is itself next higher permutation. It does not need any reverse operation. PS: reverse() can be used after a little modification. If the swapped chars are adjacent, we won’t apply reverse(). http://shashank7s.blogspot.com wgpshashank @Ashish next lexicographic permutation for 4123 will be 4132 not 4213 isn’t it , here the clear algorithm , you refer wiki page for more detail 1) From the end, keep decrementing till A[i] < A[i+1].. 2) Now, find the closest element , greater than equal, to A[i] in A[i+1 … n]. Say, the index of the found element is "j". 3) Swap (A[i], A[j]) 4) Reverse array A[i+1 .. n] Example: Input 4123 output 4132.. 1) 2 is the value where A[i] 4132 4) Now, as we have identified in step 1 the index of i, we need to reverse the array from A[i+1, n] i.e. in 413(2) (2) needs to be reversed and hence we will get 4132… correct me if i am wrong ?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Aashish Ah,Yes, next permutation of 4123 will be 4132. All the steps are same except the reverse() part. It looks better. GeeksforGeeks @palash & @wgpshashank: Thanks for your inputs. We have added the optimized solution to the above post. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

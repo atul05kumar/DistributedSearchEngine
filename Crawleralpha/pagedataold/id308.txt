@@ -1,0 +1,154 @@
+Sieve of Eratosthenes - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Sieve of Eratosthenes Given a number n, print all primes smaller than or equal to n. It is also given that n is a small number. For example, if n is 10, the output should be “2, 3, 5, 7″. If n is 20, the output should be “2, 3, 5, 7, 11, 13, 17, 19″. The sieve of Eratosthenes is one of the most efficient ways to find all primes smaller than n when n is smaller than 10 million or so (Ref Wiki). Following is the algorithm to find all the prime numbers less than or equal to a given integer n by Eratosthenes’ method: Create a list of consecutive integers from 2 to n: (2, 3, 4, …, n). Initially, let p equal 2, the first prime number. Starting from p, count up in increments of p and mark each of these numbers greater than p itself in the list. These numbers will be 2p, 3p, 4p, etc.; note that some of them may have already been marked. Find the first number greater than p in the list that is not marked. If there was no such number, stop. Otherwise, let p now equal this number (which is the next prime), and repeat from step 3. When the algorithm terminates, all the numbers in the list that are not marked are prime. Following is C++ implementation of the above algorithm. In the following implementation, a boolean array arr[] of size n is used to mark multiples of prime numbers. 
+#include <stdio.h>
+#include <string.h>
+
+// marks all mutiples of 'a' ( greater than 'a' but less than equal to 'n') as 1.
+void markMultiples(bool arr[], int a, int n)
+{
+    int i = 2, num;
+    while ( (num = i*a) <= n )
+    {
+        arr[ num-1 ] = 1; // minus 1 because index starts from 0.
+        ++i;
+    }
+}
+
+// A function to print all prime numbers smaller than n
+void SieveOfEratosthenes(int n)
+{
+    // There are no prime numbers smaller than 2
+    if (n >= 2)
+    {
+        // Create an array of size n and initialize all elements as 0
+        bool arr[n];
+        memset(arr, 0, sizeof(arr));
+
+        /* Following property is maintained in the below for loop
+           arr[i] == 0 means i + 1 is prime
+           arr[i] == 1 means i + 1 is not prime */
+        for (int i=1; i<n; ++i)
+        {
+            if ( arr[i] == 0 )
+            {
+                //(i+1) is prime, print it and mark its multiples
+                printf("%d ", i+1);
+                markMultiples(arr, i+1, n);
+            }
+        }
+    }
+}
+
+// Driver Program to test above function
+int main()
+{
+    int n = 30;
+    printf("Following are the prime numbers below %d\n", n);
+    SieveOfEratosthenes(n);
+    return 0;
+}
+ Output: Following are the prime numbers below 30
+2 3 5 7 11 13 17 19 23 29 References: http://en.wikipedia.org/wiki/Sieve_of_Eratosthenes This article is compiled by Abhinav Priyadarshi and reviewed by GeeksforGeeks team. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: MathematicalAlgo Tweet Writing code in comment? Please use ideone.com and share the link here. vish_anything Can you please tell the time complexity of the algo? Guest Can you please show how the time complexity of the algorithm is n(log(logn))? I read that on poonam ANd then explicitly traverse the array as the numbers left from squarerron(n) to n will have prime number not marked yet… we need to print those too TulasiRam  
+#include<stdio.h>
+#include<malloc.h>
+#include<math.h>
+
+
+/* sieve eratostanese method of listing primes */
+
+
+void unsetBit(char *b,int i){
+	int blk=(i-1)/8;
+	int shift=((i-1)%8);
+	b[blk] &= ~(1<<shift);
+}
+int bitStatus(char *b,int i){
+	int k,t,blk=(i-1)/8;
+	int shift=((i-1)%8);
+	k=b[blk]&(1<<shift);
+	t=(k!=0)?(blk*8+(int)log2((double)k)+1):0;
+	return t;
+}
+int main(){
+	int n,nb,i,j,k;
+	printf("\n Enter range of numbers = ");
+	scanf("%d",&n);
+	nb=(int)ceil((double)n/8.0);
+	char *b=malloc(nb);
+	//printf("# bytes required = %d\n",nb);
+	for(i=0;i<nb;b[i++]=0xFF);
+	for(i=2;i<=sqrt(n);i++){
+		if(bitStatus(b,i) != 0){
+			for(j=i*i;j<=n;j+=i){
+				unsetBit(b,j);
+			}
+		}
+	}
+	printf("\n");
+	for(i=2;i<=n;i++){
+		k=bitStatus(b,i);
+		if(k!=0)
+			printf("%5d",k);	
+	}
+	printf("\n");
+	return 0;
+}
+
+The above code is an efficient one considering space.
+ bleu Nice!… Venki Prime numbers are fixed. Don’t depend on runtime system to generate them, rather we can generate them at compile time using meta program and generics. rohan good!!!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ bepo  
+/* #include<iostream>
+using namespace std;
+int main()
+{
+	int n,p;
+	cin>>n;
+	int * arr;
+  
+  arr= new  int[n+1];
+  
+    for (int i=1; i<=n; i++)
+    {
+      arr[i]=0;
+    }
+  	for(int i=2;i<=n;i++){
+		if(arr[i]==0)
+		{	p=i;
+			for (int j=2;p*j<=n;j++)
+			{	
+				arr[p*j]=1;
+			}
+		}
+	}
+	for(int i=2;i<=n;i++){if(arr[i]==0)cout<<i<<endl;}
+	delete[] arr;
+	return 0;
+} */
+ bepo  
+#include<iostream>
+using namespace std;
+int main()
+{
+	int n,p;
+	cin>>n;
+	int * arr;
+  
+  arr= new  int[n+1];
+  
+    for (int i=1; i<=n; i++)
+    {
+      arr[i]=0;
+    }
+  	for(int i=2;i<=n;i++){
+		if(arr[i]==0)
+		{	p=i;
+			for (int j=2;p*j<=n;j++)
+			{	
+				arr[p*j]=1;
+			}
+		}
+	}
+	for(int i=2;i<=n;i++){if(arr[i]==0)cout<<i<<endl;}
+	delete[] arr;
+	return 0;
+} Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

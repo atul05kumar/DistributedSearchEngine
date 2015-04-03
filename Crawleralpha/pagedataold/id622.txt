@@ -1,0 +1,688 @@
+Check for Children Sum Property in a Binary Tree. - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Check for Children Sum Property in a Binary Tree. Given a binary tree, write a function that returns true if the tree satisfies below property. For every node, data value must be equal to sum of data values in left and right children. Consider data value as 0 for NULL children. Below tree is an example Algorithm: Traverse the given binary tree. For each node check (recursively) if the node and both its children satisfy the Children Sum Property, if so then return true else return false. Implementation: 
+/* Program to check children sum property */
+#include <stdio.h>
+#include <stdlib.h>
+
+/* A binary tree node has data, left child and right child */
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+/* returns 1 if children sum property holds for the given
+    node and both of its children*/
+int isSumProperty(struct node* node)
+{
+  /* left_data is left child data and right_data is for right child data*/
+  int left_data = 0,  right_data = 0;
+
+  /* If node is NULL or it's a leaf node then
+     return true */
+  if(node == NULL ||
+     (node->left == NULL && node->right == NULL))
+    return 1;
+  else
+  {
+    /* If left child is not present then 0 is used
+       as data of left child */
+    if(node->left != NULL)
+      left_data = node->left->data;
+
+    /* If right child is not present then 0 is used
+      as data of right child */
+    if(node->right != NULL)
+      right_data = node->right->data;
+
+    /* if the node and both of its children satisfy the
+       property return 1 else 0*/
+    if((node->data == left_data + right_data)&&
+        isSumProperty(node->left) &&
+        isSumProperty(node->right))
+      return 1;
+    else
+      return 0;
+  }
+}
+
+/*
+ Helper function that allocates a new node
+ with the given data and NULL left and right
+ pointers.
+*/
+struct node* newNode(int data)
+{
+  struct node* node =
+      (struct node*)malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+  return(node);
+}
+
+/* Driver program to test above function */
+int main()
+{
+  struct node *root  = newNode(10);
+  root->left         = newNode(8);
+  root->right        = newNode(2);
+  root->left->left   = newNode(3);
+  root->left->right  = newNode(5);
+  root->right->right = newNode(2);
+  if(isSumProperty(root))
+    printf("The given tree satisfies the children sum property ");
+  else
+    printf("The given tree does not satisfy the children sum property ");
+
+  getchar();
+  return 0;
+}
+ Time Complexity: O(n), we are doing a complete traversal of the tree. As an exercise, extend the above question for an n-ary tree. This question was asked by Shekhar. Please write comments if you find any bug in the above algorithm or a better way to solve the same problem.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. neelabhsingh GeeksforGeeks. if((node->data == left_data + right_data)&& isSumProperty(node->left) && isSumProperty(node->right)) return 1; else return 0; } Please check it. There is no use of else please remove it.. NAVEEN PRAJAPATI we can also do this by using post order traversal . below is the function given… void check_sum_property(struct node *root) { if(root) { if(root->data = (root->left->data) + (root->right->data)) { printf(“node following check sum property %d–“,root->data); } check_sum_property(root->left); check_sum_property(root->right); } } invince_guitar Similar method..but done in my way. //………………………………………………………. #include #include struct node { int data; struct node *l; struct node *r; }; struct node* create_node(int num) { struct node *temp=(struct node *)malloc(sizeof(struct node)); temp->data=num; temp->l=NULL; temp->r=NULL; return temp; } int traverse(struct node *tree) { if(tree==NULL) return 1; if(tree->l==NULL && tree->r!=NULL) { if(!(tree->r->data==tree->data)) return 0; } if(tree->r==NULL && tree->l!=NULL) { if(!(tree->l->data==tree->data)) return 0; } if(tree->r!=NULL && tree->l!=NULL) { if(!(tree->l->data+tree->r->data==tree->data)) return 0; } traverse(tree->l); traverse(tree->r); } int main() { struct node *tree=NULL; tree=create_node(10); tree->l=create_node(6); tree->l->l=create_node(4); tree->l->r=create_node(2); tree->r=create_node(4); tree->r->r=create_node(4); tree->l->l->l=create_node(4); tree->r->r->r=create_node(2); tree->r->r->l=create_node(2); int ans=traverse(tree); if(ans==1) printf(“satisfiedn”); else printf(“not satisfiedn”); return 0; } ubiquitous int validateChildrenSumProperty(TreeNode t) { if(t.left == null && t.right == null) { return t.v; } int left = 0, right = 0; if(t.left != null) { left = validateChildrenSumProperty(t.left); } if(t.right != null) { right = validateChildrenSumProperty(t.right); } if(left == -1 || right == -1) { return -1; } else { if(left + right == t.v) { return t.v; } else { return -1; } } } Nitesh  
+int sumProperty(node *tree, int sum)
+{
+    if(tree == NULL && sum != 0)
+        return false;
+    
+    /*Mease we are on leaf node*/
+    if(tree ->left == NULL && tree->right == NULL )
+    {
+            if((sum-tree->data) ==0)
+               return true;
+    }
+    int subSum = sum - tree->data;
+    if(sumProperty(tree->left,subSum) || sumProperty(tree->right, subSum))
+       return true;
+       
+    return false;
+}
+ abhishek08aug C++ code:  
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+ 
+class tree_node {
+  private:
+    int data;
+    tree_node * left;
+    tree_node * right;
+  public:
+    tree_node() {
+      left=NULL;
+      right=NULL;
+    }
+    void set_data(int data) {
+      this->data=data;
+    }
+    int get_data() {
+      return this->data;
+    }
+    void set_left(tree_node * left) {
+      this->left=left;
+    }
+    tree_node * get_left() {
+      return this->left;
+    }
+    void set_right(tree_node * right) {
+      this->right=right;
+    }
+    tree_node * get_right() {
+      return this->right;
+    }
+    tree_node ** get_left_ref() {
+      return &(this->left);
+    }
+    tree_node ** get_right_ref() {
+      return &(this->right);
+    }
+};
+ 
+class tree {
+  private:
+    tree_node * root;
+    int size;
+    void _recursive_insert(tree_node ** root_ref, int value);
+    void _print_preorder(tree_node * root);
+    void _print_inorder(tree_node * root);
+    void _print_postorder(tree_node * root);
+    int _find_size(tree_node * root);
+    int _are_identical(tree_node * tn1, tree_node * tn2);
+    int _find_height(tree_node * root);
+    void _delete_tree(tree_node ** root);
+    void _mirror(tree_node * root);
+    void _print_paths(tree_node * root, int * path_nodes, int next_vacant_position);
+    void _print_array(int * array, int len);
+    tree_node * _lowest_common_ancestor(tree_node * parent, tree_node * root, int a, int b);
+    tree_node * _find_node(tree_node * root, int value);
+    tree_node * _min_node(tree_node * root);
+    void _print_level_order(tree_node * root);
+    int _count_leaf_nodes(tree_node * root);
+    int _is_bst(tree_node * root);
+    int _children_sum(tree_node * root);
+  public:
+    tree() {
+      root=NULL;
+      size=0;
+    }
+    void insert(int value);
+    void recursive_insert(int value);
+    void print_preorder();
+    void print_inorder();
+    void print_postorder();
+    int find_size();
+    int get_size() {
+      return this->size;
+    }
+    int are_identical(tree t);
+    int find_height();
+    void delete_tree();
+    void mirror();
+    void print_paths();
+    tree_node * lowest_common_ancestor(int a, int b);
+    tree_node * find_node(int value);
+    tree_node * min_node();
+    void print_level_order();
+    int count_leaf_nodes();
+    int is_bst();
+    int children_sum();
+};
+ 
+void tree::insert(int value) {
+  if(root==NULL) {
+    root=new tree_node;
+    root->set_data(value);
+  } else {
+    tree_node * parent=NULL;
+    tree_node * current=root;
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    while(current!=NULL) {
+      if(value<=current->get_data()) {
+        parent=current;
+        current=current->get_left();
+      } else {
+        parent=current;
+        current=current->get_right();
+      }
+    }
+    if(value<=parent->get_data() && parent->get_left()==NULL) {
+      parent->set_left(new_node);
+    } else if(value>parent->get_data() && parent->get_right()==NULL) {
+      parent->set_right(new_node);
+    }
+  }
+  size++;
+}
+ 
+void tree::recursive_insert(int value) {
+  _recursive_insert(&root, value);
+  size++;
+}
+ 
+void tree::_recursive_insert(tree_node ** root_ref, int value) {
+  if(*root_ref==NULL) {
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    *root_ref=new_node;   
+  } else {
+    if(value<=(*root_ref)->get_data()) {
+      _recursive_insert((*root_ref)->get_left_ref(), value);
+    } else {
+      _recursive_insert((*root_ref)->get_right_ref(), value);
+    }
+  }
+}
+ 
+void tree::print_preorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_preorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_preorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  cout<<root->get_data()<<" ";
+  if(root->get_left()!=NULL)
+    _print_preorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_preorder(root->get_right());
+}
+ 
+void tree::print_inorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_inorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_inorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_inorder(root->get_left());
+  cout<<root->get_data()<<" ";
+  if(root->get_right()!=NULL)
+    _print_inorder(root->get_right());
+}
+ 
+void tree::print_postorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_postorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_postorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_postorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_postorder(root->get_right());
+  cout<<root->get_data()<<" ";
+}
+
+int tree::find_size() {
+  return _find_size(root);
+}
+
+int tree::_find_size(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else {
+    return 1+_find_size(root->get_left())+_find_size(root->get_right());
+  }
+}
+
+int tree::are_identical(tree t) {
+  return _are_identical(this->root, t.root);
+}
+
+int tree::_are_identical(tree_node * tn1, tree_node * tn2) {
+  if(tn1==NULL && tn2==NULL) {
+    return 1;
+  } else if((tn1==NULL && tn2!=NULL) || (tn1!=NULL && tn2==NULL) || (tn1->get_data()!=tn2->get_data())) {
+    return 0;
+  } else {
+    return _are_identical(tn1->get_left(), tn2->get_left()) && _are_identical(tn1->get_right(), tn2->get_right());
+  }
+}
+
+int tree::find_height() {
+  return _find_height(root);
+}
+
+int tree::_find_height(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  }
+  else {
+    return 1+max(_find_height(root->get_left()), _find_height(root->get_right()));
+  }
+}
+
+void tree::delete_tree() {
+  _delete_tree(&root);
+  size=0;
+}
+
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      _delete_tree((*root)->get_left_ref());
+    }
+    if((*root)->get_right()!=NULL) {
+      _delete_tree((*root)->get_right_ref());
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+
+/* alternate _delete_tree */
+/*
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      tree_node * left_ref=(*root)->get_left();
+      _delete_tree(&left_ref);
+    }
+    if((*root)->get_right()!=NULL) {
+      tree_node * right_ref=(*root)->get_right();
+      _delete_tree(&right_ref);
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+*/
+
+void tree::mirror() {
+  _mirror(root);
+}
+
+void tree::_mirror(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+
+  tree_node * temp=root->get_left();
+  root->set_left(root->get_right());
+  root->set_right(temp);
+  _mirror(root->get_left());
+  _mirror(root->get_right());
+}
+
+void tree::print_paths(){
+   int max_path_length=find_height();
+   int * path_nodes=(int *)calloc(sizeof(int), max_path_length);
+  _print_paths(root, path_nodes, 0);
+}
+
+void tree::_print_paths(tree_node * root, int * path_nodes, int next_vacant_position){
+  if(root==NULL) {
+    return;
+  } else if(root->get_left()==NULL && root->get_right()==NULL) {
+    *(path_nodes+next_vacant_position)=root->get_data();
+    _print_array(path_nodes, next_vacant_position);
+  } else {
+    *(path_nodes+next_vacant_position)=root->get_data();
+    _print_paths(root->get_left(), path_nodes, next_vacant_position+1);
+    _print_paths(root->get_right(), path_nodes, next_vacant_position+1);
+  }
+}
+
+void tree::_print_array(int * array, int len) {
+  int i;
+  for(i=0; i<=len; i++) {
+    cout<<*(array+i)<<" ";
+  }
+  cout<<endl;
+}
+
+tree_node * tree::find_node(int value) {
+  return _find_node(root, value);
+}
+
+tree_node * tree::_find_node(tree_node * root, int value) {
+  if(root==NULL || root->get_data()==value) {
+    return root;
+  } else if(value<=root->get_data()) {
+    return _find_node(root->get_left(), value);
+  } else {
+    return _find_node(root->get_right(), value);
+  }
+}
+
+tree_node * tree::lowest_common_ancestor(int a, int b) {
+  return _lowest_common_ancestor(NULL, root, a, b);
+}
+
+tree_node * tree::_lowest_common_ancestor(tree_node * parent, tree_node * root, int a, int b) {
+  if(root==NULL) {
+    return root;
+  } else if((root->get_data()==a && (root->get_left()->get_data()==b || root->get_right()->get_data()==b))
+             || (root->get_data()==b && (root->get_left()->get_data()==a || root->get_right()->get_data()==a))) {
+    return parent;
+  } else if((_find_node(root->get_left(), a)!=NULL && _find_node(root->get_right(), b)!=NULL)
+        || (_find_node(root->get_left(), b)!=NULL && _find_node(root->get_right(), a)!=NULL)) {
+    return root; 
+  } else if(_find_node(root->get_left(), a)!=NULL && _find_node(root->get_left(), b)!=NULL) {
+    return _lowest_common_ancestor(root, root->get_left(), a, b);
+  } else if(_find_node(root->get_right(), a)!=NULL && _find_node(root->get_right(), b)!=NULL) {
+    return _lowest_common_ancestor(root, root->get_right(), a, b);
+  } else {
+    return NULL;
+  }
+}
+
+tree_node * tree::min_node() {
+  return _min_node(root);
+}
+
+tree_node * tree::_min_node(tree_node * root) {
+  if(root==NULL || root->get_left()==NULL) {
+    return root;
+  } else {
+    return _min_node(root->get_left());
+  }
+}
+
+int tree::count_leaf_nodes() {
+  return _count_leaf_nodes(root);
+}
+
+int tree::_count_leaf_nodes(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else if(root->get_left()==NULL && root->get_right()==NULL) {
+    return 1;
+  } else {
+    return _count_leaf_nodes(root->get_left())+_count_leaf_nodes(root->get_right());
+  }
+}
+
+
+int tree::is_bst() {
+  return _is_bst(root);
+}
+
+int tree::_is_bst(tree_node * root) {
+  static tree_node * previous=NULL;
+  if(root==NULL) {
+    return 1;
+  } else {
+    if(!_is_bst(root->get_left())) {
+      return 0;
+    }
+    if(previous!=NULL && (previous->get_data())>(root->get_data())) {
+      return 0;
+    }
+    previous=root;
+    if(!_is_bst(root->get_right())) {
+      return 0;
+    }    
+  }
+}
+
+int tree::children_sum() {
+  return _children_sum(root);
+}
+
+int tree::_children_sum(tree_node * root) {
+  if(root==NULL) {
+    return 1;
+  }
+  if(root->get_left()==NULL && root->get_right()==NULL) {
+    return 1;
+  }
+  else if(_children_sum(root->get_left()) && _children_sum(root->get_right())){
+    int left_data;
+    int right_data;
+    if(root->get_left()!=NULL) {
+      left_data=root->get_left()->get_data();
+    } else {
+      left_data=0;
+    }
+    if(root->get_right()!=NULL) {
+      right_data=root->get_right()->get_data();
+    } else {
+      right_data=0;
+    }
+
+    if(left_data+right_data==root->get_data()) {
+      return 1;
+    } else {
+      return 0;
+    }
+  } else {
+    return 0;
+  }
+}
+
+int main() {
+  tree t1;
+
+  t1.recursive_insert(5);
+  t1.recursive_insert(3);
+  t1.insert(10);
+  t1.insert(7);
+  t1.recursive_insert(50);
+  t1.recursive_insert(6);
+  t1.recursive_insert(1);
+  t1.recursive_insert(45);
+  t1.recursive_insert(55);
+  t1.recursive_insert(4);
+
+  if(t1.children_sum()) {
+    cout<<"Tree satisfies children sum property"<<endl;
+  } else {
+    cout<<"Tree does not satisfy children sum property"<<endl;
+  }
+
+  return 0;
+}
+ Tree does not satisfy children sum property devil_001 this is another method :  
+#include <stdio.h>
+#include <stdlib.h>
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+struct node* newNode(int data)
+{
+  struct node* node =
+      (struct node*)malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+  return(node);
+}
+
+int children(struct node *root)
+{
+  if(root==NULL)
+    return 0;
+
+  v1=children(root->left);
+  if(v1==-1){return -1;}
+  v2=children(root->right);
+  if(v2==-1){return -1;}
+  /*if both are NULL then return root->data and childrensum property holds */
+  if((root->data==v1+v2)||(v1==0&&v2==0))
+    return root->data;
+  else return -1;// root->data != (left+right) child data
+}
+int main()
+{
+  struct node *root  = newNode(10);
+  root->left         = newNode(3);
+  root->right        = newNode(7);
+  root->left->left   = newNode(3);
+  //root->left->right  = newNode(15);
+  root->left->left->left = newNode(1);
+  root->left->left->right = newNode(2);
+
+        int status=children(root);
+        if(status==-1)
+        printf("NO\n");
+        else printf("YES\n");
+
+  return 0;
+}
+
+ devil_001 another method :  
+
+#include <stdio.h>
+#include <stdlib.h>
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+struct node* newNode(int data)
+{
+  struct node* node =
+      (struct node*)malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+  return(node);
+}
+
+int children(struct node *root)
+{
+  if(root==NULL)
+    return 0;
+
+  v1=children(root->left);
+  if(v1==-1){return -1;}
+  v2=children(root->right);
+  if(v2==-1){return -1;}
+  /*if both are NULL then return root->data and childrensum property holds */
+  if((root->data==v1+v2)||(v1==0&&v2==0))
+    return root->data;
+  else return -1;// root->data != (left+right) child data
+}
+int main()
+{
+  struct node *root  = newNode(10);
+  root->left         = newNode(3);
+  root->right        = newNode(7);
+  root->left->left   = newNode(3);
+  //root->left->right  = newNode(15);
+  root->left->left->left = newNode(1);
+  root->left->left->right = newNode(2);
+
+        int status=children(root);
+        if(status==-1)
+        printf("NO\n");
+        else printf("YES\n");
+
+  return 0;
+}
+
+ Nikin  
+
+bool isSumTree(node *sr)
+{
+if(sr == NULL) return true;
+int lData = 0, rData = 0;
+if(sr->left)
+lData = sr->left->data;
+if(sr->right)
+rData = sr->right->data;
+
+return ( sr->data == (lData + rData) &&
+isSumTree(sr->left) && isSumTree(sr->right));
+
+}
+
+ Nirdesh You are missing one condition in a base case here in the 1st line.Your test should be,  
+ if(sr == null || (sr->left==null && sr->right==null)){
+    return true;
+ }
+ Teja This qn was asked in Amazon written test. AT Java code  
+/* public boolean childSum(Node n) {
+	if (n == null || n.left == null && n.right == null)
+		return true;
+	if (n.left == null || n.right == null)
+		return n.left == null? (n.data == n.right.data): (n.data == n.left.data);
+	return (n.data == n.left.data + n.right.data) && childSum(n.left) && childSum(n.right);
+} */
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

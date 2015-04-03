@@ -1,0 +1,58 @@
+An Interesting Method to Generate Binary Numbers from 1 to n  - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph An Interesting Method to Generate Binary Numbers from 1 to n Given a number n, write a function that generates and prints all binary numbers with decimal values from 1 to n. Examples: 
+Input: n = 2
+Output: 1, 10
+
+Input: n = 5
+Output: 1, 10, 11, 100, 101
+ A simple method is to run a loop from 1 to n, call decimal to binary inside the loop. Following is an interesting method that uses queue data structure to print binary numbers. Thanks to Vivek for suggesting this approach. 1) Create an empty queue of strings 2) Enqueue the first binary number “1” to queue. 3) Now run a loop for generating and printing n binary numbers. ……a) Dequeue and Print the front of queue. ……b) Append “0” at the end of front item and enqueue it. ……c) Append “1” at the end of front item and enqueue it. Following is C++ implementation of above algorithm. 
+// C++ program to generate binary numbers from 1 to n
+#include <iostream>
+#include <queue>
+using namespace std;
+
+// This function uses queue data structure to print binary numbers
+void generatePrintBinary(int n)
+{
+    // Create an empty queue of strings
+    queue<string> q;
+
+    // Enqueue the first binary number
+    q.push("1");
+
+    // This loops is like BFS of a tree with 1 as root
+    // 0 as left child and 1 as right child and so on
+    while (n--)
+    {
+        // print the front of queue
+        string s1 = q.front();
+        q.pop();
+        cout << s1 << "\n";
+
+        string s2 = s1;  // Store s1 before changing it
+  
+        // Append "0" to s1 and enqueue it
+        q.push(s1.append("0"));
+
+        // Append "1" to s2 and enqueue it. Note that s2 contains
+        // the previous front
+        q.push(s2.append("1"));
+    }
+}
+
+// Driver program to test above function
+int main()
+{
+    int n = 10;
+    generatePrintBinary(n);
+    return 0;
+}
+ Output: 1
+10
+11
+100
+101
+110
+111
+1000
+1001
+1010 This article is contributed by Abhishek. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tweet Writing code in comment? Please use ideone.com and share the link here. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

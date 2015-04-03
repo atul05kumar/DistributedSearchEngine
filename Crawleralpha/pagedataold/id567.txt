@@ -1,0 +1,365 @@
+Split a Circular Linked List into two halves - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Split a Circular Linked List into two halves Asked by Bharani                          Original Linked List                           Result Linked List 1                           Result Linked List 2  Thanks to Geek4u for suggesting the algorithm. 1) Store the mid and last pointers of the circular linked list using tortoise and hare algorithm. 2) Make the second half circular. 3) Make the first half circular. 4) Set head (or start) pointers of the two linked lists. In the below implementation, if there are odd nodes in the given circular linked list then the first result list has 1 more node than the second result list. 
+/* Program to split a circular linked list into two halves */
+#include<stdio.h> 
+#include<stdlib.h> 
+
+/* structure for a node */
+struct node
+{
+  int data;
+  struct node *next;
+}; 
+
+/* Function to split a list (starting with head) into two lists.
+   head1_ref and head2_ref are references to head nodes of 
+    the two resultant linked lists */
+void splitList(struct node *head, struct node **head1_ref, 
+                                            struct node **head2_ref)
+{
+  struct node *slow_ptr = head;
+  struct node *fast_ptr = head; 
+
+  if(head == NULL)
+    return;
+ 
+  /* If there are odd nodes in the circular list then
+     fast_ptr->next becomes head and for even nodes 
+     fast_ptr->next->next becomes head */
+  while(fast_ptr->next != head &&
+         fast_ptr->next->next != head) 
+  {
+     fast_ptr = fast_ptr->next->next;
+     slow_ptr = slow_ptr->next;
+  }  
+
+ /* If there are even elements in list then move fast_ptr */
+  if(fast_ptr->next->next == head)
+    fast_ptr = fast_ptr->next;      
+  
+  /* Set the head pointer of first half */
+  *head1_ref = head;    
+     
+  /* Set the head pointer of second half */
+  if(head->next != head)
+    *head2_ref = slow_ptr->next;
+  
+  /* Make second half circular */   
+  fast_ptr->next = slow_ptr->next;
+  
+  /* Make first half circular */   
+  slow_ptr->next = head;       
+}
+
+/* UTILITY FUNCTIONS */
+/* Function to insert a node at the begining of a Circular 
+   linked lsit */
+void push(struct node **head_ref, int data)
+{
+  struct node *ptr1 = (struct node *)malloc(sizeof(struct node));
+  struct node *temp = *head_ref; 
+  ptr1->data = data;  
+  ptr1->next = *head_ref; 
+  
+  /* If linked list is not NULL then set the next of 
+    last node */
+  if(*head_ref != NULL)
+  {
+    while(temp->next != *head_ref)
+      temp = temp->next;        
+    temp->next = ptr1; 
+  }
+  else
+     ptr1->next = ptr1; /*For the first node */
+
+  *head_ref = ptr1;     
+} 
+
+/* Function to print nodes in a given Circular linked list */
+void printList(struct node *head)
+{
+  struct node *temp = head; 
+  if(head != NULL)
+  {
+    printf("\n");
+    do {
+      printf("%d ", temp->data);
+      temp = temp->next;
+    } while(temp != head);
+  }
+}
+
+/* Driver program to test above functions */
+int main()
+{
+  int list_size, i; 
+  
+  /* Initialize lists as empty */
+  struct node *head = NULL;
+  struct node *head1 = NULL;
+  struct node *head2 = NULL;  
+
+  /* Created linked list will be 12->56->2->11 */
+  push(&head, 12); 
+  push(&head, 56);   
+  push(&head, 2);   
+  push(&head, 11);   
+
+  printf("Original Circular Linked List");
+  printList(head);      
+ 
+  /* Split the list */ 
+  splitList(head, &head1, &head2);
+ 
+  printf("\nFirst Circular Linked List");
+  printList(head1);  
+
+  printf("\nSecond Circular Linked List");
+  printList(head2);  
+  
+  getchar();
+  return 0;
+} 
+ Time Complexity: O(n) Please write comments if you find any bug in above code/algorithm, or find other ways to solve the same problem           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. saurabh I think the condition while(fast_ptr->next != head && fast_ptr->next->next != head) is wrong there should be OR condition.. Let me know if I am wrong saurabh Its correct.. got the logic.. you can delete the post. Karshit My Code.. hope you find it useful..  
+#include <iostream>
+
+using namespace std;
+
+struct node {
+    int data;
+    node *next;
+};
+
+node *create(int n)
+{
+    if (n == 0)
+        return NULL;
+
+    node *head = new node();
+    cin >> (head -> data);
+
+    head -> next = head;
+    node *p = head;
+
+    for (int i = 1; i < n; i++) {
+        p -> next = new node();
+
+        p = p -> next;
+
+        cin >> (p -> data);
+        p -> next = head;
+    }
+
+    return head;
+}
+
+void print(node *head)
+{
+    if (head == NULL)
+        return;
+
+    node *p = head -> next;
+
+    cout << head -> data << " ";
+    while (p != head) {
+        cout << p -> data << " ";
+        p = p -> next;
+    }
+}
+
+pair <node *, node*> split(node *head)
+{
+    pair <node *, node *> p;
+
+    if (head -> next == head) {
+        cout << "Only one element in link list..printing one element\n";
+        p = make_pair(head, head);
+        return p;
+    }
+
+    node *slow = head, *fast = head;
+    node *head1 = NULL;
+
+    while (fast -> next != head) {
+        slow = slow -> next;
+        fast = fast -> next -> next;
+
+        if (fast == head)
+            break;
+    }
+
+    head1 = slow;
+
+    node *pp = head;
+
+    while (pp -> next != head1) {
+        pp = pp -> next;
+    }
+
+    pp -> next = head;
+
+    while (slow -> next != head) {
+        slow = slow -> next;
+    }
+
+    slow -> next = head1;
+    p = make_pair(head, head1);
+
+    return p;
+}
+
+int main()
+{
+    int n;
+    node *head = NULL;
+
+    cin >> n;
+
+    head = create(n);
+
+    cout << "Original : ";
+    print(head);
+    cout << "\n\n";
+
+    pair <node *, node *> p;
+
+    p = split(head);
+
+    cout << "Split : \n";
+
+    print(p.first);
+    cout << "\n";
+    print(p.second);
+
+    return 0;
+}
+
+ Jitendra.BITS What’s the use of this line? Is it to check that the list has just one node or not??  
+if(head->next != head)
+ suyash when there is only one node , you cann’t split list into 2 hence there will be only one resulting list so no need to set head2… http://mahajanneha.blogspot.com/ neham Here is another way of splitting the circular linked list having O(n) complexity. It counts the number of nodes and then split it. stnd* ptr = root; float count = 1; int half; while( ptr->next != root) { ++count; ptr = ptr->next; } ptr = root; half = ceil(count / 2); cout <<endl <<count <<"\t" <<half < 1 ) { –half; ptr = ptr->next; } *head1 = root; *head2 = ptr->next; ptr->next = root; ptr = *head2; while( ptr->next != root) { ptr = ptr->next; } ptr->next = *head2; tuhin@jucse tortoise and hare algorithm is amazing\m/ Nitin Pallindrome hmmm… checkitout  
+#include<stdio.h>
+#include<stdlib.h>
+
+int nodes=0;
+struct node
+{
+    int data;
+    struct node *next;
+    struct node *prev;
+    
+
+};
+void insnode(int dt,struct node **hn,struct node **en)
+{
+     nodes++;
+     struct node *newnode=(struct node *)malloc(sizeof(struct node));
+     newnode->data=dt;
+     newnode->prev=(*en);
+     newnode->next=(*hn);
+     if((*en)!=NULL)
+     (*en)->next=newnode;
+     else
+     (*hn)=newnode;
+     (*en)=newnode;
+     
+     
+ }
+ void printlist(struct node *print)
+ {
+      struct node *start=print;
+      do
+      {
+                              printf("%d",print->data);
+                              print=print->next;
+                              
+                              }while(print!=start);
+                              printf("\n");
+  }
+  void contwo(struct node **hn,struct node **en,struct node **hn1,struct node **en1)
+  {
+       int number=1;
+       struct node *trv=(*hn);
+       while(number!=nodes/2)
+       {
+                             trv=trv->next;
+                             number++;
+                             }
+                             (*hn1)=trv->next;
+                             (*en1)=(*en);
+                             (*en)=trv;
+                             (*en)->next=(*hn);
+                             (*en1)->next=(*hn1);
+                             
+       
+   }
+ int main()
+ {
+      struct node *list=NULL;
+      struct node *end=NULL;
+      insnode(3,&list,&end);
+       insnode(5,&list,&end);
+        insnode(5,&list,&end);
+         insnode(6,&list,&end);
+          insnode(7,&list,&end);
+           insnode(8,&list,&end);
+            insnode(9,&list,&end);
+             insnode(1,&list,&end);
+             printlist(list);
+             struct node *list1=NULL;
+      struct node *end1=NULL;
+             contwo(&list,&end,&list1,&end1);
+             printlist(list);
+             printlist(list1);
+             getchar();
+             
+      
+  }
+ aman Okay, it seems like algo is moving slow pointer by the distance half of other one(fast_ptr) so as to let slow_ptr points at the middle of the list while fast_ptr traverses it complete and thus to find point to break the list. Correct me if i am not getting it right way. aman Can anybody please elaborate here more on tortoise and hare algorithm. Thank you! http://asdfsdf.com anonomus while(fast_ptr->next != head && fast_ptr->next->next != head) Should be: while(slow_ptr->next != head && fast_ptr->next->next != head) bunty hey dosto…. here is another one iteratively…  
+split(node* head, node** fast, node** slow)
+{
+ node *temp = NULL;
+
+ if (head->next==head)
+  {/* Head is pointing itself, i.e., empty list*/
+   *fast = NULL;
+   *slow = head;
+   return;
+  }
+
+ *fast = head->next;
+ *slow = head;
+  
+ while(*fast!=head)
+ { 
+  if (*fast->next!=head)
+  {
+   *fast = *fast->next;
+   *slow = *slow->next;
+  }
+  else
+  {
+   break;
+  }
+ }
+ 
+ /* make two circular list */
+ /* Second list headed by *fast */
+ *fast->next = *slow->next;  // Circular
+ *fast = *slow;              // headed by *fast.
+
+ /* First list headed by head */
+ *slow->next = head;         // Circular
+ *slow = head;               // headed by *slow.
+ 
+ return;
+}
+ Aditya Hi there, I have a question with the ‘push’ function. Shouldn’t last line in the function be within the else block. I guess it should look something like this..  
+if(*head_ref != NULL)
+  {
+    while(temp->next != *head_ref)
+      temp = temp->next;
+    temp->next = ptr1;
+  }
+  else
+    { ptr1->next = ptr1; /*For the first node */
+      *head_ref = ptr1;
+    } Sandeep @Aditya: The push() function inserts a node at the beginning of circular linked, so newly inserted node(ptr1) always becomes head. The last line (*head_ref = ptr1) changes head to point to the newly inserted node which must be done for every inserted node. Aditya @Sandeep thanks it makes the understanding easier. Btw Kudos to author(s) of this website.I have learned a lot in past two days about linked lists and pointers in general. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

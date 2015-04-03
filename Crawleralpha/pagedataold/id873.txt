@@ -1,0 +1,242 @@
+Median of two sorted arrays of different sizes - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Median of two sorted arrays of different sizes This is an extension of median of two sorted arrays of equal size problem. Here we handle arrays of unequal size also. The approach discussed in this post is similar to method 2 of equal size post. The basic idea is same, we find the median of two arrays and compare the medians to discard almost half of the elements in both arrays. Since the number of elements may differ here, there are many base cases that need to be handled separately. Before we proceed to complete solution, let us first talk about all base cases. Let the two arrays be A[N] and B[M]. In the following explanation, it is assumed that N is smaller than or equal to M. Base cases: The smaller array has only one element Case 1: N = 1, M = 1. Case 2: N = 1, M is odd Case 3: N = 1, M is even The smaller array has only two elements Case 4: N = 2, M = 2 Case 5: N = 2, M is odd Case 6: N = 2, M is even Case 1: There is only one element in both arrays, so output the average of A[0] and B[0]. Case 2: N = 1, M is odd Let B[5] = {5, 10, 12, 15, 20} First find the middle element of B[], which is 12 for above array. There are following 4 sub-cases. …2.1 If A[0] is smaller than 10, the median is average of 10 and 12. …2.2 If A[0] lies between 10 and 12, the median is average of A[0] and 12. …2.3 If A[0] lies between 12 and 15, the median is average of 12 and A[0]. …2.4 If A[0] is greater than 15, the median is average of 12 and 15. In all the sub-cases, we find that 12 is fixed. So, we need to find the median of B[ M / 2 – 1 ], B[ M / 2 + 1], A[ 0 ] and take its average with B[ M / 2 ]. Case 3: N = 1, M is even Let B[4] = {5, 10, 12, 15} First find the middle items in B[], which are 10 and 12 in above example. There are following 3 sub-cases. …3.1 If A[0] is smaller than 10, the median is 10. …3.2 If A[0] lies between 10 and 12, the median is A[0]. …3.3 If A[0] is greater than 10, the median is 12. So, in this case, find the median of three elements B[ M / 2 – 1 ], B[ M / 2] and A[ 0 ]. Case 4: N = 2, M = 2 There are four elements in total. So we find the median of 4 elements. Case 5: N = 2, M is odd Let B[5] = {5, 10, 12, 15, 20} The median is given by median of following three elements: B[M/2], max(A[0], B[M/2 – 1]), min(A[1], B[M/2 + 1]). Case 6: N = 2, M is even Let B[4] = {5, 10, 12, 15} The median is given by median of following four elements: B[M/2], B[M/2 – 1], max(A[0], B[M/2 – 2]), min(A[1], B[M/2 + 1]) Remaining Cases: Once we have handled the above base cases, following is the remaining process. 1) Find the middle item of A[] and middle item of B[]. …..1.1) If the middle item of A[] is greater than middle item of B[], ignore the last half of A[], let length of ignored part is idx. Also, cut down B[] by idx from the start. …..1.2) else, ignore the first half of A[], let length of ignored part is idx. Also, cut down B[] by idx from the last. Following is C implementation of the above approach. 
+// A C program to find median of two sorted arrays of unequal size
+#include <stdio.h>
+#include <stdlib.h>
+
+// A utility function to find maximum of two integers
+int max( int a, int b )
+{ return a > b ? a : b; }
+
+// A utility function to find minimum of two integers
+int min( int a, int b )
+{ return a < b ? a : b; }
+
+// A utility function to find median of two integers
+float MO2( int a, int b )
+{ return ( a + b ) / 2.0; }
+
+// A utility function to find median of three integers
+float MO3( int a, int b, int c )
+{
+    return a + b + c - max( a, max( b, c ) )
+                     - min( a, min( b, c ) );
+}
+
+// A utility function to find median of four integers
+float MO4( int a, int b, int c, int d )
+{
+    int Max = max( a, max( b, max( c, d ) ) );
+    int Min = min( a, min( b, min( c, d ) ) );
+    return ( a + b + c + d - Max - Min ) / 2.0;
+}
+
+// This function assumes that N is smaller than or equal to M
+float findMedianUtil( int A[], int N, int B[], int M )
+{
+    // If the smaller array has only one element
+    if( N == 1 )
+    {
+        // Case 1: If the larger array also has one element, simply call MO2()
+        if( M == 1 )
+            return MO2( A[0], B[0] );
+
+        // Case 2: If the larger array has odd number of elements, then consider
+        // the middle 3 elements of larger array and the only element of
+        // smaller array. Take few examples like following
+        // A = {9}, B[] = {5, 8, 10, 20, 30} and
+        // A[] = {1}, B[] = {5, 8, 10, 20, 30}
+        if( M & 1 )
+            return MO2( B[M/2], MO3(A[0], B[M/2 - 1], B[M/2 + 1]) );
+
+        // Case 3: If the larger array has even number of element, then median
+        // will be one of the following 3 elements
+        // ... The middle two elements of larger array
+        // ... The only element of smaller array
+        return MO3( B[M/2], B[M/2 - 1], A[0] );
+    }
+
+    // If the smaller array has two elements
+    else if( N == 2 )
+    {
+        // Case 4: If the larger array also has two elements, simply call MO4()
+        if( M == 2 )
+            return MO4( A[0], A[1], B[0], B[1] );
+
+        // Case 5: If the larger array has odd number of elements, then median
+        // will be one of the following 3 elements
+        // 1. Middle element of larger array
+        // 2. Max of first element of smaller array and element just
+        //    before the middle in bigger array
+        // 3. Min of second element of smaller array and element just
+        //    after the middle in bigger array
+        if( M & 1 )
+            return MO3 ( B[M/2],
+                         max( A[0], B[M/2 - 1] ),
+                         min( A[1], B[M/2 + 1] )
+                       );
+
+        // Case 6: If the larger array has even number of elements, then
+        // median will be one of the following 4 elements
+        // 1) & 2) The middle two elements of larger array
+        // 3) Max of first element of smaller array and element
+        //    just before the first middle element in bigger array
+        // 4. Min of second element of smaller array and element
+        //    just after the second middle in bigger array
+        return MO4 ( B[M/2],
+                     B[M/2 - 1],
+                     max( A[0], B[M/2 - 2] ),
+                     min( A[1], B[M/2 + 1] )
+                   );
+    }
+
+    int idxA = ( N - 1 ) / 2;
+    int idxB = ( M - 1 ) / 2;
+
+     /* if A[idxA] <= B[idxB], then median must exist in
+        A[idxA....] and B[....idxB] */
+    if( A[idxA] <= B[idxB] )
+        return findMedianUtil( A + idxA, N / 2 + 1, B, M - idxA );
+
+    /* if A[idxA] > B[idxB], then median must exist in
+       A[...idxA] and B[idxB....] */
+    return findMedianUtil( A, N / 2 + 1, B + idxA, M - idxA );
+}
+
+// A wrapper function around findMedianUtil(). This function makes
+// sure that smaller array is passed as first argument to findMedianUtil
+float findMedian( int A[], int N, int B[], int M )
+{
+    if ( N > M )
+       return findMedianUtil( B, M, A, N );
+
+    return findMedianUtil( A, N, B, M );
+}
+
+// Driver program to test above functions
+int main()
+{
+    int A[] = {900};
+    int B[] = {5, 8, 10, 20};
+
+    int N = sizeof(A) / sizeof(A[0]);
+    int M = sizeof(B) / sizeof(B[0]);
+
+    printf( "%f", findMedian( A, N, B, M ) );
+    return 0;
+}
+ Output:  10 Time Complexity: O(LogM + LogN) Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: Divide and Conquer Tweet Writing code in comment? Please use ideone.com and share the link here. lol The time complexity is not O(m+n) but O(smaller of m,n). The operations after when one of them becomes array of size 2 is of constant time. Mangat Rai Better approach to get 1 base case only:- take two mid elements in each array. if odd then, mid1 = A[len]/2 mid2 = a{len]/2 else mid1 = A[len]/2 mid2 = A[len]/2 -1 now compare these 4th mids of 2 arrays then, get smallest and greatest. In similar way as above. mid will lie between these elements. Discard only even number elements both the sides. With this you will get only 1 base case, i.e. one side you will have 3 or 4 elements other side as m. coder Can somebody please explain Case 5 and Case 6 in more detail? Pranay Kumar There is a typo. Instead of – if( M & 1 ) return MO2( B[M/2], MO3(A[0], B[M/2 – 1], B[M/2 + 1]) ); should be – if( M & 1 ) return MO4( B[M/2], MO3(A[0], B[M/2 – 1], B[M/2 + 1]) ); abeyaarfarziyaap Read it carefully. we first find the median of MO3(A[0], B[M/2 – 1], B[M/2 + 1]) call this as ‘New_Median’, and then we take the average with B[M/2]. Hence MO2( B[M/2], ‘New_Median’) Pranay Kumar Oh.. my blunder raghvendra #include <iostream> using namespace std; int median(int a[],int b[],int n1,int n2) { int low=0,high=n1-1,mid,j,n=(n1+n2)/2; while(low<=high) { mid=low+(high-low)/2; //cout<<low<<" "<<high<<" "<<mid<<endl; j=n-mid-1; if(a[mid]>=b[j]&&a[mid]<=b[j+1]) return a[mid]; else if(a[mid]>b[j]&&a[mid]>b[j+1]) high=mid-1; else low=mid+1; } return 0; } int main() { int A[1024],B[1024],n1,n2,n,c; cin>>n1>>n2; n=(n1+n2)/2-1; for(int i=0;i<n1;i++) cin>>A[i]; for(int i=0;i<n2;i++) cin>>B[i]; if(A[0]>=B[n2-1]) { cout<<B[n]; return 0; } else if(B[0]>=A[n1-1]) { cout<<A[n]; return 0; } c=median(A,B,n1,n2); if(c)cout<<c; else { cout<< median(B,A,n2,n1); } return 0; } bateesh @Geeksforgeeks.. In case N is even say 10. Then N-1 will be 9/2=4 so we will index 4th location. If element at idx[a] is greater then we consider its first part. total elements as per code will be N/2+1 i.e 10/2=5+1=6 But if we are at 4th location then we need to consider 5 elements only and not the 6 elements.Although code works fine but in case of even we are taking one extra element .dont we need to handle even n odd case separately?.plz comment if m getting it wrng. pritybhudolia This is very simple logic. Lets assume length of ar1[] is n and length of ar2[] is m and median of two sorted array will be at location =[(n+m) / 2] + 1. Hope this is helpful. Works for all cases according to me.     
+#include <iostream>
+#include <cstdio> 
+using namespace std;
+
+int getMedian(int ar1[], int ar2[], int n, int m)
+{
+    int i = 0;  /* Current index of i/p array ar1[] */
+    int j = 0; /* Current index of i/p array ar2[] */
+    int count;
+    int m1 = -1, m2 = -1;
+        for (count = 0; count <=(m+n)/2; count++)
+        {  
+            
+            if (ar1[i] < ar2[j])
+            {
+            m1 = m2;  /* Store the prev median */
+            m2 = ar1[i];
+            if(i==n-1)ar1[i]=INT_MAX;
+            else i++;           
+            }
+            else
+            {
+            m1 = m2;  /* Store the prev median */
+            m2 = ar2[j];
+            if(j==m-1)ar2[j]=INT_MAX;
+            else j++;            
+            }            
+        }
+        if((m+n)%2==0)// case to handle even number of counts
+        return(m1 + m2)/2;
+        else // case to handle odd number of counts
+        return m2; 
+}
+ 
+ 
+int main()
+{
+    int ar1[] = {2, 3, 4, 6, 8, 19, 14};
+    int ar2[] = {9};
+    
+    int n1 = sizeof(ar1)/sizeof(ar1[0]);
+    int n2 = sizeof(ar2)/sizeof(ar2[0]);
+    
+    cout<<"Median :"<<getMedian(ar1, ar2, n1, n2);     
+    getchar();
+    return 0;   
+    
+}
+ shek8034 Your approach is similar to the one used when the two arrays are of equal size. Nice modification. It works Alien This solution is similar to finding median using merge routine. the solution is o(m+n), while solution provided by Geeksforgeeks is o(log m + log n) Prateek Sharma No need to consider special cases.just simple median formula and that’s it..Python code with (logn +logm)complexity… def medianOfTwoSortedArraysOfUnequalSize(a1,a2): len1 = len(a1) len2 = len(a2) totalLength = len1+len2 if totalLength %2 != 0: j = totalLength/2 else: j = totalLength/2-1 u = 0 v = 0 mergeArray =[] for i in range(j+1): if u<len(a1) and v<len(a2): if a1[u]< a2[v]: mergeArray.append(a1[u]) u +=1 else: mergeArray.append(a2[v]) v +=1 else: if u == len(a1): mergeArray.append(a2[v]) v += 1 else: mergeArray.append(a1[u]) u += 1 print "median is: " + str(mergeArray[-1]) def main(): arr1 =[9] arr2 =[5,8,10,20] medianOfTwoSortedArraysOfUnequalSize(arr1,arr2) if __name__ == ‘__main__': main() abhishek08aug Intelligent  
+/* Paste your code here (You may delete these lines if not writing code) */
+ spandan Tumse na ho paega ! http://friendmaybe.,com pankaj Why can’t u do same algo which is used to find kth smallest element in two sorter array. in the case of madian. we need to find (n+m)/2 +1 th element in the array complexity will be O(log(N+M)) as follow!  
+/* Paste your code here (You may delete these lines if not writing code) */
+int k = (N+M)/2 +1;
+int N = min(N, k);
+int M = min(M, k);
+if(N < M){
+ swap N, M;
+ swap A[], B[]
+}
+int step = k/4;
+int i = min(N, k/2);
+int j = k - i;
+while(step){
+ if(i>=0 &&i<=n && j>=0 && j<=n&& A[i] < B[j]){
+  i+=step;
+  j-=step;
+ } else {
+  i-=step;
+  j+=step;
+ }
+step>>=1;
+}
+}
+ v Lets assume length of A[] is L1 and length of B[] is L2 Now we know that median withing elements of two sorted array will be at location =[(L1 + L2) / 2] + 1 we can traverse on two array to have that middle no.  
+int nMiddle = (nCount1 + nCount2) / 2 + 1;  // not handling case //of having even number of numbers
+
+            int i=0;
+            int j=0;
+            int nMedianElement = 0;
+            for (int k = 0; k < nMiddle; k++)
+            {
+                if (i == nCount1)
+                {
+                    nMedianElement = arr2[j];
+                    j++;
+                }
+                else if (j == nCount2)
+                {
+                    nMedianElement = arr1[i];
+                    i++;
+                }
+                else
+                {
+                    if (arr1[i] < arr2[j])
+                    {
+                        nMedianElement = arr1[i];
+                        i++;
+                    }
+                    else
+                    {
+                        nMedianElement = arr2[j];
+                        j++;
+                    }
+                }
+            }
+ PsychoCoder  
+     /* if A[idxA] <= B[idxB], then median must exist in
+        A[idxA....] and B[....idxB] */
+    if( A[idxA] <= B[idxB] )
+        return findMedianUtil( A + idxA, N / 2 + 1, B, M - idxA );
+ 
+    /* if A[idxA] > B[idxB], then median must exist in
+       A[...idxA] and B[idxB....] */
+    return findMedianUtil( A, N / 2 + 1, B + idxA, M - idxA );
+ Is this portion is correct? I mean the index! Naruto I think this is a typo … the correct code should be /* if A[idxA] <= B[idxB], then median must exist in A[idxA….] and B[….idxB] */ if( A[idxA] B[idxB], then median must exist in A[…idxA] and B[idxB….] */ return findMedianUtil( A, N / 2 + 1, B + idxB, M – idxB ); asad It’s not a typo error. But this is the most tricky part..!! The explanation given in comments is wrong while the code is correct. In order to keep the new median of subarray same as that of before, it’s important to discard the same number of elements from both the array. Since, size of A is smaller, idxA will always be smaller than idxB and hence the same amount is discarded from both the array. Try dry running on [1,5,6], [2,3,4,7,8] and you’ll get my point (Correct answer is 4.5)..:D Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

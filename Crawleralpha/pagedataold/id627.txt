@@ -1,0 +1,435 @@
+Inorder Tree Traversal without Recursion - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Inorder Tree Traversal without Recursion Using Stack is the obvious way to traverse tree without recursion. Below is an algorithm for traversing binary tree using stack. See this for step wise step execution of the algorithm. 
+1) Create an empty stack S.
+2) Initialize current node as root
+3) Push the current node to S and set current = current->left until current is NULL
+4) If current is NULL and stack is not empty then 
+     a) Pop the top item from stack.
+     b) Print the popped item, set current = popped_item->right 
+     c) Go to step 3.
+5) If current is NULL and stack is empty then we are done.
+ Let us consider the below tree for example 
+            1
+          /   \
+        2      3
+      /  \
+    4     5
+
+Step 1 Creates an empty stack: S = NULL
+
+Step 2 sets current as address of root: current -> 1
+
+Step 3 Pushes the current node and set current = current->left until current is NULL
+     current -> 1
+     push 1: Stack S -> 1
+     current -> 2
+     push 2: Stack S -> 2, 1
+     current -> 4
+     push 4: Stack S -> 4, 2, 1
+     current = NULL
+
+Step 4 pops from S
+     a) Pop 4: Stack S -> 2, 1
+     b) print "4"
+     c) current = NULL /*right of 4 */ and go to step 3
+Since current is NULL step 3 doesn't do anything. 
+
+Step 4 pops again.
+     a) Pop 2: Stack S -> 1
+     b) print "2"
+     c) current -> 5/*right of 2 */ and go to step 3
+
+Step 3 pushes 5 to stack and makes current NULL
+     Stack S -> 5, 1
+     current = NULL
+
+Step 4 pops from S
+     a) Pop 5: Stack S -> 1
+     b) print "5"
+     c) current = NULL /*right of 5 */ and go to step 3
+Since current is NULL step 3 doesn't do anything
+
+Step 4 pops again.
+     a) Pop 1: Stack S -> NULL
+     b) print "1"
+     c) current -> 3 /*right of 5 */  
+
+Step 3 pushes 3 to stack and makes current NULL
+     Stack S -> 3
+     current = NULL
+
+Step 4 pops from S
+     a) Pop 3: Stack S -> NULL
+     b) print "3"
+     c) current = NULL /*right of 3 */  
+
+Traversal is done now as stack S is empty and current is NULL. 
+ Implementation: 
+#include<stdio.h>
+#include<stdlib.h>
+#define bool int
+
+/* A binary tree tNode has data, pointer to left child
+   and a pointer to right child */
+struct tNode
+{
+   int data;
+   struct tNode* left;
+   struct tNode* right;
+};
+
+/* Structure of a stack node. Linked List implementation is used for 
+   stack. A stack node contains a pointer to tree node and a pointer to 
+   next stack node */
+struct sNode
+{
+  struct tNode *t;
+  struct sNode *next;
+};
+
+/* Stack related functions */
+void push(struct sNode** top_ref, struct tNode *t);
+struct tNode *pop(struct sNode** top_ref);
+bool isEmpty(struct sNode *top);
+
+/* Iterative function for inorder tree traversal */
+void inOrder(struct tNode *root)
+{
+  /* set current to root of binary tree */
+  struct tNode *current = root;
+  struct sNode *s = NULL;  /* Initialize stack s */
+  bool done = 0;
+
+  while (!done)
+  {
+    /* Reach the left most tNode of the current tNode */
+    if(current !=  NULL)
+    {
+      /* place pointer to a tree node on the stack before traversing 
+        the node's left subtree */
+      push(&s, current);                                               
+      current = current->left;  
+    }
+       
+    /* backtrack from the empty subtree and visit the tNode 
+       at the top of the stack; however, if the stack is empty,
+      you are done */
+    else                                                              
+    {
+      if (!isEmpty(s))
+      {
+        current = pop(&s);
+        printf("%d ", current->data);
+
+        /* we have visited the node and its left subtree.
+          Now, it's right subtree's turn */
+        current = current->right;
+      }
+      else
+        done = 1; 
+    }
+  } /* end of while */  
+}     
+
+/* UTILITY FUNCTIONS */
+/* Function to push an item to sNode*/
+void push(struct sNode** top_ref, struct tNode *t)
+{
+  /* allocate tNode */
+  struct sNode* new_tNode =
+            (struct sNode*) malloc(sizeof(struct sNode));
+
+  if(new_tNode == NULL)
+  {
+     printf("Stack Overflow \n");
+     getchar();
+     exit(0);
+  }            
+
+  /* put in the data  */
+  new_tNode->t  = t;
+
+  /* link the old list off the new tNode */
+  new_tNode->next = (*top_ref);   
+
+  /* move the head to point to the new tNode */
+  (*top_ref)    = new_tNode;
+}
+
+/* The function returns true if stack is empty, otherwise false */
+bool isEmpty(struct sNode *top)
+{
+   return (top == NULL)? 1 : 0;
+}   
+
+/* Function to pop an item from stack*/
+struct tNode *pop(struct sNode** top_ref)
+{
+  struct tNode *res;
+  struct sNode *top;
+
+  /*If sNode is empty then error */
+  if(isEmpty(*top_ref))
+  {
+     printf("Stack Underflow \n");
+     getchar();
+     exit(0);
+  }
+  else
+  {
+     top = *top_ref;
+     res = top->t;
+     *top_ref = top->next;
+     free(top);
+     return res;
+  }
+}
+
+/* Helper function that allocates a new tNode with the
+   given data and NULL left and right pointers. */
+struct tNode* newtNode(int data)
+{
+  struct tNode* tNode = (struct tNode*)
+                       malloc(sizeof(struct tNode));
+  tNode->data = data;
+  tNode->left = NULL;
+  tNode->right = NULL;
+
+  return(tNode);
+}
+
+/* Driver program to test above functions*/
+int main()
+{
+
+  /* Constructed binary tree is
+            1
+          /   \
+        2      3
+      /  \
+    4     5
+  */
+  struct tNode *root = newtNode(1);
+  root->left        = newtNode(2);
+  root->right       = newtNode(3);
+  root->left->left  = newtNode(4);
+  root->left->right = newtNode(5); 
+
+  inOrder(root);
+
+  getchar();
+  return 0;
+}
+ Time Complexity: O(n) References: http://web.cs.wpi.edu/~cs2005/common/iterative.inorder http://neural.cs.nthu.edu.tw/jang/courses/cs2351/slide/animation/Iterative%20Inorder%20Traversal.pps See this post for another approach of Inorder Tree Traversal without recursion and without stack! Please write comments if you find any bug in above code/algorithm, or want to share more information about stack based Inorder Tree Traversal.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tags: Tree Traveral Tweet Writing code in comment? Please use ideone.com and share the link here. Babaji My solution solves all traversals using a simple and elegant ‘dummy’ node method. The idea is to push the left, right and a dummy node onto the stack according to our traversal order and everything is handled automatically. The dummy node represents a leaf node where both right and left children are nullptr. When we see this node on the stack, just print its value and continue onto the next iteration of the loop. This method works closely with how recursion actually works. Here is some code: struct Node { Node* left; Node* right; int data; Node(int d) : left(nullptr), right(nullptr), data(d) { } bool isLeaf() { return ((left == nullptr) && (right == nullptr)); } }; void InOrder(Node* root, Stack s) { if (!root) return; s.push(root); while(!s.empty()) { Node* node = s.pop(); if (node->isLeaf()) { print(node->data); continue; } if (node->right) s.push(node->right); // Pushing a dummy leaf node s.push(new Node(node->data)); if (node->left) s.push(node->left); } } bikash I guess the above code can be simplified a little: void inOrder(struct tNode *root) { /* set current to root of binary tree */ struct tNode *current = root; struct sNode *s = NULL; /* Initialize stack s */ while (!isEmpty(s) || current) { if(current) { /* place pointer to a tree node on the stack before traversing the node’s left subtree */ push(&s, current); current = current->left; } else { current = pop(&s); printf(“%d “, current->data); /* we have visited the node and its left subtree. Now, it’s right subtree’s turn */ current = current->right; } } } superaghu public static void InOrderIterative(TreeNode root) { Console.WriteLine(“In Order Iterative”); var stack = new Stack(); var node = root; if (node != null) { stack.Push(node); while (stack.Count > 0) { //stack.Push(node); while (node.LeftChild != null) { node = node.LeftChild; stack.Push(node); } node = stack.Pop(); Console.Write(node.Data + ” –>”); if (node.RightChild != null) { node = node.RightChild; stack.Push(node); } } } } chinnisasi  
+void inOrderTraversalWithOutStack(struct node* node)	{
+	std::stack<struct node*> stk;
+	struct node* current = node;
+	while(current)	{
+		while(current)	{
+			stk.push(current);
+			current = current->left;
+		}
+		while(current == NULL && !stk.empty())	{
+			current = stk.top();
+			stk.pop();
+			printf("%d \t", current->data);
+			current = current->right;
+		}
+	}
+}
+
+ Ashish error, as when ur left side node of right subtree of left child .:) Nitesh  
+void pre_ordr(node *tree)
+{
+     vector<node*> v;
+     if(tree == NULL)
+       return;
+     
+     node *root = tree;
+     v.push_back(root);
+     while(v.size())
+     {
+          while(root->left != NULL)
+          {
+             v.push_back(root->left);
+             root = root->left;
+          }
+          node *tmp = v.back();
+          v.pop_back();
+          cout<<"Data = "<<tmp->data<<endl;
+          if(tmp->right != NULL)
+          {
+             v.push_back(tmp->right);
+             root = tmp->right;
+          }
+     }
+}
+
+ alexander.korobeynikov So many variations here, but still no proper/optimal implementation. I say “optimal” in terms of code simplicity.  
+template <typename TreeNode, typename Visitor>
+void binary_tree_traverse_inorder(TreeNode* node, Visitor visit)
+{
+    std::stack<TreeNode*> stack;
+    while (node || !stack.empty()) {
+        if (node) {
+            // go left as far as possible, push to the stack
+            stack.push(node);
+            node = node->left;
+        } else {
+            // we are at the bottom, pop from the stack
+            node = stack.top();
+            stack.pop();
+            visit(node);
+            node = node->right;
+        }
+    }
+}
+ samsammy node=stack.top() ; and stack.pop(); can be correctly written as a single line— node=stack.pop(); As pop operation in stack deletes the object in top and returns it. moussa r u sure? http://www.cplusplus.com/reference/stack/stack/pop/ Abhi  
+template <class T>
+void BinaryTree<T>::IterativeInorder(T* & outAr, const int& size)
+{
+    BinaryTreeNode<T>* current = m_Root;
+    stack<BinaryTreeNode<T>*> traversalStack;
+
+    
+    int iInorder = 0;
+    DeleteAr(outAr);
+    outAr = new int [size];
+
+    cout << "\nInorder iterative traversal: ";
+    
+    while (current || traversalStack.empty() == false)
+    {
+        if (!current)
+        {
+            while (current == NULL && traversalStack.empty() == false)
+            {
+                BinaryTreeNode<T>* node = traversalStack.top();
+                traversalStack.pop();
+
+                outAr[iInorder++] = node->m_Data;
+                cout << node->m_Data << ", ";
+
+                if (node->m_Right)
+                {
+                    current = node->m_Right;
+                }
+            }
+        }
+        else
+        {
+            traversalStack.push(current);
+            current = current->m_Left;
+        }
+    }
+}
+
+ Avinash  
+PrintInorder(struct node* head)
+{
+	If head==NULL return;
+	struct stack *s=createstack();
+	while(1)
+	{
+		while(head)
+		{
+			push(s,head);
+			head=head->left;
+		}
+		If IsEmpty(S) break;
+		head=pop(s);
+		printf("%d",head->data);
+		head=head->right;
+	}
+	deletestack(s);
+}
+ http://www.instatutorial.com bhupender well i think this code will crash as you are referencing a NULL pointer at /* place pointer to a tree node on the stack before traversing the node’s left subtree */ push(&s, current); manishj Although the above algorithm works , it is not eqivalent to the corresponding recursive implementation. The notable difference is that it pops an element from stack , before its right sub-tree is visited . However in recursive algorithm an element is popped from stack only after its right-subtree has been traversed. We need to change the algorithm as follows to work correctly : Step 4 don’t pop the value from stack , but read the value from top of stack . Step5 check if value has already been visited , if it is visited only-then pop the value from stack and set current to NULL. Repeat from step 3.Else mark it visited and ,set current = current->right , now go to step 3. Following is the program that illustrates the point :  
+void inorder(btree *root)
+{
+	btree * current = root;
+	stack<btree *> st;
+	bool done = false;
+
+	int index = 0;
+	while(!done)
+	{
+		if(current != NULL )
+		{
+			
+			st.push(current);
+
+			current = current->left;
+		}
+		else
+		{
+			if(!st.empty() )
+			{
+				current = st.top();
+				if(!searchinrightvisited(current))
+				{
+				printf("%d",current->data);
+				rightvisited[index++] = current;
+				current = current->right;
+				}
+				else
+				{				
+					st.pop();
+					current = NULL;
+				}		
+			
+			}
+			else
+			{
+				done = true;
+			}
+		}
+	}  
+	
+}
+ dev  
+template<typename E,typename K>
+void  BST<E,K>::InOrderIterative(BSTNode<K> *root)
+{
+	BSTNode<K>* current = root->leftChild;
+	std::stack<BSTNode<K>*> stk;
+	stk.push(root);
+	while(!stk.empty()) {
+		while(current != NULL) {
+			stk.push(current);
+			current = current->leftChild;
+		}
+		BSTNode<K>* temp = stk.top();
+		stk.pop();
+		std::cout<<temp->GetData()<<"\n";
+		current = temp->rightChild;
+	}
+} alveko there is a bug in the first while-condition. it shall also include (… || current) gauravs instead of writing  
+if(current !=  NULL)
+    {
+      
+      push(&s, current);
+      current = current->left;
+    }
+ we can write  
+while(current !=  NULL)
+    {
+      push(&s, current);
+      current = current->left;
+    }
+ tech.login.id2 Wouldn’t the below be a simpler implementation of the algo?  
+void inOrder (Tree *current) {
+
+while (current) {
+    if (current->left) {
+        push (current);
+        current = current->left;
+    } else {
+        print (current);
+        while (current && current->right == NULL)
+            current = pop ();
+
+        current = current->right;
+    }
+}
+
+}
+ amitmitra83 This is fine for C 0r C++, but if you are jumping in java with this simpler implementation then your will end up with STACK Exception. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

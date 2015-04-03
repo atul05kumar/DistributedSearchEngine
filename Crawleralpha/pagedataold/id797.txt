@@ -1,0 +1,662 @@
+Majority Element - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Majority Element Majority Element: A majority element in an array A[] of size n is an element that appears more than n/2 times (and hence there is at most one such element). Write a function which takes an array and emits the majority element (if it exists), otherwise prints NONE as follows: 
+       I/P : 3 3 4 2 4 4 2 4 4
+       O/P : 4 
+
+       I/P : 3 3 4 2 4 4 2 4
+       O/P : NONE
+ METHOD 1 (Basic) The basic solution is to have two loops and keep track of maximum count for all different elements. If maximum count becomes greater than n/2 then break the loops and return the element having maximum count. If maximum count doesn’t become more than n/2 then majority element doesn’t exist. Time Complexity: O(n*n). Auxiliary Space : O(1). METHOD 2 (Using Binary Search Tree) Thanks to Sachin Midha for suggesting this solution. Node of the Binary Search Tree (used in this approach) will be as follows. 
+struct tree
+{
+  int element;
+  int count;
+}BST;
+ Insert elements in BST one by one and if an element is already present then increment the count of the node. At any stage, if count of a node becomes more than n/2 then return. The method works well for the cases where n/2+1 occurrences of the majority element is present in the starting of the array, for example {1, 1, 1, 1, 1, 2, 3, 4}. Time Complexity: If a binary search tree is used then time complexity will be O(n^2). If a self-balancing-binary-search tree is used then O(nlogn) Auxiliary Space: O(n) METHOD 3 (Using Moore’s Voting Algorithm) This is a two step process. 1. Get an element occurring most of the time in the array. This phase will make sure that if there is a majority element then it will return that only. 2. Check if the element obtained from above step is majority element. 1. Finding a Candidate: The algorithm for first phase that works in O(n) is known as Moore’s Voting Algorithm. Basic idea of the algorithm is if we cancel out each occurrence of an element e with all the other elements that are different from e then e will exist till end if it is a majority element. 
+findCandidate(a[], size)
+1.  Initialize index and count of majority element
+     maj_index = 0, count = 1
+2.  Loop for i = 1 to size – 1
+    (a)If a[maj_index] == a[i]
+        count++
+    (b)Else
+        count--;
+    (c)If count == 0
+        maj_index = i;
+        count = 1
+3.  Return a[maj_index]
+ Above algorithm loops through each element and maintains a count of a[maj_index], If next element is same then increments the count, if next element is not same then decrements the count, and if the count reaches 0 then changes the maj_index to the current element and sets count to 1. First Phase algorithm gives us a candidate element. In second phase we need to check if the candidate is really a majority element. Second phase is simple and can be easily done in O(n). We just need to check if count of the candidate element is greater than n/2. Example: A[] = 2, 2, 3, 5, 2, 2, 6 Initialize: maj_index = 0, count = 1 –> candidate ‘2? 2, 2, 3, 5, 2, 2, 6 Same as a[maj_index] => count = 2 2, 2, 3, 5, 2, 2, 6 Different from a[maj_index] => count = 1 2, 2, 3, 5, 2, 2, 6 Different from a[maj_index] => count = 0 Since count = 0, change candidate for majority element to 5 => maj_index = 3, count = 1 2, 2, 3, 5, 2, 2, 6 Different from a[maj_index] => count = 0 Since count = 0, change candidate for majority element to 2 => maj_index = 4 2, 2, 3, 5, 2, 2, 6 Same as a[maj_index] => count = 2 2, 2, 3, 5, 2, 2, 6 Different from a[maj_index] => count = 1 Finally candidate for majority element is 2. First step uses Moore’s Voting Algorithm to get a candidate for majority element. 2. Check if the element obtained in step 1 is majority 
+printMajority (a[], size)
+1.  Find the candidate for majority
+2.  If candidate is majority. i.e., appears more than n/2 times.
+       Print the candidate
+3.  Else
+       Print "NONE"
+ Implementation of method 3: 
+/* Program for finding out majority element in an array */
+# include<stdio.h>
+# define bool int
+ 
+int findCandidate(int *, int);
+bool isMajority(int *, int, int);
+ 
+/* Function to print Majority Element */
+void printMajority(int a[], int size)
+{
+  /* Find the candidate for Majority*/
+  int cand = findCandidate(a, size);
+ 
+  /* Print the candidate if it is Majority*/
+  if(isMajority(a, size, cand))
+    printf(" %d ", cand);
+  else
+    printf("NO Majority Element");
+}
+ 
+/* Function to find the candidate for Majority */
+int findCandidate(int a[], int size)
+{
+    int maj_index = 0, count = 1;
+    int i;
+    for(i = 1; i < size; i++)
+    {
+        if(a[maj_index] == a[i])
+            count++;
+        else
+            count--;
+        if(count == 0)
+        {
+            maj_index = i;
+            count = 1;
+        }
+    }
+    return a[maj_index];
+}
+ 
+/* Function to check if the candidate occurs more than n/2 times */
+bool isMajority(int a[], int size, int cand)
+{
+    int i, count = 0;
+    for (i = 0; i < size; i++)
+      if(a[i] == cand)
+         count++;
+    if (count > size/2)
+       return 1;
+    else
+       return 0;
+}
+ 
+/* Driver function to test above functions */
+int main()
+{
+    int a[] = {1, 3, 3, 1, 2};
+    printMajority(a, 5);
+    getchar();
+    return 0;
+}
+ Time Complexity: O(n) Auxiliary Space : O(1) Now give a try to below question Given an array of 2n elements of which n elements are same and the remaining n elements are all different. Write a C program to find out the value which is present n times in the array. There is no restriction on the elements in the array. They are random (In particular they not sequential).           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: Majority Element, Moore's Voting Algorithm Tweet Writing code in comment? Please use ideone.com and share the link here. Gaurav Kumar /* Given an array of 2n elements of which n elements are same and the remaining n elements are all different. Write a C program to find out the value which is present n times in the array. There is no restriction on the elements in the array. */ If we carefully read the question, a number appears ‘n’ times while all other numbers are different. Since all other numbers are different we can use this information. Case 1: array can be in this form 1,2,1,3,1,4,1,5(number at alternate positions) Case 2: 1,2,3,4,1,1,5,1(number occur atleast twice consecutively ) We may extend moore’s voting algo: code available at http://ideone.com/lrOcpj Anubhav Can you please explain me if the last method mentioned is better in Time Complexity or what..?? And if the code I provided is in any ways better ar at par with any of the methods mentioned above..?? #include #define MAX 10000 #define ARRAYSIZE(arr) sizeof(arr)/sizeof(arr[0]) main() { int i, j, arr[] = {3, 3, 14, 2, 14, 14, 2, 14, 14}, sum = 0, count[MAX] = {0}, size; size = ARRAYSIZE(arr); for( i = 0; i < size; i++ ) { count[arr[i]]++; } for( i = 0; i (size/2) ) { printf(“%dn”, arr[i]); sum++; break; } } if( sum == 0 ) { printf(“Nonen”); } } harry Is method 3 O(n) ? …should be more ..isnt so because of isMajority call? Mihir Sathe We can also do a QuickSelect to find median (Expected runtime: O(n), Space: O(1)) yugal1988 We can-not achieve O(n) with sorting in O(n) space – Sorting is out of question. Now, this algorithm works fine since : Majority element needs be having a count of >n/2 ( Note: =n/2 is not majority ) [ 4, 3, 4, 3, 4, 3 ] => None [ 4, 3, 4, 3, 4 ] => 4 Now, its important to note that why do we need to check the majority candidate. Because a candidate with count = 0 [ after cancelling out others ] can or can-not be a majority element. For instance, [ 4, 5, 6, 7, 4, 3, 4, 3 ] now candidate is 4 with count=0 at the end. And on checking for majority turns out to be a majority element. On the other hand, [ 1, 5, 6, 7, 4, 3, 4, 3 ] also gives 4 as candidate with count=0 at the end but it fails the majority test. That summed up all doubts for me. anonymous In the first instance, 4 is neither a majority element nor a candidate element. As soon as its count becomes zero, the n-1th element ie 3 becomes the candidate element with count 1. This instance doesnt have a majority element 4 appears 3 times of an array in size 7. It should appear alteast 4 times. (<= n/2 + 1) Guest why dont we sort the array first and compare the a[0] with a[n/2+1] or a[n/2-1] with a[n] (see even and odd length accordingly). that way if the nums are equal then there exists a majority element. otherwise print none. #include #include using namespace std; int main() { // your code goes here int arr[]={3,3,4,2,4,4,2,4}; int length=sizeof(arr)/sizeof(int); sort(arr,arr+length); int nby2=length/2; if(arr[0]!=arr[nby2]) { if(length%2)//odd length { if(arr[nby2]!=arr[length-1]) { cout<<"NONE"<<endl; } else { cout<<arr[nby2]<<endl; } } else { if(arr[nby2-1]!=arr[length-1]) { cout<<"NONE"<<endl; } else { cout<<arr[nby2-1]<<endl; } } } else { cout<<arr[0]<<endl; } return 0; } its_dark sortgin takes O(NlogN) RAUL #include using namespace std; int A[] = {1,2,3,2,4,2,2,2,2,2,6,5}, len = 12; void boyer_moore_majority() { int key = A[0]; int count = 0; int i = 0; while ( i = 1 ) {count –; if(!count) key = -1;} } i++; cout << key <<" " << count <= 1 ) cout << key << endl; } int main() { boyer_moore_majority(); return 0; } jugal Que : Given an array of 2n elements of which n elements are same and the remaining n elements are all different. Write a C program to find out the value which is present n times in the array. There is no restriction on the elements in the array. Algo : step-1. int a[] = {1, 2, 1, 1, 6, 1, 3, 4}; size = 8; step-2. If a[0] == a[size-2] OR a[0] == a[size-1] return a[0]; If a[1] == a[size-1] return a[1]; step-3. loop over an array a[] by varibale i If a[i] == a[i+1] return a[i]; Complexity : Time O(n) Comment if any thing is wrong!!! jugal we can use map for this prob. time comlexity = O(n) auxiliary space = O(n) following is my code: ————————————————————- #include #include #include using namespace std; int main() { int a[] = {3,3,4,2,4,4,2,4}; int arr_size = 8 ; int max=0; int max_num; map count; for(int i=0;i<arr_size;i++) { count[a[i]]++; if(max arr_size/2) { cout << max_num<<"n"; return 0; } } cout << "Nonen"; return 0; } Aishwarya Kr Singh I think complexity of your code will be O(nlogn) since operator [] of map has complexity O(logn). Amit Baghel Visited yathartha Can this method be used ?? This also solves our problem in O(N) int main() { int a[10]={1,2,2,2,2,2,4,5,6,2}; int *count=(int *)calloc(10,sizeof(int)); int i; for(i=0;i5) { printf(“largest element is “); printf(“%d”,a[i]); } } return 0; } swapnil What if the element is 10000?Then probably you a lot of extra space. codeKaichu Sort and the middle element is the number since it appears more than half the time Mohd Khan but time is o(nlogn)……… Dinesh Domma It can be solved in O(n) using Hashmap. majorityElement(int A[],n) { int found=0; Hashmap hm=new Hashmap(); for(int i=0;i<n;i++) { if(hm.containsKey(A[i])) hm.put(A[i],hm.get(A[i]+1) else hm.put(A[i],1) } for(i=0;i n/2) { found++; break; } } if(found==1) System.out.println(“Found!!”); else System.out.println(“None”); } MayankSwarnkar #include #include #include using namespace std; int main() { vector v; vector::iterator pos; int i,n,cnt; cout<<"Enter 10 elements in the list"<<endl; for(i=0;i>n; v.push_back(n); } pos = v.begin(); while(pos!=v.end()) { cnt = count(v.begin(),v.end(),*pos); if(cnt>5) { cout<<*pos<<" is in majority"<<endl; return 0; } pos++; } cout<<"No element in majority"<<endl; return 0; } Nishanth we can heapsort the array in O(nlogn) time and then we can find the median in O(n) time. hence the overall time complexity will be O(nlogn) r8?? siren09 Issue with method 3: when input is {4,3,4,3,4,3,4,3} ===> gives ‘4’ as majority element when input is {1,3,4,3,4,3,4,3} ===> gives ‘NO Majority Element’ shubham it should be more than n/2 times i.e >n/2 not >=n/2 draganwarrior is 2nd phase necessary in methode3 pavansrinivas yes, consider the array{4,3,4,3,4,3,4,3} after the first phase in method 3 we get 3 as the candidate ,but 3 is not a majority element…. i think first phase gives the element, even if it repeats n/2 times..but for an element to be majority element it should repeat more than n/2 times Harjit Singh Does it work with 4 3 4 3 4 input. It does not seem to be working. Any clue? Vishal Hemnani In the end, 4 will be the candidate. On checking if 4 is indeed a majority element, it does work fine. Where’s the issue? Harjit Singh Does it work with 4 3 4 3 4 input. It does not seem to be working. Any clue? alien /* Given an array of 2n elements of which n elements are same and the remaining n elements are all different. Write a C program to find out the value which is present n times in the array. */ #include int main(void) { // your code goes here int arr[] = {1,1,1,1,2,3,4,5}; int n = 8; int count = 0; int i; if(arr[1] == arr[3] || arr[0] == arr[2]) { printf(“found”); } for(i=0;i<;i++) { if(arr[i] == arr[i-1]) { printf("found"); break; } } return 0; } chirag maheshwari Sort the array, the middle element would be the majority element, or there is no majority element. chirag maheshwari the middle number extracted has to be checked also with the whole input array, it should have count >= n/2. Marsha Donna ur algo is right but to sort the array say merge sort complexity would be O(nlogn) ..but moores algo gives a bettr complexity of O(n) alien this solution is same as BST solution provided. The only difference is, if we sort array, we will have to do one more pass to check which element is occurring n/2 times. Middle element does not always represent majority element. arr[] = {1,2,3}; Here your algorithm will give 2. But 2 is not a majority element. So to check whether array has majority element, one more pass is required. Dmitriy Pichugin I have a solution which is better that O(n). import java.util.*; public class Test { public static class MutableInteger { int value; public MutableInteger( int value ) { this.value = value; } public int getValue() { return ( this.value ); } public void setValue( int newValue ) { this.value = newValue; } } public static void print( List inputList ) { System.out.print( “[ ” ); for( Integer element : inputList ) System.out.print( element + ” ” ); System.out.print( “]” ); } public static boolean getMajorityElement( List inputList, MutableInteger result ) { if( null == inputList )//DP: no elements — no majority element return ( false ); print( inputList ); HashMap map = new HashMap( inputList.size() ); Integer bestFreq = 0; int elementsLeft = inputList.size(); for( Integer element : inputList ) { elementsLeft–; Integer freq = map.get( element ); if( null == freq ) freq = 0; freq += 1; map.put( element, freq ); if( freq > inputList.size()/2.0 ) {//DP: should process at least half of the input list. result.setValue( element ); System.out.print(“”); return ( true ); } if( bestFreq < freq ) bestFreq = freq; if( bestFreq + elementsLeft <= inputList.size()/2.0 )//DP: early termination: no majority element will be found break; //DP: even if all the rest would be equal to current best element. } System.out.print("”); return ( false ); } MutableInteger majority = new MutableInteger( 0 ); List list = new ArrayList(); //DP: populate your list here if( getMajorityElement( list, majority ) ) System.out.println( majority.getValue() ); else System.out.println( “no majority” ); Amit I am not getting the correct value for this set {2,3,4,2,3,4,4,3,3,3,2,2,5}; Kartik What do u get and what do u expect? Kresnik Because there is no majority number in the input shek8034  
+#include<iostream>
+using namespace std;
+
+int majorityElement(int arr[],int n)
+{
+	int maj_index = 0, count = 0, i;
+	for(i=0; i<n; ++i)
+	{
+		if(arr[maj_index] == arr[i])
+			count++;
+		else
+			count--;
+		if(count == 0)
+		{
+			maj_index = i;
+			count = 1;
+		}
+	}
+
+	count = 0;
+	for(i=0; i<n; i++)
+		if(arr[i] == arr[maj_index])
+			count++;
+	
+	if(count > n/2)
+		return arr[maj_index];
+	else
+		return -1;
+}
+
+int main()
+{
+	int n,i;
+	cin>>n;
+	int arr[n];
+	for(i=0; i<n; ++i)
+		cin>>arr[i];
+	cout<<majorityElement(arr, n)<<endl;
+}
+ http://www.geeksforgeeks.org anjali will it work for 3 5 3 7 3 1 1 3  
+/* Paste your code here (You may delete these lines if not writing code) */
+ shek8034 Yes.. Output is -1. Since there is no majority element Unique  
+/* #include<stdio.h>
+#include<conio.h>
+#define MAX 10000
+void findMajority(int a[],int size)
+{
+     int hash[MAX]={0};
+     int i,maxCount=0,index=0;
+     for(i=0;i<size;i++)
+     {
+              hash[a[i]]++;
+              if(hash[a[i]]>maxCount)
+              {
+                       maxCount=hash[a[i]];
+                       index=i;
+              }         
+     }
+          if(maxCount>=(size/2))
+                  printf("MaxCount %d :: Major element is %d",maxCount,a[index]);
+ }
+int main()
+{
+    int a[]={1,2,3,3,2,3,3,3};
+    int size=sizeof(a)/sizeof(a[0]);
+    findMajority(a,size);
+    getch();
+    return 0;
+}
+ */
+ DevilCoder Can we use Hashing to solve the problem ? Unique #include #include #define MAX 10000 void findMajority(int a[],int size) { int hash[MAX]={0}; int i,maxCount=0,index=0; for(i=0;imaxCount) { maxCount=hash[a[i]]; index=i; } } if(maxCount>=(size/2)) printf(“MaxCount %d :: Major element is %d”,maxCount,a[index]); } int main() { int a[]={1,2,3,3,2,3,3,3}; int size=sizeof(a)/sizeof(a[0]); findMajority(a,size); getch(); return 0; Aarushi For the second problem (2n elements) how is this method? Traverse the array using Voting algorithm. The moment we get count =2 we return the no. whose count is 2, as the n no.s are ALL different. That is our answer! If the whole array is traversed and count has never been 2 and at the end count is 1, the only choice for the no. with frequency n is either the last or the second last element. We can take 2 variables which keep track of the count of the last and the second last no. respectively and traverse the array once again to find out which of them is the answer? Time Complexity: O(n). Asap I think your approach is correct. But how about this one. Compare first three elements If any two of them are same then return that element. if all three are different then we can remove that 3 elements and pass the left over array to find majority element in O(n)  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Sandy We can also do it by sorting the array say after sorting we have 2,2,3,3,4,4,4,4,4 then we can loop through the array and check if an element at position i is also present at position i+n/2 if true we return the number else we go to next index and check for new number and repeat the process T(n) = T(sorting) + T(single loop) taking T(sorting) = O(nlogn) using heapsort we get T(n) = O(nlogn) ultimate_coder I agree.  
+bool checkmajority(int a[],int n)
+{
+    for(int i=0;i<=n/2;i++)
+    {
+        if(a[i]==a[i+n/2])
+        return 1;
+    }
+    return 0;
+}
+ Sandy ultimate_coder your loop condition should be i<n/2 to keep index error in check ultimate_coder @sandy if condition is i 1 3 3 here it will return 0 which is incorrect. ultimate_coder @sandy if condition is i<=n/2 then it will fail for the following test case 1 3 3 here it will return 0 which is incorrect. ultimate_coder sorry for typo.. it fails for i Corrections welcome. ultimate_coder how about using hashing…???It should not be the bad idea..?? _naive_ Here’s one more solution (nlogn) 1. sort the array (nlogn) 2. pick the center element of the array.(if any element comes more than n/2 times , it must be present in the center after sorting) 3. count the occurrence of this element in the array (n) 4. if count is > n/2 then print this element otherwise print NONE. Any suggestion ?? achawla Q. Given an array of 2n elements of which n elements are same and the remaining n elements are all different. Write a C program to find out the value which is present n times in the array. There is no restriction on the elements in the array A. Divide array in two part and apply Voting algorithm in each. (If 2*n is not of form 2^n then n is sure an odd else its even. If n is odd then either of its left or right part will have an element with count more than n/2. Hence voting algorithm is applied here.) Run time will be linear.  
+#include <iostream>
+#include <conio.h>
+#include <string.h>
+#include <stdlib.h>
+using namespace std;
+
+bool IsMajority(int a[], int left, int right, int key){
+int count = 0;
+for (int i = left; i<= right;i++){
+         if(key == a[i]) count ++;
+         if(count > 1) return true;   
+}
+return false;
+}
+
+int func(int a[], int left, int right){
+int count=1;
+int key = a[left];
+for(int i = left + 1; i<=right ; i++){
+        if (a[i] == key){
+             count++;
+        }
+        else{
+             count--;
+        }
+        if(count == 0){
+             key = a[i];
+             count = 1;
+        }    
+}
+return key;    
+}
+
+int main(){
+int a[8]={9, 6, 1, 9, 9, 3, 4, 9};
+int size=8, Maj;
+if ((size / 2)%2 == 1){
+          int left = func(a,0,size/2-1);
+          if(IsMajority(a,0,size/2-1,left)){
+                         Maj=left;
+          }                                                                              
+          int right= func(a, size/2,size-1);
+          if(IsMajority(a,size/2,size-1,right)){
+                         Maj=right;
+          }                                  
+}
+else{
+          if(a[size/2-1] == a[size/2]) {
+                         Maj = a[size/2];
+          }
+          else{                
+                 int left = func(a, 0,size/2-2);
+                 if(IsMajority(a,0,size/2-2,left)){
+                          Maj=left;
+                 }          
+                 int right = func(a, size/2+1,size-1);               
+                 if(IsMajority(a,size/2+1,size-1,right)){
+                        Maj=right;
+                 }
+          }
+} 
+cout<< "Element with n/2 times: " << Maj;
+getch();
+return 0;
+}
+
+ pawan  
+#include<stdio.h>
+
+int arr[]={3,3,4,2,4,4,2,4,4};
+int arr_len=9;
+
+int sort(int arr[])
+{
+	int i,j,temp;
+	for(i=0;i<arr_len;i++)
+		{
+			for(j=0;j<arr_len-1;j++)
+				{
+					if(arr[j]>arr[j+1])
+						{
+							temp=arr[j];
+							arr[j]=arr[j+1];
+							arr[j+1]=temp;
+						}
+				}
+				
+		}
+		return 0;
+}
+
+int main()
+{
+	int i,j,n,a=0,count[]={1},req;
+	
+	req=arr_len/2;
+	
+	sort(arr);
+	
+	for(i=0;i<arr_len;i++)
+		{
+			if(arr[i]==arr[i+1])
+				{
+					count[a]++;
+					if(count[a]>req)
+						{
+							printf("%d\n",arr[i]);
+							break;
+						}
+					
+				}
+				
+				else
+				a++;
+		}
+}
+
+ Ankit Sablok This algorithm is guaranteed to work in linear time and also it doesn’t make any assumption about the input data it can be either positive or negative and uses maps in c++  
+
+// I/O Includes
+
+#include<new>
+#include<cstdio>
+#include<cctype>
+#include<cmath>
+#include<cstdlib>
+#include<cstring>
+#include<sstream>
+#include<iostream>
+#include<strstream>
+
+// Data Structure Includes
+
+#include<map>
+#include<set>
+#include<list>?
+#include<stack>
+#include<deque>
+#include<queue>
+#include<vector>
+#include<bitset>
+#include<string>
+#include<iterator>
+#include<algorithm>
+
+// Standard Namespace Inclusion
+
+using namespace std;
+
+// Supporting Macro
+
+#define SZ( C )                 ( ( int ) ( ( C ).size() ) )
+#define ALL( C )                ( C ).begin() , ( C ).end()
+#define TR( C , it )            for( typeof( ( C ).begin() ) it = ( C ).begin(); it != ( C ).end() ; ++it )
+#define LN( STRING )            ( ( int ) ( STRING ).length() )
+#define SPRESENT( C , x )       ( ( ( C ).find( x ) ) != ( C ).end() )
+#define CPRESENT( C , x )       ( find( ALL( C ) , x ) != ( C ).end() )
+#define PB                      push_back
+
+// Typedefed Versions of Data Types
+
+typedef vector< int > VI;
+typedef vector< VI > VVI;
+typedef vector< string > VS;
+typedef pair< int ,int > PII;
+typedef long long LL;
+typedef unsigned long long ULL;
+
+int main(){
+
+    map<int , int> hm;
+
+    int n;
+    cin >> n;
+
+    for(int i = 0 ; i < n ; ++i){
+        int temp;
+        cin >> temp;
+
+        if( hm.find( temp ) != hm.end() ){
+            ++( hm.find( temp )->second );
+        }
+
+        else
+            hm.insert( make_pair(temp , 1) );
+    }
+
+    int element;
+    int max = -1;
+
+    TR( hm , it ){
+
+        if( max < it->second ){
+            element = it->first;
+            max = it->second;
+        }
+    }
+
+    if( max > n/2 )
+        cout << "The majority element is : " << element << endl;
+    else
+        cout << "NONE" << endl;
+
+    return 0;
+}
+
+
+ Suggestions are appreciated geekyboy @geeksforgeeks @anyone and everyone How do we go about finding the element occurring maximum number of times rather than the majority element. Is there a better solution than O(n^2). Also if there is already a post on this please provide me with the link Any comments and suggestions are welcomed. geekyboy i am quering about an array of numbers and their range is not known so we cannot apply hashmap technique. prakash my suggestion is sort the array ->o(nlogn)(duplicates will be in continues location) then do following, max_count=1;max_count_elemnt=arr[0];count=1 for(i=1;imax_count) { max_count=count; max_count_elemnt=arr[i]; } } else count=1; } return max_count_elemnt; Chinmaya This approach works fine. Complexity is also O(nlogn). Thanks Prakash. Rohan how about this as a solution … This will work on O(n) always.. comments please.  
+
+int a[]={3, 3, 4, 3, 4, 4, 3, 3, 5,18};
+
+void find_majority()
+{
+	int i = 0 ;
+	int max_element = 0 ;
+	for(i=0;i<sizeof(a)/sizeof(int);i++)
+		if(max_element < a[i])
+			max_element = a[i];
+
+	printf("max_element :%d\n",max_element);
+
+	int HASH[max_element+1];
+
+	for(i=0;i<max_element+1;i++)
+	{
+		HASH[i]=0;
+	}
+
+	int array_size = sizeof(a)/sizeof(int);
+
+
+
+	printf("Array Size : %d\n",array_size);
+	for(i=0;i<array_size;i++)
+	{
+	        HASH[a[i]]++;
+		if(HASH[a[i]] >= array_size/2 + 1)
+		{
+			printf("Majority Element present :  %d",a[i]);
+			return;
+		}
+	}
+	printf("No Majority Element present\n");
+}
+ Rohan off course for negative numbers we will need a offset…!! pefullarton Dude, what if one of the array element is INT_MAX????? Too amateur algo as the HASH size can be too high. Rohan Thanks for the correction…. I overlooked this situation..!!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Keerthi The condition count==0 should be moved up in the loop. for(int i=1;i<n;i++){ if(count==0){ m=i; count=1; } if(arr[m] == arr[i]) count++; else count–; } Ankit Malhotra Using pass by reference, we can simplify the majority function and use it find n repeating in 2n elements. To do so, We need to append the last element of the array once. Now the n repeating element has to be present either as majority of 2n – 1 or majority of 2n + 1. Remember to remove the newly added element from relevant data structure, once the required element is found.  
+#include <iostream>
+#define MAXCOUNT 99999
+using namespace::std;
+typedef unsigned long counter;
+typedef long long element;
+
+element occurenceCount (element term[], counter count, element candidate)
+{
+  counter findcount = 0;
+  for (counter i = 0; i < count; ++i)
+    if (term[i] == candidate) ++findcount;
+  return findcount;
+}
+
+bool majority (element term[], counter count, element & candidate)
+{
+  for (counter i = 0, findcount = 0; i < count; ++i)
+  {
+    if (!findcount) candidate = term[i];
+    if (term[i] == candidate) ++findcount;
+    else --findcount;
+  }
+  return (occurenceCount(term, count, candidate) > (count / 2));
+}
+
+int main ()
+{
+  counter count;
+  element term[MAXCOUNT] = {0}, candidate;
+  cin >> count;
+  for (counter i = 0; i != count; ++i) cin >> term[i];
+  term[count++] = term[count - 1];
+  if(majority (term, count - 2, candidate) || 
+    majority (term, count, candidate))
+  {
+    --count;
+    cout << " Half Count Element is " << candidate;
+  }
+  else cout << " No Half Count element found.";
+  cout << endl;
+  return 0;
+}
+ Ankit Malhotra Code to find n repeating from 2n elements. Find majority element if any in first 2n – 1 elements. If found it is the needed element else check if the last element occurs n times in the array as that is the only probable candidate. If there is no majority element and last element does not occur n times then there is no such element.  
+#include <iostream>
+#define MAXCOUNT 99999
+using namespace::std;
+typedef unsigned long counter;
+typedef long long element;
+
+element majority (element term[], counter count)
+{
+  element major;
+  for (counter i = 0, findcount = 0; i < count; ++i)
+  {
+    if (!findcount) major = term[i];
+    if (term[i] == major) ++findcount;
+    else --findcount;
+  }
+  return major;
+}
+
+element occurenceCount (element term[], counter count, element candidate)
+{
+  counter findcount = 0;
+  for (counter i = 0; i < count; ++i)
+    if (term[i] == candidate) ++findcount;
+  return findcount;
+}
+
+inline bool checkmajor (element term[], counter count, element candidate)
+{
+  return (occurenceCount(term, count, candidate) > (count / 2));
+}
+
+int main ()
+{
+  counter count;
+  element term[MAXCOUNT] = {0}, candidate;
+  cin >> count;
+  for (counter i = 0; i != count; ++i) cin >> term[i];
+  candidate = majority (term, count - 1);
+  if (checkmajor (term, count - 1, candidate))
+    cout << " Half Count Element is " << candidate;
+  else
+    if (occurenceCount (term, count, term[count - 1]) == count/2)
+      cout << " Half Count element is " << term[count - 1];
+    else cout << " No Half Count element found.";
+  cout << endl;
+  return 0;
+}
+
+ Ankit Malhotra Above code will have worst case absolute of 3n which we can reduce to n by first checking for count of last element and then finding majority if required. main() will hence be re written as  
+int main ()
+{
+  counter count;
+  element term[MAXCOUNT] = {0}, candidate;
+  cin >> count;
+  for (counter i = 0; i != count; ++i) cin >> term[i];
+  if (occurenceCount (term, count, term[count - 1]) == count/2)
+    cout << " Half Count element is " << term[count - 1];
+  else
+  {
+    candidate = majority (term, count - 1);
+    if (checkmajor (term, count - 1, candidate))
+      cout << " Half Count Element is " << candidate;
+    else
+      cout << " No Half Count element found.";
+  }
+  cout << endl;
+  return 0;
+}
+ Azhar Problem: Given an array of 2n elements of which n elements are same and the remaining n elements are all different. Write a C program to find out the value which is present n times in the array. There is no restriction on the elements in the array. They are random (In particular they not sequential). Soln: There are only two possibility. Case 1) Repeating elements are at every alternate position. Case 2) If not case1 then at least 2 consecutive elements are repeating. Any element having this property is our answer. Abhi Find the median of the array in O(n) using deterministic search.the median has to be the majority element of the array. Zee This problem was asked in Goldman Sachs recruitment exam at DCE a couple of weeks back. a_b I have an O(n) approach? is there anything wrong in this method? #include #include using namespace std; int main() { int a[100],n,i,f=0,index,a1[1000]={0}; cin>>n; for(i=0;i>a[i]; index=a[i]; a1[index]++; } for(i=0;i(n/2)) { f=1; cout<<i; break; } } if(f==0) cout<<"NONE"; getch(); return 0; } Nishant Kumar Using Hash Map:  
+#include<stdio.h>
+#include<stdlib.h>
+#define SIZE 1000
+
+void find_majority(int *a,int size)
+{
+    int max,i,val,hash[SIZE]={0};
+    i=size;
+    while(i--)
+    {
+        hash[a[i]]++;
+    }
+    i=size;
+    i--;
+    while(i)
+    {
+        if(hash[a[i]]>hash[a[i-1]])
+        {
+            max=hash[a[i]];
+            val=a[i];
+        }
+        else
+        {
+            max=hash[a[i-1]];
+            val=a[i-1];
+        }
+        i--;
+    }
+    if(max>size/2)
+    printf("%d",val);
+    else
+    printf("NONE");
+}
+
+int main()
+{
+    int a[10]={1, 1, 1, 2, 1, 2, 3, 3, 1, 1};
+    int sum;
+    find_majority(a,10);
+
+    return 0;
+}
+
+ Nishant Kumar Time complexity : O(n) correct me if i am wrong chandra prakash works only if the range of numbers is known in advance….  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Guddu sharma One different approach is based on idea that if an element if repeated more than half of the time, a count can be used. Count is incremented every time majority element is encountered & decremented every time a different element comes. Thus at the end if count>=1, the majority element is known. See the following code:  
+int find(arr)
+{
+	int count=1;
+	int el=arr[0];
+	for(i=1;i<n;i++)
+	{
+		if(count==0)
+		{
+			el=arr[i];
+			count=1;
+		}
+		else if(el==arr[i])
+			count++;
+		else
+			count--;
+	}
+	if(count>=1)
+		return el;
+	else
+		return -1;
+}
+ Let me know if some corner cases have been missed karan doesnt method 3 fail for the below input? {2,1,2,3,2,4,2,6,2,7,2} Venki @karan, it won’t. Please check. The array size is 11 and the element 2 appears 6 times which is > N/2. See the code, http://ideone.com/RMaXt rl cant it be done by hashing? vikas368 what is the candidate from the voting algo for the example 2,2,2,3,3,4,4? algo gives candidate as 4 but candidate is 2 right? Or am I missing something?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ratnakar I think question is that the majority element is one that occurs more than n/2 times where n is the length of the array  
+/* Paste your code here (You may delete these lines if not writing code) */
+ hidden_from_world # include void majority_element(int a[],int max,int size) { int b[max]; //taken one array b[max] int I,J,K; for(I=0; I< =max; I++) b[I]=0; for(J=0; J b[a[J]]=b[a[J]]+1; for(K=0; K<=max; K++) { if(ar[K]>(size/2)) { printf(“%d”,K); break; } } if(K>max) printf(“no repeating element is > n/2″) } int main() { int a[9]={3,3,4,2,4,4,2,4,4}; int max=a[0]; for(I=0; I<9; I++){ if(max max=a[I]; majority_element(ar,max,9); return 0; } // solution in O(n) plz correct me if i am wrong…. http://www.cse.iitb.ac.in/~rohitfeb14/ Rohit Saraf Another simpler algorithm that is O(n) Check for all even i, array[i] & array[i+1], if they are same, keep any one of them else drop both This deterministically reduces the size of the candidate array to half (actually more in practice). Keep doing this, and at last the candidate would be found, checking which takes another O(n) time. Proof: 1. For being majority, two adjacent elements should be same. 2. At every step, the majority element continues to be in majority, if any. So, a very simple O(n) solution !! http://www.cse.iitb.ac.in/~rohitfeb14/ Rohit Saraf Forgot to mention. This is O(n) because T(n) = n + T(n/2) which can be solved to give T(n) = O(n) http://www.cse.iitb.ac.in/~rohitfeb14/ Rohit Saraf Forgot to mention. T(n) = n + T(n/2) which can be solved to give T(n) = O(n) http://www.cse.iitb.ac.in/~rohitfeb14/ Rohit Saraf Sorry. This is all wrong! Satyarth 1> We know that if majority element exists then it will must present at n/2th position after sorting the array. This is same as finding median of the array which can be found in O(n) using Order statistic. 2> After getting this element, check whether this is majority element, again by traversing the array. So, it can be found in O(n) time and O(1) space Please correct me, if I am wrong. kartik @Satyarth: Thanks for suggesting another O(n) approach. This approach can be added to the original post. http://profiles.google.com/mindprince/about Rohit Agarwal This assumes that there is an order relation between the elements. This assumption may not always be true. For example consider the case where the elements are GIF files or something like that. Satyarth I dont think above any method can be applied for GIF image.We need to take extra care for that. donbosio this is not O(n), sorting elements take O(nlogn). So, this is O(nlogn) . Satyarth I am not sorting the elements. Read my post carefully. Ankur We know that if majority element exists then it will must present at n/2th position after sorting the array I read..what does “sorting the array” means Satyarth Satyarth If it were sorted, then majority element must be present a n/2th position in array. Ujjwal i think @Satyarth is right coz if majority ele is present at all, it will be @(n/2)th position, which is nothing but the median of an array. And we know that median of an array can be found out in O(n) time complexity (candidate ele).. We finally need to traverse the array again and check if it is at all a “majority ele”.. Satyarth @Ujjwal Thanks!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Karthick Well, for the Moore’s algorithm, if the input is { 1,2,3,2,4,2,5} won’t findMajority() return ‘5’ as the majority element? Or was I wrong in interpreting the algorithm? AG ya dats why we need to check in the last step whether the candidate suggested by the Moore’s voting algorithm is occurring more than n/2 times in the array or not. In your test case there doesn’t exist any majority element. Hope u got it.. donbosio is the new problem not same with new N=2n or am i getting it wrong? Ravi Please tell me a O(logn) solution to this problem. Given an array of N elements and where an element appears exactly N/2 times and the rest N/2 elements are unique. How would you find the element with a better run time? Remember the elements are not sorted and you can assume N is even. For example, input array [] = { 10, 2, 3, 10, 1, 4, 10, 5, 10, 10 } So here 10 appears extactly 5 times which is N/2. I know a solution with O(n) run time. But still looking forward to know a better solution with O(log n). http://techpuzzl.wordpress.com ved @Ravi, @geeksforgeeks, please post O(n) or better solution here ? _TJ O(n) time is impossible if the array is not sorted. You need to visit at least n/2+1 element in the best case before declaring the majority element,which is O(n) Decompiler I think it is the same problem as above only difference is N >= n/2 where in 1st case it was N > n/2 Rajeev Hello, Can anyone elaborate how the time complexity and space complexity in the method is O(n*n) and O(1). I think it should be O(n) in both cases. As in one single loop we calculate the frequency of all different elements. Rajeev Rajeev In Method 1(basic) Sandeep @Rajeev: I agree, space complexity should be O(n). The post doesn’t say space complexity is O(1), it says auxiliary space is O(1). Regarding time complexity, if the input array is like [12, 21, 34, 45, 10, 10, 10, 10, 10], then the basic method would look for number of occurrences of 12, then 21, then 34, and 45. after reaching 10, it will be able to find majority element. So we can say in worst case time complexity is O(n^2) Himanshu Aggarwal Hi, More info about the Boyer Moore’s voting algorithm is given at their website below. http://userweb.cs.utexas.edu/users/moore/best-ideas/mjrty/index.html Thanks Himanshu Aggarwal Rajeev Hi, According to the link, we don’t change the majority element when count is zero, it is changed on the next element. But in the code given here it is changed on the same element where the count becomes zero. Is it making a differnce?? Thanx Rajeev Himanshu Aggarwal Please find the algorithm below :  #include<stdio.h>
+int findmaj(int arr[], int n)
+{
+    int bitcount[32];
+    int i, j, x;
+
+    for(i = 0; i < 32; i++)
+        bitcount[i] = 0;
+    for (i = 0; i < n; i++)
+         for (j = 0; j < 32; j++)
+               if (arr[i] & (1 << j)) // if bit j is on
+                    bitcount[j]++;
+               else
+                    bitcount[j]--; 
+
+    x = 0;
+    for (i = 0; i < 32; i++)
+        if (bitcount[i] > 0)
+            x = x | (1 << i);
+    return x;
+}
+
+int main()
+{
+  int i;
+  int arr[5] = {1, 3 ,1, 1, 3};
+
+  printf(" %d ",  findmaj(arr, 5));
+
+  getchar();
+  return 0;
+}
+ We keep a count of frequency of each of the bits. Since majority element will dominate the frequency count, hence we can get its value. The solution is constant space and linear time : O(n) Regards Himanshu Aggarwal kartik Nice method!! It works, but it does more comparisons compared to Moore’s Voting Algorithm. geeksforgeeks @sachin midha: Thanks for suggesting a new method, we have added the method to original post. Please note that time complexity of the method will be O(n*n) for a BST and O(nlogn) for self-balancing BST Reference: http://en.wikipedia.org/wiki/Binary_search_tree#Sort sachin midha The original question can also be solved by using a BST.  
+struct tree
+{
+  int n;
+  int count;
+}BST;
+ Each element would be inserted into the tree and if it is already present count will be updated. The advantage of this method would be that in the bast case scenario we would not have to scan through the whole of the array for findng the majority element, since if count variable becomes greater than n/2, our problem is solved. Eg. ar={1,1,1,1,1,2,3,4} here we do not have to scan through the whole array since after getting the 5th 1 its count becomes > n/2(4). The sad part though, is that it requires an extra o(n) space in the worst case when all elements are different. But this approach would be useful if we have to scan through the array only once. Time complexity : o(n){best case:whole array does not hv to be scanned} Space complexity : o(n) worst case Apoorv Nice. I feel we can improvise this by using a hash map instead of a BST. When using BST, in the worst case, for every insertion(increment of count), we’ll have to make log(n) comparisons. However, in HashMap, this will take constant time. Please correct me if I am wrong. geeksforgeeks @Srinivas Iyengar: Thanks for writing to us. Your solution is correct for the “Try it Yourself Part”. Another simple solution is to loop through all the elements and if you see an element who is same as element next to it or same as element next next to it, return the element. Since all other n elements are different, this will work. @Anshu Veda Jain: Thanks for providing a variation of the problem. Your solution is also correct for the variation. Keep writing to us. Rajeev the suggested approach has a corner case (1, 2, 3, 1) neha2210 Yes you are right! Anshu Veda Jain @ geeksforgeeks: I think Srinivas based solution on the assumption in your problem “the remaining n elements are all different”. So then the input you are telling isn’t valid. May be the assumption you meant was:There is only a single Major or no other element can exist n times. Would this work: Consider A[1..2n-1]: There could be two cases: 1. A[2n] is the major element : 1,2,4,2,1,2,1,2,1,1 2. A[2n] is not the major element: 1,1,2,1,1,1,2,3,2,4 If their exists a major element, it would either be A[2n] or the majority of A[1..2n-1]. Why?: Suppose its case 1: No issues we ll be directly checking for A[2n] Suppose its case 2: Then Major element exists n times in an array of 2n-1 (n > (n-1)/2 ) Apply Moore’s voting for 2n-1 to calculate majority_2n-1. Check whether A[2n] or majority_2n-1 is the Major. Comments? Neela For the variation you have talked about, i think the following will work.. Just a small variation of the voting algorithm .. instead of initializing the count to 1 (at the beginning or when it reaches zero), initialize it to 2; Then with a single traversal of the array the element occuring times can be found using the voting algorithm. 
+findElementOccuringNtimes(a[], size)
+1.  Initialize index and count of majority element
+     maj_index = 0, count = 2
+2.  Loop for i = 1 to size – 1
+    (a)If a[maj_index] == a[i]
+        count++
+    (b)Else
+        count--;
+    (c)If count == 0
+        maj_index = i;
+        count = 2
+3.  Return a[maj_index]
+ This will work because an element other than the desired element can occur atmost n-1 times.. Its count will thus eventually drop to zero because of the remaining n+1 different elements (because we initialize to 2, the count of an element occuring n-1 times will reach n at the max and will become zero because of the remaining n+1 elements) .. And only for the desired element occuring n times the count will be non zero till end and hence will be returned .. @geeksforgeeks: Could you please verify this solution Vinod @0698b94682093488ba78c5dccd78894b:disqus…Check for set = {4,3,3,2,1,3}…I don’t think suggested approach would work here…It would print as “1” which is incorrect. geeksforgeeks @Srinivas: Could you elaborate your approach little more, please? How will your approach work for the below array? [2, 2, 3, 4, 5, 3, 3, 3, 2, 3] http://srini156.blogspot.com Srinivas Iyengar Well, for 2n elements having n same and n different elements,we check for first three elements. If total size is less than 3 we can trivially find the majority element. Now for the 3 Numbers,if all 3 are different then remove the 3 elements and check for the Majority Element in 2n-3 array using the above Voting Algorithm and verify in O(n) time.However,if any 2 of them are same,then it is the majority element. Is there some other Approach to this Problem? http://srini156.blogspot.com Srinivas Iyengar Can you please explain the solution for the “Try it Yourself Part” mentioned at the end of this Post. 1) Naive Approach is O(n*log(n)) which involves sorting the entire array and loop i through the entire array checking for ith and (i+n-1)th element. If both are same then it is the Major Element in that case else if the loop terminates no major element exists. 2) I am pretty sure that Linear time algorithm exists to determine the major element in that case.But,I am unable to figure out.Even maintaining set bits for each position doesn’t seem to work.Anycase it doesn’t seem to run in linear time. geeksforgeeks @joe blow: Thanks for visiting the portal. Could you please elaborate with an example why the above solution will not work? In the above solution, Moore’s Voting algorithm is only the first step to find a potential candidate for majority element. The final decision is taken based on function isMajority(). Besides, the solution you are proposing has time complexity O(nlogn) which is definitely sub-optimal than O(n). joe blow The optimized way doesn’t work. Moore’s voting algorithm requires that one of the elements MUST be a majority. If there is a majority, then the algorithm works, otherwise it doesn’t. So if the condition of the question is to find the majority IF it exists, then you can’t use it. Personally I would just sort the array, NlogN time, and then iterate through it, counting the max occurrence. If I don’t find a majority element after N/2, then the answer is no, otherwise I will eventually find it when the number of elements > N/2 Varun Bhatia @geeksforgeeks: ya i worked my approach and found that it could be applied to a similar problem but not this one…… geeksforgeeks @Varun: Could you elaborate your approach little more, please? How will your approach work in O(n) for the below array? [1, 1, 1, 2, 1, 2, 3, 3, 1, 1] Varun Bhatia Hello, I have an easier approach to find the candidate majority element. Take three pointers pointing at three successive locations. Now if any two of them point to the same number then that element can be the candidate for the majority element. Now u can find the frequency of this candidate by scanning the array again. O(1) space and O(n) time blunderboy I have thought of an approach to the new problem (2n numbers). Just remove the last element from the array and store in temp. Now there are two cases. Case1. The removed element is the element repeating n times. That means (n-1) elements same and n elements different. Case2. The removed element is normal element. That means n elements same and n-1 different. Now, Just traverse the array using voting algorithm.You will get an element but not sure whether it is majority or not. And we also have another element stored in temp. We are sure that ur desired element is either the temp or the element coming as candidate from the algorithm. So traverse the array once again to count their frequency. Print the desired element. Please correct me. I am not providing the code as code is already present above in the post and quite simple though. hemanth correct Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

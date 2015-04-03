@@ -1,0 +1,515 @@
+Inorder Tree Traversal without recursion and without stack! - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Inorder Tree Traversal without recursion and without stack! Using Morris Traversal, we can traverse the tree without using stack and recursion. The idea of Morris Traversal is based on Threaded Binary Tree. In this traversal, we first create links to Inorder successor and print the data using these links, and finally revert the changes to restore original tree. 
+1. Initialize current as root 
+2. While current is not NULL
+   If current does not have left child
+      a) Print current’s data
+      b) Go to the right, i.e., current = current->right
+   Else
+      a) Make current as right child of the rightmost node in current's left subtree
+      b) Go to this left child, i.e., current = current->left
+ Although the tree is modified through the traversal, it is reverted back to its original shape after the completion. Unlike Stack based traversal, no extra space is required for this traversal. 
+#include<stdio.h>
+#include<stdlib.h>
+
+/* A binary tree tNode has data, pointer to left child
+   and a pointer to right child */
+struct tNode
+{
+   int data;
+   struct tNode* left;
+   struct tNode* right;
+};
+
+/* Function to traverse binary tree without recursion and 
+   without stack */
+void MorrisTraversal(struct tNode *root)
+{
+  struct tNode *current,*pre;
+
+  if(root == NULL)
+     return; 
+
+  current = root;
+  while(current != NULL)
+  {                 
+    if(current->left == NULL)
+    {
+      printf(" %d ", current->data);
+      current = current->right;      
+    }    
+    else
+    {
+      /* Find the inorder predecessor of current */ 
+      pre = current->left;
+      while(pre->right != NULL && pre->right != current)
+        pre = pre->right;
+
+      /* Make current as right child of its inorder predecessor */
+      if(pre->right == NULL)
+      {
+        pre->right = current;
+        current = current->left;
+      }
+            
+      /* Revert the changes made in if part to restore the original 
+        tree i.e., fix the right child of predecssor */    
+      else  
+      {
+        pre->right = NULL;
+        printf(" %d ",current->data);
+        current = current->right;      
+      } /* End of if condition pre->right == NULL */
+    } /* End of if condition current->left == NULL*/
+  } /* End of while */
+}
+
+/* UTILITY FUNCTIONS */
+/* Helper function that allocates a new tNode with the
+   given data and NULL left and right pointers. */
+struct tNode* newtNode(int data)
+{
+  struct tNode* tNode = (struct tNode*)
+                       malloc(sizeof(struct tNode));
+  tNode->data = data;
+  tNode->left = NULL;
+  tNode->right = NULL;
+
+  return(tNode);
+}
+
+/* Driver program to test above functions*/
+int main()
+{
+
+  /* Constructed binary tree is
+            1
+          /   \
+        2      3
+      /  \
+    4     5
+  */
+  struct tNode *root = newtNode(1);
+  root->left        = newtNode(2);
+  root->right       = newtNode(3);
+  root->left->left  = newtNode(4);
+  root->left->right = newtNode(5); 
+
+  MorrisTraversal(root);
+
+  getchar();
+  return 0;
+}
+ References: www.liacs.nl/~deutz/DS/september28.pdf http://comsci.liu.edu/~murali/algo/Morris.htm www.scss.tcd.ie/disciplines/software_systems/…/HughGibbonsSlides.pdf Please write comments if you find any bug in above code/algorithm, or want to share more information about stack Morris Inorder Tree Traversal.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tags: Tree Traveral Tweet Writing code in comment? Please use ideone.com and share the link here. alien what is the complexity of this algorithm? alien what is the complexity of this algorithm? Gaurav Gupta could any one pls explain what is use for threaded binary tree..??? Vulkum What is “pre” used for? It has no use whatsoever in this algorithm. It only appears on the left hand side of the operations Vulkum oh, nvm, missed the assignment line Ashutosh Litelo Dint understand the restoration part.can u explain wid a dry run /* Revert the changes made in if part to restore the original tree i.e., fix the right child of predecssor */ else { pre->right = NULL; printf(” %d “,current->data); current = current->right; } /* End of if Vinod Iterative inorder traversal of a BST without stack – http://ideone.com/qqd2PJ Idea: curr = minimumBST(root); while(curr) { print curr->data; curr = successorBST(curr); } Ram Sinha This will cause the infinite loop.. better use some flag as pointed out by some one below in comment list. ibn 1. Initialize current as root 2. While current is not NULL If current does not have left child a) Print current’s data b) Go to the right, i.e., current = current->right Else a) Make current as right child of the rightmost node in current’s left subtree b) Go to this left child, i.e., current = current->left The pseudo code has infinite loop due to missing the undo step.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Asap How Can we use this approach for postorder traversal? shivi  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Coder What is the complexity of the coding O(n) or O(nlogn) ?? abhishek08aug Intelligent http://echoworld.in Psycho Is it possible to acheive if the tree is readonly ? denial @Psycho : this method only applicable when writes are allowed in the tree. For read only you have to use stack in-order traversal. yelnatz Does this destroy the tree? bunnylol To answer my question from 3 months ago. No. googlybhai  
+Good Code
+ Ramakrishna  
+if(current->left == NULL)
+    {
+      printf(" %d ", current->data);
+      current = current->right;      
+    }
+ For the given example tree where ‘4’ is the left most leaf node, the above code fragment prints ‘4’ and assigns current to null and hence the while loop breaks, after printing ‘4’. The tree is not completely traversed. Am I missing something here? Please help me. nikhil I have noticed the same thing. Something is missing in the algo. aygul Yes you are mssing the point that in the previous iteration right pt of 4 was set to 2. In the next iteration current->right will be 2 and it will be printed in the inner else part just after the right of node 4 is set to null to put the tree back to original. Is it clear now ? Ramakrishna Thanks very much aygul … I got that now.. Harish Ladhani   Void inorder(struct stack btree *root) { struct stack s; struct btree*p; if(root==NULL) {Print msg empty tree and return } p=root; s.tos=-1; push(&s,root); while(s.tos!=-1) { a: do { if(p->left!=null) push(&s,p->left); p=p->left; }while(p->left!=Null) p=pop(&s); printf(“%d”,p->data); while(p->right==null) { p=pop(&s); p.f(“%d” p->data); } if(p->right!=null) { p=p->right; push(&s,p); goto(a); } } } Siva The rule here clearly says don’t use stack  
+/* Paste your code here (You may delete these lines if not writing code) */
+ arpit converting tree to threaded tree uses recursion. so how can we consider this solution as “without recursion”.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ arpit sorry, i didn’t go through references. atul optimized code :-  
+void MorrisTraversal(struct tNode *root)
+{
+  struct tNode *current,*pre;
+ 
+  if(root == NULL)
+     return;
+ 
+  current = root;
+  while(current != NULL)
+  {                
+    if(current->left == NULL)
+    {
+      printf(" %d ", current->data);
+      current = current->right;     
+    }   
+    else
+    {  /*added if condition */
+       if(pre->next==current)
+       {
+            prev->next=NULL;
+            printf("%d ",current->data);
+            current=current->right;
+       }
+       else
+       {
+      /* Find the inorder predecessor of current */
+      pre = current->left;
+      while(pre->right != NULL && pre->right != current)
+        pre = pre->right;
+ 
+      /* Make current as right child of its inorder predecessor */
+      if(pre->right == NULL)
+      {
+        pre->right = current;
+        current = current->left;
+      }
+             
+      /* Revert the changes made in if part to restore the original
+        tree i.e., fix the right child of predecssor */   
+      else 
+      {
+        //pre->right = NULL; --> remove this
+        printf(" %d ",current->data);
+        current = current->right;     
+      } /* End of if condition pre->right == NULL */
+     }
+    } /* End of if condition current->left == NULL*/
+  } /* End of while */
+}
+ atul little typo error in above code :- pre->right=NULL instead of pre->next=NULL; atul typo error :- pre->right=NULL instead of pre->next=NULL;  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ranga This code doesnt seem to work for the below tree A / B \ C right? Infinite loop isnt it? GeeksforGeeks It works for this tree also. Please see following code. The code prints 2 3 1 without infinite loop.  
+#include<stdio.h>
+#include<stdlib.h>
+
+/* A binary tree tNode has data, pointer to left child
+   and a pointer to right child */
+struct tNode
+{
+   int data;
+   struct tNode* left;
+   struct tNode* right;
+};
+
+/* Function to traverse binary tree without recursion and
+   without stack */
+void MorrisTraversal(struct tNode *root)
+{
+  struct tNode *current,*pre;
+
+  if(root == NULL)
+     return;
+
+  current = root;
+  while(current != NULL)
+  {
+    if(current->left == NULL)
+    {
+      printf(" %d ", current->data);
+      current = current->right;
+    }
+    else
+    {
+      /* Find the inorder predecessor of current */
+      pre = current->left;
+      while(pre->right != NULL && pre->right != current)
+        pre = pre->right;
+
+      /* Make current as right child of its inorder predecessor */
+      if(pre->right == NULL)
+      {
+        pre->right = current;
+        current = current->left;
+      }
+
+      /* Revert the changes made in if part to restore the original
+        tree i.e., fix the right child of predecssor */
+      else
+      {
+        pre->right = NULL;
+        printf(" %d ",current->data);
+        current = current->right;
+      } /* End of if condition pre->right == NULL */
+    } /* End of if condition current->left == NULL*/
+  } /* End of while */
+}
+
+/* UTILITY FUNCTIONS */
+/* Helper function that allocates a new tNode with the
+   given data and NULL left and right pointers. */
+struct tNode* newtNode(int data)
+{
+  struct tNode* tNode = (struct tNode*)
+                       malloc(sizeof(struct tNode));
+  tNode->data = data;
+  tNode->left = NULL;
+  tNode->right = NULL;
+
+  return(tNode);
+}
+
+/* Driver program to test above functions*/
+int main()
+{
+
+  /* Constructed binary tree is
+            1
+          /
+        2
+         \
+          3
+  */
+  struct tNode *root = newtNode(1);
+  root->left        = newtNode(2);
+  root->left->right = newtNode(3);
+
+  MorrisTraversal(root);
+
+  getchar();
+  return 0;
+}
+
+ Aniruddha Morris Traversal might HANG in infinite loop for certain TREE structure. Try running given code for below tree: [You will see it printing wrong data and infinitely looping] 
+      A
+  B       C
+D   E       F 
+   G      K
+ Morris traversal gets stuck , after visiting left subtree of A and then while traversing A onwards. It will try to reLink E->A continously and gets shifted to left subtree of A (which is already traversed) srvkumar May be the method works fine for ‘complete trees’. But I am not sure, haven’t tested it. srvkumar May be the method works fine only for ‘complete trees’. But I am not sure, haven’t tested it. Steven Why this will be infinite?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ akshat gupta Agreed.. One Solution: If we modify the Node structure,to conatain an extra “lvisited(bool)” if(lvisited==1) { =>Left Subtree has been Visited =>so Print Node Value =>Move to Right Child } else { =>Left Tree has been Unvisited =>Link Rightmost node ,of leftmost tree with Node =>Mark lvisited=1 =>Move to Left Child } Jack Here’s a challenge: How can you do that with O(1) space complexity without changing the tree in the process when in addition to the regular operations you can do with trees, you can also go to a parent node (parent of root is NULL). Is it possible? Dr.Sai See page 298 Data structures using C and C++ Tanenbaum Threaded binary Trees abhk @karthik whats d time complexcity of morris algo , pls explain in detail ?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ foram Are there similar methods for preorder and postorder traversals? Anand In order, post order and pre order traversal without recursion. http://anandtechblog.blogspot.com/2011/07/iterative-method-for-inorder-and-pre.html rahul Those are using stack in their iterative method. I think with Morris method its not possible to get the time complexity for postorder traversal raju I don’t understand how you can revert the changes !!! Where do you put that code to change the pointers back to NULL. intel2390 one more thing .. why we have changed pre->right=NULL before currrent=current->right .. ?? can anybody explain ?? Pranay Choudhary You have answered your own question. pre->right=NULL is done to revert the changes done int the tree. Draw a tree. Trace the code. Its really simple. neeraj singh converting the above code into java…thanks dude  
+ public static void inOrderTraversal(Node root) {
+        if (root == null) {
+            return;
+        }
+
+        Node prev, current;
+        current = root;
+        while (current != null) {
+            if (current.left == null) {
+                System.out.println(current.value);
+                current = current.right;
+            } else {
+                for (prev = current.left; (prev.right != null && prev.right != current); prev = prev.right) ;
+
+                if (prev.right == null) {
+                    prev.right = current;
+                    current = current.left;
+                } else {
+                    prev.right = null;
+                    System.out.println(current.value);
+                    current = current.right;
+                }
+            }
+        }
+    }
+ ricky @SANDEEP, GEEKSFORGEEKS, KARTIK…..CAN ANY ONE OF YOU PROOVE TEH TIM E COMPLEXITY OF MORRIS TRAVESRAL IS O(NLOGN)…??? Tony Algorithm: 1. Traverse LEFT until the left child is null and push the current node into stack. (This loop continues until the stack is empty) 2. Pop the stack and process the current node. 3. Go to the right child. You can find a working Java program at the below link. http://cslabprograms.blogspot.com/2011/02/non-recursive-tree-traversal-using.html qi li Morris algorithm runs at O(nlgn) not O(n). I could not think how it runs in O(n) time. Any idea? Thanks kunal dude, any algortithm which does tree traversal will definitely take at least O(n) time. qi li Kunal, my pointer is not saying tree traveral takes at least O(n) time. My question is the complexity of the Morris Algorithm. I think it runs at O(nlgn), which is slower than recursive traversal except Morris approach has space advantage. mrn it takes O(n) time. reference : adam drozdek (data structures) alok maurya good one ! qi li this part is duplicated when backing from left child to its parent while(pre->right != NULL && pre->right != current) pre = pre->right; Any idea how to remove the duplication finding the right most child when backing from left child to its parent? Thanks http://wkaras.webs.com Walt Alternative algorithm also with O(n) time complexity and O(1) space complexity: http://groups.google.com/group/algogeeks/msg/d2f519d74e821963 Anonymous No private groups please. Better paste the code here. http://wkaras.webs.com Walt Limited to trees where node key values are unique. Seems to have the advantage of better access locality. But I suspect the average time per node is typically greater than for Morris Traversal.  
+
+typedef struct Node_
+  {
+    unsigned val;
+
+    struct Node_ *left, *right;
+  }
+Node;
+
+extern void visit(Node *);
+
+Node * const Null = 0;
+
+typedef enum { false, true } bool;
+
+void traverse(Node *root)
+  {
+    Node *curr = root;
+    Node *stack = Null;
+    Node *temp;
+
+    bool popped = false;
+
+    for ( ; ; )
+      {
+        if (!popped)
+          while (curr->left != Null)
+            {
+              /* Use left pointer to push current node onto
+              ** linked list stack, and make left child
+              ** current. */
+              temp = stack;
+              stack = curr;
+              curr = stack->left;
+              stack->left = temp;
+            }
+        else
+          popped = false;
+
+        visit(curr);
+
+        if (curr->right == Null)
+          {
+            if (stack == Null)
+              /* Traversal done. */
+              break;
+
+            while (curr->val > stack->val)
+              {
+
+                /* Pop top of stack and make it current,
+                ** and restore right child pointer. */
+                temp = curr;
+                curr = stack;
+                stack = stack->right;
+                curr->right = temp;
+
+                if (stack == Null)
+                  /* Traversal done. */
+                  break;
+              }
+
+            if (stack == Null)
+              /* Traversal done. */
+              break;
+
+            /* Pop top of stack and make it current,
+            ** and restore left child pointer. */
+            temp = curr;
+            curr = stack;
+            stack = stack->left;
+            curr->left = temp;
+
+            popped = true;
+          }
+        else
+          {
+            /* Use right pointer to push current node onto
+            ** linked list stack, and make right child
+            ** current. */
+            temp = stack;
+            stack = curr;
+            curr = stack->right;
+            stack->right = temp;
+          }
+      }
+  }
+
+/* BEGIN TEST CODE */
+
+#define N 14
+
+Node n[N];
+
+Node *first(unsigned base, unsigned count)
+  {
+    unsigned i;
+
+    if (count == 0)
+      return(Null);
+
+    n[base].left = Null;
+    n[base].right = Null;
+
+    for (i = 1; i < count; ++i)
+      {
+        n[base + i].left = n + base + i - 1;
+        n[base + i].right = Null;
+      }
+
+    return(n + base + count - 1);
+  }
+
+void range(Node *sub, unsigned *base, unsigned *count)
+  {
+    if (sub == Null)
+      *count = 0;
+    else
+      {
+        Node *ll = sub, *rr = sub;
+
+        while (ll->left != Null)
+          ll = ll->left;
+
+        while (rr->right != Null)
+          rr = rr->right;
+
+        *base = ll - n;
+        *count = rr - ll + 1;
+      }
+  }
+
+bool next(Node **sub)
+  {
+    if (*sub == Null)
+      return(false);
+
+    if (!next(&((*sub)->left)))
+      {
+        unsigned base, count;
+
+        if (next(&((*sub)->right)))
+          {
+            range((*sub)->left, &base, &count);
+            (*sub)->left = first(base, count);
+          }
+        else if ((*sub)->left == Null)
+          return(false);
+        else
+          {
+            unsigned r = *sub - n - 1;
+
+            range(*sub, &base, &count);
+
+            n[r].left = first(base, r - base);
+            n[r].right = first(r + 1, count - (r - base) - 1);
+
+            *sub = n + r;
+          }
+      }
+
+    return(true);
+  }
+
+unsigned inc;
+
+#include <stdio.h>
+#include <stdlib.h>
+
+void visit(Node *n)
+  {
+    if (n->val != inc)
+      {
+        printf("FAIL %u %u\n", n->val, inc);
+        exit(1);
+      }
+
+    ++inc;
+  }
+
+void test(unsigned count)
+  {
+    unsigned tree_count = 0;
+
+    Node *root = first(0, count);
+
+    do
+      {
+        inc = 0;
+        traverse(root);
+        if (inc != count)
+          {
+            printf("FAIL2 %u %u\n", inc, count);
+            exit(1);
+          }
+        ++tree_count;
+      }
+    while (next(&root));
+
+    printf("TEST: nodes=%u trees=%u\n", count, tree_count);
+  }
+
+int main(void)
+  {
+    unsigned i;
+
+    for (i = 0; i < N; ++i)
+      n[i].val = i;
+
+    test(1);
+    test(2);
+    test(3);
+    test(N);
+
+    printf("SUCCESS\n");
+    return(0);
+  }
+
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

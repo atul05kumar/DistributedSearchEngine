@@ -1,0 +1,96 @@
+Find the maximum repeating number in O(n) time and O(1) extra space - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find the maximum repeating number in O(n) time and O(1) extra space Given an array of size n, the array contains numbers in range from 0 to k-1 where k is a positive integer and k <= n. Find the maximum repeating number in this array. For example, let k be 10 the given array be arr[] = {1, 2, 2, 2, 0, 2, 0, 2, 3, 8, 0, 9, 2, 3}, the maximum repeating number would be 2. Expected time complexity is O(n) and extra space allowed is O(1). Modifications to array are allowed. The naive approach is to run two loops, the outer loop picks an element one by one, the inner loop counts number of occurrences of the picked element. Finally return the element with maximum count. Time complexity of this approach is O(n^2). A better approach is to create a count array of size k and initialize all elements of count[] as 0. Iterate through all elements of input array, and for every element arr[i], increment count[arr[i]]. Finally, iterate through count[] and return the index with maximum value. This approach takes O(n) time, but requires O(k) space. Following is the O(n) time and O(1) extra space approach. Let us understand the approach with a simple example where arr[] = {2, 3, 3, 5, 3, 4, 1, 7}, k = 8, n = 8 (number of elements in arr[]). 1) Iterate though input array arr[], for every element arr[i], increment arr[arr[i]%k] by k (arr[] becomes {2, 11, 11, 29, 11, 12, 1, 15 }) 2) Find the maximum value in the modified array (maximum value is 29). Index of the maximum value is the maximum repeating element (index of 29 is 3). 3) If we want to get the original array back, we can iterate through the array one more time and do arr[i] = arr[i] % k where i varies from 0 to n-1. How does the above algorithm work? Since we use arr[i]%k as index and add value k at the index arr[i]%k, the index which is equal to maximum repeating element will have the maximum value in the end. Note that k is added maximum number of times at the index equal to maximum repeating element and all array elements are smaller than k. Following is C++ implementation of the above algorithm. 
+#include<iostream>
+using namespace std;
+
+// Returns maximum repeating element in arr[0..n-1].
+// The array elements are in range from 0 to k-1
+int maxRepeating(int* arr, int n, int k)
+{
+    // Iterate though input array, for every element
+    // arr[i], increment arr[arr[i]%k] by k
+    for (int i = 0; i< n; i++)
+        arr[arr[i]%k] += k;
+
+    // Find index of the maximum repeating element
+    int max = arr[0], result = 0;
+    for (int i = 1; i < n; i++)
+    {
+        if (arr[i] > max)
+        {
+            max = arr[i];
+            result = i;
+        }
+    }
+
+    /* Uncomment this code to get the original array back
+       for (int i = 0; i< n; i++)
+          arr[i] = arr[i]%k; */
+
+    // Return index of the maximum element
+    return result;
+}
+
+// Driver program to test above function
+int main()
+{
+    int arr[] = {2, 3, 3, 5, 3, 4, 1, 7};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    int k = 8;
+
+    cout << "The maximum repeating number is " <<
+         maxRepeating(arr, n, k) << endl;
+
+    return 0;
+}
+ Output: The maximum repeating number is 3 Exercise: The above solution prints only one repeating element and doesn’t work if we want to print all maximum repeating elements. For example, if the input array is {2, 3, 2, 3}, the above solution will print only 3. What if we need to print both of 2 and 3 as both of them occur maximum number of times. Write a O(n) time and O(1) extra space function that prints all maximum repeating elements. (Hint: We can use maximum quotient arr[i]/n instead of maximum value in step 2). Note that the above solutions may cause overflow if adding k repeatedly makes the value more than INT_MAX. This article is compiled by Ashish Anand and reviewed by GeeksforGeeks team. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. Suganya If size of array is less than max element in the array. For example,a = [6,6,3] k=7 In first iteration, a[6%7] += 7; —-> a[6] +=7 But we have only upto a[2]. How to handle this case? Ashish What can be done if the array contains negative numbers ? void considering arr[] = {0,0,5,1,3,3,3,7,2,2,2}, though arr[2] and arr[3] both added k=8 for 3 times, however as arr[2]’s initial value is larger than arr[3], then 2 is returned incorrectly. We need to test the max value of arr[i]/k. Here is the python code: k = 8 a = [0,0,5,1,3,3,3,7,2,2,2] for i in range(len(a)): a[a[i]%k] += k print a.index(max(a)) j = -1 for i in range(len(a)): j = max(j, a[i]/k) a[i] = a[i]%k print j vinod The problem statement doesn’t state that k is given. The following code is for when k is not known. http://ideone.com/sIjbDl icefrog nonsense. count[] doesn’t account for memory space? Ajinkya doesnt work !!Please check before posting stuff . int arr[] = {2, 3, 3, 3, 3, 4, 1, 7}; tczf1128 it can work Sriharsha g.r.v say if 11 is part of the above sequence and repaeted 4 times..then arr[3] gets incremented 7 times ,3 times for 3 and 4 times for 11…how do u trace back about max frequency number in this case..so it works if k is choosen greater than k>=max value of(array)..pls correct me if i am wrong!! prakash if n<k this algorithm will crash since arr[arr[i]%k] may be out of bound, the scenario is n=5;k=9 arr={1,2,2,5,8} and arr[8%9]=arr[8] which is out of bound. DRAGONWARRIOR CAN WE USE MOORE VOTING ALGO Krishna NO, It works only if the element repeats itself more than n/2 times.. http://www.scoopthemock.co.in aman The above program will fail if we put 1000 instead of 7.The output will 7 instead of 3 Ronny @aman Please read the problem statement carefully. “Given an array of size n, the array contains numbers in range from 0 to k-1 where k is a positive integer and k <= n.” illuminati This is why i love geeks… perfect explanation!!… hbandi Can you see this,may be simple way package com.pg.code; public class MaximumRepatingNumber { public static void main(String[] args) { int arr[] = {2, 2, 2, 5, 7, 7,7, 7}; MaximumRepatingNumber mRN=new MaximumRepatingNumber(); System.out.println("max repeated number is :: "+mRN.maxRepeateNumber(arr)); } private int maxRepeateNumber(int[] array) { int localArray[] = new int[array.length]; for (int i = 0; i < localArray.length; i++) { localArray[i] = 0; } for(int j=0;j<array.length;j++){ localArray[array[j]]=(localArray[array[j]]%array[j])+1; } int maxValue=localArray[0]; int index=0; for(int k=0;k<localArray.length-1;k++){ if(localArray[k+1]>maxValue){ maxValue=localArray[k+1]; index=k+1; } } return index; } } mukesh2009mit  
+/* FIND OUT MAXIMUM TIME REPEATING NUMBER IN THE RANGE OF 0 TO N-1 */
+
+#include<stdio.h>
+#include<conio.h>
+void main()
+{
+clrscr();
+int a[20],n,i,max;
+printf("\n Enter the size of Array :");
+scanf("%d",&n);
+printf("\n Enter the array elements in the range 0 to n-1 :");
+for(i=0;i<n;i++)
+scanf("%d",&a[i]);
+for(i=0;i<n;i++)
+	a[a[i]%n]+=n;
+
+max=a[0]/n;
+for(i=1;i<n;i++)
+	if(a[i]/n>max)
+		max=a[i]/n;
+
+printf("\n Maximum repeating Elements : ");
+for(i=0;i<n;i++)
+ if(a[i]/n==max)
+ printf(" %d ",i);
+
+/* reconstruct array */
+for(i=0;i<n;i++)
+a[i]%=n;
+getch();
+}
+ mukesh2009mit   /* FIND OUT MAXIMUM TIME REPEATING NUMBER IN THE RANGE OF 0 TO N-1 */ #include #include void main() { clrscr(); int a[20],n,i,max; printf(“\n Enter the size of Array :”); scanf(“%d”,&n); printf(“\n Enter the array elements in the range 0 to n-1 :”); for(i=0;i scanf("%d",&a[i]); for(i=0;i a[a[i]%n]+=n; max=a[0]/n; for(i=1;i if(a[i]/n>max) max=a[i]/n; printf(“\n Maximum repeating Elements : “); for(i=0;i if(a[i]/n==max) printf(” %d “,i); /* reconstruct array */ for(i=0;i a[i]%=n; getch(); } NIRAJ int maxRepeatNum(int arr[],int n,int k) { int count[14]={0}; for(int i=0;i<n;i++) { ++count[arr[i]]; } int max=count[0],num=0; for(int i=1;imax) { max=count[i]; num=i; } } return num; } Anshul Goel What if k and n are different(k<n), because in such cases,the elements at position after will be ignored. /* Paste your code here (You may delete these lines if not writing code) */ Gaurav I think the above algorithm (given as an exercise) would fail if we use the following input:  
+ int arr[] = {2,2,2,3,3,3,4,4,4}; 
+
+Modified array becomes:
+arr[] = {2,2,17,18,18,3,4,4,4}
+ n = 9, k = 5. When you use arr[i]/n approach, it gives max as 2 (for both elements 3 and 4) but in case of element 2 (arr[2] = 1) Gaurav *Continuing my previous comment arr[2]/n = 1; arr[3]/n = 2; arr[4]/n = 2; Hence, only 3 and 4 are maximum repeating. 2 is ignored. Please correct me if I am wrong. AMIT its not arr[i]/n…its arr[i]/k.. pradheep we can use arr[arr[i]] instead if arr[arr[i]%k] since here k is always less than or equal to n (k<=n)…it reduces on calculation of mod operator /* Paste your code here (You may delete these lines if not writing code) */ Prashanth Ya you are right Ankit Chaudhary we r adding k to a[i], therefore a[i] can be greater than k. See given example. Anon Why is %k required?? How would simply incrementing arr[arr[i]] by k hurt? Anyways since a[i]<k, a[i]%k=a[i]. Setu The case when there are more than one number which is repeating same number of time : it will fail. GeeksforGeeks @Setu: This is given in the exercise. Please see the hint to print all maximum repeating all elements. Rishit Why are we doing mod k since it is guaranteed that all the numbers are in the range 0 to (k – 1) ??  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik We may add k multiple times at an index, that is why mod is required. Palash This solution works without any dependency on k, i.e. given an array of size n and elements in range 0 to n-1. We can find the elements present maximum number of time in O(N) time and O(1) space. Here’s the algorithm – For i=0 to n-1 Start from i=0, go to a[i]th element, store it in a temp variable, make it -1 (if it already isn’t negative), if it is negative, decrement it. Also make a[i]=n. Go in a while loop with temp element and loop till you return to original index (i) or you encounter a negative element or if the element is equal to n. Find the minimum of the array. The index of minimum is the answer. Example: arr[] = {2, 3, 3, 5, 3, 4, 1, 7}, n=8 modified arr[] = {8,-1,-1,-3,-1,-1,8,-1} Ans = 3. chandu Can you explain your logic ? I m not able to get it. Can you do a dry-run of any example ?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Akshat Gupta In your question description it is said that k<=n but in your solution description you have taken k = 10 and n = 8 whuch is not satisfying the above condition /* Paste your code here (You may delete these lines if not writing code) */ GeeksforGeeks Please refresh the page. We have updated the solution description. Let us know if you still find anything incorrect. GeeksforGeeks @all: The sample input used for algorithm was not a valid input. We have corrected the example now. Apologies for the inconvenience. @atul: The solution may not work if there is overflow. Thanks for bringing up this issue. We will add it as a point to the original post. geekcomp @GeekforGeeks: Can you explain why have you used arr[i]%k. If k=maximum(arr)+1,arr[i] is same as arr[i]%k after or before each addition. If I am wrong please correct me.. Satendra i can see the hint in the exercise working, but not getting the logic  
+/* Paste your code here (You may delete these lines if not writing code) */
+ aayush For modified version of this problem for all maximum repeating elements arr[i]/k will be same correct me if i m wrong..????? This method as same as method4 for finding repeating element in array GeeksforGeeks @ayush: Yes, the value of arr[i]/k will be same for all maximum repeating elements. sam even max value for more than one maximum repeated elements will be also same,then how to find more than one maximum repeated elements with arr[i]/n logic  
+/* Paste your code here (You may delete these lines if not writing code) */
+ WihE The first sentence states that it has to be k<=n. In your example k<=n is not given. I converted your example into Java and tried some more tests: public int maxRepeating(int[] arr, int n, int k) { // Iterate though input array, for every element // arr[i], increment arr[arr[i]%k] by k for (int i = 0; i < n; i++) arr[arr[i] % k] += k; // Find index of the maximum repeating element int max = arr[0], result = 0; for (int i = 1; i < n; i++) { if (arr[i] > max) { max = arr[i]; result = i; } } // Return index of the maximum element return result; } public static void main(String[] args) { MaxRepeatingNumberAlgorithm mrna = new MaxRepeatingNumberAlgorithm(); { int arr[] = { 2, 3, 3, 5, 3, 4, 1, 7 }; int n = arr.length; int k = 10; System.out.println("The maximum repeating number is " + mrna.maxRepeating(arr, n, k)); // prints 3 } { int arr[] = { 1, 2, 2, 2, 0, 2, 0, 2, 3, 8, 0, 9, 2, 3 }; int n = arr.length; int k = 5; System.out.println("The maximum repeating number is " + mrna.maxRepeating(arr, n, k)); // prints 2 } { int arr[] = { 1, 13, 2, 13, 0, 2, 13, 2, 3, 8, 0, 9, 13, 13 }; int n = arr.length; int k = 13; System.out.println("The maximum repeating number is " + mrna.maxRepeating(arr, n, k)); // prints 0 } } In the last section I should have printed 13 but printed 0. Is it my translation into Java or do I miss anything in the specification? Palash Is K=N, then, array elements may fall outside the array index boundary. I think, it only works for K=N. Palash Sorry, pay no attention to the comment above, something went wrong with the website while posting it. bhargav constraint should be n>=k-1; or else it fails if 9 is most occurring item and if n=7 then arr[9] is garbage so it fails. plz correct me if im wrong. bhargav might fail for arr[]={9,9,9,1,2,3} k=10, n=6 as arr[9] is some random shit. so there must be a constraint as n>=k-1 kd111 In question, you have given that array contains numbers in range from 0 to k-1 where k<=n(n is number of elements in the array) but in your example k is greater than n? atul The above code will fail for following test case:- if array is very large , say arr[INT_MAX] and element=INT_MAX-1 is repeated more than 2. Overflow will occur.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ sreekanth I also feel it is not fool proof. Abhishek The proposed algo is absolutely wrong Akshat Gupta yes it will fail then  
+/* Paste your code here (You may delete these lines if not writing code) */
+ goodwin Hi Can any one clear is it number overflow or array overflow. If array overflow then please elaborate how?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

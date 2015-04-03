@@ -1,0 +1,691 @@
+Print a given matrix in spiral form - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Print a given matrix in spiral form Given a 2D array, print it in spiral form. See the following examples. 
+Input:
+        1    2   3   4
+        5    6   7   8
+        9   10  11  12
+        13  14  15  16
+Output: 
+1 2 3 4 8 12 16 15 14 13 9 5 6 7 11 10 
+
+
+Input:
+        1   2   3   4  5   6
+        7   8   9  10  11  12
+        13  14  15 16  17  18
+Output: 
+1 2 3 4 5 6 12 18 17 16 15 14 13 7 8 9 10 11
+ Solution: 
+/* This code is adopted from the solution given 
+   @ http://effprog.blogspot.com/2011/01/spiral-printing-of-two-dimensional.html */
+
+#include <stdio.h>
+#define R 3
+#define C 6
+
+void spiralPrint(int m, int n, int a[R][C])
+{
+    int i, k = 0, l = 0;
+
+    /*  k - starting row index
+        m - ending row index
+        l - starting column index
+        n - ending column index
+        i - iterator
+    */
+
+    while (k < m && l < n)
+    {
+        /* Print the first row from the remaining rows */
+        for (i = l; i < n; ++i)
+        {
+            printf("%d ", a[k][i]);
+        }
+        k++;
+
+        /* Print the last column from the remaining columns */
+        for (i = k; i < m; ++i)
+        {
+            printf("%d ", a[i][n-1]);
+        }
+        n--;
+
+        /* Print the last row from the remaining rows */
+        if ( k < m)
+        {
+            for (i = n-1; i >= l; --i)
+            {
+                printf("%d ", a[m-1][i]);
+            }
+            m--;
+        }
+
+        /* Print the first column from the remaining columns */
+        if (l < n)
+        {
+            for (i = m-1; i >= k; --i)
+            {
+                printf("%d ", a[i][l]);
+            }
+            l++;    
+        }        
+    }
+}
+
+/* Driver program to test above functions */
+int main()
+{
+    int a[R][C] = { {1,  2,  3,  4,  5,  6},
+        {7,  8,  9,  10, 11, 12},
+        {13, 14, 15, 16, 17, 18}
+    };
+
+    spiralPrint(R, C, a);
+    return 0;
+}
+
+/* OUTPUT:
+  1 2 3 4 5 6 12 18 17 16 15 14 13 7 8 9 10 11
+*/
+ Time Complexity: Time complexity of the above solution is O(mn). Please write comments if you find the above code incorrect, or find other ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. CodeCode54 The above algorithm fails for this input [[1]] m – ending row index n – ending column index Should be m – total number of rows n – total number of cols not the last index. Gopinath #include int main() { int a[10][10],n,m,i,j; scanf(“%d %d”,&n,&m); for(i=0;i<n;i++) { for(j=0;j<m;j++) { scanf("%d",&a[i][j]); } } m=m-1; n=n-1; for(j=0;j<=m;j++) { printf("%d",a[0][j]); if(j!=m) printf(" "); } for(i=1;i=0;j–) { printf(“%2d”,a[n][j]); } for(i=n-1;i>=1;i–) { printf(“%2d”,a[i][0]); } for(i=1;i0;j–) { printf(“%2d”,a[n-1][j]); } return 0; } Akshay Pratap This’s my solution .—-> #include #define MAX_M 6 #define MAX_N 6 void printNum(int num,int totalNum,int k){ if(k==totalNum) printf(“%d”,num); else printf(“%d “,num); } void printSpiralOrder(int r,int c,int mat[MAX_M][MAX_N]){ int i,j,left = 0,right = c-1,top = 0,down = r-1,totalNum = r*c,k=0,dir=0; /* dir = 0 left to right dir = 1 top to down dir = 2 right to left dir = 3 down to up */ while( (left<=right) && (top<=down) ){ if(dir==0){ // move left to right side for(j=left;j<=right;j++){ printNum(mat[top][j],totalNum,++k); } ++top; dir = 1; }else if(dir==1){ // move top to down side for(i=top;i=left;j–){ printNum(mat[down][j],totalNum,++k); } –down; dir = 3; }else if(dir==3){ // move down to top side for(i=down;i>=top;i–){ printNum(mat[i][left],totalNum,++k); } ++left; dir = 0; } } } int main() { /*write your code here*/ int mat[MAX_M][MAX_N],M,N,i,j; scanf(“%d %d”,&M,&N); for(i=0;i<M;i++) for(j=0;j<N;j++) scanf("%d",&mat[i][j]); printSpiralOrder(M,N,mat); return 0; } bentjonez I have a similar matrix question as siva… I have a matrix of: [1][2][3] [4][5][6] [7][8][9] and I want to move clockwise on click of a button like so: [4][1][2] [7][5][3] [8][9][6] and another click would make: [7][4][1] [8][5][2] [9][6][3] doing this using javascript. how can you do this? siva HI I have matrix [1 2 3] [4 5 6] [7 8 9 ] i want to print like [1 4 7] [2 5 8] [3 6 9] can any one tell me the code raju hat chapri…… Mihir Sathe I think a simpler solution can use a double ended queue. Ian I’d fail you for using such horrible variable names… Uma Trika void spiralPrint(int m, int n, int a[R][C]) { int i,j; for(i=0;i<m;i++) { for(j=0;j<n;j++) { if(i%2 == 0) printf("%d ", a[i][j]); else printf("%d ", a[i][n-j-1]); } printf("n"); } } Vidhan void printspiral (int[][100],int, int, int, int); int main() { int r,c, i, j; printf (“Enter the dimensions of the matrix”); scanf(“%d %d”, &r, &c); int arr[r][100]; int min = (r<c?r:c); if (min%2 != 0) min = min/2 +1; //printf ("row = %d and colu = %d", r,c); for (i = 0;i<r; i++) for (j = 0; j<c; j++) scanf ("%d",&arr[i][j]); /*for (i = 0;i<r; i++) for (j = 0; j<c; j++) printf ("%d",arr[i][j]); */ printspiral(arr,0,r,c,min ); } void printspiral (int arr[][100], int i, int j, int k, int min) { int a; for (a = i; a<k;a++) printf("%dn", arr[i][a]); for (a=i+1;ai-1;a–) printf(“%dn”, arr[j-1][a]); for (a=j-2; a>i; a–) printf(“%dn”, arr[a][i]); if (i < min) printspiral(arr,i+1, j-1,k-1, min); } Alex JAVA implementation //print matrix in spiral order public class Spiral { //print array in spiral mode static void print_spiral(int a[][], int m, int n) { //required for square matrix with side being odd number boolean flag = false; if ( (m == n) && (m%2>0) ) flag = true; int i, k = 0, l = 0; while (k < m && l < n) { //print top row for (i=l; i<n-1; i++) visit(a,k,i); //print right column for (i=k; il; i--) visit(a,m-1,i); //print left column for (i=m-1; i>k; i--) visit(a,i,k); k++; l++; m--; n--; } //if array height=width and both are odd if (flag) visit(a,m,n); } //print the element static void visit (int a[][], int x, int y) { System.out.printf("%d ", a[x][y]); } static void initialize(int a[][], int m, int n) { int count = 1; for (int i=0; i<m; i++) { for (int j=0; j<n; j++) { a[i][j] = count++; } } } public static void main(String[] args) { int m = 4, n = 5; int a[][] = new int[m][n]; initialize(a, m, n); print_spiral(a, m, n); } } vidhya what is the coding to Traverse the given array in X format. And store it as a separate array. i/p: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 o/p: array-1:1 6 11 16 array-2: 4 7 10 13 pls rply for it quickly aarish write a program to accept 4*4 matrices and print the output as given example: input- output- 1 2 3 4 1 2 3 4 5 2 8 9 5 2 8 2 4 5 7 2 4 7 5 1 2 7 guys please make it for me…….. Guest public void printSpiral(int[][] a, int rowSize, int columnSize) { int increment = 1; int row = 0; int column = 0; while (columnSize > 1 || rowSize > 1) { for (int i = 0; i < columnSize; i++) { System.out.print(a[row][column] + " "); column = column + increment; } column = column – increment; row = row + increment; columnSize–; for (int i = 0; i < rowSize – 1; i++) { System.out.print(a[row][column] + " "); row = row + increment; } row = row – increment; column = column – increment; rowSize–; increment = -increment; } } Guest import java.io.*; public class SpiralMatrix { static int mat[][]={{1,2,3,4},{5,6,7,8},{9,10,11,12},{13,14,15,16}}; //static int mat[][]= {{1,2,3,4,5,6},{7,8,9,10,11,12},{13,14,15,16,17,18}}; static int currX=0,currY=-1; static int lBound,rBound,uBound,dBound; static void printElement() { System.out.print(” “+mat[currX][currY]); } static void moveRight() { while(currY<rBound) { currY++; printElement(); } uBound++; if(currX<dBound) moveDown(); } static void moveDown() { while(currXlBound) moveLeft(); } static void moveLeft() { while(currY>lBound) { currY–; printElement(); } dBound–; if(currX>uBound) moveUp(); } static void moveUp() { while(currX>uBound) { currX–; printElement(); } lBound++; if(currY<rBound) moveRight(); } static void spiralTraverse() { int nrows=mat.length; int ncols=mat[0].length; lBound=0; rBound=ncols-1; uBound=0; dBound=nrows-1; moveRight(); } public static void main(String args[]) { spiralTraverse(); } } Vivek for i=0 to n-1 for j=0 to n-1 print a[ i ][ (n-1)*(i%2) + pow(-1,i)*j ]; Anoop Dixith Hey could you please elaborate on this solution? Vivek for i=even, you have i%2=0 and pow(-1,i)=1 so, you print a[i][0*(n-1) + 1*j] = a[i][j]; i.e moving left to right the above step repeats for every even value of i; for i=odd, you have i%2=1 and pow(-1,i)=-1 so, you print a[i][1*(n-1) + (-1)*j] = a[i][n-1-j]; i.e moving right to left the above step repeats for every odd value of i; Pawan void printMatrixSpiral(int[,] arr ,int LRowIndex, int LColIndex) { int firstRowIndex = 0; //int lastRowIndex = arr[0].Length; int lastRowIndex = LRowIndex; int firstColIndex = 0; //int lastColIndex = arr[1].Length; int lastColIndex = LColIndex; int i = 0; //1 2 3 4 5 6 7 //8 9 0 1 2 3 4 //5 6 7 8 9 0 1 //5 6 7 8 9 0 1 while (firstRowIndex < lastRowIndex && firstColIndex < lastColIndex) { //Print first rows from remaining rows //Increment the firstRow index for next time. //As well it will set the row for the right next loop for (i = firstRowIndex; i < lastColIndex; i++) { MessageBox.Show(arr[firstRowIndex,i].ToString()); } firstRowIndex++; //Print Last col from remaining cols //Decrement the lastCol index for next time. for (i = firstRowIndex; i = firstColIndex; i–) { MessageBox.Show(arr[lastRowIndex-1,i].ToString()); } lastRowIndex–; //Print first col from remaining cols for (i = lastRowIndex-1; i >= firstRowIndex; i–) { MessageBox.Show (arr[i,firstColIndex].ToString ()); } firstColIndex++; } } Pawan I don’t see any need for the additional checks ? Could you some one cross check and see if it breaks? Sriharsha g.r.v can this be done by backtracking? Vinit Gupta #include #include using namespace std; void printlr(int **A, int i, int j, int n) { for(int k =j; k<n; k++ ) cout<<A[i][k]<<", "; } void printtd(int **A, int i, int j, int n) { for(int k =i; k<n; k++ ) cout<<A[k][j]<n; k– ) cout<<A[i][k]< n; k– ) cout<<A[k][j]<>rows>>cols; int **A = new int*[rows];; for(int i=0; i<rows; i++) A[i] = new int [cols]; double n = rows; n = ceil(n/2.0); for(int i=0; i<rows; i++) for( int j=0; j>A[i][j]; cout<<"Spiral matrix printing is:"<<endl; int i; for( i=0; i< n-1; i++) { printlr(A, i,i, cols-i-1); printtd(A, i,cols-i-1, rows-i-1 ); printrl(A, rows-i-1, cols-i-1, i ); printbu(A, rows-i-1,i, i ); } printlr(A, i,i, cols-i); } codewarrior Do you know what code readability means? Guduru Siva Reddy public class MatrixSpiral { public static void print(int a[][], int l, int k) { if (l > 0) { int i = k; int j = k; while (i == k && j < l) { System.out.print(a[i][j] + " "); j++; } while (j == l && i k) { System.out.print(a[i][j] + ” “); j–; } } while (j == k && i > k) { System.out.print(a[i][j] + ” “); i–; } } else { return; } if (l – 1 > 0 && k + 1 < l) { print(a, l – 1, k + 1); } else return; } public static void main(String[] args) { // TODO Auto-generated method stub int a[][] = { { 1, 2, 3, 4 }, { 5, 6, 7, 8 }, { 9, 10, 11, 12 }, { 13, 14, 15, 16 } }; int b[][] = { { 1, 2, 3, 4, 5, 6 }, { 7, 8, 9, 10, 11, 12 }, { 13, 14, 15, 16, 17, 18 }, { 19, 20, 21, 22, 23, 24 }, { 25, 26, 27, 28, 29, 30 }, { 31, 32, 33, 34, 35, 36 } }; print(b, b.length – 1, 0); } } Guest This code works for Square Matrix only // SpiralMatrix.cpp : Defines the entry point for the console application. #include using namespace std; #define ROWS 8 #define COLUMNS 8 class Matrix { int max_row,max_col; public: Matrix() { max_row = ROWS; max_col = COLUMNS; } void PrintMatrix() { int a[ROWS][COLUMNS] = { {1, 2, 3, 4, 5, 6, 7, 8}, {9, 10,11,12,13,14,15,16}, {17,18,19,20,21,22,23,24}, {25,26,27,28,29,30,31,32}, {33,34,35,36,37,38,39,40}, {41,42,43,44,45,46,47,48}, {49,50,51,52,53,54,55,56}, {57,58,59,60,61,62,63,64}, }; int i = 0; int j = 0; int step_right = 0; int step_down = 1; int step_left = 1; int step_up = 1; int col_count = max_col; int row_count = max_row-1; while(col_count > 0) { for(i = step_right; i < col_count+step_right ; i++) std::cout<<a[step_right][i]; step_right++; col_count = col_count - 1; for(i = step_down; i < row_count+step_down;i++ ) std::cout<<a[i][max_col-step_down]; step_down++; row_count = row_count -1; for(i = 1 ; i <= col_count ; i++) std::cout<<a[max_row-step_left][max_col-i-step_left]; step_left++; col_count = col_count - 1; for(i = 1 ; i <= row_count ; i++) std::cout<<a[max_col-step_up-i][step_up-1]; step_up++; row_count = row_count -1; } } }; int main() { Matrix m; m.PrintMatrix(); return 0; } Guest // SpiralMatrix.cpp : Defines the entry point for the console application. // #include "stdafx.h" #include using namespace std; #define ROWS 8 #define COLUMNS 8 class Matrix { int max_row,max_col; public: Matrix() { max_row = ROWS; max_col = COLUMNS; } void PrintMatrix() { int a[ROWS][COLUMNS] = { {1, 2, 3, 4, 5, 6, 7, 8}, {9, 10,11,12,13,14,15,16}, {17,18,19,20,21,22,23,24}, {25,26,27,28,29,30,31,32}, {33,34,35,36,37,38,39,40}, {41,42,43,44,45,46,47,48}, {49,50,51,52,53,54,55,56}, {57,58,59,60,61,62,63,64}, }; int i = 0; int j = 0; int step_right = 0; int step_down = 1; int step_left = 1; int step_up = 1; int col_count = max_col; int row_count = max_row-1; while(col_count > 0) { for(i = step_right; i < col_count+step_right ; i++) std::cout<<a[step_right][i]<<" "; step_right++; col_count = col_count - 1; for(i = step_down; i < row_count+step_down;i++ ) std::cout<<a[i][max_col-step_down]<<" "; step_down++; row_count = row_count -1; for(i = 1 ; i <= col_count ; i++) std::cout<<a[max_row-step_left][max_col-i-step_left]<<" "; step_left++; col_count = col_count - 1; for(i = 1 ; i <= row_count ; i++) std::cout<<a[max_col-step_up-i][step_up-1]<<" "; step_up++; row_count = row_count -1; } } }; int _tmain(int argc, _TCHAR* argv[]) { Matrix m; m.PrintMatrix(); return 0; } Veracity123 // SpiralMatrix.cpp : Defines the entry point for the console application. // #include “stdafx.h” #include using namespace std; #define ROWS 8 #define COLUMNS 8 class Matrix { int max_row,max_col; public: Matrix() { max_row = ROWS; max_col = COLUMNS; } void PrintMatrix() { int a[ROWS][COLUMNS] = { {1, 2, 3, 4, 5, 6, 7, 8}, {9, 10,11,12,13,14,15,16}, {17,18,19,20,21,22,23,24}, {25,26,27,28,29,30,31,32}, {33,34,35,36,37,38,39,40}, {41,42,43,44,45,46,47,48}, {49,50,51,52,53,54,55,56}, {57,58,59,60,61,62,63,64}, }; int i = 0; int j = 0; int step_right = 0; int step_down = 1; int step_left = 1; int step_up = 1; int col_count = max_col; int row_count = max_row-1; while(col_count > 0) { for(i = step_right; i < col_count+step_right ; i++) std::cout<<a[step_right][i]<<" "; step_right++; col_count = col_count – 1; for(i = step_down; i < row_count+step_down;i++ ) std::cout<<a[i][max_col-step_down]<<" "; step_down++; row_count = row_count -1; for(i = 1 ; i <= col_count ; i++) std::cout<<a[max_row-step_left][max_col-i-step_left]<<" "; step_left++; col_count = col_count – 1; for(i = 1 ; i <= row_count ; i++) std::cout<<a[max_col-step_up-i][step_up-1]<<" "; step_up++; row_count = row_count -1; } } }; int _tmain(int argc, _TCHAR* argv[]) { Matrix m; m.PrintMatrix(); return 0; } Veracity123 // SpiralMatrix.cpp : Defines the entry point for the console application. // #include “stdafx.h” #include using namespace std; #define ROWS 8 #define COLUMNS 8 class Matrix { int max_row,max_col; public: Matrix() { max_row = ROWS; max_col = COLUMNS; } void PrintMatrix() { int a[ROWS][COLUMNS] = { {1, 2, 3, 4, 5, 6, 7, 8}, {9, 10,11,12,13,14,15,16}, {17,18,19,20,21,22,23,24}, {25,26,27,28,29,30,31,32}, {33,34,35,36,37,38,39,40}, {41,42,43,44,45,46,47,48}, {49,50,51,52,53,54,55,56}, {57,58,59,60,61,62,63,64}, }; int i = 0; int j = 0; int step_right = 0; int step_down = 1; int step_left = 1; int step_up = 1; int col_count = max_col; int row_count = max_row-1; while(col_count > 0) { for(i = step_right; i < col_count+step_right ; i++) std::cout<<a[step_right][i]<<" "; step_right++; col_count = col_count – 1; for(i = step_down; i < row_count+step_down;i++ ) std::cout<<a[i][max_col-step_down]<<" "; step_down++; row_count = row_count -1; for(i = 1 ; i <= col_count ; i++) std::cout<<a[max_row-step_left][max_col-i-step_left]<<" "; step_left++; col_count = col_count – 1; for(i = 1 ; i <= row_count ; i++) std::cout<<a[max_col-step_up-i][step_up-1]<<" "; step_up++; row_count = row_count -1; } } }; int _tmain(int argc, _TCHAR* argv[]) { Matrix m; m.PrintMatrix(); return 0; } Guest // SpiralMatrix.cpp : Defines the entry point for the console application. // #include “stdafx.h” #include using namespace std; #define ROWS 8 #define COLUMNS 8 class Matrix { int max_row,max_col; public: Matrix() { max_row = ROWS; max_col = COLUMNS; } void PrintMatrix() { int a[ROWS][COLUMNS] = { {1, 2, 3, 4, 5, 6, 7, 8}, {9, 10,11,12,13,14,15,16}, {17,18,19,20,21,22,23,24}, {25,26,27,28,29,30,31,32}, {33,34,35,36,37,38,39,40}, {41,42,43,44,45,46,47,48}, {49,50,51,52,53,54,55,56}, {57,58,59,60,61,62,63,64}, }; int i = 0; int j = 0; int step_right = 0; int step_down = 1; int step_left = 1; int step_up = 1; int col_count = max_col; int row_count = max_row-1; while(col_count > 0) { for(i = step_right; i < col_count+step_right ; i++) std::cout<<a[step_right][i]<<" "; step_right++; col_count = col_count – 1; for(i = step_down; i < row_count+step_down;i++ ) std::cout<<a[i][max_col-step_down]<<" "; step_down++; row_count = row_count -1; for(i = 1 ; i <= col_count ; i++) std::cout<<a[max_row-step_left][max_col-i-step_left]<<" "; step_left++; col_count = col_count – 1; for(i = 1 ; i <= row_count ; i++) std::cout<<a[max_col-step_up-i][step_up-1]<<" "; step_up++; row_count = row_count -1; } } }; int _tmain(int argc, _TCHAR* argv[]) { Matrix m; m.PrintMatrix(); return 0; } Guest // SpiralMatrix.cpp : Defines the entry point for the console application. // #include “stdafx.h” #include using namespace std; #define ROWS 8 #define COLUMNS 8 class Matrix { int max_row,max_col; public: Matrix() { max_row = ROWS; max_col = COLUMNS; } void PrintMatrix() { int a[ROWS][COLUMNS] = { {1, 2, 3, 4, 5, 6, 7, 8}, {9, 10,11,12,13,14,15,16}, {17,18,19,20,21,22,23,24}, {25,26,27,28,29,30,31,32}, {33,34,35,36,37,38,39,40}, {41,42,43,44,45,46,47,48}, {49,50,51,52,53,54,55,56}, {57,58,59,60,61,62,63,64}, }; int i = 0; int j = 0; int step_right = 0; int step_down = 1; int step_left = 1; int step_up = 1; int col_count = max_col; int row_count = max_row-1; while(col_count > 0) { for(i = step_right; i < col_count+step_right ; i++) std::cout<<a[step_right][i]<<" "; step_right++; col_count = col_count – 1; for(i = step_down; i < row_count+step_down;i++ ) std::cout<<a[i][max_col-step_down]<<" "; step_down++; row_count = row_count -1; for(i = 1 ; i <= col_count ; i++) std::cout<<a[max_row-step_left][max_col-i-step_left]<<" "; step_left++; col_count = col_count – 1; for(i = 1 ; i <= row_count ; i++) std::cout<<a[max_col-step_up-i][step_up-1]<<" "; step_up++; row_count = row_count -1; } } }; int _tmain(int argc, _TCHAR* argv[]) { Matrix m; m.PrintMatrix(); return 0; } yash.mehta #include void spiral(int a[][4],int ,int); int rmin=0,cmin=0; int main(void) { int count=1; int i,j; int a[5][4]; for(i=0;i<5;i++) { for(j=0;j<4;j++) { a[i][j]=count++; printf("%d ",a[i][j]); } printf("\n"); } spiral(a,5,4); } void spiral(int a[][4],int m,int n) { if(rmin>m) return; else { printf(“Boundary Elements of %d X %d matrix: “, m-rmin,n-cmin); int i=rmin,j=cmin; //top row traversal while(j { printf("%d ",a[i][j]); j++; } j--; i++; //last column traversal while(i { printf("%d ",a[i][j]); i++; } i--; j--; //last row traversal while(j>=cmin) { printf(“%d “,a[i][j]); j–; } j++; i–; //first column traversal while(i>rmin) { printf(“%d “,a[i][j]); i–; } printf(“\n”); cmin++; rmin++; spiral(a,m-1,n-1); } } atiqwhiz #include #include void SpiralPrint(int a[4][4]) { int i,j,k; for(i=0;i<2;i++) { for(j=i;j<4-i;j++) { printf("%d ",a[i][j]); }j--; for(k=i+1;k<4-i;k++) { printf("%d ",a[k][j]); }k--; j--; while(j>=i) { printf(“%d “,a[k][j–]); }j++; j++,k–; while(k>i) { printf(“%d “,a[k–][j]); } } } main() { int a[4][4]={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16}; SpiralPrint(a); return 0; }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ atiqwhiz  
+/* Paste your code here (You may delete these lines if not writing code) */
+#include <stdio.h>
+#include <string.h>
+void SpiralPrint(int a[4][4])
+{
+int i,j,k;
+
+for(i=0;i<2;i++)
+{
+   for(j=i;j<4-i;j++)
+   {
+       printf("%d ",a[i][j]);
+   }j--;
+   for(k=i+1;k<4-i;k++)
+   {
+       printf("%d ",a[k][j]);
+   }k--;
+   j--;
+   while(j>=i)
+   {
+       printf("%d ",a[k][j--]);
+   }j++;
+   j++,k--;
+   while(k>i)
+   {
+       printf("%d ",a[k--][j]);
+   }
+   
+}
+     
+
+
+}
+
+main()
+{
+  int a[4][4]={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+  SpiralPrint(a); 
+  return 0;
+}
+
+ atiqwhiz   /* Paste your code here (You may delete these lines if not writing code) */ [/#include #include void SpiralPrint(int a[4][4]) { int i,j,k; for(i=0;i<2;i++) { for(j=i;j<4-i;j++) { printf("%d ",a[i][j]); }j--; for(k=i+1;k<4-i;k++) { printf("%d ",a[k][j]); }k--; j--; while(j>=i) { printf(“%d “,a[k][j–]); }j++; j++,k–; while(k>i) { printf(“%d “,a[k–][j]); } } } main() { int a[4][4]={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16}; SpiralPrint(a); return 0; } ] prathviraj  
+#include<stdio.h>
+main() {
+        int a[10][10],i,j,b[10][10],k,n;
+        printf("enter a square matrix order ");
+        scanf("%d",&n);
+        printf("Enter elements: \n:");
+        for(i=0;i<n;i++)
+                for(j=0;j<n;j++)
+                        scanf("%d",&a[i][j]);
+        for(k=0;k<=n/2;k++){
+                for(i=k;i<(n-k);i++)
+                        printf("%d\t",a[k][i]);
+                for(i=k+1;i<(n-k);i++)
+                        printf("%d\t",a[i][n-k-1]);
+                for(i=(n-k-2);i>=k;i--)
+                        printf("%d\t",a[n-k-1][i]);
+                for(i=(n-k-2);i>k;i--)
+                        printf("%d\t",a[i][k]);
+        }
+        printf("\n");
+}
+
+
+ Asap I think values will be repeated at corner. shivi may be better variable naming might have made the code simpler to understand… like sc for start column,sr start row, ..etc.. nice code Jitendra.BITS  
+#include<stdio.h>
+#define m 5
+#define n 6
+int main()
+{
+	int a[m][n]={1,2,3,4,5,6,
+				18,19,20,21,22,7,
+				17,28,29,30,23,8,
+				16,27,26,25,24,9,
+				15,14,13,12,11,10};
+	int i,j,k;
+	for (i=0;i<=m/2;i++)
+	{
+		for (j=i;j<=n-i-1;j++)
+		{
+			printf ("%d ",a[i][j]);
+		}
+		j=n-i-1;
+		for (k=i+1;k<=m-i-1;k++)
+		{
+			printf ("%d ",a[k][j]);
+		}
+		k=m-i-1;
+		for (j=n-i-2;j>i;j--)
+		{
+			printf ("%d ",a[k][j]);
+		}
+		j=i;
+		for (k=n-i-2;k>=i+1;k--)
+		{
+			printf ("%d ",a[k][j]);
+		}
+	}
+	return 0;
+}
+ Patil Here is my solution- void printSpiral(int mat[R][C]) { int n = R*C; int i,j;i=j=0; int flag=1; while(n && i<R) { if(flag) { for(j=0; j=0; j–) { printf(” %d “, mat[i][j]); –n; else { for(j=j-1; j>=0; j–) { printf(” %d “, mat[i][j]); –n; } i++, flag=1; } } } Please give u r view about solution. Piyush Kunal A much cleaner recursive implementation:  
+#include <stdio.h>
+#include <stdlib.h>
+ 
+void print(int arr[3][6],int rs, int cs, int re, int ce)
+{
+     int i;
+     if(rs == re)
+     {
+           for(i=cs;i<=ce;i++)
+               printf(" %d", arr[rs][i]);
+                              
+     }
+     else if(cs == ce)
+     {
+          for(i=rs;i<=re;i++)
+              printf(" %d", arr[i][cs]);
+     }
+     else
+     {
+         for(i = cs;i<=ce;i++)
+               printf(" %d",arr[rs][i]);
+         for(i = rs+1;i<=re;i++)
+               printf(" %d",arr[i][ce]);
+         for(i = ce-1;i>=cs;i--)
+               printf(" %d",arr[re][i]);
+         for(i = re-1;i>=rs+1;i--)
+               printf(" %d",arr[i][cs]);
+         print(arr,rs+1,cs+1,re-1,ce-1);
+     }
+           
+}
+ 
+ 
+int main()
+{
+ int a[3][6] = { {1,  2,  3,  4,  5,  6},
+        {7,  8,  9,  10, 11, 12},
+        {13, 14, 15, 16, 17, 18}
+    };
+ 
+    print(a,0,0,2,5);
+  getchar();
+  return 0;
+}
+ 
+
+ Chirag Choudhary  
+#include <iostream>
+#define R 4
+#define T 4
+using namespace std;
+
+
+
+void spiral_print(int m,int n, int a[R][T])
+{
+	
+	int count =0;
+	int x=0;
+	int y=0;
+	int i=0;
+	while(count < R*T)
+	{
+		for(i=x; i< n ;i++)
+		{
+			cout<<a[y][i]; count++; 
+		}
+		for(i=y+1; i< m ;i++)
+		{ 
+			cout<<a[i][n-1]; count++; 
+		}
+		for(i=n-1-1; i >= x;i--)
+		{	
+			cout<<a[m-1][i]; count++;	
+		}
+		for(i=m-1-1; i >y ;i--)	
+		{
+			cout<<a[i][x]; count++;
+		}
+		x++;y++;n--;m--;
+	}
+}
+
+int main()
+{
+
+	int a[R][T]={
+	
+		{1,2,3,4},
+		{5,6,7,8},
+		{9,10,11,12},
+		{13,14,15,16}
+	};
+	spiral_print(R,T,a);
+	return 0;
+}
+ Chirag Choudhary An edited version of the posted code.  
+
+#include <iostream>
+#define R 4
+#define T 4
+using namespace std;
+
+
+
+void spiral_print(int m,int n, int a[R][T])
+{
+	
+	int count =0;
+	int x=0;
+	int y=0;
+	int i=0;
+	while(count < R*T)
+	{
+		for(i=x; i< n ;i++)
+		{
+			cout<<a[y][i]; count++; 
+		}
+		for(i=y+1; i< m ;i++)
+		{ 
+			cout<<a[i][n-1]; count++; 
+		}
+		for(i=n-1-1; i >= x;i--)
+		{	
+			cout<<a[m-1][i]; count++;	
+		}
+		for(i=m-1-1; i >y ;i--)	
+		{
+			cout<<a[i][x]; count++;
+		}
+		x++;y++;n--;m--;
+	}
+}
+
+int main()
+{
+
+	int a[R][T]={
+	
+		{1,2,3,4},
+		{5,6,7,8},
+		{9,10,11,12},
+		{13,14,15,16}
+	};
+	spiral_print(R,T,a);
+	return 0;
+}
+ Raghavan https://github.com/raghavan/StringManipulators/blob/master/src/SpiralMatrix.java Sivaraman Krishnan  
+void PrintMatrixAsSpiral(int[,] matrix, int m,int n)
+        {
+            int rowStart = 0, columnStart = 0, rowEnd = m - 1, columnEnd = n - 1;
+
+            while (rowStart <= rowEnd && columnStart <= columnEnd)
+            {
+                for (int i = columnStart; i <= columnEnd; i++)
+                {
+                    Console.Write(matrix[rowStart, i]);
+                }
+                
+                rowStart++;
+
+                for (int i = rowStart; i <= rowEnd; i++)
+                {
+                    Console.Write(matrix[i, columnEnd]);
+                }
+
+                columnEnd--;
+
+                for (int i = columnEnd; i >= columnStart; i--)
+                {
+                    Console.Write(matrix[rowEnd, i]);
+                }
+
+                rowEnd--;
+
+                for (int i = rowEnd; i >= rowStart; i--)
+                {
+                    Console.Write(matrix[i, columnStart]);
+                }
+
+                columnStart++;
+            }
+        }
+ Sivaraman Krishnan that’s great solution, here is the modified solution in C# without using i and j variables  
+internal void PrintMatrixAsSpiral(int[,] matrix, int m,int n)
+        {
+            int rowStart = 0, columnStart = 0, rowEnd = m - 1, columnEnd = n - 1;
+
+            while (rowStart <= rowEnd && columnStart <= columnEnd)
+            {
+                for (int i = columnStart; i <= columnEnd; i++)
+                {
+                    Console.Write(matrix[rowStart, i]);
+                }
+                
+                rowStart++;
+
+                for (int i = rowStart; i <= rowEnd; i++)
+                {
+                    Console.Write(matrix[i, columnEnd]);
+                }
+
+                columnEnd--;
+
+                for (int i = columnEnd; i >= columnStart; i--)
+                {
+                    Console.Write(matrix[rowEnd, i]);
+                }
+
+                rowEnd--;
+
+                for (int i = rowEnd; i >= rowStart; i--)
+                {
+                    Console.Write(matrix[i, columnStart]);
+                }
+
+                columnStart++;
+            }
+        }
+ http://www.zindagispice.com Praveen C Source Code: Print 2D Array Matrix in Spiral Order for a Assymmetric Matrix i.e. any M X N Matrix: http://zindagispice.com/c-source-code-print-2d-array-matrix-in-spiral-order-for-a-assymmetric-matrix-i-e-any-m-x-n-matrix/ C Source Code: Print 2D Array Matrix in Spiral Order for a Symmetric Matrix: http://zindagispice.com/c-source-code-print-2d-array-matrix-in-spiral-order-for-a-symmetric-matrix/ Venugopal Latchupatula I have a different approach which is very intuitive to understand ! public class PrintHelicalMatrix { char[] directions = { ‘E’, ‘S’, ‘W’, ‘N’ }; //bool[] isItI = { false, true, false, true }; //bool[] isItInc = { true, true, false, false }; int minX, maxX, minY, maxY; int matIndexI, matIndexJ; int noOfElementsPrinted, maxNumberOfElements; int presentDirection; int[][] inputMatrix; public void PrintHelical(int[][] matrix) { maxNumberOfElements = (matrix.Length) * (matrix[0].Length); bool exitCriteria = false; inputMatrix = matrix; //Initialize Maxx, MaxY, … minX = 1; minY = 0; maxX = matrix.Length-1; maxY = matrix[0].Length-1; //Init Starters matIndexI = 0; matIndexJ = -1; presentDirection = -1; // So that it starts with East do { char ch = directions[(presentDirection + 1) % 4]; switch (ch) { case ‘E': printEastDirection(); break; case ‘S': printSouthDirection(); break; case ‘W': printWestDirection(); break; case ‘N': printNorthDirection(); break; } ++presentDirection; } while (noOfElementsPrinted < maxNumberOfElements); Console.WriteLine("\nDone Printing in Helical Fashion …"); Console.Read(); } void printEastDirection() { ++matIndexJ; while (matIndexJ <= maxY) { ++noOfElementsPrinted; Console.Write(inputMatrix[matIndexI][matIndexJ++] + "\t"); } –matIndexJ; –maxY; } void printSouthDirection() { ++matIndexI; while (matIndexI = minY) { ++noOfElementsPrinted; Console.Write(inputMatrix[matIndexI][matIndexJ–] + “\t”); } ++matIndexJ; ++minY; } void printNorthDirection() { –matIndexI; while (matIndexI >= minX) { ++noOfElementsPrinted; Console.Write(inputMatrix[matIndexI–][matIndexJ] + “\t”); } ++matIndexI; ++minX; } } hubulu   /* Paste your code here (You may delete these lines if not writing code) */ int fun() { int flag=0,i=0; for(j=0;j=r) return 0; printf(“%d”,m[i][j]); if(j==c-1) { ++i; j=-1; flag=1; } for(k=c-1;k>=0&&flag=1;k–) { printf(“%d”,m[i][k]); if(k==0) { ++i; k=c-2; flag=0; } } if(i>=r) return 0; } } http://arya.com Anil Arya   /* study my algo and make your life easier …:) */ [/int fun() { int flag=0,i=0; for(j=0;j=r) return 0; printf(“%d”,m[i][j]); if(j==c-1) { ++i; j=-1; flag=1; } for(k=c-1;k>=0&&flag=1;k–) { printf(“%d”,m[i][k]); if(k==0) { ++i; k=c-2; flag=0; } } if(i>=r) return 0; } }] Sanjai private static int[,] matrix; public static void RecursiveGetClockwiseItemsForMatrix(int[,] mtrx) { matrix = mtrx; if (matrix == null) { return; } int rowMax = matrix.GetLength(0) – 1; int colMax = matrix.GetLength(1) – 1; if (rowMax == 1 && colMax == 1) { Console.Write(matrix[0, 0]); } SpiralForward(0, 0, rowMax, colMax); } public static void SpiralForward(int rowMin, int colMin, int rowMax, int colMax) { int rowPtr = rowMin; int colPtr = colMin; if (rowMin > rowMax || colMin > colMax) { return; } while (true) { Console.Write(matrix[rowPtr, colPtr] + ” “); if (colPtr + 1 <= colMax) { colPtr++; } else if (rowPtr + 1 = rowMax || colMin >= colMax) { return; } int rowPtr = rowMax; int colPtr = colMax – 1; while (true) { Console.Write(matrix[rowPtr, colPtr] + ” “); if (colPtr > colMin) { colPtr–; } else if (rowPtr > rowMin + 1) { rowPtr–; } else { break; } } SpiralForward(++rowMin, ++colMin, –rowMax, –colMax); } Here is the below code for testing: int[,] mat = new int[,]{ {1, 2,3}, {5, 6,7}, {9,10,11,}, {13,14,15,}, {21,22,23,}, {36,37,38,}, {43,44,45,}}; RecursiveGetClockwiseItemsForMatrix(mat); Sanjai The above code is written in C#. Also, it is not perfectly optimized. it is just a working code. Sanjai The first paste did not go well. not sure why? below is the full code: private static int[,] matrix; public static void RecursiveGetClockwiseItemsForMatrix(int[,] mtrx) { matrix = mtrx; if (matrix == null) { return; } int rowMax = matrix.GetLength(0) – 1; int colMax = matrix.GetLength(1) – 1; if (rowMax == 1 && colMax == 1) { Console.Write(matrix[0, 0]); } SpiralForward(0, 0, rowMax, colMax); } public static void SpiralForward(int rowMin, int colMin, int rowMax, int colMax) { int rowPtr = rowMin; int colPtr = colMin; if (rowMin > rowMax || colMin > colMax) { return; } while (true) { Console.Write(matrix[rowPtr, colPtr] + ” “); if (colPtr + 1 <= colMax) { colPtr++; } else if (rowPtr + 1 = rowMax || colMin >= colMax) { return; } int rowPtr = rowMax; int colPtr = colMax – 1; while (true) { Console.Write(matrix[rowPtr, colPtr] + ” “); if (colPtr > colMin) { colPtr–; } else if (rowPtr > rowMin + 1) { rowPtr–; } else { break; } } SpiralForward(++rowMin, ++colMin, –rowMax, –colMax); } Sanjai Pasting code in this website does not work well. Please see my blog http://sanjairajg.blogspot.com/2012/05/printing-matrix-in-spiral-manner.html satyanandam /* Paste your code here (You may delete these lines if not writing code) */ private static void printSpiral(int[][] arr, int rows, int columns) { int i,j; for(i = 0; i < rows; i++){ if(i % 2 == 0) { for(j =0; j < columns; j++){ System.out.print(arr[i][j]); } }else{ for(j =columns – 1; j >= 0 ; j–){ System.out.print(arr[i][j]); } } } } Avinash  
+/* Paste your code here (You may delete these lines if not writing code) */
+void spiralmatrix(int arr[], int m, int n)
+{
+	int rowstart=0, rowend=m-1, colstart=0, colend=n-1;
+	int i,j;
+	while(rowstart<=rowend&&colstart<=colend)
+	{
+		int i=rowstart, j=colstart;
+		for(j=colstart;j<=colend;j++)
+		{
+			printf("%d",arr[i][j]);
+		}
+		for(i=rowstart+1,j--;i<=rowend;i++)
+		{
+			printf("%d",arr[i][j]);
+		}
+		for(j=colend-1,i--;j>=colstart;j--)
+		{
+			printf("%d",arr[i][j]);
+		}
+		for(i=rowend-1,j++;i>=rowstart+1;i--)
+		{
+			printf("%d",arr[i][j]);
+		}
+		rowstart++, rowend--, colstart++,colend--;
+	}
+}
+ nicks very nice and clean code Sreenivas Doosa Too clean and very easy to understand hary Code is no doubt neat and clean to understand but I wonder if it works in all scenarios, e.g. Try it out for a 1 * 2 matrix. Rahul sharma #include main() { int matrix[][5]={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25}; int i=0,j=0,count=0,n=5,m=0; char ch=’E'; while(count<25) { switch (ch) { case 'E': printf("\n"); for(;j<n;j++) { printf(" %d",matrix[i][j]); count++; } i++; j–; case 'N': printf("\n"); for(;i=m;j–) { printf(” %d ” , matrix[i][j]); count++; }i–;j++,m++; case ‘S': printf(“\n”); for(;i>=m;i–) { printf(” %d ” , matrix[i][j]); count++; }j++;i++; } n–; } } bhimsen92 #include<iostream> using namespace std; void print_spiral(int cols,int (*)[4],int rows); int main() { int rows,cols; cout<<"Enter the number of rows and cols: "<<endl; int array[4][4] = { {1,2,3,4}, {5,6,7,8}, {9,10,11,12}, {13,14,15,16} }; print_spiral(4,array,4); return 0; } void print_spiral(int cols,int (*a)[4],int rows) { int total_size = rows*cols; int count = 0; enum {LEFT = 1,RIGHT,DOWN,UP }; int state = RIGHT; int i = 0,j = 0,up = 0,right = 0; while( count < total_size ){ switch( state ){ case RIGHT: cout<<a[i][j]<<" "; j++; if( j > cols – 1 ){ j = cols – 1; i++; state = DOWN; } break; case DOWN: cout<<a[i][j]<<" "; i++; if( i > rows – 1){ i = rows – 1; j–; state = LEFT; } break; case LEFT: cout<<a[i][j]<<" "; j–; if( j < 0 || j < right){ j = right; i–; state = UP; rows–; up++; } break; case UP: cout<<a[i][j]<<" "; i–; if( i < up ){ i = up; //used to skip already printed rows from the top. j++; state = RIGHT; cols–; right++; //used to skip already printed column from the right side. } break; } count++; } cout<<endl; } Prashanth Simple Recursive Algorithm 1) print first row 2) rotate the array 90 degrees anti-clockwise with the remaining elements 3) recurse the rotated array  
+
+public static void rotateArray(int array[][]){
+      
+   // print the first row of the array  
+   for(int i=0;i<array[0].length;i++)
+       System.out.print(array[0][i]+" ");
+      
+   // rotate the array 90 degrees anti-clockwise
+   // copy remaining elements from array to tempArray
+   // from the tempArray copy the elements into the rotatedArray
+   // remember --- we should not include first row
+   // copy elements from last column......column by column
+   // copy elemens one by one column--- from last column to first column
+      
+      int rowsOfRotatedArray=array[0].length;
+      int columnsOfRotatedArray=array.length-1;
+      
+      int tempArray[]=new int[rowsOfRotatedArray * columnsOfRotatedArray];
+       
+      int rotatedArray[][]=new int[rowsOfRotatedArray] [columnsOfRotatedArray];
+     
+      int k=0;
+     
+      for(int j=array[0].length-1;j>=0;j--)
+          for(int i=1;i<array.length;i++)
+          {
+              tempArray[k]= array[i][j];
+              k++;
+          }    
+      
+      k=0;
+      
+      for(int i=0;i<rowsOfRotatedArray;i++)
+          for(int j=0;j<columnsOfRotatedArray;j++)
+          {
+              rotatedArray[i][j]=tempArray[k];
+              k++;
+          }    
+    
+      if(rotatedArray.length > 0)
+          rotateArray(rotatedArray);
+    }
+
+ gaurav Plz look at this code and tell if its fine…i hv checked test cases which came to my mind..u also tell if its fine or otherwise….thanks  
+#include <stdio.h>
+#include<conio.h>
+#define R 5
+#define C 6
+
+void spiralPrint(int m, int n, int a[R][C])
+{
+    int i,t,l,b,r;
+
+    t=0;
+    l=0;
+    b=m-1;
+    r=n-1;
+
+
+    while(1)
+    {
+        i=l;
+
+        if(i<=r)
+        {
+            do
+            {
+                printf("%d\t",a[t][i]); i++;
+            }while(i<=r);
+        }
+        else break;
+
+        i=t+1;
+
+        if(i<=b)
+        {
+            do
+            {
+                printf("%d\t",a[i][r]);i++;
+            }while(i<=b);
+        }
+        else break;
+
+        i=r-1;
+
+        if(i>=l)
+        {
+            do
+            {
+                printf("%d\t",a[b][i]);i--;
+            }while(i>=l);
+        }
+        else break;
+
+        i=b-1;
+
+        if(i>=t+1)
+        {
+            do
+            {
+                printf("%d\t",a[i][l]);i--;
+            }while(i>=t+1);
+        }
+        else break;
+
+        l++;
+        r--;
+        t++;
+        b--;
+    }
+}
+
+/* Driver program to test above functions */
+int main()
+{
+    int a[R][C] = { {1,  2,  3,  4,  5,  6},
+        {7,  8,  9,  10, 11, 12},
+        {13, 14, 15, 16, 17, 18},
+        {19,20,21,22,23,24},
+        {25,26,27,28,29,30}
+    };
+
+    spiralPrint(R, C, a);
+    getch();
+    return 0;
+}
+
+ Anuj Bansal Here is the code for non-square as well as square arrays.  
+#include<stdio.h>
+#define MAX_X 5
+#define MAX_Y 6
+
+void spiral(int x, int y, int a[MAX_X][MAX_Y]) {
+        while(x <= MAX_X/2 || y <= MAX_Y/2 ) {
+                int i,j;
+                i=x; j=y;
+                while(j < MAX_Y-y-1)
+                        printf("%d,", a[i][j++]);
+                while(i < MAX_X-x-1)
+                        printf("%d,", a[i++][j]);
+                while(j > y)
+                        printf("%d,", a[i][j--]);
+                while(i > x)
+                        printf("%d,", a[i--][j]);
+                x++; y++;
+        }
+}
+
+int main() {
+        int a[MAX_X][MAX_Y] = {
+                               {1,2,3,4,5,6},
+                               {7,8,9,10,11,12},
+                               {13,14,15,16,17,18},
+                               {19,20,21,22,23,24},
+                               {25,26,27,28,29,30}
+                              };
+
+spiral(0,0,a);
+return 0;
+}
+ chaitu There is a bug in the given program. The program does not give correct output for { {1,2,6},{3,4,5},{5,6,4},{7,8,3},{4,5,3},{3,3,2},{1,2,1}} which is a 7×3 matrix. Inorder to correct the code, add a condition on the fourth for loop if (l<n) { fourth for loop } GeeksforGeeks @chaitu: Thanks for pointing this out. We have made the suggested changes. Keep it up!! nikhil update for my own method… #include #include static int flag1=0; int i=0; void spiral(int m,int n,int **a,int flag) { int k,min; for(k=0;k<n;k++) cout<<a[0][k+flag]<<endl; for(k=1;k<m;k++) cout<<a[k][n-1+flag]<=0;k–) cout<<a[m-1][k+flag]<0;k–) cout<<a[k][0+flag]<<endl; if(m0||n-2>0) spiral(m-2,n-2,&a[i],flag1); } int main() { int m,n; cout<<"enter the dimensions"<>m>>n; int **a; a=new int*[m]; for(int i=0;i<m;i++) a[i]=new int[n]; cout<<"enter the matrix"<<endl; for(int i=0;i<m;i++) for(int j=0;j>a[i][j]; spiral(m,n,a,flag1); getch(); return 0; } nikhil there is a problem with 7X7 matrix….anybody with correct solution..pls rply nikhil a simple method using recursion… #include #include void spiral(int m,int n,int **a,int flag) { int k,min; for(k=0;k<n;k++) cout<<a[0][k+flag]<<endl; for(k=1;k<m;k++) cout<<a[k][n-1+flag]<=0;k–) cout<<a[m-1][k+flag]<0;k–) cout<<a[k][0+flag]<<endl; if(m<n) min=m; else min=n; for(int i=1;i<=(min-1)/2;i++) spiral(m-2,n-2,&a[i],i); } int main() { int m,n; cout<<"enter the dimensions"<>m>>n; int **a; a=new int*[m]; for(int i=0;i<m;i++) a[i]=new int[n]; cout<<"enter the matrix"<<endl; for(int i=0;i<m;i++) for(int j=0;j>a[i][j]; spiral(m,n,a,0); getch(); return 0; } trojansmith this is recursive solution…..similar to Ronzil  
+#include<iostream>
+using namespace std;
+
+int a[4][4]={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+
+void spiral(int min_row,int max_col,int max_row,int min_col)
+{
+	for(int i=min_col;i<=max_col;i++)
+	{
+		cout<<a[min_row][i]<<" ";
+	}
+	for(int i=min_row+1;i<=max_row;i++)
+	{
+		cout<<a[i][max_col]<<" ";
+	}
+	for(int i=max_col-1;i>=min_col;i--)
+	{
+		cout<<a[max_row][i]<<" ";
+	}
+	for(int i=max_row-1;i>min_row;i--)
+	{
+		cout<<a[i][min_col]<<" ";
+	}
+	if(min_row<max_row && min_col<max_col)
+	spiral(min_row+1,max_col-1,max_row-1,min_col+1);
+}
+
+int main()
+{
+	
+	spiral(0,3,3,0);
+	return 0;
+}
+ nikhil hey will u pls post a program for general size array… thanks in advance http://shoutz.in kevindra Instead of having too many if else conditions, we can have direction arrays di[] = {0,1,0,-1} and dj[] = {1,0,-1,0} which means if direction = [0..3] then i += di[direction] and j += dj[direction] no need to write if else conditions for every direction change.. Here is the working source code.. you can take a look  
+void spiral( int **m, int r, int c )  {
+  int dj[] = {1,0,-1,0};
+  int di[] = {0,1,0,-1};
+  bool **flag = (bool**) malloc(sizeof(bool**)*r*c);
+  for(int i=0;i<r;i++) flag[i] = (bool*)malloc(sizeof(bool*)*c);
+
+  /** mark all as unvisited **/
+  for(int i=0;i<r;i++) for(int j=0;j<c;j++) flag[i][j] = false;
+
+  int n = r*c, dir=0;
+  
+  int i=0,j=0;
+  while(n)  {
+    if( i >= r || i < 0 || j >= c || j < 0 || flag[i][j] ){ 
+      i -= di[dir], j -= dj[dir];
+      dir = (dir+1)%4; 
+    }
+    else  {
+      n--;
+      cout<<m[i][j]<<"->";
+    }
+    flag[i][j] = true;
+    i += di[dir];
+    j += dj[dir];
+  }
+}
+
+// calling
+spiral(mat, row, col); darkman I found the solution on this link more simpler. http://dzmitryhuba.blogspot.com/2010/08/print-numbers-by-spiral.html Abhinav Kumar @Ronzii: My friend your implementation is not correct as it prints the value twice for some values of the sample array. So could you look at it and try to fix this. I will also try and let you know. Thanks. martin @GeeksForGeeks,WgpShashank What The Complexity of Your Solution ? http://geeksforgeeks.org/ Sandeep @martin: Time complexity of the above solution is O(mn). We have added it to the original post. martin @Sandeep Can you tell me is there anything wrong in below post/solution given by “WgpShashank” which also has same time complexity isn’t it ? please reply ? Ronzii I have a recursive method.  
+void printSpiral(int arr[][MAX],int row,int col,int m,int n)
+{
+    if (row>m && col>n) return;
+    if (m==n && row==m-1 && col==n-1) cout<<arr[row][col]<<" ";
+    int i=row,j=col;
+    for(j = col; j<=n-2; j++)
+    {
+        cout<<arr[i][j]<<" ";
+    }
+    for(i = row; i<=m-2; i++)
+    {
+        cout<<arr[i][j]<<" ";
+    }
+    for(; j>row; j--)
+    {
+        cout<<arr[i][j]<<" ";
+    }
+    for(; i>col; i--)
+    {
+        cout<<arr[i][j]<<" ";
+    }
+    printSpiral(arr,row+1,col+1,m-1,n-1);
+    return;
+} http://shashank7s.blogspot.com WgpShashank I Think There are several ways to solve this problem, but I am mentioning a method that is intuitive to understand and easy to implement. The idea is to consider the matrix similar to onion which can be peeled layer after layer. We can use the same approach to print the outer layer of the matrix and keep doing it recursively on a smaller matrix (with 1 less row and 1 less column). Refer to the image below for a visual explanation. We start by printing the top-right layer of the matrix by calling the print_layer_top_right. It will print 1,2,3,4,8,12,16,20. The print_layer_top_right method then calls the print_layer_bottom_left method which will print 19,18,17,13,9,5. If you observe the size of the target matrix is reducing after each call. Each method basically calls the other method and passes the matrix indexes for the reduced matrix. Both methods take 4 index parameters which represent the target matrix. When the target matrix size is such that there is only one layer left the recursion terminates and by this time the code has printed all the numbers in the full matrix. Check Out The Link Below For Working Code http://shashank7s.blogspot.com/2011/04/wap-to-print-2d-array-matrix-in-spiral.html do notify me if for any test case Shashank Astha @wgpshashank …nice wirk ..keep it up  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

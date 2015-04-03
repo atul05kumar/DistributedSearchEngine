@@ -1,0 +1,743 @@
+Write an Efficient C Function to Convert a Binary Tree into its Mirror Tree - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Write an Efficient C Function to Convert a Binary Tree into its Mirror Tree Mirror of a Tree: Mirror of a Binary Tree T is another Binary Tree M(T) with left and right children of all non-leaf nodes interchanged. Trees in the below figure are mirror of each other Algorithm - Mirror(tree): 
+(1)  Call Mirror for left-subtree    i.e., Mirror(left-subtree)
+(2)  Call Mirror for right-subtree  i.e., Mirror(left-subtree)
+(3)  Swap left and right subtrees.
+          temp = left-subtree
+          left-subtree = right-subtree
+          right-subtree = temp
+ Program: 
+#include<stdio.h>
+#include<stdlib.h>
+
+/* A binary tree node has data, pointer to left child 
+   and a pointer to right child */
+struct node 
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+
+{
+  struct node* node = (struct node*)
+                       malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+  
+  return(node);
+}
+
+
+/* Change a tree so that the roles of the  left and 
+    right pointers are swapped at every node.
+
+ So the tree...
+       4
+      / \
+     2   5
+    / \
+   1   3
+
+ is changed to...
+       4
+      / \
+     5   2
+        / \
+       3   1
+*/
+void mirror(struct node* node) 
+{
+  if (node==NULL) 
+    return;  
+  else 
+  {
+    struct node* temp;
+    
+    /* do the subtrees */
+    mirror(node->left);
+    mirror(node->right);
+
+    /* swap the pointers in this node */
+    temp        = node->left;
+    node->left  = node->right;
+    node->right = temp;
+  }
+} 
+
+
+/* Helper function to test mirror(). Given a binary
+   search tree, print out its data elements in 
+   increasing sorted order.*/
+void inOrder(struct node* node) 
+{
+  if (node == NULL) 
+    return;
+  
+  inOrder(node->left);
+  printf("%d ", node->data);
+
+  inOrder(node->right);
+}  
+
+
+/* Driver program to test mirror() */
+int main()
+{
+  struct node *root = newNode(1);
+  root->left        = newNode(2);
+  root->right       = newNode(3);
+  root->left->left  = newNode(4);
+  root->left->right = newNode(5); 
+  
+  /* Print inorder traversal of the input tree */
+  printf("\n Inorder traversal of the constructed tree is \n");
+  inOrder(root);
+  
+  /* Convert tree to its mirror */
+  mirror(root); 
+  
+  /* Print inorder traversal of the mirror tree */
+  printf("\n Inorder traversal of the mirror tree is \n");  
+  inOrder(root);
+  
+  getchar();
+  return 0;  
+}
+ Time & Space Complexities: This program is similar to traversal of tree space and time complexities will be same as Tree traversal (Please see our Tree Traversal post for details)           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tags: Convert to Mirror, Get the Mirror, Mirror Tree, Tree Traveral, Trees Tweet Writing code in comment? Please use ideone.com and share the link here. alien I think both preorder and post order traversal will work. But inorder traversal won’t work Krishana This is really confusing why we are not using double pointer instead of single pointer. I think this swap not reflect in main. Please anyone explain this Ankur Sao There is no change in the root of the tree. We need double pointers only in case where root is changing.for eg, adding new link in the beginning of a linked list. Marsha Donna following is the link to create a new tree which is mirror of existing tree http://ideone.com/EtQ9TK Rakesh Comments Appreciated !! struct Tnode *swaptree(struct Tnode *p) { struct Tnode *t1,*t2; if(p!=NULL) { t1=swaptree(p->lchild); t2=swaptree(p->rchild); p->lchild=t2; p->rchild=t1; } return p; } samsammy @d4868dd64c637016efc578852ad7cd68:disqus Algorithm – Mirror(tree): (1) Call Mirror for left-subtree i.e., Mirror(left-subtree) (2) Call Mirror for right-subtree i.e., Mirror(left-subtree) (2) should be- Call Mirror for right-subtree i.e., Mirror(right-subtree) Correct me If I am missing something.. Sumit Monga First the left and right subtrees need to be done. Before it ,temp should not be declared as it will take stack space until it starts popping off the stack. temp should be allocated on the stack only after doing the left and right subtrees as then only one stack frame will be used at any time(idea of tail recursion). Subrahmanyan Sankaran // TreeMirror.cpp : Defines the entry point for the console application. // #include "stdafx.h" #include using namespace std; struct Node { int data; Node *left; Node *right; }; class Tree { static int l; static int flip; static int leafdepth; static Node * prev; static int count; public: Node *head; int maxdepth; Tree() { prev = NULL; head = NULL; maxdepth = 0; } void Mirror(Node *node) { Node *tmp; if(node) { tmp = node->left; node->left = node->right; node->right = tmp; Mirror(node->left); Mirror(node->right); } } void Inorder(Node *node) { if(node) { Inorder(node->left); std::cout<data; Inorder(node->right); } } void InsertNode(Node *node,int data) { Node * tmp = node; if(head == NULL) { head = new Node; head->data = data; head->left = NULL; head->right = NULL; return; } else if(tmp) { prev = tmp; if(data > tmp->data) { l=0; tmp = tmp -> right; InsertNode(tmp,data); } else { l=1; InsertNode(tmp->left,data); } } if(l == 1) { prev->left = new Node; prev->left->data = data; prev->left->left = NULL; prev->left->right = NULL; l = -1; return; } else if(l == 0) { prev->right = new Node; prev->right->data = data; prev->right->left = NULL; prev->right->right = NULL; l = -1; return; } } }; int Tree::l =0; int Tree::flip =0; int Tree::leafdepth =-1; int Tree::count = 0; Node * Tree::prev = NULL; int _tmain(int argc, _TCHAR* argv[]) { Tree t; t.InsertNode(t.head,2); t.InsertNode(t.head,1); t.InsertNode(t.head,4); t.InsertNode(t.head,3); t.InsertNode(t.head,5); t.Inorder(t.head); t.Mirror(t.head); t.Inorder(t.head); return 0; } hemanthreddy  
+struct node * mirror_tree(struct node *root)
+{
+	struct node *temp;
+	if(!root || !root->left && !root->right)
+		return root;
+	temp = root->left;
+	root->left = mirror_tree(root->right);
+	root->right = mirror_tree(temp);
+	return root;
+}
+ Hanish Bansal This can also be done in preorder Ashish Why are we not passing double pointer to root node as we are trying to modify the root node(like we do in insert() fuction).Don’t you think that the original root pointer will be unchanged by this mirror function? lizard In the mirror tree root node remains same…. so it is not required to modify the root node…only the left and right pointers of root node are being modified… Ashish why are we not passing double pointer for root in mirror() as we are trying to modify the root pointer(like we do in insert() function)? I think,passing single pointer will not change the original root pointer. abhishek08aug C++ code extended from my post on: http://www.geeksforgeeks.org/write-a-c-program-to-delete-a-tree/  
+#include<iostream>
+using namespace std;
+ 
+class tree_node {
+  private:
+    int data;
+    tree_node * left;
+    tree_node * right;
+  public:
+    tree_node() {
+      left=NULL;
+      right=NULL;
+    }
+    void set_data(int data) {
+      this->data=data;
+    }
+    int get_data() {
+      return this->data;
+    }
+    void set_left(tree_node * left) {
+      this->left=left;
+    }
+    tree_node * get_left() {
+      return this->left;
+    }
+    void set_right(tree_node * right) {
+      this->right=right;
+    }
+    tree_node * get_right() {
+      return this->right;
+    }
+    tree_node ** get_left_ref() {
+      return &(this->left);
+    }
+    tree_node ** get_right_ref() {
+      return &(this->right);
+    }
+};
+ 
+class tree {
+  private:
+    tree_node * root;
+    int size;
+    void _recursive_insert(tree_node ** root_ref, int value);
+    void _print_preorder(tree_node * root);
+    void _print_inorder(tree_node * root);
+    void _print_postorder(tree_node * root);
+    int _find_size(tree_node * root);
+    int _are_identical(tree_node * tn1, tree_node * tn2);
+    int _find_height(tree_node * root);
+    void _delete_tree(tree_node ** root);
+    void _mirror(tree_node * root);
+  public:
+    tree() {
+      root=NULL;
+      size=0;
+    }
+    void insert(int value);
+    void recursive_insert(int value);
+    void print_preorder();
+    void print_inorder();
+    void print_postorder();
+    int find_size();
+    int get_size() {
+      return this->size;
+    }
+    int are_identical(tree t);
+    int find_height();
+    void delete_tree();
+    void mirror();
+};
+ 
+void tree::insert(int value) {
+  if(root==NULL) {
+    root=new tree_node;
+    root->set_data(value);
+  } else {
+    tree_node * parent=NULL;
+    tree_node * current=root;
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    while(current!=NULL) {
+      if(value<=current->get_data()) {
+        parent=current;
+        current=current->get_left();
+      } else {
+        parent=current;
+        current=current->get_right();
+      }
+    }
+    if(value<=parent->get_data() && parent->get_left()==NULL) {
+      parent->set_left(new_node);
+    } else if(value>parent->get_data() && parent->get_right()==NULL) {
+      parent->set_right(new_node);
+    }
+  }
+  size++;
+}
+ 
+void tree::recursive_insert(int value) {
+  _recursive_insert(&root, value);
+  size++;
+}
+ 
+void tree::_recursive_insert(tree_node ** root_ref, int value) {
+  if(*root_ref==NULL) {
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    *root_ref=new_node;   
+  } else {
+    if(value<=(*root_ref)->get_data()) {
+      _recursive_insert((*root_ref)->get_left_ref(), value);
+    } else {
+      _recursive_insert((*root_ref)->get_right_ref(), value);
+    }
+  }
+}
+ 
+void tree::print_preorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_preorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_preorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  cout<<root->get_data()<<" ";
+  if(root->get_left()!=NULL)
+    _print_preorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_preorder(root->get_right());
+}
+ 
+void tree::print_inorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_inorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_inorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_inorder(root->get_left());
+  cout<<root->get_data()<<" ";
+  if(root->get_right()!=NULL)
+    _print_inorder(root->get_right());
+}
+ 
+void tree::print_postorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_postorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_postorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_postorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_postorder(root->get_right());
+  cout<<root->get_data()<<" ";
+}
+
+int tree::find_size() {
+  return _find_size(root);
+}
+
+int tree::_find_size(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else {
+    return 1+_find_size(root->get_left())+_find_size(root->get_right());
+  }
+}
+
+int tree::are_identical(tree t) {
+  return _are_identical(this->root, t.root);
+}
+
+int tree::_are_identical(tree_node * tn1, tree_node * tn2) {
+  if(tn1==NULL && tn2==NULL) {
+    return 1;
+  } else if((tn1==NULL && tn2!=NULL) || (tn1!=NULL && tn2==NULL) || (tn1->get_data()!=tn2->get_data())) {
+    return 0;
+  } else {
+    return _are_identical(tn1->get_left(), tn2->get_left()) && _are_identical(tn1->get_right(), tn2->get_right());
+  }
+}
+
+int tree::find_height() {
+  return _find_height(root);
+}
+
+int tree::_find_height(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  }
+  else {
+    return 1+max(_find_height(root->get_left()), _find_height(root->get_right()));
+  }
+}
+
+void tree::delete_tree() {
+  _delete_tree(&root);
+  size=0;
+}
+
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      _delete_tree((*root)->get_left_ref());
+    }
+    if((*root)->get_right()!=NULL) {
+      _delete_tree((*root)->get_right_ref());
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+
+/* alternate _delete_tree */
+/*
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      tree_node * left_ref=(*root)->get_left();
+      _delete_tree(&left_ref);
+    }
+    if((*root)->get_right()!=NULL) {
+      tree_node * right_ref=(*root)->get_right();
+      _delete_tree(&right_ref);
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+*/
+
+void tree::_mirror(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+
+  tree_node * temp=root->get_left();
+  root->set_left(root->get_right());
+  root->set_right(temp);
+  _mirror(root->get_left());
+  _mirror(root->get_right());
+}
+
+void tree::mirror() {
+  _mirror(root);
+}
+
+int main() {
+  tree t1;
+
+  t1.recursive_insert(5);
+  t1.recursive_insert(3);
+  t1.insert(1);
+  t1.insert(7);
+  t1.recursive_insert(50);
+  t1.recursive_insert(6);
+
+  cout<<"Inorder Traversal"<<endl;
+  t1.print_inorder();
+  cout<<"Size of the tree is: "<<t1.find_size()<<endl;
+  cout<<"Size of the tree is: "<<t1.get_size()<<endl;
+  cout<<"Height of the tree is: "<<t1.find_height()<<endl;
+
+  t1.mirror();
+
+  cout<<"Inorder Traversal"<<endl;
+  t1.print_inorder();
+  cout<<"Size of the tree is: "<<t1.find_size()<<endl;
+  cout<<"Size of the tree is: "<<t1.get_size()<<endl;
+  cout<<"Height of the tree is: "<<t1.find_height()<<endl;
+
+  return 0;
+}
+ Inorder Traversal 1 3 5 6 7 50 Size of the tree is: 6 Size of the tree is: 6 Height of the tree is: 3 Inorder Traversal 50 7 6 5 3 1 Size of the tree is: 6 Size of the tree is: 6 Height of the tree is: 3 stupid  
+void findmirror(struct node * root){
+     if(root == NULL){
+             return;
+     }
+     else{
+          findmirror(root->left);
+          findmirror(root->right);
+          struct node * temp = root->left;
+          root->left = root->right;
+          root->right = temp;
+     }
+}
+ Nikin  
+void mirror(node *sr)
+{
+if(sr == NULL ) return;
+mirror(sr->left);
+mirror(sr->right);
+
+int oldData = sr->left->data;
+sr->left->data = sr->right->data;
+sr->right->data = oldData;
+
+}
+ Aashish Code to create a mirror tree without destroying original tree.  
+struct node* foo(struct node* root)
+{
+        struct node *temp=NULL;
+        if(root)
+        {
+                temp=getNode(root->data);
+                temp->left=foo(root->right);
+                temp->right=foo(root->left);
+        }
+        return temp;
+}
+ Output: http://ideone.com/jHSgT Code_Addict Good Work!! Taking mirror image in Different Tree yc Here is the pure iterative tree mirror using no recursion and no stack. This is based on Morris Traversal tweaked to do postorder traversal.  
+void morrisMirror(node *r){
+  node dummy;
+  dummy.left=r;
+  node *cur=&dummy;
+  while(cur){
+    if(cur->left){
+      node *p=cur->left;
+      while(p->right && (p->right != cur))       
+	p=p->right;
+      
+      if(!p->right){ //go down
+	p->right=cur;
+	cur=cur->left;
+      }else{//rewind
+	p->right=0;
+	node* tmp=p->right; //swaping right and left
+	p->right=p->left;
+	p->left=tmp;
+	if(p!=cur->left){
+	  node *pp=cur->left;
+	  while(pp != p){
+	    while(pp->right != p)
+	      pp=pp->right;
+	    tmp=pp->right;
+	    pp->right=pp->left;
+	    pp->left=tmp;
+	    p=pp;
+	    pp=cur->left;	    
+	  }
+	}
+	cur=cur->right;
+      }
+    }else
+      cur=cur->right;    
+  }
+}
+
+ Shmulito You have a bug in this code.right is set to 0 and you swap left and right ?why do you need ‘tmp’ here ? always equal to true. p->right=0; node* tmp=p->right; //swaping right and left p->right=p->left; p->left=tmp; anonymous I think this can also be done without recursion. Using Morris Traversal.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ pphanireddy /**************************************************************************** * Convert a binary tree into its mirror image ****************************************************************************/ public void convertIntoMirrorImage() { convertIntoMirrorImage(root); } private void convertIntoMirrorImage(Node currNode) { if(currNode == null) { return; } Node tempNode = currNode.left; currNode.left = currNode.right; currNode.right = tempNode; convertIntoMirrorImage(currNode.left); convertIntoMirrorImage(currNode.right); } darkprince Non Recursive version … Any fallacy , report me ..  
+#include<iostream>
+#include<cstdio>
+#include<cstring>
+#include<cstdlib>
+using namespace std;
+
+struct tree
+{
+       int data;
+       struct tree *left,*right;
+};
+
+struct tree *stack[1000];
+int top=0;
+void push(struct tree *node)
+{ 
+  stack[top++]=node;
+}
+
+struct tree *makenode()
+{
+       struct tree *t;
+       t=(struct tree*)malloc(sizeof(struct tree));
+       t->data=-9999;
+       t->left=t->right=NULL;
+       
+ return(t);      
+}
+
+struct tree * pop()
+{
+ if(top<0) printf("Underflow");
+ else
+{ top--;
+ return(stack[top]);
+}
+       
+}
+       
+int isempty()
+{
+  if (top > 0) return 1;
+  else return 0;
+    
+}
+
+       
+int main()
+{
+    
+    struct tree *p,*temp,*T;
+    p=makenode();
+    T=p;
+    p->data=11;
+    p->left=makenode();
+    p->left->data=7;
+    p->right=makenode();
+    p->right->data=14;
+    p->right->left=makenode();
+    p->right->right=makenode();
+    p->right->left->data=13;
+    p->right->right->data=18;
+    p->left->left=makenode();
+    p->left->right=makenode();
+    p->left->left->data=5;
+    p->left->right->data=9;
+    p->left->right->left=makenode();
+    p->left->right->right=makenode();    
+    p->left->right->left->data=8;
+    p->left->right->right->data=10;
+    
+    
+    
+    while(p!=NULL)
+    {
+      push(p);
+      p=p->left;  
+    }
+    
+    while(isempty())
+    {
+      p=pop();
+      temp=p->right;
+      p->right=p->left;
+      p->left=temp;
+    
+      if((p->left)!=NULL) {
+                          p=p->left;
+                          while(p!=NULL)
+                          {
+                                        push(p);
+                                        p=p->left;
+                          }
+                          }
+  //    else printf("%d ",p->data);
+                
+    }
+    
+//printf(" %d %d %d %d %d %d %d %d",T->data,T->left->data,T->left->left->data,T->left->right->data,T->right->left->data,T->right->right->data,T->right->left->left->data,T->right->left->right->data);
+    
+    getchar();
+    return 0;
+}
+
+ donbosio Hi, can any body tell what is the problem with my code, it is not running fine struct node * mirror(struct node * root) { struct node* temp; if(root==NULL) return NULL; else { struct node * temp; temp=(struct node*)malloc(sizeof(struct node)); temp->data=root->data; temp->left=mirror(root->right); temp->right=mirror(root->left); } return temp; } if inorder traversal of tree is 1 2 3 4 5 the traversal which should have been for the mirror tree 5 4 3 2 1 comes out to be 5 only . Aman You are have declared two “temp”. You are allocating memory to inner one, and returning outer one. sharat04 recently I have seen extensions to this problem, to find out the mirror of a n-ary tree. Also I request the admin to change the problem statement to clearly state this solution is for a binary tree only. GeeksforGeeks @sharat04: thanks for pointing this out, we have updated the post tittle. For n-ary tree, we need to call recursively for all n children and reverse the array of child pointers. cheenu can you please briefly explain abt what do you mean by reversing the array of child pointers vs e.g 
+    a      
+
+/ / | \ \
+b c d f g
+
+will become
+
+   a      
+
+/ / | \ \
+g f d c b
+ where the array of child -> b c d f g has been reversed to -> g f d c b http://wgpshashank.co.cc wgpshashank  
+mynode *copy(mynode *root)
+{
+  mynode *temp;
+
+  if(root==NULL) return(NULL);
+  temp = (mynode *) malloc(sizeof(mynode));
+  temp->value = root->value;
+
+  temp->left  = copy(root->left);
+  temp->right = copy(root->right);
+
+  return(temp);
+}
+ http://ashutosh7s.blogspot.com/ WgpShashank see the working code here https://ideone.com/GrLU5 http://ashutosh7s.blogspot.com/ WgpShashank sorry for type..here is exact code   
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+ 
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+ 
+{
+  struct node* node = (struct node*)
+                       malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+ 
+  return(node);
+}
+ 
+/* Change a tree so that the roles of the  left and
+    right pointers are swapped at every node.
+ 
+ So the tree...
+       4
+      / \
+     2   5
+    / \
+   1   3
+ 
+ is changed to...
+       4
+      / \
+     5   2
+        / \
+       3   1
+*/
+struct node* copy(struct node *root)
+{
+  struct node *temp;
+ 
+  if(root==NULL) 
+  return(NULL);
+  temp = (struct node*) malloc(sizeof(struct node));
+  temp->data= root->data;
+ 
+  temp->left  = copy(root->right);
+  temp->right = copy(root->left);
+ 
+  return(temp);
+}
+ 
+/* Helper function to test mirror(). Given a binary
+   search tree, print out its data elements in
+   increasing sorted order.*/
+void inOrder(struct node* node)
+{
+  if (node == NULL)
+    return;
+ 
+  inOrder(node->left);
+  printf("%d ", node->data);
+ 
+  inOrder(node->right);
+}  
+ 
+/* Driver program to test mirror() */
+int main()
+{
+  struct node *root = newNode(1);
+  root->left        = newNode(2);
+  root->right       = newNode(3);
+  root->left->left  = newNode(4);
+  root->left->right = newNode(5); 
+  root->left->left->left  = newNode(6);
+  root->left->right->right = newNode(7); 
+  /* Print inorder traversal of the input tree */
+  printf("\n Inorder traversal of the constructed tree is \n");
+  inOrder(root);
+ 
+  /* Convert tree to its mirror */
+  root=copy(root); 
+ 
+  /* Print inorder traversal of the mirror tree */
+  printf("\n Inorder traversal of the mirror tree is \n");
+  inOrder(root);
+ 
+  getchar();
+  return 0;
+}
+ lalit kumawat @vit pune mynode *mirror(mynode *root) { mynode *temp; if(root==NULL) return(NULL); temp = (mynode *) malloc(sizeof(mynode)); temp->value = root->value; temp->left = mirror(root->left); temp->right = mirror(root->right); return(temp); }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ RAHUL JAIN but this wont work  
+void mirror(struct node* node)
+{
+  if (node==NULL)
+    return;
+  else
+  {
+    struct node* temp;
+
+    /* do the subtrees */
+    mirror(node->left); 
+     temp        = node->left;
+    node->left  = node->right;
+    node->right = temp;
+    mirror(node->right);
+ 
+    /* swap the pointers in this node */
+   
+  }
+}
+ nik I guess this this won’t work.Either both these mirror of left and right functions must be called before swapping or after swapping. pankaj To work with that code we need not to call mirror right function after swapping instead we will call mirror left function again. This is because after swapping left & right sub-trees are swapped. Working code will be.. void mirror(struct node* node) { if (node==NULL) return; else { struct node* temp; /* do the subtrees */ mirror(node->left); temp = node->left; node->left = node->right; node->right = temp; mirror(node->left); } } BackBencher Hi, This not working we remain to visit the right subtree, and we changes the ptr left and right and we again visit the left ptr which is currently right. Plz.. correct me if i am wrong. Bandicoot Will this work ? Swapping the Left and Right subtrees before we do the recursion on Left and Right subtrees: Mirror(tree): (1) Swap left and right subtrees. temp = left-subtree left-subtree = right-subtree right-subtree = temp (2) Call Mirror for left-subtree i.e., Mirror(left-subtree) (3) Call Mirror for right-subtree i.e., Mirror(left-subtree) Sandeep yes, this will also work. The method in original post changes tree in bottom up fashion and your algo changes in top down fashion. http://roomforcreativity.wordpress.com cyclotrojan +1 Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,340 @@
+Linked complete binary tree & its creation  - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Linked complete binary tree & its creation A complete binary tree is a binary tree where each level ‘l’ except the last has 2^l nodes and the nodes at the last level are all left aligned. Complete binary trees are mainly used in heap based data structures. The nodes in the complete binary tree are inserted from left to right in one level at a time. If a level is full, the node is inserted in a new level. Below are some of the complete binary trees. 
+       1
+      / \
+     2   3
+
+        1
+       / \
+      2   3
+     / \  / 
+    4  5 6
+ Below binary trees are not complete: 
+     1
+    / \
+   2   3
+  /    /
+  4   5
+
+       1
+      / \
+     2   3
+    / \  /
+   4  5 6
+  /
+ 7
+ Complete binary trees are generally represented using arrays. The array representation is better because it doesn’t contain any empty slot. Given parent index i, its left child is given by 2 * i + 1 and its right child is given by 2 * i + 2. So no extra space is wasted and space to store left and right pointers is saved. However, it may be an interesting programming question to created a Complete Binary Tree using linked representation. Here Linked mean a non-array representation where left and right pointers(or references) are used to refer left and right children respectively. How to write an insert function that always adds a new node in the last level and at the leftmost available position? To create a linked complete binary tree, we need to keep track of the nodes in a level order fashion such that the next node to be inserted lies in the leftmost position. A queue data structure can be used to keep track of the inserted nodes. Following are steps to insert a new node in Complete Binary Tree. 1. If the tree is empty, initialize the root with new node. 2. Else, get the front node of the queue. …….If the left child of this front node doesn’t exist, set the left child as the new node. …….else if the right child of this front node doesn’t exist, set the right child as the new node. 3. If the front node has both the left child and right child, Dequeue() it. 4. Enqueue() the new node. Below is the implementation: 
+// Program for linked implementation of complete binary tree
+#include <stdio.h>
+#include <stdlib.h>
+
+// For Queue Size
+#define SIZE 50
+
+// A tree node
+struct node
+{
+    int data;
+    struct node *right,*left;
+};
+
+// A queue node
+struct Queue
+{
+    int front, rear;
+    int size;
+    struct node* *array;
+};
+
+// A utility function to create a new tree node
+struct node* newNode(int data)
+{
+    struct node* temp = (struct node*) malloc(sizeof( struct node ));
+    temp->data = data;
+    temp->left = temp->right = NULL;
+    return temp;
+}
+
+// A utility function to create a new Queue
+struct Queue* createQueue(int size)
+{
+    struct Queue* queue = (struct Queue*) malloc(sizeof( struct Queue ));
+
+    queue->front = queue->rear = -1;
+    queue->size = size;
+
+    queue->array = (struct node**) malloc(queue->size * sizeof( struct node* ));
+
+    int i;
+    for (i = 0; i < size; ++i)
+        queue->array[i] = NULL;
+
+    return queue;
+}
+
+// Standard Queue Functions
+int isEmpty(struct Queue* queue)
+{
+    return queue->front == -1;
+}
+
+int isFull(struct Queue* queue)
+{  return queue->rear == queue->size - 1; }
+
+int hasOnlyOneItem(struct Queue* queue)
+{  return queue->front == queue->rear;  }
+
+void Enqueue(struct node *root, struct Queue* queue)
+{
+    if (isFull(queue))
+        return;
+
+    queue->array[++queue->rear] = root;
+
+    if (isEmpty(queue))
+        ++queue->front;
+}
+
+struct node* Dequeue(struct Queue* queue)
+{
+    if (isEmpty(queue))
+        return NULL;
+
+    struct node* temp = queue->array[queue->front];
+
+    if (hasOnlyOneItem(queue))
+        queue->front = queue->rear = -1;
+    else
+        ++queue->front;
+
+    return temp;
+}
+
+struct node* getFront(struct Queue* queue)
+{  return queue->array[queue->front]; }
+
+// A utility function to check if a tree node has both left and right children
+int hasBothChild(struct node* temp)
+{
+    return temp && temp->left && temp->right;
+}
+
+// Function to insert a new node in complete binary tree
+void insert(struct node **root, int data, struct Queue* queue)
+{
+    // Create a new node for given data
+    struct node *temp = newNode(data);
+
+    // If the tree is empty, initialize the root with new node.
+    if (!*root)
+        *root = temp;
+
+    else
+    {
+        // get the front node of the queue.
+        struct node* front = getFront(queue);
+
+        // If the left child of this front node doesn’t exist, set the
+        // left child as the new node
+        if (!front->left)
+            front->left = temp;
+
+        // If the right child of this front node doesn’t exist, set the
+        // right child as the new node
+        else if (!front->right)
+            front->right = temp;
+
+        // If the front node has both the left child and right child,
+        // Dequeue() it.
+        if (hasBothChild(front))
+            Dequeue(queue);
+    }
+
+    // Enqueue() the new node for later insertions
+    Enqueue(temp, queue);
+}
+
+// Standard level order traversal to test above function
+void levelOrder(struct node* root)
+{
+    struct Queue* queue = createQueue(SIZE);
+
+    Enqueue(root, queue);
+
+    while (!isEmpty(queue))
+    {
+        struct node* temp = Dequeue(queue);
+
+        printf("%d ", temp->data);
+
+        if (temp->left)
+            Enqueue(temp->left, queue);
+
+        if (temp->right)
+            Enqueue(temp->right, queue);
+    }
+}
+
+// Driver program to test above functions
+int main()
+{
+    struct node* root = NULL;
+    struct Queue* queue = createQueue(SIZE);
+    int i;
+
+    for(i = 1; i <= 12; ++i)
+        insert(&root, i, queue);
+
+    levelOrder(root);
+
+    return 0;
+}
+ Output: 1 2 3 4 5 6 7 8 9 10 11 12 This article is compiled by Aashish Barnwal and reviewed by GeeksforGeeks team. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tags: Complete Binary Tree Tweet Writing code in comment? Please use ideone.com and share the link here. SS After looking at the program, it seems to be me that the insert functions seems incomplete/incorrect. When the front node is full with left and right already updated, we are just dequeueing it, dont we need to keep traversing the queue until one with either empty left or right is seen so that the newly created node can be added to it. shaktiman  
+/* 
+#include <iostream>
+#include <queue>
+using namespace std;
+
+struct node
+{
+    int data;
+    struct node *right,*left;
+};
+
+
+// A utility function to create a new tree node
+struct node* newNode(int data)
+{
+    struct node* temp = new (struct node);
+    temp->data = data;
+    temp->left = temp->right = NULL;
+    return temp;
+}
+
+// A utility function to check if a tree node has both left and right children
+int hasBothChild(struct node* temp)
+{
+    return temp && temp->left && temp->right;
+}
+
+// Function to insert a new node in complete binary tree
+void insert(struct node **root, int data,queue<struct node *> &myqueue )
+{
+    // Create a new node for given data
+    struct node *temp = newNode(data);
+
+    // If the tree is empty, initialize the root with new node.
+    if (*root == NULL)
+        *root = temp;
+
+    else
+    {
+        // get the front node of the queue.
+        struct node* front = myqueue.front();
+
+        // If the left child of this front node doesn’t exist, set the
+        // left child as the new node
+        if (!front->left)
+            front->left = temp;
+
+        // If the right child of this front node doesn’t exist, set the
+        // right child as the new node
+        else if (!front->right)
+            front->right = temp;
+
+        // If the front node has both the left child and right child,
+        // Dequeue() it.
+        if (hasBothChild(front))
+            myqueue.pop();
+    }
+
+    // Enqueue() the new node for later insertions
+    myqueue.push(temp);
+}
+
+void clear(queue<struct node *> &q )
+{
+   while(!q.empty())
+	   q.pop();
+}
+
+// Standard level order traversal to test above function
+void levelOrder(struct node* root)
+{
+	queue<struct node *> myqueue;
+
+    myqueue.push(root);
+
+    while (!myqueue.empty())
+    {
+        struct node* temp = myqueue.front();
+        myqueue.pop();
+
+        printf("%d ", temp->data);
+
+        if (temp->left)
+            myqueue.push(temp->left);
+
+        if (temp->right)
+        	myqueue.push(temp->right);
+    }
+}
+
+// Driver program to test above functions
+int main()
+{
+    struct node* root = NULL;
+    queue<struct node*> myqueue;
+
+    int i;
+
+    for(i = 1; i <= 12; ++i)
+        insert(&root, i,myqueue);
+
+    levelOrder(root);
+
+    return 0;
+}
+
+ */
+ abhishek08aug Intelligent http://www.geeksforgeeks.org/linked-complete-binary-tree-its-creation/ Viky Slight confusion .. inside main function .. insert(&root, i, queue); 1. &root is used because we are constructing the tree. Am i right? 2. Why we passed just queue and not &queue .. and queue got updated/constructed .. I understand it is very basic question. But, it would be very helpful if you can explain me .. http://www.facebook.com/barnwal.aashish Aashish The reason can be explained as follows: In the insert() function, root must be updated when first node is being created(or in other words, tree is empty). So, address of root has been passed. Please take a closer look. queue has already been created before call to insert(). So, there is no need of updating the queue pointer. However, the pointers like front and rear can be updated. debasis sahoo Is it possible to do this without using queue ?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Aashish Yes, it can be done without using queue. The solution will be analogous to the queue-less level-order traversal. Start from the level 0, check for the first link which is NULL. If no such link found, check for the next level and so on. The inorder algorithm will check for the NULL links from left to right order at a given level. Madhav How to do queue-less level-order traversal? http://www.facebook.com/barnwal.aashish Aashish Traverse the tree in such a way that it only outputs the data level by level i.e. data in next level are traversed, only when the traversal of the data items at current level is finished. This can be done as follows: Do inorder traversal of the tree level by level. Modify the standard inorder traversal where an extra argument will be passed to indicate the level. Call inorder traversal starting from the level 0, 1…. last level. This approach takes O(N^2) time. Madhav Thanks. Passing level seems to do the trick many times. Bharat Arya In Dequeue() and Enqueue() both, you are incrementing front of queue. Is it correct?  
+if (hasOnlyOneItem(queue))
+        queue->front = queue->rear = -1;
+    else
+        ++queue->front;
+ Aashish Yes. Enqueue() operation: When the queue is empty, the front(and rear) of the queue needs to be incremented from -1 to 0. Dequeue() operation: If the queue is non-empty and contains more than one element, deleting an element needs the front to be incremented. algopiggy After this –  
+ if (hasBothChild(front))
+            Dequeue(queue);
+/* Paste your code here (You may delete these lines if not writing code) */
+ shouldn’t the “temp” be made the child of the next item in the queue? Aashish Please take a closer look at the algorithm. “temp” is made the child before call to if (hasBothChild(front)). The queue is only used to keep track of the parent nodes whose left(and/or right) links is/are NULL. Once left and right links are assigned, its task is over. Priso I guess the inner if-else part can be modified to :  
+ 
+if (!front->left)
+            front->left = temp;
+ 
+        // If the right child of this front node doesn’t exist, set the
+        // right child as the new node
+        else  (!front->right)
+        {
+            front->right = temp;
+         // because we know that front has both left and right children now. 
+        // left child exists because it is complete binary tree and right child exists because we assigned temp to front-> right in the prev. statement
+ 
+        }
+            Dequeue(queue);
+ let me know if i am wrong. Priso A small correction!  
+if (!front->left)
+            front->left = temp;
+  
+        // If the right child of this front node doesn’t exist, set the
+        // right child as the new node
+        else  (!front->right)
+        {
+            front->right = temp;
+         // because we know that front has both left and right children now. 
+        // left child exists because it is complete binary tree and right child exists because we assigned temp to front-> right in the prev. statement
+  
+        
+            Dequeue(queue);
+        }
+ http://www.facebook.com/barnwal.aashish Aashish Thanks for the simplification. The function hasBothChild(front) has been introduced to clearly specify that the node should be deleted only when its task is over(it has both left and right children). Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

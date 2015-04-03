@@ -1,0 +1,613 @@
+Given an array arr[], find the maximum j - i such that arr[j] > arr[i] - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Given an array arr[], find the maximum j – i such that arr[j] > arr[i] Given an array arr[], find the maximum j – i such that arr[j] > arr[i]. Examples:   Input: {34, 8, 10, 3, 2, 80, 30, 33, 1}
+  Output: 6  (j = 7, i = 1)
+
+  Input: {9, 2, 3, 4, 5, 6, 7, 8, 18, 0}
+  Output: 8 ( j = 8, i = 0)
+
+  Input:  {1, 2, 3, 4, 5, 6}
+  Output: 5  (j = 5, i = 0)
+
+  Input:  {6, 5, 4, 3, 2, 1}
+  Output: -1 Method 1 (Simple but Inefficient) Run two loops. In the outer loop, pick elements one by one from left. In the inner loop, compare the picked element with the elements starting from right side. Stop the inner loop when you see an element greater than the picked element and keep updating the maximum j-i so far. 
+#include <stdio.h>
+/* For a given array arr[], returns the maximum j – i such that
+    arr[j] > arr[i] */
+int maxIndexDiff(int arr[], int n)
+{
+    int maxDiff = -1;
+    int i, j;
+
+    for (i = 0; i < n; ++i)
+    {
+        for (j = n-1; j > i; --j)
+        {
+            if(arr[j] > arr[i] && maxDiff < (j - i))
+                maxDiff = j - i;
+        }
+    }
+
+    return maxDiff;
+}
+
+int main()
+{
+    int arr[] = {9, 2, 3, 4, 5, 6, 7, 8, 18, 0};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    int maxDiff = maxIndexDiff(arr, n);
+    printf("\n %d", maxDiff);
+    getchar();
+    return 0;
+}
+ Time Complexity: O(n^2) Method 2 (Efficient) To solve this problem, we need to get two optimum indexes of arr[]: left index i and right index j. For an element arr[i], we do not need to consider arr[i] for left index if there is an element smaller than arr[i] on left side of arr[i]. Similarly, if there is a greater element on right side of arr[j] then we do not need to consider this j for right index. So we construct two auxiliary arrays LMin[] and RMax[] such that LMin[i] holds the smallest element on left side of arr[i] including arr[i], and RMax[j] holds the greatest element on right side of arr[j] including arr[j]. After constructing these two auxiliary arrays, we traverse both of these arrays from left to right. While traversing LMin[] and RMa[] if we see that LMin[i] is greater than RMax[j], then we must move ahead in LMin[] (or do i++) because all elements on left of LMin[i] are greater than or equal to LMin[i]. Otherwise we must move ahead in RMax[j] to look for a greater j – i value. Thanks to celicom for suggesting the algorithm for this method. 
+#include <stdio.h>
+
+/* Utility Functions to get max and minimum of two integers */
+int max(int x, int y)
+{
+    return x > y? x : y;
+}
+
+int min(int x, int y)
+{
+    return x < y? x : y;
+}
+
+/* For a given array arr[], returns the maximum j – i such that
+    arr[j] > arr[i] */
+int maxIndexDiff(int arr[], int n)
+{
+    int maxDiff;
+    int i, j;
+
+    int *LMin = (int *)malloc(sizeof(int)*n);
+    int *RMax = (int *)malloc(sizeof(int)*n);
+
+   /* Construct LMin[] such that LMin[i] stores the minimum value
+       from (arr[0], arr[1], ... arr[i]) */
+    LMin[0] = arr[0];
+    for (i = 1; i < n; ++i)
+        LMin[i] = min(arr[i], LMin[i-1]);
+
+    /* Construct RMax[] such that RMax[j] stores the maximum value
+       from (arr[j], arr[j+1], ..arr[n-1]) */
+    RMax[n-1] = arr[n-1];
+    for (j = n-2; j >= 0; --j)
+        RMax[j] = max(arr[j], RMax[j+1]);
+
+    /* Traverse both arrays from left to right to find optimum j - i
+        This process is similar to merge() of MergeSort */
+    i = 0, j = 0, maxDiff = -1;
+    while (j < n && i < n)
+    {
+        if (LMin[i] < RMax[j])
+        {
+            maxDiff = max(maxDiff, j-i);
+            j = j + 1;
+        }
+        else
+            i = i+1;
+    }
+
+    return maxDiff;
+}
+
+/* Driver program to test above functions */
+int main()
+{
+    int arr[] = {9, 2, 3, 4, 5, 6, 7, 8, 18, 0};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    int maxDiff = maxIndexDiff(arr, n);
+    printf("\n %d", maxDiff);
+    getchar();
+    return 0;
+}
+ Time Complexity: O(n) Auxiliary Space: O(n) Please write comments if you find the above codes/algorithms incorrect, or find other ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. Ayush Srivastava Most efficient solution Time Complexity O(n) Space Complexity O(1) http://ideone.com/6BjDAY Guest Most efficient solution Time Complexity O(n) Space Complexity O(1) #include /* For a given array arr[], returns the maximum j – i such that arr[j] > arr[i] */ int a,b; int maxIndexDiff(int arr[], int n) { while(b>a) { if(arr[b]>arr[a]) return b-a; else if(arr[b-1]>arr[a]||arr[b]>arr[a+1]) return b-a-1; else { a++; b–; } } return -1; } /* Driver program to test above functions */ int main() { int arr[] = {6, 5, 4, 3, 2, 1}; int n = sizeof(arr)/sizeof(arr[0]); a=0,b=n-1; int maxDiff = maxIndexDiff(arr, n); printf(“%d”, maxDiff); getchar(); return 0; } newCoder maxDiff should be initialized to 0 as if all the elements are equal maxDiff should be – and not -1. newCoder maxDiff should be initialized to 0 as if all the elements are equal maxDiff should be 0 and not -1. Pham Ha My Method 2 won work for [6 5 4 3 2 1] xyz Easiest way is : Step1: Sort Array in ascending order Step2: int low=0; int high=arr[arr.length -1]; if(arr[high]!=arr[low]){ SOP(high-low); } else{ SOP(0); } xyz complexity is : logn Guest1938 O(logn) O(1) #include #include int max(int a,int b); int findJI(int *arr,int i,int j){ if(i>=j) return -1; if(arr[j]>arr[i]) return j-i; else return max(findJI(arr,i+1,j),findJI(arr,i,j-1)); } int max(int a, int b){ if(a>=b) return a; else return b; } int main(){ int arr[10] = {9, 2, 3, 4, 5, 6, 7, 8, 18, 0}; printf(“%d”,findJI(arr,0,9)); getchar(); return 0; } Coder011 O(logn)?, I think this is an exponential solution, both space and time wise! Please clarify your solution , if you include any table for memoization in your code Alef52 Efficient solution Time complexity :O(n) Space complexity: O(1) int max_val(int a[], int size) { int i=0; int j=size-1; int max=-1; int tempi,tempj; while(ia[i]) return j-i; else { tempj=j-1; tempi=i+1; if(a[tempj]>a[i]) j–; else if(a[j]>a[tempi]) i++; else {i++; j–;} } } return -1; } Shradha Agrawal this method is wrong. for eg: arr = 34,8,5,3,2,80,30,6,7 max distance will be between 5 and 7. so ans would be (8-2) = 6. but your method will not consider this case. sjsu Can some one please explain the logic behind this? Why are we finding out LMin and RMax? what is the purpose? rakeshbabu I think the problems is for j > i, this should be added to the question. The last method can be further reduced to one array instead of two arrays by dynamically updating the RMax and max difference. cptjack #include<iostream> #include<cstdio> #include<algorithm> #define N 10 using namespace std; //Time : O(N) , space : O(1) int getMaxDiff(int *a) { int i=0,j=1; int diff = 0; int maxDiff = 0; while(j<N) { diff = 0; if(a[i] < a[j]) diff = a[j] – a[i]; maxDiff = max(maxDiff, diff); if(a[i] > a[j]) i = j; j++; } return maxDiff; } int main() { int a[] = {9, 20, 35, 4, 5, 6, 7, 8, 18, 0}; int result = getMaxDiff(a); printf("%d\n", result); system("pause"); return 0; } Dark_Knight you answered for this question : http://www.geeksforgeeks.org/maximum-difference-between-two-elements/ vanathi we will maintain 2 indexes like low,high. increment low when there is smaller elements on the right side. decrement high when there is higher elements on the left side. return high-low.  
+private int maxIndexDiff(int[] ar){
+		int high = ar.length-1;
+		int low  =0 ;
+		while(high > low){
+			 if(ar[low] > ar[low+1])
+				  low++;
+			 else if(ar[high]< ar[high-1])
+				 high--;
+			 else
+				 break;
+		}
+		return high-low;
+	}
+ Correct me if It is wrong. vanathi Modification of method 2 . we will increment low when array has smaller elements on the right side. we will decrement high when array has higher elements on the left side. if both fails we will return the (high – low) private int maxIndexDiff(int[] ar){ int high = ar.length-1; int low =0 ; while(high > low){ if(ar[low] > ar[low+1]) low++; else if(ar[high]< ar[high-1]) high–; else break; } return high-low; } Please correct me if this approach is wrong. Amandeep #include using namespace std; int main() { // int a[] = {20,2,3,17,18}; // int a[] = {145,146,47,10,9,8,7,6,100}; // int a[] = {34, 8, 10, 3, 2, 80, 30, 33, 1}; int a[] = {4,3,5,2,1,3,2,3}; int i = 0, j = ( sizeof(a) / sizeof(a[0]) -1 ); int max_diff = -1 ; int temp = j; int pos_max = -1; while( i a[i] ) { if ( max_diff < j – i) { max_diff = j – i; pos_max = j; } i++; j = temp; } else if (i == j) { i++; j=temp; } else { j–; } } cout<<"MAXIMUM DIFF : "<<max_diff; return 0; } Sunil Recursive Implementation  
+int maxdiff(int arr[], int left, int right)
+{
+    int maxdiff1;
+    while(left<right)
+    {
+                     if(arr[left]<arr[right])
+                     {
+                                             maxdiff1=(right-left);
+                                             break;
+                                             
+                     }
+                     else 
+                          return max(maxdiff(arr,left+1,right),maxdiff(arr,left,right-1));
+    }
+    return maxdiff1;
+ Jatin I think we can break the inner loop in the first method once we find a value greater than the current value. This is because we are scanning from right to left. You will not find a greater value at later stages.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ pritybhudolia I think this works.  
+int maxIndexDiff(int a[], int n)
+{
+       int maxdiff=-1;
+        int min = 0;
+        int max = n-1;
+ 
+        while(min<max) {
+                       if(a[min]>a[max] && min<max) 
+                       max--;
+                       if(a[min]>a[max] && min<max) 
+                       min++;
+                       if(a[min]<a[max] && min<max)
+                       {
+                        maxdiff=max-min;
+                        break;
+                       }
+            }
+             return maxdiff;
+ 
+}
+ Sunil It will not work for the following input: {20,2,3,17,18} According to your program output will be 2 instead of 3. prity yeah thanks akshat gupta #include #include #include using namespace std; int Mdiff(int *arr,int n) { int s[n]; /*an array which only contains min indices*/ int top=-1; int dif,maxdif=-1,i,j; s[++top]=0;//oth index of array for(i=1;i { if(arr[i] < arr[s[top]] ) { s[++top]=i; } else if(arr[i] > arr[s[top]]) { for(j=0;j<=top;j++) { if(arr[s[j]] { dif=i-s[j]; maxdif=max(maxdif,dif); break; } } } } return(maxdif); } int main() { int arr[]={1, 2, 3, 4, 5, 6},n=6; int maxdif=Mdiff(arr,n); printf(“%d”,maxdif); return 0; } abhishek08aug  
+#include<stdio.h>
+#include<stdlib.h>
+ 
+int maximum_separation(int array[], int n) {
+  int * Lmin = (int *)malloc(sizeof(int)*n);
+  int * Rmax = (int *)malloc(sizeof(int)*n);
+  int i;
+  for(i=1, Lmin[0]=array[0]; i<n; i++) {
+    Lmin[i] = array[i] < Lmin[i-1]? array[i] : Lmin[i-1];
+    printf("array[i]: %d Lmin[i]: %d\n", array[i], Lmin[i]);
+  } 
+  for(i=n-2, Rmax[n-1]=array[n-1]; i>=0; i--) {
+    Rmax[i] = array[i] > Rmax[i+1]? array[i] : Rmax[i+1];
+    printf("array[i]: %d Rmax[i]: %d\n", array[i], Rmax[i]);
+  }
+  int j, max_diff=-1;
+  for(i=0, j=0; i<n, j<n;) {
+    if(Lmin[i]<Rmax[j]) {
+      max_diff = max_diff > j-i? max_diff: j-i;
+      j++;
+    } else {
+      i++;
+    }
+  }
+  return max_diff;
+}
+
+int main()
+{
+  int arr[] = {34, 8, 10, 3, 2, 80, 30, 33, 1};
+  int n = sizeof(arr)/sizeof(arr[0]);
+  printf("Two elements x1 and x2 conditioned to x2>x1 having maximum separation  %d", maximum_separation(arr, n));
+  return 0;
+}
+ Ronny gosh man… How many programs you have done buddy.. Rarely seen a thread where you haven’t commented. Hats off to your dedication and hard work. No “intelligent :-D” here?? Marsha Donna i totally agree wid ronny..wich coll u from @abhishek Guest @d40023049ca191d35d44883cf7e1a30d:disqus can u pls explain how for(i=0, j=0; i<n, j<n;) works..r both i and j initialized at each iteration of the loop?? Nagaraju Another Solution with Time O(n) and Space O(n) (Slightly better than Method 2): It is two phase process. In first phase, find min Elements’ indexes in descending order For example for the input array: a[] = {33, 2, 3, 4, 5, 18, 7, 8, 31, 18, 15, 12,1} {33,2,1} Indexes (0,1,12} Second phase: For each index of i in {12,1,0} find the value at j with constraints (j>i and a[j] > a[i]) and update the max difference //Assumption: Array as has at least two elements static int maxIndexDiff(int a[], int n) { int nMinNumIndexes[] = new int[n]; int nMinNums = 1; /* Store min elements in nMinNumIndexes array in descending order*/ nMinNumIndexes[0] = 0; for (int i=1; i<n; i++) { if (a[i] =0; mNums–) { /* Get the i value based on which max j to be computed */ i = nMinNumIndexes[mNums]; /* If j value is less than i, then it is not a valid candidate for finding j-i */ while(a[j] i) j–; /* Update max value of (j-i) */ if (j > i && (j-i)> maxDiff) maxDiff = j-i; } return maxDiff; } amritanshu  
+
+
+while (j < n && i < n)
+    {
+        if (LMin[i] < RMax[j])
+        {
+             //Dont we need this if condition here??
+            if (arr[i] < arr[j] && (i<j) )
+            maxDiff = max(maxDiff, j-i);
+
+            j = j + 1;
+        }
+        else
+            i = i+1;
+    }
+ 
+ rahul sundar @Geeks Just an optimization in traversing although it would not reduce the time complexity for the worst case scenario. Traverse the LMin array from left to right and RMax array from right to left, so that we get Max j-i for the first time when LMin[i] < RMax[j] /* Paste your code here (You may delete these lines if not writing code) */ shark123  
+/* Paste your code here (You may delete these lines if not writing code) */
+#include<stdio.h>
+
+int maxdiff(int a[],int i,int j)
+{
+    int flag=0;
+    while(i<j)
+    {
+        int flag2=0;
+        if(a[i]<a[j])
+        {
+            flag=1;
+            break;
+        }
+        if(a[i+1]<a[j])
+        {
+            i++;flag2=1;
+        }
+        if(a[i]<a[j])
+        {
+            flag=1;
+            break;
+        }
+        if(a[i]<a[j-1])
+        {
+            j--;flag2=1;
+        }
+        if(flag2==0)
+            i++;
+    }
+    if(flag)
+        return j-i;
+    else
+        return -1;
+}
+int main()
+{
+    int a[]={34, 8, 10, 3, 2, 80, 30, 33, 1};
+    int n=sizeof(a)/sizeof(int);
+    printf("%d\n",maxdiff(a,0,n-1));
+
+    int b[]={9, 2, 3, 4, 5, 6, 7, 8, 18, 0};
+    n=sizeof(b)/sizeof(int);
+    printf("%d\n",maxdiff(b,0,n-1));
+
+    int c[]={1, 2, 3, 4, 5, 6};
+    n=sizeof(c)/sizeof(int);
+    printf("%d\n",maxdiff(c,0,n-1));
+
+    int d[]={6, 5, 4, 3, 2, 1};
+    n=sizeof(d)/sizeof(int);
+    printf("%d\n",maxdiff(d,0,n-1));
+
+    return 0;
+}
+
+ rk It fails for the input 34,36,38,3,2,8,39,33,1. I guess because the logic for increasing i when flag2 is zero is flawed.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ nutcracker int myFunc(int* a,int s,int e){ if (ea[s]) { return e-s; } else { return max( myFunc(a,s+1,e), myFunc(a,s,e-1)); } } nutcracker  
+int myFunc(int* a,int s,int e){
+if (e<s) return -1;
+  if(a[e]>a[s]) {
+    return e-s;
+  }
+  else {
+    return max( myFunc(a,s+1,e), myFunc(a,s,e-1));
+  }
+}
+ Pranshu init i = 1; j = n; if(a[j] > a[i] ) return j-i; else { if(a[j] >a[i+1]) recu ( a, j, i+1) if(a[j-1] >a[i]) recur (a, j-1, i) else recur (a, j-1, i+1) } Pranshu More detailed pseudo code : int i = 1; j = n; int recur(a, i, j) { if(a[j] > a[i] ) return j-i; else { if(a[j] >a[i+1]) return recur ( a, j, i+1) if(a[j-1] >a[i]) return recur (a, j-1, i) else return recur (a, j-1, i+1) } jk  
+int maxJI(int* arr, int n)
+{
+	int* temp = (int*) malloc(n*sizeof(int));
+	int tempIndex = 0;
+	temp[0] = 0;
+	int i;
+	int max = -1;
+	for(i = 1; i < n; i++)
+	{
+		if(arr[i] < arr[temp[tempIndex]])
+			temp[++tempIndex] = i;
+		else
+		{
+			int j = 0;
+			while(arr[temp[j]] > arr[i])	j++;
+			max = (max > (i - temp[j])) ? max : (i - temp[j]);
+		}
+		int k;
+		for(k = 0; k <= tempIndex; k++)
+			printf("%d ", arr[temp[k]]);
+		printf("\n");
+	}
+	return max;
+}
+
+int main()
+{
+	int arr[] = {6, 5, 4, 3, 2, 1};
+	int size = sizeof(arr)/sizeof(arr[0]);
+	printf("%d ", maxJI(arr, size));
+	return 0;
+}
+
+ kartikaditya Time – O(N) Space – O(1)  
+#include <iostream>
+#include <stdio.h>
+
+using namespace std;
+
+int findMaxJMinusI(int a[], int n) {
+    int start = 0, end = n - 1;
+    while (start < end) {
+        if (a[start] < a[end]) {
+            return end - start;
+        } else if (a[start] < a[end - 1] || a[start + 1] < end) {
+            return end - 1 - start;
+        }
+        ++start;
+        --end;
+    }
+    return -1;
+}
+
+int main() {
+    int a1[] = {34, 8, 10, 3, 2, 80, 30, 33, 1};
+    cout << findMaxJMinusI(a1, 9) << endl;
+    int a2[] = {9, 2, 3, 4, 5, 6, 7, 8, 18, 0};
+    cout << findMaxJMinusI(a2, 10) << endl;
+    int a3[] = {1, 2, 3, 4, 5, 6};
+    cout << findMaxJMinusI(a3, 6) << endl;
+    int a4[] = {6, 5, 4, 3, 2, 1};
+    cout << findMaxJMinusI(a4, 6) << endl;
+    int a5[] = {4, 8, 1, 5};
+    cout << findMaxJMinusI(a5, 4) << endl;
+    return 0;
+}
+ jk {34, 8, 10, 3, 2, 80, 35, 7, 1} kartikaditya Time – O(N) Space – O(1) #include <iostream> #include <stdio.h> using namespace std; int findMaxJMinusI(int a[], int n) { int start = 0, end = n – 1; while (start < end) { if (a[start] < a[end]) { return end – start; } else if (a[start] < a[end – 1] || a[start + 1] < end) { return end – 1 – start; } ++start; –end; } return -1; } int main() { int a1[] = {34, 8, 10, 3, 2, 80, 30, 33, 1}; cout << findMaxJMinusI(a1, 9) << endl; int a2[] = {9, 2, 3, 4, 5, 6, 7, 8, 18, 0}; cout << findMaxJMinusI(a2, 10) << endl; int a3[] = {1, 2, 3, 4, 5, 6}; cout << findMaxJMinusI(a3, 6) << endl; int a4[] = {6, 5, 4, 3, 2, 1}; cout << findMaxJMinusI(a4, 6) << endl; int a5[] = {4, 8, 1, 5}; cout << findMaxJMinusI(a5, 4) << endl; return 0; } ns Incorrect. Consider the array 4,3,5,2,1,3,2,3  
+/* Paste your code here (You may delete these lines if not writing code) */
+ cooler.algoist for the example a[]= 4 8 1 5 LMin[]= 4 4 1 1 RMax[]= 8 8 5 5 with the published efficient algo the j-i value returned would be 1, but the answer is 3  
+/* Paste your code here (You may delete these lines if not writing code) */
+ shashank paliwal //Simple Recursive Solution #include int max_dif(int* a,int s,int e){ if(a[e]>a[s]){ int x=e-s; return x; } else{ int x=max_dif(a,s+1,e); int y=max_dif(a,s,e-1); if(x>=y){ return x; } else if(y>x){ return y;} else{ return -1; } } } main(){ int a[9]={34,8,10,3,2,80,30,33,1}; int z=max_dif(a,0,8); printf(“%d\n”,z); } kartik Thanks for sharing the code. I tried the code and it seems to be running forever.  
+//Simple Recursive Solution
+
+#include<stdio.h>
+int max_dif(int* a,int s,int e)
+{
+    if(a[e]>a[s])
+    {
+        int x=e-s;
+        return x;
+    }
+    else
+    {
+        int x = max_dif(a,s+1,e);
+        int y = max_dif(a,s,e-1);
+        if (x >= y)
+        {
+            return x;
+        }
+        else if(y>x)
+        {
+            return y;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+}
+main()
+{
+    int a[9]= {34,8,10,3,2,80,30,33,1};
+    int z=max_dif(a,0,8);
+    printf("%d\n",z);
+}
+
+ shashank paliwal what kind of array did you use coz it worked fine for most of the arrays which i used to test the code ??  
+/* Paste your code here (You may delete these lines if not writing code) */
+ shashank paliwal what kind of array did you use coz it worked fine for most of the arrays which i used to test the code ?? kartik I tested it for {34,8,10,3,2,80,30,33,1}. I have mentioned the code that I tried in my previous comment. Anonymous I think adding the condition e>=s will solve the problem.  
+int MaxDiff(int A[], int s, int e){
+if(e>=s){
+//do the same processing here
+}
+else return -1;
+}
+ bunty @all: It is very in-efficient method. I tried the same with some counts printing and it seems it may run even at the order of n^2 or even more when reverse sorted arrays are given, where at end it actually returns -1. Even in simple cases, it runs a number of counts. – It is quite similar to Method 1 or even worse. Looks elegant and b’ful from a glance, but too much time complex.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Gaurav Agarwal My O(n) Approach. traverse array from front and back until minimum of front is less than maximum of back . Then find element from start which is small than max of back.  
+public class Maxjminusi
+{
+
+    public static int doit(int[] a) {
+
+        int f = 0;
+        int b = a.length-1;
+
+        int min = f;
+        int max = b;
+
+        while(a[min]> a[max])   {
+
+            if(a[++f]<a>a[max]) max = b;
+        }
+        int i = 0;
+
+        while(a[i]> a[max]) i++;
+        System.out.println(i+" "+max);
+
+        return max-i;
+
+    }
+
+    public static void main(String[] args)
+    {
+        int[] a =  {9, 2, 3, 4, 5, 6, 7, 8, 18, 0};
+        System.out.println(doit(a));
+    }
+
+}
+ seeker7 I am not clear with the construction of Lmin and Rmax arrays(i.e their requirement) ,can somebody elaborate on this ,which gives us an efficient solution to the question Jagdish  
+TreeNode {
+	TreeNode Left;
+	TreeNode Right;
+	int Value;
+	int Index;
+
+	public TreeNode(int val, int ind){
+		value = val;
+		Index = ind;
+	}
+}
+
+int MaxIndexDiff(int[] arr){
+	int maxDiff = -1;
+	if(arr == null || arr.len ==0 ) return maxDiff;
+
+	TreeNode root = new TreeNode(arr[0], 0);
+
+	for(int i=1; i<arr.len; i++){
+
+		TreeNode curr = root;
+		Treenode Prev = curr;
+
+		While(curr){	
+			if(curr.value < arr[i]){
+				if(maxDiff < i - root.Index){
+					maxDiff = i - curr.Index;
+				}
+				break;	
+			}
+			else{
+				prev = curr;
+				curr = curr.left;
+			}
+		}
+		Prev.Left = new TreeNode(arr[i], i);
+	}
+	
+        return maxDiff;
+}
+ kartik @Jagdish: Please explain the approach used in the above program. anothergeeky In the optimized code, do we need to take addition array for LMin and RMax. How about this??  
+int maxIndexDiff(int arr[], int n)
+{
+    int i = 0, j = 0, maxDiff = -1;
+    int LMinCur=a[i],RMaxCur=a[j];
+    while (j < n && i < n)
+    {
+        if (LMinCur < RMaxCur)
+        {
+            maxDiff = max(maxDiff, j-i);
+	    RMaxCur=max(RMaxCur,arr[j+1]);
+        }
+        else
+            LMinCur=min(LMinCur,arr[i+1]);
+    }
+ 
+    return maxDiff;
+} Ravi @anotherguy: The code doesn’t work for the example used in the article.  
+#include<iostream>
+#include<stdio.h>
+
+/* Utility Functions to get max and minimum of two integers */
+int max(int x, int y)
+{
+    return x > y? x : y;
+}
+
+int min(int x, int y)
+{
+    return x < y? x : y;
+}
+
+int maxIndexDiff(int a[], int n)
+{
+    int i = 0, j = 0, maxDiff = -1;
+    int LMinCur = a[i], RMaxCur=a[j];
+    while (j < n && i < n)
+    {
+        if (LMinCur < RMaxCur)
+        {
+            maxDiff = max(maxDiff, j-i);
+            RMaxCur = max(RMaxCur, a[j+1]);
+        }
+        else
+            LMinCur=min(LMinCur,a[i+1]);
+    }
+
+    return maxDiff;
+}
+
+/* Driver program to test above functions */
+int main()
+{
+    int arr[] = {9, 2, 3, 4, 5, 6, 7, 8, 18, 0};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    int maxDiff = maxIndexDiff(arr, n);
+    printf("\n %d", maxDiff);
+    getchar();
+    return 0;
+}
+
+ http://loopinbits.co.cc anothergeeky Yeah….got it wrong. Still have to maintain array for RMax but we can get rid of LMin array.  
+int maxIndexDiff(int arr[], int n)
+{
+    int maxDiff;
+    int i, j;
+        
+    int LMin;
+    int *RMax = (int *)malloc(sizeof(int)*n);
+ 
+    LMin = arr[0];
+     
+    /* Construct RMax[] such that RMax[j] stores the maximum value
+       from (arr[j], arr[j+1], ..arr[n-1]) */
+    RMax[n-1] = arr[n-1];
+    for (j = n-2; j >= 0; --j)
+        RMax[j] = max(arr[j], RMax[j+1]);
+ 
+    /* Traverse both arrays from left to right to find optimum j - i
+        This process is similar to merge() of MergeSort */
+    i = 0, j = 0, maxDiff = -1;
+    while (j < n && i < n)
+    {
+        if (LMin < RMax[j])
+        {
+            maxDiff = max(maxDiff, j-i);
+            j = j + 1;
+        }
+        else
+        {
+            LMin = min(LMin,arr[i+1]);
+            i = i+1;
+        }
+    }
+ 
+    return maxDiff;
+} Run it on ideone viswanathgs An O(n log n) approach. Correct me if I’m wrong. Sort the array along with the initial indices. Now, create array MinIndex in O(n) time such that MinIndex[i] = minimum index in SortedArray[0..i]. ans = 0 Now, for j = 1 to n-1 in SortedArray, ans = max(ans, index of SortedArray[j] – MinIndex[i-1]) NeoTheSaviour In problem statement Input: {9, 2, 3, 4, 5, 6, 7, 8, 18, 0} Output: 7 ( j = 8, i = 1) isn’t output should be output 8 (j=8, i=0) OR Am i missing something ?? GeeksforGeeks Thanks for pointing this out. There was typo in the problem statement. We have corrected the typo. martin @geeksforgeeks ..so what will be benefit of this approach..m not getting ..well we r getting the answer thats the ope point but the explanation is not clear to mean u plz through some more light in approach 2nd.?? http://ashutosh7s.blogspot.com WgpShashank Its Obvious that we also wants to print the position of indexes so i have just modified the program. have look at this  
+#include<stdio.h>
+/* For a given array arr[], returns the maximum j – i such that
+    arr[j] > arr[i] */
+struct maxdif
+{
+  int i;
+  int j;
+  int maxDiff;
+ 
+};
+struct maxdif maxIndexDiff(int a[],int n)
+{
+       struct maxdif maxdif;
+       maxdif.maxDiff=-1;
+        int i=0,j=0;
+        for(i=0;i0;j--)
+                {
+                        if(a[i]<a[j] && maxdif.maxDiff < j-i)
+                        {
+                                maxdif.i=i;
+                                maxdif.j=j;
+                                maxdif.maxDiff=j-i;
+                        }
+                }
+        }
+        return maxdif;
+}
+ 
+int main()
+{  int ar[]={9,2,3,4,5,6,7,8,20,1};
+   int n=sizeof(ar)/sizeof(int); 
+   struct maxdif max_diff=maxIndexDiff(ar,n);
+   printf(" j=%d i=%d maximum difference=%d", max_diff.j,max_diff.i,max_diff.maxDiff);
+        return 0;
+}
+ ankita wot rubbis u have taken n as argument in function and haent use it at all http://shashank7s.blogspot.com WgpShashank @ankita…Wake Up Sid..Open Ur Eyes Then..What a Great Fault Clicked in Your Mind ..Anyways Thanks For Suggestion formatting messed up i said i have just modified, if u are not able to see what i modified then don’t worry about it u will get in end semester..:P vipul.mittal what exactly u hv written at this position.. “ for(i=0;i0;j–) “ slimboy hey shashank, can u plz explain ur code? I din follow the loop. http://wgpsahshank.co.cc wgpshashank @slimboy just use two for loop as said in 1st solution ..formatting messed up the code !!! when i post the solution Shashank kalyan.srinivas very gud approach in O(N).how ppl get these ideas is beyond me. http://www.facebook.com/profile.php?id=100003405996581 Cleozinha Its Obvious that we also wants to print the position of inxeeds so i have just modified the program. have look at this#include/* For a given array arr[], returns the maximum j – i such that arr[j] > arr[i] */struct maxdif{ int i; int j; int maxDiff;};struct maxdif maxIndexDiff(int a[],int n){ struct maxdif maxdif; maxdif.maxDiff=-1; int i=0,j=0; for(i=0;i0;j–) { if(a[i]<a[j] && maxdif.maxDiff < j-i) { maxdif.i=i; maxdif.j=j; maxdif.maxDiff=j-i; } } } return maxdif;}int main(){ int ar[]={9,2,3,4,5,6,7,8,20,1}; int n=sizeof(ar)/sizeof(int); struct maxdif max_diff=maxIndexDiff(ar,n); printf(" j=%d i=%d maximum difference=%d", max_diff.j,max_diff.i,max_diff.maxDiff); return 0;} blunderboy Just initialize two indices i and j in the main() i in the beginning and j in the end. i.e i=0 and j=n-1  
+int F(int A[],int i,int j) {
+   if (i == j) return 0;
+   if A[i]<A[j] return (j-i);
+   else if(A[i+1]<A[j]) return (j-i-1);
+   else if(A[i]<A[j-1]) return (j-1-i);
+   else 
+   {
+         // Recursively call the procedure with i+1 and j-1
+         return F(A,i+1,j-1);
+    }
+}
+ // O(n) solution. Please correct me if something is wrong. guest @blunderboy, ur solution is wrong. check with, 145,146,47,10,9,8,7,6,100 blunderboy Thanks for pointing out. I got my mistake.. sreenivas putta Hey! good Approach.. this question asked by me two weeks before. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

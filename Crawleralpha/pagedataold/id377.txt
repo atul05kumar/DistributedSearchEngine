@@ -1,0 +1,48 @@
+Turn off the rightmost set bit - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Turn off the rightmost set bit Write a C function that unsets the rightmost set bit of an integer. Examples: 
+Input:  12 (00...01100)
+Output: 8 (00...01000)
+
+Input:  7 (00...00111)
+Output: 6 (00...00110)
+ Let the input number be n. n-1 would have all the bits flipped after the rightmost set bit (including the set bit). So, doing n&(n-1) would give us the required result. 
+#include<stdio.h>
+
+/* unsets the rightmost set bit of n and returns the result */
+int fun(unsigned int n)
+{
+  return n&(n-1);
+}    
+
+/* Driver program to test above function */
+int main()
+{
+  int n = 7;
+  printf("The number after unsetting the rightmost set bit %d", fun(n));
+
+  getchar();
+  return 0;
+}
+ Please write comments if you find the above code/algorithm incorrect, or find better ways to solve the same problem           Related Topics: Check if binary representation of a number is palindrome Swap two nibbles in a byte How to turn off a particular bit in a number? Check if a number is multiple of 9 using bitwise operators How to swap two numbers without using a temporary variable? Divide and Conquer | Set 4 (Karatsuba algorithm for fast multiplication) Find position of the only set bit Swap all odd and even bits Tweet Writing code in comment? Please use ideone.com and share the link here. Castle Age Why do people love posting their codes instead of just commenting the post? neelabhsingh turn of right most bit int fun(int N) { int C=N&-N; int B; B=N^C; return B; } Example: N=01101110 -N=10010010 (2’s complement of N) C=N&-N 00000010 B=N^C; (01101110)^(00000010) B=01101100 Now you can see the rightmost bit is reset If I am wrong then correct me. I waiting for the response. pavansrinivas Code in JAVA.. void unsetRightMostSetBit(int x){ int c = 1; int i=0; while((c&x)<=0){ i++; c = 1<<i; } x = x^(1<<i); System.out.print(x); } ARINDAM #include #include void main(){ clrscr(); int a,i=0; printf(“\nenter a number to turn off the rightmost set bit”); scanf(“%d”,&a); while((a|(1<a) i++; int k=a&~(1<<i); printf("%d",k); getch(); } vikas kumar #include int fun(unsigned int n){ //base case when n=0 return n && ~(n&(n-1)); } int main() { int n = 7; printf(“No after clear the rightmost set bit %d”, fun(n)); return 0; } prakash #include main() { int x,y=1; scanf(“%d”,&x); while(!(x & y)) { y=y << 1; } x=x ^ y; printf("%d\n",x); return 0; } skulldude I think this will also do the required, though it is a bit more complex than the n&(n-1) solution. res=x&~(x&-x) http://www.linkedin.com/in/ramanawithu Venki (x & -x) will reset all the bits from right most set bit (excluding right most set bit, ideally it masks off the right most string of 0s preceded by 1, an exact power of 2). ~(x & -x) results as all left bits to 1 and right most set bit to 0, followed by all 1s. An exact mask to turn off right most set bit. x & (~(x & -x)) – resets the rightmost set bit. Good logic, but costly. Where as the logic provided in post is bases on the fact that right most bit varies rapidly in binary number system. aygul Actually if you normalize: x&~(x&-x) = x&~x || x&~-x = x&~-x which is the same thing with the given solution because in two’s complement -x = ~(x-1) so: x&~-x = x&(x-1) instead of writing 5 – 2 = 3 you write 5 + 2 – 6 +1 shivam  
+int fun(unsigned int n)
+{
+  int temp= n & -n;
+  return n^t;
+}
+ shivam sorry temp instead of t written there casillas do a right shift and a left shift n=n>>1; n=n<<1; santosh It works for the numbers which had a set bit at last position. Ex: 7 –> 0111 — It works But if last bit is “0” then it wont works.. Ex: 12 –> 1100 12>>1 –> 0110 now < 1100 so this logic is wrong… correct one is n&(n-1) Suresh  
+int unSetRightMostSetBit(int x)
+{
+     int m=1;
+     while(!(x&m))
+            m = m<<1;
+     return x^m;
+}
+
+int main(void)
+{
+    int num;
+    printf("Enter a number : ");
+    scanf("%d",&num);
+    printf("\nEntered Number : %d",num);
+    printf("Result : %d",unSetRightMostSetBit(num));
+}
+ Venki From the question, if we iterate successively till [ n & (n-1) ] becomes zero, it is effectively counting number of set bits (1 s). However it is not efficient on highly pipelined machines. We can count the number of 1 bits in logarithmic complexity. For hint on the logarithmic algorithm see the following link, comments are welcome. http://math-puzzles-computing.blogspot.com/2010/06/bit-reversal_02.html http://effprog.blogspot.com Sambasiva For input: 12, output: 8 GeeksforGeeks Thanks for pointing this out. There was a typo in explanation. The program prints 8 for input 12 which is correct. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

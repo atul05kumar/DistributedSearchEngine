@@ -1,0 +1,345 @@
+Backtracking | Set 6 (Hamiltonian Cycle) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Backtracking | Set 6 (Hamiltonian Cycle) Hamiltonian Path in an undirected graph is a path that visits each vertex exactly once. A Hamiltonian cycle (or Hamiltonian circuit) is a Hamiltonian Path such that there is an edge (in graph) from the last vertex to the first vertex of the Hamiltonian Path. Determine whether a given graph contains Hamiltonian Cycle or not. If it contains, then print the path. Following are the input and output of the required function. Input: A 2D array graph[V][V] where V is the number of vertices in graph and graph[V][V] is adjacency matrix representation of the graph. A value graph[i][j] is 1 if there is a direct edge from i to j, otherwise graph[i][j] is 0. Output: An array path[V] that should contain the Hamiltonian Path. path[i] should represent the ith vertex in the Hamiltonian Path. The code should also return false if there is no Hamiltonian Cycle in the graph. For example, a Hamiltonian Cycle in the following graph is {0, 1, 2, 4, 3, 0}. There are more Hamiltonian Cycles in the graph like {0, 3, 4, 2, 1, 0} 
+(0)--(1)--(2)
+ |   / \   |
+ |  /   \  | 
+ | /     \ |
+(3)-------(4)
+ And the following graph doesn’t contain any Hamiltonian Cycle. 
+(0)--(1)--(2)
+ |   / \   |
+ |  /   \  | 
+ | /     \ |
+(3)      (4) 
+ Naive Algorithm Generate all possible configurations of vertices and print a configuration that satisfies the given constraints. There will be n! (n factorial) configurations. 
+while there are untried conflagrations
+{
+   generate the next configuration
+   if ( there are edges between two consecutive vertices of this
+      configuration and there is an edge from the last vertex to 
+      the first ).
+   {
+      print this configuration;
+      break;
+   }
+}
+ Backtracking Algorithm Create an empty path array and add vertex 0 to it. Add other vertices, starting from the vertex 1. Before adding a vertex, check for whether it is adjacent to the previously added vertex and not already added. If we find such a vertex, we add the vertex as part of the solution. If we do not find a vertex then we return false. Implementation of Backtracking solution Following is C/C++ implementation of the Backtracking solution. 
+// Program to print Hamiltonian cycle
+#include<stdio.h>
+
+// Number of vertices in the graph
+#define V 5
+
+void printSolution(int path[]);
+
+/* A utility function to check if the vertex v can be added at index 'pos'
+   in the Hamiltonian Cycle constructed so far (stored in 'path[]') */
+bool isSafe(int v, bool graph[V][V], int path[], int pos)
+{
+    /* Check if this vertex is an adjacent vertex of the previously
+       added vertex. */
+    if (graph [ path[pos-1] ][ v ] == 0)
+        return false;
+
+    /* Check if the vertex has already been included.
+      This step can be optimized by creating an array of size V */
+    for (int i = 0; i < pos; i++)
+        if (path[i] == v)
+            return false;
+
+    return true;
+}
+
+/* A recursive utility function to solve hamiltonian cycle problem */
+bool hamCycleUtil(bool graph[V][V], int path[], int pos)
+{
+    /* base case: If all vertices are included in Hamiltonian Cycle */
+    if (pos == V)
+    {
+        // And if there is an edge from the last included vertex to the
+        // first vertex
+        if ( graph[ path[pos-1] ][ path[0] ] == 1 )
+           return true;
+        else
+          return false;
+    }
+
+    // Try different vertices as a next candidate in Hamiltonian Cycle.
+    // We don't try for 0 as we included 0 as starting point in in hamCycle()
+    for (int v = 1; v < V; v++)
+    {
+        /* Check if this vertex can be added to Hamiltonian Cycle */
+        if (isSafe(v, graph, path, pos))
+        {
+            path[pos] = v;
+
+            /* recur to construct rest of the path */
+            if (hamCycleUtil (graph, path, pos+1) == true)
+                return true;
+
+            /* If adding vertex v doesn't lead to a solution,
+               then remove it */
+            path[pos] = -1;
+        }
+    }
+
+    /* If no vertex can be added to Hamiltonian Cycle constructed so far,
+       then return false */
+    return false;
+}
+
+/* This function solves the Hamiltonian Cycle problem using Backtracking.
+  It mainly uses hamCycleUtil() to solve the problem. It returns false
+  if there is no Hamiltonian Cycle possible, otherwise return true and
+  prints the path. Please note that there may be more than one solutions,
+  this function prints one of the feasible solutions. */
+bool hamCycle(bool graph[V][V])
+{
+    int *path = new int[V];
+    for (int i = 0; i < V; i++)
+        path[i] = -1;
+
+    /* Let us put vertex 0 as the first vertex in the path. If there is
+       a Hamiltonian Cycle, then the path can be started from any point
+       of the cycle as the graph is undirected */
+    path[0] = 0;
+    if ( hamCycleUtil(graph, path, 1) == false )
+    {
+        printf("\nSolution does not exist");
+        return false;
+    }
+
+    printSolution(path);
+    return true;
+}
+
+/* A utility function to print solution */
+void printSolution(int path[])
+{
+    printf ("Solution Exists:"
+            " Following is one Hamiltonian Cycle \n");
+    for (int i = 0; i < V; i++)
+        printf(" %d ", path[i]);
+
+    // Let us print the first vertex again to show the complete cycle
+    printf(" %d ", path[0]);
+    printf("\n");
+}
+
+// driver program to test above function
+int main()
+{
+   /* Let us create the following graph
+      (0)--(1)--(2)
+       |   / \   |
+       |  /   \  |
+       | /     \ |
+      (3)-------(4)    */
+   bool graph1[V][V] = {{0, 1, 0, 1, 0},
+                      {1, 0, 1, 1, 1},
+                      {0, 1, 0, 0, 1},
+                      {1, 1, 0, 0, 1},
+                      {0, 1, 1, 1, 0},
+                     };
+
+    // Print the solution
+    hamCycle(graph1);
+
+   /* Let us create the following graph
+      (0)--(1)--(2)
+       |   / \   |
+       |  /   \  |
+       | /     \ |
+      (3)       (4)    */
+    bool graph2[V][V] = {{0, 1, 0, 1, 0},
+                      {1, 0, 1, 1, 1},
+                      {0, 1, 0, 0, 1},
+                      {1, 1, 0, 0, 0},
+                      {0, 1, 1, 0, 0},
+                     };
+
+    // Print the solution
+    hamCycle(graph2);
+
+    return 0;
+}
+ Output: 
+Solution Exists: Following is one Hamiltonian Cycle
+ 0  1  2  4  3  0
+
+Solution does not exist
+ Note that the above code always prints cycle starting from 0. Starting point should not matter as cycle can be started from any point. If you want to change the starting point, you should make two changes to above code. Change “path[0] = 0;” to “path[0] = s;” where s is your new starting point. Also change loop “for (int v = 1; v < V; v++)” in hamCycleUtil() to “for (int v = 0; v < V; v++)”. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Vertex Cover Problem | Set 1 (Introduction and Approximate Algorithm) Snake and Ladder Problem Tarjan’s Algorithm to find Strongly Connected Components Shortest path with exactly k edges in a directed and weighted graph Count all possible walks from a source to a destination with exactly k edges Euler Circuit in a Directed Graph Given an array of strings, find if the strings can be chained to form a circle Given a sorted dictionary of an alien language, find order of characters Tags: Backtracking, Graph Tweet Writing code in comment? Please use ideone.com and share the link here. Guest bool hamCycle(bool graph[V][V],bool*seen,int vertex) { int i; for(i=0;i<V;i++) { if(graph[vertex][i]==1 && seen[i]==false) { seen[i]=true; stack[++top]=i; if(hamCycle(graph,seen,i)) return true; else top–; } } return false; } Guest # include #include // Number of vertices in the graph #define V 5 void printSolution(int path[]); int stack[V]; int top; bool hamCycle(bool graph[V][V],bool*seen,int vertex) { int i; for(i=0;i<V;i++) { if(graph[vertex][i]==1 && seen[i]==false) { seen[i]=true; stack[++top]=i; if(hamCycle(graph,seen,i)) return true; else top–; } } return false; } // driver program to test above function int main() { /* Let us create the following graph (0)–(1)–(2) | / | | / | | / | (3)——-(4) */ bool graph1[V][V] = {{0, 1, 0, 1, 0}, {1, 0, 1, 1, 1}, {0, 1, 0, 0, 1}, {1, 1, 0, 0, 1}, {0, 1, 1, 1, 0}, }; // Print the solution bool seen[V]={false}; seen[0]=true; stack[0]=0; hamCycle(graph1,seen,0) if(top==V) printf("there exists hamcyclen"); int i; for(i=0;i “,stack[i] ); return 0; } da3m0n Time Complexity please.. pavansrinivas Algorithm for finding whether a graph is Hamiltonian or not: Do DFS &maintain count of the adjacent unvisited vertices If ( there is no adjacent unvisited vertex){ if the count is equal to the num of vertices return true; else return false; } Sriharsha g.r.v hi can u pls elaborate and explain with example.. Born Actor /* #include <iostream> #include<string> #include<sstream> #include<iomanip> # include <stdio.h> # include <math.h> #include <vector> #include <stdlib.h> using namespace std; int a[50][50]; int n; std::vector < pair <int, int > >edges; int visited[50]; int cycle(int node); void print(); int main() { int i,j; cout<<"enter the size"<<endl; cin>>n; for(i=0;i<n;i++) for(j=0;j<n;j++) cin>>a[i][j]; for(i=0;i<n;i++) visited[i]=0; for(i=0;i<n;i++) { for(j=0;j<n;j++) { if(a[i][j]==1) a[j][i]=1; } } cout<<cycle(0)<<endl; print(); } int cycle(int node) { visited[node]=1; int flag=0; int j; for(j=0;j<n;j++) { if(a[node][j]==1 && visited[j]==0) { if(cycle(j)==1) { edges.push_back(make_pair(node,j)); return 1; } visited[j]=0; } } for(j=0;j<n;j++) { if(visited[j]==0) { flag=1; break; } } if(flag==0) { if(a[node][0]==1) { edges.push_back(make_pair(node,0)); return 1; } } visited[node]=0; return 0; } void print() { int i; cout<<endl<<"The edges between these nodes form the Hamiltonian cycle"<<endl; for(i=edges.size()-1;i>=0;i–) cout<<edges[i].first<<" "<<edges[i].second<<" "<<endl; } */ AMIT I think a minor improvement is possible…using a matrix soln to indicate which indices has already been visited,we can find isSafe in O(1)time.  
+/* Paste your code here (You may delete these lines if not writing code) */
+// Program to print Hamiltonian cycle
+#include<stdio.h>
+
+// Number of vertices in the graph
+#define V 5
+void print(int soln[V])
+{
+    int i,j;
+    printf("solution exists\n");
+    for(i=0;i<V;i++,printf("\n"))
+    //for(j=0;j<V;j++)
+    printf("%d  ",soln[i]);
+    printf("\n\n");
+}
+int findcycle(int graph[V][V],int soln[],int pos,int c,int path[])
+{
+    if(c==V)
+    return graph[pos][0];
+    int i;
+    for(i=0;i<V;i++)
+    {
+        if(graph[pos][i] && soln[i]==0)
+        {
+            soln[i]=1,path=i;
+            if(findcycle(graph,soln,i,c+1,path))
+            return 1;
+            soln[i]=0;
+        }
+    }
+    return 0;
+}
+void hamCycle(int graph[V][V])
+{
+    int soln[V]={0},path[V]={0};
+    soln[0]=1;
+    if(findcycle(graph,soln,0,1,path))
+    print(path);
+    else printf("no soln\n");
+}
+int main()
+{
+   /* Let us create the following graph
+      (0)--(1)--(2)
+       |   / \   |
+       |  /   \  |
+       | /     \ |
+      (3)-------(4)    */
+   int graph1[V][V] = {{0, 1, 0, 1, 0},
+                      {1, 0, 1, 1, 1},
+                      {0, 1, 0, 0, 1},
+                      {1, 1, 0, 0, 1},
+                      {0, 1, 1, 1, 0},
+                     };
+
+    // Print the solution
+    hamCycle(graph1);
+
+   /* Let us create the following graph
+      (0)--(1)--(2)
+       |   / \   |
+       |  /   \  |
+       | /     \ |
+      (3)       (4)    */
+    int graph2[V][V] = {{0, 1, 0, 1, 0},
+                      {1, 0, 1, 1, 1},
+                      {0, 1, 0, 0, 1},
+                      {1, 1, 0, 0, 0},
+                      {0, 1, 1, 0, 0},
+                     };
+
+    // Print the solution
+    hamCycle(graph2);
+
+    return 0;
+}
+
+ begfairouz Hi, In the beggining i have to thank you for your program, it works well. But i tried to use it for a graph[V][V] with V=120 but the program doesn’t return result ( neither positive or negative). Did you try it for big matrices? http://mahajanneha.blogspot.com/ neham just a quick question – Hamiltonian Cycle belongs to NP-Complete problem how can we solve it using backtracking technique? NNavneet why in the input graph[i][i]=1 , if we start with vertex 1 or any other vertex than 0 as starting vertex then code does not return correct path , it actually return that there is no path existing. you correct this by making graph[i][i]=0 for all i’s, and stating the for from v=0 in the hamCycleUtil function Here is the code :  
+#include<stdio.h>
+#include<iostream> 
+// Number of vertices in the graph
+#define V 5
+using namespace std;
+ 
+void printSolution(int path[])
+{
+	for(int i=0;i<V;i++)
+	{
+		cout<<path[i]<<" ";
+	}
+	cout<<path[0]<<endl;
+}
+ 
+bool hamCycleUtil(bool graph[V][V],int path[],int pos)
+{
+	int flag=0;
+	if(pos==V)
+	{
+		int x= pos-1;
+		if(graph[ path[x] ][path[0]]==true)
+		return true;
+		else
+		return false;
+	}
+	
+	for(int i=0;i<V;i++)
+	{
+	//	if(path[0]!=i)
+	//	{
+		
+		if(graph[path[pos-1]][i]==1)
+		{
+			flag=0;
+			for(int j=0;j<pos;j++)
+			{
+				if(path[j]==i)
+				{
+					flag=1;
+					break;
+				}
+			}
+			if(flag==0)
+			{	
+				path[pos]=i;
+				if(hamCycleUtil(graph,path,pos+1)==true)
+				return true;
+			}
+				path[pos] = -1;
+				
+	//	}
+        }
+	}
+	return false;
+}
+int main()
+{
+   /* Let us create the following graph
+      (0)--(1)--(2)
+       |   / \   |
+       |  /   \  |
+       | /     \ |
+      (3)-------(4)    */
+   bool graph[V][V] = {{0, 1, 0, 1, 0},
+                      {1, 0, 1, 1, 1},
+                      {0, 1, 0, 0, 1},
+                      {1, 1, 0, 0, 1},
+                      {0, 1, 1, 1, 0},
+                     };
+ 
+    // Print the solution
+    int path[V];
+    for(int i=0;i<V;i++)
+    path[i]=-1;
+    path[0]=0;  // put any vertex here 0,1,2,3,4 it works now
+	if(hamCycleUtil(graph,path,1))
+	cout<<"PATH EXIST\n";
+	else
+	cout<<"NO PATH\n";
+	printSolution(path);
+    return 0;
+} GeeksforGeeks The main task of program is to find out whether a given graph contains Hamiltonian Cycle or not. And if there is a cycle, then print the cycle. The above program always does that. The starting point of cycle doesn’t matter, a cycle is a cycle and can be printed in any way. If you don’t like 0 as a starting point of cycle, we have added a note below the code to change the starting point Also, we have removed self loops in the matrix representation of graph. Keep it up! AAZ What would be the runtime complexity of the program ? spark9 IsSafe function complexity can be improved by using better data structures. We can use an array[V] to mark whether a vertex is visited or not.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ atul code will not work for all inputs  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik Please provide more details of your comment. Why do think that the code will not work? Do you have some sample graph for which it didn’t work? atul why assumption has been made that node 0 is connected to node 1. if given graph is the one given below..then code will fail right?? 
+(0)--(4)--(3)
+ |   / \   |
+ |  /   \  |
+ | /     \ |
+(2)-------(1)  
+ /* Paste your code here (You may delete these lines if not writing code) */ atul ignore above comment  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kavish good post….a more generalised version of knight’s tour problem…  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Venki How can we extend the solution to start at an arbitrary vertex? One way is to keep track of “pos” and wrap back to zero when it crosses array bound, and include in the solution validity whether all the vertices included in the position vector. Is there any better way? kartik One simple way is to generate the path array as it is being generated in the above code. Then generate rotations of the path array. Every rotation of the path array will be a Hamiltonian Cycle. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

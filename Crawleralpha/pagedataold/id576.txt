@@ -1,0 +1,1117 @@
+Swap Kth node from beginning with Kth node from end in a Linked List - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Swap Kth node from beginning with Kth node from end in a Linked List Given a singly linked list, swap kth node from beginning with kth node from end. Swapping of data is not allowed, only pointers should be changed. This requirement may be logical in many situations where the linked list data part is huge (For example student details line Name, RollNo, Address, ..etc). The pointers are always fixed (4 bytes for most of the compilers). The problem seems simple at first look, but it has many interesting cases. Let X be the kth node from beginning and Y be the kth node from end. Following are the interesting cases that must be handled. 1) Y is next to X 2) X is next to Y 3) X and Y are same 4) X and Y don’t exist (k is more than number of nodes in linked list) We strongly recommend you to try it yourself first, then see the below solution. It will be a good exercise of pointers. 
+// A C++ program to swap Kth node from beginning with kth node from end
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+
+// A Linked List node
+struct node
+{
+    int data;
+    struct node *next;
+};
+
+/* Utility function to insert a node at the beginning */
+void push(struct node **head_ref, int new_data)
+{
+    struct node *new_node = (struct node *) malloc(sizeof(struct node));
+    new_node->data = new_data;
+    new_node->next = (*head_ref);
+    (*head_ref) = new_node;
+}
+
+/* Utility function for displaying linked list */
+void printList(struct node *node)
+{
+    while (node != NULL)
+    {
+        cout << node->data << " ";
+        node = node->next;
+    }
+    cout << endl;
+}
+
+/* Utility function for calculating length of linked list */
+int countNodes(struct node *s)
+{
+    int count = 0;
+    while (s != NULL)
+    {
+        count++;
+        s = s->next;
+    }
+    return count;
+}
+
+/* Function for swapping kth nodes from both ends of linked list */
+void swapKth(struct node **head_ref, int k)
+{
+    // Count nodes in linked list
+    int n = countNodes(*head_ref);
+
+    // Check if k is valid
+    if (n < k)  return;
+
+    // If x (kth node from start) and y(kth node from end) are same
+    if (2*k - 1 == n) return;
+
+    // Find the kth node from beginning of linked list. We also find
+    // previous of kth node because we need to update next pointer of
+    // the previous.
+    node *x = *head_ref;
+    node *x_prev = NULL;
+    for (int i = 1; i < k; i++)
+    {
+        x_prev = x;
+        x = x->next;
+    }
+
+    // Similarly, find the kth node from end and its previous. kth node
+    // from end is (n-k+1)th node from beginning
+    node *y = *head_ref;
+    node *y_prev = NULL;
+    for (int i = 1; i < n-k+1; i++)
+    {
+        y_prev = y;
+        y = y->next;
+    }
+
+    // If x_prev exists, then new next of it will be y. Consider the case
+    // when y->next is x, in this case, x_prev and y are same. So the statement
+    // "x_prev->next = y" creates a self loop. This self loop will be broken
+    // when we change y->next.
+    if (x_prev)
+        x_prev->next = y;
+
+    // Same thing applies to y_prev
+    if (y_prev)
+        y_prev->next = x;
+
+    // Swap next pointers of x and y. These statements also break self
+    // loop if x->next is y or y->next is x
+    node *temp = x->next;
+    x->next = y->next;
+    y->next = temp;
+
+    // Change head pointers when k is 1 or n
+    if (k == 1)
+        *head_ref = y;
+    if (k == n)
+        *head_ref = x;
+}
+
+// Driver program to test above functions
+int main()
+{
+    // Let us create the following linked list for testing
+    // 1->2->3->4->5->6->7->8
+    struct node *head = NULL;
+    for (int i = 8; i >= 1; i--)
+       push(&head, i);
+
+    cout << "Original Linked List: ";
+    printList(head);
+
+    for (int k = 1; k < 10; k++)
+    {
+        swapKth(&head, k);
+        cout << "\nModified List for k = " << k << endl;
+        printList(head);
+    }
+
+    return 0;
+}
+ Output: Original Linked List: 1 2 3 4 5 6 7 8
+
+Modified List for k = 1
+8 2 3 4 5 6 7 1
+
+Modified List for k = 2
+8 7 3 4 5 6 2 1
+
+Modified List for k = 3
+8 7 6 4 5 3 2 1
+
+Modified List for k = 4
+8 7 6 5 4 3 2 1
+
+Modified List for k = 5
+8 7 6 4 5 3 2 1
+
+Modified List for k = 6
+8 7 3 4 5 6 2 1
+
+Modified List for k = 7
+8 2 3 4 5 6 7 1
+
+Modified List for k = 8
+1 2 3 4 5 6 7 8
+
+Modified List for k = 9
+1 2 3 4 5 6 7 8 Please note that the above code runs three separate loops to count nodes, find x and x prev, and to find y and y_prev. These three things can be done in a single loop. The code uses three loops to keep things simple and readable. Thanks to Chandra Prakash for initial solution. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element QuickSort on Doubly Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. Ravi Kiran using recursion.. but doesn’t work when k=length of the list need to change code. Please comment on the code. // @author Ravi Kiran int main() { swapKthNodeFrontAndBack(root1,1,11); } //global variable node * temp = NULL; int swapKthNodeFrontAndBack(node* root,int a,int k) { if(root->next == NULL) { return a; } if(a == k) { temp = root; std::cout<<"Kth element is:"<a<next,a+1,k); if(length-(a-1) == k) { std::cout<<"Kth element from last is:"<a<a; root->a= temp->a; temp->a=temp1; } return length; } shruti this code is not working for k=1 and k=n..can anybody correct and explain? Vignesh Murugesan void Swap(int x, int y) //0 -> len-1 { if (x < 0 || y y) swapVals(&x, &y); if (Head == NULL || Head->Next == NULL) return; Node *First= Head, *Second = Head; while (–x > -1 && First != NULL) First = First->Next; while (–y > -1 && Second != NULL) Second= Second->Next; if (!(First&&Second)) return; Node* Ptr = Head; bool SwappedHead = false; if (Ptr == First) SwappedHead = true; if (First->Next == Second) { First->Next = Second->Next; Second->Next = First; if (SwappedHead) Head = Second; else { while (Ptr->Next != First) Ptr = Ptr->Next; Ptr->Next = Second; } return; } while (!SwappedHead && Ptr->Next != First) Ptr = Ptr->Next; Node* Ptr1 = Head; while (Ptr1->Next != Second) Ptr1 = Ptr1->Next; Node *Rest = Second->Next; if (SwappedHead) Head = Second; Ptr->Next = Second; Second->Next = First->Next; if (Ptr1) Ptr1->Next = First; First->Next = Rest; } Thanh Nguyen /* *** HOW DO YOU PRESERVE WHITE SPACE WHEN EDITING THIS, anyway? I would do everything in the swapKth() function above in 1 single pass. And, you don’t have to know the count (or len) of the linked list. Here is what I would do. */ void swapKth(struct node **head_ref, int k) { struct node* N1, N2, prev1, prev2, temp; int i = 0; if (!*head_ref || *head_ref->next) return; N1 = *head_ref; prev1 = null; while((inext)){ N1 = N1->next; if (prev1) prev1 = prev1->next; else prev1 = *head_ref; i++; } if (i != k-1) return; // list is too short N2 = *head_ref; temp = N1; prev2 = null; while(temp->next ){ N2 = N2->next; if (prev2) prev2 = prev2->next; else prev2 = *head_ref; temp = temp->next; } if (prev1) prev1->next = N2; else *head_ref = N2; if (prev2) prev2->next = N1; else *head_ref = N1; temp = N1->next; N1->next = N2->next; N2->next = temp->next; return; } }}} groomnestle Have an array indexing from 1 to store address of each node when counting length N. Then you can access related nodes by index. Need to check special case when K=1 and 2*K =N. shanky i didn’t get this / If x_prev exists, then new next of it will be y. Consider the case // when y->next is x, in this case, x_prev and y are same. So the statement // “x_prev->next = y” creates a self loop. This self loop will be broken // when we change y->next. if (x_prev) x_prev->next = y; // Same thing applies to y_prev if (y_prev) y_prev->next = x; Can you please throw some light on this ? Chandu // Working for all the test cases…:) void swapKth(struct node **head, int k) { struct node *temp = *head, *fslow_ptr = NULL; int tot_nodes = count(temp); // call function count to count total no. of nodes if(tot_nodes < k) // When nodes don't exist return; if( (tot_nodes%2) && ((tot_nodes/2)+1 == k) ) // Kth node from beg and end are same. return; if(tot_nodes/2 < k) // Tricky step, go thru it k = tot_nodes-k+1; int p=0; while( (temp!=NULL) && pnext; p++; } struct node *ptr = temp, *temp1 = *head, *lslow_ptr = NULL; while(ptr->next!=NULL) // Setting the second node to be swapped { lslow_ptr = temp1; temp1 = temp1->next; ptr = ptr->next; } if(lslow_ptr == temp) { // Case1: when the nodes are adjacent to each other. temp->next = temp1->next; temp1->next = temp; fslow_ptr->next = temp1; } else if(fslow_ptr == NULL) // Case2: When first and last nodes are to be swapped. { struct node *save = temp1->next; lslow_ptr->next = temp; temp1->next = temp->next; temp->next = save; *head = temp1; } else { struct node *save1 = temp, *save2 = temp1; lslow_ptr->next = temp1->next; fslow_ptr->next = temp->next; save2->next = fslow_ptr->next; fslow_ptr->next = save2; save1->next = lslow_ptr->next; lslow_ptr->next = save1; } } mukesh #include #include #include struct node { int data; struct node *link; }; typedef struct node linklist; linklist *start; void create(int x) { linklist *p,*temp; temp=(linklist*)malloc(sizeof(linklist)); temp->data=x; temp->link=NULL; if(start==NULL) start=temp; else { p=start; while((p->link)!=NULL) p=p->link; p->link=temp; } } int display(linklist *x) { x=start; if(start==NULL) printf(“linklist is empty\n”); else { while(x!=NULL) { printf(“data is=%d\n”,x->data); x=x->link; } } } void swap(linklist *ptr,int k) { int count=1,i=0,m; linklist *temp1,*x,*y,*x_next,*y_next; temp1=ptr; x=ptr; y=ptr; while(temp1->link!=NULL) { temp1=temp1->link; count++; } if(k>count||k==0) { printf(“!!!sorry,,,enter a valid number\n”); return; } if(k>(count/2)) { m=(count%k)+1; if(m==k) { printf(“linklist is successfully swaped\n”); display(start); return; } k=m; } for(i=k;i>2;i–) { x=x->link; ptr=ptr->link; } for(i=(count-k);i>0;i–) { y=y->link; } if(k==1) { x_next=x->link; y_next=NULL; ptr=y; ptr->link=x_next; start=ptr; } else { x=x->link; x_next=x->link; y_next=y->link; ptr->link=y; y->link=x_next; } while(x_next->link!=y) { x_next=x_next->link; } x_next->link=x; x->link=y_next; printf(“linklist is successfully swaped\n”); display(start); } main() { int i,n,d,choice,c,k=0; start=NULL; do { printf(“enter your choice what you want to do\n1.create link list\n2.display link list\n3.swap kth node from begining with kth node from end.\n”); scanf(“%d”,&choice); switch(choice) { case 1: printf(“enter the no of nodes in list\n”); scanf(“%d”,&n); for(i=1;i<=n;i++) { printf("enter the data part of %dst node\n",i); scanf("%d",&d); create(d); printf("creation completed\n"); } break; case 2: display(start); break; case 3: printf("enter the value of k\n"); scanf("%d",&k); swap(start,k); break; default: printf("sorry!you entered wrong choice try again"); } printf("\nyou want more operation then press 1\n"); scanf("%d",&c); } while(c==1); } bharath kumar #include #include #include using namespace std; typedef struct link { int data; struct link *next; }*s; s root; s getnode() { s temp; int d; temp=(s)malloc(sizeof(s)); cin>>d; temp->data=d; temp->next=NULL; return temp; } int create() { s temp; int n,i; cout<>n; root=(s)malloc(sizeof(s)); temp=root; temp->next=NULL; for(i=0;inext=getnode(); temp=temp->next; temp->next=NULL; } root=root->next; return n; } void display(s root) { s temp=root; while(temp!=NULL) { cout<data<next; } } void swap(int k,int n) { int i=0,j=0; s temp=root,temp1,ret,temp2=root,temp3,temp4; while((i<k||j<n-k)&&(temp!=NULL&&temp2!=NULL)) { if(inext; } if(jnext; } i=i++; j=j++; } if(temp!=root) { if((temp!=temp2)&&(temp!=NULL&&temp2!=NULL)&&(temp->next!=temp2)) { temp1->next=temp2; temp4=temp2->next; temp2->next=temp->next; temp3->next=temp; temp->next=temp4; } } if(temp==root) { temp4=root; root=temp2; temp2->next=temp4->next; temp3->next=temp4; temp4->next=NULL; } if(temp==temp3) { temp4=temp2->next; temp1->next=temp2; temp2->next=temp; temp->next=temp4; } } void main() { int d,ret; system(“cls”); ret=create(); cout<>d; swap(d,ret); display(root); getch(); } Himanshu in o(N) complexity  
+/*
+Given a singly linked list, swap kth node from beginning with kth node from end. Swapping of data is not allowed, only pointers should be changed. This requirement may be logical in many situations where the linked list data part is huge (For example student details line Name, RollNo, Address, ..etc). The pointers are always fixed (4 bytes for most of the compilers).
+*/
+
+
+#include<stdio.h>
+#include<conio.h>
+#include<stdlib.h>
+
+
+struct node
+{
+	int x;
+	struct node * next;
+
+}*head;
+typedef struct node* link;
+
+link nw(int x)
+{
+	link temp;
+	temp=(link)malloc (sizeof(node));
+	temp->x=x;
+	temp->next=NULL;
+	return temp;
+}
+void insert(int x)
+{
+	if(head==NULL)
+		head=nw(x);
+	else
+		{
+			link t;
+			t=head;
+			
+			while(1)
+			{
+				
+				if(t->next==NULL)
+			    {
+                 t->next=nw(x);
+                 break;                
+                 }
+                else
+                t=t->next; 	                 
+			}
+			
+		}
+}
+
+void print()
+{
+     printf("\n link list is \n");
+	link t;
+	t=head;
+	
+	while(t!=NULL)
+	{
+		printf("  %d  ",t->x);
+		t=t->next;
+	
+	}
+  
+}
+
+
+
+
+
+void replace(int k)
+{
+	int i,j=0;
+	int flag=0;
+	int tot=0;
+	link t;
+	t=head;
+
+  //  printf(" hi ");	
+	while(t!=NULL)
+	{
+		tot++;
+		t=t->next;
+	}
+	
+	printf(" \n total node is %d ",tot);
+ 
+	if(k>tot||k==0)
+		{
+			printf("\n sorry range is not available");
+			return; 
+		}
+	int st=k;
+	int en=tot-k+1;
+	int curr=0;
+
+	if(st==en)
+		{
+			flag=1;
+			return ;
+		}
+	
+	if(st>en)
+		{
+			j=st;
+			st=en;
+			en=j;
+		
+		}
+	link tt;
+	link pre1=NULL,t1,pre2,t2;
+	t1=head;
+	
+	i=1;
+			while(i!=st)
+				{
+					i++;
+					pre1=t1;
+					t1=t1->next;
+				}
+				t2=t1;
+				pre2=pre1;
+			while(i!=en)
+				{
+					i++;
+					pre2=t2;
+					t2=t2->next;
+				}
+				tt=t2->next;
+				pre2->next=t1;
+		    	t2->next=t1->next;
+				t1->next=tt;	
+		        if(pre1!=NULL)
+		             pre1->next=t2;
+		        else
+                    {
+                       head=t2;                           
+                                   
+                    }
+                    
+                    
+                         
+		  	         
+				return;
+		
+	
+/*	
+
+	for(i=j;ct[i]!='\0';i++)
+	{
+		ct[i]='\0';
+	}
+	printf(" The string is %s ",ct);
+*/
+}
+
+
+
+int main()
+{
+insert(1);
+insert(2);
+insert(3);
+insert(4);
+insert(5);
+insert(6);
+insert(7);
+
+/*
+insert(2);
+insert(2);
+insert(2);
+insert(2);
+insert(2);
+*/
+print();
+int rep;
+int tot=7;
+for(rep=0;rep<tot;rep++)
+{
+                        replace(rep);
+                        print();
+}
+getch();
+return 0;
+}
+
+ Neo_T  
+/* // If x_prev exists, then new next of it will be y. Consider the case
+    // when y->next is x, in this case, x_prev and y are same. So the statement
+    // "x_prev->next = y" creates a self loop. This self loop will be broken
+    // when we change y->next.
+    if (x_prev)
+        x_prev->next = y;
+ 
+    // Same thing applies to y_prev
+    if (y_prev)
+        y_prev->next = x; */
+ I am not able to understand how the code works for special cases mentioned above, ie Y is next of X or X is next of Y. How is the self loop created by the statement y_prev->next=x (in case of Y next to X) terminated ? Kindly help me. crazy  
+#include <iostream>
+#include<stdio.h>
+#include<stdlib.h>
+using namespace std;
+typedef struct node
+{
+    int data;
+    struct node *next;
+}node;
+void printlist(node *head)
+{
+    for(;head!=NULL;head=head->next)
+     printf("%d ",head->data);
+    printf("\n");
+}
+void push(node **headref,int data)
+{
+    node *newnode=(node *)malloc(sizeof(node));
+    newnode->data=data;
+    newnode->next=(*headref);
+    (*headref)=newnode;
+}
+void swapnode(node **headref,int k,int n)
+{
+    int i;
+    if(n<k)
+     return;
+    if(2*k-1==n)
+     return;
+    node *x,*xprev,*y,*yprev;
+    xprev=yprev=NULL;
+    x=y=(*headref);
+    for(i=0;i<k-1;i++)
+    {
+        xprev=x;
+        x=x->next;
+    }
+    for(i=0;i<n-k;i++)
+    {
+        yprev=y;
+        y=y->next;
+    }
+    if(xprev)
+     xprev->next=y;
+    if(yprev)
+     yprev->next=x;
+    node *temp=y->next;
+    y->next=x->next;
+    x->next=temp;
+    if(k==1)
+     (*headref)=y;
+    if(k==n)
+     (*headref)=x;
+}
+int countnodes(node *head)
+{
+    int count=0;
+    for(;head!=NULL;head=head->next)
+     count++;
+    return count;
+}
+int main()
+{
+    node *head=NULL;
+    int i,n;
+    for(i=8;i>0;i--)
+     push(&head,i);
+    printf("Initial list:\n");
+    printlist(head);
+    n=countnodes(head);
+    for(i=1;i<10;i++)
+    {
+        printf("For k=%d:\n",i);
+        swapnode(&head,i,n);
+        printlist(head);
+    }
+    return 0;
+}
+ Zohreh This is a more modular approach. Only needs one time traversal of the list also. ————– void LList::swapKthNode(LList* &head, int k) { LList* p = head; LList* p1 = head; LList* p2 = head; LList* preDummy = head; LList* pre1 = head; LList* pre2 = head; int moves; if(!moveToKth(p, k, preDummy, moves)) return; moveToKth(p1, k, pre1, moves); moveToKth(p, INT_MAX, preDummy, moves); int dummy; moveToKth(p2, moves, pre2, dummy); swap(pre1->next, pre2->next); swap(p1->next, p2->next); } int LList::moveToKth(LList* &p, int k, LList* &pre, int& moves) { moves = 0; while( k-1 > 0 ) { if (p == NULL) { return 0; } if (moves) { pre = pre->next; } p = p->next; k–; moves++; } return moves; } u no guy geeks! u no free() malloc’ed stuff and typedef struct? gags public void swap(ListNodeSingle node, int k) { if (node == null || k <= 0) { return; } int kthFromEnd = k – 1;// 8 int kthFromStart = k – 1;// 8 ListNodeSingle slow = node; ListNodeSingle fast = node; ListNodeSingle kth = null; // to get the kth from the start while (fast != null) { if (kthFromStart == 0) kth = fast; kthFromStart–; // to get the kth from the last if (fast.getNext() != null) { if (kthFromEnd <= 0) { slow = slow.getNext(); } kthFromEnd–; } fast = fast.getNext(); } //check for null so that there is if (kth != null && slow != null) { int temp = kth.getData(); kth.setData(slow.getData()); slow.setData(temp); } } Karshit Hi all I have recently joined IIIT Allahabad for Engineering. Please assess my attempt to this problem. ps : I am a beginner. Constructive comments for improvement are welcome.  
+#include <iostream>
+#include <cstdlib>
+#include <cmath>
+
+using namespace std;
+
+struct node {
+    int data;
+    node *next;
+};
+
+node* create(int n)
+{
+    int x;
+
+    node *head, *temp;
+    head = new node();
+
+    cout << "\nEnter data:\n";
+    cin >> x;
+
+    head -> data = x;
+    head -> next = NULL;
+
+    temp = head;
+
+    for (int i = 1; i < n; i++) {
+        cin >> x;
+
+        head -> next = new node();
+        head = head -> next;
+        head -> data = x;
+        head -> next = NULL;
+    }
+
+    return temp;
+}
+
+void print(node *head)
+{
+    if (head != NULL) {
+        cout << head -> data << " -> ";
+        print(head -> next);
+    }
+}
+
+int count(node *head)
+{
+    if (head == NULL) {
+        return 0;
+    }
+
+    return 1 + count(head -> next);
+}
+
+node* Kswap(node *head, int k) {
+    int n = count(head);
+
+    if (k > n) {
+        cout << "\nInvalid k\n";
+
+        return NULL;
+    }
+
+    if (k == n - k + 1) {
+        cout << "Same Node\n";
+
+        return head;
+    }
+
+    if (k == 1 || k == n) {
+        node *p = head, *q;
+
+        while (head -> next -> next != NULL) {
+            head = head -> next;
+        }
+
+        q = head -> next;
+        q -> next = p -> next;
+        head -> next = p;
+        p -> next = NULL;
+
+        return q;
+    }
+
+    if (n - k == k) {
+
+
+        node *p = head, *q, *r;
+
+        for (int i = 0; i < k - 2 ; i++) {
+            p = p -> next;
+        }
+
+        q = p -> next;
+        r = q -> next;
+
+        p -> next = r;
+        q -> next = r -> next;
+        r -> next = q;
+
+        return head;
+    }
+
+    if (n - k + 1 == k - 1) {
+        node *p = head, *q, *r;
+
+        for (int i = 0; i < k - 3 ; i++) {
+            p = p -> next;
+        }
+
+        q = p -> next;
+        r = q -> next;
+
+        p -> next = r;
+        q -> next = r -> next;
+        r -> next = q;
+
+        return head;
+    }
+
+    int a = n - k + 1;
+    node *p = head, *q, *r, *s = head, *t, *u;
+
+    for (int i = 0; i < k - 2; i++) {
+        p = p -> next;
+    }
+
+    q = p -> next;
+    r = q -> next;
+
+    for (int i = 0; i < a - 2; i++) {
+        s = s -> next;
+    }
+
+    t = s -> next;
+    u = t -> next;
+
+    p -> next = t;
+    t -> next = r;
+    s -> next = q;
+    q -> next = u;
+
+    return head;
+}
+
+
+int main()
+{
+
+
+    int n, k;
+
+    node *head = NULL;
+
+    cout << "Enter total number of Elements\n";
+    cin >> n;
+
+    head = create(n);
+
+    cout << "\n\n";
+
+    print(head);
+
+    cout << "NULL\n";
+
+    while(1) {
+
+        cout << "\nEnter K to swap Kth node from beginning with Kth node from end\n";
+        cin >> k;
+
+        if (k > n) {
+            return 0;
+        }
+
+        head = Kswap(head, k);
+
+        print(head);
+
+        cout << "NULL\n\n";
+
+    }
+}
+
+ http://chandanpuggal@gmail.com Chandan if (k == n) *head_ref = x; /* There should be y instead of x? */ Please tell why should head not point to y? Correct me if i’m wrong..  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Hitesh Have a look at this out-of-box solution: Time Complexity: O(n) Space Complexity: O(n) // Array is used to store the addresses of all the linked list nodes  
+#include<stdio.h>
+#include<stdlib.h>
+
+typedef struct LinkedList {
+	int data;
+	struct LinkedList* next;
+}Node;
+
+// Size of the linked list
+int SIZE=0;
+
+// Create new node for insertion and return its address
+Node* insert(int data) {
+	Node* last=(Node *)malloc(sizeof(Node));
+	last->data=data;
+	last->next=NULL;
+	return last;
+}
+
+// Create new linked list
+// After creation, return pointer to very first node
+Node* create(void) {
+	int i=0;
+	Node* first=NULL;
+	Node* last=NULL;
+	while(1) {
+		printf("\n(Enter -1 to finish) Enter data: ");
+		scanf("%d",&i);
+		if(i==-1) {
+			break;
+		}
+		SIZE++;
+		if(SIZE==1) {
+			first=insert(i);
+			last=first;
+		} else {
+			last->next=insert(i);
+			last=last->next;
+		}
+	}
+	return first;
+}
+
+// Print linked list
+void print(Node* node) {
+	while(node) {
+		printf("-> %d ",node->data);
+		node=node->next;
+	}
+}
+
+// Swap k-th linked list nodes from both ends
+// Swap only pointers, not actual data
+// After swapping, return pointer to very first node
+Node* swap(Node* node, int k) {
+	if(SIZE==0) {
+		printf("\n\nERROR: Linked list is empty!");
+		return node;
+	} else if(k<1 || k>SIZE) {
+		printf("\n\nERROR: Invalid swap position!");
+		return node;
+	} else if(k==SIZE-k+1) {
+		// No need to swap!
+		return node;
+	} else {
+		int i=1;
+		// p is the array that holds pointers/addresses to the nodes of the original linked list
+		Node* p[SIZE];
+
+		Node* first=NULL;
+
+		// left pointer points to the k-th node from the left side
+		Node* left=NULL;
+
+		// left pointer points to the k-th node from the left side
+		Node* right=NULL;
+
+		// Save first node's address for reuse
+		first=node;
+
+		// Loop through linked list for determining the left and right pointers
+		while(node) {
+			if(i==k) {
+				left=node;
+			}
+			if(i==SIZE-k+1) {
+				right=node;
+			}
+			node=node->next;
+			i++;
+		}
+
+		// Reset node pointer to the very first node
+		node=first;
+
+		// Main swapping logic
+		// Store linked list node pointers into an array
+		// Also, swap left and right pointers in an array
+		for(i=0;i<SIZE;i++) {
+			if(node==left) {
+				p[i]=right;
+			} else if(node==right) {
+				p[i]=left;
+			} else {
+				p[i]=node;
+			}
+			node=node->next;
+		}
+		for(i=0;i<SIZE-1;i++) {
+			p[i]->next=p[i+1];
+		}
+		p[i]->next=NULL;
+		return p[0];
+	}
+}
+
+int main(){
+	Node* first=create();
+
+	printf("\nLinked list before swapping the nodes: ");
+	print(first);
+
+	first=swap(first,3);
+
+	printf("\n\nLinked list after swapping the nodes: ");
+	print(first);
+
+	printf("\n\n");
+
+	return 0;
+}
+ rk_roy vry easy to understand :)…thnx  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://zebadiah.me Zeb Yet another solution:  
+#include <iostream>
+
+using namespace std;
+
+class Node
+{
+public:
+	int value;
+	Node* next;
+
+	Node(int value)
+	{
+		this->value = value;
+		this->next = NULL;
+	}
+
+	static void printList(Node* first)
+	{
+		Node* currentNode = first;
+		while(currentNode != NULL)
+		{
+			cout << currentNode->value << " ";
+			currentNode = currentNode->next;
+		}
+		cout << "\n";
+	}
+};
+
+Node* swapKthNodesFromStartAndEnd(Node* firstNode, int k)
+{
+	int c = 1;
+	Node* swapNodeA = NULL;
+	Node* lastNode = NULL;
+	Node* nodeBeforeLastNode = NULL;
+
+	Node* currentNode = firstNode;
+	while(currentNode != NULL)
+	{
+		if(c == k)
+		{
+			swapNodeA = currentNode;
+		}
+		c++;
+
+		if(currentNode->next != NULL && currentNode->next->next == NULL)
+		{
+			nodeBeforeLastNode = currentNode;
+			lastNode = currentNode->next;
+		}
+		currentNode = currentNode->next;
+	}
+
+	if(swapNodeA == NULL)
+	{
+		cout << "k out of bounds : (\n";
+		
+		return firstNode;
+	}
+
+	if(swapNodeA == firstNode || swapNodeA == lastNode)
+	{
+		lastNode->next = firstNode->next;
+		firstNode->next = NULL;
+		nodeBeforeLastNode->next = firstNode;
+
+		return lastNode;
+	}
+
+	int listLength = c;
+	c = 1;
+	currentNode = firstNode;
+	Node* swapNodeB = NULL;
+	Node* nodeBeforeSwapNodeA = NULL;
+	Node* nodeBeforeSwapNodeB = NULL;
+	while(currentNode != NULL && (nodeBeforeSwapNodeA == NULL || nodeBeforeSwapNodeB == NULL))
+	{
+		if(c == k-1)
+		{
+			nodeBeforeSwapNodeA = currentNode;
+		}
+		if(c == (listLength-k) - 1)
+		{
+			nodeBeforeSwapNodeB = currentNode;
+			swapNodeB = currentNode->next;
+		}
+
+		c++;
+		currentNode = currentNode->next;
+	}
+
+	// Swap the nodes
+	nodeBeforeSwapNodeA->next = swapNodeB;
+	nodeBeforeSwapNodeB->next = swapNodeA;
+	Node* temp = swapNodeA->next;
+	swapNodeA->next = swapNodeB->next;
+	swapNodeB->next = temp;
+
+	return firstNode;
+}
+
+int main()
+{
+	Node* currentNode = new Node(1);
+	Node* firstNode = currentNode;
+
+	// Load some data into the list
+	for(int i = 2; i <= 11; i++)
+	{
+		currentNode->next = new Node(i);
+		currentNode = currentNode->next;
+	}
+
+	Node::printList(firstNode);
+
+	for(int i = 0; i <= 12; i++)
+	{
+		firstNode = swapKthNodesFromStartAndEnd(firstNode, i);
+		Node::printList(firstNode);
+	}
+
+	cin.get();
+}
+ output is: 1 2 3 4 5 6 7 8 9 10 11 k out of bounds : ( 1 2 3 4 5 6 7 8 9 10 11 11 2 3 4 5 6 7 8 9 10 1 11 10 3 4 5 6 7 8 9 2 1 11 10 9 4 5 6 7 8 3 2 1 11 10 9 8 5 6 7 4 3 2 1 11 10 9 8 7 6 5 4 3 2 1 11 10 9 8 7 6 5 4 3 2 1 11 10 9 8 5 6 7 4 3 2 1 11 10 9 4 5 6 7 8 3 2 1 11 10 3 4 5 6 7 8 9 2 1 11 2 3 4 5 6 7 8 9 10 1 1 2 3 4 5 6 7 8 9 10 11 k out of bounds : ( 1 2 3 4 5 6 7 8 9 10 11 Prateek Sharma Previous code has one test case missing,here is modified code with o(n) time and o(1) space complexity.Length of code can surely be reduced ..I just write every case separately  
+#include<conio.h>
+#include<stdio.h>
+#include<stdlib.h>
+struct Node {
+       int value;
+       struct Node *next;
+       };
+int insertAtEnd(struct Node *node,int val) {
+    struct Node *temp;
+    struct Node *ne;
+    temp = node;
+    while(temp->next!= NULL) {
+          temp = temp->next;
+}
+    ne = (struct Node *) malloc(sizeof(struct Node));
+    ne->value = val;
+    ne->next = NULL;
+    temp->next = ne;    
+    return 0;                          
+}         
+int swappingKthNodeFromFirstandLast(struct Node *node,int k){
+    struct Node *temp,*store,*first,*second,*prev;
+    temp = node;
+    int i,count = 0,token = 0;
+    while(temp != NULL){
+       count = count+1;
+       temp = temp->next;
+       }
+    if (k >count){
+     printf("\nswapping not possible");
+     return 0;}
+    if (k == count or k==1){
+     temp = node;
+     while(temp->next->next != NULL){
+        temp = temp->next;
+        }                        
+     temp->next->next = node;
+     node = temp->next;
+     temp->next = temp->next->next ;
+     node->next = node->next->next;
+     temp->next->next = NULL;
+     printf("modified list is\n");
+     temp = node;
+     while(temp != NULL){
+      printf("%d",temp->value);
+      temp = temp->next;
+      }return 0;}
+    else{
+         temp = node;
+         for(i=2;i<k;i++)                                   
+           { temp = temp->next;
+            }       
+         int diff = count -k;
+         store = node;
+         for (i =1;i<diff;i++){
+             store = store->next;
+             }
+         if (temp->next == store){
+            first = store->next->next;
+            prev = temp->next;
+            temp->next= store->next;
+            temp->next->next = prev;
+            temp->next->next->next = first;
+            temp = node;  
+            printf("\n Modified List is");
+            while (temp != NULL){
+             printf("%d", temp->value);
+             temp = temp->next;}
+             return 0;}
+                                  
+         else if (temp->next == store->next){
+              printf("\n there is no need of modification");
+            temp = node;
+            while(temp != NULL)
+            { printf("%d",temp->value);
+            temp = temp->next;
+            }
+            return 0;}
+         else{
+         first = temp->next->next;
+         second = store->next->next;
+         if (temp == store->next){
+              token = 1;}      
+         prev = temp->next;
+         temp->next = store->next;
+         store->next = prev;
+         temp->next->next = first;
+         if (token == 1)
+         {store->next->next = temp;}
+         else{
+         store->next->next = second;}
+         temp = node;
+         printf("\n Modified List is");
+         while (temp != NULL){
+             printf("%d", temp->value);
+             temp = temp->next;
+             }}return 0;}}
+                               
+int main() {
+   int n,s,i =1; 
+   struct Node *node,*temp;
+   node = (struct Node *) malloc(sizeof(struct Node));
+   printf("enter size of linked list");
+   scanf("%d",&s);
+   printf("enter value of root node:\n");
+   scanf("%d",&n);
+   node->value = n;
+   node->next = NULL;
+   while(i<=s-1) {
+   printf("enter next element of linked list\n");
+   scanf("%d",&n);
+   insertAtEnd(node,n);
+   i++;}   
+   printf("enter value of K\n");
+   scanf("%d",&n);
+   swappingKthNodeFromFirstandLast(node,n); 
+   getch();
+   return 0;
+}                   
+   
+   
+
+ atul There is no need to count the number of nodes in the linked list.We can simply do in in one parse. start=head; end=head; start_kth,end_kth; while(inext; i++; } while(end) { start=start->next; end=end->next; } end_kth=start;  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Prateek Sharma c code with o(n)time complexity and o(1) space complexity…  
+#include<conio.h>
+#include<stdio.h>
+#include<stdlib.h>
+struct Node {
+       int value;
+       struct Node *next;
+       };
+int insertAtEnd(struct Node *node,int val) {
+    struct Node *temp;
+    struct Node *ne;
+    temp = node;
+    while(temp->next!= NULL) {
+          temp = temp->next;
+}
+    ne = (struct Node *) malloc(sizeof(struct Node));
+    ne->value = val;
+    ne->next = NULL;
+    temp->next = ne;    
+    return 0;                          
+}         
+int swappingKthNodeFromFirstandLast(struct Node *node,int k){
+    struct Node *temp,*store,*first,*second,*prev;
+    temp = node;
+    int i,count = 0;
+    while(temp != NULL){
+       count = count+1;
+       temp = temp->next;
+       }
+    if (k >count){
+     printf("\nswapping not possible");
+     return 0;}
+    if (k == count){
+     temp = node;
+     while(temp->next->next != NULL){
+        temp = temp->next;
+        }                        
+     temp->next->next = node;
+     node = temp->next;
+     temp->next = temp->next->next ;
+     node->next = node->next->next;
+     temp->next->next = NULL;
+     printf("modified list is\n");
+     temp = node;
+     while(temp != NULL){
+      printf("%d",temp->value);
+      temp = temp->next;
+      }}
+    else{
+         temp = node;
+         for(i=2;i<k;i++)                                   
+           { temp = temp->next;
+            }       
+         int diff = count -k;
+         store = node;
+         for (i =1;i<diff;i++){
+             store = store->next;
+             }
+         if (temp->next == store){
+            first = store->next->next;
+            prev = temp->next;
+            temp->next= store->next;
+            temp->next->next = prev;
+            temp->next->next->next = first;
+            temp = node;  
+            printf("\n Modified List is");
+            while (temp != NULL){
+             printf("%d", temp->value);
+             temp = temp->next;}
+             return 0;}
+                                  
+         if (temp->next == store->next){
+              printf("\n there is no need of modification");
+            temp = node;
+            while(temp != NULL)
+            { printf("%d",temp->value);
+            temp = temp->next;
+            }
+            return 0;}
+         else {
+         first = temp->next->next;
+         second = store->next->next;      
+         prev = temp->next;
+         temp->next = store->next;
+         store->next = prev;
+         temp->next->next = first;
+         store->next->next = second;
+         temp = node;
+         printf("\n Modified List is");
+         while (temp != NULL){
+             printf("%d", temp->value);
+             temp = temp->next;
+             }}return 0;}}
+                               
+int main() {
+   int n,s,i =1; 
+   struct Node *node,*temp;
+   node = (struct Node *) malloc(sizeof(struct Node));
+   printf("enter size of linked list");
+   scanf("%d",&s);
+   printf("enter value of root node:\n");
+   scanf("%d",&n);
+   node->value = n;
+   node->next = NULL;
+   while(i<=s-1) {
+   printf("enter next element of linked list\n");
+   scanf("%d",&n);
+   insertAtEnd(node,n);
+   i++;}   
+   printf("enter value of K\n");
+   scanf("%d",&n);
+   swappingKthNodeFromFirstandLast(node,n); 
+   getch();
+   return 0;
+}                   
+   
+   
+
+ Subhajit This code is wrong. consider the case: 1->2->3->4->5->6 n=6 k=4 so x=4 x->prev=3 y=3 y->prev=2 y->prev=x is kool but x->prev=y is becoming a loop…u have to handle these cases explicitly. il share the corect code mean while.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks Please take a closer look at the code. It works for this case also. See http://ideone.com/cfAY7m for a sample run. Subhajit my mistake…i overlooked it…. gayathri x->next=y->next makes a loop in this case.. i.e at the end we have 2 lists 1->2->4 with 4->next pointing to itself and 3->4->5 gayathri x->next=y->next makes a loop in this case.. i.e at the end we have 2 lists 1->2->4 with 4->next pointing to itself and 3->5->6 jain We can do it in a single scan 1. find the kth node from start(with previous node) say x 2.let y=x,z=head 3.now in a loop make y=y->next and z=z->next until you reach the end from z. y then contains the kth node from end 4.swap x and y 5.check if k==1 or k==n and change head if required http://zebadiah.me Zeb I think you are overlooking the minor point that you don’t know the length of the list until you’ve done at least one run through. So there’s no way to know when you are k nodes from the end on the first pass. Unless I’m missing something it can’t be done with a single pass through the list. AMIT there is no need to find the length of the list for finding kth node from end 1.go to kth node from head 2. now start one pointer from head and 2nd pointer from kth node from start and increment both till 2nd pointer reaches NULL 3.when the 2nd pointer reaches NULL,1st pointer is kth node from end so,isn’t it a single scan?? http://zebadiah.me Zeb Ahh, now I see, sorry I was not getting that concept at all the first time I read through it. Thanks for the explanation. Also: neat trick. sahil gaur i think you are absolutely right , apart from it should be y-> next ->next for 1st k node, so as to find the node before kth node for exchange. Rest is fine. Gr8 job AMIT yess.thats a part of coding.obviously to swap two nodes we need the nodes before them..also another way could be finding (k-1)th node from start and (k+1)th node from end,so that we can swap their next directly Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,71 @@
+Leaders in an array - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Leaders in an array Write a program to print all the LEADERS in the array. An element is leader if it is greater than all the elements to its right side. And the rightmost element is always a leader. For example int the array {16, 17, 4, 3, 5, 2}, leaders are 17, 5 and 2. Let the input array be arr[] and size of the array be size. Method 1 (Simple) Use two loops. The outer loop runs from 0 to size – 1 and one by one picks all elements from left to right. The inner loop compares the picked element to all the elements to its right side. If the picked element is greater than all the elements to its right side, then the picked element is the leader. 
+/*Function to print leaders in an array */
+void printLeaders(int arr[], int size)
+{
+  int i, j;
+
+  for (i = 0; i < size; i++)
+  {
+    for (j = i+1; j < size; j++)
+    {
+        if(arr[i] <= arr[j])
+          break;
+    }    
+    if(j == size) // the loop didn't break
+    {
+        printf("%d ", arr[i]);
+    }
+  }
+}
+
+/*Driver program to test above function*/
+int main()
+{
+  int arr[] = {16, 17, 4, 3, 5, 2};
+  printLeaders(arr, 6);
+  getchar();
+}
+// Output:  17 5 2
+ Time Complexity: O(n*n) Method 2 (Scan from right) Scan all the elements from right to left in array and keep track of maximum till now. When maximum changes it’s value, print it. /*Function to print leaders in an array */
+void printLeaders(int arr[], int size)
+{
+  int max_from_right =  arr[size-1];
+  int i;
+
+  /* Rightmost element is always leader */
+  printf("%d ", max_from_right);
+    
+  for(i = size-2; i >= 0; i--)
+  {
+    if(max_from_right < arr[i])
+    {
+       printf("%d ", arr[i]);
+       max_from_right = arr[i];
+    }
+  }    
+}
+
+/*Driver program to test above function*/
+int main()
+{
+  int arr[] = {16, 17, 4, 3, 5, 2};
+  printLeaders(arr, 6);
+  getchar();    
+}    
+// Output:  2 5 17
+ Time Complexity: O(n) Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: array Tweet Writing code in comment? Please use ideone.com and share the link here. HRISHIKESH //another method (using recursion) #include using namespace std; int printLeader (int arr[],int str ,int end) { if (str==end) { cout<< arr[str] <temp ) { cout<< arr [str]<< " "; return arr[str]; } else return temp; } int main() { int arr[] = {4,3,7,12,6,67,5,45,34,35,2,8}; printLeader(arr,0,11); return 0; } dark_night We can use stack for left to right pass.. For each element .. before pushing it pop all the elements that are less than it , so in the end stack has only leaders left in it bharath reddy But this takes O(n) extra space geekyboy @geeksforgeeks in the first method shouldn’t it be if(arr[i] <= arr[j]) break; rather than if(arr[i] < arr[j]) break; because the condition says a leader must be greater than all the elements to its right. So for an equal no this condtion is violated. If I am wrong do inform. Any help and suggestions are welcomed geekyboy for eg {12,10,12,8,7,6} answer should be 12 8 7 6 rather than 12 12 8 7 6 GeeksforGeeks Thanks for pointing this out. We have updated the post. Keep it up! VD { This can be also done will the help of stack. push the first element in the stack // s-> 16 push another element, if ( upcoming element is smaller then the element of the top of the stack ) Push(element); else pop() till you find element bigger then the upcoming element. } left over elements in the stack will be leaders !!! ex: s-> 16 //pop 16 push 17 s-> 17 //push 4 s->17 ,4. // push 3 s->17 ,4,3, // pop till you element bigger than 5 then push s-> 17,5// push 2 s->17,5,2 all elements left in the stack are leaders Mayautobot Nice one! But space complexity is more. shek8034 Good logic… Never thought about it But space complexity is more. kg1020 a function in C++.  
+void leaders(int ar[],int n)
+{
+    cout<<"\nLeaders : ";
+    int lastLeader = ar[n-1];
+    cout<<lastLeader<<'\t';
+    for(int i=n-2; i>=0; i--)
+    {
+        if(ar[i] > lastLeader)
+        {
+            lastLeader = ar[i];
+            cout<<lastLeader<<'\t';
+        }
+    }
+}
+ Amol Agarwal This will print 2,2,5,17. an extra 2. GeeksforGeeks @Rajeev & kp101090: Thanks for pointing this optimization. We have made the suggested changes. kp101090 Agree with Rajeev… for loop should be for(i=size-2;i>=0;–i) Rajeev In the for loop inspite of size-1, we can start from size-2. I think the first comparison is unnecessary. ravikant int i; is missing GeeksforGeeks @ravikant: Thanks for pointing this out. We have added the line. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,430 @@
+Segregate 0s and 1s in an array - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Segregate 0s and 1s in an array Asked by kapil. You are given an array of 0s and 1s in random order. Segregate 0s on left side and 1s on right side of the array. Traverse array only once. 
+Input array   =  [0, 1, 0, 1, 0, 0, 1, 1, 1, 0] 
+Output array =  [0, 0, 0, 0, 0, 1, 1, 1, 1, 1] 
+ Method 1 (Count 0s or 1s) Thanks to Naveen for suggesting this method. 1) Count the number of 0s. Let count be C. 2) Once we have count, we can put C 0s at the beginning and 1s at the remaining n – C positions in array. Time Complexity: O(n) The method 1 traverses the array two times. Method 2 does the same in a single pass. Method 2 (Use two indexes to traverse) Maintain two indexes. Initialize first index left as 0 and second index right as n-1. Do following while left < right a) Keep incrementing index left while there are 0s at it b) Keep decrementing index right while there are 1s at it c) If left < right then exchange arr[left] and arr[right] Implementation: 
+#include<stdio.h>
+
+/*Function to put all 0s on left and all 1s on right*/
+void segregate0and1(int arr[], int size)
+{
+  /* Initialize left and right indexes */
+  int left = 0, right = size-1;     
+
+  while(left < right)
+  {
+     /* Increment left index while we see 0 at left */
+     while(arr[left] == 0 && left < right)
+        left++;
+
+     /* Decrement right index while we see 1 at right */
+     while(arr[right] == 1 && left < right)
+        right–;
+
+    /* If left is smaller than right then there is a 1 at left
+      and a 0 at right.  Exchange arr[left] and arr[right]*/
+     if(left < right)
+     {
+       arr[left] = 0;
+       arr[right] = 1;
+       left++;
+       right–;
+     }
+  }
+}     
+
+/* driver program to test */
+int main()
+{
+  int arr[] = {0, 1, 0, 1, 1, 1};
+  int arr_size = 6, i = 0;
+
+  segregate0and1(arr, arr_size);
+
+  printf("array after segregation ");
+  for(i = 0; i < 6; i++)
+    printf("%d ", arr[i]);
+
+  getchar();
+  return 0;
+}
+ Time Complexity: O(n) Please write comments if you find any of the above algorithms/code incorrect, or a better ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. Venu Gopal In method 2, what is the need of making the code unnecessarily complex a simpler version of method 2 is http://ideone.com/PFRHbc Guest In method 2, what is the need of making the code unnecessarily complex a simpler version of method 2 is http://ideone.com/PFRHbc Pankaj why did we use the condition (left<right) in the two inner while loops?? i think this condition is redundant… Abhay /* the problem can be segregate in atmost O(n/2) complexity using below code*/ #include int main() { int arr[]={0,1,0,1,0,0,1,1,1,0}; int i,n=sizeof(arr)/sizeof(arr[0]); int tmp,p; i=0; p=n; while(i<n) { if(arr[i]==1 && arr[n-1]==0) { tmp=arr[i]; arr[i]=arr[n-1]; arr[n-1]=tmp; n–; i++; } if(arr[i]==1 && arr[n-1]==1) n–; if(arr[i]==0 && arr[n-1]==0) i++; if(arr[i]==0 && arr[n-1]==1) { i++; n–; } } for(i=0;i<p;i++) printf("%d",arr[i]); } draganwarrior This can also be solved by standered partioning algo considring pivot ==0 http://ideone.com/nlgTkt correct me if wrong shelly void segregateZeroAndOne( int A[], int N ) { int countOfZeroes = -1, i = 0; while ( i < N ) { if ( !A[i] ) { swap ( A[i], A[++countOfZeroes] ); } i++; } } shelly void segregateZerosAndOnes( int A[], int N ) { int countOfZeroes = -1, i = 0; while ( i < N ) { if ( !A[i] ) { swap ( A[i], A[++countOfZeroes] ); } i++; } } h s we can use the partition method of quicksort by selecting pivot=1 and do it in o(n) time in one pass Jitendra.BITS Just one pass through the array, O(n) time complexity #include /*Function to put all 0s on left and all 1s on right*/ void segregate0and1(int a[], int size) { int low=0; int high=size-1; int i,temp; for (i=0;i=size/2;i++,high–) { if (a[i]==1) { if (a[high]==0) { temp=a[i]; a[i]=a[high]; a[high]=temp; } if (a[high]==1) { while (a[high]!=0) high–; temp=a[i]; a[i]=a[high]; a[high]=temp; } } } } /* driver program to test */ int main() { int a[] = {0, 1, 0, 1, 0, 1}; int arr_size = 6, i = 0; segregate0and1(a, arr_size); printf(“array after segregation “); for(i = 0; i < 6; i++) printf(“%d “, a[i]); getchar(); return 0; } Jitendra.BITS The for loop should be as follows: for (i=0;i=n/2;i++,high–) Jitendra.BITS  
+for (i=0;i<n/2,high>=n/2;i++,high--)
+ me.abhinav Yet another simple method…(only one pass required). Initialize an index variable ‘toSwap’ equal to the index of first ‘1’ in the array. Traverse the array: If a ‘1’ is encountered then do nothing and proceed to next element; else if a ‘0’ is encountered then swap this ‘0’ with a[toSwap] and increment ‘toSwap’ (see code).  
+#include <iostream>
+//#define SIZ 100
+//#define MAX(a, b) (a>b)?a:b
+
+using namespace std;
+
+void swap(int *a, int *b){
+	int temp = *a;
+	*a = *b;
+	*b = temp;
+}
+
+int main()
+{
+	int a[] = {0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0};
+	int i, n, toSwap;
+
+	n = sizeof(a)/sizeof(a[0]);
+
+	for(i=0 ; i<n ; i++){
+		if(a[i] == 1){
+			toSwap = i;
+			break;
+		}
+	}
+	for( ; i<n ; i++){
+		if(a[i] == 0){
+			swap(&a[toSwap], &a[i]);
+			toSwap++;
+		}
+	}
+	for (i=0 ; i < n ; i++){
+		cout<<a[i]<<" ";
+	}
+	cout<<"\n\n";
+	
+	return 0;
+}
+ shek8034 This is the best and standard algo for solving this question. Its an O(n) solution @GeeksForGeeks : Should add this method to the post. akki Another much easier method based on portioning.(like take 0 as pivot in quick sort) Following loop will do the trick #include #include using namespace std; int main() { int n; cin>>n; vector v(n,0); for(int i=0;i { cin>>v[i]; } int i=-1; for(int j=0;j { if(v[j]==0) { i++; swap(v[i],v[j]); } } for(int h=0;h cout< return 0; } akki Sorry above code has typo mistake here goes the code #include using namespace std; int main() { int n; cin>>n; int a[n]; //Loop for input for(int i=0;i cin>>a[i]; //Main logic loop int i=-1; for(int j=0;j { if(a[j]==0) { i++; swap(a[i],a[j]); } } //Loop for printing the array for(int k=0;k cout< return 0; } Ujjwal how about this algo geeks : -take two pointers p0,p1(say) -make p0,p1 point to a[0] -if(a[0]==0) { p0++; p1++; } else { a[0] = 0; p1++; } -loop until p1 reaches a[n-1] and if reached fill the remaining array from p0+1 to a[n-1] with 1… #correct me if i m wrong.. Ujjwal a slight change from the previous comment.. -take two pointers p0,p1(say) -make p0,p1 point to a[0] -if(a[0]==0) { p0++; p1++; } else { substitute that array position with a ‘0’ p1++; } -loop until p1 reaches a[n-1] and if reached fill the remaining array from (*p0)+1 to a[n-1] with 1… #correct me if i m wrong.. Ankit Malhotra In the given solution we don’t need to check (left < right) in the inner loops and can make outer loop a do while. The code can be simplified as follows do { while(term[left] == 0) ++left; while(term[right] == 1) –right; if(left < right) { term[left++] = 0; term[right–] = 1; } } while (left < right); supreeth  
+/* Paste your code here (You may delete these lines if not writing code) */
+complexity of the program should be O(nlogn) right?
+ Kartik No, it is O(n) Nirdesh Think of the worse case where all arrays elements are either 0’s or 1’s. So,in this case we have to traverse all element array from left->right(0 case) Or right->left(1 case). So the complexity is O(n).  
+/* Paste your code here (You may delete these lines if not writing code) */
+ nimish We can do this in O(n) , without having size of the array beforehand…  
+
+int[] arr={1,0,0,1,1,1,0,0};	
+		
+		int i=0;
+		int j=0;
+		
+		while(i < arr.length){
+			if(arr[i]==0 && arr[j]==1){
+				int temp=arr[j];
+				arr[j]= arr[i];
+				arr[i]=temp;
+				j++;
+			}
+			if(arr[j]==0){
+				j++;
+			}	
+			i++;
+		}
+		for(int a:arr){
+			System.out.println(a);
+		}
+
+ nimish  
+/* 
+int[] arr={1,0,0,1,1,1,0,0};	
+		
+		int i=0;
+		int j=0;
+		
+		while(i < arr.length){
+			if(arr[i]==0 && arr[j]==1){
+				int temp=arr[j];
+				arr[j]= arr[i];
+				arr[i]=temp;
+				j++;
+			}
+			if(arr[j]==0){
+				j++;
+			}	
+			i++;
+		}
+		for(int a:arr){
+			System.out.println(a);
+		}
+ */
+ rajya vardhan  
+void sort0and1(){
+	int a[] = {0, 0, 1,1,1, 0, 1};
+	int n = 7;
+	int p = 0;
+	int q = 1;
+	while(q<n){
+		//if pattern is 0,0 or 0,1 then do nothing as it is already sorted, increment p and q
+                if((a[p]==0&&a[q]==0) ||(a[p]<a[q])){
+			p++;q++;
+		}
+                //if 1,0 then swap and incremnt p,q
+		else if(a[p]>a[q]){
+			a[p] = a[p]+a[q];
+			a[q] = a[p]-a[q];
+			a[p] = a[p]-a[q];
+			p++;
+			q++;
+		}
+                //if pattern is 1,1 then increment q as we need to see if q finds any 0 
+		else if(a[p]==1 && a[q]==1)
+			q++;
+	}
+for(int i=0;i<n;i++)
+	cout<<a[i]<<",";
+}
+ output -> 0,0,0,1,1,1,1, PsychoCoder Complexity : Time O(n) Space O(1)  
+#include<stdio.h>
+#include<stdlib.h>
+
+void swap (int* a, int *b) {
+  int temp = *a ;
+  *a = *b ;
+  *b = temp ;
+}
+
+int* segregate01 (int *arr, int size) {
+  int low = 0, high = size - 1;
+  while (low < high) {
+    if (arr[low] == 1 && arr[high] == 0)
+      swap (&arr[low], &arr[high]) ;
+    if ( arr[low] == 0 )
+      low ++ ;
+    if ( arr[high] == 1 )
+      high -- ;
+  }
+  return arr ;
+}
+
+int main() {
+  int num , *arr, i;
+  printf ( "\nEnter the array size:\t" ) ;
+  scanf ( "%d", &num ) ;
+  arr = (int *) malloc (sizeof(int) * num) ;
+  for ( i = 0 ; i < num ; i ++ ) {
+    printf ( "\nEnter the %d th number :\t", i+1 ) ;
+    scanf ( "%d", &arr[i] ) ;
+  }
+  arr = segregate01 ( arr, num ) ;
+  printf ( "\n\nThe list is :\n" ) ;
+  for ( i = 0 ; i < num ; i ++ )
+    printf ( "%d  ", arr[i] ) ;
+  free (arr);
+  return 0;
+}
+
+ Srikanth VNV Better than the previous one I pasted here. #include int main(void) { int a[] = {1,0,0,1,0,1,0,1,0,1,1,0,0,1,1,0,1,0,0,0,1,1,1,0,0,0,0,1}; // int a[] = {0,0,0,1,1}; int i,j; unsigned long size; size = sizeof(a)/sizeof(unsigned int); for(i=0;i<size;i++) { //find first '1' if(a[i]==1) { //search for '0' for(j=i;j<size;j++) { if(a[j]==0) { // swap the places a[j] = a[j] – a[i]; a[i] = a[i] + a[j]; a[j] = a[i] – a[j]; break; } } } } for(i=0;i<size;i++) printf("a[%d] =%d\n",i,a[i]); return 0; } Srikanth VNV #include int main(void) { int a[] = {0,1,1,0,1,0,1,0,1,1,0,0,1,1,0,1,0,0,0,1}; int i,tmp; unsigned long size; size = sizeof(a)/sizeof(unsigned int); for(i=0;i<size;i++) { //comparing the immediate numbers, if end has reached && not equal we do the sorting if(i<(size-1) && a[i] != a[i+1]) { if(a[i+1] == 0) { tmp = i; // search in the reverse direction for 0 or reached the top, // When 0 is found at index i, swap index+1 and a[i+1] do { if(a[tmp] == 0) { printf("%d found\n",i); break; } if(i!=0) tmp–; }while(tmp); //top has been reached, so we do swap if(tmp == 0) { a[tmp] = a[tmp] – a[i+1]; a[i+1] = a[i+1] + a[tmp]; a[tmp] = a[i+1] – a[tmp]; } //generic swap a[tmp+1] = a[tmp+1] – a[i+1]; a[i+1] = a[i+1] + a[tmp+1]; a[tmp+1] = a[i+1] – a[tmp+1]; } } } for(i=0;i<size;i++) printf("a[%d] =%d\n",i,a[i]); return 0; } Gwd Given exchange is not stable. For stable sorting, maintain two pointers *zero, *one. Start from beginning, *zero = *one = arr[0] move forward pointer *one, until u find a one. Stay this pointer here and move pointer *zero, until u find a zero after *one(by this way u will find the first zero misplacing). Exchange these two values. Continue till the array is sorted. Raghav This is not stable. Consider 0110 soumya l Nishant  
+//This code traverse array 2 times but no temp array is used
+/* I/P= {0, 1, 1, 0, 1, 2, 1, 2, 0, 0, 0, 1}
+ After 1st while loop array is
+{0,0,0,0,0,2,1,2,1,1,1,1}
+After 2nd while loop array is
+{0,0,0,0,0,1,1,1,1,1,2,2}
+*/
+#include
+void swap(int *a, int *b)
+{
+	*a=*a+*b;
+	*b=*a-*b;
+	*a=*a-*b;
+}
+int main()
+{
+	int a[]={0, 1, 1, 0, 1, 2, 1, 2, 0, 0, 0, 1},i,j,n;
+	n=sizeof(a)/sizeof(a[0]);	
+	i=0;
+	j=n-1;
+	while(ij)
+		break;
+		if((a[i]!=0) && (a[j]==0))
+		{
+			swap(&a[i],&a[j]);
+			i++;
+			j--;
+		}
+	}
+	j++;
+	i=j;
+	j=n-1;
+	while(ij)
+		break;
+		if((a[i]!=1) && (a[j]==1))
+		{
+			swap(&a[i],&a[j]);
+			i++;
+			j--;
+		}
+	}	for(i=0;i<n;i++)
+	printf("%d\t",a[i]);
+	printf("\n");
+	return 0;
+}
+ http://borncrusader.tumblr.com Srinath Here’s my version. A slightly changed of method 2.  
+int a[N];
+int i = 0, j = N-1;
+
+while (i < j) {
+  if (a[i] == 0 && a[j] == 1) {
+    i++;
+    j--;
+  } else if (a[i] == 1 && a[j] == 0) {
+    a[i++] = 0;
+    a[j--] = 1;
+  } else if (a[i] == 0 && a[j] == 0) {
+    if (i+1 < j) {
+      a[j] = a[i+1];
+      a[i+1] = 0;
+      i+=2;
+    }
+  } else {
+    if (i+1 < j) {
+      a[i] = a[j-1];
+      a[j-1] = 1;
+      j-=2;
+    }
+  }
+}
+ http://www.wgpshashank.co.cc wgpshashank  
+#define SWAP(a,b) a^=b^=a^=b 
+void main()
+{
+  int i,j;
+  int arr[9]={0,1,0,1,0,1,0,1};
+  int len;
+  len = sizeof(arr)/sizeof(arr[0]);
+  printf("len:%d",len);
+  i=0;
+  j=len;
+  while(j>i)
+  {
+    if(arr[i]==0)
+    {
+      i++;
+      continue;
+    }
+    while(arr[--j]==1);
+    if(j>i)
+      SWAP(arr[i],arr[j]);
+  }
+  for(i=0;i<9;i++)
+  {
+    printf("%d\t",arr[i]);
+  }
+  
+}
+ http://www.wgpshashank.co.cc wgpshashank This is code fro method two…done in single pass Time Complexity O(n) Space complexity O(1) roopesh.majeti Following code looks simpler/easier :  
+#include<iostream>
+#include<conio.h>
+
+using namespace std;
+
+int main()
+{
+    
+    int a[10] = {0,1,0,1,0,0,1,1,0,0};
+    int iZeros=0;
+    int iOnes=0;
+    int i=0;
+    for(i=0;i<10;i++)
+         a[i] ? iOnes++:iZeros++;
+        
+    for(i=0;i<iZeros;i++)
+         a[i]= 0;
+    for(i=iZeros;i<10;i++)
+         a[i]=1;
+    
+    for(i=0;i<10;i++)
+    cout << a[i] << endl;
+    getch();
+    return 0;
+}
+ This will (a) eliminate loops and (b) Remove unnecessary creation of temporary arrays. Sam But you Traverse the array twice. Bidyapati It is similar to method 2, but my code is having less complexity and more readable  
+void segregate0and1(int arr[],int size)
+{
+	int iIndex;
+	int iFirstOneIndex;
+	iIndex = iFirstOneIndex = 0;
+	
+	//find the position where 
+	while (iIndex < size)
+	{
+		//if first one found; break
+		if (arr[iIndex])
+		{
+			break;
+		}
+		
+		++iIndex;
+		++iFirstOneIndex;
+	}
+	
+	++iIndex;//index pointing to next to the first one
+	
+	//continuing the same loop [Order(n)]
+	for (;iIndex < size; ++iIndex)
+	{
+		//if 1 found after 1, ignore
+		if (arr[iIndex])
+		{
+			continue;
+		}
+		
+		//if 0 found swap and increase iFirstOne Index
+		else
+		{
+			arr[iFirstOneIndex++] = 0;
+			arr[iIndex] = 1;
+		}
+	}
+}
+ a  
+void function(int arr[],int size)
+{
+    int zero=0,one=size-1;
+    while(zero<one)
+    {
+        if(arr[zero] == 0 && zero < one)
+            zero++;
+        if(arr[one] == 1 && zero < one)
+            one--;
+        else{
+            //swap values at i & j
+            arr[one] += arr[zero] ;
+            arr[zero] = arr[one] - arr[zero];
+            arr[one] = arr[one] - arr[zero];
+
+            one--;
+        }
+    }
+}
+ BlackMath Your program fails for this input test case : {0, 0, 0, 0, 1, 0, 1, 1 ,0}  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Sam [Update]  
+public static void Segregate0sAnd1sUsingTempArray(ref int[] array)
+        {
+            int[] temp = new int[array.Length];
+            int OnesCounter = array.Length - 1;
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (array[i] == 0)
+                {
+                    temp[OnesCounter] = 1;
+                    OnesCounter--;
+                }
+            }
+            array = temp;
+        }
+ justGautam The above code is in Java. If I understand it correctly, it’s working as follows: 1. temp array is created which might be initialized with zeros. 2. And we are setting the elements to one in temp from the back if we find any zero in array from front. 3. So temp would have exactly same number of ones at the back what array has number of zeros 4. So assigning temp to array wouldn’t solve the problem. Am I missing anything, Sam? Sam Using Temp array and only one traversal.  
+public static void Segregate0sAnd1sUsingTempArray(ref int[] array)
+{
+            int[] temp = new int[array.Length];
+            int ZerosCounter = array.Length - 1;
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (array[i] == 0)
+                {
+                    temp[ZerosCounter] = 1;
+                    ZerosCounter--;
+                }
+            }
+            array = temp;
+        }
+ Hari i think it is like  
+if ( array[i]==1)
+{  
+    temp[onescount]=1;
+    onescout--;
+}
+ http://www.wgpshashank.co.cc wgpshashank @sam,@justgautam ur code is write except it has time & space complexity O(n)..but good job http://www.wgpshashank.co.cc wgpshashank @sam,@justgautam also ur code is only for equals no of 1s and 0s else it will fail try it 0 1 0 1 0 0 Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

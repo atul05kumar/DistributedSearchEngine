@@ -1,0 +1,329 @@
+Three numbers in a BST that adds upto zero - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find if there is a triplet in a Balanced BST that adds to zero Given a Balanced Binary Search Tree (BST), write a function isTripletPresent() that returns true if there is a triplet in given BST with sum equals to 0, otherwise returns false. Expected time complexity is O(n^2) and only O(Logn) extra space can be used. You can modify given Binary Search Tree. Note that height of a Balanced BST is always O(Logn) For example, isTripletPresent() should return true for following BST because there is a triplet with sum 0, the triplet is {-13, 6, 7}. The Brute Force Solution is to consider each triplet in BST and check whether the sum adds upto zero. The time complexity of this solution will be O(n^3). A Better Solution is to create an auxiliary array and store Inorder traversal of BST in the array. The array will be sorted as Inorder traversal of BST always produces sorted data. Once we have the Inorder traversal, we can use method 2 of this post to find the triplet with sum equals to 0. This solution works in O(n^2) time, but requires O(n) auxiliary space. Following is the solution that works in O(n^2) time and uses O(Logn) extra space: 1) Convert given BST to Doubly Linked List (DLL) 2) Now iterate through every node of DLL and if the key of node is negative, then find a pair in DLL with sum equal to key of current node multiplied by -1. To find the pair, we can use the approach used in hasArrayTwoCandidates() in method 1 of this post. 
+// A C++ program to check if there is a triplet with sum equal to 0 in
+// a given BST
+#include<stdio.h>
+
+// A BST node has key, and left and right pointers
+struct node
+{
+    int key;
+    struct node *left;
+    struct node *right;
+};
+
+// A function to convert given BST to Doubly Linked List. left pointer is used
+// as previous pointer and right pointer is used as next pointer. The function
+// sets *head to point to first and *tail to point to last node of converted DLL
+void convertBSTtoDLL(node* root, node** head, node** tail)
+{
+    // Base case
+    if (root == NULL)
+        return;
+
+    // First convert the left subtree
+    if (root->left)
+        convertBSTtoDLL(root->left, head, tail);
+
+    // Then change left of current root as last node of left subtree
+    root->left = *tail;
+
+    // If tail is not NULL, then set right of tail as root, else current
+    // node is head
+    if (*tail)
+        (*tail)->right = root;
+    else
+        *head = root;
+
+    // Update tail
+    *tail = root;
+
+    // Finally, convert right subtree
+    if (root->right)
+        convertBSTtoDLL(root->right, head, tail);
+}
+
+// This function returns true if there is pair in DLL with sum equal
+// to given sum. The algorithm is similar to hasArrayTwoCandidates()
+// in method 1 of http://tinyurl.com/dy6palr
+bool isPresentInDLL(node* head, node* tail, int sum)
+{
+    while (head != tail)
+    {
+        int curr = head->key + tail->key;
+        if (curr == sum)
+            return true;
+        else if (curr > sum)
+            tail = tail->left;
+        else
+            head = head->right;
+    }
+    return false;
+}
+
+// The main function that returns true if there is a 0 sum triplet in
+// BST otherwise returns false
+bool isTripletPresent(node *root)
+{
+    // Check if the given  BST is empty
+    if (root == NULL)
+       return false;
+
+    // Convert given BST to doubly linked list.  head and tail store the
+    // pointers to first and last nodes in DLLL
+    node* head = NULL;
+    node* tail = NULL;
+    convertBSTtoDLL(root, &head, &tail);
+
+    // Now iterate through every node and find if there is a pair with sum
+    // equal to -1 * heaf->key where head is current node
+    while ((head->right != tail) && (head->key < 0))
+    {
+        // If there is a pair with sum equal to  -1*head->key, then return
+        // true else move forward
+        if (isPresentInDLL(head->right, tail, -1*head->key))
+            return true;
+        else
+            head = head->right;
+    }
+
+    // If we reach here, then there was no 0 sum triplet
+    return false;
+}
+
+// A utility function to create a new BST node with key as given num
+node* newNode(int num)
+{
+    node* temp = new node;
+    temp->key = num;
+    temp->left = temp->right = NULL;
+    return temp;
+}
+
+// A utility function to insert a given key to BST
+node* insert(node* root, int key)
+{
+    if (root == NULL)
+       return newNode(key);
+    if (root->key > key)
+       root->left = insert(root->left, key);
+    else
+       root->right = insert(root->right, key);
+    return root;
+}
+
+// Driver program to test above functions
+int main()
+{
+    node* root = NULL;
+    root = insert(root, 6);
+    root = insert(root, -13);
+    root = insert(root, 14);
+    root = insert(root, -8);
+    root = insert(root, 15);
+    root = insert(root, 13);
+    root = insert(root, 7);
+    if (isTripletPresent(root))
+        printf("Present");
+    else
+        printf("Not Present");
+    return 0;
+}
+ Output: Present Note that the above solution modifies given BST. Time Complexity: Time taken to convert BST to DLL is O(n) and time taken to find triplet in DLL is O(n^2). Auxiliary Space: The auxiliary space is needed only for function call stack in recursive function convertBSTtoDLL(). Since given tree is balanced (height is O(Logn)), the number of functions in call stack will never be more than O(Logn). We can also find triplet in same time and extra space without modifying the tree. See next post. The code discussed there can be used to find triplet also. This article is compiled by Ashish Anand and reviewed by GeeksforGeeks team. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. Anand We can also do this by implementing a hash table with all the contents of the BST. We first have a function checkifSum(int sum) which checks if there are two numbers that add up to sum. Internally this loops thru the hash table and checks for every entry n if there is an entry (sum-x)…so for every entry this takes O(1) lookup time and O(n) for the function itself. Now, to solve this problem, we loop thru the hash table and for every entry m, call the above function checkifSum(0-m). Since this function runs in O(n), we can implement this solution in n*n ie O(n^2) time. Any thoughts/comments Mojo When there are three zeroes in a BST, this will not return true. Prama @GeeksForGeeks For the better solution; why will the complexity be O(n^2)? The inorder tree traversal will be O(n) and the traversing the array will be another O(n) and this will lead to O(n)+O(n) ~O(n) .. it isn’t that for each node we’re traversing the array – which is what will make it O(n^2). Please explain.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ 12rad @GeeksForGeeks The better solution : A Better Solution is to create an auxiliary array and store Inorder traversal of BST in the array. The array will be sorted as Inorder traversal of BST always produces sorted data. Once we have the Inorder traversal, we can use method 2 of this post to find the triplet with sum equals to 0. This solution works in O(n^2) time, but requires O(n) auxiliary space. Why will this be O(n^2)? Tree traversal will be O(n) and then traversing the array O(n) will make is O(n)+O(n) .. it’s not that for each tree node, we’re traversing the array.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Sreenivas Doosa @12rad: It will be O(n^2) only.. Finding a triplet sum equal to given sum takes O(n^2) on a sorted array.. If you need to find just a pair sum equal to given sum takes O(n) .. for finding triplet, each element of the array has to be added to another pair in the array.. hence it will be O(n^2). Ganesh  
+
+Recursive solution using inorder and reverse inorder.
+
+Time complexity : I guess its O(nlogn) 
+Space complexity: O(logn) due to recursion call stack 
+
+package com.ganesh;
+
+import com.ganesh.Node;
+
+public class TreePair {
+	
+	static int INT_MIN = -32767;
+	
+	// Do an inorder traversal to print a tree
+    public static void printTree(Node root) {
+        if (root==null) return;
+        printTree(root.small);
+        System.out.print(Integer.toString(root.data) + " ");
+        printTree(root.large);
+    }
+    
+    /**
+     * Tree Traversal to find if a given value exists in the tree
+     * @param tripletCandidate
+     * @param treeRoot
+     * @return
+     */
+    public static int tripletCandidateExists(int tripletCandidate, Node treeRoot)
+    {
+    	
+    	while(treeRoot != null)
+    	{
+    		if(tripletCandidate > treeRoot.data)
+        	{
+        		treeRoot = treeRoot.large;
+        	}
+        	
+        	if(tripletCandidate < treeRoot.data)
+        	{
+        		treeRoot = treeRoot.small;
+        	}
+        	else
+        		return treeRoot.data;
+    	}
+    	
+		return INT_MIN;
+    }
+	
+	public static void findsumTriplet(int tripletSum, Node root, Node curr, Node treeRoot)
+    {
+    	if(root == null && curr == null) return;
+  
+    	findsumTriplet(tripletSum, (root==null)?null:root.small, (curr==null)?null:curr.large, treeRoot);
+    	
+    	if(root!=null && curr!= null)
+    	{
+    		int partialSum = root.data + curr.data;
+    		int remainingSum = tripletSum - partialSum;  //Remaining sum needed to form triplet
+    		
+    		{
+    			/* Checking if any of the numbers are equal. A node's value should not be 
+    			 * considered as a part of triplet if it is currently being considered for triplet sum
+    			 */
+    			if(root.data != curr.data && root.data != remainingSum && curr.data != remainingSum)
+    			{
+    				/**
+    				 * Searching for the remaining value in the tree.
+    				 */
+    				if(tripletCandidateExists(remainingSum, treeRoot)!= INT_MIN)
+                		System.out.println("Triplet for the given sum: " + tripletSum + " exists. The values are " + root.data + ", " + remainingSum + " and " + curr.data);
+    			}
+    		}	
+    	}
+    	
+    	findsumTriplet(tripletSum, (root==null)?null:root.large, (curr==null)?null:curr.small, treeRoot);
+    }
+	
+	public static void main(String[] args) {
+    	
+    	Node root =  new Node(6);
+        root.small = new Node(-13);
+        root.large = new Node(14);
+        root.small.large = new Node(-8);
+        root.large.small = new Node(13);
+        root.large.small.small = new Node(7);
+        root.large.large = new Node(15);
+        
+        System.out.println("In order traversal of tree:");
+        printTree(root);
+        
+        System.out.println();
+        Node curr = root;
+        findsumTriplet(0, root, curr, root);
+    }
+
+}
+ Ganesh Following is a Recursive solution that performs inorder and reverse inorder; while checking to find if there is a triplet summing to the given target. I think the time complexity in worst case is O(nlogn) and the space complexity (due to recursion call stack) is O(logn). Checks are first made to see if duplicate values may form a triplet before searching for the third value in the tree. This makes the code little more efficient.  
+
+package com.ganesh;
+
+import com.ganesh.Node;
+
+public class TreePair {
+	
+	static int INT_MIN = -32767;
+	
+	// Do an inorder traversal to print a tree
+    public static void printTree(Node root) {
+        if (root==null) return;
+        printTree(root.small);
+        System.out.print(Integer.toString(root.data) + " ");
+        printTree(root.large);
+    }
+    
+    /**
+     * Tree Traversal to find if a given value exists in the tree
+     * @param tripletCandidate
+     * @param treeRoot
+     * @return
+     */
+    public static int tripletCandidateExists(int tripletCandidate, Node treeRoot)
+    {
+    	
+    	while(treeRoot != null)
+    	{
+    		if(tripletCandidate > treeRoot.data)
+        	{
+        		treeRoot = treeRoot.large;
+        	}
+        	
+        	if(tripletCandidate < treeRoot.data)
+        	{
+        		treeRoot = treeRoot.small;
+        	}
+        	else
+        		return treeRoot.data;
+    	}
+    	
+		return INT_MIN;
+    }
+	
+	public static void findsumTriplet(int tripletSum, Node root, Node curr, Node treeRoot)
+    {
+    	if(root == null && curr == null) return;
+  
+    	findsumTriplet(tripletSum, (root==null)?null:root.small, (curr==null)?null:curr.large, treeRoot);
+    	
+    	if(root!=null && curr!= null)
+    	{
+    		int partialSum = root.data + curr.data;
+    		int remainingSum = tripletSum - partialSum;  //Remaining sum needed to form triplet
+    		
+    		{
+    			/* Checking if any of the numbers are equal. A node's value should not be 
+    			 * considered as a part of triplet if it is currently being considered for triplet sum
+    			 */
+    			if(root.data != curr.data && root.data != remainingSum && curr.data != remainingSum)
+    			{
+    				/**
+    				 * Searching for the remaining value in the tree.
+    				 */
+    				if(tripletCandidateExists(remainingSum, treeRoot)!= INT_MIN)
+                		System.out.println("Triplet for the given sum: " + tripletSum + " exists. The values are " + root.data + ", " + remainingSum + " and " + curr.data);
+    			}
+    		}	
+    	}
+    	
+    	findsumTriplet(tripletSum, (root==null)?null:root.large, (curr==null)?null:curr.small, treeRoot);
+    }
+	
+	public static void main(String[] args) {
+    	
+    	Node root =  new Node(6);
+        root.small = new Node(-13);
+        root.large = new Node(14);
+        root.small.large = new Node(-8);
+        root.large.small = new Node(13);
+        root.large.small.small = new Node(7);
+        root.large.large = new Node(15);
+        
+        System.out.println("In order traversal of tree:");
+        printTree(root);
+        
+        System.out.println();
+        Node curr = root;
+        findsumTriplet(0, root, curr, root);
+    }
+
+}
+
+ abhishek08aug Intelligent Vimal Can you please explain the brute force method ? I am finding it hard to get it. GeeksFollower @GeeksForGeeks Your program runs great EXCEPT ONE CASE: when tree is having only single node and it is negative. slight modification will solve it. Rest is perfect. Aaman Better approach will be do inorder and reverse in order simultaneously,now add the two elements and search for negative of this sum in tree in logn times..so N+NlogN  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Geeker @GeeksforGeeks Can you please explain why have you converted the Balanced Binary tree into DLL ? Bcoz searching in Balanced BST would hav kept the time complexity at O(nlogn) and no extra space Die_hard dhoni_fan @Geeker If there is no parent pointer in BST we cannot go to the parent in O(1), but that is possible in DLL, Since it will be the next node. viki How can you convert DLL back into the original BST ? GeeksforGeeks Following post may be helpful http://www.geeksforgeeks.org/in-place-conversion-of-sorted-dll-to-balanced-bst/ Aayush Hi, Can be done in n^2logn by considering two number(say a and b) frm BST and do binary search for sum-(a+b) using logn search for BST.???? Aayush But there may be problem how we can select two node from BST?? sandeep That is not a BST GeeksforGeeks Thanks for pointing this out. We have updated the diagram. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,137 @@
+Inorder predecessor and successor for a given key in BST - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Inorder predecessor and successor for a given key in BST I recently encountered with a question in an interview at e-commerce company. The interviewer asked the following question: There is BST given with root node with key part as integer only. The structure of each node is as follows: 
+struct Node
+{
+    int key;
+    struct Node *left, *right ;
+}; You need to find the inorder successor and predecessor of a given key. In case the given key is not found in BST, then return the two values within which this key will lie. Following is the algorithm to reach the desired result. Its a recursive method: 
+Input: root node, key
+output: predecessor node, successor node
+
+1. If root is NULL
+      then return
+2. if key is found then
+    a. If its left subtree is not null
+        Then predecessor will be the right most 
+        child of left subtree or left child itself.
+    b. If its right subtree is not null
+        The successor will be the left most child 
+        of right subtree or right child itself.
+    return
+3. If key is smaller then root node
+        set the successor as root
+        search recursively into left subtree
+    else
+        set the predecessor as root
+        search recursively into right subtree
+ Following is C++ implementation of the above algorithm: 
+// C++ program to find predecessor and successor in a BST
+#include <iostream>
+using namespace std;
+
+// BST Node
+struct Node
+{
+    int key;
+    struct Node *left, *right;
+};
+
+// This function finds predecessor and successor of key in BST.
+// It sets pre and suc as predecessor and successor respectively
+void findPreSuc(Node* root, Node*& pre, Node*& suc, int key)
+{
+    // Base case
+    if (root == NULL)  return ;
+
+    // If key is present at root
+    if (root->key == key)
+    {
+        // the maximum value in left subtree is predecessor
+        if (root->left != NULL)
+        {
+            Node* tmp = root->left;
+            while (tmp->right)
+                tmp = tmp->right;
+            pre = tmp ;
+        }
+
+        // the minimum value in right subtree is successor
+        if (root->right != NULL)
+        {
+            Node* tmp = root->right ;
+            while (tmp->left)
+                tmp = tmp->left ;
+            suc = tmp ;
+        }
+        return ;
+    }
+
+    // If key is smaller than root's key, go to left subtree
+    if (root->key > key)
+    {
+        suc = root ;
+        findPreSuc(root->left, pre, suc, key) ;
+    }
+    else // go to right subtree
+    {
+        pre = root ;
+        findPreSuc(root->right, pre, suc, key) ;
+    }
+}
+
+// A utility function to create a new BST node
+Node *newNode(int item)
+{
+    Node *temp =  new Node;
+    temp->key = item;
+    temp->left = temp->right = NULL;
+    return temp;
+}
+
+/* A utility function to insert a new node with given key in BST */
+Node* insert(Node* node, int key)
+{
+    if (node == NULL) return newNode(key);
+    if (key < node->key)
+        node->left  = insert(node->left, key);
+    else
+        node->right = insert(node->right, key);
+    return node;
+}
+
+// Driver program to test above function
+int main()
+{
+    int key = 65;    //Key to be searched in BST
+
+   /* Let us create following BST
+              50
+           /     \
+          30      70
+         /  \    /  \
+       20   40  60   80 */
+    Node *root = NULL;
+    root = insert(root, 50);
+    insert(root, 30);
+    insert(root, 20);
+    insert(root, 40);
+    insert(root, 70);
+    insert(root, 60);
+    insert(root, 80);
+
+
+    Node* pre = NULL, *suc = NULL;
+
+    findPreSuc(root, pre, suc, key);
+    if (pre != NULL)
+      cout << "Predecessor is " << pre->key << endl;
+    else
+      cout << "No Predecessor";
+
+    if (suc != NULL)
+      cout << "Successor is " << suc->key;
+    else
+      cout << "No Successor";
+    return 0;
+}
+ Output: Predecessor is 60
+Successor is 70 This article is contributed by algoLover. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

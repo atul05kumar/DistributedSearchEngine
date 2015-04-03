@@ -1,0 +1,389 @@
+Given an array of of size n and a number k, find all elements that appear more than n/k times - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Given an array of of size n and a number k, find all elements that appear more than n/k times Given an array of size n, find all elements in array that appear more than n/k times. For example, if the input arrays is {3, 1, 2, 2, 1, 2, 3, 3} and k is 4, then the output should be [2, 3]. Note that size of array is 8 (or n = 8), so we need to find all elements that appear more than 2 (or 8/4) times. There are two elements that appear more than two times, 2 and 3. A simple method is to pick all elements one by one. For every picked element, count its occurrences by traversing the array, if count becomes more than n/k, then print the element. Time Complexity of this method would be O(n2). A better solution is to use sorting. First, sort all elements using a O(nLogn) algorithm. Once the array is sorted, we can find all required elements in a linear scan of array. So overall time complexity of this method is O(nLogn) + O(n) which is O(nLogn). Following is an interesting O(nk) solution: We can solve the above problem in O(nk) time using O(k-1) extra space. Note that there can never be more than k-1 elements in output (Why?). There are mainly three steps in this algorithm. 1) Create a temporary array of size (k-1) to store elements and their counts (The output elements are going to be among these k-1 elements). Following is structure of temporary array elements. 
+struct eleCount {
+    int element;
+    int count;
+}; 
+struct eleCount temp[]; This step takes O(k) time. 2) Traverse through the input array and update temp[] (add/remove an element or increase/decrease count) for every traversed element. The array temp[] stores potential (k-1) candidates at every step. This step takes O(nk) time. 3) Iterate through final (k-1) potential candidates (stored in temp[]). or every element, check if it actually has count more than n/k. This step takes O(nk) time. The main step is step 2, how to maintain (k-1) potential candidates at every point? The steps used in step 2 are like famous game: Tetris. We treat each number as a piece in Tetris, which falls down in our temporary array temp[]. Our task is to try to keep the same number stacked on the same column (count in temporary array is incremented). 
+Consider k = 4, n = 9 
+Given array: 3 1 2 2 2 1 4 3 3 
+
+i = 0
+         3 _ _
+temp[] has one element, 3 with count 1
+
+i = 1
+         3 1 _
+temp[] has two elements, 3 and 1 with 
+counts 1 and 1 respectively
+
+i = 2
+         3 1 2
+temp[] has three elements, 3, 1 and 2 with
+counts as 1, 1 and 1 respectively.
+
+i = 3
+         - - 2 
+         3 1 2
+temp[] has three elements, 3, 1 and 2 with
+counts as 1, 1 and 2 respectively.
+
+i = 4
+         - - 2 
+         - - 2 
+         3 1 2
+temp[] has three elements, 3, 1 and 2 with
+counts as 1, 1 and 3 respectively.
+
+i = 5
+         - - 2 
+         - 1 2 
+         3 1 2
+temp[] has three elements, 3, 1 and 2 with
+counts as 1, 2 and 3 respectively. Now the question arises, what to do when temp[] is full and we see a new element – we remove the bottom row from stacks of elements, i.e., we decrease count of every element by 1 in temp[]. We ignore the current element. i = 6
+         - - 2 
+         - 1 2 
+temp[] has two elements, 1 and 2 with
+counts as 1 and 2 respectively.
+
+i = 7
+           - 2 
+         3 1 2 
+temp[] has three elements, 3, 1 and 2 with
+counts as 1, 1 and 2 respectively.
+
+i = 8          
+         3 - 2
+         3 1 2 
+temp[] has three elements, 3, 1 and 2 with
+counts as 2, 1 and 2 respectively.
+ Finally, we have at most k-1 numbers in temp[]. The elements in temp are {3, 1, 2}. Note that the counts in temp[] are useless now, the counts were needed only in step 2. Now we need to check whether the actual counts of elements in temp[] are more than n/k (9/4) or not. The elements 3 and 2 have counts more than 9/4. So we print 3 and 2. Note that the algorithm doesn’t miss any output element. There can be two possibilities, many occurrences are together or spread across the array. If occurrences are together, then count will be high and won’t become 0. If occurrences are spread, then the element would come again in temp[]. Following is C++ implementation of above algorithm. 
+// A C++ program to print elements with count more than n/k
+#include<iostream>
+using namespace std;
+
+// A structure to store an element and its current count
+struct eleCount
+{
+    int e;  // Element
+    int c;  // Count
+};
+
+// Prints elements with more than n/k occurrences in arr[] of
+// size n. If there are no such elements, then it prints nothing.
+void moreThanNdK(int arr[], int n, int k)
+{
+    // k must be greater than 1 to get some output
+    if (k < 2)
+       return;
+
+    /* Step 1: Create a temporary array (contains element
+       and count) of size k-1. Initialize count of all
+       elements as 0 */
+    struct eleCount temp[k-1];
+    for (int i=0; i<k-1; i++)
+        temp[i].c = 0;
+
+    /* Step 2: Process all elements of input array */
+    for (int i = 0; i < n; i++)
+    {
+        int j;
+
+        /* If arr[i] is already present in
+           the element count array, then increment its count */
+        for (j=0; j<k-1; j++)
+        {
+            if (temp[j].e == arr[i])
+            {
+                 temp[j].c += 1;
+                 break;
+            }
+        }
+
+        /* If arr[i] is not present in temp[] */
+        if (j == k-1)
+        {
+            int l;
+            
+            /* If there is position available in temp[], then place 
+              arr[i] in the first available position and set count as 1*/
+            for (l=0; l<k-1; l++)
+            {
+                if (temp[l].c == 0)
+                {
+                    temp[l].e = arr[i];
+                    temp[l].c = 1;
+                    break;
+                }
+            }
+
+            /* If all the position in the temp[] are filled, then 
+               decrease count of every element by 1 */
+            if (l == k-1)
+                for (l=0; l<k; l++)
+                    temp[l].c -= 1;
+        }
+    }
+
+    /*Step 3: Check actual counts of potential candidates in temp[]*/
+    for (int i=0; i<k-1; i++)
+    {
+        // Calculate actual count of elements 
+        int ac = 0;  // actual count
+        for (int j=0; j<n; j++)
+            if (arr[j] == temp[i].e)
+                ac++;
+
+        // If actual count is more than n/k, then print it
+        if (ac > n/k)
+           cout << "Number:" << temp[i].e
+                << " Count:" << ac << endl;
+    }
+}
+
+/* Driver program to test above function */
+int main()
+{
+    cout << "First Test\n";
+    int arr1[] = {4, 5, 6, 7, 8, 4, 4};
+    int size = sizeof(arr1)/sizeof(arr1[0]);
+    int k = 3;
+    moreThanNdK(arr1, size, k);
+
+    cout << "\nSecond Test\n";
+    int arr2[] = {4, 2, 2, 7};
+    size = sizeof(arr2)/sizeof(arr2[0]);
+    k = 3;
+    moreThanNdK(arr2, size, k);
+
+    cout << "\nThird Test\n";
+    int arr3[] = {2, 7, 2};
+    size = sizeof(arr3)/sizeof(arr3[0]);
+    k = 2;
+    moreThanNdK(arr3, size, k);
+
+    cout << "\nFourth Test\n";
+    int arr4[] = {2, 3, 3, 2};
+    size = sizeof(arr4)/sizeof(arr4[0]);
+    k = 3;
+    moreThanNdK(arr4, size, k);
+
+    return 0;
+}
+ Output: 
+First Test
+Number:4 Count:3
+
+Second Test
+Number:2 Count:2
+
+Third Test
+Number:2 Count:2
+
+Fourth Test
+Number:2 Count:2
+Number:3 Count:2 Time Complexity: O(nk) Auxiliary Space: O(k) Generally asked variations of this problem are, find all elements that appear n/3 times or n/4 times in O(n) time complexity and O(1) extra space. Hashing can also be an efficient solution. With a good hash function, we can solve the above problem in O(n) time on average. Extra space required hashing would be higher than O(k). Also, hashing cannot be used to solve above variations with O(1) extra space. Exercise: The above problem can be solved in O(nLogk) time with the help of more appropriate data structures than array for auxiliary storage of k-1 elements. Suggest a O(nLogk) approach. This article is contributed by Kushagra Jaiswal. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. meh For getting the number that appears more than n/3 or n/4 you could use Moore’s voting algorithm that runs in linear time for a given collection of items: http://stackoverflow.com/questions/780937/linear-time-voting-algorithm-i-dont-get-it Basically my proposed idea is to divide the original array in half and run Moore’s first phase in both pieces to get the two possible candidate numbers that could appear more than n / 4 times (Moore’s algo gives you a candidate that could appear more than n / 2 times, and since the problem is halved, this becomes two candidates for n / 4). For a number to appear more than n / 3 times, it must necessarily appear more than n / 4 times as well (which is not true for n / 2). So the two candidates that work for n / 4 calculated from previous step are also good for this case. Running time: O(n) Space complexity: O(1) meh Never mind, doesn’t work. vijay kumar #include #include int count[256]; int main() { int n=5,i,j; int arr[10]={3,2,6,6,3,2,6,3,1,2}; int r=10/n; for(i=0;ir) { printf(“%dn”,arr[i]); } } getch(); return 0; } time complexity =O(n); space complexity=O(constant); Siknadar number can be greater than 256 . vijay kumar #include #include int count[256]; int main() { int n=5,i,j; int arr[10]={3,2,6,6,3,2,6,3,1,2}; int r=10/n; for(i=0;ir) { printf(“%dn”,arr[i]); } } getch(); return 0; } time complexity =O(n); space complexity=O(constant); Ankit Chaudhary step 3 can be done in O(nlogk) by using Balanced BST but how will step 3 (verification) will be reduced from O(nk) to lesser comlexity. Krishna True, But Ankit while matching the elements we may need to traverse k-1 elements in the array. that would make it O(nk) entri It can be done in the same way as step 2. Note that, in the step 3, we know these potential numbers already, thus we only increase the counter when numbers are matched. By using balanced BST, access to the matched number is log(K) time. Wing The last for loop in the step2 should be k-1 instead of k rahul @bef33b2217708f3a0807940c9de88fbd:disqus Firsltly the temp.e are not initialized ,so in inner loop it will compare with garbage value.. secondly..instead of a loop to check whether there is any vacant space or not.we can simply keep track of one count variable…..instead of running the loop. modify it to make it more precise.. thnx rahul sourabh This does not work for the case : n=10, k=4 arr = {3,3,3,0,1,2,4,5,6,7} liuml07 Why? I think it’s correct. Cam No, it works, even in the case of n=11, k=4, arr = {3, 3, 3, 0, 1, 2, 4, 5, 6, 7, 8}: 3 – – 3 – – 3 – – 3 – – 3 – – 3 – – 3 – – 3 – – 3 0 – 3 – – 3 – – 3 0 1 3 – – 3 – – 3 – – 3 4 – 3 – – 3 4 5 3 – – 3 7 – 3 7 8 G4G how could one arrive at such a solution ?? It’s perfectly right but extending moore’s voting algorithm for k > 2 is not really intuitive. It’ll really help if someone can explain. Krishna Absolutely boy, i am looking for the same. Some good mathematics behind the logic psg tech machi this is a corollary of Moore’s voting algorithm. http://www.geeksforgeeks.org/given-an-array-of-of-size-n-finds-all-the-elements-that-appear-more-than-nk-times/ Viky Small correction is required here in Step 2. for loop must iterate from 0 to k-1 instead of 0 to k. Please correct me if i am missing something.  
+/* If all the position in the temp[] are filled, then 
+               decrease count of every element by 1 */
+            if (l == k-1)
+                for (l=0; l<k; l++)
+                    temp[l].c -= 1;
+ shashi_kr public class ElementInArrayMoreThanNbyKTimes { public static void main(String[] args){ int n=20, k=9; int []A={4, 3, 3, 1, 1, 1, 3, 5, 4, 5, 6, 4, 5, 9, 9, 9, 10, 10, 4, 10}; numberOfElements(A, n, k); } static void numberOfElements(int [] A, int n, int k){ int max=A[0]; for(int i=1; i if(max max=A[i]; } int [] B=new int [max+1]; for(int j=0; j B[A[j]]+=1; } for(int i=0; i<=max; i++){ if(B[i]>(n/k)){ System.out.print(i+” “); } } } } cool how is that we need to just add once to get the actual count??Help pls!! santosh hash map would reduce the traversal complexity significantly!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Rahul Dhamecha Hi, The nk solution is a slick one. Nevertheless, what was the intuition behind reducing the counts of all elements by one if the temp array becomes full and we encounter a new element. I know it works, but how did you get the intuition? Ankit Chaudhary This came from majority algorithm, which is used to find majority element in an array. If k=2, then we can apply majority algorithm, which works in O(n). Read majority algo, u will get your answer Rahul Dhamecha Hi, The nk solution is a slick one. Nevertheless, what was the intuition behind reducing the counts of all elements by one if the temp array becomes full and we encounter a new element. I know it works, but how did you get the intuition?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Rohit Because output should be “more than n/k times”, so more than 3 times. In your array 1,2,3 occurs 3 times and not more. You can just put equality sign in the last if condition for it to print the value 1,2,3.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Yogesh The given solution seems to be giving correct answer as 4. Am I missing anything. kartik best way to do it nlogk is to used BIT as datastructure simple hh @geeksforgeeks: Can you provide basis of your O(nk) solution. Abhi16 What if, 4 appears again ? It has been ignored once! How do you account for that ? And, the output contains max k-1 elements, but while storing count we may need to store more than k-1 elements ! Please explain. Thank You. shivi then if temp is not full then it will be added to temp with count 1. if temp is full then count of all elemnts will be reducd by 1. same as Majority elemnt algorithm on geeks! there k=2; gargsanjay suppose the arr[]={1,2,3,4,5,6,1,2,3,1,2,3}; and value of k is 4. n for array will be=12; son/k will be 3. then the outcome will be none through this method but in reality it will be 1,2,3.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Rohit Because output should be “more than n/k times”, so more than 3 times. In your array 1,2,3 occurs 3 times and not more. You can just put equality sign in the last if condition for it to print the value 1,2,3.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ gargsanjay suppose the arr[]={1,2,3,4,5,6,1,2,3,1,2,3}; then the outcome will be none through this method but in reality it will be none.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ chetan i dont understand the concept of complexity n may be my code takes more time n memory please let me know if it can be optimized.  
+
+#include <stdio.h>
+#include <stdlib.h>
+#include<conio.h>
+
+typedef struct 
+{
+	int element;
+	int count;
+	struct node1 *next;
+}node1;
+
+main()
+{
+	int num, i,k;
+	int *arr;
+	int *runth;
+	node1 *head = NULL;
+	printf("\nEnter the elements you wish to enter:");
+	scanf("%d",&num);
+
+	arr = (int *)malloc(num * 4);
+	runth = arr;
+
+	printf("Please enter %d numbers: \n", num);
+	for(i = 0; i< num; i++)
+	{
+		scanf("%d",(runth + i));
+	}
+
+	printf("\nEnter K:");
+	scanf("%d",&k);
+
+	for(i = 0; i< num; i++)
+	{
+		check(*(arr + i), &head);
+		printf("%d, ",*(arr+i));
+	}
+
+	display(head, k);
+
+	getch();
+}
+	
+int check(int x, node1 **head)
+{
+	node1 *runth = *head;
+	node1 *priv;
+	node1 *temp = (node1 *) (malloc(sizeof(node1)));
+
+	temp->count = 1;
+	temp->element = x;
+	temp->next = NULL;
+	if(runth == NULL)
+	{
+		runth = temp;
+		*head = temp;
+		return 0;
+	}
+
+	while(runth != NULL)
+	{
+		if(x == runth->element)
+		{
+			runth->count++;
+			return 0;
+		}
+		priv = runth;
+		runth = runth->next;
+	}
+
+	priv->next = temp;
+
+	free((void *)temp);
+	return 0;
+}
+
+display(node1 * start, int k)
+{
+	printf("\nThe elements greater than %d times are: ",k);
+	while(start != NULL)
+	{
+		if(start->count >= k)
+		{
+			printf("%d, ",start->element);
+		}
+		start = start->next;
+	}
+}
+
+ http://www.nitdgp.ac.in Anurag Dubey #include #include int main() { int a[10]={1,2,3,4,5,1,2,1,3,2}; int arr[10]={0}; int j,swap,n=10,k=5; for(j=0;j<10;j++) { for(k=j+1;k<10;k++) { if(a[k]<a[j]) { swap=a[k]; a[k]=a[j]; a[j]=swap; } } } printf("The sorted array is"); for(j=0;j<10;j++) { printf("%d",a[j]); arr[a[j]]++; } for(j=0;j(n/k)) printf(“\n%d\n”,j); } } sourabh this code is not working Ashish Dixit To do this in O(nlog(k)) how should i do the step in log(k) where I have to decrease the count of all elements by -1. I tried this with priority queue with count of elements as keys but stuck when it is required to decrease the keys of all elements by 1 in log(k). Happy coding Ankit Chaudhary Overall worst case of decreasing count will be n i.e. amortized cost will be n. Aashish The temp[] array is of size k-1, but in the code you are using: if (l == k-1) for (l=0; l<k; l++) temp[l].c -= 1; can u please explain about it ?? Kris Very Simple and easy snippet in java.  
+ import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+public class ArraysImbroglio {
+	static int[] a = { 1, 3, 1, 2, 2, 1, 2,3};
+
+	public static void main(String[] args) {
+
+		int n = a.length;
+		int k = 4;
+
+		 int noOFTimes = n / k;
+		// System.out.println(noOFTimes);
+
+		List list = new ArrayList();
+		for (int i = 0; i < a.length; i++) {
+			list.add(a[i]);
+		}
+		Set set = new HashSet(list);
+
+		for (Object temp : set) {
+			if(Collections.frequency(list, temp)>noOFTimes)
+			System.out.println(temp+" has been repeated" + ": " + Collections.frequency(list, temp) + " times");
+		}
+	}
+} 
+ Nakul Verma Pretty smart!! sap Don’t u think at i=6, 3 should be removed and 4 should be added to k-1 elements? GeeksforGeeks Thanks for pointing this out. We have updated the example. Please note that we ignore 4 at i = 6. Sri how do u say that there can never be more k-1 elements in the output? can u pls justify that?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Bohemia suppose you have , say k such elements, and they occur more than n/k times, agree? their # of occurrence being an int value , right , so total elements contributed by these k numbers is k*(an int greater than n/k) which yields an an integer greater than n , but our array only has n elements Also , for (l=0; l<k-1; l++) { if (temp[l].c == 0) { temp[l].e = arr[l]; temp[l].c = 1; break; } } it should have been arr[i] in there . /* Paste your code here (You may delete these lines if not writing code) */ Sri I get it Thank you @Bohemia GeeksforGeeks @Bohemia: Thanks for pointing this out. We have corrected the code. AMIT o(nlogk) can be obtained by using an AVL tree to store k elements Ankit Chaudhary but how will step 3 time complexity be reduced from O(n*k) to something like O(nlogk) or O(n) Bhavik You could do this in O(n).If you iterate through the array and store it in hash table with value as a key then check for every value whether it is exist or not if it is exist then simply increment the count value.At the end you can iterate through the hash-tables and check for count greater than (n/k).I am not that much expert in algorithm but I think this can work in O(n).  
+/* Paste your code here (You may delete these lines if not writing code) */
+ amarkrdubedy Even if you use min-heap, there is still the verification step which is O(nk), right? so the over-all algorithm remains O(nk). Ankit Chaudhary do it with AVl in nlog(k) atul below code should be corrected in the post temp[l].e should be assigned arr[i] not arr[l].  
+for (l=0; l<k-1; l++)
+            {
+                if (temp[l].c == 0)
+                {
+                    temp[l].e = arr[l];
+                    temp[l].c = 1;
+                    break;
+                }
+            }
+ atul arr[ i ] not arr [ l ]  
+/* Paste your code here (You may delete these lines if not writing code) */
+ sourabh Searching in a heap is O(k). Thus, your algorithm would be O(nk) at best. You should use a balanced Binary search tree for auxiliary storage. If the node exists in the tree already, then increment its count. If the tree is full (contains k-1 items), then decrement the count of all the nodes in tree by 1. The amortized cost of this decrement operation would be n. Credit to fentoyal who answered this question on CareerCup.com  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ishan Code fails for input int arr1[] = {1, 5, 6, 7, 1, 5, 4,4,4,4}; I took k=4. It should give 4 as output , but it shows only First Test as output. Ritesh Kumar Nice test case. I have made a little modification in the code which runs for your test case. This is the function that computes the result. void shownbyk(int a[],int n,int k) { struct elemcount temp[k-1]; int i,j,ctr; for(j=0;j<k-1;j++) { temp[j].x = -1; temp[j].count = 0; } for(i=0;i<n;i++) { for(j=0;j<k-1;j++) { if(temp[j].x == a[i]) { temp[j].count++; break; } } if(j == k-1) { for(j=0;j<k-1;j++) { if(temp[j].x == -1) { temp[j].x = a[i]; temp[j].count++; break; } } if(j == k-1) { for(j=0;j<k-1;j++) { temp[j].count–; if(temp[j].count == 0) // MODIFICATION temp[j].x = -1; // MODIFICATION } } } } for(j=0;j<k-1;j++) { ctr = 0; for(i=0;i n/k) printf(“%d occured %d times.n”,temp[j].x,ctr); } } Sunil R package com.geeksForGeeks.array; import java.util.ArrayList; import java.util.HashMap; import java.util.Iterator; import java.util.Map; import java.util.Set; //Given an array of of size n and a number k, finds all elements that appear more than n/k times public class FindOccuranaceInArray { /** * Returns map whose key and value pair is Element and it’s occurance count * when its occurance is greater than the maxOccurance defined */ public Map<Integer, Integer> doProcess(int[] inputArray, int maxOccurancesAllowed) { Map<Integer, Integer> occurancesMap = new HashMap<Integer, Integer>(); int n = inputArray.length; for (int i = 0; i < n; i++) { if (occurancesMap.containsKey(inputArray[i])) { int countOfOccurance = occurancesMap.get(inputArray[i]); countOfOccurance++; occurancesMap.remove(inputArray[i]); occurancesMap.put(inputArray[i], countOfOccurance); } else { occurancesMap.put(inputArray[i], 1); } } Set<Integer> keySet = occurancesMap.keySet(); Iterator<Integer> iterator = keySet.iterator(); while (iterator.hasNext()) { Integer data = iterator.next(); int occuranceTemp = occurancesMap.get(data); if (occuranceTemp >= maxOccurancesAllowed) { System.out.println(data + " :: " + occuranceTemp); } } return occurancesMap; } public static void main(String[] args) { int[] arrayList = new int[] { 1, 1, 1, 1, 4, 4, 5, 6, 7, 7, 7, 7, 8, 10, 101, 10, 10, 10, 10 }; FindOccuranaceInArray findOccuranaceInArray = new FindOccuranaceInArray(); findOccuranaceInArray.doProcess(arrayList,4); } } Brajesh #include "sortarraybyfreq.h" #include "iostream" using namespace std; sortarraybyfreq::sortarraybyfreq(void) { root = NULL; } sortarraybyfreq::~sortarraybyfreq(void) { } void addToTree(NODE** root, int val) { if( NULL == *root) { NODE* temp = new NODE(); temp->count = 1; temp->data = val; temp->left = NULL; temp->right = NULL; *root = temp; } else if(val == (*root)->data) { ((*root)->count)++; } else if(val < (*root)->data) { addToTree(&((*root)->left), val); } else { addToTree(&((*root)->right), val); } } void traverse(NODE* root, int count) { if(NULL == root) { return; } if(root->count > count) { cout << root->data << endl; } traverse(root->left, count); traverse(root->right,count); } void deletetreeutil(NODE** root) { if(NULL == *root) { return; } deletetreeutil(&((*root)->left)); deletetreeutil(&((*root)->left)); delete *root; *root = NULL; } void sortarraybyfreq::deletetree() { deletetreeutil(&root); traverse(root, 1); } void sortarraybyfreq::createtree(int* arr, int len, int count){ for(int i = 0; i < len; i++) { addToTree(&root, arr[i]); } traverse(root,count); } int main() { sortarraybyfreq* test = new sortarraybyfreq(); int arr[] = {2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 8, 8, 8, 9}; test->createtree(arr,sizeof(arr)/sizeof(arr[0]),2); test->deletetree(); delete test; return 0; } iceman_w Use a min-heap for auxiliary storage. And use an extra variable to store overall-decrement counter. Every time you decrement the whole array, just increment this counter. To check if empty space exists in heap, check if heap.top()-counter is zero. Saurabh A C++11 code which runs in O(2*N*logK) #include <iostream> #include <map> #include <algorithm> typedef std::map<int, int> Map; Map findOverNth(int arr[], int size, int n) { Map ret_map; typedef Map::value_type Elem; //pair<CONST int, int> int total = 0; std::for_each(arr, arr + size, [&, n](int val) { auto ret_pair = ret_map.insert(Elem(val, 0)); ++(*ret_pair.first).second; ++ total; if (ret_map.size() == n) for (auto iter = ret_map.begin(); iter != ret_map.end(); ) { –(*iter).second; — total; if ((*iter).second == 0) ret_map.erase(iter++); else iter++; } }); std::for_each(ret_map.begin(), ret_map.end(), [](Elem &elem) {elem.second = 0;}); std::for_each(arr, arr + size, [&ret_map](int val) {if (ret_map.find(val) != ret_map.end()) ret_map[val] ++;}); for (auto iter = ret_map.begin(); iter != ret_map.end(); ) { if ((*iter).second <= size / n) ret_map.erase(iter++); else iter++; } return ret_map; } using namespace std; int main() { //int arr[] = {5,6,7,8, 10, 4,4, 4, 4,1, 1,1}; int arr[] = {5,6,7,8, 10, 10, 10,10,10,10, 4,4, 4, 4,4,1, 1,1,1}; auto a_map = findOverNth(arr, sizeof(arr)/sizeof(int), 4); cout<<sizeof(arr)/sizeof(int)<<endl; //cout<<a_map.size()<<endl; for each(auto elem in a_map) { cout<<elem.first<<" "<<elem.second<<endl; } } Saurabh A C++11 code which runs in O(2*N*logK)  
+#include <iostream>
+#include <map>
+#include <algorithm>
+typedef std::map<int, int> Map;
+ Map findOverNth(int arr[], int size, int n)
+{
+	Map ret_map; 
+	typedef Map::value_type Elem; //pair<CONST int, int>
+	int total = 0;
+	std::for_each(arr, arr + size, [&, n](int val) 
+	{
+		auto ret_pair = ret_map.insert(Elem(val, 0));
+		++(*ret_pair.first).second; ++ total;
+		if (ret_map.size() == n)
+			for (auto iter = ret_map.begin(); iter != ret_map.end(); )
+			{
+				--(*iter).second; -- total;
+				if ((*iter).second == 0)
+					ret_map.erase(iter++);
+				else
+					iter++;
+			}
+	});
+	std::for_each(ret_map.begin(), ret_map.end(), [](Elem &elem) {elem.second = 0;});
+	std::for_each(arr, arr + size, [&ret_map](int val) {if (ret_map.find(val) != ret_map.end()) ret_map[val] ++;});
+	for (auto iter = ret_map.begin(); iter != ret_map.end(); )
+	{
+		if ((*iter).second <= size / n)
+			ret_map.erase(iter++);
+		else 
+			iter++;
+	}
+	return ret_map;
+}
+using namespace std;
+int main()
+{
+	//int arr[] = {5,6,7,8, 10, 4,4, 4, 4,1, 1,1};
+	int arr[] = {5,6,7,8, 10, 10, 10,10,10,10, 4,4, 4, 4,4,1, 1,1,1};
+	auto a_map = findOverNth(arr, sizeof(arr)/sizeof(int), 4);
+	cout<<sizeof(arr)/sizeof(int)<<endl;
+	//cout<<a_map.size()<<endl;
+	for each(auto elem in a_map)
+	{
+		cout<<elem.first<<" "<<elem.second<<endl;
+	}
+}
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

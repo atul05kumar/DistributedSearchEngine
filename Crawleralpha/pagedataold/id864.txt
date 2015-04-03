@@ -1,0 +1,174 @@
+Find a pair with the given difference - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find a pair with the given difference Given an unsorted array and a number n, find if there exists a pair of elements in the array whose difference is n. 
+Examples:
+Input: arr[] = {5, 20, 3, 2, 50, 80}, n = 78
+Output: Pair Found: (2, 80)
+
+Input: arr[] = {90, 70, 20, 80, 50}, n = 45
+Output: No Such Pair
+ Source: find pair The simplest method is to run two loops, the outer loop picks the first element (smaller element) and the inner loop looks for the element picked by outer loop plus n. Time complexity of this method is O(n^2). We can use sorting and Binary Search to improve time complexity to O(nLogn). The first step is to sort the array in ascending order. Once the array is sorted, traverse the array from left to right, and for each element arr[i], binary search for arr[i] + n in arr[i+1..n-1]. If the element is found, return the pair. Both first and second steps take O(nLogn). So overall complexity is O(nLogn). The second step of the above algorithm can be improved to O(n). The first step remain same. The idea for second step is take two index variables i and j, initialize them as 0 and 1 respectively. Now run a linear loop. If arr[j] – arr[i] is smaller than n, we need to look for greater arr[j], so increment j. If arr[j] – arr[i] is greater than n, we need to look for greater arr[i], so increment i. Thanks to Aashish Barnwal for suggesting this approach. The following code is only for the second step of the algorithm, it assumes that the array is already sorted. 
+#include <stdio.h>
+
+// The function assumes that the array is sorted 
+bool findPair(int arr[], int size, int n)
+{
+    // Initialize positions of two elements
+    int i = 0;  
+    int j = 1;
+
+    // Search for a pair
+    while (i<size && j<size)
+    {
+        if (i != j && arr[j]-arr[i] == n)
+        {
+            printf("Pair Found: (%d, %d)", arr[i], arr[j]);
+            return true;
+        }
+        else if (arr[j]-arr[i] < n)
+            j++;
+        else
+            i++;
+    }
+
+    printf("No such pair");
+    return false;
+}
+
+// Driver program to test above function
+int main()
+{
+    int arr[] = {1, 8, 30, 40, 100};
+    int size = sizeof(arr)/sizeof(arr[0]);
+    int n = 60;
+    findPair(arr, size, n);
+    return 0;
+}
+ Output: Pair Found: (40, 100) Hashing can also be used to solve this problem. Create an empty hash table HT. Traverse the array, use array elements as hash keys and enter them in HT. Traverse the array again look for value n + arr[i] in HT. Please write comments if you find any of the above codes/algorithms incorrect, or find other ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. Nitin Sharma vipulverma and Pankaj Goyal , i think Pankaj is right here , there should be no need to include the condition i<size .vipul can u give us a condition where i exceeds array_size before j ? Guest @vipulverma and @Pankaj Goyal , i think Pankaj is right here , there should be no need to include the condition i<size .Vipul can u give us a condition where i exceeds size before j ? Guest @vipulverma:disqus and @Pankaj Goyal , i think Pankaj is right here , there should be no need to include the condition i=size ? Swagato Mondal #include #include // The function to find the pair bool findPair(int arr[], int size, int n) { int i = 0; int maxElement = 0; // Search for the maximum element for(i = 0; i < size; i++) { if(maxElement < arr[i]) maxElement = arr[i]; } bool hashMap[maxElement + 1]; int tmp; for(i = 0; i < maxElement + 1; i++) { hashMap[i] = 0; } for(i = 0; i < size; i++) { if(arr[i] < n) { tmp = arr[i] + n; if (tmp <= maxElement && hashMap[tmp]) { printf("%d,%d",arr[i],tmp); return; } } else { tmp = arr[i] – n; if (tmp <= maxElement && hashMap[tmp]) { printf("%d,%d",arr[i],tmp); return; } } hashMap[arr[i]] = 1; } printf("No such pair"); return false; } // Driver program to test above function int main() { int arr[] = {5, 20, 3, 2, 50, 80}; int size = sizeof(arr)/sizeof(arr[0]); int n = 78; findPair(arr, size, n); getchar(); return 0; } Time Complexity : O(n) Vipul Verma No, i will not always be less than j. See the code carefully. On what condition i gets incremented. Aman Jain A O(n) solution with O(n) Extra space 1. create a difference array of main array. 2. find subarray with sum = given difference in the difference array. Ronny @Aman Jain Could you please elaborate on your approach, a source code would be best to convey your approach. What I get from your comment is for the given array is {1,8,30,40,100} diff[]={7,22,10,60} and find subarray with sum. This works for sorted array only. Consider the given eg arr[]={8,1,100,40,30} and difference to be searched is 70. now the difference array is created as follows diff[]={7,99,-60,-10} but no subarray gives sum equal to 70. If we consider absolute value of difference then diff[]={7,99,60,10} but if in the same array difference to be searched is 32, then there is no way to find the given difference. Hopes it clears your misconception. This method works only for sorted array. Hence time complexity is O(nlgn) and space complexity is O(n). Ronny However the Hashing method gives O(n) solution with O(R) space complexity. (R range of numbers) Nishant Kumar O(n) solution with extra space. We can reduce the size of Hash table using different hash functions based on requirement.The concept is similar to find pair with given sum in an array. I am assuming that array contents only positive numbers however it will also work for negative number with few modifications. public static boolean foo(int[] array,int diff){ int MAX=200; int[] hash=new int[MAX]; boolean found=false; for(int i=0;i<array.length;i++){ if(hash[array[i]]>0){ System.out.println("Pair: "+hash[array[i]]+" "+array[i]); found=true; } if(array[i]-diff>=0){ hash[array[i]-diff]=array[i]; } hash[array[i]+diff]=array[i]; } return found; } public static void main (String[] args) { int[] array={1, 8, 30, 8, 100}; int diff=0; if(!foo(array,diff)) System.out.println("No pair found"); } Sourabh What if the correct answer is given by 1st element -2nd element…I think the starting index should be chosen based on whether n is negative or not kuldeep singh int arr[]={3,5,9,15,12,18}; int n=6; it will find only one such pair. rohit  
+hey can anyone tell me that if we are using quicksort then the time complexity should be O(n^2logn) because we have to check it for every element a[i] so for 1 element its O(nlogn) thn for n elements it shoulnt be O(n^2logn)??
+ ruchika  
+/* Paste your code here (You may delete these lines if not writing code)#include<stdio.h>
+
+#define MAX 50
+#define space printf("\n \n ");
+
+void insert(int a[],int size)
+{
+
+int i=0;
+
+
+printf("enter the elements\n");
+
+while(i<size)
+{
+scanf("%d",&a[i]);
+i++;
+}
+
+}
+
+void display(int a[],int size)
+{
+int i=0;
+
+while(i<size)
+{
+printf("%d\t",a[i]);
+i++;
+}
+
+}
+
+void sort(int a[],int size)
+{
+int i=0,j=0;
+int temp;
+
+while(i<size)
+{
+j=i+1;
+	while(j<size)
+{
+if(a[j]<a[i])
+{
+ temp=a[i];
+a[i]=a[j];
+a[j]=temp;
+
+}
+j++;
+
+}
+   i++;
+
+}
+
+}
+
+void diff(int a[],int size,int num)
+{
+int i=0,j=0;
+
+while(i<size)
+{
+j=i+1;
+while(j<size)
+{
+	 if((a[j]-a[i])==num)
+{
+	  printf("%d... %d..",a[i],a[j]);
+return;
+}
+j++;
+}
+   i++;  }
+
+if(i==size)
+{
+space
+printf("the pair does not exist");
+return;
+}
+
+}
+
+int main()
+{
+int a[MAX];
+int size=0;
+int num=0;
+printf("enter the no. of elements required \n");
+scanf("%d",&size);
+
+insert(a,size);
+
+display(a,size);
+
+space
+
+
+sort(a,size);
+
+printf("enter the no. now");
+scanf("%d",&num);
+
+diff(a,size,num);
+return 0;
+
+} */
+ kidult Another method of O(n) although it is similar to Hashtable Step 1: traverse the given array find the maximum number max O(n); Step 2: create an array S, starting from 0 to max-1; O(1); Step 3: for each value in the given array arr[i],set S[arr[i]] to be 1; O(n); Step 4, for each value in the given array arr[i], check whether S[arr[i]+diff] or S[arr[i]-diff] is 1, if it is , output that pair ; else continue to the next value arr[i+1]; O(n); (of course need to check whether the index of S is valid or not) total time complexity: O(n) but i think this method is a waste of space, only a few number in the S array is used. Mathan Kumar will it work for negative numbers?? again you have to find minimum no. to remove that negative indexing… And if the maximum number is of order 10^10.. most of the language doesn’t support that much order of index i think..  
+/* Paste your code here (You may delete these lines if not writing code) */
+ satish another approach which takes o(n) time. subtract all the element from difference 3 and put the element in new array using original array as index .then check all indices in new element and using abs value in particular index, get the index for that value and if it is present then, this one is one pair. to clarify this, lets take an example. array is 5, 20, 3, 2, 50, 80 and diff is 78. so new array is 78-a[i] which is as follows 73 58 75 76 38 -2 lets put this element in proper index in new array. a[5] = 73 a[20] = 58 a[3] = 75 a[2]= 76 a[50] = 38 a[80] = -2 now a[5] is 73 and a[73] does not have any value so this is not a pair. similar way we will check other element . for a[80] we have value -2 who absolute value is 2 and a[2] is having a value so it becomes pair whose diff is 78.so so the answer is (80,2).  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ankit Gupta That seems identical to the Hash table approach, except that it is restrictive and cannot be applied to array with large integer values. satish we can use map instead of an array.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ satish we can use map instead of an array.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ankit Gupta We sure can. But maps are implemented as Red Black trees so they offer O(log N) running time instead of a O(1) in case of Hash tables/Arrays. viksri What if given array has negative integers? eg. {5, -20, 3, -2, 50, 80} viksri What if array has negative integers?? eg. array is {5, -20, 3, -2, 50 ,80} Bhupendra A doubt about the correctness. I was asked 3SUM problem in a interview. I provided the solution but couldn’t prove the correctness of the algorithm. In this case if, a[j]-a[i] >n you are looking for greater a[j] that is greater j why not smaller a[i] i.e decreasing i. The solution is fine but this is something interviewer bowled me with.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ankit Gupta If a[j]-a[i] > n, then you are looking for a smaller difference than the current say C[i,j]. So you would have to increment i because the increased difference C[i,j] is obtained by increasing j in the previous step. Thus there is one way to check if a difference greater than the previous and smaller than the current is possible, which is to increment i. (Sorted list) kidult Hey Bhupendra I think it should be a[j]-a[i] <n here, that we need to increase j to find a[j]-a[i]=n assumed that array is in increasing order because we start from i=0 and for each i ,we find the all the possible j value, that means that for certain i value, we have already searched all the possible value for i from 0 to i-1, so no need to decrease i again, it is already considered. /* Paste your code here (You may delete these lines if not writing code) */ man Hi What can we say about the space complexity of the hash table solution written above..?? Can we say its O(no of elements in array) ??..though i doubt this.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik It all depends upon the use hashing function that is used for hashing. whoami code is not working for arr[] ={1, 8, 30, 8, 100}; n = 0; see here http://ideone.com/VGQrq check my solution http://geeksforgeeks.org/forum/topic/find-pair#post-38944  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks The code is only for second step of the algorithm. The second step assumes that the array is sorted, we have now added a comment for this. Try code {1, 8, 8, 30, 100} and n = 0, it will give the appropriate result. Your solution looks similar to the solution posted by Aashish. whoami oh.. didn’t notice that.thanks for the clarification.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

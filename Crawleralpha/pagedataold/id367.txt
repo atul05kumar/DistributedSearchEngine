@@ -1,0 +1,88 @@
+Smallest of three integers without comparison operators - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Smallest of three integers without comparison operators Write a C program to find the smallest of three integers, without using any of the comparison operators. Let 3 input numbers be x, y and z. Method 1 (Repeated Subtraction) Take a counter variable c and initialize it with 0. In a loop, repeatedly subtract x, y and z by 1 and increment c. The number which becomes 0 first is the smallest. After the loop terminates, c will hold the minimum of 3. 
+#include<stdio.h>
+
+int smallest(int x, int y, int z)
+{
+  int c = 0;
+  while ( x && y && z )
+  {
+      x--;  y--; z--; c++;
+  }
+  return c;
+}
+
+int main()
+{
+   int x = 12, y = 15, z = 5;
+   printf("Minimum of 3 numbers is %d", smallest(x, y, z));
+   return 0;
+}
+ This methid doesn’t work for negative numbers. Method 2 works for negative nnumbers also. Method 2 (Use Bit Operations) Use method 2 of this post to find minimum of two numbers (We can’t use Method 1 as Method 1 uses comparison operator). Once we have functionality to find minimum of 2 numbers, we can use this to find minimum of 3 numbers. 
+// See mthod 2 of http://www.geeksforgeeks.org/archives/2643
+#include<stdio.h>
+#define CHAR_BIT 8
+
+/*Function to find minimum of x and y*/
+int min(int x, int y)
+{
+  return  y + ((x - y) & ((x - y) >>
+            (sizeof(int) * CHAR_BIT - 1)));
+}
+
+/* Function to find minimum of 3 numbers x, y and z*/
+int smallest(int x, int y, int z)
+{
+    return min(x, min(y, z));
+}
+
+int main()
+{
+   int x = 12, y = 15, z = 5;
+   printf("Minimum of 3 numbers is %d", smallest(x, y, z));
+   return 0;
+}
+ Method 3 (Use Division operator) We can also use division operator to find minimum of two numbers. If value of (a/b) is zero, then b is greater than a, else a is greater. Thanks to gopinath and Vignesh for suggesting this method. 
+#include <stdio.h>
+
+// Using division operator to find minimum of three numbers
+int smallest(int x, int y, int z)
+{
+    if (!(y/x))  // Same as "if (y < x)"
+        return (!(y/z))? y : z;
+    return (!(x/z))? x : z;
+}
+
+int main()
+{
+    int x = 78, y = 88, z = 68;
+    printf("Minimum of 3 numbers is %d", smallest(x, y, z));
+    return 0;
+}
+
+ Please write comments if you find the above codes/algorithms incorrect, or find other ways to solve the same problem.           Related Topics: Check if binary representation of a number is palindrome Swap two nibbles in a byte How to turn off a particular bit in a number? Check if a number is multiple of 9 using bitwise operators How to swap two numbers without using a temporary variable? Divide and Conquer | Set 4 (Karatsuba algorithm for fast multiplication) Find position of the only set bit Swap all odd and even bits Tweet Writing code in comment? Please use ideone.com and share the link here. ruchi can you plz tell me the minimum number of comparisons required to find the largest number among a set of 4 integers agnostic we have to do at least 3 comparisons rihansh if(a/b&&c/b) return b; else if(a/c&&b/c) return c; else return a; rihansh if(a/b&&c/b) return b; else if(a/c&&b/c) return c; else return a; Umang Mahajan int min=(a/b)?((b/c)?c:b):((a/c)?c:a); This works for positive numbers only. Can some please suggest a similar solution for negative numbers? Sagar Can anyone explain me the working of #method 2 for x=12,y=15,z=5; Correct me if i go wrong during the first call to min with values 15,5 x-y=10 and (x-y)>>31 {for a 32 bit compiler}=0 so, (x-y)&((x-y)>>31)=0 and the function returns y i.e 15 instead it should return 5. Please help me resolve this issue. Sunny int min(int a, int b) { return (a-b) & (1<<31) ? a : b; } Azim Method 3 works only for positive nos. gopinath //one can use ternary operator also in place of if else. #include int smallest(int a, int b, int c) { if(a/b) { if(b/c) return c; else return b; } else if(a/c) { return c; } else return a; } main() { printf(“%d\n”,smallest(12,2,56)); } Ramasubramani int firstMin = (x>y)*y+ (y>x)*x; int finalMin = (firstMin>z)*z + (z>firstMin)*firstMin; finalMin is the minimum value among the three numbers.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Kartik You have used comparison operator unnykrishnan The first method will work if we set c=INT_MIN dharmendra method 1 is wrong for input of negative no 12 -15 5 o/p 5 is smallest Mahendra Sengar   /* Paste your code here (You may delete these lines if not writing code) */ #include using namespace std; int main() { int a = 8; int b = 10; int diff,msb,max; diff = a – b; msb = (diff >> 31) & 0x1; max = a – msb * diff; cout<<"Maximum of two numbers is : "<<max<<endl; return 0; } Mahendra Sengar   /* Paste your code here (You may delete these lines if not writing code) */ this is just the trick i wanted to convey ,same approach can be implemented to find the minimum also. prashant # include void main() { int a=5,b=790,c=20; if(a/b) { if(b/c) printf(” c is min”); else printf(” b is min”); } else { if(a/c) printf(” c is min”); else printf(” a is min”); } return 0; } prashant this is just a substitute for method 1 http://www.shantanutushar.com shaan7 Method1 has a while loop, which can’t work without comparison. So, it disqualifies anyway. amitcm Earliest occurrence of the most significant bit [after 1st one in signed int, however] makes a number bigger. Using this fact, one can solve the problem. Ignore the tie, if any.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Mike Mask out the negative bit:  
+int min(int x, int y, int z)
+{
+    const int mask = 1 << ((sizeof(int) * 4) - 1);
+
+    if ((x - y) & mask)
+	return ((x - z) & mask) ? x : z;
+    else
+	return ((y - z) & mask) ? y : z;
+}
+ Mike Typo: That 4 should be an 8 (8 bits in a byte) Joonas Arithmetic/logic unit in the processor has built-in comparison circuits for quick comparisons. Why would anyone want to avoid the quickest hardware based solution? http://www.shantanutushar.com shaan7 Thats the problem I find everywhere, companies ask questions in interviews which have no practical use.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Yasir  
+int x;  // we want to find the minimum of x and y
+int y;   
+int r;  // the result goes here 
+
+r = y ^ ((x ^ y) & -(x < y)); // min(x, y)
+ ramesh u have used comparison operator…  
+/* Paste your code here (You may delete these lines if not writing code) */
+ tvs this program doesn’t work for negative numbers.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik Method 1 doesn’t work for negative numbers, but method 2 works fine. unnykrishnan Method 1 will work for negative numbers if we set c=INT_MIN http://in.linkedin.com/in/balajisoundrarajan bala If we sort all the numbers, the very purpose of this question is lost i.e. not to use any of the comparison operator. No sorting can be done without the help of the comparison operators. So sorting is totally eliminated ! anmol Similarly, minimum of n numbers can be calulated without using any comparison operator. Sorting can also be done using same technique. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

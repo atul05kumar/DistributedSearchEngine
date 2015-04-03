@@ -1,0 +1,195 @@
+Given only a pointer to a node to be deleted in a singly linked list, how do you delete it? - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Given only a pointer to a node to be deleted in a singly linked list, how do you delete it? A simple solution is to traverse the linked list until you find the node you want to delete. But this solution requires pointer to the head node which contradicts the problem statement. Fast solution is to copy the data from the next node to the node to be deleted and delete the next node. Something like following. 
+    struct node *temp  = node_ptr->next;
+    node_ptr->data  = temp->data;
+    node_ptr->next  = temp->next;
+    free(temp);
+ Program: 
+#include<stdio.h>
+#include<assert.h>
+#include<stdlib.h>
+
+/* Link list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+
+/* Given a reference (pointer to pointer) to the head
+    of a list and an int, push a new node on the front
+    of the list. */
+void push(struct node** head_ref, int new_data)
+{
+   /* allocate node */
+   struct node* new_node =
+             (struct node*) malloc(sizeof(struct node));
+
+   /* put in the data  */
+   new_node->data  = new_data;
+
+   /* link the old list off the new node */
+   new_node->next = (*head_ref);
+
+   /* move the head to point to the new node */
+   (*head_ref)    = new_node;
+}
+
+void printList(struct node *head)
+{
+   struct node *temp = head;
+   while(temp != NULL)
+   {
+      printf("%d  ", temp->data);
+      temp = temp->next;
+   }
+}
+
+void deleteNode(struct node *node_ptr)   
+{
+   struct node *temp = node_ptr->next;
+   node_ptr->data    = temp->data;
+   node_ptr->next    = temp->next;
+   free(temp);
+}
+
+/* Drier program to test above function*/
+int main()
+{
+    /* Start with the empty list */
+    struct node* head = NULL;
+
+    /* Use push() to construct below list
+    1->12->1->4->1  */
+    push(&head, 1);
+    push(&head, 4);
+    push(&head, 1);
+    push(&head, 12);
+    push(&head, 1);
+
+    printf("\n Before deleting \n");
+    printList(head);
+
+    /* I m deleting the head itself.
+        You can check for more cases */
+    deleteNode(head);
+
+    printf("\n After deleting \n");
+    printList(head);
+    getchar(); 
+    return 0;
+}
+ This solution doesn’t work if the node to be deleted is the last node of the list. To make this solution work we can mark the end node as a dummy node. But the programs/functions that are using this function should also be modified. You can try this problem for doubly linked list.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tags: Linked Lists, loop Tweet Writing code in comment? Please use ideone.com and share the link here. Anand Kumar nice logic… vb123 for every node in singly linklist………… #include #include using namespace std; void push(struct node **head_ref,int new_data); struct node * deletenode(struct node *head,int index); struct node{ int data; struct node *next; }; int main() { struct node *head=NULL,*temp1,*temp5; push(&head,1); push(&head,2); push(&head,3); push(&head,4); push(&head,5); temp1=head; while(temp1) { cout<data<next; } cout<<endl; deletenode(head,1); temp5=head; while(temp5) { cout<data<next; } return 0; } void push(struct node **head_ref,int new_data) { struct node *temp = (struct node *) malloc (sizeof(struct node)); temp->data=new_data; temp->next=(*head_ref); (*head_ref)=temp; } struct node * deletenode(struct node *head,int index) { struct node *p_node,*n_node,*pr_node; int counter=1; p_node=head; if(p_node==NULL) { cout<next; } if(p_node->next==NULL) { pr_node->next=NULL; free(p_node); return head; } else { n_node =p_node->next; p_node->data=n_node->data; p_node->next=n_node->next; free(n_node); return head; } } tharun // code will work for all cases..O(n) Complexity void delete_node(struct node* node1) { struct node *temp,*prev; temp=node1; while(temp->next!=NULL) { temp->content=temp->next->content; prev=temp; temp=temp->next; } prev->next=NULL; free(temp); } Neha null reference exception. prev will not be initialized in case of node1 being the last node, and hence prev->next = NULL will throw error sandeep void deletenode(node **ptr) { if ((*ptr)->next==NULL) { printf(“gg”); (*ptr)=NULL; } else { node* nextnode ; nextnode=(*ptr)->next; (*ptr)->data=nextnode->data; (*ptr)->next=nextnode->next; free(nextnode); } }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Vijay Kumar (*ptr)=NULL; won’t delete the node. Rocky /* void deleteNode(node *node_ptr) { node*temp=head; while(temp->next->data!=node_ptr->data) temp=temp->next; int info=node_ptr->data; temp->next=node_ptr->next; delete node_ptr; */ This would also work. ashok pariya but it will not work for head node.!!correct me i am wrong.!!!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ashok pariya //it will work for last node as well as head node.. void deleteNode(struct node *node_ptr) { if(node_ptr==head){ struct node* next=node_ptr->next; head=next; free(node_ptr); return; } struct node* temp=head; while(temp->next->data!=node_ptr->data) temp=temp->next; int info=node_ptr->data; temp->next=node_ptr->next; free (node_ptr); } Shaktimaan You are not given the head node. If that would have been the case, then this question would have been a simple delete node question of linked list. nitin  
+#include<stdio.h>
+#include<malloc.h>
+struct node
+{
+    int data;
+    struct node * link;
+};
+void insert1(struct node **p,int data)
+{
+    struct node *temp,*t;
+    temp=(struct node *)malloc(sizeof(struct node));
+    temp->data=data;
+    temp->link=NULL;
+    if((*p)==NULL)
+    {
+        *p=temp;
+    }
+    else
+    {
+        t=*p;
+        while(t->link)
+        {
+            t=t->link;
+        }
+        t->link=temp;
+    }
+}
+void print(struct node *p)
+{
+    while(p!=NULL)
+    {
+        printf("%d\t",p->data);
+        p=p->link;
+    }
+}
+void delete1 (struct node **p)
+{
+    struct node *temp,*t;
+    temp=*p;
+    t=temp->link;
+    if(temp->link==NULL)
+    {
+        temp=NULL;
+    }
+    while(t)
+    {
+        temp->data=t->data;
+        temp->link=t->link;
+        temp=t;
+        t=t->link;
+    }
+}
+int main()
+{
+    struct node *p;
+    p=NULL;
+    insert1(&p, 2);
+    insert1(&p, 15);
+    insert1(&p, 10);
+    insert1(&p, 7);
+    insert1(&p, 5);
+    print(p);
+    printf("\n");
+    delete1(&(p->link->link->link));
+    print(p);
+    printf("\n");
+
+}
+
+ Ankit Malhotra C++ reference makes this a very simple function to implement.  
+void delnode (node * &ptr) {
+  if (!ptr) return;
+  node * temp = ptr->next;
+  delete ptr;
+  ptr = temp;
+}
+ Nikin Kumar Jain  
+void deleteNode(node *sr)
+{
+	if(sr->next == NULL)
+	{
+		sr = NULL;
+		return;
+	}
+	else
+	{
+		int data = sr->next->data;
+		sr->data = data;
+		node *temp = sr->next;
+		sr->next = sr->next->next;
+		delete temp;
+		return;
+	}
+}
+ Swat2203 Is this code working? I tried the code,but I am unable to delete the last node. lazyboy The question is to delete the node pointed to by the pointer given. Solution proposed deletes the next node actually while giving the illusion of deleting the node. Since the data is copied from the next node but the node still exists which is to be deleted. Solution proposed is correct if the question was “deleting (overwriting)” the data contained within a node. Ronny that is correctly pointed out exactly my point… there is a difference between a node to be deleted (which is associated to an address in memory) and deleting data .. So anyone who can enlighten on this issue.. Any comments or help will be appreciated. dharmveer take one pointer and then do as follows if { ptr->next->next = =NULL free(ptr->next->next) } ptr->next = NULL Tinku When we have to delete the node pointed by the pointer, we cannot physically delete the node. We have to do that by copying the data, as we don’t have head pointer. So if we want to actually delete the node we have to change the next of previous node to next of node to be deleted. In the current scenario it is impossible to find out the previous node. Marsha Donna but had it been a doubly linked list we could hav accessed the previous node rocky what if we have a pointer to last node only,and i want to delete that last node.Any Suggestion ?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik A O(1) solution doesn’t seem possible for a singly linked list. devendra088 To delete last node also you can use this code.  
+
+void deleteNode(struct node ** node_ptr)
+{
+   struct node *temp = *node_ptr;
+   
+   (*node_ptr) = (*node_ptr)->next;
+
+   free(temp);
+}
+
+ kartik But the question says “pointer to a node to be deleted in a singly linked list”, not a double pointer (pointer to pointer to node to be deleted). devendra088 @kartik i think its always possible to find out address of the given pointer so if pointer to node to be deleted is given we can use address of that pointer also. http://www.naruto-spoilers.in ace Suppose there is a list a->b->c; To delete b using your code, we change the address value of Node b to the Node c (And free the node b). Node b is deleted correctly, but a->next still has address pointing to Node b whereas it was deleted already. Isn’t it? You r rigth This solution only works when head is deleted Avinash Right i have the same concern. As ace suggests a will be a dangling pointer. Please correct me if wrong.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://www.nikoo28.blogspot.com nikoo28 The code works just fine…observe carefully, node b is never deleted, the value of next node is copied on to it…an so the previous node points to the correct location. Pegasus You are assuming that the argument to your function deleteNode in case of deleting c from a->b->c is b->next, which need not be the case always. If it is infact the case that argument of ur function is b->next, then ur code will work for deleting the last code as well. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

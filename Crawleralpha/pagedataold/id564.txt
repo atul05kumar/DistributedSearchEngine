@@ -1,0 +1,204 @@
+Pairwise swap elements of a given linked list by changing links - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Pairwise swap elements of a given linked list by changing links Given a singly linked list, write a function to swap elements pairwise. For example, if the linked list is 1->2->3->4->5->6->7 then the function should change it to 2->1->4->3->6->5->7, and if the linked list is 1->2->3->4->5->6 then the function should change it to 2->1->4->3->6->5 This problem has been discussed here. The solution provided there swaps data of nodes. If data contains many fields, there will be many swap operations. So changing links is a better idea in general. Following is a C implementation that changes links instead of swapping data. 
+/* This program swaps the nodes of linked list rather than swapping the
+field from the nodes.
+Imagine a case where a node contains many fields, there will be plenty
+of unnecessary swap calls. */
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<stdbool.h>
+
+/* A linked list node */
+struct node
+{
+    int data;
+    struct node *next;
+};
+
+/* Function to pairwise swap elements of a linked list */
+void pairWiseSwap(struct node **head)
+{
+    // If linked list is empty or there is only one node in list
+    if (*head == NULL || (*head)->next == NULL)
+        return;
+
+    // Initialize previous and current pointers
+    struct node *prev = *head;
+    struct node *curr = (*head)->next;
+
+    *head = curr;  // Change head before proceeeding
+
+    // Traverse the list
+    while (true)
+    {
+        struct node *next = curr->next;
+        curr->next = prev; // Change next of current as previous node
+
+        // If next NULL or next is the last node
+        if (next == NULL || next->next == NULL)
+        {
+            prev->next = next;
+            break;
+        }
+
+        // Change next of previous to next next
+        prev->next = next->next;
+
+        // Update previous and curr
+        prev = next;
+        curr = prev->next;
+    }
+}
+
+/* Function to add a node at the begining of Linked List */
+void push(struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node =
+        (struct node*) malloc(sizeof(struct node));
+
+    /* put in the data  */
+    new_node->data  = new_data;
+
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);
+
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+/* Function to print nodes in a given linked list */
+void printList(struct node *node)
+{
+    while(node != NULL)
+    {
+        printf("%d ", node->data);
+        node = node->next;
+    }
+}
+
+/* Druver program to test above function */
+int main()
+{
+    struct node *start = NULL;
+
+    /* The constructed linked list is:
+     1->2->3->4->5->6->7 */
+    push(&start, 7);
+    push(&start, 6);
+    push(&start, 5);
+    push(&start, 4);
+    push(&start, 3);
+    push(&start, 2);
+    push(&start, 1);
+
+    printf("\n Linked list before calling  pairWiseSwap() ");
+    printList(start);
+
+    pairWiseSwap(&start);
+
+    printf("\n Linked list after calling  pairWiseSwap() ");
+    printList(start);
+
+    getchar();
+    return 0;
+}
+ Output: 
+ Linked list before calling  pairWiseSwap() 1 2 3 4 5 6 7
+ Linked list after calling  pairWiseSwap() 2 1 4 3 6 5 7 Time Complexity: Time complexity of the above program is O(n) where n is the number of nodes in a given linked list. The while loop does a traversal of the given linked list. Following is recursive implementation of the same approach. We change first two nodes and recur for the remaining list. Thanks to geek and omer salem for suggesting this method. 
+/* This program swaps the nodes of linked list rather than swapping the
+field from the nodes.
+Imagine a case where a node contains many fields, there will be plenty
+of unnecessary swap calls. */
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<stdbool.h>
+
+/* A linked list node */
+struct node
+{
+    int data;
+    struct node *next;
+};
+
+/* Function to pairwise swap elements of a linked list.
+   It returns head of the modified list, so return value
+   of this node must be assigned */
+struct node *pairWiseSwap(struct node* head)
+{
+    // Base Case: The list is empty or has only one node
+    if (head == NULL || head->next == NULL)
+        return head;
+
+    // Store head of list after two nodes
+    struct node* remaing = head->next->next;
+
+    // Change head
+    struct node* newhead = head->next;
+
+    // Change next of second node
+    head->next->next = head;
+
+    // Recur for remaining list and change next of head
+    head->next = pairWiseSwap(remaing);
+
+    // Return new head of modified list
+    return newhead;
+}
+
+/* Function to add a node at the begining of Linked List */
+void push(struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node =
+        (struct node*) malloc(sizeof(struct node));
+
+    /* put in the data  */
+    new_node->data  = new_data;
+
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);
+
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+/* Function to print nodes in a given linked list */
+void printList(struct node *node)
+{
+    while(node != NULL)
+    {
+        printf("%d ", node->data);
+        node = node->next;
+    }
+}
+
+/* Druver program to test above function */
+int main()
+{
+    struct node *start = NULL;
+
+    /* The constructed linked list is:
+     1->2->3->4->5->6->7 */
+    push(&start, 7);
+    push(&start, 6);
+    push(&start, 5);
+    push(&start, 4);
+    push(&start, 3);
+    push(&start, 2);
+    push(&start, 1);
+
+    printf("\n Linked list before calling  pairWiseSwap() ");
+    printList(start);
+
+    start = pairWiseSwap(start);  // NOTE THIS CHANGE
+
+    printf("\n Linked list after calling  pairWiseSwap() ");
+    printList(start);
+
+    return 0;
+}
+ 
+ Linked list before calling  pairWiseSwap() 1 2 3 4 5 6 7
+ Linked list after calling  pairWiseSwap() 2 1 4 3 6 5 7 This article is contributed by Gautam Kumar. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Given a linked list, reverse alternate nodes and append at the end Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List QuickSort on Doubly Linked List Tags: Linked Lists Tweet Writing code in comment? Please use ideone.com and share the link here. Ankit Jain We can divide the list into two parts Even list and odd List. Then merge them 1->2->3->4->5->6 => 1->3->5 and 2->4->6 then add odd member after each even member 2->1->4->3->6->5 code: struct Node * reverse(struct Node *head) { struct Node *head1=NULL,*head2=NULL,*t,*t1,*t2; int i=1; while(head) { if(i%2==1) { head1=insertLinked(head1,head->data); } else { head2=insertLinked(head2,head->data); } head=head->next; i++; } t1=head2; while(head2) { t=head2->next; head2->next=head1; if(head1) { head1=head1->next; head2->next->next=t; } t2=head2->next; if(head2->next) head2=head2->next->next; } if(head1) t2->next=head1; return t1; } struct Node * insertLinked(struct Node *head,int data) { struct Node *temp=head; if(temp==NULL) { temp=(struct Node*)malloc(sizeof(struct Node)); temp->data=data; temp->next=NULL; return temp; } else { while(temp->next!=NULL) temp=temp->next; temp->next=(struct Node*)malloc(sizeof(struct Node)); temp->next->data=data; temp->next->next=NULL; return head; } } Aniruddha Already several comments pointed out to wont clobber with my code, but swapping just the data is an easy way of doing it, a more correct way would be to swap the nodes themselves. The key is to keep track of the node previous to the two nodes being swapped so that it’s Next pointed could be updated once the swap is done. Javed @GeeksforGeeks: my code: http://ideone.com/OjhG6g #include #include #include /* A linked list node */ struct node { int data; struct node *next; }; /* Function to pairwise swap elements of a linked list */ void pairWiseSwap(struct node **head) { if(*head==NULL || (*head)->next==NULL) { return; } struct node* temp=NULL; struct node* prev=NULL; struct node* curr=*head; struct node* next=(*head)->next; *head=next; while(curr && curr->next) { if(prev) { prev->next=next; } temp= next->next; curr->next=next->next; next->next=curr; prev=curr; curr=temp; if(curr) { next=curr->next; } } } /* Function to add a node at the begining of Linked List */ void push(struct node** head_ref, int new_data) { /* allocate node */ struct node* new_node = (struct node*) malloc(sizeof(struct node)); /* put in the data */ new_node->data = new_data; /* link the old list off the new node */ new_node->next = (*head_ref); /* move the head to point to the new node */ (*head_ref) = new_node; } /* Function to print nodes in a given linked list */ void printList(struct node *node) { while(node != NULL) { printf(“%d “, node->data); node = node->next; } } /* Druver program to test above function */ int main() { struct node *start = NULL; /* The constructed linked list is: 1->2->3->4->5->6->7 */ push(&start, 7); push(&start, 6); push(&start, 5); push(&start, 4); push(&start, 3); push(&start, 2); push(&start, 1); printf(“n Linked list before calling pairWiseSwap() “); printList(start); pairWiseSwap(&start); printf(“n Linked list after calling pairWiseSwap() “); printList(start); getchar(); return 0; } Javed @GeeksforGeeks: my code: http://ideone.com/OjhG6g #include #include #include /* A linked list node */ struct node { int data; struct node *next; }; /* Function to pairwise swap elements of a linked list */ void pairWiseSwap(struct node **head) { if(*head==NULL || (*head)->next==NULL) { return; } struct node* temp=NULL; struct node* prev=NULL; struct node* curr=*head; struct node* next=(*head)->next; *head=next; while(curr && curr->next) { if(prev) { prev->next=next; } temp= next->next; curr->next=next->next; next->next=curr; prev=curr; curr=temp; if(curr) { next=curr->next; } } } /* Function to add a node at the begining of Linked List */ void push(struct node** head_ref, int new_data) { /* allocate node */ struct node* new_node = (struct node*) malloc(sizeof(struct node)); /* put in the data */ new_node->data = new_data; /* link the old list off the new node */ new_node->next = (*head_ref); /* move the head to point to the new node */ (*head_ref) = new_node; } /* Function to print nodes in a given linked list */ void printList(struct node *node) { while(node != NULL) { printf(“%d “, node->data); node = node->next; } } /* Druver program to test above function */ int main() { struct node *start = NULL; /* The constructed linked list is: 1->2->3->4->5->6->7 */ push(&start, 7); push(&start, 6); push(&start, 5); push(&start, 4); push(&start, 3); push(&start, 2); push(&start, 1); printf(“n Linked list before calling pairWiseSwap() “); printList(start); pairWiseSwap(&start); printf(“n Linked list after calling pairWiseSwap() “); printList(start); getchar(); return 0; } yellowise How do you find the space complexity? hxgxs1 complete working Code. Enjoy!! #include #include #include using namespace std; typedef struct node { int info; struct node *next; }node; node *getnode(int elem) { node *p; p=(node *)malloc(sizeof(node)); p->info=elem; p->next=NULL; return p; } node **append(node **head,int elem) { if((*head)==NULL) { (*head)=getnode(elem); return (head); } else { (*head)->next=getnode(elem); return(&((*head)->next)); } } void display(node *head) { while(head) { printf(” %d “,head->info); head=head->next; } } void pairWswap(node **head) { node *p,*q,*r,*temp; p=(*head); while(p && p->next) { q=p->next->next; temp=p->next; p->next=temp->next; temp->next=p; if(p==(*head)) { (*head)=temp; } else { r->next=temp; } r=p; p=q; } } int main() { int n,elem; node *head=NULL,**curr; cin>>n; curr=&head; for(int i=0;i<n;i++) { scanf("%d",&elem); curr=append(curr,elem); } display(head); pairWswap(&head); cout<<endl; display(head); return 0; } Guest This is what is I thought… void pairWswap(node **head) { node *p,*q,*r,*temp; p=(*head); while(p && p->next) // while both p and p’s next exists { q=p->next->next; temp=p->next; p->next=temp->next; temp->next=p; if(p==(*head)) (*head)=temp; else r->next=temp; r=p; p=q; } } Ameet Chhatwal I think this is wrong // Change next of previous to next next prev->next = next->next; It should be prev–>next = next; prev is 1 current is 2 next is 3 1–>2–>3–>4 After 1 iteration 1-> next should be node 3 but in the logic it is pointed to next-> next which is 4 Please correct if m thinking wrong. Thanks yellowise No, it is right because if we don’t do that and instead do prev->next=next then the resulting list after 1st two iteration becomes: 2->1–>31->3->5->7->9-> so on (you’ll loose all the even elements). So to prevent this you have to make 1 point to 4 (2->1->4->3->6->5 has to be printed right). Debabrata Bardhan #include #define BUFSIZE 5 struct list { short data; struct list *next; }; typedef struct list myList; void buidList (myList **root, short *arr){ myList *lastNode = NULL,*tmp = NULL; for(int i = 0 ;idata = arr[i]; tmp->next = NULL; if(NULL == *root){ *root = tmp; lastNode = *root; continue; } if(NULL != lastNode ){ lastNode->next = tmp; lastNode = tmp; } } } void printList(myList *root){ while( NULL != root){ std::cout<data<“; root= root->next; } std::cout<next){ return ; } myList *ptr= root; root1->next = root->next; myList *tmp1 = ptr->next; myList *tmp = tmp1->next; ptr->next = tmp1->next ; tmp1->next = ptr; swapRest(tmp,ptr); } void pairSwap(myList **root){ if (NULL == *root || NULL == (*root)->next){ return ; } myList *ptr= *root; myList *tmp1 = ptr->next; myList *tmp = tmp1->next; ptr->next = tmp1->next; tmp1->next = ptr; *root = tmp1; swapRest(tmp,ptr); } int main(void){ myList *head = NULL; short data[BUFSIZE] = {1,2,3,4,5}; buidList(&head,data); printList(head); pairSwap(&head); printList(head); return 0; } sudhanshu struct node* reArrange(struct node* start) { struct node* a,*b,*c,*i; for(i=start;i->next!=NULL { a=i; b=a->next; c=b->next?b->next:NULL; if(i==start){ start=b; b->next=a; i=a; } else {if(c!=NULL){ b->next=c->next?c->next:NULL; c->next=b; } i=b; } if(b->next!=NULL||c!=NULL) a->next=c; } return start; } Shyam //Pairwise Swapping of elements void PairwiseSwap() { if (!Head || Head->Next == NULL) return; Node *First, *Second, *Rest, **Last; First = Head; Second = First->Next; Last = &Head; while (First&&Second) { Rest = Second->Next; Second->Next = First; First->Next = Rest; *Last = Second; if (First && First->Next) Last = &(First->Next); First = Rest; if (First) Second = First->Next; } } }; suvrat why is return newhead used in the second type of programme plz explain. and if i remove the return new head it prints only seven. plz explain yellowise Because your list is 1->2->3->4->5->6->Null and what you want is 2->1->4->3->6->5->Null so the head becomes 2 after all the modifications and therefore we’ll pass newhead to the main function too. Also, if you see in the recursion as well, break the list into smaller parts and observe 2->1, 4->3, 6->5 Our newheads in each recursive call become 2 then 4 then 6. can you see that 3 has to point to 6 which has become the new head? 1 has to point to 4. You should also look into the concepts of recursion(mechanism of stack) to understand this particular solution using recursion. suvrat thank you Sameer http://codingrecipies.blogspot.in/2014/01/linked-list-pair-swapping-recursive.html http://codingrecipies.blogspot.in/2014/01/linked-list-pair-swapping.html Anand #include #include #include struct l { int data; struct l *link; }; void add(struct l **,int ); void reverse(struct l**); void display(struct l*); int main() { struct l *root; root = NULL; add(&root,1); add(&root,2); add(&root,3); add(&root,4); add(&root,5); add(&root,6); //add(&root,7); reverse(&root); display(root); getch(); return 1; } void add(struct l** u,int data) { struct l *temp; if(*u == NULL) { *u = (struct l*)malloc(sizeof(struct l)); (*u)->data = data; (*u)->link = NULL; } else { temp = *u; while(temp->link!=NULL) temp = temp->link; temp->link = (struct l*)malloc(sizeof(struct l)); temp = temp->link; temp->data = data; temp->link = NULL; } } void display(struct l* u) { while(u!=NULL) { printf(“%d”,u->data); u = u->link; } } void reverse(struct l**k) { struct l *temp,*pg,*m,*n,*o; pg = *k; int l; l = 0; while(pg!=NULL) { pg = pg->link; l++; } if(l%2!=0) { l–; } n = *k; temp = n->link; while(l) { if(n == *k) { n->link = temp->link; temp->link = n; *k = temp; m = n; } else { n = n->link; temp = n->link; m->link = temp; n->link = temp->link; temp->link = n; m = n; } l = l-2; } } yogeshgfg struct node* rev( struct node* start) { struct node* temp=NULL; struct node* retPtr = NULL; if( start == NULL) { return start; } if( start->next == NULL) { return start; } else { temp = rev( start->next->next); start->next->next = start; retPtr= start->next; start->next = temp; return retPtr; } } Saurabh Verma void swappair() { if(start==NULL) { printf(“empty lln”); return; } if(start->next==NULL ) { printf(“%d”,start->data); return; } t1=start; t2=t1->next; start=t2; while(t1!=NULL&&t2!=NULL) { node *t1=NULL,*t2=NULL,*p=NULL; p=t1; t1->next=t2->next; t2->next=t1; t1=t1->next; if(t1!=NULL) { t2=t1->next; if(t1->next!=NULL) { p->next=t2; } } } } JunkFolder How about the following program. struct node *curr, *next; curr=head; int c=0; while(curr->next!=NULL){ next=curr->next; curr->next=next->next; next->next=curr; if(c==0){ head=q; c++; } p=p->next; } return head; ================== Number of iterations: N/2, O(N) Let me know if you find any discrepancy. Manju Can we pass single pointer push(start,7) and have push(struct node *, int new-data). Will it give correct output ? CoderYogi Here is java code…short and concise http://ideone.com/DPxxBy Abhishek Kumar where is my solution wrong ?? plz tell ?? void swap(lNode* first) { lNode* p1=NULL; lNode* p2=NULL; p1=first; p2=p1->next; if(first==NULL || first->next==NULL) { return; } if(p1->data==first->data) { p1->next=p2->next; p2->next=NULL; p2->next=p1; first=p2; p2=p1->next; } while(p2!=NULL && p2->next!=NULL) { p1->next=p2->next; p2->next=NULL; p2->next=(p1->next)->next; (p1->next)->next=p2; p1=p2; p2=p2->next; } } neha few things, 1) whats the use of this p1->data==first->data 2) p2->next = p1->next->next 3) Update p1 also after swapping first two nodes. 4) please dry-run and check your while loop nikinjain Which is a better solution complexity wise. I think it’s Iterative solution because it would take us only O(n) time to iterate and O(1) space. Whereas in a recursive solution, we’ll have O(n) time complexity and space complexity will be exponential. Let me know if I am wrong. Guest http://ideone.com/RFItRN Lokesh Where is my solution going wrong ? void swappairwise(node head){ node curr,temp1,temp2; curr=head; while(curr!=NULL && curr->next!=NULL){ temp1=curr; temp2=curr->next->next; curr=curr->next; curr->next=temp1; curr->next->next=temp2; curr=temp2; } return ; } Pushkar I have not gone through your whole code but it might be the header node that you are not concerning means after the swap the original second node must become the head node and should be returned or taken care of with the double pointer.. Subbu Simple Solution: //Swap two succesive nodes in Single Linked List based on Data #include using namespace std; typedef struct node { int data; struct node *next; }NODE; NODE *Head=NULL; void insertlist(int item) { NODE *temp=NULL, *Traverse=NULL; temp = new NODE; if(temp == NULL) cout<<"Bad Memory allocation"<data=item; temp->next=NULL; if(Head == NULL) { Head=temp; } else { Traverse = Head; while(Traverse->next!=NULL) Traverse=Traverse->next; Traverse->next=temp; } } } void displayList(NODE *DispHd) { cout<<"Elements in List Are ::"<<endl; while(DispHd != NULL) { cout<data<next; } } void SwapList(NODE *Swap) { NODE *Traverse=Swap, *Current=NULL, *Next=NULL; int temp; while(Traverse->next!= NULL) { Current = Traverse; Next = Traverse->next; temp=Current->data; Current->data=Next->data; Next->data = temp; Traverse=Traverse->next->next; } } int main() { int n; cout<<"Enter Number of elements want to Insert in List ::"<>n; cout<<"Number of Elements insert is ::"<<n<<endl; for(int i=0; i<n; i++) { insertlist(i); } displayList(Head); SwapList(Head); displayList(Head); system("PAUSE"); return 0; } Ritvik Singh Chauhan // Another Program for this problem #include #include struct node{ int v; struct node *n; }; struct node * push(struct node *ptr, int num){ struct node *x = (struct node*)malloc(sizeof(struct node));; x->v=num; x->n=ptr; return x; } struct node * pop(struct node * ptr){ struct node *x = ptr; ptr=ptr->n; free(x); return ptr; } void view(struct node * ptr){ while(ptr!=NULL){ printf(“%d, “,ptr->v); ptr=ptr->n; } printf(“n”); } int totalnodes(struct node *ptr){ int i=0; while(ptr!=NULL){ i++; ptr=ptr->n; } return i; } struct node * swap(struct node * ptr1,struct node * ptr2){ ptr1->n=(ptr2->n); ptr2->n=ptr1; return ptr2; } struct node * pairWiseSwap(struct node * ptr){ int n = totalnodes(ptr); if(n>1){ int flag=0; struct node *temp1=ptr; struct node *temp2; ptr=ptr->n; while(n>=2){ temp1=swap(temp1,temp1->n); if(flag==1) temp2->n=temp1; temp2=temp1->n; temp1=temp1->n->n; n-=2; flag=1; } } return ptr; } int main(void){ struct node * head=NULL; int i=0; for(i=7;i>0;i–) head=push(head,i); printf(“nBefore Calling pairWiseSwap : “); view(head); head=pairWiseSwap(head); printf(“n After Calling pairWiseSwap : “); view(head); return 0; } Output :- ————————- Before Calling pairWiseSwap : 1, 2, 3, 4, 5, 6, 7, After Calling pairWiseSwap : 2, 1, 4, 3, 6, 5, 7, GeeksforGeeks @geek and @omer salem: Thanks for suggesting the recursive implementation. We have added it to the original post. omar salem Java code http://ideone.com/YTfgUc geek /* returns head of new swapped linked list, initially takes head as input */ Node* pairSwap(Node* n) { if(n==NULL || n->next == NULL) return n; Node* temp = n->next->next; Node* retval = n->next; n->next->next = n; n->next = pairSwap(temp); return retval; } Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

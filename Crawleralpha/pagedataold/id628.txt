@@ -1,0 +1,1154 @@
+Root to leaf path sum equal to a given number - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Root to leaf path sum equal to a given number Given a binary tree and a number, return true if the tree has a root-to-leaf path such that adding up all the values along the path equals the given number. Return false if no such path can be found. For example, in the above tree root to leaf paths exist with following sums. 21 –> 10 – 8 – 3 23 –> 10 – 8 – 5 14 –> 10 – 2 – 2 So the returned value should be true only for numbers 21, 23 and 14. For any other number, returned value should be false. Algorithm: Recursively check if left or right child has path sum equal to ( number – value at current node) Implementation: 
+#include<stdio.h>
+#include<stdlib.h>
+#define bool int
+
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+   int data;
+   struct node* left;
+   struct node* right;
+};
+
+/*
+ Given a tree and a sum, return true if there is a path from the root
+ down to a leaf, such that adding up all the values along the path
+ equals the given sum.
+
+ Strategy: subtract the node value from the sum when recurring down,
+ and check to see if the sum is 0 when you run out of tree.
+*/
+bool hasPathSum(struct node* node, int sum)
+{
+  /* return true if we run out of tree and sum==0 */
+  if (node == NULL)
+  {
+     return (sum == 0);
+  }
+ 
+  else
+  {
+    bool ans = 0;  
+ 
+    /* otherwise check both subtrees */
+    int subSum = sum - node->data;
+ 
+    /* If we reach a leaf node and sum becomes 0 then return true*/
+    if ( subSum == 0 && node->left == NULL && node->right == NULL )
+      return 1;
+ 
+    if(node->left)
+      ans = ans || hasPathSum(node->left, subSum);
+    if(node->right)
+      ans = ans || hasPathSum(node->right, subSum);
+ 
+    return ans;
+  }
+}
+
+/* UTILITY FUNCTIONS */
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newnode(int data)
+{
+  struct node* node = (struct node*)
+                       malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+
+  return(node);
+}
+
+/* Driver program to test above functions*/
+int main()
+{
+
+  int sum = 21;
+
+  /* Constructed binary tree is
+            10
+          /   \
+        8      2
+      /  \    /
+    3     5  2
+  */
+  struct node *root = newnode(10);
+  root->left        = newnode(8);
+  root->right       = newnode(2);
+  root->left->left  = newnode(3);
+  root->left->right = newnode(5);
+  root->right->left = newnode(2);
+
+  if(hasPathSum(root, sum))
+    printf("There is a root-to-leaf path with sum %d", sum);
+  else
+    printf("There is no root-to-leaf path with sum %d", sum);
+
+  getchar();
+  return 0;
+}
+ Time Complexity: O(n) References: http://cslibrary.stanford.edu/110/BinaryTrees.html Author: Tushar Roy Please write comments if you find any bug in above code/algorithm, or find other ways to solve the same problem           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. yogi This following snippet of code works on all the +ve and -ve numbers. Is there any way this code snippet would break? bool HasRoot2LeafPathSum(BinNode *pRoot, long remSum) { if(pRoot == NULL) return false; if(pRoot->pLeft == NULL && pRoot->pRight == NULL) return (remSum == pRoot->data); return (HasRoot2LeafPathSum(pRoot->pLeft, remSum – pRoot->data) || HasRoot2LeafPathSum(pRoot->pRight, remSum – pRoot->data)); } Rakesh I got a question in MS to optimize the search in case it’s a binary search tree (BST) . I tried a lot but can not replied. Right search can be stopped once our current sum exceeds a limit , but can not find way when to stop searching in left path. Can anyone write a algo for it. danny Left Search can be stopped If you have reached with no child but the sum is still not what is required it’s less OR if you have reached the value greater then or equal to sum(given value) but the node is not external…. Please correct me If I am wrong. Sankeerth The code seems wrong at the line: if(root==NULL) return sum==0; Take the above figure for example. Let the sum to be checked for is 12. at first root is visited and the sum value becomes 2(12-10). After that we visits root->right node which is 2 and now the sum becomes 0(2-2). But according to the code it returns 0 even though the root->right node is not a leaf node. I think the correct code would go like this. int root_to_leaf_path(struct node* root,int sum) { if(root==NULL) return 0; if(isleaf(root)) return sum==root->data; int subsum=root->data-sum; int ans=0; ans=root_to_leaf_path(root->left,subsum)|| root_to-leaf_path(root->right,subsum); return ans; } This code fails for an empty tree. We can write a wrapper function above this to get over this limitation. me #include #include using namespace std; struct node { int key; struct node *l; struct node *r; }; void inorder(struct node *root) { if(root) { inorder(root->l); cout<key<r); } } node *newnode(int key) { node *temp= new struct node; temp->key = key; temp->l = temp->r = NULL; return temp; } node *insert(struct node *root,int key) { if(root==NULL) return newnode(key); if (root->key > key) root->l = insert(root->l, key); else root->r = insert(root->r, key); return root; } int path(node *root,int sum) { if(root==NULL) return 0; sum=sum-root->key; if(sum==0 && !root->l && !root->r) return 1; if(path(root->l,sum) || path(root->r,sum)) return 1; return 0; } int main(void) { struct node *root=NULL; root=insert(root,6); root = insert(root, 2); root = insert(root, 8); root = insert(root, 1); root = insert(root, 4); root = insert(root, 7); root = insert(root, 9); cout<<path(root,12)<<endl; cout<<path(root,20)<<endl; cout<<path(root,21)<<endl; cout<<path(root,23)<<endl; cout<<path(root,9)<<endl; return 0; } Harjit Singh bool hasPathSum(struct node* root, int sum) { if(root==NULL) return false; if(sumleft==NULL&&root->right==NULL)&&(sum==root->data)) return true; return(hasPathSum(root->left,sum-root->data)||hasPathSum(root->right,sum-root->data)); } Uma Trika bool hasPathSum(struct node* node, int sum, int path[], int len) { static int result=0; int temp,i,temp_sum=0; if(node == NULL) return; path[len] = node->data; len++; if(node->left == NULL && node->right == NULL) { for(i=0;ileft, sum, path, len); hasPathSum(node->right, sum, path, len); } return result; } pavansrinivas iterative Soln. in JAVA…validate me… boolean isPathSum(int key){ Node temp = root; Queue q = new LinkedList(); int leftSum; int rightSum; int pathsum; q.add(temp); pathsum = root.iData; q.add(pathsum); while(!q.isEmpty()){ temp = (Node)q.remove(); pathsum = (Integer)q.remove(); if(temp.leftChild==null&&temp.rightChild==null){ if(pathsum==key){ return true; } } if(temp.leftChild!=null){ leftSum = pathsum+temp.leftChild.iData; q.add(temp.leftChild); q.add(leftSum); } if(temp.rightChild!=null){ rightSum = pathsum+temp.rightChild.iData; q.add(temp.rightChild); q.add(rightSum); } } return false; } */ Shivam bool rootleavesum(treenode* root,int sum) { if(root==NULL) return 0 ; sum=sum-root->data; if(root->left==NULL && root->right==NULL ) { if(sum==0) return 1; else return 0; } return (rootleavesum(root->left,sum) || rootleavesum(root->right,sum)); } munai #include #include struct node { int data; struct node *left,*right; }; typedef struct node node; node *NewNode(int val) { node *temp=(node *)malloc(sizeof(node)); temp->data=val; temp->left=temp->right=NULL; return temp; } int IsPathSum(node *root,int sum) { int remain_sum; if(!root) return (sum==0); remain_sum=sum-root->data; return (IsPathSum(root->left,remain_sum) || IsPathSum(root->right,remain_sum)); } int main() { node *root=NewNode(1); root->left=NewNode(2); root->right=NewNode(3); root->left->left=NewNode(4); root->left->right=NewNode(5); root->right->left=NewNode(6); //root->right->right=NewNode(7); if(IsPathSum(root,4)) printf(“Path existsn”); else printf(“Path doesn’t existn”); return 0; } Is there any flaw? please check it out. srb  
+bool hasPathSum(struct node* node, int sum)
+{
+  if (node == NULL)
+  {
+     return (sum == 0);
+  }
+  else
+  {
+    bool ans = 0;  
+    int subSum = sum - node->data;
+    ans = ans || hasPathSum(node->left, subSum)||   hasPathSum(node->right, subSum);;
+    return ans;
+  }
+}
+
+/* Paste your code here (You may delete these lines if not writing code) */
+ shivi  
+bool rootTo(Node *start,int path[],int pathlen,int sum)
+{
+	if(start==NULL)
+	return 0;
+	
+	else
+	{
+		path[pathlen]=start->data+path[pathlen-1];
+		++pathlen;
+		if(start->left==NULL && start->right==NULL)
+		{
+			if(path[pathlen-1]==sum)
+			return 1;
+			
+			else 
+			return 0;
+		}
+	}
+	return (rootTo(start->left,path,pathlen,sum) || rootTo(start->right,path,pathlen,sum));
+}
+
+bool rootToLeaf(Node *start,int sum)
+{
+	int path[100],pathlen=1;
+	path[0]=0;
+	return rootTo(start,path,pathlen,sum);
+}
+ this will take O(n)? abhishek08aug C++ code:  
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+ 
+class tree_node {
+  private:
+    int data;
+    tree_node * left;
+    tree_node * right;
+  public:
+    tree_node() {
+      left=NULL;
+      right=NULL;
+    }
+    void set_data(int data) {
+      this->data=data;
+    }
+    int get_data() {
+      return this->data;
+    }
+    void set_left(tree_node * left) {
+      this->left=left;
+    }
+    tree_node * get_left() {
+      return this->left;
+    }
+    void set_right(tree_node * right) {
+      this->right=right;
+    }
+    tree_node * get_right() {
+      return this->right;
+    }
+    tree_node ** get_left_ref() {
+      return &(this->left);
+    }
+    tree_node ** get_right_ref() {
+      return &(this->right);
+    }
+};
+ 
+class tree {
+  private:
+    tree_node * root;
+    int size;
+    void _recursive_insert(tree_node ** root_ref, int value);
+    void _print_preorder(tree_node * root);
+    void _print_inorder(tree_node * root);
+    void _print_postorder(tree_node * root);
+    int _find_size(tree_node * root);
+    int _are_identical(tree_node * tn1, tree_node * tn2);
+    int _find_height(tree_node * root);
+    void _delete_tree(tree_node ** root);
+    void _mirror(tree_node * root);
+    void _print_paths(tree_node * root, int * path_nodes, int next_vacant_position);
+    void _print_array(int * array, int len);
+    tree_node * _lowest_common_ancestor(tree_node * parent, tree_node * root, int a, int b);
+    tree_node * _find_node(tree_node * root, int value);
+    tree_node * _min_node(tree_node * root);
+    void _print_level_order(tree_node * root);
+    int _count_leaf_nodes(tree_node * root);
+    int _is_bst(tree_node * root);
+    int _children_sum(tree_node * root);
+    void _ensure_children_sum(tree_node * root);
+    int _diameter(tree_node * root);
+    int _is_height_balanced(tree_node * root);
+    int _leaf_path_sum(tree_node * root, int num);
+  public:
+    tree() {
+      root=NULL;
+      size=0;
+    }
+    void insert(int value);
+    void recursive_insert(int value);
+    void print_preorder();
+    void print_inorder();
+    void print_postorder();
+    int find_size();
+    int get_size() {
+      return this->size;
+    }
+    int are_identical(tree t);
+    int find_height();
+    void delete_tree();
+    void mirror();
+    void print_paths();
+    tree_node * lowest_common_ancestor(int a, int b);
+    tree_node * find_node(int value);
+    tree_node * min_node();
+    void print_level_order();
+    int count_leaf_nodes();
+    int is_bst();
+    int children_sum();
+    void ensure_children_sum();
+    int diameter();
+    int is_height_balanced();
+    int leaf_path_sum(int num);
+};
+ 
+void tree::insert(int value) {
+  if(root==NULL) {
+    root=new tree_node;
+    root->set_data(value);
+  } else {
+    tree_node * parent=NULL;
+    tree_node * current=root;
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    while(current!=NULL) {
+      if(value<=current->get_data()) {
+        parent=current;
+        current=current->get_left();
+      } else {
+        parent=current;
+        current=current->get_right();
+      }
+    }
+    if(value<=parent->get_data() && parent->get_left()==NULL) {
+      parent->set_left(new_node);
+    } else if(value>parent->get_data() && parent->get_right()==NULL) {
+      parent->set_right(new_node);
+    }
+  }
+  size++;
+}
+ 
+void tree::recursive_insert(int value) {
+  _recursive_insert(&root, value);
+  size++;
+}
+ 
+void tree::_recursive_insert(tree_node ** root_ref, int value) {
+  if(*root_ref==NULL) {
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    *root_ref=new_node;   
+  } else {
+    if(value<=(*root_ref)->get_data()) {
+      _recursive_insert((*root_ref)->get_left_ref(), value);
+    } else {
+      _recursive_insert((*root_ref)->get_right_ref(), value);
+    }
+  }
+}
+ 
+void tree::print_preorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_preorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_preorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  cout<<root->get_data()<<" ";
+  if(root->get_left()!=NULL)
+    _print_preorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_preorder(root->get_right());
+}
+ 
+void tree::print_inorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_inorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_inorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_inorder(root->get_left());
+  cout<<root->get_data()<<" ";
+  if(root->get_right()!=NULL)
+    _print_inorder(root->get_right());
+}
+ 
+void tree::print_postorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_postorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_postorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_postorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_postorder(root->get_right());
+  cout<<root->get_data()<<" ";
+}
+
+int tree::find_size() {
+  return _find_size(root);
+}
+
+int tree::_find_size(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else {
+    return 1+_find_size(root->get_left())+_find_size(root->get_right());
+  }
+}
+
+int tree::are_identical(tree t) {
+  return _are_identical(this->root, t.root);
+}
+
+int tree::_are_identical(tree_node * tn1, tree_node * tn2) {
+  if(tn1==NULL && tn2==NULL) {
+    return 1;
+  } else if((tn1==NULL && tn2!=NULL) || (tn1!=NULL && tn2==NULL) || (tn1->get_data()!=tn2->get_data())) {
+    return 0;
+  } else {
+    return _are_identical(tn1->get_left(), tn2->get_left()) && _are_identical(tn1->get_right(), tn2->get_right());
+  }
+}
+
+int tree::find_height() {
+  return _find_height(root);
+}
+
+int tree::_find_height(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  }
+  else {
+    return 1+max(_find_height(root->get_left()), _find_height(root->get_right()));
+  }
+}
+
+void tree::delete_tree() {
+  _delete_tree(&root);
+  size=0;
+}
+
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      _delete_tree((*root)->get_left_ref());
+    }
+    if((*root)->get_right()!=NULL) {
+      _delete_tree((*root)->get_right_ref());
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+
+/* alternate _delete_tree */
+/*
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      tree_node * left_ref=(*root)->get_left();
+      _delete_tree(&left_ref);
+    }
+    if((*root)->get_right()!=NULL) {
+      tree_node * right_ref=(*root)->get_right();
+      _delete_tree(&right_ref);
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+*/
+
+void tree::mirror() {
+  _mirror(root);
+}
+
+void tree::_mirror(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+
+  tree_node * temp=root->get_left();
+  root->set_left(root->get_right());
+  root->set_right(temp);
+  _mirror(root->get_left());
+  _mirror(root->get_right());
+}
+
+void tree::print_paths(){
+   int max_path_length=find_height();
+   int * path_nodes=(int *)calloc(sizeof(int), max_path_length);
+  _print_paths(root, path_nodes, 0);
+}
+
+void tree::_print_paths(tree_node * root, int * path_nodes, int next_vacant_position){
+  if(root==NULL) {
+    return;
+  } else if(root->get_left()==NULL && root->get_right()==NULL) {
+    *(path_nodes+next_vacant_position)=root->get_data();
+    _print_array(path_nodes, next_vacant_position);
+  } else {
+    *(path_nodes+next_vacant_position)=root->get_data();
+    _print_paths(root->get_left(), path_nodes, next_vacant_position+1);
+    _print_paths(root->get_right(), path_nodes, next_vacant_position+1);
+  }
+}
+
+void tree::_print_array(int * array, int len) {
+  int i;
+  for(i=0; i<=len; i++) {
+    cout<<*(array+i)<<" ";
+  }
+  cout<<endl;
+}
+
+tree_node * tree::find_node(int value) {
+  return _find_node(root, value);
+}
+
+tree_node * tree::_find_node(tree_node * root, int value) {
+  if(root==NULL || root->get_data()==value) {
+    return root;
+  } else if(value<=root->get_data()) {
+    return _find_node(root->get_left(), value);
+  } else {
+    return _find_node(root->get_right(), value);
+  }
+}
+
+tree_node * tree::lowest_common_ancestor(int a, int b) {
+  return _lowest_common_ancestor(NULL, root, a, b);
+}
+
+tree_node * tree::_lowest_common_ancestor(tree_node * parent, tree_node * root, int a, int b) {
+  if(root==NULL) {
+    return root;
+  } else if((root->get_data()==a && (root->get_left()->get_data()==b || root->get_right()->get_data()==b))
+             || (root->get_data()==b && (root->get_left()->get_data()==a || root->get_right()->get_data()==a))) {
+    return parent;
+  } else if((_find_node(root->get_left(), a)!=NULL && _find_node(root->get_right(), b)!=NULL)
+        || (_find_node(root->get_left(), b)!=NULL && _find_node(root->get_right(), a)!=NULL)) {
+    return root; 
+  } else if(_find_node(root->get_left(), a)!=NULL && _find_node(root->get_left(), b)!=NULL) {
+    return _lowest_common_ancestor(root, root->get_left(), a, b);
+  } else if(_find_node(root->get_right(), a)!=NULL && _find_node(root->get_right(), b)!=NULL) {
+    return _lowest_common_ancestor(root, root->get_right(), a, b);
+  } else {
+    return NULL;
+  }
+}
+
+tree_node * tree::min_node() {
+  return _min_node(root);
+}
+
+tree_node * tree::_min_node(tree_node * root) {
+  if(root==NULL || root->get_left()==NULL) {
+    return root;
+  } else {
+    return _min_node(root->get_left());
+  }
+}
+
+int tree::count_leaf_nodes() {
+  return _count_leaf_nodes(root);
+}
+
+int tree::_count_leaf_nodes(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else if(root->get_left()==NULL && root->get_right()==NULL) {
+    return 1;
+  } else {
+    return _count_leaf_nodes(root->get_left())+_count_leaf_nodes(root->get_right());
+  }
+}
+
+
+int tree::is_bst() {
+  return _is_bst(root);
+}
+
+int tree::_is_bst(tree_node * root) {
+  static tree_node * previous=NULL;
+  if(root==NULL) {
+    return 1;
+  } else {
+    if(!_is_bst(root->get_left())) {
+      return 0;
+    }
+    if(previous!=NULL && (previous->get_data())>(root->get_data())) {
+      return 0;
+    }
+    previous=root;
+    if(!_is_bst(root->get_right())) {
+      return 0;
+    }    
+  }
+}
+
+int tree::children_sum() {
+  return _children_sum(root);
+}
+
+int tree::_children_sum(tree_node * root) {
+  if(root==NULL) {
+    return 1;
+  }
+  if(root->get_left()==NULL && root->get_right()==NULL) {
+    return 1;
+  }
+  else if(_children_sum(root->get_left()) && _children_sum(root->get_right())){
+    int left_data;
+    int right_data;
+    if(root->get_left()!=NULL) {
+      left_data=root->get_left()->get_data();
+    } else {
+      left_data=0;
+    }
+    if(root->get_right()!=NULL) {
+      right_data=root->get_right()->get_data();
+    } else {
+      right_data=0;
+    }
+
+    if(left_data+right_data==root->get_data()) {
+      return 1;
+    } else {
+      return 0;
+    }
+  } else {
+    return 0;
+  }
+}
+
+void tree::ensure_children_sum() {
+  _ensure_children_sum(root);
+}
+
+void tree::_ensure_children_sum(tree_node * root) {
+  if(root==NULL || (root->get_left()==NULL && root->get_right()==NULL)) {
+    return;
+  } else {
+    _ensure_children_sum(root->get_left());
+    _ensure_children_sum(root->get_right());
+    int left_data;
+    int right_data;
+    if(root->get_left()!=NULL) {
+      left_data=root->get_left()->get_data();
+    } else {
+      left_data=0;
+    }
+    if(root->get_right()!=NULL) {
+      right_data=root->get_right()->get_data();
+    } else {
+      right_data=0;
+    }
+    root->set_data(left_data+right_data);
+  }
+}
+
+int tree::diameter() {
+  return _diameter(root);
+}
+
+int tree::_diameter(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else {
+    return max(_find_height(root->get_left())+_find_height(root->get_right())+1, max(_diameter(root->get_left()), _diameter(root->get_left())));
+  }
+}
+
+int tree::is_height_balanced() {
+  return _is_height_balanced(root);
+}
+
+int tree::_is_height_balanced(tree_node * root) {
+  if(root==NULL) {
+    return 1;
+  } else {
+    int left_height=_find_height(root->get_left());
+    int right_height=_find_height(root->get_right());
+    if(abs(left_height-right_height)<=1 && _is_height_balanced(root->get_left()) && _is_height_balanced(root->get_left())) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+}
+
+int tree::leaf_path_sum(int sum) {
+  return _leaf_path_sum(root, sum);
+}
+
+int tree::_leaf_path_sum(tree_node * root, int sum) {
+  if(root==NULL) {
+    return 0;
+  } else if(root->get_data()==sum && root->get_left()==NULL && root->get_right()==NULL) {
+    return 1;
+  } else {
+    return _leaf_path_sum(root->get_left(), sum-root->get_data()) || _leaf_path_sum(root->get_right(), sum-root->get_data());
+  }
+}
+
+int main() {
+  tree t1;
+
+  t1.recursive_insert(5);
+  t1.recursive_insert(3);
+  t1.insert(10);
+  t1.insert(7);
+  t1.recursive_insert(50);
+  t1.recursive_insert(6);
+  t1.recursive_insert(1);
+  t1.recursive_insert(45);
+  t1.recursive_insert(55);
+  t1.recursive_insert(4);
+
+  t1.print_inorder();
+
+  t1.recursive_insert(70);
+
+  if(t1.leaf_path_sum(9)==1) {
+    cout<<"Tree has a leaf path with sum 9"<<endl;
+  } else {
+    cout<<"Tree do not have a leaf path with sum 9"<<endl;
+  }
+
+  if(t1.leaf_path_sum(28)==1) {
+    cout<<"Tree has a leaf path with sum 28"<<endl;
+  } else {
+    cout<<"Tree do not have a leaf path with sum 28"<<endl;
+  }
+
+  if(t1.leaf_path_sum(0)==1) {
+    cout<<"Tree has a leaf path with sum 0"<<endl;
+  } else {
+    cout<<"Tree do not have a leaf path with sum 0"<<endl;
+  }
+
+  if(t1.leaf_path_sum(8)==1) {
+    cout<<"Tree has a leaf path with sum 8"<<endl;
+  } else {
+    cout<<"Tree do not have a leaf path with sum 8"<<endl;
+  }
+
+  if(t1.leaf_path_sum(400)==1) {
+    cout<<"Tree has a leaf path with sum 400"<<endl;
+  } else {
+    cout<<"Tree do not have a leaf path with sum 400"<<endl;
+  }
+
+  return 0;
+}
+ 1 3 4 5 6 7 10 45 50 55 Tree has a leaf path with sum 9 Tree has a leaf path with sum 28 Tree do not have a leaf path with sum 0 Tree do not have a leaf path with sum 8 Tree do not have a leaf path with sum 400 Sreenivas Doosa What about this..? Please correct me if anything wrong OR inefficient..?  
+
+bool isRootToLeafPathSum(struct node* root, int sum) {
+
+	if(root == NULL)
+		return (sum == 0);
+
+	return isRootToLeafPathSum(root->left, sum - root->data) || isRootToLeafPathSum(root->right, sum - root->data);
+}
+
+ Prakhar Jain I think this will work because you are using line: if (root == NULL) return (sum == 0); @author, you don’t need this if statement if you are checking if the node is not NULL later. Your revised short code would be:  
+bool hasPathSum(struct node* node, int sum)
+{
+  /* return true if we run out of tree and sum==0 */
+  if (node == NULL)
+  {
+     return (sum == 0);
+  }
+  
+  else
+  {
+    bool ans = 0;  
+  
+    /* otherwise check both subtrees */
+    int subSum = sum - node->data;
+  
+    /* If we reach a leaf node and sum becomes 0 then return true*/
+    if ( subSum == 0 && node->left == NULL && node->right == NULL )
+      return 1;
+  
+    if(node->left)
+      ans = ans || hasPathSum(node->left, subSum);
+    if(node->right)
+      ans = ans || hasPathSum(node->right, subSum);
+  
+    return ans;
+  }
+}
+ This will not work only in case when root is equal to NULL https://sites.google.com/site/nishantonl9/ Nishant Kumar  
+int hasPathSum(tree* root,int sum){
+	if(root==null)
+		return 0;
+	if(root->left==null && root->right==null && sum==root->data)
+		return 1;
+
+	int data = root->data;
+	return hasPathSum(root->left,sum-data) || hasPathSum(root->right,sum-data);
+
+}
+ cyberWolf  
+int checkSum(treeNode* x, int sum)
+{
+        if (x->left==NULL && x->right == NULL)
+                return (sum==0);
+
+        int l=0, r=0;
+        if(x->left)
+                l = checkSum(x->left, sum-x->data);
+
+        if(x->right)
+                r = checkSum(x->right, sum-x->data);
+
+        return l||r;
+}
+
+ Gobind Kumar Hembram int hasPathSum(node* root, int sum) { if(sum == root->val && root->left == NULL && root->right == NULL) { return 1; } if(sum val) return 0; if(sum > root->val) { int lAns = hasPathSum(root->left, (sum – root->val)); int rAns = hasPathSum(root->right, (sum – root->val)); if(lAns == 1 || rAns == 1) return 1; } return 0; } syang boolean check(Node node, int target, int sum_sofar) { if (node == null) return (target == sum_sofar); return check(node.left, target, sum_sofar + node.value) || check(node.right, target, sum_sofar + node.value) } Call check(root, target, 0) Kapil Agarwal bool givenSum(struct node* root,int sum) { struct node* temp=root; int done=0; int x=0; stack st; while(!done) { if(temp!=NULL) { st.push(temp); sum-=temp->data; temp=temp->left; } else if(!st.empty()) { if(sum==0) { while(!st.empty()) { temp=st.top(); st.pop(); } return 1; } temp=st.top(); st.pop(); sum+=x; x=temp->data; temp=temp->right; } else return 0; } }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Saurabh Jain Time Complexity : O(n).  
+/* Paste your code here (You may delete these lines if not writing code) */
+
+int rootToLeafPathSum(struct node*r, int m)
+{
+	int ans;
+	if(r==NULL)
+	{
+		if(m==0)
+			return 1;
+		else
+			return 0;
+	}
+	else 
+	{
+		if(r->left==NULL&&r->right==NULL)
+		{
+			if(m==r->info)
+				return 1;
+			else
+				return 0;
+		}
+		else if(r->left && !r->right)
+			return(rootToLeafPathSum(r->left,m-r->info));
+		else if(!r->left && r->right)
+			return(rootToLeafPathSum(r->right,m-r->info));
+		else
+			return(rootToLeafPathSum(r->left,m-r->info)||rootToLeafPathSum(r->right,m-r->info));
+	}
+}
+// int rootToLeafPathSum(struct node*,int)
+
+ http://www.geeksforgeeks.org/archives/6201 malvika sorry corrected code: plz verify if this works bool hasPathSum(struct node* node, int sum) { if (node == NULL) return 0; int subSum = sum – node->data; if ( subSum == 0 && node->left == NULL && node->right == NULL ) return 1; else return hasPathSum(node->left, subSum) || hasPathSum(node->right, subSum); } http://www.geeksforgeeks.org/archives/6201 malvika the question says root to leaf path sum so the code should be ths:  
+ool hasPathSum(struct node* node, int sum)
+{
+  /* return true if we run out of tree and sum==0 */
+  if (node == NULL) 
+  {
+     return 0;  /*it sud return 0 instead whats given in geeksforgeeks code */
+  }
+ 
+  else
+  {
+    bool ans = 0; 
+ 
+    /* otherwise check both subtrees */
+    int subSum = sum - node->data;
+ 
+    /* If we reach a leaf node and sum becomes 0 then return true*/
+    if ( subSum == 0 && node->left == NULL && node->right == NULL )
+      return 1;
+ 
+    if(node->left)
+      ans = ans || hasPathSum(node->left, subSum);
+    if(node->right)
+      ans = ans || hasPathSum(node->right, subSum);
+ 
+    return ans;
+  }
+}
+ Priso Hi Malvika, It should be “return (sum==0);” only. consider a case of empty tree called with sum=0, in that case the answer should be “True”. If we modify it to “return 0;” the answer will be “False”, which is incorrect. Correct me if I am wrong. Thanks  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kaushal This can be also be done using a level order traversal. when we dequeue from the queue, the children’s data should be enqueued with their own data + parent’s data. In the end, we’ll get the sum of all the branches from root to leaf. http://www.geeksforgeeks.org/archives/6201 Snowy return (hasPathSum(node->left, sunSum) || hasPathSum(node->right, subSum)); What does the ‘ || ‘ operator mean here ? Is it addition ? http://www.geeksforgeeks.org/archives/6201 Snowy What does the ‘ || ‘ operator mean here ? is it a comparison ?  
+return(hasPathSum(node->left, subSum) ||  hasPathSum(node->right,
+subSum));
+ laddoo Guys, if ( (subSum == 0) && (node->left != NULL || node->right != NULL) ) return 0; should be replaced by : if ( (subSum < = 0) && (node->left != NULL || node->right != NULL) ) return 0; to involve PRUNING. GeeksforGeeks @Dreamer & @Greed: Thanks for pointing this out. We have updated the post with the correct code. Anand Please find the C code for finding all path that sums up to the given value http://anandtechblog.blogspot.com/2011/07/print-all-path-of-tree-that-sums-up-to.html neeraj singh  
+/**
+     * 
+     * @param n      initially it should be root node
+     * @param target target sum to check 
+     * @param sum    sum of tree nodes so far, initially is should be 0.
+     * @return true if target == path sum till any leaf node.
+     */
+     public static boolean equalsRoot2LeafPathsSum(Node n, int target, int sum) {
+        if(null == n){
+            return false;
+        }
+
+        //is leaf node
+        if (null == n.left && n.right == null) {
+            return target == sum + n.value;
+        }
+         
+        return equalsRoot2LeafPathsSum(n.left, target, sum + n.value) ||
+        equalsRoot2LeafPathsSum(n.right, target,sum + n.value);
+
+    }
+ Dreamer Yes, this is correct. Any comments/ @geeksforgeeks please update the post. As the currently posted solution is not correct. Dreamer Your code will return true even for sum = 12. Which is wrong. You need one more check.. if (node->left == NULL && node->right == NULL && subSum == 0) { return true; Sandeep @Dreamer: Thanks for pointing out this case. I think following modified function works for all the cases.  bool hasPathSum(struct node* node, int sum)
+{   
+  /* return true if we run out of tree and sum==0 */
+  if (node == NULL)
+  {
+     return (sum == 0);
+  }
+  
+  else
+  {
+    /* otherwise check both subtrees */
+    int subSum = sum - node->data;
+    
+    /* If we reach a non leaf node and sum becomes 0 then return false*/
+    if ( (subSum == 0) && (node->left != NULL || node->right != NULL) )
+      return 0;
+    
+    return(hasPathSum(node->left, subSum) ||
+           hasPathSum(node->right, subSum));
+  } Let me know your thoughts on this modified solution. P Can someone explain what does this line of code mean? Is it doing a comparison? Please give an example if possible as it aids in clarifying. Thanks. return(hasPathSum(node->left, subSum) || hasPathSum(node->right, subSum));  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Sandeep I think my previous solution doesn’t work if there are negative numbers in tree. Following modifications seems to be better and seems to be working for all cases.  bool hasPathSum(struct node* node, int sum)
+{   
+  /* return true if we run out of tree and sum==0 */
+  if (node == NULL)
+  {
+     return (sum == 0);
+  }
+  
+  else
+  {
+    bool ans = 0;  
+    
+    /* otherwise check both subtrees */
+    int subSum = sum - node->data;
+    
+    /* If we reach a leaf node and sum becomes 0 then return true*/
+    if ( subSum == 0 && node->left == NULL && node->right == NULL )
+      return 1;
+    
+    if(node->left)
+      ans = ans || hasPathSum(node->left, subSum);
+    if(node->right)  
+      ans = ans || hasPathSum(node->right, subSum);
+      
+    return ans;  
+  }
+}  http://ashutosh7s.blogspot.com/ WgpShashank @sandeep if -ive our algo wont change even this is the case then we can simply revert sign of namber even its no need …i dont find any issue with -ive number i mean if we get desired sum then simply print it else return from program check this program its printing all the path whose equals to given number including -ive number as well ..let me know if i missed sumthing  
+#include<stdio.h>
+#include<stdlib.h>
+#define bool int
+ 
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+   int data;
+   struct node* left;
+   struct node* right;
+};
+ 
+/*
+ Given a tree and a sum, return true if there is a path from the root
+ down to a leaf, such that adding up all the values along the path
+ equals the given sum.
+ 
+ Strategy: subtract the node value from the sum when recurring down,
+ and check to see if the sum is 0 when you run out of tree.
+*/
+ 
+void printArray(int ints[], int len)
+{
+  int i;
+  for (i=0; idatadata*=-1;
+ 
+    ar[index]=node->data;
+    index++; 
+     
+    int subSum = sum - node->data;
+ 
+    /* If we reach a leaf node and sum becomes 0 then return true*/
+      if (subSum == 0 && node->left == NULL && node->right == NULL )
+               printArray(ar,index);
+      if(node->left)
+      hasPathSum(node->left,subSum,ar,index);
+      if(node->right)
+     hasPathSum(node->right, subSum,ar,index);
+ 
+  }
+}
+ 
+ 
+void hasPath(struct node* root, int sum)
+{
+      int ar[100];
+      hasPathSum(root,sum,ar,0);
+    
+}
+ 
+/* UTILITY FUNCTIONS */
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newnode(int data)
+{
+  struct node* node = (struct node*)
+                       malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+ 
+  return(node);
+}
+ 
+/* Driver program to test above functions*/
+int main()
+{
+ 
+  int sum = 21;
+ 
+  /* Constructed binary tree is
+            10
+          /   \
+        8      2
+      /  \    / \
+    3    2   9   4
+  */
+  struct node *root = newnode(10);
+  root->left        = newnode(-8);//-ive number
+  //if we revert sign then we get this path also
+  root->right       = newnode(2);
+  root->left->left  = newnode(3);
+  root->left->right = newnode(2);
+  root->left->right->left = newnode(1);
+  root->right->left = newnode(9); 
+  root->right->right= newnode(4); 
+  root->right->right->left= newnode(5); 
+   hasPath(root, sum); 
+ 
+  getchar();
+  return 0;
+}
+ http://ashutosh7s.blogspot.com/ WgpShashank @sandeep but there is serious issue with all programs i that what if path not starts from the root ?? if we use this algo we will surely miss the path that exist but missed due to wrong implementation ??then our time complexity increase to o(nlogn)..& also we have to modify the main program..??? otherwise we will get wrong 2nd Also u forget to handle the case when sum reaches to 0 we are not at leaf nodes but still path exist..although we can handle dis condition by checking sum==0 in if condition but 1st condition need new Algo.. output..correct me if m wrong.?? http://ashutosh7s.blogspot.com/ WgpShashank @sandeep Special Case 1 what happen if got sum=0 in the mid before reaching to leaf nodes.? its handled here https://ideone.com/q7vbw Special Case 2 what happens if path not starts from root..?? Sandeep @WgpShashank: Special Case 1 what happen if got sum=0 in the mid before reaching to leaf nodes.? The modified code given in the above comment handles this case. Could you please provide an example tree for which it doesn’t work? Special Case 2 what happens if path not starts from root..?? Please take a closer look at the question. According to the question, the path must start from root. http://ashutosh7s.blogspot.com/ WgpShashank @sandeep….I m thinking more general problem thats how we csn extend it more in general..lets have look You are given a binary tree in which each node contains a value. Design an algorithm to print all paths which sum up to that value. Note that it can be any path in the tree – it does not have to start at the root so this the case m more thinking about case i handled in previous comment but case 2 is need More Modification in Algorithm..That Still In progress..i Will be pleased if you can come with case handled for 2 when node need to start from root &b still sum exist ..hope you got my point..?? ashish can’t we do it by putting value in stack and with a flag value (which will show that right child has been visited or not) bhardwaj CORRECT CODE IS  
+bool hasPathSum(struct node* node, int sum)
+{
+  /* return true if we run out of tree and sum==0 */
+  if (node == NULL)
+  {
+    return(sum == 0);
+  }
+   int subSum = sum - node->data;
+  if(!node->left && !node->right && !subSum)
+  return 1;
+  
+  else
+  {
+    /* otherwise check both subtrees */
+   
+    return(hasPathSum(node->left, subSum) ||
+           hasPathSum(node->right, subSum));
+  }
+}
+ Fanatic I think the above code would give wrong answer for the following tree: 7 / \ 9 21 \ 11 Sum:16 Please check.. asad khan  
+bool haspathsum(struct node* root, int sum)
+{
+	if(root==NULL) return false;
+	sum=sum-root->data;
+	if((sumleft!=NULL)&&(root->right!=NULL)))
+	return false;
+	if(sum!=0 && root->left==NULL && root->right==NULL)
+	return false;
+	if(sum==0 && root->left==NULL && root->right==NULL)
+	return true;
+	return (haspathsum(root->left,sum)||haspathsum(root->right,sum));
+}
+ Greed Your code works fine . The one given above is wrong . They are missing the whole question here rka143 Please ignore my previous post. i think it should be like this:  
+bool hasPathSum(struct node* node, int sum)  
+
+{  
+
+  /* return true if we run out of tree and sum==0 */ 
+
+  if (node == NULL)  
+
+  {  
+
+    return(sum == 0);  
+
+  }
+
+  int subSum = sum - node->data;
+  
+  if (subsum < 0)
+       return 0;
+
+  if (subSum == 0)
+  {
+     if (node->left==NULL && node->right==NULL)
+           return 1;
+     return 0;
+  }
+
+    /* otherwise check both subtrees */ 
+
+    return(hasPathSum(node->left, subSum) ||  
+
+           hasPathSum(node->right, subSum));  
+
+  }  
+
+}   
+ Please let me know if anything is wrong. rhtdm48 Hi rka I think there is no need of this extra code … as last condition it is checking that node should be null and subsum should be 0. so it doesn’t matter if subsum is negative or positive it will return false .. so your cases are covered already . Thanks. rhtdm48 and also tree can have negative values…. so your condition will fail… rka143 I think this code should be link this:  
+bool hasPathSum(struct node* node, int sum)  
+
+{  
+
+  /* return true if we run out of tree and sum==0 */ 
+
+  if (node == NULL)  
+
+  {  
+
+    return(sum == 0);  
+
+  }
+
+  int subSum = sum - node->data;
+  
+  if (subsum left==NULL && node->right==NULL)
+           return 1;
+     return 0;
+  }
+
+    /* otherwise check both subtrees */ 
+
+    return(hasPathSum(node->left, subSum) ||  
+
+           hasPathSum(node->right, subSum));  
+
+  }  
+
+}   
+ Please let me know if anything is wrong in this. abhimanu The code provided has bugs as mentioned by flycooler. call funciton with sum = 12. It gives incorrect answer. Corrected code is  
+bool hasPathSum(TNode *node, int sum)
+{
+	if (node == NULL) {
+		return false;
+	}
+
+	int subSum = sum - node->data;
+	if (subSum == 0 && node->left == NULL && node->right == NULL) {
+		return true;
+	}
+	return (hasPathSum(node->left, sunSum) || 
+			hasPathSum(node->right, subSum));
+}
+ Aravind “if (subSum == 0 && node->left == NULL && node->right == NULL) { return true; }” this code doesn’t return true if there exists a path equating to the given sum from the root node to node(say node_abv) just above the leaf node; as node_abv->left will not be equal to NULL. Aravind “if (subSum == 0 && node->left == NULL && node->right == NULL) { return true; }” this code doesn’t return true if there exists a path equating to the given sum from the root node to node(say node_abv) just above the leaf node; as node_abv->left will not be equal to NULL… Tushar I got a question in MS to optimize the search in case it’s a binary search tree (BST) . I tried a lot but can not replied. Right search can be stopped once our current sum exceeds a limit , but can not find way when to stop searching in left path. Can anyone please help ? http://www.mpi-sb.mpg.de/~dong flycooler The code has bugs for the following BST: 
+                     3
+                    /
+                   2
+                  /
+                 1
+                /
+               1
+              /
+             1
+ The right code should be following:  
+bool hasPathSum(struct node* node, int sum)
+{
+       // return true if we run out of tree and sum==0
+       if (node == NULL) {
+          return(sum == 0);
+        }
+        else {
+        // otherwise check both subtrees
+        int subSum = sum - node->data;
+        if ((node->left&&node->right)||(!node->left && !node->right))
+          return(hasPathSum(node->left, subSum) ||  hasPathSum(node->right,
+subSum));
+        else if (node->left)
+          return hasPathSum(node->left, subSum);
+        else
+          return hasPathSum(node->right, subSum);
+
+      }
+ http://dealsindiadeals.com topcoder Mine is a lot simpler code then yours which works for any binary tree. you wrote a lot of unnecessary code i mean bakwas  
+bool hasPathSum(struct node* node, int Sum){
+	bool ans = 0;
+	i++;
+	//printf("The data in this node is");
+	if(node == NULL)
+		return (Sum == 0);
+	printf("The data in this node is %d\n",node->data);
+	int subSum = Sum - node->data;
+	if((subSum == 0) && (node->left == NULL) and (node->right == NULL))
+		return 1;
+
+	return (hasPathSum(node->left, subSum) || hasPathSum(node->right, subSum));
+}
+ DivyaC This can be can be done in iteration, so like backtracking using external stack and best case would most of the times be log n Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

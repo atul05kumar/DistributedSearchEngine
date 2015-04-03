@@ -1,0 +1,304 @@
+Print ancestors of a given binary tree node without recursion - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Print ancestors of a given binary tree node without recursion Given a Binary Tree and a key, write a function that prints all the ancestors of the key in the given binary tree. For example, consider the following Binary Tree 
+            1
+        /       \
+       2         3
+     /   \     /   \
+    4     5    6    7 
+   /       \       /
+  8         9     10  Following are different input keys and their ancestors in the above tree 
+Input Key    List of Ancestors 
+-------------------------
+ 1            
+ 2            1
+ 3            1
+ 4            2 1
+ 5            2 1
+ 6            3 1
+ 7            3 1
+ 8            4 2 1
+ 9            5 2 1
+10            7 3 1
+ Recursive solution for this problem is discussed here. It is clear that we need to use a stack based iterative traversal of the Binary Tree. The idea is to have all ancestors in stack when we reach the node with given key. Once we reach the key, all we have to do is, print contents of stack. How to get all ancestors in stack when we reach the given node? We can traverse all nodes in Postorder way. If we take a closer look at the recursive postorder traversal, we can easily observe that, when recursive function is called for a node, the recursion call stack contains ancestors of the node. So idea is do iterative Postorder traversal and stop the traversal when we reach the desired node. Following is C implementation of the above approach. 
+// C program to print all ancestors of a given key
+#include <stdio.h>
+#include <stdlib.h>
+
+// Maximum stack size
+#define MAX_SIZE 100
+
+// Structure for a tree node
+struct Node
+{
+    int data;
+    struct Node *left, *right;
+};
+
+// Structure for Stack
+struct Stack
+{
+    int size;
+    int top;
+    struct Node* *array;
+};
+
+// A utility function to create a new tree node
+struct Node* newNode(int data)
+{
+    struct Node* node = (struct Node*) malloc(sizeof(struct Node));
+    node->data = data;
+    node->left = node->right = NULL;
+    return node;
+}
+
+// A utility function to create a stack of given size
+struct Stack* createStack(int size)
+{
+    struct Stack* stack = (struct Stack*) malloc(sizeof(struct Stack));
+    stack->size = size;
+    stack->top = -1;
+    stack->array = (struct Node**) malloc(stack->size * sizeof(struct Node*));
+    return stack;
+}
+
+// BASIC OPERATIONS OF STACK
+int isFull(struct Stack* stack)
+{
+    return ((stack->top + 1) == stack->size);
+}
+int isEmpty(struct Stack* stack)
+{
+    return stack->top == -1;
+}
+void push(struct Stack* stack, struct Node* node)
+{
+    if (isFull(stack))
+        return;
+    stack->array[++stack->top] = node;
+}
+struct Node* pop(struct Stack* stack)
+{
+    if (isEmpty(stack))
+        return NULL;
+    return stack->array[stack->top--];
+}
+struct Node* peek(struct Stack* stack)
+{
+    if (isEmpty(stack))
+        return NULL;
+    return stack->array[stack->top];
+}
+
+// Iterative Function to print all ancestors of a given key
+void printAncestors(struct Node *root, int key)
+{
+    if (root == NULL) return;
+
+    // Create a stack to hold ancestors
+    struct Stack* stack = createStack(MAX_SIZE);
+
+    // Traverse the complete tree in postorder way till we find the key
+    while (1)
+    {
+        // Traverse the left side. While traversing, push the nodes into
+        // the stack so that their right subtrees can be traversed later
+        while (root && root->data != key)
+        {
+            push(stack, root);   // push current node
+            root = root->left;  // move to next node
+        }
+
+        // If the node whose ancestors are to be printed is found,
+        // then break the while loop.
+        if (root && root->data == key)
+            break;
+
+        // Check if right sub-tree exists for the node at top
+        // If not then pop that node because we don't need this
+        // node any more.
+        if (peek(stack)->right == NULL)
+        {
+            root = pop(stack);
+
+            // If the popped node is right child of top, then remove the top
+            // as well. Left child of the top must have processed before.
+            // Consider the following tree for example and key = 3.  If we
+            // remove the following loop, the program will go in an
+            // infinite loop after reaching 5.
+            //          1
+            //        /   \
+            //       2     3
+            //         \
+            //           4
+            //             \
+            //              5
+            while (!isEmpty(stack) && peek(stack)->right == root)
+               root = pop(stack);
+        }
+
+        // if stack is not empty then simply set the root as right child
+        // of top and start traversing right sub-tree.
+        root = isEmpty(stack)? NULL: peek(stack)->right;
+    }
+
+    // If stack is not empty, print contents of stack
+    // Here assumption is that the key is there in tree
+    while (!isEmpty(stack))
+        printf("%d ", pop(stack)->data);
+}
+
+// Driver program to test above functions
+int main()
+{
+    // Let us construct a binary tree
+    struct Node* root = newNode(1);
+    root->left = newNode(2);
+    root->right = newNode(3);
+    root->left->left = newNode(4);
+    root->left->right = newNode(5);
+    root->right->left = newNode(6);
+    root->right->right = newNode(7);
+    root->left->left->left = newNode(8);
+    root->left->right->right = newNode(9);
+    root->right->right->left = newNode(10);
+
+    printf("Following are all keys and their ancestors\n");
+    for (int key = 1; key <= 10; key++)
+    {
+        printf("%d: ", key);
+        printAncestors(root, key);
+        printf("\n");
+    }
+
+    getchar();
+    return 0;
+}
+ Output: Following are all keys and their ancestors
+1:
+2: 1
+3: 1
+4: 2 1
+5: 2 1
+6: 3 1
+7: 3 1
+8: 4 2 1
+9: 5 2 1
+10: 7 3 1 Exercise Note that the above solution assumes that the given key is present in the given Binary Tree. It may go in infinite loop if key is not present. Extend the above solution to work even when the key is not present in tree. This article is contrubuted by Chandra Prakash. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tags: stack, StackAndQueue Tweet Writing code in comment? Please use ideone.com and share the link here. gatorboy This can be done in simple way using recursion. PrintAncestors(Node root, int key){ if(root==null) return false; if(root.value == key) return true; if(PrintAncestors(root.left, key) || PrintAncestors(root.right, key)){ System.out.print(root.value) return true; } return false; } p ? ?? zealfire just wanted to verify whether this method will work or not :we can do level order traversal by keeping the nodes in queue,but not remove top nodes while inserting there child node,then picking parent elements of particular node from array by using formula for parent node which is (i-1)/2. sriahsrha i think ths works 1:do inorder traversal without recurssion 2: once u find the target node print the stack ,traverse the stack from top to bottom and print only elements of height lesser than height of target till u reach the root. http://www.cyukang.com/ Yukang using two stack, and code is very simple! void PrintAncesters(struct Node* root, int target) { if(root == NULL) return; stack st; stack out; st.push(root); bool found = false; while(!st.empty()) { struct Node* cur = st.top(); out.push(cur); if(cur->data == target) { found = true; break; } st.pop(); if(cur->left) st.push(cur->left); if(cur->right) st.push(cur->right); } printf(“%-2d: “, target); struct Node* prev = out.top(); out.pop(); while(found && !out.empty()) { struct Node* cur = out.top(); if(prev == NULL || cur->left == prev || cur->right == prev) { printf(” %-2d “, cur->data); prev = cur; } out.pop(); } printf(“n”); } sh One catch in this code though..if the element is not present in the tree, this code will crash at peek(stack)->right rahul we can do it by preorder traversal also . am i right? Suryabhan Singh void printanst(struct node *s) { struct node *temp=s,*pre=NULL; queue q,parent; q.push(temp); while(!q.empty()) { temp=q.front(); q.pop(); if(temp==s) { cout<data<<" no parent"<<endl; } else { cout<data<<" "<data<l) { q.push(temp->l); parent.push(temp); } if(temp->r) { q.push(temp->r); parent.push(temp); } } } pavansrinivas Iterative Version using Queue in JAVA… void allAncestors(int key){ Node temp = root; Queue q = new LinkedList(); String path = root.iData+""; q.add(temp); q.add(path); while(!q.isEmpty()){ temp = (Node)q.remove(); path = (String)q.remove(); if(temp.leftChild!=null){ String leftstr = path+"-"+temp.leftChild.iData; q.add(temp.leftChild); q.add(leftstr); if(temp.leftChild.iData==key){ System.out.print(path); return; } } if(temp.rightChild!=null){ String rightstr = path+ "-"+temp.rightChild.iData; q.add(temp.rightChild); q.add(rightstr); if(temp.rightChild.iData==key){ System.out.print(path); return; } } } } grab while(1) { while(root) { if(root == element to be found) return /// prnt the content of stack push(root) root = root ->left } if(!empty(S)) { root=s.top(); while(! root->right) { pop(); root =top(); } root=root->right; } } Meraj Ahmed The followinig code solves the problem of infinite run and implements STACK: #include #include struct node { int val; struct node *left; struct node *right; }; struct node_stack { struct node *temp; struct node_stack *next; }; struct node_stack *stack_push(struct node * temp, struct node_stack *head); struct node_stack *stack_pop(struct node_stack *head); int print_stack(struct node_stack *temp); struct node *create(int ch); struct node *create(int ch) { struct node *temp=(struct node *)(malloc(sizeof(struct node))); temp->val=ch; temp->right=NULL; temp->left=NULL; return temp; } int main() { int s; struct node *root; root=create(1); root->left=create(2); root->left->left=create(4); root->left->left->left=create(8); root->left->right=create(5); root->left->right->right=create(9); root->right=create(3); root->right->right=create(7); root->right->right->left=create(10); root->right->left=create(6); printf(“Enter the node to searchn”); scanf(“%d”, &s); func(root, s); printf(“Not found!n”); return 0; } int func(struct node *temp, int s) { static struct node_stack * head; if (temp==NULL) { return ; } head=stack_push(temp, head); if (temp->val==s) { printf(“Found!! “); print_stack(head); exit(0); } func(temp->left, s); func(temp->right, s); head=stack_pop(head); } struct node_stack *stack_push(struct node * temp, struct node_stack *head) { struct node_stack *temp1=(struct node_stack *)malloc(sizeof(struct node_stack)); temp1->temp=temp; temp1->next=NULL; temp1->next=head; head=temp1; printf(“Inside the push function %dn”, head->temp->val); return head; } struct node_stack *stack_pop(struct node_stack *head) { printf(“Inside the pop function: %dn”, head->temp->val); struct node_stack *temp; temp=head; head=head->next; free(temp); return head; } int print_stack(struct node_stack *temp) { temp=temp->next; while (temp!=NULL) { printf(“%d “, temp->temp->val); temp=temp->next; } } din i still didnt get the algorithm ..pls help me…tnx…. atiqwhiz //It’s same like Non recursive Postorder except key matching case see my simple implementation void NRPrintAncestors(Tree *Root,int key) { if(!Root)return; Stack *S=Create_Stack(); Tree *temp=NULL; while(1) { while(Root->data!=key&&Root->left) { Push(&S,Root); Root=Root->left; } if(Root->data!=key&&Root->right) { Push(&S,Root); Root=Root->data; } else if(Root->data==key) { while(!isEmptyStack(S)) { Root=Pop(&S); printf(“%d “,Root->data); } return; } else { while(Root->right==NULL||Root->right==temp) { temp=Root; if(isEmptyStack(S))return; Root=Pop(&S); } if(Root->right!=temp) { Push(&S,Root); Root=Root->right; } } } } atiqwhiz  
+/* Paste your code here (You may delete these lines if not writing code) */
+void NRPrintAncestors(Tree *Root,int key)
+{
+    if(!Root)return;
+    Stack *S=Create_Stack();
+    Tree *temp=NULL;
+    while(1)
+    {
+        while(Root->data!=key&&Root->left)
+        {
+            Push(&S,Root);
+            Root=Root->left;
+        }
+        if(Root->data!=key&&Root->right)
+        {
+            Push(&S,Root);
+            Root=Root->data;
+        }
+        else if(Root->data==key)
+        {
+            while(!isEmptyStack(S))
+            {
+                Root=Pop(&S);
+                printf("%d ",Root->data);
+            }
+            return;
+        }
+        else
+        {
+            while(Root->right==NULL||Root->right==temp)
+            {
+                temp=Root;
+                if(isEmptyStack(S))return;
+                Root=Pop(&S);
+            }
+            if(Root->right!=temp)
+            {  
+                Push(&S,Root);
+                Root=Root->right;
+            }
+        }
+    }
+}
+ Amit Bgl wow code Rudra Implementation follo same logic described, only handel the condition when the key is not present in the tree.  
+void TreeOperation::postOrderTraversalRecursive(TreeNode* root, int ele){
+	TreeNodeStack stack(100);
+	TreeNode* node = root;
+	while(1){
+		while(node  && (node->data != ele)){
+			stack.push(node);
+			node = node->getLeftChild();
+		}
+		if(node != NULL && (node->data = ele)){
+			break;
+		}
+		
+		if(stack.peek()->rightChild == NULL){
+			node = stack.pop();
+			while( !stack.isEmpty() && (stack.peek()->rightChild == node))
+				node = stack.pop();
+		}
+		if(stack.isEmpty()){
+			cout<<"Element not exist in tree";
+			break;
+		}
+		
+		node = stack.isEmpty() ? NULL:stack.peek()->rightChild;
+	
+	}
+	while(!stack.isEmpty())
+		cout<<endl<<stack.pop()->data<<" ";
+}
+ Rudra The implementation follows the logic as described only handling the condition when key element is not present in the tree. void TreeOperation::postOrderTraversalRecursive(TreeNode* root, int ele){ TreeNodeStack stack(100); TreeNode* node = root; while(1){ while(node && (node->data != ele)){ stack.push(node); node = node->getLeftChild(); } if(node != NULL && (node->data = ele)){ break; } if(stack.peek()->rightChild == NULL){ node = stack.pop(); while( !stack.isEmpty() && (stack.peek()->rightChild == node)) node = stack.pop(); } if(stack.isEmpty()){ cout<<"Element not exist in tree"; break; } node = stack.isEmpty() ? NULL:stack.peek()->rightChild; } while(!stack.isEmpty()) cout<<endl<<stack.pop()->data<<" "; } dark_night the given method is not working for the following case(key 3) : 1 2 3 4 5 6 root=1 root->left=2 root->right=3 root->left->left=4 root->left->left->right=5 root->left->left->right->right=6 ubiquitous it can achieved iterative postorder traversal and when u find the expected node print the stack elements. For iterative postorder traversal see the http://en.wikipedia.org/wiki/Tree_traversal#Post-order. If further assistance is needed please let me know. Thanks. trying do a simple DFS and once you find the expected number just print the stack content. Thanks. 12rad It isn’t a Binary Search tree… it’s just a plain binary tree. So, you can’t compare values. sudhansu Here is my java code..  
+private boolean printAncestorsIteeratively(TreeNode root,int target) throws StackFullException, StackEmptyException{
+		if(root==null)
+			return false;
+		TreeNode t;
+		ArrayStack stack=new ArrayStack(20);
+		while(root!=null && root.data!=target){
+			if(target>=root.data){
+				stack.push(root);
+				root=root.right;
+			}
+			if(target<=root.data){
+				stack.push(root);
+				root=root.left;
+			}
+			 if(root.data==target)
+				break;
+		}
+		t=(TreeNode) stack.pop();
+		while(t!=null){
+			System.out.print(t.data);
+			t=(TreeNode) stack.pop();
+		}
+		return true;
+	}
+ 12rad It isn’t a Binary Search tree… it’s just a plain binary tree. So, you can’t compare values.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ 12rad Isn’t a Binary Search tree.. it’s just a plain binary tree. So, you can’t compare values. Akshay Jindal The following is a simpler implementation of the question.What we need to do is search that particular node, and then traverse till the root. Suppose we have x as the node whose ancestors are to be printed out.  
+y=x->parent;
+while(y!=NULL)
+{
+ printf("%d ",y->data);
+ x=y;
+ y=y->parent;
+}
+ vdraceil  
+if (root && root->data == key)
+   break;
+ The above can be replaced with  
+if (root) break;
+ Kumar Vikram The following is a simpler implementation of above problem using c++. #include<iostream> #include<stack> #include<stdlib.h> using namespace std; struct node { int data; struct node *left,*right; }; node * newNode(int num) { node *temp=(node *)malloc(sizeof(node)); temp->data=num; temp->left=temp->right=NULL; return temp; } void print_ancestor(node *root,int key) { stack<node *> mystack; if(root==NULL) return; node *temp=root; while(true) { while(temp && temp->data != key) { mystack.push(temp); temp=temp->left; } if(temp && temp->data==key) break; if(mystack.top()->right == NULL) { temp=mystack.top(); mystack.pop(); while(!mystack.empty() && mystack.top()->right==temp) { temp=mystack.top(); mystack.pop(); } } temp= mystack.empty() ? NULL:mystack.top()->right; } while(!mystack.empty()) { cout<<mystack.top()->data<<"\t"; mystack.pop(); } } int main() { // Let us construct a binary tree node* root = newNode(1); root->left = newNode(2); root->right = newNode(3); root->left->left = newNode(4); root->left->right = newNode(5); root->right->left = newNode(6); root->right->right = newNode(7); root->left->left->left = newNode(8); root->left->right->right = newNode(9); root->right->right->left = newNode(10); cout<<"Following are all keys and their ancestors\n"; for (int key = 1; key <= 10; key++) { cout<<key<<": " ; print_ancestor(root, key); cout<<endl; } return 0; } sijayaraman using stack void ancestor(struct node* root, int key) { stack stack1; if(root->data == key) { cout< <"This is Root Node, No Ansces"< return; } while(1) { if(root->data > key && (root->left != NULL)) { stack1.push(root->data); root = root->left; } else if(root->data < key && (root->right != NULL)) { stack1.push(root->data); root = root->right; } else { cout< <"["<data< <"]"; break; } } while(!stack1.empty()) { int temp = stack1.top(); cout<“; stack1.pop(); } } Output: [20] 30–> [40] 30–> [15] 20–>30–> [25] 20–>30–> [48] 50–>40–>30–> [50] 40–>30–> [48] 50–>40–>30–> [49] 48–>50–>40–>30–> minoz 1. Push the nodes in a stack while doing level order traversal until we get the specified node. 2. Now check if the given node is left or right child of the top of stack. If yes, print the data and change the node at the top to the given node. 3. Pop the stack. 4. Repeat steps 2 & 3 until stack is empty. Complexity: O(n) Please comment if the approach has errors.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ minoz In step 2, I meant, assign the node at the top to the given node. minoz Got it. O(n) extra space. Geek86 Kindly validate my recursive solution. import java.util.Stack; public class BTUtil { public static void getAncestors(BTNode root, int key, Stack<BTNode> nodes) { if ( isPresentInSubTree ( root.getLeft (), key, nodes ) || isPresentInSubTree ( root.getRight (), key, nodes ) ) { nodes.push ( root ); } else { if ( ! nodes.isEmpty () ) { nodes.pop (); } } } private static boolean isPresentInSubTree(BTNode node, int key, Stack<BTNode> nodes) { if ( node == null ) return false; if ( node.getData () == key ) { return true; } else if ( isPresentInSubTree ( node.getLeft (), key, nodes ) || isPresentInSubTree ( node.getRight (), key, nodes ) ) { nodes.push ( node ); return true; } return false; } public static void main(String [] args) { BTNode one = new BTNode ( 1 ); BTNode two = new BTNode ( 2 ); BTNode three = new BTNode ( 3 ); BTNode four = new BTNode ( 4 ); BTNode five = new BTNode ( 5 ); BTNode six = new BTNode ( 6 ); BTNode seven = new BTNode ( 7 ); one.setLeft ( two ); one.setRight ( three ); two.setLeft ( four ); two.setRight ( five ); three.setLeft ( six ); three.setRight ( seven ); seven.setRight ( new BTNode ( 8 ) ); Stack<BTNode> ancestors = new Stack<BTNode> (); for ( int i = 1; i <= 8; i++ ) { ancestors = new Stack<BTNode> (); BTUtil.getAncestors ( one, i, ancestors ); System.out.println ( "Ancestor’s of " + i + " : " + ancestors ); } } } Output : Ancestor’s of 1 : [] Ancestor’s of 2 : [1] Ancestor’s of 3 : [1] Ancestor’s of 4 : [2, 1] Ancestor’s of 5 : [2, 1] Ancestor’s of 6 : [3, 1] Ancestor’s of 7 : [3, 1] Ancestor’s of 8 : [7, 3, 1] idexter You are calling isPresentInSubTree recursively and the first call to that function is made from getAncestors. This employes recursive at some part in the solution. This won’t help in reducing the complexity because of recursive elimination. Geek86 Thank You for your reply. But one advantage I see here is, it eliminates visiting all nodes except for the deepest ones. Silent what is the problem in this code?? void printAncestors(struct tree *root,int x) { struct stack st; st.top=-1; while(1) { while(root && root->info!=x) { push(&st,root); root=root->left; } if(root && root->info==x) break; root=topElement(&st); root=root->right; while(st.top!=-1 && !root && root->info!=x) { root=pop(&st); while(st.top!=-1 && topElement(&st)->right==root) { root=pop(&st); } root=topElement(&st)->right; } if(st.top==-1) { printf(“Node not present in the tree”); break; } } while(st.top!=-1) { root=pop(&st); printf(“%d\t”,root->info); } } http://effprog.blogspot.com Sambasiva http://effprog.wordpress.com/2013/07/01/print-ancestors-of-a-given-binary-tree-node-without-recursion/ SELVAMANI  
+The answer is very simple. Use a post-order iterative traversal using stack.
+While pushing or poping the element from the stack verify whether the element matches the search element.
+If so, all the element that are in the stack are it's parent.
+ AMIT For exercise part We should keep track of the root Struct Node *root1=root; inside the for loop whenever you find root on top of the stack you must break Outside the loop check if required node is in the top?if not print error AMIT I mean root is on the top of the stack and its right is already visited bateesh Instead of using extra variable we can check for stack empty,as stack is holding ancestors.So when stack is empty means no ancestors for current node.It must be for root only. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

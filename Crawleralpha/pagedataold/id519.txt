@@ -1,0 +1,220 @@
+Write a function to delete a Linked List - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Write a function to delete a Linked List Algorithm: Iterate through the linked list and delete all the nodes one by one. Main point here is not to access next of the current pointer if current pointer is deleted. Implementation: 
+#include<stdio.h>
+#include<stdlib.h>
+#include<assert.h>
+
+/* Link list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+
+/* Function to delete the entire linked list */
+void deleteList(struct node** head_ref)
+{
+   /* deref head_ref to get the real head */
+   struct node* current = *head_ref;
+   struct node* next;
+
+   while (current != NULL) 
+   {
+       next = current->next;
+       free(current);
+       current = next;
+   }
+  
+   /* deref head_ref to affect the real head back
+      in the caller. */
+   *head_ref = NULL;
+}
+
+/* Given a reference (pointer to pointer) to the head
+  of a list and an int, push a new node on the front
+  of the list. */
+void push(struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node =
+            (struct node*) malloc(sizeof(struct node));
+
+    /* put in the data  */
+    new_node->data  = new_data;
+   
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);
+   
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+/* Drier program to test count function*/
+int main()
+{
+    /* Start with the empty list */
+    struct node* head = NULL;
+   
+    /* Use push() to construct below list
+     1->12->1->4->1  */
+    push(&head, 1);
+    push(&head, 4);
+    push(&head, 1); 
+    push(&head, 12);
+    push(&head, 1);   
+   
+    printf("\n Deleting linked list");
+    deleteList(&head);  
+   
+    printf("\n Linked list deleted");
+    getchar();
+}
+ Time Complexity: O(n) Space Complexity: O(1)           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tags: Delete a Linked List, Linked Lists Tweet Writing code in comment? Please use ideone.com and share the link here. Himanshu Dagar http://ideone.com/7RkLNM can refer to this mahesh Recursive solution for the same problem. void deleteList(struct node **head) { if(*head) { deleteList(&(*head)->next); free(*head); *head = NULL; } } jayasurya j i have a doubt! can u explain me *head = NULL … does this mean everytime NULL is assigned to a node? anon I haven’t understood the last line in the deleteList function.When I run the function without doing *head_ref = NULL and call a function to find the length of the list it gives the correct length. So my question is what happens if we do not write the last line in deleteList and why? asunel @GeeksforGeeks: Is it possible to delete a linked list having a loop without removing the loop? nitin  
+#include<stdio.h>
+#include<malloc.h>
+struct node
+{
+    int data;
+    struct node * link;
+};
+void insert1(struct node **p,int data)
+{
+    struct node *temp,*t;
+    temp=(struct node *)malloc(sizeof(struct node));
+    temp->data=data;
+    temp->link=NULL;
+    if((*p)==NULL)
+    {
+        *p=temp;
+    }
+    else
+    {
+        t=*p;
+        while(t->link)
+        {
+            t=t->link;
+        }
+        t->link=temp;
+    }
+}
+void delete1(struct node**p ,int data)
+{
+    struct node *temp,*t;
+    if((*p)==NULL)
+    {
+        printf("No node to delete");
+    }
+    else if((*p)->data==data)
+    {
+        (*p)=(*p)->link;
+    }
+    else
+    {
+        temp=*p;
+        t=NULL;
+        int flag=0;
+        {
+            while(temp->link)
+            {
+                if(temp->data==data)
+                {
+                    flag=1;
+                    t->link=temp->link;
+                    break;
+                }
+                else
+                {
+                    t=temp;
+                    temp=temp->link;
+                }
+            }
+            if(flag==0)
+                printf("Node to be deleted not found");
+        }
+    }
+}
+void print(struct node *p)
+{
+    while(p!=NULL)
+    {
+        printf("%d\t",p->data);
+        p=p->link;
+    }
+}
+int main()
+{
+    struct node *p;
+    p=NULL;
+    insert1(&p, 2);
+    insert1(&p, 15);
+    insert1(&p, 10);
+    insert1(&p, 7);
+    insert1(&p, 5);
+    print(p);
+    printf("\n");
+    delete1(&p,2);
+    print(p);
+    printf("\n");
+    delete1(&p,7);
+    print(p);
+    printf("\n");
+    delete1(&p,3);
+}
+ Ankit Malhotra A simple tail recursive C++ function instead of head recursion examples seen before, that deletes nodes and then passes to next.  
+void rdellist (node * &ptr) {
+  if (!ptr) return;
+  node * temp = ptr->next;
+  delete ptr;
+  rdellist (ptr = temp);
+}
+ Recursion is best avoided with loops where feasible so   void dellist (node * &ptr) { node * temp; while (ptr) { temp = ptr->next; delete ptr; ptr = temp; } } Harsh Agarwal A recursive code:  
+void delete_list(node1 *start)
+{
+     if(start==NULL)
+     {
+                   printf("Empty linked list...\n");
+                   return;
+     }
+     node1 *p=start;
+     if(p->link==NULL)
+     free(p);
+     else
+     delete_list(p->link);
+     p->link=NULL;
+}
+ Ankit Malhotra Segmentation Fault. After free(p) reference to p->link is invalid.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ abhishek08aug Corrected version  
+/* Function to delete the entire linked list */
+void deleteList(struct node** head_ref)
+{
+  if(*head_ref==NULL) {
+    return;
+  } else {
+    deleteList(&((* head_ref)->next));
+    free(*head_ref);
+  }
+}
+ neelabh In recursive time complexity will be O(n) but space complexity will be increase from O(1) to O(n). Abhisek there is some improvement in your code. If you want to display the node it will go infinite. In if condition is only for to reach last node then start deletion. Now you can see on reaching start node you free. But in your function you passed the address of head node double pointer. But you did not make it NULL. If i am wrong plz correct me. Code should be following NODE * deleteList(NODE **start) { if(*start==NULL) { printf(“Now head is NULL”); return NULL; } else { deleteList(&((*start)->next)); free(*start); return NULL; } } Sunil A recursive algorithm to delete the linked list  
+void delete_list(struct node** node)
+{
+    if(NULL == *node)
+        return;
+    delete_list((*node)->link);
+    free(*node);
+}
+ abhishek08aug Wrong code Sunil. you should change delete_list((*node)->link); to delete_list(&((*node)->link)); Check my code above. neelabh In recursive time complexity will be O(n) but space complexity will be increase.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Gupta Wrong code.. U just need 2 pass d adress. make it simple.. void deleteNode(struct node* head) { if(head==NULL) return; else { delete(head->next); free(head); } }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kpnigalye /* Delete a linked list */ void DeleteList(struct LinkedListnode*& head_ref) { struct LinkedListnode* current = head_ref; if(head_ref == NULL) return; while(current!=NULL) { struct LinkedListnode* temp = current; current = current->next; cout<<"Node deleted is: "<<temp->data<<endl; delete temp; } head_ref = NULL; } /* Recursive way to delete a linked list */ void RecurDeleteList(struct LinkedListnode*& head_ref) { struct LinkedListnode* current = head_ref; if(head_ref == NULL) return; if(head_ref->next) { RecurDeleteList(head_ref->next); delete head_ref; } head_ref = NULL; } amitp49 Recursive solution for the same can be…  
+/* Function to delete the entire linked list */
+void deleteList(struct node** head_ref)
+{
+	if(head_ref==NULL)
+		return;
+	if((*head_ref)->next)
+		deleteList(&(*head_ref)->next);
+	free(*head_ref);
+	*head_ref = NULL;
+}
+ Yogendra Singh Vimal i think @amitp49 that ur code is a Li’L bit wrong…u Should write if(*head_ref==NULL) instead of, if(head_ref==NULL) , as here double pointer ” head_ref ” receives the address of a single pointer, So writing only head_ref indicates the address of the single pointer but here our intention is towards the address stored inside single pointer which can be achieved by writing *head_ref. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

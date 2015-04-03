@@ -1,0 +1,285 @@
+Longest Monotonically Increasing Subsequence Size (N log N) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Longest Monotonically Increasing Subsequence Size (N log N) After few months of gap posting an algo. The current post is pending from long time, and many readers (e.g. here, here, here may be few more, I am not keeping track of all) are posting requests for explanation of the below problem. Given an array of random numbers. Find longest monotonically increasing subsequence (LIS) in the array. I know many of you might have read recursive and dynamic programming (DP) solutions. There are few requests for O(N log N) algo in the forum posts. For the time being, forget about recursive and DP solutions. Let us take small samples and extend the solution to large instances. Even though it may look complex at first time, once if we understood the logic, coding is simple. Consider an input array A = {2, 5, 3}. I will extend the array during explanation. By observation we know that the LIS is either {2, 3} or {2, 5}. Note that I am considering only strictly increasing monotone sequences. Let us add two more elements, say 7, 11 to the array. These elements will extend the existing sequences. Now the increasing sequences are {2, 3, 7, 11} and {2, 5, 7, 11} for the input array {2, 5, 3, 7, 11}. Further, we add one more element, say 8 to the array i.e. input array becomes {2, 5, 3, 7, 11, 8}. Note that the latest element 8 is greater than smallest element of any active sequence (will discuss shortly about active sequences). How can we extend the existing sequences with 8? First of all, can 8 be part of LIS? If yes, how? If we want to add 8, it should come after 7 (by replacing 11). Since the approach is offline (what we mean by offline?), we are not sure whether adding 8 will extend the series or not. Assume there is 9 in the input array, say {2, 5, 3, 7, 11, 8, 7, 9 …}. We can replace 11 with 8, as there is potentially best candidate (9) that can extend the new series {2, 3, 7, 8} or {2, 5, 7, 8}. Our observation is, assume that the end element of largest sequence is E. We can add (replace) current element A[i] to the existing sequence if there is an element A[j] (j > i) such that E < A[i] < A[j] or (E > A[i] < A[j] – for replace). In the above example, E = 11, A[i] = 8 and A[j] = 9. In case of our original array {2, 5, 3}, note that we face same situation when we are adding 3 to increasing sequence {2, 5}. I just created two increasing sequences to make explanation simple. Instead of two sequences, 3 can replace 5 in the sequence {2, 5}. I know it will be confusing, I will clear it shortly! The question is, when will it be safe to add or replace an element in the existing sequence? Let us consider another sample A = {2, 5, 3}. Say, the next element is 1. How can it extend the current sequences {2,3} or {2, 5}. Obviously, it can’t extend either. Yet, there is a potential that the new smallest element can be start of an LIS. To make it clear, consider the array is {2, 5, 3, 1, 2, 3, 4, 5, 6}. Making 1 as new sequence will create new sequence which is largest. The observation is, when we encounter new smallest element in the array, it can be a potential candidate to start new sequence. From the observations, we need to maintain lists of increasing sequences. In general, we have set of active lists of varying length. We are adding an element A[i] to these lists. We scan the lists (for end elements) in decreasing order of their length. We will verify the end elements of all the lists to find a list whose end element is smaller than A[i] (floor value). Our strategy determined by the following conditions, 1. If A[i] is smallest among all end candidates of active lists, we will start new active list of length 1. 2. If A[i] is largest among all end candidates of active lists, we will clone the largest active list, and extend it by A[i]. 3. If A[i] is in between, we will find a list with largest end element that is smaller than A[i]. Clone and extend this list by A[i]. We will discard all other lists of same length as that of this modified list. Note that at any instance during our construction of active lists, the following condition is maintained. “end element of smaller list is smaller than end elements of larger lists”. It will be clear with an example, let us take example from wiki {0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15}. A[0] = 0. Case 1. There are no active lists, create one.
+0.
+-----------------------------------------------------------------------------
+A[1] = 8. Case 2. Clone and extend.
+0.
+0, 8.
+-----------------------------------------------------------------------------
+A[2] = 4. Case 3. Clone, extend and discard.
+0.
+0, 4.
+0, 8. Discarded
+-----------------------------------------------------------------------------
+A[3] = 12. Case 2. Clone and extend.
+0.
+0, 4.
+0, 4, 12.
+-----------------------------------------------------------------------------
+A[4] = 2. Case 3. Clone, extend and discard.
+0.
+0, 2.
+0, 4. Discarded.
+0, 4, 12.
+-----------------------------------------------------------------------------
+A[5] = 10. Case 3. Clone, extend and discard.
+0.
+0, 2.
+0, 2, 10.
+0, 4, 12. Discarded.
+-----------------------------------------------------------------------------
+A[6] = 6. Case 3. Clone, extend and discard.
+0.
+0, 2.
+0, 2, 6.
+0, 2, 10. Discarded.
+-----------------------------------------------------------------------------
+A[7] = 14. Case 2. Clone and extend.
+0.
+0, 2.
+0, 2, 6.
+0, 2, 6, 14.
+-----------------------------------------------------------------------------
+A[8] = 1. Case 3. Clone, extend and discard.
+0.
+0, 1.
+0, 2. Discarded.
+0, 2, 6.
+0, 2, 6, 14.
+-----------------------------------------------------------------------------
+A[9] = 9. Case 3. Clone, extend and discard.
+0.
+0, 1.
+0, 2, 6.
+0, 2, 6, 9.
+0, 2, 6, 14. Discarded.
+-----------------------------------------------------------------------------
+A[10] = 5. Case 3. Clone, extend and discard.
+0.
+0, 1.
+0, 1, 5.
+0, 2, 6. Discarded.
+0, 2, 6, 9.
+-----------------------------------------------------------------------------
+A[11] = 13. Case 2. Clone and extend.
+0.
+0, 1.
+0, 1, 5.
+0, 2, 6, 9.
+0, 2, 6, 9, 13.
+-----------------------------------------------------------------------------
+A[12] = 3. Case 3. Clone, extend and discard.
+0.
+0, 1.
+0, 1, 3.
+0, 1, 5. Discarded.
+0, 2, 6, 9.
+0, 2, 6, 9, 13.
+-----------------------------------------------------------------------------
+A[13] = 11. Case 3. Clone, extend and discard.
+0.
+0, 1.
+0, 1, 3.
+0, 2, 6, 9.
+0, 2, 6, 9, 11.
+0, 2, 6, 9, 13. Discarded.
+-----------------------------------------------------------------------------
+A[14] = 7. Case 3. Clone, extend and discard.
+0.
+0, 1.
+0, 1, 3.
+0, 1, 3, 7.
+0, 2, 6, 9. Discarded.
+0, 2, 6, 9, 11.
+----------------------------------------------------------------------------
+A[15] = 15. Case 2. Clone and extend.
+0.
+0, 1.
+0, 1, 3.
+0, 1, 3, 7.
+0, 2, 6, 9, 11.
+0, 2, 6, 9, 11, 15. <-- LIS List
+---------------------------------------------------------------------------- It is required to understand above strategy to devise an algorithm. Also, ensure we have maintained the condition, “end element of smaller list is smaller than end elements of larger lists“. Try with few other examples, before reading further. It is important to understand what happening to end elements. Algorithm: Querying length of longest is fairly easy. Note that we are dealing with end elements only. We need not to maintain all the lists. We can store the end elements in an array. Discarding operation can be simulated with replacement, and extending a list is analogous to adding more elements to array. We will use an auxiliary array to keep end elements. The maximum length of this array is that of input. In the worst case the array divided into N lists of size one (note that it does’t lead to worst case complexity). To discard an element, we will trace ceil value of A[i] in auxiliary array (again observe the end elements in your rough work), and replace ceil value with A[i]. We extend a list by adding element to auxiliary array. We also maintain a counter to keep track of auxiliary array length. Bonus: You have learnt Patience Sorting technique partially :). Here is a proverb, “Tell me and I will forget. Show me and I will remember. Involve me and I will understand.” So, pick a suit from deck of cards. Find the longest increasing sub-sequence of cards from the shuffled suit. You will never forget the approach. Given below is code to find length of LIS, 
+#include <iostream>
+#include <string.h>
+#include <stdio.h>
+
+using namespace std;
+
+#define ARRAY_SIZE(A) sizeof(A)/sizeof(A[0])
+// Binary search (note boundaries in the caller)
+// A[] is ceilIndex in the caller
+int CeilIndex(int A[], int l, int r, int key) {
+    int m;
+
+    while( r - l > 1 ) {
+        m = l + (r - l)/2;
+        (A[m] >= key ? r : l) = m; // ternary expression returns an l-value
+    }
+
+    return r;
+}
+
+int LongestIncreasingSubsequenceLength(int A[], int size) {
+    // Add boundary case, when array size is one
+
+    int *tailTable   = new int[size];
+    int len; // always points empty slot
+
+    memset(tailTable, 0, sizeof(tailTable[0])*size);
+
+    tailTable[0] = A[0];
+    len = 1;
+    for( int i = 1; i < size; i++ ) {
+        if( A[i] < tailTable[0] )
+            // new smallest value
+            tailTable[0] = A[i];
+        else if( A[i] > tailTable[len-1] )
+            // A[i] wants to extend largest subsequence
+            tailTable[len++] = A[i];
+        else
+            // A[i] wants to be current end candidate of an existing subsequence
+            // It will replace ceil value in tailTable
+            tailTable[CeilIndex(tailTable, -1, len-1, A[i])] = A[i];
+    }
+
+    delete[] tailTable;
+
+    return len;
+}
+
+int main() {
+    int A[] = { 2, 5, 3, 7, 11, 8, 10, 13, 6 };
+    int n = ARRAY_SIZE(A);
+
+    printf("Length of Longest Increasing Subsequence is %d\n",
+            LongestIncreasingSubsequenceLength(A, n));
+
+    return 0;
+}
+ Complexity: The loop runs for N elements. In the worst case (what is worst case input?), we may end up querying ceil value using binary search (log i) for many A[i]. Therefore, T(n) < O( log N! )  = O(N log N). Analyse to ensure that the upper and lower bounds are also O( N log N ). The complexity is THETA (N log N). Exercises: 1. Design an algorithm to construct the longest increasing list. Also, model your solution using DAGs. 2. Design an algorithm to construct all monotonically increasing lists of equal longest size. 3. Is the above algorithm an online algorithm? 4. Design an algorithm to construct the longest decreasing list.. — Venki. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. Prateek Jain Have made it very Simple , Think of above implementing like a Binary Tree (Not Binary Search Tree) and the implementation becomes very simple and keep discarding the child nodes with larger value and same depth in tree. Root is an empty container to hold the reference values, as there can be more than two child nodes. Below is the Java code implementation. http://ideone.com/e.js/W1rcXp Prateek Jain Have made it very Simple , Think of above implementing like a Binary Tree (Not Binary Search Tree) and the implementation becomes very simple and keep discarding the child nodes with larger value and same depth in tree. Root is an empty container to hold the reference values, as there can be more than two child nodes.. kraken Will we get all the longest subsequence? Because if we take the example {2 5 3} Then 2 : Clone => 2 5 : Clone and Extend => 2 2 5 3 : Clone Extend Discard 2 2 3 We dont get 2 and 5 using this approach? Robin Keskisärkkä That’s right, we don’t get [2,5] because any continuation sequence that is possible from [2,5] is also reachable from [2,3]. For example: 3, 4, 1, 2, 3 is solved as: 3 — 3 3, 4 — 1 (more “potential” than 3) 3, 4 — 1 1, 2 (more “potential” than 3, 4) — 1 1, 2 1, 2, 3 Vivekz I dont think the implementation is correct, because everytime we encounter a new element, if it is smaller than the smallest element, we are NOT creating a new list but modifying existing tailTable to store it. check out this link .. http://ideone.com/8Qoi5i Neha Garg in third step we are finding the ceilindex and replacing a[i] over there …. plz tell me then y we are not modifing the len????? OP Because len is always equals to the maximum length of monotonic sub sequence we have found so far. Guest its very well explained ,i understood the method but can someone explain me about its complexity!! OP Time complexity = O(nlogn) for each element we are doing one binary searh, so for total n elements it will be O(nlogn) Space complexity = O(n) googlybhai #include #include #include using namespace std; #define ARRAY_SIZE(A) sizeof(A)/sizeof(A[0]) // Binary search (note boundaries in the caller) // A[] is ceilIndex in the caller int CeilIndex(int *A, int *table, int l, int r, int key) { int m; while( r-l > 1 ) { m = l + (r-l)/2; (A[table[m]] >= A[key] ? r : l) = m; // ternary expression returns an l-value } return r; } int LongestIncreasingSubsequenceLength(int A[], int size, int *result) { // Add boundary case, when array size is one int *tailTable = new int[size]; int *parentIndex = new int[size]; int len, pos; // always points empty slot int i; memset(tailTable, 0, sizeof(tailTable[0])*size); memset(parentIndex, -1, sizeof(parentIndex[0])*size); tailTable[0] = 0; len = 1; for(i = 1; i < size; i++ ) { if( A[i] =2 && (A[i] A[tailTable[len-2]])){ tailTable[len-1] = i; parentIndex[i]=tailTable[len-2]; } else if( A[i] > A[tailTable[len-1]] ) // A[i] wants to extend largest subsequence { tailTable[len] = i; parentIndex[i]=tailTable[len-1]; len++; } else // A[i] wants to be current end candidate of an existing subsequence // It will replace ceil value in tailTable { pos= CeilIndex(A, tailTable, -1, len-1, i); tailTable[pos] = i; parentIndex[i]=tailTable[pos-1]; } } i=tailTable[len-1]; for (int j=len-1;j>=0 && i!=-1;j--){ result[j]=A[i]; i=parentIndex[i]; } delete[] tailTable; delete[] parentIndex; return len; } int main() { //int A[] = { 2, 5, 3, 7, 11, 8, 10, 13, 6 }; int A[] = {5,2,6,3,4,1,9,8,9,5,6,7}; int n = ARRAY_SIZE(A); int x; int *result= new int[n]; printf("Length of Longest Increasing Subsequence is %dn", x=LongestIncreasingSubsequenceLength(A, n, result)); cout<<"result"<<endl; for(int i=0;i<x;i++) cout<<result[i]<<" "; cout<<endl; return 0; } Guest /* Modified the code to return longest increasing subsequence */ #include #include #include using namespace std; #define ARRAY_SIZE(A) sizeof(A)/sizeof(A[0]) // Binary search (note boundaries in the caller) // A[] is ceilIndex in the caller int CeilIndex(int *A, int *table, int l, int r, int key) { int m; while( r-l > 1 ) { m = l + (r-l)/2; (A[table[m]] >= A[key] ? r : l) = m; // ternary expression returns an l-value } return r; } int LongestIncreasingSubsequenceLength(int A[], int size, int *result) { // Add boundary case, when array size is one int *tailTable = new int[size]; int *parentIndex = new int[size]; int len, pos; // always points empty slot int i; memset(tailTable, 0, sizeof(tailTable[0])*size); memset(parentIndex, -1, sizeof(parentIndex[0])*size); tailTable[0] = 0; len = 1; for(i = 1; i < size; i++ ) { if( A[i] =2 && (A[i] A[tailTable[len-2]])){ tailTable[len-1] = i; parentIndex[i]=tailTable[len-2]; } else if( A[i] > A[tailTable[len-1]] ) // A[i] wants to extend largest subsequence { tailTable[len] = i; parentIndex[i]=tailTable[len-1]; len++; } else // A[i] wants to be current end candidate of an existing subsequence // It will replace ceil value in tailTable { pos= CeilIndex(A, tailTable, -1, len-1, i); tailTable[pos] = i; parentIndex[i]=tailTable[pos-1]; } } i=tailTable[len-1]; for (int j=len-1;j>=0 && i!=-1;j--){ result[j]=A[i]; i=parentIndex[i]; } delete[] tailTable; delete[] parentIndex; return len; } int main() { //int A[] = { 2, 5, 3, 7, 11, 8, 10, 13, 6 }; int A[] = {5,2,6,3,4,1,9,8,9,5,6,7}; int n = ARRAY_SIZE(A); int x; int *result= new int[100]; printf("Length of Longest Increasing Subsequence is %dn", x=LongestIncreasingSubsequenceLength(A, n, result)); cout<<"result"<<endl; for(int i=0;i<x;i++) cout<<result[i]<<" "; cout<<endl; scanf("%d", &x); return 0; } Surya Baghrecha tailTable wont be having result sub sequence can you tell me what changes to make for this to print right sub sequence in nlogn 2, 5, 3, 7, 11, 8, 10, 13, 6,1 1 3 6 8 10 13 it will give this as output Kellogs No. (For 2) 2 ******************************************************** (For 5) 2 2,5 ******************************************************* (For 3) 2 2,3 2,5 (Discard) ******************************************************* (for 7) 2 2,3 2,3,7 ******************************************************** (for 11) 2 2,3 2,3,7 2,3,7,11 ************************************************************** (for 8) 2 2,3 2,3,7 2,3,7,8 2,3,7,11 (Discard) **************************************** (for 10) 2 2,3 2,3,7 2,3,7,8 2,3,7,8,10 ******************************************************** (for 13) 2 2,3 2,3,7 2,3,7,8 2,3,7,8,10 2,3,7,8,10,13 ************************************************** (For 6) 2 2,3 2,3,6 2,3,7(Discard) 2,3,7,8 2,3,7,8,10 2,3,7,8,10,13 ***************************************************** (For 1) 1 2 (Discard) 2,3,6 2,3,7,8 2,3,7,8,10 2,3,7,8,10,13 Surya Baghrecha if( A[i] < tailTable[0] ) // new smallest value tailTable[0] = A[i]; wont it go into this?? how is it discarded? Sudipto @Venki: Suppose we have an array of pairs, like: (a, b) instead of integers, where a pair (c, d) can come after (a, b) if b < c. Let the array be : {{1, 3}, {5, 9}, {5, 7}, {8, 23}}. Here how are we going to compare {5, 9} and {5, 7} as none of these 2 pairs can succeed the other pair. If we replace {5, 9} with {5, 7} following the given approach, then LIS length will be 3, else it will be 2. So, how can we handle this situation? Sudipto I think this approach will work only if the elements of array are “totally ordered”, any 2 elements must be comparable. Rajkiran What is meant by discard all other lists of the same length? At any given point, there can be only 1 list of a given length, right? Can you please clarify? Rajkiran It is also not clear why the binary search function is called with the left argument as -1 ( I do understand that you want to position it before the start of the array ). But it seems unnecessary. Making it 0 would be logical, I guess. SS Great Tutorial !!!!!!!!!! Asap Can we use this approach for this questions? http://www.geeksforgeeks.org/dynamic-programming-set-14-variations-of-lis/ Dj why this code is not working ?? Please help…  
+#include<stdio.h>
+int main()
+{
+    int n,a[10],A[10],len,low,high,mid;
+    scanf("%d %d",&n,&a[0]);
+    A[0]=a[0];
+    len=1;
+    for(int i=1;i<n;i++)
+    {
+            scanf("%d",&a[i]);
+            if(a[i]>A[len-1])
+                             A[len++]=a[i];
+            else if(a[i]<A[0])
+                 A[0]=a[i];
+            else 
+            {
+                low=0;
+                high=len-1;
+                while(low<high)
+                {
+                                 mid=(low+high)/2;
+                                 if(A[mid]==a[i])
+                                 {
+                                                 high=mid;
+                                                 break;
+                                 }
+                                 if(A[mid]<a[i])
+                                                low=mid+1;
+                                 else
+                                     high=mid-1;
+                }
+                A[high]=a[i];
+            }
+    }
+    printf("%d",len);
+    return 0;
+    }
+
+ Swapnil R Mehta Can’t we just write a binary search function in place of CeilIndex and find the index of smallest value larger than A[i] in tailTable and replace it with A[i].As tailTable is always sorted—->”end element of smaller list is smaller than end elements of larger lists”. http://www.linkedin.com/in/ramanawithu Venki CeilIndex is binary search function only. Observe it carefully. It returns ceil index of A[i], and it is always guaranteed (Why?). Am I missing anything to understand? Swapnil R Mehta Sir, pls make the parameter received in ceilIndex() from int A[] to int tailTable[].It was tailTable which was been sent as parameter.It will help remove confusions. Rest alls correct. Thanks for reply http://www.linkedin.com/in/ramanawithu Venki I am not sir. I follow some coding convention. A for array, I have added comment to avoid confusion. Swapnil R Mehta thanks for your valuable time… abhishek08aug Intelligent  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Qiao Will the CeilIndex function return the smallest element in A[] that is larger than key?? I thought the function should return the largest element in A[] that is smaller than key.. Am I wrong??  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Qiao hmm.. I got it. Thanks~ coderAce A small observation: The above procedure will find that LIS with the minimum sum. To elaborate a little, there can be multiple LISs for a given array. The above procedure, by rule 3 finds out an active list with end element smaller than A[i], clones the list and adds A[i] to it and finally discards other lists of equal length. Now the discarded list obviously had its end element greater than A[i] and hence finally we will end up with a list having the minimum sum. Please correct me if I am wrong http://www.linkedin.com/in/ramanawithu Venki Good observation. The algorithm is greedy in nature, yet, yields smallest sum largest increasing monotonic subsequence. ravi Code for longest sub sequences in O(nlog(n))  
+#include <stdio.h>
+#define MX 16
+int main()
+{
+	int array[MX]={0,8,4,12,2,10,6,14,1,9,5,13,3,11,7,15};
+	int index;
+	int k,j;
+	int table[6][6];
+	int m,n;
+	for(m=0;m<6;m++)
+	{
+		for(n=0;n<6;n++)
+		{
+			table[m][n]=-1;
+		}
+	}
+	
+	table[0][0]= array[0];
+	
+	for(index=1;index<MX;index++)
+	{
+		k=0,j=0;
+		while(table[k][0] != -1)
+		{
+				if(array[index] > table[k][j])
+				{
+					k++;
+					j++;
+				}
+				else
+				{
+					n =0;
+					while(table[k-1][n] != -1)
+					{
+						table[k][n] = table[k-1][n];
+						n++;
+					}
+					table[k][n]=array[index];
+					break;
+				}
+			if(table[k][0] == -1)
+			{
+				n=0;
+				while(table[k-1][n] != -1)
+				{
+					table[k][n] = table[k-1][n];
+					n++;
+				}
+				table[k][n] = array[index];
+				break;
+			}
+			
+		}
+	
+	}
+	for(m =0; m < 6; m++)
+	{
+		for(n =0; n < 6; n++)
+		{
+			if(table[m][n] != -1)
+			{
+				printf("%d",table[m][n]);
+			}
+		}
+		printf("\n");
+	}
+	return 0;
+}
+ anirudh beria i dont think this solution is nlogn due to check for min and max elements. A maximum finding segment tree will be nlogn sol. cooldude 44,1,21,41,90,65,82,72,50,16 For this example,output should be 1,21,41,65,82 but the above algo gives output as 4 with table as follows(end=length) [1=1, 44=1] [1=1, 21=2, 44=1] [1=1, 21=2, 41=3, 44=1] [1=1, 21=2, 41=3, 44=1, 90=4] [1=1, 65=2, 41=3, 44=1, 90=4] [1=1, 65=2, 82=3, 44=1, 90=4] [1=1, 65=2, 72=3, 44=1, 90=4] [50=2, 1=1, 72=3, 44=1, 90=4] [16=2, 1=1, 72=3, 44=1, 90=4] http://www.linkedin.com/in/ramanawithu Venki http://ideone.com/dgEymU cooldude but still it doesnt work for this example and some other which i can post http://www.linkedin.com/in/ramanawithu Venki Please be specific. I got the following output to your input, 1 21 41 65 72 The only difference your expected output and actual output is last number. We always choose best possible next higher number to find largest sequence. We are not concerned with what elements constituted in the sequence, we only concern whether the outcome is largest sequence or not. I have left your expected output in my exercises. I would encourage you read all comments as this discussion happened with one reader. _maverick hello Venki a grt one! I thank you frst for making things easy to understand. may i have ur blog to get regular updates from u. Once again thanks for this one. http://www.linkedin.com/in/ramanawithu Venki @Maverick, I am not active on personal blog. You can keep visiting Geeksforgeeks, I post here occasionally. viswanath love it  
+/* Paste your code here (You may delete these lines if not writing code) */
+ cherry What is the out put for the given array A[] = { 10,22,9,33,21,21,21,21,21 }; ? yours is returning just 3. which is ( 10,22,33). isnt this wrong?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://www.linkedin.com/in/ramanawithu Venki Thanks for bringing it into attention. I have only considered strictly increasing monotone subsequence. For increasing monotone subsequence, it needs content and code modification. Rather I would retain the content as it is, and mention your note. Ravi In the above explanation (as explained in boxes), we can find longest increasing sequence, but if we go through code, we are only able to find length of LIS not LIS exactly (in all possible cases). Let’s take an example of {3, 4, 1}… according to code, final output (LIS) comes out to be {1, 4}…but LIS should be {3, 4}. http://www.linkedin.com/in/ramanawithu Venki @Ravi, I have mentioned in the content that the code is meant to find size of LIS. I have left construction of LIS as an exercise, and later added code also. I got correct oupput for the sequence {3, 4, 1} LIS – http://ideone.com/9odmXL Note that I have mentioned that the sequence will be printed in reverse order. Sakshi Hi Venki, Awesome explanation. Just a small doubt, while calling CeilIndex function, why not initialize “l” as 0, rather than -1. Any particular reason for it to be -1? Wont it be better to start the search with the middle element, rather than middle-1? Please correct me if I am wrong. http://www.linkedin.com/in/ramanawithu Venki @Sakshi, Given a sorted array, I would recommend you to write bug free code for finding floor and ceil values of given key. All your questions will be clarified. Bala I have a doubt in 3rd case i.e discarding the other lists which is of the same length as the newly cloned list . Say after the LIS “0, 2, 6, 9, 11, 15″ , there is another number 13. Now there will be another LIS “0, 2, 6, 9, 11, 13″. My question is why we have to discard the previous LIS , in this case doesnt the previous one also a LIS ? I think there can be many LIS for a sequence and I guess by discarding, we are eliminating other sub sequences which are also a solution. Please correct if I am wrong http://www.google.com/profiles/ramanawithu Venki Partially, yes. The objective is to find “longest increasing sub-sequence”. We are not concerning about discarded lists here. We need largest such list. It doesn’t matter what value it ends with. For example, even excluding your extension by 13, we have two LIS in the wiki example. They are, 0, 2, 6, 9, 13, 15 0, 4, 6, 9, 11, 15 However, we found a different list all together, but of same size. 0, 2, 6, 9, 11, 15 Replacing 13 with 11 can make the current effective list a potential candidate for extension by future elements. As an example you have mentioned, let us assume there is 13 after the last element of above sequence. The LIS becomes, 0, 2, 6, 9, 11, 13 Making it to accommodate any values past the current last element (i.e. 13). Even, any discarded list that it extends can’t be more than this list. I expected this dilemma by the reader. And, I have also provided an exercise for the same. See the second exercise. Though coding is little complex to maintain all increasing lists, it would be interesting to discuss. Perhaps you can discuss with your friends for more thought. If you are still not clear, or if I am missing anything, let me know. duckling nice post,very clear explanation! Ayush In third point ” 3. If A[i] is in between, we will find a list with largest end element that is smaller than A[i] ” should this not be If A[i] is in between, we will find a list with smallest element that is larger than A[i] example : A[4]= 2 0 4 12 // these are already in array and we want to insert A[[4]=2 now we will search element that is smallest but largest than 2 and that is 4 so replace 4 with 2 Venki @Ayush, I expected this dilemma. Just check the rough work, you will get why we need ceil value. Even in the code I have used meaningful names to functions. bhanu venki the code is correct and its using the ceil function but the 3rd rule should be modified as following the rule makes us replace the a[i] with floor value of a[i] X Holy crap, that was 1 of the best explanations ever. Thanks Mr. Venki. Venki Thanks. nikita wonderful explanation…  
+/* Paste your code here (You may delete these lines if not writing code) */
+ leet @Venki, Very good explaination. For exercise problem.Question 1,We can have another array with the previous index. For DAG,We can have an edge from i to j if a[i] <a[j].and then we can find the longest path.But i am not able to completely formutate it .Can you please guide me ? For exercise 2,We can also use graph. /* Paste your code here (You may delete these lines if not writing code) */ Venki Thanks. Sorry for late reply. 1. Yes, we need to keep track of prev index to construct the array. I guess the logic is easy, so not providing code here. May be content for another post. For excellent explanation using DAG, refer Algorithms by Dasgupta. 2. Yes, graph is one way. I prefer graphs when the solution demands all possibilities. 3. Yes, the algorithm is online algorithm. At any point, we can print the longest increasing sub sequence till that input. algoEnthusiast @venki : great post. loved it !! I have a concern. I understand that at any step of the algorithm, only one list of a particular length is present (this ‘particular length’ is constrained by the number of elements processed so far) and this allows us to model the problem as a 1D array. When we are creating a new list, shouldn’t it be checked against the already existing list of length 1 (if existent) to see which has the greater element. The list with the greater element should be removed. Your thoughts?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ nikita a new list is created only if its smaller than the very first element of the tailtable[].consider the following points about the tailtable[] that may help: 1.there is only one active list corresponding to a particular length. 2.for each 1<=length<len there is only one unique active list. 3.tailtable[] is sorted in non decreasing order. 4.the active list represented by each element in the tailtable[] is of length= its index+1. by keeping in view the above points checking the value of a[i] against the first element itself is self sufficient that its value has been checked against the only available active list of length 1 and since it is smaller than that thus the prev one is discarded. nikita its my observation….correct me if m wrong… algoEnthusiast One thing I observe is that we are only keeping one activity list of a particular length at a time and this allows us to model the problem using an array. So when we create a new list (consisting of a single element), shouldn’t it be compared with the already existing ‘list of length one’ and be discarded if its value exceeds that of the ‘list of length one’? P.S : Is this an example of a greedy strategy? Thanks  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Nishant Mishra The worst case can be: (that’s what I think, it may be wrong)  
+
+0 8 4 12 14 13 20 17 24...
+
+ i.e. The elements at odd positions are in increasing order & also the elements at even positions.. However, the consecutive elements at “even” & then “odd” positions form decreasing sequence… What I want to say is: Odd Pos Elems: 0 4 11 13 17 Even Pos Elems: 8 12 14 20 24 However, 8 > 4 ; 12 > 11 ; 14 > 13 ; 20 > 17; This will cause alternating Extend & Discard phases, with binary search to go on for max time, as the element to be replaced will always be last one… @Venki: Please give some hint to correct solution if I am wrong… Nishant Mishra A pound of likes..!! I think its the best explanation existing on http://WWW.. MdR Awesome post ! Loved it ! You rock ! (P.S:I even clicked on the ads shown a couple of times to thank you. Let me know if it will help you.) Venki @MdR, thank you. Thanks for proactively clicking the ad links. autoAlgorithmist @Venki, suppose we also want to print the longest increasing subsequence. I think we must also do something more. Consider the example, 7,8,9,4. In the algorithm, when we encounter 4 we replace it with 7. So, i think it will be a problem. Please comment what do you think. Venki Please work with few more examples. In your case, 4 will create new list. Anand Kumar For exercise 2, my approach is to make a new list in place of replacement. So, i think a 2D array would be better. Please comment whether i am proceeding in the right direction. Venki @Anand, Good, atleast one or more readers attempting exercises. In the above explanation too, I am making new list by replacement or extending an existing list. In case if we need all those monotonically increasing subsequences, we need to maintain sets of lists. Group these into sets with similar length. Still the binary search approach holds good. Try with sample examples. You may get better data structures for maintaining these lists. bhavesh very good approach ewwewe working on an Android app http://n/a abhishek May I know where Can I find old archives. or all archives already available under different category. like array .string etc veera Great Explanation .. Thanks venki http://www.geeksforgeeks.org/archives/9591 kavish dwivedi wonderful post…. Akhil Sikri Nicely done Very well explained, what do you mean when you ask – ‘Is the above algorithm an online algorithm?’ Venki I have given definition in the following post, http://www.geeksforgeeks.org/archives/14873 Rahul Java solution for this is here : http://ideone.com/CwlFq3 . for case 3: I am not sure why we need to do the binary search, Can’t we just place the element in the “len” position of the tailtable. If A[i] wants to be current end candidate of an existing subsequence It will replace last value in the len table. This can be done by tailTable[len] = A[i]. Complexity can be O(n) in that case right? Am I missing something? Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

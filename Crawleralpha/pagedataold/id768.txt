@@ -1,0 +1,461 @@
+Print unique rows in a given boolean matrix - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Print unique rows in a given boolean matrix Given a binary matrix, print all unique rows of the given matrix. 
+Input:
+	{0, 1, 0, 0, 1}
+        {1, 0, 1, 1, 0}
+        {0, 1, 0, 0, 1}
+        {1, 1, 1, 0, 0}
+Output:
+	0 1 0 0 1 
+	1 0 1 1 0 
+	1 1 1 0 0 
+ Method 1 (Simple) A simple approach is to check each row with all processed rows. Print the first row. Now, starting from the second row, for each row, compare the row with already processed rows. If the row matches with any of the processed rows, don’t print it. If the current row doesn’t match with any row, print it. Time complexity: O( ROW^2 x COL ) Auxiliary Space: O( 1 ) Method 2 (Use Binary Search Tree) Find the decimal equivalent of each row and insert it into BST. Each node of the BST will contain two fields, one field for the decimal value, other for row number. Do not insert a node if it is duplicated. Finally, traverse the BST and print the corresponding rows. Time complexity: O( ROW x COL + ROW x log( ROW ) ) Auxiliary Space: O( ROW ) This method will lead to Integer Overflow if number of columns is large. Method 3 (Use Trie data structure) Since the matrix is boolean, a variant of Trie data structure can be used where each node will be having two children one for 0 and other for 1. Insert each row in the Trie. If the row is already there, don’t print the row. If row is not there in Trie, insert it in Trie and print it. Below is C implementation of method 3. 
+//Given a binary matrix of M X N of integers, you need to return only unique rows of binary array
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+#define ROW 4
+#define COL 5
+
+// A Trie node
+typedef struct Node
+{
+    bool isEndOfCol;
+    struct Node *child[2]; // Only two children needed for 0 and 1
+} Node;
+
+
+// A utility function to allocate memory for a new Trie node
+Node* newNode()
+{
+    Node* temp = (Node *)malloc( sizeof( Node ) );
+    temp->isEndOfCol = 0;
+    temp->child[0] = temp->child[1] = NULL;
+    return temp;
+}
+
+// Inserts a new matrix row to Trie.  If row is already
+// present, then returns 0, otherwise insets the row and
+// return 1
+bool insert( Node** root, int (*M)[COL], int row, int col )
+{
+    // base case
+    if ( *root == NULL )
+        *root = newNode();
+
+    // Recur if there are more entries in this row
+    if ( col < COL )
+        return insert ( &( (*root)->child[ M[row][col] ] ), M, row, col+1 );
+
+    else // If all entries of this row are processed
+    {
+        // unique row found, return 1
+        if ( !( (*root)->isEndOfCol ) )
+            return (*root)->isEndOfCol = 1;
+
+        // duplicate row found, return 0
+        return 0;
+    }
+}
+
+// A utility function to print a row
+void printRow( int (*M)[COL], int row )
+{
+    int i;
+    for( i = 0; i < COL; ++i )
+        printf( "%d ", M[row][i] );
+    printf("\n");
+}
+
+// The main function that prints all unique rows in a
+// given matrix.
+void findUniqueRows( int (*M)[COL] )
+{
+    Node* root = NULL; // create an empty Trie
+    int i;
+
+    // Iterate through all rows
+    for ( i = 0; i < ROW; ++i )
+        // insert row to TRIE
+        if ( insert(&root, M, i, 0) )
+            // unique row found, print it
+            printRow( M, i );
+}
+
+// Driver program to test above functions
+int main()
+{
+    int M[ROW][COL] = {{0, 1, 0, 0, 1},
+        {1, 0, 1, 1, 0},
+        {0, 1, 0, 0, 1},
+        {1, 0, 1, 0, 0}
+    };
+
+    findUniqueRows( M );
+
+    return 0;
+}
+ Time complexity: O( ROW x COL ) Auxiliary Space: O( ROW x COL ) This method has better time complexity. Also, relative order of rows is maintained while printing. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: Advance Data Structures, Advanced Data Structures Tweet Writing code in comment? Please use ideone.com and share the link here. Coder011 A modified approach for using a trie. In this code I have implemented a trie as a BST, and the inserted the row like we do insertion in a BST, go right for 1 and go left for 0 Link to ideone: http://ideone.com/xlPYBh Code: // Created by Coder011 // Program : “To find the number of unique rows in a boolean matrix” #include #include #include #include #include using namespace std; typedef struct node { int val; struct node *left; struct node *right; }node; node *newNode(int x) { node *root=(node *)calloc(1,sizeof(node)); root->val=x; root->left=root->right=NULL; return root; } node *insert(node *root,int *a,int sz,int curr) { if(curr>sz) return NULL; else { if(!root) root=newNode(a[curr-1]); if(a[curr]) { root->right=insert(root->right,a,sz,curr+1); } else { root->left=insert(root->left,a,sz,curr+1); } } return root; } void fun(vector path) { for(int i=1;i<(int)path.size();i++) cout<<path[i]<<" "; cout<<"n"; } void inorder(node *root,vector path) { if(!root) return; path.push_back(root->val); if(!root->left && !root->right) { fun(path); return; } inorder(root->left,path); inorder(root->right,path); path.pop_back(); } int main() { int n,m; cin>>n>>m; int a[n+1][m+1]; struct node *root=newNode(-2); // Create a dummy root for(int i=0;i<n;i++) for(int j=0;j>a[i][j]; for(int i=0;i<n;i++) { root=insert(root,a[i],m,0); } printf("The unique rows in the given matrix are :n"); vector path; inorder(root,path); return 0; } siren09 Why are all the algos so inefficient ??? This problem can be easily solved in O(ROW * COL) and auxiliary space complexity of O(ROW). Use hash tables…. and for each row, just calculate the decimal equivalent of the binary array ….they insert the decimal value in the hash table…in case of repetition, it will be ignored as value already exists in the hash table…thats it ! guest how to take hash of 0(row)????Ir will be 0(R)…… AT hey size of array will be 2^32 or 2^64 . And what if length of row is greater than 64 . Amit Goswami for each row xorRow[row] = xor all indexes with 1 (or zero) for each row check if xorRow[row] equals any elem in xorRow[] Time : O(row * row) + O(col * row) Space : O(row) din void idenRows(int[][] a,int rows,int columns){ Hashtable h = new Hashtable(); for(int i = 0;i=0;k--){ num = num+(a[i][k]*Math.pow(2, x)); x++; } if(!h.containsValue(num)){ h.put(i, num); for(int f = 0;f<columns;f++){ System.out.print(a[i][f]+" "); } System.out.println(" "); } } } din Java code using Hashtable Complexity(O(rows*columns)) void idenRows(int[][] a,int rows,int columns){ Hashtable h = new Hashtable(); for(int i = 0;i=0;k--){ num = num+(a[i][k]*Math.pow(2, x)); x++; } if(!h.containsValue(num)){ h.put(i, num); for(int f = 0;f<columns;f++){ System.out.print(a[i][f]+" "); } System.out.println(" "); } } } rajeevprasanna We can find the solution without constructing the trie data structure with input. Assign a primary number for each column like 2,3, 5,7,11 etc Now calculate the weight of each row as below : if column has one in that particular row, multiply with it’s assigned primary number Let me explain with the given input : Assigned primary numbers to each column : p : 2 3 5 7 11 0 1 0 0 1 => 3*11 = 33 1 0 1 1 0 => 2*5*7=70 0 1 0 0 1 => 3* 11 = 33 1 1 1 0 0 => 2*3*5 = 30 Rows which are having same weight are considered as duplicates and we can ignore them while printing. This is good if matrix size is less otherwise multiplication can overflow. Let me know if there are any flaws in this approach. vamshi gud 1….i dnt see any flwas in this..but if number of rows/columns are very large….den integer overflow ca happen…..also we need to have all prime numbers list Vu Duc Minh “gud 1″ …. dont use this kind of typos in public forum. Vu Duc Minh This is a hash-based solution. Vu Duc Minh And to avoid multiplication, you can use “+” with irrational number; for example, assign sqrt(2), sqrt(3),sqrt(5) … to the first, second … column, etc. ankur jain how about this code w/o using trie and other hash.. i am wrong please correct me #include<stdio.h> #include<stdlib.h> #include<iostream> #include<vector> #include<set> #include<algorithm> #define tr(c,i) for(typeof(c).begin() i = (c).begin(); i != (c).end(); i++) #define ROW 7 #define COL 5 using namespace std; void findUniqueRows(int m[ROW][COL]) { set<int> s; set< vector<int> > s1; int l1,l2; for (int i = 0; i < ROW ; ++i) { vector<int> v1; l1=s1.size(); for (int j = 0; j < COL ; ++j) { v1.push_back(m[i][j]); } s1.insert(v1); l2=s1.size(); if (l2 > l1) { tr(v1,it) cout<<*it<<" ";printf("\n"); } } } int main() { int M[ROW][ COL] = {{0, 1, 0, 0, 1}, {0, 0, 0, 0, 1}, {0, 1, 0, 0, 1}, {0, 1, 0, 0, 1}, {1, 0, 1, 1, 0}, {0, 1, 0, 0, 1}, {1, 0, 1, 0, 0} }; findUniqueRows( M ); return 0; } Akhil Another implementation using Trie (simpler than the given one )  
+#include<stdio.h>
+#include<malloc.h>
+struct trie
+{
+    struct trie *children[2];
+};
+typedef struct trie *Trie;
+
+void insert(Trie root, int a[], int len)
+{
+    int i = 0;
+    while(i<len && root->children[a[i]])
+        root = root->children[a[i++]];
+    while(i<len)
+    {
+        Trie temp= (Trie)malloc(sizeof(struct trie));
+        temp->children[0] = NULL;
+        temp->children[1] = NULL;
+        root->children[a[i]] =temp;
+        root = temp;
+        i++;
+    }
+}
+bool find(Trie root, int a[], int len)
+{
+    int i = 0;
+    while(i<len && root->children[a[i]])
+        root = root->children[a[i++]];
+    if(i==len)
+        return true;
+    return false;
+}
+int main()
+{
+    Trie root = (Trie)malloc(sizeof(struct trie));
+    root->children[0] = NULL;
+    root->children[1] = NULL;
+    int M[5][5] = {{0, 1, 0, 0, 1},
+        {1, 0, 1, 1, 0},
+        {0, 1, 0, 0, 1},
+        {1, 0, 1, 0, 0},
+        {1, 0, 1, 0, 0}
+    };
+    int i;
+    for(i=0;i<5;i++)
+        if(find(root,M[i],5)==false)
+        {
+            for(int j=0;j<5;j++)
+                printf("%d ",M[i][j]);
+            printf("\n");
+            insert(root,M[i],5);
+        }
+    return 0;
+}
+
+ shek8034 Can be solved simply by using hashing. Please see the simple hashing code below. Thanks  
+#include<iostream>
+using namespace std;
+
+const int M = 4, N = 5;
+int mat[M][N] = {
+	{0, 1, 0, 0, 1},
+        {1, 0, 1, 1, 0},
+        {0, 1, 0, 0, 1},
+        {1, 0, 1, 0, 0}
+    };
+
+void find_unique_rows()
+{
+	int i,j,idx;
+	int hash[123] = {-1};
+	for(i=0;i<M;i++)
+	{
+		int str=0;
+		for(j=0;j<N;j++)
+			str = str*10 + mat[i][j];
+		idx = str%123;
+		if(hash[idx] != 1)
+		{
+			hash[idx] = 1;
+			for(j=0;j<N;j++)
+				cout<<mat[i][j]<<",";
+			cout<<"		row= "<<i<<endl;
+		}
+	}
+}
+
+int main()
+{
+	find_unique_rows();
+        return 0;
+}
+ Jitendra.BITS What’s the relevance of using 123 over here? Anything specific or just a random number? shek8034 its just a random number.. Kajal not just random number.. it must be so chosen that .. hashing collision is minimum shek8034 @Kajal : Yes. Agreed me.abhinav ->Method 2 works only when each row has ATMOST 64 bits because the largest integer you can have is “long long int” which has 64 bits. ->Someone might use a “double” floating variable but it could result in loss of precision. ->One can implement a BigInteger library (like the one in Java). But that would result in (polynomially) greater complexity because (I suppose) the cost of basic operations (like comparision) on BigIntegers have linear complexity in terms of number of digits in an integer. pritybhudolia I think a simple implementation would be assigning weight to 1 and 0 and calculating sum of all digits in a row as a sum and storing its index well as well as sum only if it is not already stored.  
+
+#include<stdio.h>
+#include<conio.h>
+
+int findUniqueRows( int M[4][5] )
+{
+  
+  int i,j,k,hash[10][2],flag=0,hindex=0;
+  hash[0][0]=0;
+  for(i=0;i<4;i++)
+  {
+        int str=0;
+        for(j=0;j<5;j++)
+        {
+                  //here str generates a string of number (by forming a number from digits)
+                  if(M[i][j]==0)
+                  str=str*10+0; 
+                  else
+                  str=str*10+1;                                  
+        }
+        if(i==0)
+        {
+                  hash[hindex][0]=str;
+                  hash[hindex][1]=i;
+                  hindex++;
+        }
+        else
+        {
+                  flag=0;
+                  for(k=i-1;k>=0;k--)
+                  {
+                       if(hash[k][0]==str)
+                       {
+                            flag=1;
+                       }                                  
+                  }
+                  if(flag==0)
+                  {
+                       hash[hindex][0]=str;
+                       hash[hindex][1]=i;
+                       hindex++;
+                  }
+        }                              
+}                 
+ for(k=0;k<hindex;k++)
+  {
+       i=hash[k][1];
+       for(j=0;j<5;j++)
+             printf(" %d ",M[i][j]);
+       printf("\n");
+  }    
+return 0;  
+}
+int main()
+{
+    int M[4][5] = {{0, 1, 0, 0, 1},
+        {1, 0, 1, 1, 0},
+        {0, 1, 0, 0, 1},
+        {1, 0, 1, 0, 0}
+    };
+ 
+    findUniqueRows( M );
+    getch();
+    return 0;
+}
+
+ abhishek08aug Intelligent But I feel that it is better to do using Hash. darkpassenger @Geeksforgeeks Hashing method is easy to implement and is also using same auxillary space than trie(method) so isn’t this hashing approach is better??? PiotrZ using Red Black tree in java. private Integer[][] macierz = { {1,0,1,0,1}, {1,0,1,0,1}, {1,0,1,1,1}, {1,0,1,1,1}, {1,0,1,0,0} }; // red black tree. private int count(){ int ret= 0; TreeSet ts = new TreeSet(); for (int i = 0; i < macierz.length; i++) { if(ts.add(Arrays.toString(macierz[i]))){ ret++; } } return ret; } kartheek J Using Radix Sort also we can do Time Complexity = O(rows*cols) Space Complexity = O(2*rows).  
+void DMF(int *matrix,int start,int end,int cols,int c,int *array)
+{
+	if (c >= cols || start >= end)
+	{
+		return;
+	}
+	int i=start,j=end;
+	while (i<j)
+	{
+		switch (*((matrix+array[i]*cols)+c))
+		{
+			case 0:
+				i++;
+				break;
+			case 1:
+				helperZeroSwap(&array[i], &array[j]);
+				j--;
+				break;
+		}
+	}
+	if (*((matrix+array[i]*cols)+c) == 0)
+	{
+		DMF(matrix,start,i,cols,c+1,array);
+		DMF(matrix,i+1,end,cols,c+1,array);
+	}
+	else
+	{
+		DMF(matrix,start,i-1,cols,c+1,array);
+		DMF(matrix,i,end,cols,c+1,array);
+	}
+}
+
+void UUR(int *matrix,int start,int end,int cols,int c,int *array,int *fArray)
+{
+	if (start > end)
+	{
+		return;
+	}
+	if (c >= cols)
+	{
+		fArray[array[start]] =1;
+		return;
+	}
+	int i=start;
+	for (; i<=end;i++)
+	{
+		if (*((matrix+array[i]*cols)+c) == 1)
+		{
+			break;
+		}
+	}
+	UUR(matrix,start,i-1,cols,c+1,array,fArray);
+	UUR(matrix,i,end,cols,c+1,array,fArray);
+}
+
+void unqiueRows(int *matrix,int rows,int cols)
+{
+	int *array = malloc(sizeof(int)*rows);
+	int *fArray = malloc(sizeof(int)*rows);
+	for (int i=0; i<rows ; i++)
+	{
+		array[i]=i;
+		fArray[i] = 0;
+	}
+	DMF(matrix, 0, rows-1, cols, 0, array);
+	UUR(matrix, 0, rows-1, cols, 0, array, fArray);
+	for (int i=0; i<rows ; i++)
+	{
+		if (fArray[i] == 1)
+		{
+			printf("\n");
+			for (int j=0; j<cols; j++)
+			{
+				printf("%d ",*((matrix+i*cols)+j));
+			}
+			
+		}
+	}
+	printf("\n");
+}
+ koolkeshaw convert each row to a string . Now using this string as “key” add it to a hash map , with corresponding row no as “value” of hash map before adding check if the key is already present in the hash map or not . If already present then include the current row in the “value” field of the key ….. During displaying unique rows , output only those keys whose value field has only 1 element Given below is a code in java….. import java.util.*; public class UniqueRow2 { Map <String,Integer[]>hMap; UniqueRow2() { ; } UniqueRow2(int n) { hMap=new HashMap<String,Integer[]>(n*2); } public static void main(String []args) { Integer [][] twoDArray = { {0,1,0,0,1}, {0,1,1,0,1}, {0,1,1,0,0}, {0,1,1,0,0}, {0,1,10,0,1} }; UniqueRow2 uRow=new UniqueRow2(twoDArray.length); uRow.insertIntoMap(twoDArray); uRow.displayUniqueRow(); } void displayUniqueRow() { Iterator<String> itr=this.hMap.keySet().iterator(); System.out.println("The unique rows are……. "); while(itr.hasNext()) { String str=itr.next(); Integer[] rowNo=this.hMap.get(str); if(rowNo[1]==-1) { System.out.println(" "+ str); } } } Integer[] updateObject(Integer[] array1,int row) { int i=0; for(;i<array1.length;i++) { if(array1[i]==-1) break; } array1[i]=row; array1[i+1]=-1; return array1; } void insertIntoMap(Integer [][] twoDArray) { int i=0; for(i=0;i<twoDArray.length;i++) { StringBuffer sbuffer=new StringBuffer(); for(int j=0;j<twoDArray[i].length;j++) { sbuffer.append(twoDArray[i][j]+" "); } String str=new String(sbuffer); if(hMap.containsKey(str)) { Integer[] row1=this.updateObject(hMap.get(str),i); hMap.put(str,row1); } else { Integer[] rowNo=new Integer[twoDArray.length+2]; rowNo[0]=i; rowNo[1]=-1; hMap.put(str,rowNo); } } } } w. c. T.C.=O(Rows * Columns) ;assuming no. of row>no. of column koolkeshaw above code will work for any kind of integer matrix and not necessarily for binary matrix zyfo2 agreed. I got the same idea with you. should be better than the post algo illuminati better and easy to code algo than posted!!…. shek8034 Thanks for the solution aygul This is te data structure in c# for the trie solution. It is slightly different from the suggested solution.  
+class Trie01Node
+{
+    public bool IsLast { set; get; }
+    Trie01Node[] child = new Trie01Node[2];
+
+    public Trie01Node this[int i]
+    {
+        get { return this.child[i]; }
+        set { this.child[i] = value; }
+    }
+
+}
+class Trie01
+{
+    Trie01Node root = new Trie01Node();
+    public bool Insert(int[] row)
+    {
+        Trie01Node next = this.root;
+        for (int i = 0; i < row.Length; i++)
+        {
+            if (next[row[i]] == null)
+                next[row[i]] = new Trie01Node();
+            else if (next[row[i]].IsLast)
+                return false;
+            next = next[row[i]];
+        }
+        next.IsLast = true;
+        return true;
+    }
+}
+ This is how I print the items.  
+public static void PrintUniqueRows(int[][] input)
+{
+    Trie01 trie = new Trie01();
+
+    foreach (var item in input)
+    {
+        if (trie.Insert(item))
+        {
+            for (int i = 0; i < item.Length; i++)
+                Console.Write("{0} ", item[i]);
+            Console.WriteLine();
+        }
+    }
+}
+ this is from main method to drive.  
+int[][] input = new int[5][];
+input[0] = new int[] { 1, 0, 1, 1, 0, 1 };
+input[1] = new int[] { 1, 0, 1, 1, 0, 1 };
+input[2] = new int[] { 0, 1, 0, 1, 1, 1 };
+input[3] = new int[] { 0, 1, 0, 1, 0, 1 };
+input[4] = new int[] { 0, 1, 0, 1, 0, 0 };
+
+PrintUniqueRows(input);
+ algobard In method 2, instead of inserting the number in a BST, we could insert the decimal number so formed into a *hashmap*. Wherever a hash is already set => repetition => Don’t print. TC = O(row*col) SC = O(2^col) [NOT GOOD :P]  
+/* Paste your code here (You may delete these lines if not writing code) */
+ aj The second method won’t work if number of columns in the matrix is big. You are constrained by the maximum number of bits in an integer. Balasubramanian For the second method, I think it is not necessary to store the contents of a particular row along with its decimal equivalent. For every row, we can first convert it in to its decimal value, then try to insert the value into the BST and check if the insertion is successful. If successful, we can print that row. If not, we can conclude that the row is a duplicate one and move on to the next row. Can someone tell me if the approach is right or am I missing something? Thanks,  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Aashish Yes, we do not need to store the contents of a row. Saving only decimal equivalent is sufficient to check whether the row is being duplicated. In fact, this will save a lot of space. In method 2 above, we are inserting row number in place of its content. Thanks you. kk but worst case we need ROW space if all are columns are different.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Aashish Let me make it clear about the space complexity: There are two cases: 1. We save the decimal value with the row number in each node. 2. We save the decimal value with the row itself in the form of boolean string in each node. The space complexity will be less in case#1 than case#2. Yamuna Jayawardene Using bit operations with c# code Time Complexity O(ROW x COL) Space Complexity O(ROW+COL)  
+
+private static void PrintUniqueRows(int[,] array)
+        {
+            if (array == null)
+                return;
+
+            int rows = array.GetLength(0);
+            int cols = array.GetLength(1);
+            HashSet<int> data = new HashSet<int>();
+            int sum = 0;
+
+            for (int i = 0; i < rows; i++)
+            {
+                sum = 0;
+                for (int j = 0; j < cols; j++)
+                {
+                    sum = sum << 1;
+                    sum = sum | array[i, j];
+                }
+                data.Add(sum);
+            }
+
+            for (int a = 0; a < data.Count(); a++)
+            {
+                var d = data.ElementAt(a);
+                int count = cols-1;
+                StringBuilder res = new StringBuilder();
+                while (count >= 0)
+                {
+                    res.Insert(0,(d & 1));               
+                    d = d >> 1;
+                    count--;
+                }
+                Console.WriteLine(res.ToString());
+            }
+        }
+
+ Yamuna Jayawardene Using bit operations with c# code Time Complexity O(ROW x COL) Space Complexity O(ROW+COL) private static void PrintUniqueRows(int[,] array) { if (array == null) return; int rows = array.GetLength(0); int cols = array.GetLength(1); HashSet<int> data = new HashSet<int>(); int sum = 0; for (int i = 0; i < rows; i++) { sum = 0; for (int j = 0; j < cols; j++) { sum = sum << 1; sum = sum | array[i, j]; } data.Add(sum); } for (int a = 0; a < data.Count(); a++) { var d = data.ElementAt(a); int count = cols-1; StringBuilder res = new StringBuilder(); while (count >= 0) { res.Insert(0,(d & 1)); d = d >> 1; count–; } Console.WriteLine(res.ToString()); } } Amandeep Singh IN metho2 auxiliary space should be O(COL). Correct me if i am wrong  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Neha no it should be O(ROW). because the no of nodes created will be equal to no of rows Hary @Ashish I believe the implicit stack can be simply avoided and recursion somehow is making code difficult to understand. Correct me If I am wrong. Aashish Yes, the implicit stack can be avoided. It is similar to adding a node in BST iteratively. But, i believe, recursion is simpler to understand in this case. Can you tell us, Where are you finding difficulty so that we can make it clear? sector Or why dont we just find the value of each row…. while inputting each row compute it…like for(i=0;i<m;i++){ for(j=0;j<n;j++){ scanf("%d",&a[i][j]); val[i]=val[i]+pow(10,j)*a[i][j]; } } Now print only those rows whose val[i] value is unique. sector Or why dont we just find the value of each row…. while inputting each row compute it…like for(i=0;i<m;i++){ for(j=0;j<n;j++){ scanf("%d",&a[i][j]); val[i]=val[i]+pow(10,j); } } Now print only those rows whose val[i] value is unique. V for Vendetta There is a bug in the code –  insert ( &( (*root)->child[ M[r]1 ] ), M, r, c+1 ); Whats this M[r]1 ???? GeeksforGeeks Thanks for pointing this out. We have corrected the code now. V for Vendetta Hi, Actually there is one more bug – To fix change insert ( &( (*root)->child[ M[row][col] ] ), M, row, col+1 ); to return insert ( &( (*root)->child[ M[row][col] ] ), M, row, col+1 ); While unwinding the recursion the return value of the else case is not being used, instead a garbage value is returned and that is leading to printing all the rows(duplicates dont get removed) because its always true. GeeksforGeeks Thanks, we have added ‘return’ before recursive call. Keep it up! Vigya If the number of columns is less that the word size of machine, we can also convert the boolean values in a row to an integer and store it in a hash table. Can check similar rows using hashing now.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Vigya Same as Hongliang’s comment earlier. Sorry din’t check before. SRIRAMBHARGAV KARNATI In the method 2: how is the complexity O(ROW * COL * Log(ROW))? i think it has to be O(ROW * log(ROW)) because we are inserting ROW # of integers into BST. Correct me if i am wrong Aashish For each row, you will be exploring the entire column for binary to decimal conversion. So, ROW x COL. But the insertion in BST will also cost log( ROW ). So, O(ROW * COL * Log(ROW)) Robert @Aashish : Or we can just hash the decimal values and check in O(1) whether that row is present or not. That way it would be : O(row*col) . As Efficient as trie solution.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Aashish Yes, we can also hash the decimal values. But think about the scenario where the decimal values are not distributed evenly. e.g. 0 0 0 0 0 1 1 0 0 0 1 1 1 1 1 What will the size of the hash table? Hashing the decimal values will eat a lot of space. So, unless range of values is not given, we cannot directly use hash as it will result into sparse table. kkkmaurya Hi Ashish, I think 2nd case complexity should be O(row*col)as Robert says. let me explain ,u are inserting a int value for each row not for each & row column.  
+ for each row
+ {
+    for each column
+    {
+      calculate int value
+     }
+   insert int value into BST
+}
+
+complexity should be O(row*col + row*log(row)) = O(row*col)
+
+
+ GeeksforGeeks @Robert & @kkkmaurya: Thanks for pointing this out. We have updated time complexity of method 2. Ajay Why cant we just hash each rows considering concatenated elements in each row as a string ? With hashing you can know the duplicates with O(N) space.(where N is number of rows.)  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Hongliang Or a better implementation: since it is just 0 or 1 in the matrix, one can simply transfer one row into one binary number (O(N) space with integers), and then just count the number of existence.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ rajcools same here Algopiggy That would constrain the number of columns to around 30 if you’re using long int. So it does not look like a great method to compute binary equivalent. SRIRAMBHARGAV KARNATI same here Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

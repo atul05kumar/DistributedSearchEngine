@@ -1,0 +1,105 @@
+Memory Layout of C Programs - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Memory Layout of C Programs A typical memory representation of C program consists of following sections. 1. Text segment 2. Initialized data segment 3. Uninitialized data segment 4. Stack 5. Heap A typical memory layout of a running process 1. Text Segment: A text segment , also known as a code segment or simply as text, is one of the sections of a program in an object file or in memory, which contains executable instructions. As a memory region, a text segment may be placed below the heap or stack in order to prevent heaps and stack overflows from overwriting it. Usually, the text segment is sharable so that only a single copy needs to be in memory for frequently executed programs, such as text editors, the C compiler, the shells, and so on. Also, the text segment is often read-only, to prevent a program from accidentally modifying its instructions. 2. Initialized Data Segment: Initialized data segment, usually called simply the Data Segment. A data segment is a portion of virtual address space of a program, which contains the global variables and static variables that are initialized by the programmer. Note that, data segment is not read-only, since the values of the variables can be altered at run time. This segment can be further classified into initialized read-only area and initialized read-write area. For instance the global string defined by char s[] = “hello world” in C and a C statement like int debug=1 outside the main (i.e. global) would be stored in initialized read-write area. And a global C statement like const char* string = “hello world” makes the string literal “hello world” to be stored in initialized read-only area and the character pointer variable string in initialized read-write area. Ex: static int i = 10 will be stored in data segment and global int i = 10 will also be stored in data segment 3. Uninitialized Data Segment: Uninitialized data segment, often called the “bss” segment, named after an ancient assembler operator that stood for “block started by symbol.” Data in this segment is initialized by the kernel to arithmetic 0 before the program starts executing uninitialized data starts at the end of the data segment and contains all global variables and static variables that are initialized to zero or do not have explicit initialization in source code. For instance a variable declared static int i; would be contained in the BSS segment. For instance a global variable declared int j; would be contained in the BSS segment. 4. Stack: The stack area traditionally adjoined the heap area and grew the opposite direction; when the stack pointer met the heap pointer, free memory was exhausted. (With modern large address spaces and virtual memory techniques they may be placed almost anywhere, but they still typically grow opposite directions.) The stack area contains the program stack, a LIFO structure, typically located in the higher parts of memory. On the standard PC x86 computer architecture it grows toward address zero; on some other architectures it grows the opposite direction. A “stack pointer” register tracks the top of the stack; it is adjusted each time a value is “pushed” onto the stack. The set of values pushed for one function call is termed a “stack frame”; A stack frame consists at minimum of a return address. Stack, where automatic variables are stored, along with information that is saved each time a function is called. Each time a function is called, the address of where to return to and certain information about the caller’s environment, such as some of the machine registers, are saved on the stack. The newly called function then allocates room on the stack for its automatic and temporary variables. This is how recursive functions in C can work. Each time a recursive function calls itself, a new stack frame is used, so one set of variables doesn’t interfere with the variables from another instance of the function. 5. Heap: Heap is the segment where dynamic memory allocation usually takes place. The heap area begins at the end of the BSS segment and grows to larger addresses from there.The Heap area is managed by malloc, realloc, and free, which may use the brk and sbrk system calls to adjust its size (note that the use of brk/sbrk and a single “heap area” is not required to fulfill the contract of malloc/realloc/free; they may also be implemented using mmap to reserve potentially non-contiguous regions of virtual memory into the process’ virtual address space). The Heap area is shared by all shared libraries and dynamically loaded modules in a process. Examples. The size(1) command reports the sizes (in bytes) of the text, data, and bss segments. ( for more details please refer man page of size(1) ) 1. Check the following simple C program 
+#include <stdio.h>
+
+int main(void)
+{
+    return 0;
+}
+ 
+[narendra@CentOS]$ gcc memory-layout.c -o memory-layout
+[narendra@CentOS]$ size memory-layout
+text       data        bss        dec        hex    filename
+960        248          8       1216        4c0    memory-layout 2. Let us add one global variable in program, now check the size of bss (highlighted in red color). 
+#include <stdio.h>
+
+int global; /* Uninitialized variable stored in bss*/
+
+int main(void)
+{
+    return 0;
+}
+ 
+[narendra@CentOS]$ gcc memory-layout.c -o memory-layout
+[narendra@CentOS]$ size memory-layout
+text       data        bss        dec        hex    filename
+ 960        248         12       1220        4c4    memory-layout 3. Let us add one static variable which is also stored in bss. 
+#include <stdio.h>
+
+int global; /* Uninitialized variable stored in bss*/
+
+int main(void)
+{
+    static int i; /* Uninitialized static variable stored in bss */
+    return 0;
+}
+ 
+[narendra@CentOS]$ gcc memory-layout.c -o memory-layout
+[narendra@CentOS]$ size memory-layout
+text       data        bss        dec        hex    filename
+ 960        248         16       1224        4c8    memory-layout 4. Let us initialize the static variable which will then be stored in Data Segment (DS) 
+#include <stdio.h>
+
+int global; /* Uninitialized variable stored in bss*/
+
+int main(void)
+{
+    static int i = 100; /* Initialized static variable stored in DS*/
+    return 0;
+}
+ 
+[narendra@CentOS]$ gcc memory-layout.c -o memory-layout
+[narendra@CentOS]$ size memory-layout
+text       data        bss        dec        hex    filename
+960         252 12       1224        4c8    memory-layout 5. Let us initialize the global variable which will then be stored in Data Segment (DS) 
+#include <stdio.h>
+
+int global = 10; /* initialized global variable stored in DS*/
+
+int main(void)
+{
+    static int i = 100; /* Initialized static variable stored in DS*/
+    return 0;
+}
+ 
+[narendra@CentOS]$ gcc memory-layout.c -o memory-layout
+[narendra@CentOS]$ size memory-layout
+text       data        bss        dec        hex    filename
+960         256 8       1224        4c8    memory-layout This article is compiled by Narendra Kangralkar. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above. Source: http://en.wikipedia.org/wiki/Data_segment http://en.wikipedia.org/wiki/Code_segment http://en.wikipedia.org/wiki/.bss http://www.amazon.com/Advanced-Programming-UNIX-Environment-2nd/dp/0201433079           Related Topics: A Problem in Many Binary Search Implementations Analysis of Algorithms | Set 4 (Analysis of Loops) Analysis of Algorithms | Set 3 (Asymptotic Notations) NP-Completeness | Set 1 (Introduction) Static and Dynamic Libraries | Set 1 The Ubiquitous Binary Search | Set 1 Reservoir Sampling Analysis of Algorithms | Set 2 (Worst, Average and Best Cases) Tags: Memory Layout Of C Program Tweet Writing code in comment? Please use ideone.com and share the link here. pavan hi the article was good. where do constant variable stored in ??? Kannan Very nice article.. It helped me lot. Thanks Kannan Very nice article.. It helped me lot. Thanks sanjeev Hi Narendra, I like your explaination. I have few doubts if you can explain it: What do you mean by “Read from program file by exec” And “initialized to zero by exec” ? Rohit hay hi can anyone explain if i want to create matrix of size greater than the physical memory is it possible?and yes then how?and show with example. please help me.. Naveen KUMAR BN Hi ,In Example 1 ,the size of BSS segment is 8bytes .Can you explain how BSS has 8bytes? Shrinidhi Because there are most likely 2 uninitiliazed variables in the header file stdio.h which he has included. Smith East Thanks a lot. I highly appreciate your work. Shapath Thanks … the best article available for emory layout on Net… Rakesh Sehgal very nice explanation Mr. Narendra, also making your points substantiated by the real memory stats is marvellous. Please continue this beautiful practice to teach others through learning by doing. Laliteshwar Yadav very good.. hats off shalini in the above program if i add a structure and assign value to its members, it is not reflected in the memory layout. Can anybody explain ? monotosh mondal Its being added to the stack…. the same thing if you try with a integer ( not a static or global but a normal one ..also called automatic or stack variables) the stack grows and shrinks ..and so is the heap during the execution of programme…size command doest show it shalini Very Good Explaination…. !!! Simple and well explained Ansari Azad Excellent! Anto Nice explanation… But i get a different result(as follows) , am i missing something ? int a[5]; main() {} ——————————————- bash-3.2$ gcc -c 1.c bash-3.2$ size 1.o text data bss dec hex filename 62 0 0 62 3e 1.o ——————————————— Why the data and bss segment shows zero here ? manuel Where is the memory-mapping-segment, where shared memory, memory mapped I/O,… is hold??? Murali Nimmala it’s very useful, thank you for providing. anil kumar Excellent information. Adding small finding the static/global variables that are initialized to non zero will reside in data segment(Initialized data segment). The other static/global variables not initialized or initialized to zero will reside in BSS. Kumar Gaurav Nice Explanation indeed Sindhura Thanks for explanation. Mitu Verma nice explanation Anil kumar awesome,excellent explanation sir than k u so much for posting this.If you dont mind can you post any article about virtual destructors and why cant we have virtual constructors in c++.. brahmaji awesome explanatation av sir i want to know that what is the maximum size of a heap for any process groom Good tutorial. Output would be different depends on compiler you use, but the thought introduced here is excellent. sanket may I know the above examples are on which IDE . I want to check it . I am using eclipse. please help me……. Padmabushan Reddy it is not a ide. he did it on terminal of “centOS” goku in my program the starting address and size are as follows: code end: 90a00000 data start:90b00000 size 3mb bss start: 91200000 size 1mb but when i am declaring a global variable..its address is:910bead0 can anyone tell me what is going on? Rakesh Here in the above Programming example. when the global and static variables are intialized then it increased memory size in data segment (fine). but why it did not reduce the size in unintialized data segment. please reply ASAP Anu If you see the flow of the post, initially without any global and static variables, the bss had a size of 8. After 1st global added, it became 12. After static added, it became 16. When static is initialized, it moved from bss to data segment. So 4 bytes decreased from bss, hence, bss became 12 and data became 252. Same with global hari In which segment static variable declared in function goes,and why? monotosh mondal bss and data…and not in stack… however the size command on the executable will not show this if the function is in a library…then the library object file will have these static variable in bss or data….and size command on this object file will show …. static inside function or anywhere is always in data or bss.. however if static is inside a function…when the execution reaches the function then only the memory is given to this static variable Ajit We say, global variables are stored on heap (BSS) but here we can see that initialized global variable goes into DS. What shall we say about this ? Is it still on the heap or has it gone into stack. monotosh mondal heap ( BSS ) ..incorrect.. heap and bss 2 different things… Anil hello sir, why integer value is increase with compiler(32 bit, 64 bit) , other wise all are some (float,char etc.) ? Jagannath Suhit The size of an int is equal to the size of the accumulator register. So as the machine varies, the size of int also changes with the change in the hardware of the machine.. I think this reason answered ur question @c196b63e8fe42846f477ea18b131ebd9:disqus notime thanks .. even the foll tutorial is real nice http://www.ualberta.ca/CNS/RESEARCH/LinuxClusters/mem.html gaurav.pruthi88 I had compiled a 3 line program  
+int main(){
+return 0;
+}
+
+ and got the following: gaurav@pruthi-linux:~$ size a.out text data bss dec hex filename 1053 276 4 1333 535 a.out Since there is no data, no include files why its showing bss value as 4 and data as 276. monotosh mondal a.out is compiled using gcc , xlc or some c compilers.. which include many static and global variables of their own….inshort these are given by the gcc or the c compiler… Arun interesting article though it would be good if the underlying assumptions are made explicit a) that the underlying machine is x86 and OS as Linux. Not every OS has a per process heap like Linux. viz Vxworks has a common system vide heap for all processes. Also note that bss is not initialized to zero by kernel rather its the preparatory code that gets called before invocation of main in every c Program. true it gets invoked in the context of execve but technically its not kernel that is clearing this rather the preamble code of __main. The Stack section too deserves some mention. for ARM, the return address and input parameters to a subroutine are in registers itself namely R13-LR, r14 as SP and r0-r3 for input parameters. its different on CISC machines though.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Mushabbar Upon adding an unitialized variable (intpo) to the program the BSS goes up by 16 bytes – was expecting it go up by 4 bytes instead. Any idea why this behavior? Platform: Windows XP, MinGW compiler  
+/* Paste your code here (You may delete these lines if not writing code) */
+ minoz Thanks for the information. Simply awesome! ghanish Also, can someone explain whether stack always grow downwards ?? ghanish Really an awsm explanation. Can you please also explain that where are the pointers stored ??  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Praveen Nice Article I have one doubt. data size in the BSS is getting rounding off to meet address (x86 or x64) architecture but in (initialized)data segment size is not getting rounding off Can you explain why? Eg: my machine is x64 (64 bit ) if i have a int variable in BSS it is taking 8 bytes Before: #include int main() { return 0; } text data bss dec hex filename 1044 496 16 1556 614 a.out After: #include int a; int main() { return 0; } text data bss dec hex filename 1044 496 24 1564 61c a.out As u can see 8 bytes increased even-though size of int is 4 bytes in my machine #include int a=9; //since initialized it goes to Data segment int main() { return 0; } text data bss dec hex filename 1044 500 16 1560 618 a.out but if i have int in data segment it is taking only 4 bytes as u can see data segment changed from 496 to 500 Y rounding off in BSS according to machine architecture (64bit-8 bytes) and Y not in data segment…..? Can you explain… ramu  
+/* Paste your code here (You may delete these lines if not writing code) */
+ prashant How a structure will be stored in memory in c. For example struct node { int a; char *p; }var; vikramjit singh is there a way to do the same on windows  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Sandeep Why the bss size is 8 bytes by default?.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Amit very informative code Shammy In which part of the memory locally declared constant variable and globally declared constant variable will store?. Whether both the variable will store in data segment(initialized read only area )? Subbu locally declared const variable would be stored in the stack and globally declared const variable would be stored in the read-only data segment Dileep How to see total stack and heap size? suresh thank you,for giving such an information… Ricky13 Nice article, very informative. Jordan Nice and informative for beginners and advanced . nicks nice post…figures very helpful…thnx nicks nice post…very helpful  
+/* Paste your code here (You may delete these lines if not writing code) */
+ sahil Awesome … http://www.devanexpresses.blogspot.com devan hey. I tried the exact same code in a gcc compiler. I am not getting any difference in the bss value for int global;(outside main) and for int local;(inside the main). Nor am I getting any difference in bss for int global=0 and int local =0. Is this example meant to be compiler dependent? kartik Looks like you are missing something. Can you please try on ideone.com and paste the link here? ideone also uses gcc compiler. kamlesh char* string = “hello world” ; const int a=5; according to the post both string and a are stored in initialized read-only area. so when we write a=6 // modifaication of a gives compilation error and string[0]=’m’ // or *string=’m’ gives segementation fault why. GuruSimhe First of all for char* string = “hello world” ; ‘string’ will not be stored on initialized read only DS.It will be a part of initialized W/R DS. If you are referring to the given program then for const char* string = “hello world” ; const int a=5; a will be part of initialized read only DS but string still is a part of initialized W/R DS. for the question the reason could be that if we do a=6 we are directly modifying the const but for string[0]=’m’ we are modifying a constant using a nonconst. sekhar super , awesome uday char s[] = “hello world” will not be stored on data segement if it’s local to function. It will be stored on stack. In case of global, yes it will be on data segment. http://geeksforgeeks.org/?page_id=2 Venki char s[] = “hello world” – compiler is free to place the string literal. If it is local to function, “hello world” will be copied from “read only” data section to stack of the function. Hence it is good practice to make big tables or strings static to the function (No copy is required). GeeksforGeeks @uday: The examples given in post are for global strings only. We have modified the sentence to be more clear. http://geeksforgeeks.org/?page_id=2 Venki Good content. Adding further, the following example increases TEXT section size  
+/* TEXT - As good as integer literal */
+static const int read_only_global = 10;
+
+/* Initialized DATA */
+int read_write_global = 100;
+
+int main(int argc, char *argv[], char *evn[])
+{
+	/* BSS */
+	int static localized_global;
+	
+	return 0;
+}
+ 
+
+   text	   data	    bss	    dec	    hex	filename
+    804	    256	     12	   1072	    430	mem_layout
+
+ Narendra Kangralkar Thank you for your valuable comments. arun kumar very informative article thanks Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,96 @@
+Search in a row wise and column wise sorted matrix - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Search in a row wise and column wise sorted matrix Given an n x n matrix, where every row and column is sorted in increasing order. Given a number x, how to decide whether this x is in the matrix. The designed algorithm should have linear time complexity. Thanks to devendraiiit for suggesting below approach. 1) Start with top right element 2) Loop: compare this element e with x ….i) if they are equal then return its position …ii) e < x then move it to down (if out of bound of matrix then break return false) ..iii) e > x then move it to left (if out of bound of matrix then break return false) 3) repeat the i), ii) and iii) till you find element or returned false Implementation: #include<stdio.h>
+
+/* Searches the element x in mat[][]. If the element is found, 
+    then prints its position and returns true, otherwise prints 
+    "not found" and returns false */
+int search(int mat[4][4], int n, int x)
+{
+   int i = 0, j = n-1;  //set indexes for top right element
+   while ( i < n && j >= 0 )
+   {
+      if ( mat[i][j] == x )
+      {
+         printf("\n Found at %d, %d", i, j);
+         return 1;
+      }
+      if ( mat[i][j] > x )
+        j--;
+      else //  if mat[i][j] < x
+        i++;
+   }
+
+   printf("\n Element not found");
+   return 0;  // if ( i==n || j== -1 )
+}
+
+// driver program to test above function
+int main()
+{
+  int mat[4][4] = { {10, 20, 30, 40},
+                    {15, 25, 35, 45},
+                    {27, 29, 37, 48},
+                    {32, 33, 39, 50},
+                  };
+  search(mat, 4, 29);
+  getchar();
+  return 0;
+}
+
+ Time Complexity: O(n) The above approach will also work for m x n matrix (not only for n x n). Complexity would be O(m + n). Please write comments if you find the above codes/algorithms incorrect, or find other ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. newCoder /** * Given an n x n matrix, where every row and column is sorted in increasing * order. Given a number x, how to decide whether this x is in the matrix. * The designed algorithm should have linear time complexity. * * @param mat * @param x * @return */ public static boolean find(int[][] mat, int x) { int i = 0; int j = mat[0].length – 1; while (i = 0) { if (mat[i][j] == x) { System.out.println(“”+ i + ” ” + j); return true; } else if (mat[i][j] > x) { j–; } else { i++; } } return false; } numid The solution should be updated as it can be done in O(logM +logN) by appyling binary search for the matrix with a little modifications: 1. search for the middle element of the matrix 2.if the middle elemnt is less than the missing number,search the lower half else search the upper half 3. when u get a single row or two rows in which the search is to be performed, do 1 comparison with the last arr[i][n] to get the row in which the normal binary search will be performed. the following link have not been commented though,shows the code. http://ideone.com/s2WvGR Lokesh Is there a middle element if this is not a square matrix ? Jiten Will this work if the rows are not ordered according to their first element? Kartik This may not work for many examples. Here the assumption is wrong. If an element is greater than the middle element, then we can discard half of the matrix, we can only discard, 1/4th of the matrix. Varsha Anandani can someone tell the space complexity also..??? mahesh space complexity is O(1). We didn’t use any auxiliary space. Pranav A modified approach, such that moving to down/left occurs in binary fassion. 1) Start with top right element 2) Loop: compare this element e with x ….i) if they are equal then return its position …ii) e x then move it to left by going to the middle (if out of bound of matrix then break return false) 3) repeat the i), ii) and iii) till you find element or returned false Time Complexity:O(logn + logm) aks complexity is O(n+m) ……at most in you are going to traverse down all rows and all columns (let’s say when element to find is the first col last element) mrn  
+while(l<r)
+	{
+		m=(l+r)/2;
+		if(a[m][0]>x)
+			r=m-1;
+		else
+			if(a[m][col]>x)
+			l=m+1;
+			else 
+			break;
+	}
+	
+	for(int i=0;i<=col;i++)
+		if(a[m][i]==x)
+			cout<<m<<" "<<i<<endl;
+ algobard Can you please post the recursive solution (O(n^1.53)) to this problem too? Jay Use binary search, O(log(column))*O(log(row))  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ashish Ranjan Singh It should be in order of O(log(row))+O(log(column)) rather O(log(column))*O(log(row)). As time for searching for Correct row will take time in O(log(rows)) and searching for correct element in that row will take take time O(log(column)). pavansrinivas actually it will be O(log(row*column)) which is nothing but(O(log(row)+log(column)))……this is justified because the above 2D matrix can be considered as a single sorted array with (row *column) elements and complexity of binary search in a sorted array with n elements is O(log(n)) .. laddoo One Logic can be : Start searching/comparing with Diagonal Elements of the matrix: if(arr[i][i] == item) { //found the item } if(arr[i][i] < item && arr[i+1][i+1] > item) { //find the element in rest of the ith row and rest of the ith column } else { //increment “i” in loop } All above things can be done with binary search as well. So,Time Complexity can be reduced to : O(log(m+n)). gaurav1424 Is there any way to do this in O(log n) ?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ rajat rastogi Use Improved binary partition method given in leetcode.com  
+
+ rajat rastogi In this case complexity will be O(n) constant factor is very less. Shobhit You can check the number with the middle element of matrix. Depending on whether it is smaller than the number we are searching or greater, we can eliminate 1/4th of the array(either top left part or bottom right part). So we are left with 3 smaller matrices of size 1/4th of the original matrix. Continue searching diagonals of these matrices and in the next step you will get 9 matrices of size 1/16 of the original. This approach will take time O(log(mn)) with log base as 4/3. http://www.linkedin.com/in/ramanawithu Venki Another Approach: We can cut down the search space by examining the diagonal elements. Trace the floor (ceil) value of x on the diagonal using binary search. The element ‘x’ must be in the row or column of floor (ceil) of x. As an example x = 29 in the above matrix, and x floor value is 25 (ceil value is 37 at [2, 2]) whose indices are (1, 1), then search in the first row and first column (Again we can use binary search here). There will be maximum of n elements on diagonal, and less than n elements in the reduced-matrices. Overall O(log n). The method works only on symmetric matrices. Can we generalize the method for asymmetric matrices? Yes, I guess. http://www.linkedin.com/in/ramanawithu Venki Sorry, it can only bring down the search space. We can create counter example to above method. ddfd This question was asked at Microsoft Internship interview 2011. ddfd I think after we find that the last element in the row is greater than the required element then we can apply a binary search on that row . Hence Complexity would be O ( m + logn) if matrix of size m x n . For this case where m = n complexity would be O(n + logn) i.e O(n) http://www.linkedin.com/in/ramanawithu Venki @ddfd, the method fails as the 2D array is not strictly sorted. For example consider above case where x = 29, the end elements of first two rows are greater than 29, but they don’t contain required element. If it is like apply binary search on every row, we end up with O(m log n) complexity. shanky too gooood n simple solution man…..god knows what what type of algo i was trying http://flickr.com/photos/smilesnigam shrikant can we tackle this problem like a binary search, only that at each point of time we will have 4 possibilities. we start at mat[(n-1)/2][(n-1)/2], now the number can be in any of the four quadrants.  
+
+int midi = (n-1)/2, midj=(n-1)/2;
+if(x == mat[midi][midj])
+   return true;
+else if(x < mat[midi][midj-1] && x < mat[midi-1][midj])
+   p = midi-1, q = midj-1;
+else if(x > mat[midi+1][midj] && x > mat[midi][midj+1])
+   p = midi+1, q = midj+1;
+else if(x > mat[midi][midj-1] && x < mat[midi+1][midj])
+   p = midi+1, q = midj;
+else if(x >mat[midi-1][midj] && x < mat[midi][midj+1])
+   p = midi-1, q = midj;
+ please let me know if this should work. http://geeksforgeeks.org/ Sandeep @shrikant: The approach should work, but the time complexity of this approach would be more than O(n). See the below comments from @Kartik and @Vamshi. shiv superb Vamshi One algorithm that i could come up with is as below. 1. Let A be the n*n array. 2. Report the element doesn’t exist in the array, if the search element e doesn’t satisfy the condition A[1,1] <= e <= A[n,n] 3. If n = 1, return true if the element in the array is same as search element. 3. Consider A[n,n] as a set of 4 subarrays of sizes n/2*n/2 and recursively search in them using the same algorithm. At any given time, out of the four subarrays the recursive search will exit at the step 2 itself atleast for one array. So, in the worst case, the complexity is like T(n) = 3T(n/4) + constant time which is strictly less than O(n^2). Any thoughts? kartik @Vamsi: The algo proposed by you is simple and good! I think the time complexity should be T(n) = 3T(n/2) + C. The subproblems are of size n/2. It is still less than O(n^2) though. Vamshi @kartik: I realised my mistake now. The complexity of this algorithm will be now n^3/2. But the algorithm mentioned in the post is far better than this one as it is of linear time. Satyanarayana Batchu I think time complexity is T(n) = 3 T(n/4) + C. Then time complexity should be T(n) = n Pow log 3 base 4. i.e n Pow 0.602 This is far less than O(n), so this algorithm is better Kartik No, it is n/2. Original matrix size was n*n. The reduced matrix size is n/2*n/2 reg_frenzy Also, another optimization could be applied, extending the idea of girish. We could check if the element to be searched is lesser or greater than Matrix[n/2][n/2]. Depending on that we could make either the top right element or the bottom right element as the start element as the start element. This way, we effectively need to search only half the matrix. This could also be extended recursively, searching half the arrays, every time. ynnus4u another approach: given n x m matrix A[]][],find x, complexity O(log (min(m,n))) Assume n < m, do binary search on 1st column & find the smallest element that is still larger than X. Say it's gonna be A[i,0]. Now throw all rows after and including i (since X is smaller than all of these elements). Repeat for a smaller matrix of size (i-1, m – 1) by proceeding to next column. Proof of complexity : effectively we are searching along an array of size m, time complexity = O(log n) http://www.linkedin.com/in/ramanawithu Venki Given below are related posts, http://geeksforgeeks.org/forum/topic/amazon-interview-question-for-software-engineerdeveloper-about-arrays http://geeksforgeeks.org/forum/topic/microsoft-interview-question-for-software-testing-0-2-years-about-arrays http://geeksforgeeks.org/forum/topic/arrays-3 @Vick‘s method seems to be feasible (I haven’t tried). On big 2D arrays it may be worth considering. I closed all of them to consolidate any further comments here. girish.khadke Two conditions are missing and code can be optimized to handle those too:  
+int search(int mat[4][4], int n, int x)
+{
+   if(x <a> a[n][n]) return -1;  //Or return some exception code
+ 
+   int i = 0, j = n-1;  //set indexes for top right element
+   while ( i = 0 )
+   {
+      if ( mat[i][j] == x )
+      {
+         printf("\n Found at %d, %d", i, j);
+         return 1;
+      }
+      if ( mat[i][j] > x )
+        j--;
+      else //  if mat[i][j] < x
+        i++;
+   }
+ 
+   printf("\n Element not found");
+   return 0;  // if ( i==n || j== -1 )
+}
+ girish.khadke Sorry can not get code part properly. Check if x is less than a[0][0] or greater than a[n][n] and return exception in this case, since we do not have to search such number in array anymore due to sorted order of matrix. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,644 @@
+Find the first circular tour that visits all petrol pumps - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find the first circular tour that visits all petrol pumps Suppose there is a circle. There are n petrol pumps on that circle. You are given two sets of data. 1. The amount of petrol that petrol pump will give. 2. Distance from that petrol pump to the next petrol pump. Calculate the first point from where a truck will be able to complete the circle (The truck will stop at each petrol pump and it has infinite capacity). Expected time complexity is O(n). Assume for 1 litre petrol, the truck can go 1 unit of distance. For example, let there be 4 petrol pumps with amount of petrol and distance to next petrol pump value pairs as {4, 6}, {6, 5}, {7, 3} and {4, 5}. The first point from where truck can make a circular tour is 2nd petrol pump. Output should be “start = 1″ (index of 2nd petrol pump). A Simple Solution is to consider every petrol pumps as starting point and see if there is a possible tour. If we find a starting point with feasible solution, we return that starting point. The worst case time complexity of this solution is O(n^2). We can use a Queue to store the current tour. We first enqueue first petrol pump to the queue, we keep enqueueing petrol pumps till we either complete the tour, or current amount of petrol becomes negative. If the amount becomes negative, then we keep dequeueing petrol pumps till the current amount becomes positive or queue becomes empty. Instead of creating a separate queue, we use the given array itself as queue. We maintain two index variables start and end that represent rear and front of queue. 
+// C program to find circular tour for a truck
+#include <stdio.h>
+
+// A petrol pump has petrol and distance to next petrol pump
+struct petrolPump
+{
+  int petrol;
+  int distance;
+};
+
+// The function returns starting point if there is a possible solution,
+// otherwise returns -1
+int printTour(struct petrolPump arr[], int n)
+{
+    // Consider first petrol pump as a starting point
+    int start = 0;
+    int end =  1;
+
+    int curr_petrol = arr[start].petrol - arr[start].distance;
+
+    /* Run a loop while all petrol pumps are not visited.
+      And we have reached first petrol pump again with 0 or more petrol */
+    while (end != start || curr_petrol < 0)
+    {
+        // If curremt amount of petrol in truck becomes less than 0, then
+        // remove the starting petrol pump from tour
+        while (curr_petrol < 0 && start != end)
+        {
+            // Remove starting petrol pump. Change start
+            curr_petrol -= arr[start].petrol - arr[start].distance;
+            start = (start + 1)%n;
+
+            // If 0 is being considered as start again, then there is no
+            // possible solution
+            if (start == 0)
+               return -1;
+        }
+
+        // Add a petrol pump to current tour
+        curr_petrol += arr[end].petrol - arr[end].distance;
+
+        end = (end + 1)%n;
+    }
+
+    // Return starting point
+    return start;
+}
+
+// Driver program to test above functions
+int main()
+{
+    struct petrolPump arr[] = {{6, 4}, {3, 6}, {7, 3}};
+
+    int n = sizeof(arr)/sizeof(arr[0]);
+    int start = printTour(arr, n);
+
+    (start == -1)? printf("No solution"): printf("Start = %d", start);
+
+    return 0;
+}
+ Output: start = 2 Time Complexity: Seems to be more than linear at first look. If we consider the items between start and end as part of a circular queue, we can observe that every item is enqueued at most two times to the queue. The total number of operations is proportional to total number of enqueue operations. Therefore the time complexity is O(n). Auxiliary Space: O(1) Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: Queue, Stack-Queue, StackAndQueue Tweet Writing code in comment? Please use ideone.com and share the link here. anon Could you please explain the time complexity. How is it O(n) ? Nitin Gupta import java.io.ObjectInputStream.GetField; import java.util.ArrayList; import java.util.Scanner; /** * */ /** * @author nitingupta * */ class PetrolAndDistance { private int fuel ; private int distance; public PetrolAndDistance() { fuel = distance = 0 ; } public PetrolAndDistance(final int fuel, final int distance) { this.fuel = fuel; this.distance =distance ; } public int getFuel() { return fuel; } public void setFuel(int fuel) { this.fuel = fuel; } public int getDistance() { return distance; } public void setDistance(int distance) { this.distance = distance; } } public class CircularRoad { public CircularRoad() { } /* * This method takes the array list of PetrolAndDistance and * @return start point of journey * otherwise -1 as indicating not possible * */ public static int canCompleteCircuit(ArrayList petrolAndDistance) { int size = petrolAndDistance.size(); int petrolPumpIDIndicator=0; int canGoFromAtoB = 0 ; // can we go from A to B indicator int petrolPumpCorrospondingtominimumCost = -1 ; //assuming no petrol pump will complete journey int counter = 0 ; boolean roundComplete = false; for ( ; counter!=size;){ PetrolAndDistance p = petrolAndDistance.get(petrolPumpIDIndicator) ; //trying to go from current petrol pump to next petrol pump. canGoFromAtoB = canGoFromAtoB + p.getFuel() - p.getDistance() ; //means we can not move from A to B if ( canGoFromAtoB < 0){ // if it is second round and we have not pass through anyone to anyone then there is no solution if ( petrolPumpIDIndicator == 0 && counter!=0) return -1; // if it is second round and we have pass through someone to someone but can't move further since canGoFromAtoB 0 && roundComplete==true ) return -1; canGoFromAtoB = 0 ; //Assume we can go from next petrol pump petrolPumpCorrospondingtominimumCost = petrolPumpIDIndicator + 1; } else { //keep how many petrol pum we have visited counter++; } petrolPumpIDIndicator++; //for circular road pattern if (petrolPumpIDIndicator%size == 0 && counter!=0 ) { petrolPumpIDIndicator = 0 ; roundComplete = true; } else if(petrolPumpIDIndicator%size == 0 && counter == 0 ) return -1; } return petrolPumpCorrospondingtominimumCost; } /** * @param args */ public static void main(String[] args) { int size = 0 ; int fuel, distance; Scanner scanner = new Scanner(System.in); size = scanner.nextInt(); ArrayList petrolAndDistance = new ArrayList(size); for ( int i=0 ; i<size; i++){ fuel = scanner.nextInt(); distance = scanner.nextInt(); petrolAndDistance.add(new PetrolAndDistance(fuel, distance)); } int status = canCompleteCircuit ( petrolAndDistance) ; if ( status == -1) { System.out.println("Not Enough fuel to complete journey! :("); } else { System.out.println(" :) You can start journey from Petrol pump number: " +(status+1) ); } } } nitin I can’t post code… why ? Kartik nitin, apologies for the inconvenience. If you are facing problems with disqus formatting, you can create your code on ideone.com and share the link. Nitin Gupta int Nitin Gupta import java.io.ObjectInputStream.GetField; import java.util.ArrayList; import java.util.Scanner; /** * */ /** * @author nitingupta * */ class PetrolAndDistance { private int fuel ; private int distance; public PetrolAndDistance() { fuel = distance = 0 ; } public PetrolAndDistance(final int fuel, final int distance) { this.fuel = fuel; this.distance =distance ; } public int getFuel() { return fuel; } public void setFuel(int fuel) { this.fuel = fuel; } public int getDistance() { return distance; } public void setDistance(int distance) { this.distance = distance; } } public class CircularRoad { public CircularRoad() { } /* * This method takes the array list of PetrolAndDistance and * @return start point of journey * otherwise -1 as indicating not possible * */ public static int canCompleteCircuit(ArrayList petrolAndDistance) { int size = petrolAndDistance.size(); int petrolPumpIDIndicator=0; int canGoFromAtoB = 0 ; // can we go from A to B indicator int petrolPumpCorrospondingtominimumCost = -1 ; //assuming no petrol pump will complete journey int counter = 0 ; boolean roundComplete = false; for ( ; counter!=size;){ PetrolAndDistance p = petrolAndDistance.get(petrolPumpIDIndicator) ; //trying to go from current petrol pump to next petrol pump. canGoFromAtoB = canGoFromAtoB + p.getFuel() – p.getDistance() ; //means we can not move from A to B if ( canGoFromAtoB < 0){ // if it is second round and we have not pass through anyone to anyone then there is no solution if ( petrolPumpIDIndicator == 0 && counter!=0) return -1; // if it is second round and we have pass through someone to someone but can't move further since canGoFromAtoB 0 && roundComplete==true ) return -1; canGoFromAtoB = 0 ; //Assume we can go from next petrol pump petrolPumpCorrospondingtominimumCost = petrolPumpIDIndicator + 1; } else { //keep how many petrol pum we have visited counter++; } petrolPumpIDIndicator++; //for circular road pattern if (petrolPumpIDIndicator%size == 0 && counter!=0 ) { petrolPumpIDIndicator = 0 ; roundComplete = true; } else if(petrolPumpIDIndicator%size == 0 && counter == 0 ) return -1; } return petrolPumpCorrospondingtominimumCost; } /** * @param args */ public static void main(String[] args) { int size = 0 ; int fuel, distance; Scanner scanner = new Scanner(System.in); size = scanner.nextInt(); ArrayList petrolAndDistance = new ArrayList(size); for ( int i=0 ; i<size; i++){ fuel = scanner.nextInt(); distance = scanner.nextInt(); petrolAndDistance.add(new PetrolAndDistance(fuel, distance)); } int status = canCompleteCircuit ( petrolAndDistance) ; if ( status == -1) { System.out.println("Not Enough fuel to complete journey! :("); } else { System.out.println(" You can start journey from Petrol pump number: " +(status+1) ); } } } Sample input and output 4 4 6 6 5 7 3 4 5 ans: 2 5 1 1 3 4 4 2 4 2 1 2 ans: 3 3 6 4 3 6 7 3 ans: 3 3 1 2 1 2 4 8 ans: not en 3 1 2 1 2 8 4 ans: 3 3 1 6 1 2 8 4 ans: not en 4 1 4 1 8 1 9 8 4 ans: not en 4 1 4 1 8 1 9 25 4 ans: 4 Sriharsha g.r.v can we hav a recursive function for this ? i am asking this because i find it more like a hamtalion cycle with an extra parameter Jayanth Same problem…. http://oj.leetcode.com/problems/gas-station/ Samish Chandra Kolli i think we may to add a check for detecting infinite loop when there exists no petrol pump to start with.. Anil I think, there is no need to detect the infinite loop when there exists no petrol pump to start with. Reason being the checking the if (start == 0) { /* This will break for going another loop for all pumps that had been examine. */ return -1; } Samish Chandra Kolli i think we may to add a check for detect the infinite loop when there exists no petrol pump to start with.. mrn “#include using namespace std; int main(){ int n; cin>>n; int *petrol=new int[n]; int *dist=new int[n]; for(int i=0;i>petrol[i]>>dist[i]; } int start=0,v=0,i; for(i=0;i<n;i++){ start=i;v=i; int pet=petrol[start]; while((v+1)%n !=start){ pet=pet-dist[v]; if(pet 0) break; } if(i==n) start=-1; cout<<start<<endl; return 0; }" works for all inputs .. AFAI checked bantu why does dequeue elements from the queue will change the current petrol from negative to positive. Either you will have to deque all the elements from the queue of you don’t need to deque at all, don’t you see it? I think you guys should write some more text validating your algorithm rather than writing the code. /* Paste your code here (You may delete these lines if not writing code) */ pankaj yes @bantu, i also think this please geeksforgeeks check out this!! ? Ankit Chaudhary Yes, I agree with bantu. A simple approach: Start from 0, and i=0(current location) 1. move ahead till cur_petrol is >=0 and (i+1) is not equal to (start)%n. If cur_petrol is negative(let say when going from i to i+1), then If (i+1)%n==0 // i.e. again u reached 0 as starting point, so no tour exists return false; else go to step 1 and mark start=i+1; 2. After coming out of loop check if(i+1)%n is equal to start then return start else return false; time : O(2n) => O(n) as every element is visited maximum 2 times I have not code it yet, I am wrong then please let me know.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Harsha Hi! Your idea is correct. you don’t have to consider any other index to be starting point between s & e the moment curr_petrol becomes negative. Infact you can prove this. But we still need to check if we have re-reached the starting point (index 0) during this process. Because we need to know whether we have already come back to starting points we’ve already considered. I do have a small idea to go around this. When ever curr_petrol becomes negative. oldS = s. s = (e+1)%n. if (s < oldS) return -1 because s < oldS means that we've crossed 0 again. Let me know your thoughts Harsha Hi! Your idea is correct. you don’t have to consider any other index to be starting point between s & e the moment curr_petrol becomes negative. Infact you can prove this. But we still need to check if we have re-reached the starting point (index 0) during this process. Because we need to know whether we have already come back to starting points we’ve already considered. I do have a small idea to go around this. When ever curr_petrol becomes negative. oldS = s. s = (e+1)%n. if (s < oldS) return -1 because s < oldS means that we've crossed 0 again. Let me know your thoughts @ce unable to post code nitajay28 O(n) solution: take a int and store the difference of first element(petrol-distance). case 1: If it is positive continue adding the differences of next element. case 2: if it’s -ve and if becomes more -ve by adding the difference of next element then keep adding and again when its value becomes less negative stop at that element and restart the above procedure from that element. and if we arrive at the element from which we have started then we have completed the cycle and the required point is the same point. harshitism 1 more solution  
+#include<stdio.h>
+#include<conio.h>
+
+struct pump
+{
+    int petrol;
+    int dist;
+};
+
+int main()
+{
+    int cur_petrol=0;
+    int start=1;
+    
+    int n,i;
+    pump p[100]; 
+    scanf("%d",&n);
+    int end=n;
+    for(i=1;i<=n;i++)
+    {
+        scanf("%d",&p[i].petrol);
+        scanf("%d",&p[i].dist);
+    }
+    i=start;
+    while(i!=end)
+    {
+        // keep adding petrol and decrease the distance travel
+        cur_petrol =cur_petrol + p[i].petrol;
+        cur_petrol =cur_petrol - p[i].dist;
+        // change start if it cant reach 2nd station
+        if(cur_petrol < 0)
+        {
+            i++;
+            cur_petrol=0;
+            start=i;
+            // when all stations are visited
+            if(start==n+1)
+            {
+                start=0;
+                break;
+            }
+            end++;
+            // do end to 1
+            if(end==n+1)
+            {
+                end=1;
+            }
+            
+        }
+        else
+        {
+            i++;
+            if(i==n+1)
+            {
+                i=1;
+            }
+        }
+    }
+    //for last station to 1st 
+        cur_petrol =cur_petrol + p[i].petrol;
+        cur_petrol =cur_petrol - p[i].dist;
+        if(cur_petrol >= 0)
+        {
+            printf("%d",start);
+        }
+        
+        if(start==0 || cur_petrol < 0)
+        printf("It cant complete circular path");
+    getch(); 
+    
+}
+
+ Prankul Garg  
+/* Paste your code here (You may delete these lines if not writing code) */
+// C program to find circular tour for a truck
+#include <stdio.h>
+ 
+// A petrol pump has petrol and distance to next petrol pump
+struct petrolPump
+{
+  int petrol;
+  int distance;
+};
+
+int printTour(struct petrolPump arr[], int n)
+{
+    // Consider first petrol pump as a starting point
+    int start = 0;
+    int petrolsum=0;
+    int distancesum=0;
+    
+    for(int i=0;i<n;i++)
+    {
+        petrolsum+=arr[i].petrol;
+        distancesum+=arr[i].distance;
+        
+        if(petrolsum < distancesum)
+        {
+            petrolsum=0;
+            distancesum=0;
+            start=i+1;
+        }
+    }
+
+if (start == n)
+               return -1;
+    
+    // Return starting point
+    return start;
+}
+
+ int main()
+{
+    struct petrolPump arr[] = {{6, 4}, {3, 6}, {7, 3}};
+ 
+    int n = sizeof(arr)/sizeof(arr[0]);
+    int start = printTour(arr, n);
+ 
+    (start == -1)? printf("No solution"): printf("Start = %d", start);
+ 
+    return 0;
+}
+ Prankul Garg  
+/* 
+// C program to find circular tour for a truck
+#include <stdio.h>
+ 
+// A petrol pump has petrol and distance to next petrol pump
+struct petrolPump
+{
+  int petrol;
+  int distance;
+};
+
+int printTour(struct petrolPump arr[], int n)
+{
+    // Consider first petrol pump as a starting point
+    int start = 0;
+    int petrolsum=0;
+    int distancesum=0;
+    
+    for(int i=0;i<n;i++)
+    {
+        petrolsum+=arr[i].petrol;
+        distancesum+=arr[i].distance;
+        
+        if(petrolsum < distancesum)
+        {
+            petrolsum=0;
+            distancesum=0;
+            start=i+1;
+        }
+    }
+
+if (start == n)
+               return -1;
+    
+    // Return starting point
+    return start;
+}
+
+ int main()
+{
+    struct petrolPump arr[] = {{6, 4}, {3, 6}, {7, 3}};
+ 
+    int n = sizeof(arr)/sizeof(arr[0]);
+    int start = printTour(arr, n);
+ 
+    (start == -1)? printf("No solution"): printf("Start = %d", start);
+ 
+    return 0;
+} */
+ code_streak Does this work for… (4,6)(6,5)(3,8)(8,4) I think it will return that A path exists but actually there is no such path Prankul Garg   /* Paste your code here (You may delete these lines if not writing code) */ // C program to find circular tour for a truck #include // A petrol pump has petrol and distance to next petrol pump struct petrolPump { int petrol; int distance; }; int printTour(struct petrolPump arr[], int n) { // Consider first petrol pump as a starting point int start = 0; int petrolsum=0; int distancesum=0; for(int i=0;i<n;i++) { petrolsum+=arr[i].petrol; distancesum+=arr[i].distance; if(petrolsum < distancesum) { petrolsum=0; distancesum=0; start=i+1; } } if (start == n) return -1; // Return starting point return start; } int main() { struct petrolPump arr[] = {{6, 4}, {3, 6}, {7, 3}}; int n = sizeof(arr)/sizeof(arr[0]); int start = printTour(arr, n); (start == -1)? printf("No solution"): printf("Start = %d", start); return 0; } Muthukumar Suresh  
+#include<iostream>
+#include<stdlib.h>
+
+using namespace std;
+struct petrolPump{
+	int petrol;
+	int distance;
+
+};
+int main()
+{
+    	struct petrolPump arr[] = {{6,4},{4,6},{3,1},{4,2},{4,9},{8,7}};
+ 
+    	int n = sizeof(arr)/sizeof(arr[0]);
+    	int front=-1,rear=-1;
+	int petrolleft=0;
+	int inqueue=0;
+	
+	while(inqueue!=n){
+		if(front==n){
+			cout<<"\nNO PATH IS POSSIBLE";
+			exit(0);
+			
+		}
+		if(rear==-1){
+			front=rear=(rear+1)%n;
+			petrolleft=petrolleft+(arr[rear].petrol-arr[rear].distance);	
+			inqueue+=1;
+		}
+		else{
+			rear=(rear+1)%n;
+			petrolleft=petrolleft+(arr[rear].petrol-arr[rear].distance);	
+			inqueue+=1;
+		}
+		while(petrolleft<0){
+			petrolleft-=(arr[front].petrol-arr[front].distance);
+			inqueue--;
+			front=(front+1);
+		}
+		
+	}
+	cout<<"START:"<<front;	 
+    	return 0;
+}
+ shivi @venki can’t we take a 1D array and save petrol-distance as each element… then find the maximum circular subarray sum! if it is greater than zero..then such a tour is possible..else not… also we can find the starting point of the array! shivi srry…it may not cover all pumps  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Siva Chidambaram Somu @geeksforgeeks I think your algorithm would fail for the following input. {4, 6}, {5, 5}, {3, 4} {4, 4} and {8, 5} Your code would return {5,5} Correct me if I’m wrong. GeeksforGeeks The code produces start point as 3 which is {8 ,5} See http://ideone.com/LLOPqx Ananth Is O(n^2) in the worst case. Worst case being when the total of the array is -1. VAMSHIKRI  
+/* Paste your code here (You may delete these lines if not writing code) */
+int circular_tour(int petrol[],int dist[],int n)
+{
+	int curr,i,avail_petrol;
+	for(curr=0;curr<n;)
+	{
+		i=curr;
+		
+		avail_petrol=petrol[i];
+		while(i<curr+n && avail_petrol>=dist[i%n])
+		{
+			avail_petrol-=dist[i%n];
+			i++;
+			avail_petrol+=petrol[i%n];
+		}
+		if(i==curr+n)
+		return curr;
+		else curr=i+1;
+	}
+	
+	return -1;
+
+ VAMSHIKRI there is no need for a queue here bcoz if we cannot reach from pump i to pump j then we cannot reach pump j from any pump between i and j so we can start trying to complete tour from pump j time complexity-O(n)  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Prateek Sharma Python Code…….  
+        def circularTour(a):
+    petrolLeft   =0
+    distanceToBECovered =0
+    arraylist =[]
+    index =0
+    i=0
+    while (i%len(a))>=0:
+        if a[i%len(a)][0]+petrolLeft>=a[i%len(a)][1]+distanceToBECovered:
+            petrolLeft = petrolLeft +a[i%len(a)][0]
+            distanceToBECovered = distanceToBECovered + a[i%len(a)][1]
+            arraylist.append(i%len(a))
+            i = i+1
+            if len(arraylist) == len(a)+1:
+                print arraylist[0]
+                break
+            
+        else:
+            if index<=len(a)-1:
+                index = index+1
+                i = index
+                del arraylist[:]
+                continue
+            else:
+                print "No cycle Found"
+                break
+            
+def main():
+    array =[[2,4],[9,7],[4,6],[6,2]]
+    circularTour(array)
+if __name__ == '__main__':
+    main()
+ Deepesh  
+
+public class NPetrolBunks {
+	public class PetrolBunk {
+		public int available;
+		public int required;
+		
+		public PetrolBunk(int a, int r) {
+			this.available = a;
+			this.required = r;
+		}
+	}
+	
+	private PetrolBunk[] npb;
+	
+	public NPetrolBunks() {
+		this.npb = null;
+	}
+	
+	public void setPetrolBunks(PetrolBunk[] pb) {
+		this.npb = pb;
+	}
+	
+	public void tour(int start) {
+		if(start >= npb.length) {
+			throw new IllegalArgumentException("Invalid start");
+		}
+		int end = 1;
+		int available = npb[start].available;
+		int resource = npb[start].required;
+		
+		while(start != end) {
+			available += npb[end].available;
+			resource += npb[end].required;
+
+			if(available >= resource) {
+				end++;
+				if(end == npb.length) {
+					end = 0;
+				}
+			} else {
+				start++;
+				System.out.println("Restart tour from " + start);
+				available = npb[start].available;
+				resource = npb[start].required;
+				end = (start == npb.length-1) ? 0 : start + 1;
+			}
+		}
+		System.out.println("Tour completed");
+	}
+	
+	public static void main(String[] args) {
+		NPetrolBunks npbs = new NPetrolBunks();
+		PetrolBunk pb1 = npbs.new PetrolBunk(9,2); 
+		PetrolBunk pb2 = npbs.new PetrolBunk(5,6);
+		PetrolBunk pb3 = npbs.new PetrolBunk(3,10); 
+		PetrolBunk pb4 = npbs.new PetrolBunk(6,5);
+		
+		PetrolBunk[] npb = { pb1, pb2, pb3, pb4 };
+		npbs.setPetrolBunks(npb);
+		npbs.tour(2);
+		
+	}
+}
+
+ Amit @geeksforgeeks: If we will create an array with difference of petrol and distance(P-D).After that If we apply Maximum circular subarray sum algorithm using Kdane then whatever will be the starting point for that sum will be the starting point of our root. Note :- If sum of initially created array is less than 0 then there is no possible root. Karthik  
+This problem boils down to finding first element in an array from which the sum of all numbers from its next number till u get that number is positive:
+My code is given below:
+ 
+public static void main(String[] args){
+        int[] arr={-2,-1,3,-2,6};
+        int index=getPosIndex(arr);
+        System.out.println(index);
+    }
+    public static int getPosIndex(int[] arr){
+        int i=0,sum=0,start=0,count=0;
+        int n=arr.length;       
+        for(i=start;count<n;i=(i+1)%n){
+            if(start>=n)return -1;
+            if( arr[start]>0){
+                sum+=arr[i];
+                count++;
+                if(arr[(i+1)%n]+sum<0){
+                    sum=0;
+                    start=i+2;
+                    count=0;
+                }
+                 
+            }else start++;
+        }
+         
+        return start;
+    }
+ Karthik  
+/* This problem boils down to finding first element in an array from which the sum of all numbers from its next number till u get that number is positive:
+My code is given below:
+
+public static void main(String[] args){
+		int[] arr={-2,-1,3,-2,6};
+		int index=getPosIndex(arr);
+		System.out.println(index);
+	}
+	public static int getPosIndex(int[] arr){
+		int i=0,sum=0,start=0,count=0;
+		int n=arr.length;		
+		for(i=start;count<n;i=(i+1)%n){
+			if(start>=n)return -1;
+			if( arr[start]>0){
+				sum+=arr[i];
+				count++;
+				if(arr[(i+1)%n]+sum<0){
+					sum=0;
+					start=i+2;
+					count=0;
+				}
+				
+			}else start++;
+		}
+		
+		return start;
+	}
+*/
+ R Srinivasan void printStartPetrolPump(struct petrolPump arr[], int n) { int curpetrol=0, count=0,i; for(i=0;i<2*n-1 && count!=n ;i++) { curpetrol+=arr[i%n].petrol-arr[i%n].distance; if (curpetrol<0) curpetrol=count=0; else count++; } if (count ==n) printf("PetrolPump start number %d\n",i-count+1); else printf("Not Possible\n"); } moonlight if we applied the above example to your code: {4, 6}, {6, 5}, {7, 3} and {4, 5 by the end of this loop i will be 5 and when we come to this line: if (count ==n) printf(“PetrolPump start number %d\n”,i-count+1); it will return 2 instead of 1..so i think you should print 1-count+2. R Srinivasan @moonlight Thank you for pointing out the mistake. The starting number of petrol pump is “i-count”. The last four lines of program has to be changed as below if (count == n) printf(“PetrolPump start number %d\n”,i-count); else printf(“Not Possible\n”); The above problem is a variation of Maximum subsequence problem(Kadane’s algorithm). Since the potential candidate(starting petrol pump) can be any one of the n petrol pump(including last one),the loop runs atmost 2n times. http://www.careersgen.net venky if the truck starts the middle if you wrote the condition only on starting and ending .what is the condition for if the truck stats on middle frank Is this logic correct: Suppose we start at some petrol pump say petrol pump 1, then if when we reach petrol pump 4 and amount of petrol remaining becomes negative for first time, then we can simply ignore petrol pumps 2 and 3 i.e. 2 and 3 can’t be suitable start states.. Naren is ur reply on my comment? if so, give me scenario, I can not exactly create the scenario u are talking.. Thanks abcGeeks I agree with frank. can someone comment on this plz  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Suryaamsh Yes, the logic seems to be correct. pump #2 and #3 cannot be start points nor are pump #1 and #4. Because, the best that can happen to reach #4 is that it has amount of petrol just sufficient for the journey to the next petrol bunk (for #1, #2 and #3). So, if the total petrol becomes -ve at #4, surely #1, #2, #3 and #4 cannot be the starting points. Naren  
+#include<stdio.h>
+
+void main()
+{
+      int a[10][2] = { {3, 2}, {2, 12}, {10, 1}, {1, 1} };
+    //int a[10][2] = { {4, 6}, {6, 5}, {7, 3} , {4, 5} };
+    //int a[10][2] = { {4, 6}, {6, 7}, {7, 3} , {4, 5} };
+
+    int n = 4;
+    int i,start=-1,p=0,d=0;
+    short flag = 0;
+
+    for ( i = 0; i<n; i++ )
+    {
+        p = p + a[i][0];
+        d = d + a[i][1];
+
+        if ( p<d && a[i][0]<a[i][1] )
+        {
+            flag = 0;
+        }
+        else
+        {
+            if (flag == 0)
+                start = i;
+
+            flag = 1;
+        }
+    }
+
+    if (flag == 1)
+        printf ("%d \n",start);
+    else
+        printf ("$$ NO_CYCLE $$ \n");
+
+}
+ Time Complexity : o(n) Naren There is a bug in the earlier code.  
+#include<stdio.h>
+ 
+void main()
+{
+      int a[10][2] = { {3, 2}, {2, 12}, {10, 1}, {1, 1} };
+    //int a[10][2] = { {4, 6}, {6, 5}, {7, 3} , {4, 5} };
+    //int a[10][2] = { {4, 6}, {6, 7}, {7, 3} , {4, 5} };
+ 
+    int n = 4;
+    int i,start=-1,p=0,d=0;
+    short flag = 0;
+ 
+    for ( i = 0; i<n; i++ )
+    {
+        p = p + a[i][0];
+        d = d + a[i][1];
+ 
+        if ( p<d && a[i][0]<a[i][1] )
+        {
+            flag = 0;
+        }
+        else
+        {
+            if (flag == 0)
+                start = i;
+ 
+            flag = 1;
+        }
+    }
+ 
+    if (flag == 1 && p>=d)
+        printf ("%d \n",start);
+    else
+        printf ("$$ NO_CYCLE $$ \n");
+ 
+}
+ Time Complexity : o(n) cyberWolf Pass the difference of petrol and distance(petrol – distance) as array argument.  
+int printTour(int x[],int n)
+{
+        int i;
+        int start=0;
+        int max_here=x[0];
+
+        for(i=1;i!= start;i=(i+1)%n)
+        {   
+                if(max_here < 0)
+                {   
+                        max_here = 0;
+                        start = i;
+
+                        if(start == 0)
+                                return -1; 
+                }   
+
+                max_here += x[i];
+
+        }   
+        if(max_here < 0)
+                return -1; 
+        return start;
+}
+ sreeram I think there is a bug in the program .. check this … http://ideone.com/DjPDXs while returning start you need to check if the curr_petrol is less than zero or not … GeeksforGeeks @sreeram: Thanks for pointing this out. We have added the necessary condition to handle this case. Keep it up! SaM  
+include <iostream>
+using namespace std;
+int main()
+{
+	//int array[][2] = {{4,6},{6,5},{7,3},{4,5}};
+	//int array[][2] = {{3, 2}, {2, 12}, {10, 1}, {1, 1}};
+	int array[][2] = {{4,6}, {6,5}, {7,3}, {4,5}};
+	int start = 0,end = 0;
+	int pumps = (sizeof(array)/sizeof(int))/2;
+	int pet = array[0][0],dis = array[0][1];
+	int counter = 0;
+	while(1)
+	{
+		if(((start - end == 1)||(start-end)==-1) && counter == pumps - 1)
+			break;
+		if(pet < dis)
+		{
+			start = start - 1;
+			if(start < 0)
+			{
+				start = pumps - 1;
+			}
+			pet = pet + array[start][0];
+			dis = dis + array[start][1];
+			counter++;
+		}
+		else
+		{
+			end = end +1;
+			if(end > pumps -1)
+				end = 0;
+			pet = pet + array[end][0];
+			dis = dis + array[end][1];
+			counter++;
+		}
+
+	}
+
+	cout << "start : "<<start << "end" << end;  
+}
+ Naren #include void main() { int a[10][2] = { {3, 2}, {2, 12}, {10, 1}, {1, 1} }; //int a[10][2] = { {4, 6}, {6, 5}, {7, 3} , {4, 5} }; //int a[10][2] = { {4, 6}, {6, 7}, {7, 3} , {4, 5} }; int n = 4; int i,start=-1,p=0,d=0; short flag = 0; for ( i = 0; i<n; i++ ) { p = p + a[i][0]; d = d + a[i][1]; if ( p<d && a[i][0]<a[i][1] ) { flag = 0; } else { if (flag == 0) start = i; flag = 1; } } if (flag == 1) printf ("%d \n",start); else printf ("$$ NO_CYCLE $$ \n"); } Time Complexity : o(n) http://www.github.com/prakhar1989 prakhar def find_starting_pump(pump): (start, end) = (0, 1) petrol = pump[start][0] – pump[start][1] while end != start: while petrol < 0: petrol -= pump[start][0] – pump[start][1] start = (start + 1) % len(pump) if not start: return -1 petrol += pump[end][0] – pump[end][1] end = (end + 1) % len(pump) return start if __name__ == "__main__": pumps = [(4,6), (6,5), (7,3), (4,5)] print find_starting_pump(pumps) Ronnie  
+#include "stdafx.h"
+#include<stdio.h>
+#include<conio.h>
+const int n=4;
+int main()
+{
+	int pump[n];
+	int start=0,end=0;
+	int val=0;
+	int fill,next;
+	for(int i=0;i<n;i++)
+	{
+		printf("\n Petrol Station %d \n Amount of Petrol ",i);
+		scanf_s("%d",&fill);
+		printf("Distance to Next Station ");
+		scanf_s("%d",&next);
+		pump[i]=fill-next;
+	}
+	while(1)
+	{
+		val+=pump[end];
+		if(val<0)
+		{
+			val=0;
+			end=++start;
+			continue;
+		}
+		else
+			++end%=n;
+		if(start==end)
+		{
+			printf("%d",start);
+			break;
+		}
+	}
+	_getch();
+	return 0;
+}
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

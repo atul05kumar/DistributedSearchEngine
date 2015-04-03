@@ -1,0 +1,376 @@
+How to check if two given line segments intersect? - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph How to check if two given line segments intersect? Given two line segments (p1, q1) and (p2, q2), find if the given line segments intersect with each other. Before we discuss solution, let us define notion of orientation. Orientation of an ordered triplet of points in the plane can be –counterclockwise –clockwise –colinear The following diagram shows different possible orientations of (a, b, c) Note the word ‘ordered’ here. Orientation of (a, b, c) may be different from orientation of (c, b, a). How is Orientation useful here? Two segments (p1,q1) and (p2,q2) intersect if and only if one of the following two conditions is verified 1. General Case: – (p1, q1, p2) and (p1, q1, q2) have different orientations and – (p2, q2, p1) and (p2, q2, q1) have different orientations 2. Special Case – (p1, q1, p2), (p1, q1, q2), (p2, q2, p1), and (p2, q2, q1) are all collinear and – the x-projections of (p1, q1) and (p2, q2) intersect – the y-projections of (p1, q1) and (p2, q2) intersect Examples of General Case: Examples of Special Case: Following is C++ implementation based on above idea. 
+// A C++ program to check if two given line segments intersect
+#include <iostream>
+using namespace std;
+
+struct Point
+{
+    int x;
+    int y;
+};
+
+// Given three colinear points p, q, r, the function checks if
+// point q lies on line segment 'pr'
+bool onSegment(Point p, Point q, Point r)
+{
+    if (q.x <= max(p.x, r.x) && q.x >= min(p.x, r.x) &&
+        q.y <= max(p.y, r.y) && q.y >= min(p.y, r.y))
+       return true;
+
+    return false;
+}
+
+// To find orientation of ordered triplet (p, q, r).
+// The function returns following values
+// 0 --> p, q and r are colinear
+// 1 --> Clockwise
+// 2 --> Counterclockwise
+int orientation(Point p, Point q, Point r)
+{
+    // See 10th slides from following link for derivation of the formula
+    // http://www.dcs.gla.ac.uk/~pat/52233/slides/Geometry1x1.pdf
+    int val = (q.y - p.y) * (r.x - q.x) -
+              (q.x - p.x) * (r.y - q.y);
+
+    if (val == 0) return 0;  // colinear
+
+    return (val > 0)? 1: 2; // clock or counterclock wise
+}
+
+// The main function that returns true if line segment 'p1q1'
+// and 'p2q2' intersect.
+bool doIntersect(Point p1, Point q1, Point p2, Point q2)
+{
+    // Find the four orientations needed for general and
+    // special cases
+    int o1 = orientation(p1, q1, p2);
+    int o2 = orientation(p1, q1, q2);
+    int o3 = orientation(p2, q2, p1);
+    int o4 = orientation(p2, q2, q1);
+
+    // General case
+    if (o1 != o2 && o3 != o4)
+        return true;
+
+    // Special Cases
+    // p1, q1 and p2 are colinear and p2 lies on segment p1q1
+    if (o1 == 0 && onSegment(p1, p2, q1)) return true;
+
+    // p1, q1 and p2 are colinear and q2 lies on segment p1q1
+    if (o2 == 0 && onSegment(p1, q2, q1)) return true;
+
+    // p2, q2 and p1 are colinear and p1 lies on segment p2q2
+    if (o3 == 0 && onSegment(p2, p1, q2)) return true;
+
+     // p2, q2 and q1 are colinear and q1 lies on segment p2q2
+    if (o4 == 0 && onSegment(p2, q1, q2)) return true;
+
+    return false; // Doesn't fall in any of the above cases
+}
+
+// Driver program to test above functions
+int main()
+{
+    struct Point p1 = {1, 1}, q1 = {10, 1};
+    struct Point p2 = {1, 2}, q2 = {10, 2};
+
+    doIntersect(p1, q1, p2, q2)? cout << "Yes\n": cout << "No\n";
+
+    p1 = {10, 0}, q1 = {0, 10};
+    p2 = {0, 0}, q2 = {10, 10};
+    doIntersect(p1, q1, p2, q2)? cout << "Yes\n": cout << "No\n";
+
+    p1 = {-5, -5}, q1 = {0, 0};
+    p2 = {1, 1}, q2 = {10, 10};
+    doIntersect(p1, q1, p2, q2)? cout << "Yes\n": cout << "No\n";
+
+    return 0;
+}
+ Output: No
+Yes
+No Sources: http://www.dcs.gla.ac.uk/~pat/52233/slides/Geometry1x1.pdf Introduction to Algorithms 3rd Edition by Clifford Stein, Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: geometric algorithms, MathematicalAlgo Tweet Writing code in comment? Please use ideone.com and share the link here. Amit onSsegment should be if ( p.x * ( q.y – r.y ) + q.x * ( r.y – p.y ) + r.x*( p.y – q.y) == 0 ) return true; Fredrik The code seems to be optimized for the case where the segments do intersect. Any suggestions for optimizing the code for the case where the segments probably do not intersect? clotho An easier way: Segment L1 has edges A=(a1,a2), A’=(a1′,a2′). Segment L2 has edges B=(b1,b2), B’=(b1′,b2′). Segment L1 is the set of points tA’+(1-t)A, where 0< =t<=1. Segment L2 is the set of points sB'+(1-s)B, where 0<=s<=1. Segment L1 meet segment L2 if and only if for some t and s we have tA'+(1-t)A=sB'+(1-s)B The solution of this with respect to t and s is t=((-b?'a?+b?'b?+b?a?+a?b?'-a?b?-b?b?')/(b?'a?'-b?'a?-b?a?'+b?a?-a?'b?'+a?'b?+a?b?'-a?b?)) s=((-a?b?+a?'b?-a?a?'+b?a?+a?'a?-b?a?')/(b?'a?'-b?'a?-b?a?'+b?a?-a?'b??+a?'b?+a?b?'-a?b?)) So check if the above two numbers are both >=0 and < =1. GradLifeWoes That would be the case if they are lines and not line segments. Even in the case of lines another check has to be dome to determine that the two lines are not same. So we should check they are not collinear and have same slopes to determine that they never intersect. sarat G Hey, What’s the point in doing all this stuff…if the slopes of two line segments are equal we can they never intersect…in any other case the two line segments always intersects..  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik That is why the topic says line *Segments* Mohan I appreciate the efforts taken by geeksforgeeks community in posting useful problems and their solutions here but this one was very poorly explained. xxmajia For 10th page of http://www.dcs.gla.ac.uk/~pat/52233/slides/Geometry1x1.pdf i don’t get it, its true only when p, q, r ‘s x-projection are increasing can anyone explain it a little bit?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik I think CLRS book would be helpful for better understanding. IsAs distance(P1, Q1) = distance between P1 and Q1. If point K lies on a line segment then following equation is true : distance(P1,Q1) = distance(P1,K) + distance(K,Q1) Find the slopes of two line segments and let’s say if they are not equal – then 1) Form two equations of the form ax+by+c = 0 2) Compute the intersecting point by solving above line equations.Let’s call our intersecting point as I. 3) Verify whether distance(P1, Q1) == distance(P1,I) + distance(I,Q1) 4) Verify the same with P2 and Q2 as well 5) If intersecting point lies on both the line segments then above two verifications should succeed If slopes are equal then check if their equations are same or not. If equations are different then they are parallel lines – no intersecting point If equations are same then the points are collinear – verify the following (one of the points of the line segment should lie on the other) distance(P1,Q1) == distance(P1,P2) + distance(P2, Q1) distance(P1,Q1) == distance(P1,Q2) + distance(Q2, Q1) If any of the above statements are true then the line segments intersect blackball How about this one:  
+/* http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect */
+
+struct point {
+    float x, y;
+};
+
+static inline int
+line_intersect_2d(struct point a, struct point b,
+                  struct point c, struct point d) {
+    struct point cmp, r, s;
+    cmp.x = c.x - a.x;
+    cmp.y = c.y - a.y;
+    r.x = b.x - a.x;
+    r.y = b.y - a.y;
+    s.x = d.x - c.x;
+    s.y = d.y - c.y;
+
+    const float cmp_xr = cmp.x * r.y - cmp.y * r.x;
+    const float cmp_xs = cmp.x * s.y - cmp.y * s.x;
+    const float r_xs = r.x * s.y - r.y * s.x;
+
+    if (cmp_xr == 0f) {
+        /* colinear, detect if overlap */
+        return ((c.x - a.x < 0f) != (c.x - b.x < 0f)) || ((c.y - a.y < 0f) != (c.y - b.y < 0f));
+    }
+
+    if (r_xs == 0f) {
+        /* parallel */
+        return 0;
+    }
+    const float ir_xs = 1f / r_xs;
+    const float t = cmp_xs * ir_xs;
+    const float u = cmp_xr * ir_xs;
+    
+    return (t >= 0f) && (t <= 1f) && (u >= 0f) && (u <= 1f);
+}
+
+ Dixit Sethi Using basic maths, this can be done easily. First take the two points of first line. say (x11, y11) and (x12, y12). This is line segment and we can find the equation of line passing through these points. eqn: “y*(x12-x11)- x*(y12-y11) + x11(y12-y11) – y11(x12-x11)”. This eqn will equate to zero if x and y are points lying anywhere on the line (not just the line segment). If the point (x,y) is above the line, then eqn value is positive and if the point is below the line, then it is negative. For cases like example 1, we need the two endpoints of the second line on the opposite sides of the first line and vice versa. Check the value of the equation of first line for the two (x,y) end points of the second line. The two eqn values must be opposite in sign. Similarly check the two endpoints of the first line with the eqn of second line. These eqn values must also be opposite in sign. If thats the case, line segments are intersecting. Example 3 will fail in this case, stating it non intersecting. Now, the case of both the endpoints of one line segment lying on the line of other line segment (special case example 1 and 2). This will cause all four equation values to be zero. This is handled separately in the code and as all the points are collinear check is done for one of the endpoints lying between the endpoints of other line. The case of only one endpoint lying on the second line is left (example 2 and 4). This will include example 4 and 2. Say res11 is result of endpoint 1 of line 2 put in eqn of line 1, res12 is result of endpoint 2 of line 2 put in eqn of line 1 and similarly res21 and res22. res12 will be zero. For example 2, res21 ans res22 will be of opposite sign and for example 4, they will be of same sign. If one of them is also zero, then we have a common endpoint. This case is checked along with first case in the code.  
+#include<stdio.h>
+
+typedef struct point_str
+{
+	int x;
+	int y;
+}point;
+
+int eqn(point a, point b, int x, int y)
+{
+	int res = y*(b.x - a.x) - x*(b.y - a.y) + a.x*(b.y - a.y) - a.y*(b.x - a.x);
+	return res;
+}
+
+int check_intersection(point a1, point b1, point a2, point b2)
+{
+	int i, j, x1, x2;
+	int res1a2, res1b2, res2a1, res2b1;
+
+	res1a2 = eqn(a1, b1, a2.x, a2.y);
+	res1b2 = eqn(a1, b1, b2.x, b2.y);
+	res2a1 = eqn(a2, b2, a1.x, a1.y);
+	res2b1 = eqn(a2, b2, b1.x, b1.y);
+
+	if(!res1a2 && !res1b2 && !res2a1 && !res2b1)
+	{
+		x1 = a1.x<b1.x ? a1.x:b1.x;
+		x2 = a1.x>b1.x ? a1.x:b1.x;
+		
+		if((a2.x>x1 && a2.x<x2) || (b2.x>x1 && b2.x<x2))
+			return 1;
+		else return 0;
+	}
+
+	if(res1a2*res1b2<=0 && res2a1*res2b1<=0)
+		return 1;
+	else return 0;
+}
+
+int main()
+{
+	point a1, b1, a2, b2;
+
+	printf("Enter coordinates of first line\n");
+	scanf("%d%d%d%d", &a1.x, &a1.y, &b1.x, &b1.y);
+
+	printf("\n");
+
+	printf("Enter coordinates of second line\n");
+	scanf("%d%d%d%d", &a2.x, &a2.y, &b2.x, &b2.y);
+
+
+
+	if(check_intersection(a1,b1, a2, b2))
+		printf("They intersect !! \n");
+	else 
+		printf("They dont intersect !!\n");
+}
+ Parin How is orientation calculated? GeeksforGeeks Please see slide 10 of the following link http://www.dcs.gla.ac.uk/~pat/52233/slides/Geometry1x1.pdf Parin Suppose the points are P1(-5,-5) P2(0,0) P3(-4,-3). Then this is counterclockwise.But, here slope of p2p3 won’t be greater then slope of p1p2. kartik The program seems to be printing counterclockwise only. See http://ideone.com/6DuGJ5 http://in.linkedin.com/in/hiteshdholaria Hitesh If you want to apply your basic math skills, then solve an interesting problem called Convex-Hull Problem. In which you would find some interesting small problems like: – Check whether the particular point lies inside the given polygon – Find an angle between the 3 input points – Given the input points, rearrange them in specific order to form the largest possible polygon ( in terms of its area ) – Solve the 2 lines for possible intersection GeeksforGeeks @Hitesh: Thanks for sharing your inputs. We have published an article on point and polygon problem. We will soon be covering Convex Hull problem also. You can also publish an article by mailing it to contribute@geeksforgeeks.org. Keep it up! Uddhav I did not understand this condition ” q.y = min(r.y, r.y) ” ? Why use max and min functions between same two values ?? Thank you http://in.linkedin.com/in/hiteshdholaria Hitesh  
+class Point {
+	
+	private double x;
+	private double y;
+
+	public Point( ) {
+
+	}
+
+	public Point( double x, double y ) {
+
+		this.x = x;
+		this.y = y;
+
+	}
+
+	public double getX( ) {
+
+		return x;
+
+	}
+
+	public double getY( ) {
+
+		return y;
+
+	}
+
+	public void setX( double x ) {
+
+		this.x = x;
+
+	}
+
+	public void setY( double y ) {
+
+		this.y = y;
+
+	}
+
+	public void print( ) {
+
+		System.out.print( "(" + x + ", " + y + ") " );
+
+	}
+
+	public void println( ) {
+
+		System.out.println( "(" + x + ", " + y + ")" );
+
+	}
+
+	public String toString( ) {
+
+		return "(" + ( float ) x + ", " + ( float ) y + ")";
+
+	}
+
+	public Point clone( ) {
+
+		return ( new Point( x, y ) );
+
+	}
+
+}
+
+public class LineSegmentsIntersection {
+
+	// Check whether the first argument value lies between the other two argument values
+
+	public static boolean isBetween( double a, double b, double c ) {
+
+		if( ( b <= a && a <= c ) || ( c <= a && a <= b ) ) {
+
+			return true;
+
+		}
+
+		return false;
+	}
+
+
+	// Check whether the point A lies in between the argument points B & C
+
+	// Return true, if the point A lies inside the the imaginary rectangle, which is parallel to both the axis and drawn taking the points B and C as the opposite corner points
+
+	public static boolean isBetween( Point a, Point b, Point c ) {
+
+		if( isBetween( a.getY( ), b.getY( ), c.getY( ) ) && isBetween( a.getX( ), b.getX( ), c.getX( ) ) ) {
+
+			return true;
+
+		}
+
+		return false;
+
+	}
+
+	// Calculate the slope of the line AB
+
+	public static float slope( Point a, Point b ) {
+
+		if( ( float ) a.getX( ) == ( float ) b.getX( ) ) {
+
+			return Float.POSITIVE_INFINITY;
+
+		}
+
+		return ( ( float ) ( a.getY( ) - b.getY( ) ) / ( float ) ( a.getX( ) - b.getX( ) ) );
+	}
+
+	public static void main( String[ ] args ) {
+
+		// Line segment PQ
+
+		Point p = new Point( 0, 10 );
+		Point q = new Point( 7, 2 );
+
+		// Line segment RS
+
+		Point r = new Point( 1, 4 );
+		Point s = new Point( 8, 8 );
+
+		// Intersection point
+
+		Point i = new Point( );
+
+		float m = 0;		// Slope of line segment PQ
+		float n = 0;		// Slope of line segment RS
+
+
+		// Check for parallel line segments
+
+		if( slope( p, q ) == slope( r, s ) ) {
+
+			System.out.println( "\nERROR: Line segments are parallel!" );
+			return;
+
+		}
+
+
+		// Find out the intersection point of the lines PQ and RS
+
+		if( slope( p, q ) == Float.POSITIVE_INFINITY ) {
+
+			n = slope( r, s );
+
+			i.setX( p.getX( ) );
+			i.setY( n * i.getX( ) + r.getY( ) - n * r.getX( ) );
+
+		} else if( slope( r, s ) == Float.POSITIVE_INFINITY ) {
+
+			m = slope( p, q );
+
+			i.setX( r.getX( ) );
+			i.setY( m * i.getX( ) + p.getY( ) - m * p.getX( ) );
+
+		} else {
+
+			m = slope( p, q );
+			n = slope( r, s );
+
+			i.setX( ( r.getY( ) - n * r.getX( ) - p.getY( ) + m * p.getX( ) ) / ( m - n )  );
+			i.setY( m * i.getX( ) + p.getY( ) - m * p.getX( ) );
+
+		}
+
+
+		// Check whether the calculated intersection point lies on the line segments or not
+
+		if( isBetween( i, p, q ) && isBetween( i, r, s ) ) {
+
+			System.out.println( "\nIntersection point = " + i );
+
+		} else {
+
+			System.out.println( "\nERROR: There's no intersection between the given line segments!" );
+
+		}
+
+	}
+
+}
+ Pratik Here orientation is nothing but the cross product. Orientation (p,q,r ) is cross product of Vector(p to q ) and Vector( p to r ). But yeah. Good code!! timus THANKs, this really helped…. abhilash in frst if statement what is the point of keeping q.x = min(p.x, r.x) && q.y = min(r.y, r.y) you can simply keep q.x==max(p.x,r.x)&&q.y==min(r.y,r.y) i dont know about the implementation of the program i was just curious to know in code optimization cvr good code Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

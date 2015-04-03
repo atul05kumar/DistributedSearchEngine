@@ -1,0 +1,371 @@
+Populate Inorder Successor for all nodes - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Populate Inorder Successor for all nodes Given a Binary Tree where each node has following structure, write a function to populate next pointer for all nodes. The next pointer for every node should be set to point to inorder successor. 
+struct node
+{
+  int data;
+  struct node* left;
+  struct node* right;
+  struct node* next;
+}
+ Initially, all next pointers have NULL values. Your function should fill these next pointers so that they point to inorder successor. Solution (Use Reverse Inorder Traversal) Traverse the given tree in reverse inorder traversal and keep track of previously visited node. When a node is being visited, assign previously visited node as next. 
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node
+{
+    int data;
+    struct node *left;
+    struct node *right;
+    struct node *next;
+};
+
+/* Set next of p and all descendents of p by traversing them in reverse Inorder */
+void populateNext(struct node* p)
+{
+    // The first visited node will be the rightmost node
+    // next of the rightmost node will be NULL
+    static struct node *next = NULL;
+
+    if (p)
+    {
+        // First set the next pointer in right subtree
+        populateNext(p->right);
+
+        // Set the next as previously visited node in reverse Inorder
+        p->next = next;
+
+        // Change the prev for subsequent node
+        next = p;
+
+        // Finally, set the next pointer in left subtree
+        populateNext(p->left);
+    }
+}
+
+/* UTILITY FUNCTIONS */
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newnode(int data)
+{
+    struct node* node = (struct node*)
+                        malloc(sizeof(struct node));
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+    node->next = NULL;
+
+    return(node);
+}
+
+/* Driver program to test above functions*/
+int main()
+{
+
+    /* Constructed binary tree is
+              10
+            /   \
+          8      12
+        /
+      3
+    */
+    struct node *root = newnode(10);
+    root->left        = newnode(8);
+    root->right       = newnode(12);
+    root->left->left  = newnode(3);
+
+    // Populates nextRight pointer in all nodes
+    populateNext(root);
+
+    // Let us see the populated values
+    struct node *ptr = root->left->left;
+    while(ptr)
+    {
+        // -1 is printed if there is no successor
+        printf("Next of %d is %d \n", ptr->data, ptr->next? ptr->next->data: -1);
+        ptr = ptr->next;
+    }
+
+    return 0;
+}
+ We can avoid the use of static variable by passing reference to next as paramater. 
+// An implementation that doesn't use static variable
+
+// A wrapper over populateNextRecur
+void populateNext(struct node *root)
+{
+    // The first visited node will be the rightmost node
+    // next of the rightmost node will be NULL
+    struct node *next = NULL;
+
+    populateNextRecur(root, &next);
+}
+
+/* Set next of all descendents of p by traversing them in reverse Inorder */
+void populateNextRecur(struct node* p, struct node **next_ref)
+{
+    if (p)
+    {
+        // First set the next pointer in right subtree
+        populateNextRecur(p->right, next_ref);
+
+        // Set the next as previously visited node in reverse Inorder
+        p->next = *next_ref;
+
+        // Change the prev for subsequent node
+        *next_ref = p;
+
+        // Finally, set the next pointer in right subtree
+        populateNextRecur(p->left, next_ref);
+    }
+}
+ Time Complexity: O(n) Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. AlienOnEarth @geeksforgeeks:disqus If we already know that we will need inorder successor for all the nodes, we can traverse the tree once and store the data in inorder fashion in array. This way amortized analysis for n operations would be n/n = O(1). So in constant time the successor can be found. I request you to add this as note in the end of the question as this is also another efficient solution. Thanks, AlienOnEarth Anuj Why avoid static and have so much overhead??? Deendayal @geeksforgeeks i think, there is typo in comment ( in first solution) // Finally, set the next pointer in right subtree populateNext(p->left); shouldn’t it be // Finally, set the next pointer in Left subtree populateNext(p->left); GeeksforGeeks Thanks for pointing this out. We have updated the comment. Vivek @geeksforgeeks no need for reverse inorder traversal. we can solve this using conventional inorder taversal. #include #include struct node { int data; struct node *left, *right, *next; }; void CISutil(struct node *root, struct node **in_pred) { if(root) { CISutil(root->left,in_pred); if(!(*in_pred)) (*in_pred)=root; else { (*in_pred)->next=root; (*in_pred)=root; } CISutil(root->right,in_pred); } } void connectInorderSucc(struct node *root) { struct node *in_pred = NULL; CISutil(root,&in_pred); } struct node* newnode(int data) { struct node* node = (struct node*) malloc(sizeof(struct node)); node->data = data; node->left = NULL; node->right = NULL; node->next = NULL; return(node); } /* Driver program to test above functions*/ int main() { /* Constructed binary tree is 10 / 8 12 / 3 */ struct node *root = newnode(10); root->left = newnode(8); root->right = newnode(12); root->left->left = newnode(3); // Populates nextRight pointer in all nodes connectInorderSucc(root); // Let us see the populated values struct node *ptr = root->left->left; while(ptr) { // -1 is printed if there is no successor printf("Next of %d is %d n", ptr->data, ptr->next? ptr->next->data: -1); ptr = ptr->next; } return 0; } akshat gupta void INORDER(struct node *root) { static struct node *par=NULL; if(root==NULL) return; INORDER(root->left); if(par) par->next=root;//links par to current node par=root;//caches parent for successor INORDER(root->right); } ki Nice Sriharsha g.r.v well done boss…but i could get the answer only i declare the par as global variable for some reason in gcc it is not giving right answer for static variable . Guest in d condition i.e if(par)…it should be if(root)…!!!..correct me if i m wrong ?? abhishek08aug Intelligent Sreenivas Doosa Awesome mrn  
+/* Paste your code here (You may delete these lines if not writing code) */
+void inorder_successor(Node *n,Node **plink)
+{
+	if(n==NULL) return;
+	inorder_successor(n->l,plink);
+	if(*plink)
+		(*plink)->next=n;
+	*plink=n;
+	inorder_successor(n->r,&n);
+	*plink=n;
+}
+ mrn correction: *plink=n; inorder_successor(n->r,plink); thats final. Abhishek is it necessary to do it with reverse inorder way cant it be solved in simply inoredr way.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Mady  
+void populateNext(struct node *p){
+ if(!p)
+  return;
+if(p->left)
+  p->left->next = p;
+if(p->right){
+  next = p->next;
+  p->next = p->right;
+  p->right = next;
+ }
+ populateNext(p->left);
+ populateNext(p->right);
+}
+void main(){
+ root->next = NULL;
+ populateNext(root);
+}
+ Mady  
+populateNext(struct node *p){
+ if(!p)
+  return;
+if(p->left)
+  p->left->next = p;
+if(p->right){
+  next = p->next;
+  p->next = p->right;
+  p->right = next;
+ }
+ populateNext(p->left);
+ populateNext(p->right);
+}
+void main(){
+ root->next = NULL;
+populateNext(root);
+}
+ Mady How about this: Algo: 1. set root->next = NULL; 2. In populateNext(p) a. set left node’s next to parent b. if rchild is present then b.1) set parent->next to parent->right; b.2) set parent->right to parent’s earlier next 3. Recurse for parent->left and parent->right  
+void populateNext(struct node *p){
+if(!p)
+  return;
+if(p->left)
+  p->left->next = p;
+if(p->right){
+  next = p->next;
+  p->next = p->right;
+  p->right = next;
+}
+populateNext(p->left);
+populateNext(p->right);
+}
+void main(){
+ root->next = NULL;
+ populateNext(root)
+}
+Let me know if there is anything wrong.
+ rocky  
+tree *s = NULL;
+void populateNext(tree* t) {     
+     if(!t) return;    
+     populateNext(t->left);
+     if(s) s->next = t;
+     s = t;
+     populateNext(t->right);
+}
+ kartikaditya public class InorderSuccessor { private static Node { int key; Node left; Node right; Node next; } private Node root; private Node fillInorderSuccessor(Node node, Node ancestor) { if (node == null) { return null; } Node leftMostInLeftSubTree = fillInorderSuccessor(node.left, node); Node leftMostInRightSubTree = fillInorderSuccessor(node.right, ancestor); if (leftMostInRightSubTree == null) { node.next = ancestor; } else { node.next = leftMostInRightSubTree; } if (leftMostInLeftSubTree == null) { return node; } return leftMostInLeftSubTree; } public void fillInorderSuccessor() { fillInorderSuccessor(root, null); } } Tika Could you give an initial sample tree and the actual output camster @Tika, here is a sample tree and the sample output. The algorithm is O(N) time complexity if you take the inorder traveral of the sample tree (i.e 4->5->6->7) and then reverse it (i.e. 7< -6<-5<-4) and store the inorder sucessor of each BST node in STL Hash Map before I run Populate(node6). Hash Map Example Node Successor 4 5 5 6 6 7 7 NULL  
+       /* Paste your code here (You may delete these lines if not writing code) */
+          6
+          /\
+         /  \
+        4    7
+         \       
+          \      
+           5
+
+  6->next = 7
+  4->next = 5
+  5->next = 6
+  7->next = NULL
+
+  nodemaryc* node6;
+  nodemaryc* node4;
+  nodemaryc* node7;
+  nodemaryc* node5;
+
+  node4 = new nodemaryc;
+  node4->value = 4;
+  node4->left = NULL;
+  node4->next = NULL;
+
+ node7 = new nodemaryc;
+  node7->value = 7;
+  node7->left = NULL;
+  node7->right = NULL;
+
+  node7->next = NULL;
+
+  node6 = new nodemaryc;
+  node6->value = 6;
+  node6->left = node4;
+  node6->right = node7;
+  node6->next = NULL;
+
+  node5 = new nodemaryc;
+  node5->value = 5;
+  node5->left = NULL;
+  node5->right = NULL;
+  node5->next = NULL;
+
+
+  node4->right = node5;
+
+ Populate(node6);
+ Tika Great! Thank you very much! camster Here is a O(N) time complexity program if we precalculate the in order successor of each node in the BST and cache it in a hash table by hashing the tree node pointer — std::map. Thank you, Camster.  
+struct nodemaryc{
+    int value;
+    nodemaryc* left;
+    nodemaryc* right;
+    nodemaryc* next;
+};
+
+
+void PopulateNextRecur(nodemaryc* tree, nodemaryc* node){
+	nodemaryc* IOSuccessor;
+	if (node == NULL)
+		return;
+
+	PopulateNextRecur(tree,node->left);
+	IOSuccessor = InOrderSuccessor(tree,node);
+	if (IOSuccessor != NULL){
+                node->next = IOSuccessor;
+	}
+	PopulateNextRecur(tree,node->right);
+}
+
+
+void Populate(struct nodemaryc *root) {            
+	PopulateNextRecur(root, root); 
+} 
+
+nodemaryc* InOrderSuccessor(nodemaryvc* tree, nodemaryc* test){
+    nodemaryc* y = NULL;
+    if (test->right != NULL){
+		return Minimum(test->right);
+    }
+    else
+    {
+       nodemaryc* candidate = NULL;
+       y = tree; 
+       while  (y != test){ // y traverses the original tree
+        if (test->value < y->value)
+        {
+            candidate = y;
+            y = y ->left;
+        }
+        else
+            y = y->right;
+	   }
+
+	   return candidate;
+	}
+  
+} 
+
+nodemaryc* Minimum(nodemaryc* z){
+	nodemaryc* x = z;
+	while (x->left != NULL){
+		x = x->left;
+	}
+	return x;
+}
+
+
+
+int main(int argc,char** argv[]){
+
+  nodemaryc* node6;
+  nodemaryc* node4;
+  nodemaryc* node7;
+  nodemaryc* node5;
+
+  node4 = new nodemaryc;
+  node4->value = 4;
+  node4->left = NULL;
+  node4->next = NULL;
+
+ node7 = new nodemaryc;
+  node7->value = 7;
+  node7->left = NULL;
+  node7->right = NULL;
+
+  node7->next = NULL;
+
+  node6 = new nodemaryc;
+  node6->value = 6;
+  node6->left = node4;
+  node6->right = node7;
+
+  node5 = new nodemaryc;
+  node5->value = 5;
+  node5->left = NULL;
+  node5->right = NULL;
+  node5->next = NULL;
+
+ node5 = new nodemaryc;
+  node5->value = 5;
+  node5->left = NULL;
+  node5->right = NULL;
+  node5->next = NULL;
+
+
+ node6->extraId = node5; // node4
+
+  node4->right = node5;
+
+  Populate(node6);
+
+  return 1;
+}
+
+
+
+/* Paste your code here (You may delete these lines if not writing code) */
+ rajeev void InorderSuccessor(node *tree, node *previous) { if(tree == null) return; InorderSuccessor(tree->left,previous); if(previous != null) { previous->next = tree; } previous = next; InorderSuccessor(tree->right, previous); } vikas368 I think correct code is this  
+void populateNext(struct node* p, struct node ** prev)
+{
+    if (p)
+    {
+        populateNext(p->left,prev);
+
+        if((*prev) !=NULL)
+           (*prev)->next = p;
+
+        (*prev) = p;
+ 
+        populateNext(p->right,prev);
+    }
+}
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

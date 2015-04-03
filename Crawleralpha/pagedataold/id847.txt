@@ -1,0 +1,373 @@
+Implement two stacks in an array - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Implement two stacks in an array Create a data structure twoStacks that represents two stacks. Implementation of twoStacks should use only one array, i.e., both stacks should use the same array for storing elements. Following functions must be supported by twoStacks. push1(int x) –> pushes x to first stack push2(int x) –> pushes x to second stack pop1() –> pops an element from first stack and return the popped element pop2() –> pops an element from second stack and return the popped element Implementation of twoStack should be space efficient. Method 1 (Divide the space in two halves) A simple way to implement two stacks is to divide the array in two halves and assign the half half space to two stacks, i.e., use arr[0] to arr[n/2] for stack1, and arr[n/2+1] to arr[n-1] for stack2 where arr[] is the array to be used to implement two stacks and size of array be n. The problem with this method is inefficient use of array space. A stack push operation may result in stack overflow even if there is space available in arr[]. For example, say the array size is 6 and we push 3 elements to stack1 and do not push anything to second stack2. When we push 4th element to stack1, there will be overflow even if we have space for 3 more elements in array. Method 2 (A space efficient implementation) This method efficiently utilizes the available space. It doesn’t cause an overflow if there is space available in arr[]. The idea is to start two stacks from two extreme corners of arr[]. stack1 starts from the leftmost element, the first element in stack1 is pushed at index 0. The stack2 starts from the rightmost corner, the first element in stack2 is pushed at index (n-1). Both stacks grow (or shrink) in opposite direction. To check for overflow, all we need to check is for space between top elements of both stacks. This check is highlighted in the below code. 
+#include<iostream>
+#include<stdlib.h>
+
+using namespace std;
+
+class twoStacks
+{
+    int *arr;
+    int size;
+    int top1, top2;
+public:
+   twoStacks(int n)  // constructor
+   {
+       size = n;
+       arr = new int[n];
+       top1 = -1;
+       top2 = size;
+   }
+
+   // Method to push an element x to stack1
+   void push1(int x)
+   {
+       // There is at least one empty space for new element
+       if (top1 < top2 - 1)
+       {
+           top1++;
+           arr[top1] = x;
+       }
+       else
+       {
+           cout << "Stack Overflow";
+           exit(1);
+       }
+   }
+
+   // Method to push an element x to stack2
+   void push2(int x)
+   {
+       // There is at least one empty space for new element
+       if (top1 < top2 - 1)
+       {
+           top2--;
+           arr[top2] = x;
+       }
+       else
+       {
+           cout << "Stack Overflow";
+           exit(1);
+       }
+   }
+
+   // Method to pop an element from first stack
+   int pop1()
+   {
+       if (top1 >= 0 )
+       {
+          int x = arr[top1];
+          top1--;
+          return x;
+       }
+       else
+       {
+           cout << "Stack UnderFlow";
+           exit(1);
+       }
+   }
+
+   // Method to pop an element from second stack
+   int pop2()
+   {
+       if (top2 < size)
+       {
+          int x = arr[top2];
+          top2++;
+          return x;
+       }
+       else
+       {
+           cout << "Stack UnderFlow";
+           exit(1);
+       }
+   }
+};
+
+
+/* Driver program to test twStacks class */
+int main()
+{
+    twoStacks ts(5);
+    ts.push1(5);
+    ts.push2(10);
+    ts.push2(15);
+    ts.push1(11);
+    ts.push2(7);
+    cout << "Popped element from stack1 is " << ts.pop1();
+    ts.push2(40);
+    cout << "\nPopped element from stack2 is " << ts.pop2();
+    return 0;
+}
+ Output: 
+  Popped element from stack1 is 11
+  Popped element from stack2 is 40
+ Time complexity of all 4 operations of twoStack is O(1). We will extend to 3 stacks in an array in a separate post. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: stack Tweet Writing code in comment? Please use ideone.com and share the link here. Arulmozhi how about storing elements alternately. This will implement 2 stacks in a array. ?? ?? With the additional restriction that neither stack should overflow unless the total number of elements is n, your idea wouldn’t work, but if not, then it is okay. abhishek08aug  
+#include<stdio.h>
+
+struct two_stacks {
+  int first_stack_top;
+  int second_stack_top;
+  int size;
+  int * array;
+};
+
+void push(struct two_stacks * ts, int insert_value, int stack_num) {
+  if(stack_num==1) {
+    if(ts->first_stack_top+1==ts->second_stack_top) {
+      printf("ERROR: two stack array full! can't have any more elements!\n");
+      return;
+    } else {
+        ts->first_stack_top++;
+        ts->array[ts->first_stack_top]=insert_value;
+    }
+  } else if(stack_num==2) {
+    if(ts->second_stack_top-1==ts->first_stack_top) {
+      printf("ERROR: two stack array full! can't have any more elements!\n");
+      return;
+    } else {
+        ts->second_stack_top--;
+        ts->array[ts->second_stack_top]=insert_value;
+    }
+  }
+}
+
+int pop(struct two_stacks * ts, int stack_num) {
+  int popped_element;
+  if(stack_num==1) {
+    if(ts->first_stack_top==-1) {
+      printf("ERROR: first two stack array empty! can't pop an element!\n");
+      return -999;
+    } else {
+        popped_element=ts->array[ts->first_stack_top];
+        ts->array[ts->first_stack_top]=-999;
+        ts->first_stack_top--;
+        return popped_element;
+    }
+  } else if(stack_num==2) {
+    if(ts->second_stack_top==ts->size) {
+      printf("ERROR: second two stack array empty! can't pop an element!\n");
+      return -999;
+    } else {
+        popped_element=ts->array[ts->second_stack_top];
+        ts->array[ts->second_stack_top]=-999;
+        ts->second_stack_top++;
+        return popped_element;
+    }
+  }  
+}
+ 
+int main(){
+  struct two_stacks ts;
+  ts.size=10;
+  ts.array=(int *)calloc(sizeof(int), ts.size);
+  ts.first_stack_top=-1;
+  ts.second_stack_top=ts.size;
+  push(&ts, 8, 1);
+  pop(&ts, 2);
+  pop(&ts, 1);
+  push(&ts, 8, 2);  
+  pop(&ts, 2);
+  return 0;
+}
+ Ganesh You can find java code here: /** * Create a data structure twoStacks that represents two stacks. Implementation of twoStacks should use only one array, * i.e., both stacks should use the same array for storing elements. * * @author GAPIITD * */ public class TwoStack { private int stack[]; private int top1, top2; TwoStack() { this(10); } TwoStack(int size) { stack = new int[size]; top1 = -1; top2 = size; } public void push1(int n) { if (top1 + 1 < stack.length && top1 + 1 != top2) stack[++top1] = n; else System.out.println("STACK1 FULL"); } public void push2(int n) { if (top2 – 1 > 0 && top2 – 1 != top1) stack[–top2] = n; else System.out.println("STACK2 FULL"); } public int pop1() { if (top1 == -1) System.out.println("STACK1 is empty"); else return stack[top1]; return -1111; } public int pop2() { if (top2 == stack.length) System.out.println("STACK2 is empty"); else return stack[top2]; return -1111; } public static void main(String[] args) { TwoStack ts = new TwoStack(5); ts.push1(1); ts.push1(2); ts.push1(3); ts.push2(10); ts.push2(9); ts.push2(8); System.out.println(ts.pop1()); System.out.println(ts.pop2()); } } abhay using an array to store the even and odd numbers…  
+#include<stdio.h>
+#include<stdlib.h>
+
+ 
+
+struct node
+{
+    int data;
+    struct node* next;
+};
+ 
+
+void insertbeg(int value,struct node **head)
+{
+struct node *temp=malloc(sizeof(struct node));
+temp->data=value;
+temp->next=(*head);
+(*head)=temp;
+}
+
+void display(struct node *head)
+{
+if(head==NULL)
+{
+printf("Empty list");
+}
+struct node *temp=head;
+while(temp!=NULL)
+{
+printf("%d\t",temp->data);
+temp=temp->next;
+}
+}
+
+void evenodd(struct node **head,int len)
+{
+int even[len],ec,oc,i;
+int odd[len];
+struct node *temp=*head;
+ec=oc=0;
+while(temp!=NULL)
+	{
+		if((temp->data)%2==0)
+		{
+		even[ec]=temp->data;
+		ec++;
+		}
+		else
+		{
+		odd[oc]=temp->data;
+		oc++;
+		}
+		temp=temp->next;
+	}
+
+
+//now insert in list form even odd arrays
+temp=*head;
+ec=ec-1;
+oc=oc-1;
+while(ec>=0 && temp!=NULL)
+{
+temp->data=even[ec];
+ec--;
+temp=temp->next;
+}
+
+while(oc>=0 && temp!=NULL)
+{
+temp->data=odd[oc];
+oc--;
+temp=temp->next;
+}
+}
+
+
+int length(struct node *head)
+{
+struct node *temp=head;
+int count=0;
+if(temp==NULL)
+{
+return 0;
+}
+
+while(temp!=NULL)
+{
+count++;
+temp=temp->next;
+}
+return count;
+}
+
+
+
+
+int main()
+{
+struct node *list=NULL;
+insertbeg(1,&list);
+insertbeg(2,&list);
+insertbeg(3,&list);
+insertbeg(4,&list);
+insertbeg(5,&list);
+insertbeg(6,&list);
+insertbeg(22,&list);
+insertbeg(213,&list);
+insertbeg(453,&list);
+insertbeg(657,&list);
+insertbeg(66,&list);
+insertbeg(88,&list);
+insertbeg(11,&list);
+insertbeg(14,&list);
+insertbeg(18,&list);
+insertbeg(33,&list);
+insertbeg(999,&list);
+insertbeg(222,&list);
+printf("Original List:\n");
+display(list);
+
+printf("\nSegregated List:\n");
+evenodd(&list,length(list));
+display(list);
+return 0;
+}
+
+
+ Geek Even Better Memory optimized solution.. 1) push everything from start 2) Create link lists inside array.. say input order: which stack it should go stack 1 : 10 stack 2 : 12 stack 2 : 16 stack 1 : 1 stack 2 : 23 answer is: 
+        ______________
+       |     |       |
+10    12    16   1  23
+|________________1
+ Always Maintain 4 pointers stack1Head, stack1Tail stack1Head stack2Tail obvs you can get idea about popping. /* Paste your code here (You may delete these lines if not writing code) */ Geek /* ______________ | | | 10 12 16 1 23 |________1 */ Geek Not able to fix this indentation… lists will be 12->16->23 16->1 Thirunavukkarasu  
+#include<stdio.h>
+int arr[10];
+int top1=-1,top2=sizeof(arr)/sizeof(arr[0]);
+void push1(int data)
+{
+	if(top1+1==top2)
+	{ printf("Stack is full "); return;}
+	else
+	{
+		top1++;
+		arr[top1]=data;
+	}
+}
+
+void push2(int data)
+{
+	if(top1==top2-1)
+	{
+		printf("Stack is full "); return;
+	}
+	else
+	{
+		top2--;
+		arr[top2]=data;
+	}
+}
+
+void pop1()
+{
+	if(top1==-1)
+	{	printf("Stack is empty"); return; }
+	else
+	{
+		arr[top1]=0;
+		top1--;
+	
+	}
+}
+
+void pop2()
+{
+	if(top2==sizeof(arr)/sizeof(arr[0]))
+	{	printf("Stack is empty"); return; }
+	else
+	{
+		arr[top2]=0;
+		top1++;
+	}
+}
+
+
+int main()
+{
+	int i;
+	push1(2);
+	push2(3);
+	push1(4);
+	pop1();
+	pop2();
+	for(i=0;i<sizeof(arr)/sizeof(arr[0]);i++)
+		printf("%d ",arr[i]);	
+}
+
+ Seema Great work! Keep it on! Krupa Making 2-stacks in the method(2) presented above is nothing but how OS can manage the stack and heap both growing in reverse direction. Its simple solution. test test Inderpreet Singh Best Stuff. It’s very easy to understand. I tried to understand this concept many times before this post was written but i could not. After reading this post, i understood it . Thanks Man and Thanks GeeksforGeeks. http://www.cse.iitb.ac.in/alumni/~suhas08/ suhas meena In Second method while we do pop operation. Their is a case that while we pop stack 2 items we may pop stack 1 first item because we are not differentiating between items of two stack. Correct me if i am wrong.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik That is not possible because there are two different top variables and different conditions to check underflow. kunal you people provide the best stuff to crack interview keep it on laxmi like your explanation Other Neo The code look amateur “C” code written at the very best…. 1. push1 and push2 do not return the error/exception to the caller 2. Big Blunder in terms of EXIT(0) 3. Duplicate code with respect to push1 & push2 and pop1 and pop2. Ideally push and pop should take the parameter about the stack on which to operate kartik @Other Neo: Thanks for your inputs. The coding is done this way to keep code small and simple. Could you provide more details or reference about the problem with exit(0). Also, all code in push1() and push2() not duplicatae, it’s just the overflow handling part. The push1() operations does top1++ and push2() does top1–. Similarly pop1() and pop2() are not duplicate. Other Neo @Kartik “exit(0)” are old rudimentary ways for error handling done by really old code. exit(0) in any code just shows the arrogance of the code / programmer. It breaks all the call chain (behaving more like goto) and closes the program without any possibility of recovery. In your code the instead of EXIT(0) you could have simply written RETURN FALSE and thus provide the opportunity to the caller of the function (main) to deal with the error. PUSH functions are exact duplicates of each other if we ignore the comparison and increment/decrement; and the same goes with POP. For illustration if the implementation was to change from a static array to std::vector, you would need to change code twice for POP and twice for PUSH. If you are still not convinced let me know and I will rewrite the whole code. lalor I hope you give the whole code.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

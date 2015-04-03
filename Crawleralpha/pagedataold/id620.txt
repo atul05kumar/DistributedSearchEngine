@@ -1,0 +1,729 @@
+Program to count leaf nodes in a binary tree - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Program to count leaf nodes in a binary tree A node is a leaf node if both left and right child nodes of it are NULL. Here is an algorithm to get the leaf node count. 
+getLeafCount(node)
+1) If node is NULL then return 0.
+2) Else If left and right child nodes are NULL return 1.
+3) Else recursively calculate leaf count of the tree using below formula.
+    Leaf count of a tree = Leaf count of left subtree + 
+                                 Leaf count of right subtree
+ Example Tree Leaf count for the above tree is 3. Implementation: 
+#include <stdio.h>
+#include <stdlib.h>
+
+/* A binary tree node has data, pointer to left child 
+   and a pointer to right child */
+struct node 
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+/* Function to get the count of leaf nodes in a binary tree*/
+unsigned int getLeafCount(struct node* node)
+{
+  if(node == NULL)       
+    return 0;
+  if(node->left == NULL && node->right==NULL)      
+    return 1;            
+  else 
+    return getLeafCount(node->left)+
+           getLeafCount(node->right);      
+}
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data) 
+{
+  struct node* node = (struct node*)
+                       malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+  
+  return(node);
+}
+
+/*Driver program to test above functions*/  
+int main()
+{
+  /*create a tree*/  
+  struct node *root = newNode(1);
+  root->left        = newNode(2);
+  root->right       = newNode(3);
+  root->left->left  = newNode(4);
+  root->left->right = newNode(5);    
+  
+  /*get leaf count of the above created tree*/
+  printf("Leaf count of the tree is %d", getLeafCount(root));
+  
+  getchar();
+  return 0;
+}
+ Time & Space Complexities: Since this program is similar to traversal of tree, time and space complexities will be same as Tree traversal (Please see our Tree Traversal post for details) Please write comments if you find any bug in the above programs/algorithms or other ways to solve the same problem.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. groomnestle Traverse the tree in any order (in-order, pre-order or post-order) and count++ for nodes with no children. munai #include #include struct node { int data; struct node *left,*right; }; typedef struct node node; struct list { node *a; struct list *next; }; typedef struct list list; list *head,*cur_node,*prev_node; node *NewNode(int val) { node *temp=(node *)malloc(sizeof(node)); temp->data=val; temp->left=temp->right=NULL; return temp; } void enqueue(node *a) { list *temp=(list *)malloc(sizeof(list)); temp->a=a; temp->next=NULL; if(!head) { head=temp; cur_node=temp; } else { prev_node=cur_node; cur_node->next=temp; cur_node=temp; } } int IsEmpty() { if(!head) return 1; else return 0; } node *dequeue() { list *temp; node *a; if(IsEmpty()) return NULL; temp=head; head=head->next; a=temp->a; free(temp); return a; } int leaf(node *root) { node *temp; int count=0; if(!root) return count; enqueue(root); while(!IsEmpty()) { temp=dequeue(); if(!(temp->left) && !(temp->right)) count++; if(temp->left) enqueue(temp->left); if(temp->right) enqueue(temp->right); } return count; } int main() { node *root=NewNode(1); root->left=NewNode(2); root->right=NewNode(3); root->left->left=NewNode(4); root->left->right=NewNode(5); root->right->left=NewNode(6); root->right->right=NewNode(7); head=cur_node=prev_node=NULL; printf(“Total leaf : %dn”,leaf(root)); return 0; } Nikhil Agrawal Below code is simple iterative version for finding number of leaf nodes using queue. The key concept is add all element of a particular level and then add null to queue. For finding number of leaf nodes just count number nodes between last null in the queue and second last null in the queue. Nikhil Agrawal  
+public void numberofleafs(Node root)
+{
+      int max=-1;
+        int value=0;
+    if(root==null)
+    {
+        System.out.println("Number of leaf nodes=0");
+        return;
+    }
+    else
+    {
+        Node temp=null;
+        Queue<Node> q=new LinkedList<>();
+        q.add(root);
+        q.add(temp);
+      
+        while(!q.isEmpty())
+        {
+            Node t=q.remove();
+            
+            if(t!=null)
+            {
+                value=0;
+                while(t!=null)
+                {
+                    value++;                    
+                if(t.left!=null)
+                    q.add(t.left);
+                if(t.right!=null)
+                    q.add(t.right);
+                
+                    t=q.remove();
+                }
+                
+                q.add(temp);
+                if(value>max)
+                    max=value;                
+            }
+            else if(t==null)
+            {
+                continue;
+            }
+            
+        }
+        System.out.println("Number of leaf Nodes="+max);
+    }
+}
+ Nikhil Agrawal Sorry this solution will NOT work for following tree: 1 / \ 2 3 / \ 4 6 / \ 5 7 \ 8 abhikumar18 i think nikhil it will work… c code… #include #include #include typedef struct Node { struct Node* left; int data; struct Node* right; }tNode; tNode* memory_Alloc(int item) { tNode* ptr=NULL; ptr=(tNode*)malloc(sizeof(tNode)); ptr->left=NULL; ptr->data=item; ptr->right=NULL; return ptr; } void post_Order(tNode* root) { if(root==NULL) { return; } else { post_Order(root->left); post_Order(root->right); printf(“%d “,root->data); } } int calculate_Leaf_Nodes(tNode* root) { int count; if(root==NULL) { return 0; } if(root->left==NULL && root->right==NULL) { count=1; return count; } if(root->left==NULL || root->right==NULL) { return 1; } if(root->left!=NULL && root->right!=NULL) { count=(calculate_Leaf_Nodes(root->left)+calculate_Leaf_Nodes(root->right)); return count; } } void main() { tNode* root=memory_Alloc(1); root->left=memory_Alloc(2); root->left->left=memory_Alloc(4); root->left->right=memory_Alloc(6); root->right=memory_Alloc(3); root->left->left->left=memory_Alloc(5); root->left->left->right=memory_Alloc(7); root->left->left->left->right=memory_Alloc(8); printf(“Given tree is:”); post_Order(root); printf(“\n”); printf(“Leaf nodes in given tree is : “); printf(“%d”,calculate_Leaf_Nodes(root)); getch(); } abhishek08aug C++ code:  
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+ 
+class tree_node {
+  private:
+    int data;
+    tree_node * left;
+    tree_node * right;
+  public:
+    tree_node() {
+      left=NULL;
+      right=NULL;
+    }
+    void set_data(int data) {
+      this->data=data;
+    }
+    int get_data() {
+      return this->data;
+    }
+    void set_left(tree_node * left) {
+      this->left=left;
+    }
+    tree_node * get_left() {
+      return this->left;
+    }
+    void set_right(tree_node * right) {
+      this->right=right;
+    }
+    tree_node * get_right() {
+      return this->right;
+    }
+    tree_node ** get_left_ref() {
+      return &(this->left);
+    }
+    tree_node ** get_right_ref() {
+      return &(this->right);
+    }
+};
+ 
+class tree {
+  private:
+    tree_node * root;
+    int size;
+    void _recursive_insert(tree_node ** root_ref, int value);
+    void _print_preorder(tree_node * root);
+    void _print_inorder(tree_node * root);
+    void _print_postorder(tree_node * root);
+    int _find_size(tree_node * root);
+    int _are_identical(tree_node * tn1, tree_node * tn2);
+    int _find_height(tree_node * root);
+    void _delete_tree(tree_node ** root);
+    void _mirror(tree_node * root);
+    void _print_paths(tree_node * root, int * path_nodes, int next_vacant_position);
+    void _print_array(int * array, int len);
+    tree_node * _lowest_common_ancestor(tree_node * parent, tree_node * root, int a, int b);
+    tree_node * _find_node(tree_node * root, int value);
+    tree_node * _min_node(tree_node * root);
+    void _print_level_order(tree_node * root);
+    int _count_leaf_nodes(tree_node * root);
+  public:
+    tree() {
+      root=NULL;
+      size=0;
+    }
+    void insert(int value);
+    void recursive_insert(int value);
+    void print_preorder();
+    void print_inorder();
+    void print_postorder();
+    int find_size();
+    int get_size() {
+      return this->size;
+    }
+    int are_identical(tree t);
+    int find_height();
+    void delete_tree();
+    void mirror();
+    void print_paths();
+    tree_node * lowest_common_ancestor(int a, int b);
+    tree_node * find_node(int value);
+    tree_node * min_node();
+    void print_level_order();
+    int count_leaf_nodes();
+};
+ 
+void tree::insert(int value) {
+  if(root==NULL) {
+    root=new tree_node;
+    root->set_data(value);
+  } else {
+    tree_node * parent=NULL;
+    tree_node * current=root;
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    while(current!=NULL) {
+      if(value<=current->get_data()) {
+        parent=current;
+        current=current->get_left();
+      } else {
+        parent=current;
+        current=current->get_right();
+      }
+    }
+    if(value<=parent->get_data() && parent->get_left()==NULL) {
+      parent->set_left(new_node);
+    } else if(value>parent->get_data() && parent->get_right()==NULL) {
+      parent->set_right(new_node);
+    }
+  }
+  size++;
+}
+ 
+void tree::recursive_insert(int value) {
+  _recursive_insert(&root, value);
+  size++;
+}
+ 
+void tree::_recursive_insert(tree_node ** root_ref, int value) {
+  if(*root_ref==NULL) {
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    *root_ref=new_node;   
+  } else {
+    if(value<=(*root_ref)->get_data()) {
+      _recursive_insert((*root_ref)->get_left_ref(), value);
+    } else {
+      _recursive_insert((*root_ref)->get_right_ref(), value);
+    }
+  }
+}
+ 
+void tree::print_preorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_preorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_preorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  cout<<root->get_data()<<" ";
+  if(root->get_left()!=NULL)
+    _print_preorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_preorder(root->get_right());
+}
+ 
+void tree::print_inorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_inorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_inorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_inorder(root->get_left());
+  cout<<root->get_data()<<" ";
+  if(root->get_right()!=NULL)
+    _print_inorder(root->get_right());
+}
+ 
+void tree::print_postorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_postorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_postorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_postorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_postorder(root->get_right());
+  cout<<root->get_data()<<" ";
+}
+
+int tree::find_size() {
+  return _find_size(root);
+}
+
+int tree::_find_size(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else {
+    return 1+_find_size(root->get_left())+_find_size(root->get_right());
+  }
+}
+
+int tree::are_identical(tree t) {
+  return _are_identical(this->root, t.root);
+}
+
+int tree::_are_identical(tree_node * tn1, tree_node * tn2) {
+  if(tn1==NULL && tn2==NULL) {
+    return 1;
+  } else if((tn1==NULL && tn2!=NULL) || (tn1!=NULL && tn2==NULL) || (tn1->get_data()!=tn2->get_data())) {
+    return 0;
+  } else {
+    return _are_identical(tn1->get_left(), tn2->get_left()) && _are_identical(tn1->get_right(), tn2->get_right());
+  }
+}
+
+int tree::find_height() {
+  return _find_height(root);
+}
+
+int tree::_find_height(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  }
+  else {
+    return 1+max(_find_height(root->get_left()), _find_height(root->get_right()));
+  }
+}
+
+void tree::delete_tree() {
+  _delete_tree(&root);
+  size=0;
+}
+
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      _delete_tree((*root)->get_left_ref());
+    }
+    if((*root)->get_right()!=NULL) {
+      _delete_tree((*root)->get_right_ref());
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+
+/* alternate _delete_tree */
+/*
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      tree_node * left_ref=(*root)->get_left();
+      _delete_tree(&left_ref);
+    }
+    if((*root)->get_right()!=NULL) {
+      tree_node * right_ref=(*root)->get_right();
+      _delete_tree(&right_ref);
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+*/
+
+void tree::mirror() {
+  _mirror(root);
+}
+
+void tree::_mirror(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+
+  tree_node * temp=root->get_left();
+  root->set_left(root->get_right());
+  root->set_right(temp);
+  _mirror(root->get_left());
+  _mirror(root->get_right());
+}
+
+void tree::print_paths(){
+   int max_path_length=find_height();
+   int * path_nodes=(int *)calloc(sizeof(int), max_path_length);
+  _print_paths(root, path_nodes, 0);
+}
+
+void tree::_print_paths(tree_node * root, int * path_nodes, int next_vacant_position){
+  if(root==NULL) {
+    return;
+  } else if(root->get_left()==NULL && root->get_right()==NULL) {
+    *(path_nodes+next_vacant_position)=root->get_data();
+    _print_array(path_nodes, next_vacant_position);
+  } else {
+    *(path_nodes+next_vacant_position)=root->get_data();
+    _print_paths(root->get_left(), path_nodes, next_vacant_position+1);
+    _print_paths(root->get_right(), path_nodes, next_vacant_position+1);
+  }
+}
+
+void tree::_print_array(int * array, int len) {
+  int i;
+  for(i=0; i<=len; i++) {
+    cout<<*(array+i)<<" ";
+  }
+  cout<<endl;
+}
+
+tree_node * tree::find_node(int value) {
+  return _find_node(root, value);
+}
+
+tree_node * tree::_find_node(tree_node * root, int value) {
+  if(root==NULL || root->get_data()==value) {
+    return root;
+  } else if(value<=root->get_data()) {
+    return _find_node(root->get_left(), value);
+  } else {
+    return _find_node(root->get_right(), value);
+  }
+}
+
+tree_node * tree::lowest_common_ancestor(int a, int b) {
+  return _lowest_common_ancestor(NULL, root, a, b);
+}
+
+tree_node * tree::_lowest_common_ancestor(tree_node * parent, tree_node * root, int a, int b) {
+  if(root==NULL) {
+    return root;
+  } else if((root->get_data()==a && (root->get_left()->get_data()==b || root->get_right()->get_data()==b))
+             || (root->get_data()==b && (root->get_left()->get_data()==a || root->get_right()->get_data()==a))) {
+    return parent;
+  } else if((_find_node(root->get_left(), a)!=NULL && _find_node(root->get_right(), b)!=NULL)
+        || (_find_node(root->get_left(), b)!=NULL && _find_node(root->get_right(), a)!=NULL)) {
+    return root; 
+  } else if(_find_node(root->get_left(), a)!=NULL && _find_node(root->get_left(), b)!=NULL) {
+    return _lowest_common_ancestor(root, root->get_left(), a, b);
+  } else if(_find_node(root->get_right(), a)!=NULL && _find_node(root->get_right(), b)!=NULL) {
+    return _lowest_common_ancestor(root, root->get_right(), a, b);
+  } else {
+    return NULL;
+  }
+}
+
+tree_node * tree::min_node() {
+  return _min_node(root);
+}
+
+tree_node * tree::_min_node(tree_node * root) {
+  if(root==NULL || root->get_left()==NULL) {
+    return root;
+  } else {
+    return _min_node(root->get_left());
+  }
+}
+
+int tree::count_leaf_nodes() {
+  return _count_leaf_nodes(root);
+}
+
+int tree::_count_leaf_nodes(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else if(root->get_left()==NULL && root->get_right()==NULL) {
+    return 1;
+  } else {
+    return _count_leaf_nodes(root->get_left())+_count_leaf_nodes(root->get_right());
+  }
+}
+
+int main() {
+  tree t1;
+
+  t1.recursive_insert(5);
+  t1.recursive_insert(3);
+  t1.insert(10);
+  t1.insert(7);
+  t1.recursive_insert(50);
+  t1.recursive_insert(6);
+  t1.recursive_insert(1);
+  t1.recursive_insert(45);
+  t1.recursive_insert(55);
+  t1.recursive_insert(4);
+
+  cout<<"Inorder Traversal"<<endl;
+  t1.print_inorder();
+  cout<<"No. of leaf nodes are: "<<t1.count_leaf_nodes()<<endl;
+
+  return 0;
+}
+ Inorder Traversal 1 3 4 5 6 7 10 45 50 55 No. of leaf nodes are: 5 vignesh For counting the leaf nodes, we can use the level order algorithm itself by passing the height as the maxheight-1. Correct me if am wrong. vignesh This would work only in case of a balanced tree. It won’t work for other scenarios. sankarshan  
+void countleaf(struct node* root,int *count)
+{
+     if(root){
+              countleaf(root->left,count);
+              if(root->left==NULL && root->right==NULL)
+              (*count)++;
+              countleaf(root->right,count);
+     }
+}
+int main(void){
+int count=0;
+/*build tree*/
+ countleaf(root,&count);
+printf("no of leaves: %d",count);
+return 0;
+}
+ beginner what would be the best way to check if all the leaf nodes are at the same level or not?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ dam Can someone provide me a snippet showing how to show only the nodes which have only leaves as children. dam In this case (the picture above) to show 2. kartik  int print(struct node* node)
+{
+  if(node == NULL)
+    return 0;
+  if(node->left == NULL && node->right==NULL)
+    return 1;
+  if (print(node->left) && print(node->right))
+    printf(" %d ", node->data);
+  return 0;
+} sagar2693 @kartik your code falters when a node has only one leaf child ….. what would be the most obvious way for dat???  
+/* Paste your code here (You may delete these lines if not writing code) */
+ guest123 Hi All, What will be the method to find the number of leaf nodes in a tree if depth is already given? Thanks! http://www.linkedin.com/in/ramanawithu Venki @guest123, In a strictly binary tree, usually depth starts at 0, and at level i the tree will have 2^i children at next level. If the depth is d, the tree will have 2^d leaf nodes, and 2^(d+1) – 1 (about double the leaf nodes) nodes overall in the tree. Ankit Sablok your logic only holds for a complete binary tree not for general or skewed binary trees, even if you are given the depth of the tree lets say 6, there can be different number of leaf node briefly one can have leaves on the 5th level, 4th, 3rd and so on and hence this calculation seems to be wrong  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://geeksforgeeks.org/?p=2755 Reema khandelwal  
+int CalLeafNodes(node *root)
+{
+ int count=0,h1=0,h2=0;
+ if(root->llink==NULL && root->rlink==NULL)
+ {
+  return count++;
+ }
+else
+ {
+  h1=CalLeafNodes(root->llink);
+  h2=CalLeafNodes(root->rlink);
+ }
+return (h1+h2);
+}
+ paul Could you help in how may i count the nodes that do not have grachild? I cant figure out how to do this kartik following code should work.  
+unsigned int getCount(struct node* node)
+{
+  if (node == NULL)
+    return 0;
+  if (node->left == NULL && node->right==NULL) 
+    return 1;
+  if (node->left == NULL && node->right==NULL &&
+      node->left->left == NULL && node->right->left==NULL &&
+      node->left->right == NULL && node->right->right==NULL
+     )
+   return 1;  
+  else
+    return getCount(node->left)+
+           getCount(node->right);
+}
+  Kishan Gohil The code mentioned in the original post will only count the number of levels in the tree. The leaf count for the tree in the diagram is actually 5, not 3. The level count however is 3. If you want to count the actual number of leaves including the root and all child elements, and all child elements of these children. Then look at the code I provide. The tiniest change will make the biggest difference. The change is that in the final return statement where the count of the left is added to the count of the right, by adding a 1 each time you also count it’s parent.  
+unsigned int getLeafCount(struct node* node)
+{
+  if(node == NULL)
+    return 0;
+  if(node->left == NULL && node->right==NULL)
+    return 1;
+  else
+    return 1 + getLeafCount(node->left) + getLeafCount(node->right);
+}
+
+ I’ve plugged this into my code and it seems to work fine. However i just had to change the syntax to Java. I changed it back to C for everyone here though. Point out any mistakes that I may have! However it works! kartik Your code counts total nodes in a Binary Tree (not leaf nodes). The leaf node count for the given tree is 3 only. The 3 leaf nodes are nodes with values as 4, 5 and 3. srock I think the code put up by Kishan Gohil doesn’t count the total number of nodes as well. why would you check for  
+ if(node->left == NULL && node->right==NULL)
+    return 1;
+ to count the total number of node. Any comments. kartik The line mentioned by u is fine. The problem is with the following line.  
+return 1 + getLeafCount(node->left) + getLeafCount(node->right);
+ Following is the correct modified line  
+return getLeafCount(node->left) + getLeafCount(node->right);
+ srock Hi Kartik, why would you check if the child nodes are empty to count the number of Binary tree nodes (not just leaf)? why is this code required if someone wanted to count the total number of nodes in a tree (not just leaf node). [the below code is from Kishan Gohil’s comment]  
+if(node->left == NULL && node->right==NULL)
+   return 1;
+ My question is because for Kishan Gohil’s post you mentioned that his code would count the total number of nodes. Just wanted to make sure if I was incorrect in understanding the logic. Thanks. kartik @srock The following line is not necessary to count total nodes in a binary tree, but it doesn’t harm the count logic as the size of a leaf node is 1. So the code to count total number of nodes in a binary tree works with or without following line  
+if(node->left == NULL && node->right==NULL)
+   return 1;
+ srock Makes sense. Thanks again! http://www.google.com jack write a fn that returns total no. of nodes in a binary tree.  
+int GetTotal(NODE* tree)
+{
+  int NL, NR;
+  if(tree==NULL)
+    return 0;
+  NL = GetTotal(tree->left);
+  NR = GetTotal(tree->right);
+  return NL+NR+1;
+}
+ http://wemeanourthoughts.blogspot.com/ Venki There is another way. We can make use of level order traversing. Use a queue, enqueue all the node at each level one after another. While dequeuing if both the left and right nodes are NULL it is leaf. 1. If root is only node return 1, otherwise enqueue the root 2. Repeat till queue is not empty 3. If current->left && current->right are NULL, it is leaf 4. If current->left node is not NULL enqueue the node 5. If current->right node is not NULL enqueue the node 6. dequeue next node from queue The worst case queue size is maximum number of leaf nodes which depends the hight of tree. http://wemeanourthoughts.blogspot.com/ Venki Code provided in Qt framework http://qt.nokia.com/  
+#include <QtCore/QCoreApplication>
+#include <QQueue>
+
+// A binary tree aggregate data structure
+struct TreeNode
+{
+    int data;
+    struct TreeNode* left;
+    struct TreeNode* right;
+};
+
+// Node pointer
+typedef struct TreeNode* TreeNodePointer;
+
+/* Algorithm
+   1. If root is only TreeNode return 1, otherwise enqueue the root
+   2. Repeat till queue is not empty
+      3. If current->left && current->right are NULL, it is leaf
+      4. If current->left  TreeNode is not NULL enque the TreeNode
+      5. If current->right TreeNode is not NULL enque the TreeNode
+      6. deque next TreeNode from queue
+ */
+
+unsigned int getLeafCount(TreeNode* root)
+{
+    // If root NULL, return 0
+    if(!root)
+    {
+        return 0;
+    }
+
+    // Check root is the only TreeNode of tree
+    if( !(root->left || root->right) )
+    {
+        return 1;
+    }
+
+    // counting leaf nodes
+    unsigned int leafCount = 0;
+
+    // The worst case queue size is maximum number of leaf nodes, which depends
+    // on the hight of tree
+    QQueue<TreeNodePointer> queue;
+    TreeNodePointer currentNode = root;
+
+    // Enqueue root
+    queue.enqueue(currentNode);
+    // continue till queue is not empty
+    while (!queue.isEmpty()) {
+
+        // Get the front of queue
+        currentNode = queue.dequeue();
+
+        // If leaf increment the count
+        if( !(currentNode->left || currentNode->right) )
+        {
+            leafCount++;
+        }
+
+        // Enqueue child nodes
+        if (currentNode->left)
+            queue.enqueue(currentNode->left);
+        if (currentNode->right)
+            queue.enqueue(currentNode->right);
+    }
+
+    return leafCount;
+}
+
+// Helper function that allocates a new TreeNode with the
+// given data and NULL left and right pointers.
+TreeNode* newNode(int data)
+{
+    TreeNode* addThis = new TreeNode();
+    addThis->data = data;
+    addThis->left = NULL;
+    addThis->right = NULL;
+
+    return(addThis);
+}
+
+int main(int argc, char *argv[])
+{
+    // create a tree
+    TreeNode *root = newNode(1);
+    root->left        = newNode(2);
+    root->right       = newNode(3);
+    root->left->left  = newNode(4);
+    root->left->right = newNode(5);
+    
+    // Added for test
+    root->left->right->left  = newNode(6);
+    root->left->right->right = newNode(7);
+
+    // get leaf count of the above created tree
+    qDebug("Leaf count of the tree is %d", getLeafCount(root));
+
+    qDebug("Leaf count of the tree is %d", getLeafCount(NULL));
+    qDebug("Leaf count of the tree is %d", getLeafCount(newNode(1)));
+
+    return 0;
+}
+ I received the following output Leaf count of the tree is 4 Leaf count of the tree is 0 Leaf count of the tree is 1 http://wemeanourthoughts.blogspot.com/ Venki Code provided using Qt framework. Sorry for incorrect phrasing. Bandicoot Can’t we just use a global variable “count” and do an inorder traversal like this:  
+void inorder(node *node)
+{
+   if(node == NULL) 
+       return;
+   if(node->left == NULL && node->right == NULL)
+       count++;
+   inorder(node->left);
+   inorder(node->right);
+}
+ GeeksforGeeks @Bandicoot: The code is fine. It gives the correct output. But, global variables should be avoided as they are considered as bad practice. http://en.wikipedia.org/wiki/Global_variable Neeraj Mangal We can use static variable to print the number of leafs in above code.  
+int  print_number_of_leaf(struct node *tree_node)
+{
+  static number_of_leaf = 0;
+  if (tree_node == NULL){
+    return 0;
+  }else {
+    if (tree_node->left == NULL && tree_node->right == NULL){
+      number_of_leaf++;
+    }
+    print_number_of_leaf(tree_node->left);
+    print_number_of_leaf(tree_node->right);
+  } 
+  return number_of_leaf;
+}
+ call this from main as printf(“number of leaf nodes [%d]”, print_number_of_leaf(root)); kartik The use of local static variables should also be avoided except few situations like counting the number of times a function is being called. The reason is simple: you don’t want the side effects of a function call to other subsequent function calls. Like, if I call your function print_number_of_leaf() 2 times for same or different trees, it would give correct results first time, but it will not for the next call. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

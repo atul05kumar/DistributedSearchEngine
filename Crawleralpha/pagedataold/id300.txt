@@ -1,0 +1,85 @@
+Babylonian method for square root - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Babylonian method for square root Algorithm: This method can be derived from (but predates) Newton–Raphson method. 
+1 Start with an arbitrary positive start value x (the closer to the 
+   root, the better).
+2 Initialize y = 1.
+3. Do following until desired approximation is achieved.
+  a) Get the next approximation for root using average of x and y
+  b) Set y = n/x
+ Implementation: 
+/*Returns the square root of n. Note that the function */
+float squareRoot(float n)
+{
+  /*We are using n itself as initial approximation
+   This can definitely be improved */
+  float x = n;
+  float y = 1;
+  float e = 0.000001; /* e decides the accuracy level*/
+  while(x - y > e)
+  {
+    x = (x + y)/2;
+    y = n/x;
+  }
+  return x;
+}
+
+/* Driver program to test above function*/
+int main()
+{
+  int n = 50;
+  printf ("Square root of %d is %f", n, squareRoot(n));
+  getchar();
+}
+ Example: 
+n = 4 /*n itself is used for initial approximation*/
+Initialize x = 4, y = 1
+Next Approximation x = (x + y)/2 (= 2.500000), 
+y = n/x  (=1.600000)
+Next Approximation x = 2.050000,
+y = 1.951220
+Next Approximation x = 2.000610,
+y = 1.999390
+Next Approximation x = 2.000000, 
+y = 2.000000
+Terminate as (x - y) > e now.
+ If we are sure that n is a perfect square, then we can use following method. The method can go in infinite loop for non-perfect-square numbers. For example, for 3 the below while loop will never terminate. 
+/*Returns the square root of n. Note that the function
+  will not work for numbers which are not perfect squares*/
+unsigned int squareRoot(int n)
+{
+  int x = n;
+  int y = 1;
+  while(x > y)
+  {
+    x = (x + y)/2;
+    y = n/x;
+  }
+  return x;
+}
+
+/* Driver program to test above function*/
+int main()
+{
+  int n = 49;
+  printf (" root of %d is %d", n, squareRoot(n));
+  getchar();
+}
+ References; http://en.wikipedia.org/wiki/Square_root http://en.wikipedia.org/wiki/Babylonian_method#Babylonian_method Asked by Snehal Please write comments if you find any bug in the above program/algorithm, or if you want to share more information about Babylonian method.           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: MathematicalAlgo Tweet Writing code in comment? Please use ideone.com and share the link here. wishall what if no.entered is between 0 & 1 abhishek08aug  
+http://en.wikipedia.org/wiki/Square_root
+ Vipul We can use Newton method also for this. See http://en.wikipedia.org/wiki/Nth_root_algorithm Na/|/|LE$$ what will be the complexity of the above code ??? divyaC  
+float SqrRoot(int k){
+    float g1,g2,temp;
+    g2=k/2;
+
+    while(fabs(g1-g2)>= 0.0001){
+
+        if(g2*g2==k){
+            break;
+        }
+        else{
+            temp=g2;
+            g2=(temp+(k/temp))/2;
+            g1=temp;
+        }
+    }
+    return g2;
+ mygaurav The code for a perfect square should also include the critical test case for INT_MAX also as otherwise x+y/2 would go out of bounds…. So the code shud be like this : int sqrt(int n) { int x = n; int y = 1; if(x==INT_MAX) { x=(x-1)/2 +1; y=n/x; } while(x > y) { x = (x + y)/2; y = n/x; } return x; } Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

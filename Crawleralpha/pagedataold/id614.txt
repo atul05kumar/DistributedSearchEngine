@@ -1,0 +1,575 @@
+Write a C program to Delete a Tree. - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Write a C program to Delete a Tree. To delete a tree we must traverse all the nodes of the tree and delete them one by one. So which traversal we should use – Inorder or Preorder or Postorder. Answer is simple – Postorder, because before deleting the parent node we should delete its children nodes first We can delete tree with other traversals also with extra space complexity but why should we go for other traversals if we have Postorder available which does the work without storing anything in same time complexity. For the following tree nodes are deleted in order – 4, 5, 2, 3, 1 Example Tree Program 
+#include<stdio.h>
+#include<stdlib.h>
+
+/* A binary tree node has data, pointer to left child 
+   and a pointer to right child */
+struct node 
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data) 
+{
+    struct node* node = (struct node*)
+                           malloc(sizeof(struct node));
+
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;  
+    return(node);
+}
+
+/*  This function traverses tree in post order to 
+    to delete each and every node of the tree */
+void deleteTree(struct node* node) 
+{
+    if (node == NULL) return;
+
+    /* first delete both subtrees */
+    deleteTree(node->left);
+    deleteTree(node->right);
+  
+    /* then delete the node */
+    printf("\n Deleting node: %d", node->data);
+    free(node);
+} 
+
+
+/* Driver program to test deleteTree function*/    
+int main()
+{
+    struct node *root = newNode(1); 
+    root->left            = newNode(2);
+    root->right          = newNode(3);
+    root->left->left     = newNode(4);
+    root->left->right   = newNode(5); 
+  
+    deleteTree(root);  
+    root = NULL;
+
+    printf("\n Tree deleted ");
+  
+    getchar();
+    return 0;
+}
+ The above deleteTree() function deletes the tree, but doesn’t change root to NULL which may cause problems if the user of deleteTree() doesn’t change root to NULL and tires to access values using root pointer. We can modify the deleteTree() function to take reference to the root node so that this problem doesn’t occur. See the following code. 
+#include<stdio.h>
+#include<stdlib.h>
+
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+    struct node* node = (struct node*)
+                           malloc(sizeof(struct node));
+
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+    return(node);
+}
+
+/*  This function is same as deleteTree() in the previous program */
+void _deleteTree(struct node* node)
+{
+    if (node == NULL) return;
+
+    /* first delete both subtrees */
+    _deleteTree(node->left);
+    _deleteTree(node->right);
+
+    /* then delete the node */
+    printf("\n Deleting node: %d", node->data);
+    free(node);
+}
+
+/* Deletes a tree and sets the root as NULL */
+void deleteTree(struct node** node_ref)
+{
+  _deleteTree(*node_ref);
+  *node_ref = NULL;
+}
+
+/* Driver program to test deleteTree function*/
+int main()
+{
+    struct node *root = newNode(1);
+    root->left            = newNode(2);
+    root->right          = newNode(3);
+    root->left->left     = newNode(4);
+    root->left->right   = newNode(5);
+
+    // Note that we pass the address of root here
+    deleteTree(&root);
+    printf("\n Tree deleted ");
+
+    getchar();
+    return 0;
+}
+ Time Complexity: O(n) Space Complexity: If we don’t consider size of stack for function calls then O(1) otherwise O(n)           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tags: Delete Tree, Tree Traveral, Trees Tweet Writing code in comment? Please use ideone.com and share the link here. Guest can someone tel why i am not getting the correct output for the following code …… the whole prgm is @ the link http://ideone.com/FI6X0Q void postorder_del(struct node*root) { if(root==NULL)return; postorder_del(root->left); postorder_del(root->right); if(root->left==NULL&&root->right==NULL) free(root); } CR7 Bhai khali 1 statemnt add karne vaaste poora code copy paste kr diye, #Chutiyapa Raghu NICE Hanish Bansal We can also set root to NULL using a single delete function : void deleteTree(struct node** node) { if (*node == NULL) return; deleteTree(&(*node)->left); deleteTree(&(*node)->right); free(*node); *node = NULL; } Marsha Donna after freeing each node in postorder manner are we setting the node to NULL .Is this wat this function is doing??? pls clarify soon abhishek08aug C++ implementation: Extended from my code in post: http://www.geeksforgeeks.org/write-a-c-program-to-find-the-maximum-depth-or-height-of-a-tree/  
+#include<iostream>
+using namespace std;
+ 
+class tree_node {
+  private:
+    int data;
+    tree_node * left;
+    tree_node * right;
+  public:
+    tree_node() {
+      left=NULL;
+      right=NULL;
+    }
+    void set_data(int data) {
+      this->data=data;
+    }
+    int get_data() {
+      return this->data;
+    }
+    void set_left(tree_node * left) {
+      this->left=left;
+    }
+    tree_node * get_left() {
+      return this->left;
+    }
+    void set_right(tree_node * right) {
+      this->right=right;
+    }
+    tree_node * get_right() {
+      return this->right;
+    }
+    tree_node ** get_left_ref() {
+      return &(this->left);
+    }
+    tree_node ** get_right_ref() {
+      return &(this->right);
+    }
+};
+ 
+class tree {
+  private:
+    tree_node * root;
+    int size;
+    void _recursive_insert(tree_node ** root_ref, int value);
+    void _print_preorder(tree_node * root);
+    void _print_inorder(tree_node * root);
+    void _print_postorder(tree_node * root);
+    int _find_size(tree_node * root);
+    int _are_identical(tree_node * tn1, tree_node * tn2);
+    int _find_height(tree_node * root);
+     void _delete_tree(tree_node ** root);
+  public:
+    tree() {
+      root=NULL;
+      size=0;
+    }
+    void insert(int value);
+    void recursive_insert(int value);
+    void print_preorder();
+    void print_inorder();
+    void print_postorder();
+    int find_size();
+    int get_size() {
+      return this->size;
+    }
+    int are_identical(tree t);
+    int find_height();
+    void delete_tree();
+};
+ 
+void tree::insert(int value) {
+  if(root==NULL) {
+    root=new tree_node;
+    root->set_data(value);
+  } else {
+    tree_node * parent=NULL;
+    tree_node * current=root;
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    while(current!=NULL) {
+      if(value<=current->get_data()) {
+        parent=current;
+        current=current->get_left();
+      } else {
+        parent=current;
+        current=current->get_right();
+      }
+    }
+    if(value<=parent->get_data() && parent->get_left()==NULL) {
+      parent->set_left(new_node);
+    } else if(value>parent->get_data() && parent->get_right()==NULL) {
+      parent->set_right(new_node);
+    }
+  }
+  size++;
+}
+ 
+void tree::recursive_insert(int value) {
+  _recursive_insert(&root, value);
+  size++;
+}
+ 
+void tree::_recursive_insert(tree_node ** root_ref, int value) {
+  if(*root_ref==NULL) {
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    *root_ref=new_node;   
+  } else {
+    if(value<=(*root_ref)->get_data()) {
+      _recursive_insert((*root_ref)->get_left_ref(), value);
+    } else {
+      _recursive_insert((*root_ref)->get_right_ref(), value);
+    }
+  }
+}
+ 
+void tree::print_preorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_preorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_preorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  cout<<root->get_data()<<" ";
+  if(root->get_left()!=NULL)
+    _print_preorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_preorder(root->get_right());
+}
+ 
+void tree::print_inorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_inorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_inorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_inorder(root->get_left());
+  cout<<root->get_data()<<" ";
+  if(root->get_right()!=NULL)
+    _print_inorder(root->get_right());
+}
+ 
+void tree::print_postorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_postorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_postorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_postorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_postorder(root->get_right());
+  cout<<root->get_data()<<" ";
+}
+
+int tree::find_size() {
+  return _find_size(root);
+}
+
+int tree::_find_size(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else {
+    return 1+_find_size(root->get_left())+_find_size(root->get_right());
+  }
+}
+
+int tree::are_identical(tree t) {
+  return _are_identical(this->root, t.root);
+}
+
+int tree::_are_identical(tree_node * tn1, tree_node * tn2) {
+  if(tn1==NULL && tn2==NULL) {
+    return 1;
+  } else if((tn1==NULL && tn2!=NULL) || (tn1!=NULL && tn2==NULL) || (tn1->get_data()!=tn2->get_data())) {
+    return 0;
+  } else {
+    return _are_identical(tn1->get_left(), tn2->get_left()) && _are_identical(tn1->get_right(), tn2->get_right());
+  }
+}
+
+int tree::find_height() {
+  return _find_height(root);
+}
+
+int tree::_find_height(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  }
+  else {
+    return 1+max(_find_height(root->get_left()), _find_height(root->get_right()));
+  }
+}
+
+void tree::delete_tree() {
+  _delete_tree(&root);
+  size=0;
+}
+
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      _delete_tree((*root)->get_left_ref());
+    }
+    if((*root)->get_right()!=NULL) {
+      _delete_tree((*root)->get_right_ref());
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+
+/* alternate _delete_tree */
+/*
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      tree_node * left_ref=(*root)->get_left();
+      _delete_tree(&left_ref);
+    }
+    if((*root)->get_right()!=NULL) {
+      tree_node * right_ref=(*root)->get_right();
+      _delete_tree(&right_ref);
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+*/
+
+int main() {
+  tree t1;
+
+  t1.recursive_insert(5);
+  t1.recursive_insert(3);
+  t1.insert(1);
+  t1.insert(7);
+  t1.recursive_insert(50);
+  t1.recursive_insert(6);
+
+  cout<<"Inorder Traversal"<<endl;
+  t1.print_inorder();
+  cout<<"Size of the tree is: "<<t1.find_size()<<endl;
+  cout<<"Size of the tree is: "<<t1.get_size()<<endl;
+  cout<<"Height of the tree is: "<<t1.find_height()<<endl;
+
+  t1.delete_tree();
+
+  cout<<"Inorder Traversal"<<endl;
+  t1.print_inorder();
+  cout<<"Size of the tree is: "<<t1.find_size()<<endl;
+  cout<<"Size of the tree is: "<<t1.get_size()<<endl;
+  cout<<"Height of the tree is: "<<t1.find_height()<<endl;
+
+  return 0;
+}
+ Inorder Traversal 1 3 5 6 7 50 Size of the tree is: 6 Size of the tree is: 6 Height of the tree is: 3 Inorder Traversal Size of the tree is: 0 Size of the tree is: 0 Height of the tree is: 0 Nikin  
+void del(node *sr)
+{
+if(sr)
+{
+del(sr->left);
+del(sr->right);
+delete sr;
+}
+}
+ Vivek Sharma  
+/* Paste your code here (You may delete these lines if not writing code) */
+
+Node * Delete(node * root, node * target) {
+	if(root == null)
+		return null;
+	if(target == null)
+		return root;
+	if(root == target) {
+		//case when both the children are null i.e the node is leaf node
+		if(root ->left == null && root->right == null) {
+			free (root);
+			return null;		
+		}
+
+		//case when both left exists but right is null i.e tree is left deep tree
+		if(root ->right == null) {
+			tempRoot = root;
+			root = root->left;
+			free(tempRoot);
+			return root;
+		}		
+
+		//general case when both the left and right exists 
+		temp = root->right;
+		while(temp->left! = null) {
+			temp =temp ->left;
+		}
+		root->data = temp->data;
+		Delete(temp,temp);
+	} else {
+		root->left = Delete(root->left , target);
+		root->right = Delete(root->right,target);
+	}
+	return root;
+} 
+
+ http://www.geeksforgeeks.org/archives/654 deep according to me dere is no need of adding a extra function for avoiding dangling pointer reference error just set every deleted node pointer as null dan it will not give dangling pointer reference error correct me if m wrong  
+/*  This function traverses tree in post order to 
+    to delete each and every node of the tree */
+void deleteTree(struct node* node) 
+{
+    if (node == NULL) return;
+ 
+    /* first delete both subtrees */
+    deleteTree(node->left);
+    deleteTree(node->right);
+   
+    /* then delete the node */
+    printf("\n Deleting node: %d", node->data);
+    free(node);
+    node=NULL;  //set every deleted node pointer as null dan it                                  
+                //will not give dangling pointer reference error
+} 
+ Ankit Sablok good idea  
+/* Paste your code here (You may delete these lines if not writing code) */
+ sruajana It does not work friend because you are passing the pointer by value. So, in node = NULL statement, you are only setting a copy of root pointer to NULL but not the actual root pointer passed pranay Can any one help me with the logic or code for the same problem without using recursion or stack array. Pranay Is there any possible way to solve the above problem without recursion or stack Kirankumar D G The function delete tree should be void _deleteTree(struct node* node, struct node *parent) { if (node == NULL) return; parent = node; /* first delete both subtrees */ _deleteTree(node->left,parent); _deleteTree(node->right,parent); if(parent != null){ if(parent->left == node){ parent->left = null; } else if(parent->right == node){ parent->right = null; } } /* then delete the node */ printf(“\n Deleting node: %d”, node->data); free(node); } Mayautobot //non-recursive deletion of tree, also appends NULL after each deletion void delTree() { Node *arr[20]; Node *pt=ptr; int sp=-1; if(ptr==NULL) return; else { arr[++sp]=ptr; while(1) { if(pt->getleft()!=NULL) { pt=pt->getleft(); arr[++sp]=pt; } else { if(pt->getright()!=NULL) { pt=pt->getright(); arr[++sp]=pt; } else { if(pt==ptr) { ptr=NULL; display(); break; } sp–; if(arr[sp]->getright()==pt) { delete pt; arr[sp]->setright(NULL); pt=arr[sp]; display(); } else if(arr[sp]->getleft()==pt) { delete pt; arr[sp]->setleft(NULL); pt=arr[sp]; display(); } } } } } } Ankit Nice one! Thanx!! saniaz  
+ // We can change root to NULL without using extra
+ // _deleteTree(...) fucntion.
+
+ void deleteTree(struct node** node)
+ {
+    if ( *node )
+    {
+      /* first delete both subtrees */
+      deleteTree( &(*node)->left);
+      deleteTree( &(*node)->right);
+   
+      /* then delete the node */
+      printf("\n Deleting node: %d", (*node)->data);
+      free(*node);
+      *node = NULL;
+    }
+ }  
+
+ Correct me if I am wrong.
+ kartik yes, this code also looks fine. Prateek I am a little confused. Shouldn’t we pass the node “by reference” in the first example instead of “call by value”?  
+ 
+#include<stdio.h>
+#include<stdlib.h>
+ 
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+ 
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+    struct node* node = (struct node*)
+                           malloc(sizeof(struct node));
+ 
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+    return(node);
+}
+ 
+/*  This function traverses tree in post order to
+    to delete each and every node of the tree */
+void deleteTree(struct node** nodeRef)
+{
+    struct node* node = *nodeRef;
+    if (node == NULL) return;
+ 
+    /* first delete both subtrees */
+    deleteTree(&(node->left));
+    deleteTree(&(node->right));
+ 
+    /* then delete the node */
+    printf("\n Deleting node: %d", (node)->data);
+    free(node);
+}
+ 
+/* Driver program to test deleteTree function*/
+int main()
+{
+    struct node *root = newNode(1);
+    root->left            = newNode(2);
+    root->right          = newNode(3);
+    root->left->left     = newNode(4);
+    root->left->right   = newNode(5);
+ 
+    deleteTree(&root);
+    root = NULL;
+ 
+    printf("\n Tree deleted ");
+ 
+    getchar();
+    return 0;
+}
+ Aakash Srivastava @prateek..i don`t think we need to pass by reference,mainly because we are carrying out a delete operation.Pass by reference is important when we want changes in the original value to be reflected,however we are not modifying any value here.For deletion,we just need the address of the node we want to delete(which is provided in the function argument). I hope this clears your doubt,correct me if I`m wrong.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Prateek @Aakash yes, you are right. Thanx GeeksforGeeks @evilzone, @Abstract Rated @Raja and @sankalp: Thanks for sharing your thoughts. We have updated the post and included the code that changes root to NULL. evilzone Hi geeksforgeeks : After free(node), we have to put node = NULL also. In the main function deleteTree(root); root = NULL; Thanks, Abhinav Abstract Rated You have called free(node), this function will leave the pointer value unchanged and it will still point to the same location which is invalid now… it needs to deallocated in such a way that the pointer pointing to this particular node points to NULL. Raja would this ensure proper linking: node* deleteTree(struct node* node) { if (node == NULL) return; /* first delete both subtrees */ node->left = deleteTree(node->left); node->right= deleteTree(node->right); /* then delete the node */ printf(“\n Deleting node: %d”, node->data); free(node); return null; } sankalp @Abstract Rated: Absolutely! And to ensure proper deletion, we have to call the delete function by reference.. tech.login.id2 It should be ok with other traversals too without space complexity.  
+void deleteTree(struct node* node)
+{
+    if (node == NULL) return;
+ 
+    struct node *l = node->left;
+    struct node *r = node->right;
+
+    deleteTree(l);
+    free(node);
+    deleteTree(r);
+}
+ kartik @tech.login.id2, Nice point! The only thing is we have extra variables here in InOrder traversal. It doesn’t matter much though. masna void deleteTree(struct node* node) { if (node == NULL) return; struct node *r = node->right; deleteTree(node->left); free(node); deleteTree(r); }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://wemeanourthoughts.blogspot.com/ Venki @tech.login.id2, how does it matter whether we store inside function or on the stack automatically. Both will consume space. Worst case we need to store all the nodes along maximum path length. Draw a recursion tree we can understand it easily. masna  
+void deleteTree(struct node* node)
+{
+    if (node == NULL) return;
+  
+    struct node *r = node->right;
+ 
+    deleteTree(node->left);
+    free(node);
+    deleteTree(r);
+}
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

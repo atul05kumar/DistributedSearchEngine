@@ -1,0 +1,98 @@
+Detect cycle in an undirected graph - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Detect cycle in an undirected graph Given an undirected graph, how to check if there is a cycle in the graph? For example, the following graph has a cycle 1-0-2-1. We have discussed cycle detection for directed graph. We have also discussed a union-find algorithm for cycle detection in undirected graphs. The time complexity of the union-find algorithm is O(ELogV). Like directed graphs, we can use DFS to detect cycle in an undirected graph in O(V+E) time. We do a DFS traversal of the given graph. For every visited vertex ‘v’, if there is an adjacent ‘u’ such that u is already visited and u is not parent of v, then there is a cycle in graph. If we don’t find such an adjacent for any vertex, we say that there is no cycle. The assumption of this approach is that there are no parallel edges between any two vertices. // A C++ Program to detect cycle in an undirected graph
+#include<iostream>
+#include <list>
+#include <limits.h>
+using namespace std;
+
+// Class for an undirected graph
+class Graph
+{
+    int V;    // No. of vertices
+    list<int> *adj;    // Pointer to an array containing adjacency lists
+    bool isCyclicUtil(int v, bool visited[], int parent);
+public:
+    Graph(int V);   // Constructor
+    void addEdge(int v, int w);   // to add an edge to graph
+    bool isCyclic();   // returns true if there is a cycle
+};
+
+Graph::Graph(int V)
+{
+    this->V = V;
+    adj = new list<int>[V];
+}
+
+void Graph::addEdge(int v, int w)
+{
+    adj[v].push_back(w); // Add w to v’s list.
+    adj[w].push_back(v); // Add v to w’s list.
+}
+
+// A recursive function that uses visited[] and parent to detect
+// cycle in subgraph reachable from vertex v.
+bool Graph::isCyclicUtil(int v, bool visited[], int parent)
+{
+    // Mark the current node as visited
+    visited[v] = true;
+
+    // Recur for all the vertices adjacent to this vertex
+    list<int>::iterator i;
+    for (i = adj[v].begin(); i != adj[v].end(); ++i)
+    {
+        // If an adjacent is not visited, then recur for that adjacent
+        if (!visited[*i])
+        {
+           if (isCyclicUtil(*i, visited, v))
+              return true;
+        }
+
+        // If an adjacent is visited and not parent of current vertex,
+        // then there is a cycle.
+        else if (*i != parent)
+           return true;
+    }
+    return false;
+}
+
+// Returns true if the graph contains a cycle, else false.
+bool Graph::isCyclic()
+{
+    // Mark all the vertices as not visited and not part of recursion
+    // stack
+    bool *visited = new bool[V];
+    for (int i = 0; i < V; i++)
+        visited[i] = false;
+
+    // Call the recursive helper function to detect cycle in different
+    // DFS trees
+    for (int u = 0; u < V; u++)
+        if (!visited[u]) // Don't recur for u if it is already visited
+          if (isCyclicUtil(u, visited, -1))
+             return true;
+
+    return false;
+}
+
+// Driver program to test above functions
+int main()
+{
+    Graph g1(5);
+    g1.addEdge(1, 0);
+    g1.addEdge(0, 2);
+    g1.addEdge(2, 0);
+    g1.addEdge(0, 3);
+    g1.addEdge(3, 4);
+    g1.isCyclic()? cout << "Graph contains cycle\n":
+                   cout << "Graph doesn't contain cycle\n";
+
+    Graph g2(3);
+    g2.addEdge(0, 1);
+    g2.addEdge(1, 2);
+    g2.isCyclic()? cout << "Graph contains cycle\n":
+                   cout << "Graph doesn't contain cycle\n";
+
+    return 0;
+}
+
+ Output: Graph contains cycle
+Graph doesn't contain cycle Time Complexity: The program does a simple DFS Traversal of graph and graph is represented using adjacency list. So the time complexity is O(V+E) Exercise: Can we use BFS to detect cycle in an undirected graph in O(V+E) time? What about directed graphs? Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Vertex Cover Problem | Set 1 (Introduction and Approximate Algorithm) Snake and Ladder Problem Tarjan’s Algorithm to find Strongly Connected Components Shortest path with exactly k edges in a directed and weighted graph Count all possible walks from a source to a destination with exactly k edges Euler Circuit in a Directed Graph Given an array of strings, find if the strings can be chained to form a circle Given a sorted dictionary of an alien language, find order of characters Tags: Graph Tweet Writing code in comment? Please use ideone.com and share the link here. guest11 @GeeksForGeeks what is the need of adding same edge again in an undirected graph ?? g1.addEdge(0, 2); g1.addEdge(2, 0); and it doesn’t correspond to the given image…… anonymous http://www.spoj.com/problems/GHOSTS/ anonymous C mein likh dete yaar? anonymous can we conclude that if an undirected graph is a-cyclic then it is a tree? Sriharsha g.r.v can i conclude this .. if a graph is connected,directed and not acyclic then it is cyclic……??? Guest can i conclude this .. if a graph is connected,directed and acyclic then it is cyclic……??? Rahul Kapoor y we are checking parent condition ? Kaushal Hi Can you explain how there is cycle in Graph g1? If it is typo then it should return ‘Graph doesn’t contain cyclic’. Thanks Kartik Please note that the graph is undirected. There is a cycle 0-1-2 arpit if the graph is undirected,and say has N nodes then if number of edges exceed (N-1) then the graph will certainly have a cycle.. that would be an easier solution,isn’t it? pavansrinivas iterative soln…in JAVA public class Vertex { public char label; public boolean wasVisited; public Vertex(char lab) { label = lab; wasVisited = false; } } public class Graph { private final int MAX_VERTS = 20; private Vertex[] vertexList; private int adjMat[][]; private int nVerts; Stack s ; public Graph() { vertexList = new Vertex[MAX_VERTS]; adjMat = new int[MAX_VERTS][MAX_VERTS]; nVerts = 0; for (int j = 0; j < MAX_VERTS; j++) for (int k = 0; k < MAX_VERTS; k++) adjMat[j][k] = 0; } public void addVertex(char lab) { vertexList[nVerts++] = new Vertex(lab); } public void addEdge(int start, int end) { adjMat[start][end] = 1; adjMat[end][start] = 1; } public void displayVertex(int v) { System.out.print(vertexList[v].label); } private int getAdjUnvisited(int v){ for(int i=0;i<nVerts;i++){ if(adjMat[v][i]==1&&vertexList[i].wasVisited==false){ return i; } } return -1; boolean hasCycles(){ s = new Stack(); vertexList[0].wasVisited = true; s.push(0); while(!s.isEmpty()){ int k = getAdjUnvisited(s.peek()); if(k==-1){ s.pop(); }else{ for(int p = 0;p<nVerts;p++){ if(adjMat[k][p]==1&&vertexList[p].wasVisited==true){ if(p!=s.peek()){ return true; } } } s.push(k); vertexList[k].wasVisited=true; } } for(int j=0; j<nVerts; j++) // reset flags vertexList[j].wasVisited = false; return false; } gb Can you please post proper formatted code? pavansrinivas i used proper formatting,but sometimes it is messing up the code ..posting it without formatting public class Vertex { public char label; public boolean wasVisited; public Vertex(char lab) { label = lab; wasVisited = false; } } public class Graph { private final int MAX_VERTS = 20; private Vertex[] vertexList; private int adjMat[][]; private int nVerts; Stack s ; public Graph() { vertexList = new Vertex[MAX_VERTS]; adjMat = new int[MAX_VERTS][MAX_VERTS]; nVerts = 0; for (int j = 0; j < MAX_VERTS; j++) for (int k = 0; k < MAX_VERTS; k++) adjMat[j][k] = 0; } public void addVertex(char lab) { vertexList[nVerts++] = new Vertex(lab); } public void addEdge(int start, int end) { adjMat[start][end] = 1; adjMat[end][start] = 1; } public void displayVertex(int v) { System.out.print(vertexList[v].label); } private int getAdjUnvisited(int v){ for(int i=0;i<nVerts;i++){ if(adjMat[v][i]==1&&vertexList[i].wasVisited==false){ return i; } } return -1; boolean hasCycles(){ s = new Stack(); vertexList[0].wasVisited = true; s.push(0); while(!s.isEmpty()){ int k = getAdjUnvisited(s.peek()); if(k==-1){ s.pop(); }else{ for(int p = 0;p<nVerts;p++){ if(adjMat[k][p]==1&&vertexList[p].wasVisited==true){ if(p!=s.peek()){ return true; } } } s.push(k); vertexList[k].wasVisited=true; } } for(int j=0; j<nVerts; j++) // reset flags vertexList[j].wasVisited = false; return false; } pavansrinivas don’t know why this is happenning.. pavansrinivas There is a typo in the driver function…the graph(g1) is not cyclic…E(1,2) is missing.. Yash Girdhar so the difference in finding a cycle in a directed graph and a undirected graph is just the use of a parent? phoenix No, for finding a cycle in directed graph, you will have to maintain a separate recursion stack which will contain the elements covered in a particular recursion of dfs. Because in directed graph, just reaching a node twice doesn’t mean that there is a cycle. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,225 @@
+Segment Tree | Set 1 (Sum of given range) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Segment Tree | Set 1 (Sum of given range) Let us consider the following problem to understand Segment Trees. We have an array arr[0 . . . n-1]. We should be able to 1 Find the sum of elements from index l to r where 0 <= l <= r <= n-1 2 Change value of a specified element of the array arr[i] = x where 0 <= i <= n-1. A simple solution is to run a loop from l to r and calculate sum of elements in given range. To update a value, simply do arr[i] = x. The first operation takes O(n) time and second operation takes O(1) time. Another solution is to create another array and store sum from start to i at the ith index in this array. Sum of a given range can now be calculated in O(1) time, but update operation takes O(n) time now. This works well if the number of query operations are large and very few updates. What if the number of query and updates are equal? Can we perform both the operations in O(log n) time once given the array? We can use a Segment Tree to do both operations in O(Logn) time. Representation of Segment trees 1. Leaf Nodes are the elements of the input array. 2. Each internal node represents some merging of the leaf nodes. The merging may be different for different problems. For this problem, merging is sum of leaves under a node. An array representation of tree is used to represent Segment Trees. For each node at index i, the left child is at index 2*i+1, right child at 2*i+2 and the parent is at . Construction of Segment Tree from given array We start with a segment arr[0 . . . n-1]. and every time we divide the current segment into two halves(if it has not yet become a segment of length 1), and then call the same procedure on both halves, and for each such segment we store the sum in corresponding node. All levels of the constructed segment tree will be completely filled except the last level. Also, the tree will be a Full Binary Tree because we always divide segments in two halves at every level. Since the constructed tree is always full binary tree with n leaves, there will be n-1 internal nodes. So total number of nodes will be 2*n – 1. Height of the segment tree will be . Since the tree is represented using array and relation between parent and child indexes must be maintained, size of memory allocated for segment tree will be . Query for Sum of given range Once the tree is constructed, how to get the sum using the constructed segment tree. Following is algorithm to get the sum of elements. 
+int getSum(node, l, r) 
+{
+   if range of node is within l and r
+        return value in node
+   else if range of node is completely outside l and r
+        return 0
+   else
+    return getSum(node's left child, l, r) + 
+           getSum(node's right child, l, r)
+} Update a value Like tree construction and query operations, update can also be done recursively. We are given an index which needs to updated. Let diff be the value to be added. We start from root of the segment tree, and add diff to all nodes which have given index in their range. If a node doesn’t have given index in its range, we don’t make any changes to that node. Implementation: Following is implementation of segment tree. The program implements construction of segment tree for any given array. It also implements query and update operations. 
+// Program to show segment tree operations like construction, query and update
+#include <stdio.h>
+#include <math.h>
+
+// A utility function to get the middle index from corner indexes.
+int getMid(int s, int e) {  return s + (e -s)/2;  }
+
+/*  A recursive function to get the sum of values in given range of the array.
+    The following are parameters for this function.
+
+    st    --> Pointer to segment tree
+    index --> Index of current node in the segment tree. Initially 0 is
+             passed as root is always at index 0
+    ss & se  --> Starting and ending indexes of the segment represented by
+                 current node, i.e., st[index]
+    qs & qe  --> Starting and ending indexes of query range */
+int getSumUtil(int *st, int ss, int se, int qs, int qe, int index)
+{
+    // If segment of this node is a part of given range, then return the 
+    // sum of the segment
+    if (qs <= ss && qe >= se)
+        return st[index];
+
+    // If segment of this node is outside the given range
+    if (se < qs || ss > qe)
+        return 0;
+
+    // If a part of this segment overlaps with the given range
+    int mid = getMid(ss, se);
+    return getSumUtil(st, ss, mid, qs, qe, 2*index+1) +
+           getSumUtil(st, mid+1, se, qs, qe, 2*index+2);
+}
+
+/* A recursive function to update the nodes which have the given index in
+   their range. The following are parameters
+    st, index, ss and se are same as getSumUtil()
+    i    --> index of the element to be updated. This index is in input array.
+   diff --> Value to be added to all nodes which have i in range */
+void updateValueUtil(int *st, int ss, int se, int i, int diff, int index)
+{
+    // Base Case: If the input index lies outside the range of this segment
+    if (i < ss || i > se)
+        return;
+
+    // If the input index is in range of this node, then update the value
+    // of the node and its children
+    st[index] = st[index] + diff;
+    if (se != ss)
+    {
+        int mid = getMid(ss, se);
+        updateValueUtil(st, ss, mid, i, diff, 2*index + 1);
+        updateValueUtil(st, mid+1, se, i, diff, 2*index + 2);
+    }
+}
+
+// The function to update a value in input array and segment tree.
+// It uses updateValueUtil() to update the value in segment tree
+void updateValue(int arr[], int *st, int n, int i, int new_val)
+{
+    // Check for erroneous input index
+    if (i < 0 || i > n-1)
+    {
+        printf("Invalid Input");
+        return;
+    }
+
+    // Get the difference between new value and old value
+    int diff = new_val - arr[i];
+
+    // Update the value in array
+    arr[i] = new_val;
+
+    // Update the values of nodes in segment tree
+    updateValueUtil(st, 0, n-1, i, diff, 0);
+}
+
+// Return sum of elements in range from index qs (quey start) to
+// qe (query end).  It mainly uses getSumUtil()
+int getSum(int *st, int n, int qs, int qe)
+{
+    // Check for erroneous input values
+    if (qs < 0 || qe > n-1 || qs > qe)
+    {
+        printf("Invalid Input");
+        return -1;
+    }
+
+    return getSumUtil(st, 0, n-1, qs, qe, 0);
+}
+
+// A recursive function that constructs Segment Tree for array[ss..se].
+// si is index of current node in segment tree st
+int constructSTUtil(int arr[], int ss, int se, int *st, int si)
+{
+    // If there is one element in array, store it in current node of
+    // segment tree and return
+    if (ss == se)
+    {
+        st[si] = arr[ss];
+        return arr[ss];
+    }
+
+    // If there are more than one elements, then recur for left and
+    // right subtrees and store the sum of values in this node
+    int mid = getMid(ss, se);
+    st[si] =  constructSTUtil(arr, ss, mid, st, si*2+1) +
+              constructSTUtil(arr, mid+1, se, st, si*2+2);
+    return st[si];
+}
+
+/* Function to construct segment tree from given array. This function
+   allocates memory for segment tree and calls constructSTUtil() to
+   fill the allocated memory */
+int *constructST(int arr[], int n)
+{
+    // Allocate memory for segment tree
+    int x = (int)(ceil(log2(n))); //Height of segment tree
+    int max_size = 2*(int)pow(2, x) - 1; //Maximum size of segment tree
+    int *st = new int[max_size];
+
+    // Fill the allocated memory st
+    constructSTUtil(arr, 0, n-1, st, 0);
+
+    // Return the constructed segment tree
+    return st;
+}
+
+// Driver program to test above functions
+int main()
+{
+    int arr[] = {1, 3, 5, 7, 9, 11};
+    int n = sizeof(arr)/sizeof(arr[0]);
+
+    // Build segment tree from given array
+    int *st = constructST(arr, n);
+
+    // Print sum of values in array from index 1 to 3
+    printf("Sum of values in given range = %d\n", getSum(st, n, 1, 3));
+
+    // Update: set arr[1] = 10 and update corresponding segment
+    // tree nodes
+    updateValue(arr, st, n, 1, 10);
+
+    // Find sum after the value is updated
+    printf("Updated sum of values in given range = %d\n",
+                                                  getSum(st, n, 1, 3));
+
+    return 0;
+}
+ Output:  
+Sum of values in given range = 15
+Updated sum of values in given range = 22 Time Complexity: Time Complexity for tree construction is O(n). There are total 2n-1 nodes, and value of every node is calculated only once in tree construction. Time complexity to query is O(Logn). To query a sum, we process at most four nodes at every level and number of levels is O(Logn). The time complexity of update is also O(Logn). To update a leaf value, we process one node at every level and number of levels is O(Logn). References: http://www.cse.iitk.ac.in/users/aca/lop12/slides/06.pdf Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tags: Advance Data Structures, Advanced Data Structures, SegmentTree Tweet Writing code in comment? Please use ideone.com and share the link here. dmr We can use segment trees for finding sum in a given range. But how can this be modified to find minimum element in a given range in O(logn) time? This is a question in References link ( http://www.cse.iitk.ac.in/users/aca/lop12/slides/06.pdf) given above. prshant jha here is my update version in 0(logn) complexity with much simpler implementation than above http://ideone.com/SppdWT http://www.phoenixuser.blogspot.com GOPI GOPINATH will the complexity in your implementation be O(logn) ???? but to find the sum….u r computing the sum during runtime ryt ???? prashant jha #include using namespace std; struct node { node* lchild; int data; node* rchild; node() { lchild=NULL; rchild=NULL; } }*root=NULL; node* fun(node* root,int arr[],int low,int high) { if(!root) root=new node(); if(low==high) { root->data=arr[low]; return root; } int mid=(low+high)/2; root->lchild=fun(root->lchild,arr,low,mid); root->rchild=fun(root->rchild,arr,mid+1,high); root->data=root->lchild->data+root->rchild->data; return root; } void display(node* root) { if(root!=NULL) { display(root->lchild); cout<data<rchild); } } int main() { int arr[]={3,5,1,7,9,6}; int i,r; int n=sizeof(arr)/sizeof(arr[0]); cout<<"the inorder trversal of segment tree is.n"; display(fun(root,arr,0,n-1)); cout<<"n"<>i>>r; root=NULL; cout<data<<" is the range sum.n"; return 0; } prashant jha here is the implementation of the segment tree http://ideone.com/JPDzqz nwoebcke Although this puts an additional O(log(n)) of memory on the heap, I think it makes the range comparison and recursion a little easier to follow. Also it is C++. To preserve the C language, you could use structs instead of classes and rename the methods to functions with a struct pointer parameter tagged on. class Range { public: int start; int end; Range(s, e) : start(s), end(e) {} void init(s, e) { start = s; end = e; } inline bool isInside(Range *other) { return start >= other->start && end end; } inline bool isOutside(Range *other) { return start > other->end || end start; } }; class NodeInfo { Range range; public: int index; NodeInfo(s, e, idx) : index(idx) { range.init(s, e); } inline bool isInside(Range *other) { return range.isInside(other); } inline bool isOutside(Range *other) { return range.isOutside(other); } inline int getMidRange() { return getMid(range.start, range.end); } NodeInfo* getLeftChild(mid) { return new NodeInfo(range.start, mid, index * 2 + 1); } NodeInfo* getRightChild(mid) { return new NodeInfo(mid + 1, range.end, index * 2 + 2); } }; int getSum(int *st, int n, int qs, int qe) { // Check for erroneous input values if (qs n-1 || qs > qe) { printf("Invalid Input"); return -1; } NodeInfo *segNode = new NodeInfo(0, n-1, 0); Range *query = new Range(qs, qe); int retval = getSumUtil(st, query, segNode); delete segNode; delete query; return retval; } int getSumUtil(int *st, Range *query, NodeInfo *segNode) { // If segment of this node is a part of given range, then return the // sum of the segment if(segNode->isInside(query)) return st[segNode->index]; // If segment of this node is outside the given range if (segNode->isOutside(query)) return 0; // If a part of this segment overlaps with the given range int mid = segNode->getMidRange(); NodeInfo *left = segNode->getLeftChild(mid); NodeInfo *right = segNode->getRightChild(mid); int retval = getSumUtil(st, query, left) + getSumUtil(st, query, right); delete left; delete right; return retval; } Puneet Jaiswal Would this work as tree implementation public class SegmentTree { public static class STNode { int leftIndex; int rightIndex; int sum; STNode leftNode; STNode rightNode; } static STNode constructSegmentTree(int[] A, int l, int r) { if (l == r) { STNode node = new STNode(); node.leftIndex = l; node.rightIndex = r; node.sum = A[l]; return node; } int mid = (l + r) / 2; STNode leftNode = constructSegmentTree(A, l, mid); STNode rightNode = constructSegmentTree(A, mid, r); STNode root = new STNode(); root.leftIndex = leftNode.leftIndex; root.rightIndex = rightNode.rightIndex; root.sum = leftNode.sum + rightNode.sum; root.leftNode = leftNode; root.rightNode = rightNode; return root; } static int getSum(STNode root, int l, int r) { if (root.leftIndex >= l && root.rightIndex <= r) { return root.sum; } if (root.rightIndex r) { return 0; } return getSum(root.leftNode, l, r) + getSum(root.rightNode, l, r); } /** * * @param root * @param index index of number to be updated in original array * @param newValue * @return difference between new and old values */ static int updateValueAtIndex(STNode root, int index, int newValue) { int diff = 0; if(root.leftIndex==root.rightIndex && index == root.leftIndex) { // We actually reached to the leaf node to be updated diff = newValue-root.sum; root.sum=newValue; return diff; } int mid = (root.leftIndex + root.rightIndex) / 2; if (index <= mid) { diff= updateValueAtIndex(root.leftNode, index, newValue); } else { diff= updateValueAtIndex(root.rightNode, index, newValue); } root.sum+=diff; return diff; } } Run time complexity for all operations ===> Log(n) mallard sorry but i think the language of implementation of above code is C and i think ‘new’ operator can’t be used in C.I am getting error when i am trying to run this code.I am using codeblock. Newbie90 What is the difference between the constructST and constructSTUtil functions? Someone please explain the constructSTUTil fucntion. Vu Duc Minh I do not think the procedure “updateValueUtil” is a good one (even it is correct). Segment tree is a tree; and we should update from a leaf to the root; like the “constructSTUtil” procedure. In fact, “updateValueUtil” is “constructSTUtil”. We only need one procedure for all two tasks. Adrian Carballo Hey, great tutorial, I wrote a python implementation here https://github.com/adrianca/Competitive-Programming-Tools/tree/master/data%20structures/Segment%20Tree Avinash Ks Just one doubt, in SumUtil, isn’t qs supposed to be greater than ss and qe less than se, because qs – qe is a subset of ss – se Denis Hi, you wrote : “size of memory allocated for segment tree will be 2*2^|log2n|-1″, where I assume n is a number of leafs in the tree. This is seems not to be true using your example of a segment tree : “{1,3,5,7,9,11}”, where n=6. Thus using 2*2^|log2n|-1 size of memory allocated is 7, which is not true because on the picture there are 11 nodes. Suppose n should be replaced on the (2*n-1) in your expression. Denis Sorry, I’ve got it. You are using ceil() function in this case. So 2*2^ceil(log2N)-1 will produce correct segment tree size. I was thinking about floor() instead of ceil(). Denis Sorry, I’ve got it. You are using ceil() function in this case. So 2*2^ceil(log2N)-1 will produce correct segment tree size. I was thinking about floor() instead of ceil(). Denis Hi, you wrote : “size of memory allocated for segment tree will be “, where I assume n is a number of leafs in the tree. This is seems not to be true using your example of a segment tree : “{1,3,5,7,9,11}”, where n=6. Thus using size of memory allocated is 7, which is not true because on the picture there are 11 nodes. Suppose n should be replaced on the (2*n-1) in your expression. denial @geeksforgeeks: Change suggestion in the paragraph “Query for Sum of given range”. It should be changed to following:  
+int getSum(node, l, r) 
+{
+   if range of node is within l and r
+        return value in node
+
+   if range of node is completely outside l and r
+        return 0
+  
+    return getSum(node's left child, l, r) + 
+           getSum(node's right child, l, r)
+}
+ let me know if I’m wrong. denial @geeksforgeeks Change suggestion in the paragraph “Query for Sum of given range” above : You written it as :  
+int getSum(node, l, r) 
+{
+   if range of node is within l and r
+        return value in node
+   else if range of node is completely outside l and r
+        return 0
+   else
+    return getSum(node's left child, l, r) + 
+           getSum(node's right child, l, r)
+}
+ should be changed to this:  
+int getSum(node, l, r) 
+{
+   if range of node is within l and r
+        return value in node
+
+   if range of node is completely outside l and r
+        return 0
+
+    return getSum(node's left child, l, r) + 
+           getSum(node's right child, l, r)
+}
+ Let me know if I’m wrong. Prakhar Jain Time Complexity of query is O(log n) because we process at most “4 nodes” at each level.. you have written “2 nodes” which is wrong. For example take range [1-3] in your example and make tree of recursive calls of getSum() function, you will see there are at most 4 nodes at each level. Even it is also given in the iitk link you have given at the end.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks @Prakhar Jain: Thanks for pointing this out. we have updated the post. Prakhar Jain Also, to update a leaf we process “two nodes” at each level, not “one node”.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik How do we do the updation if we have to update more than 2 values like we have to increase all number in range a to b by 2 how our update function do this in O(log(n)) can any body plz help  
+/* Paste your code here (You may delete these lines if not writing code) */
+ sumanth232 Since the tree is represented using array and relation between parent and child indexes must be maintained, size of memory allocated for segment tree will be 2*(2^ceil(log2n)) – 1. Why not just 2*n – 1 ? What are the bad sequences of just allotting 2*n – 1 nodes to the tree. Where will it go wrong? Anybody pls help.. alveko The array must have enough elements to include a possible right-most leaf. The index of a possible right-most leaf increases with a step of power of 2. The size of (2*n-1) might be just not big enough.  
+// segment tree size (n is the number of elements in the input array)
+//     (log2ceil(n))   is the level that can hold all distinct elements
+//   2^(log2ceil(n))   is the number of elements at that level
+// 2*2^(log2ceil(n))-1 is the total number of elements in the tree
+ / Alexander K. sumanth232 Thanks.. that made it clear..  
+/* Paste your code here (You may delete these lines if not writing code) */
+ abhishek08aug Intelligent prasad I have difficulty understanding the time complexity of FindMin(). At each node we are splitting the problem in to two sub problems of equal size. T(n) = 2T(n/2) + 1; I think this reduces to O(n). Please correct me if I am wrong any where? Abhay I think in updateValueUti function it should be updateValueUtil(st, ss, mid, i, diff, 2*index + 1) instead of updateValueUtil(st, 0, mid, i, diff, 2*index + 1) GeeksforGeeks Thanks for pointing this out. We have updated the code. Gaurav Jain This is incorrect… Let us reconsider the example of array 1,3,5,7,9,11 if i have to calculate sum of indices 2 to 4. This should be 5+7+9=21. But using segment tree it is not possible to calculate the same. Segment tree will work only if the indices are in first half or 2nd half, but when the indices span across halves it might not work GeeksforGeeks We ran the above given code for your input and it produced the correct output. Did you run the code? Sitesh BIT is more efficient in this case. Relatively faster than Segment trees, Lesser memory requirements: Time complexities : O(log N) Space complexities: O(N) More details here: http://www.algorithmist.com/index.php/Fenwick_tree #include <vector> using namespace std; // In this implementation, the tree is represented by a vector<int>. // Elements are numbered by 0, 1, …, n-1. // tree[i] is sum of elements with indexes i&(i+1)..i, inclusive. // Creates a zero-initialized Fenwick tree for n elements. vector<int> create(int n) { return vector<int>(n, 0); } // Returns sum of elements with indexes a..b, inclusive int query(const vector<int> &tree, int a, int b) { if (a == 0) { int sum = 0; for (; b >= 0; b = (b & (b + 1)) – 1) sum += tree[b]; return sum; } else { return query(tree, 0, b) – query(tree, 0, a-1); } } // Increases value of k-th element by inc. void increase(vector<int> &tree, int k, int inc) { for (; k < (int)tree.size(); k |= k + 1) tree[k] += inc; } Kumar Nice explanation. But there’s another tree structure which is precisely meant to answer range-sum & product queries called Binary indexed trees, which is simpler, powerful and easy to maintain. Segment trees are really good for answering range minimum queries & intervals. Here’s a complete working implementation of segment tree in C# /* Paste your code here (You may delete these lines if not writing code) using System; using System.Collections.Generic; using System.Linq; using System.Text; using Algorithms.Trees.Base; namespace Algorithms.Trees { public class SegmentTree<K> where K:IComparable<K> { private List<SegmentTreeNode<K>> Elements; public K[] Keys { get; set; } public SegmentTree(K[] keys) { if (null == keys || 0 == keys.Length) { return; } Keys = keys; int segmentTreeSize = (int)Math.Pow(2, Math.Log(Keys.Length, 2) + 1); Elements = new List<SegmentTreeNode<K>>(segmentTreeSize); for (int i = 0; i < segmentTreeSize; i++) { Elements.Add(null); } ConstructSegmentTreeForRange(0, keys.Length – 1, 0); } SegmentTreeNode<K> ConstructSegmentTreeForRange(int lowIndex, int highIndex, int rangeIndex) { SegmentTreeNode<K> rangeNode = new SegmentTreeNode<K>() { LowIndex = lowIndex, HighIndex = highIndex }; K leftMinimum, rightMinimum; int midPoint = lowIndex + (highIndex – lowIndex)/2; if (lowIndex < highIndex) { leftMinimum = ConstructSegmentTreeForRange(lowIndex, midPoint, 2 * rangeIndex + 1).RangeMinimum; rightMinimum = ConstructSegmentTreeForRange(midPoint + 1, highIndex, 2 * rangeIndex + 2).RangeMinimum; rangeNode.RangeMinimum = (leftMinimum.CompareTo(rightMinimum) <= 0) ? leftMinimum : rightMinimum; } else if (lowIndex == highIndex) { rangeNode.RangeMinimum = Keys[lowIndex]; rangeNode.LowIndex = lowIndex; rangeNode.HighIndex = lowIndex; } Elements[rangeIndex] = rangeNode; return rangeNode; } public K QueryMinimumInRange(int lowIndex, int highIndex) { if (lowIndex < 0 || highIndex >= Keys.Length) { return default(K); } return QueryMinimumInRangeAux(lowIndex, highIndex, 0); } private K QueryMinimumInRangeAux(int lowIndex, int highIndex, int rangeIndex) { if (highIndex < Elements[rangeIndex].LowIndex || lowIndex > Elements[rangeIndex].HighIndex) { return default(K); } if (Elements[rangeIndex].LowIndex >= lowIndex && Elements[rangeIndex].HighIndex <= highIndex) { return Elements[rangeIndex].RangeMinimum; } K leftMinimum = QueryMinimumInRangeAux(lowIndex, highIndex, 2 * rangeIndex + 1); K rightMinimum = QueryMinimumInRangeAux(lowIndex, highIndex, 2 * rangeIndex + 2); if (EqualityComparer<K>.Default.Equals(default(K), leftMinimum)) { return rightMinimum; } if (EqualityComparer<K>.Default.Equals(default(K), rightMinimum)) { return leftMinimum; } return (leftMinimum.CompareTo(rightMinimum) <= 0) ? leftMinimum : rightMinimum; } public bool UpdateKey(int keyIndex, K newKey) { if (keyIndex < 0 || keyIndex >= Keys.Length) { return false; } Keys[keyIndex] = newKey; return UpdateKeyAux(keyIndex, newKey, 0); } private bool UpdateKeyAux(int keyIndex, K newKey, int rangeIndex) { if (Elements[rangeIndex].LowIndex == keyIndex && Elements[rangeIndex].HighIndex == keyIndex) { Elements[rangeIndex].RangeMinimum = newKey; return true; } if (Elements[rangeIndex].RangeMinimum.CompareTo(newKey) > 0) { Elements[rangeIndex].RangeMinimum = newKey; } int midPoint = Elements[rangeIndex].LowIndex + (Elements[rangeIndex].HighIndex – Elements[rangeIndex].LowIndex) / 2; if (keyIndex <= midPoint) { return UpdateKeyAux(keyIndex, newKey, 2 * rangeIndex + 1); } else { return UpdateKeyAux(keyIndex, newKey, 2 * rangeIndex + 2); } } } } */ kT  
+Hi,
+I think this is incorrect.
+constructSTUtil(arr, 0, n-1, st, 0);
+ // Return the constructed segment tree
+    return st;
+
+
+This should do the job.
+st = constructSTUtil(arr, 0, n-1, st, 0);
+
+Please correct me else.
+
+Thanks
+ GeeksforGeeks Please take a closer look at the code. The recursive function constructSTUtil() returns the value of root (or sum of leaf nodes under it). st is a pointer to the constructed segment tree. kT Ok, yes. My bad! Vikas May you please give the code to implement segment tree to store intervals ? sreeram Yeah ..can you please provide that implementation also ? http://www.linkedin.com/in/ramanawithu Venki You are using 0th location also, so, left child is at 2*i+1 and right child at 2*i+2. If i is either left or right child location, parent is at i/2. Power function can be excluded with simple shift operation. GeeksforGeeks @Venki: Thanks for pointing this out. The line of explanation was for starting index 1 and code for starting index 0. We have updated the explanation to match with code. The code and other explanation remains same. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

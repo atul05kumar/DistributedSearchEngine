@@ -1,0 +1,485 @@
+How to check if a given point lies inside or outside a polygon? - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph How to check if a given point lies inside or outside a polygon? Given a polygon and a point ‘p’, find if ‘p’ lies inside the polygon or not. The points lying on the border are considered inside. We strongly recommend to see the following post first. How to check if two given line segments intersect? Following is a simple idea to check whether a point is inside or outside. 
+1) Draw a horizontal line to the right of each point and extend it to infinity
+
+1) Count the number of times the line intersects with polygon edges.
+
+2) A point is inside the polygon if either count of intersections is odd or
+   point lies on an edge of polygon.  If none of the conditions is true, then 
+   point lies outside. How to handle point ‘g’ in the above figure? Note that we should returns true if the point lies on the line or same as one of the vertices of the given polygon. To handle this, after checking if the line from ‘p’ to extreme intersects, we check whether ‘p’ is colinear with vertices of current line of polygon. If it is coliear, then we check if the point ‘p’ lies on current side of polygon, if it lies, we return true, else false. Following is C++ implementation of the above idea. 
+// A C++ program to check if a given point lies inside a given polygon
+// Refer http://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
+// for explanation of functions onSegment(), orientation() and doIntersect()
+#include <iostream>
+using namespace std;
+
+// Define Infinite (Using INT_MAX caused overflow problems)
+#define INF 10000
+
+struct Point
+{
+    int x;
+    int y;
+};
+
+// Given three colinear points p, q, r, the function checks if
+// point q lies on line segment 'pr'
+bool onSegment(Point p, Point q, Point r)
+{
+    if (q.x <= max(p.x, r.x) && q.x >= min(p.x, r.x) &&
+            q.y <= max(p.y, r.y) && q.y >= min(p.y, r.y))
+        return true;
+    return false;
+}
+
+// To find orientation of ordered triplet (p, q, r).
+// The function returns following values
+// 0 --> p, q and r are colinear
+// 1 --> Clockwise
+// 2 --> Counterclockwise
+int orientation(Point p, Point q, Point r)
+{
+    int val = (q.y - p.y) * (r.x - q.x) -
+              (q.x - p.x) * (r.y - q.y);
+
+    if (val == 0) return 0;  // colinear
+    return (val > 0)? 1: 2; // clock or counterclock wise
+}
+
+// The function that returns true if line segment 'p1q1'
+// and 'p2q2' intersect.
+bool doIntersect(Point p1, Point q1, Point p2, Point q2)
+{
+    // Find the four orientations needed for general and
+    // special cases
+    int o1 = orientation(p1, q1, p2);
+    int o2 = orientation(p1, q1, q2);
+    int o3 = orientation(p2, q2, p1);
+    int o4 = orientation(p2, q2, q1);
+
+    // General case
+    if (o1 != o2 && o3 != o4)
+        return true;
+
+    // Special Cases
+    // p1, q1 and p2 are colinear and p2 lies on segment p1q1
+    if (o1 == 0 && onSegment(p1, p2, q1)) return true;
+
+    // p1, q1 and p2 are colinear and q2 lies on segment p1q1
+    if (o2 == 0 && onSegment(p1, q2, q1)) return true;
+
+    // p2, q2 and p1 are colinear and p1 lies on segment p2q2
+    if (o3 == 0 && onSegment(p2, p1, q2)) return true;
+
+     // p2, q2 and q1 are colinear and q1 lies on segment p2q2
+    if (o4 == 0 && onSegment(p2, q1, q2)) return true;
+
+    return false; // Doesn't fall in any of the above cases
+}
+
+// Returns true if the point p lies inside the polygon[] with n vertices
+bool isInside(Point polygon[], int n, Point p)
+{
+    // There must be at least 3 vertices in polygon[]
+    if (n < 3)  return false;
+
+    // Create a point for line segment from p to infinite
+    Point extreme = {INF, p.y};
+
+    // Count intersections of the above line with sides of polygon
+    int count = 0, i = 0;
+    do
+    {
+        int next = (i+1)%n;
+
+        // Check if the line segment from 'p' to 'extreme' intersects
+        // with the line segment from 'polygon[i]' to 'polygon[next]'
+        if (doIntersect(polygon[i], polygon[next], p, extreme))
+        {
+            // If the point 'p' is colinear with line segment 'i-next',
+            // then check if it lies on segment. If it lies, return true,
+            // otherwise false
+            if (orientation(polygon[i], p, polygon[next]) == 0)
+               return onSegment(polygon[i], p, polygon[next]);
+
+            count++;
+        }
+        i = next;
+    } while (i != 0);
+
+    // Return true if count is odd, false otherwise
+    return count&1;  // Same as (count%2 == 1)
+}
+
+// Driver program to test above functions
+int main()
+{
+    Point polygon1[] = {{0, 0}, {10, 0}, {10, 10}, {0, 10}};
+    int n = sizeof(polygon1)/sizeof(polygon1[0]);
+    Point p = {20, 20};
+    isInside(polygon1, n, p)? cout << "Yes \n": cout << "No \n";
+
+    p = {5, 5};
+    isInside(polygon1, n, p)? cout << "Yes \n": cout << "No \n";
+
+    Point polygon2[] = {{0, 0}, {5, 5}, {5, 0}};
+    p = {3, 3};
+    n = sizeof(polygon2)/sizeof(polygon2[0]);
+    isInside(polygon2, n, p)? cout << "Yes \n": cout << "No \n";
+
+    p = {5, 1};
+    isInside(polygon2, n, p)? cout << "Yes \n": cout << "No \n";
+
+    p = {8, 1};
+    isInside(polygon2, n, p)? cout << "Yes \n": cout << "No \n";
+
+    Point polygon3[] =  {{0, 0}, {10, 0}, {10, 10}, {0, 10}};
+    p = {-1,10};
+    n = sizeof(polygon3)/sizeof(polygon3[0]);
+    isInside(polygon3, n, p)? cout << "Yes \n": cout << "No \n";
+
+    return 0;
+} Output: 
+No
+Yes
+Yes
+Yes
+No
+No Time Complexity: O(n) where n is the number of vertices in the given polygon. Source: http://www.dcs.gla.ac.uk/~pat/52233/slides/Geometry1x1.pdf Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: geometric algorithms, MathematicalAlgo Tweet Writing code in comment? Please use ideone.com and share the link here. Piyush what if segment joining point and extreme pass through the vertex ?. for e.g. if our polygon is Point polygon1[] = {{2,-2}, {4,0}, {2, 2}, {0, 0}}; and point is (2,0) it gives NO for that case. So condition for this case should be added. Prashanth Reddy Thanks for the info… akshat what if the coordinates are very large(order of 10^9) then the multiplication in the orientation method may lead to multiplication of 2 very large coordinates leading to result of a number of order of 10^18 which cannot be stored in long long int also. i tried to solve it by using the actual equation given in the slides i.e i actually calculated two slopes and subtracted them as follows ( y2-y1/x2-x1)-(y3-y2/x3-x2) but this sol’n is still not working maybe because slopes cannot be compared like this. please sort this out Deven Bhooshan There is a problem in the algorithm . Suppose that a point to be checked lies inside the polygon and passes through only one vertex then the above algorithm will fail. for example suppose there is a polygon having five vertices as following 0 0 0 4 4 2 1 1 1 0 Then if we check Points (1 2) (2 2) (3 2) above algorithm will not work. Nishchay Kala A bit of change is required in code, algorithm is correct though. Nice Observation Deven Bhooshan yup trying what abt the point which is inside the polygon but the ray passes through only one vertex then the algo will return outside because of even while it is inside. please check. GeeksforGeeks Thanks for pointing this out. We have added this condition to algorithm and code. trying what abt the point which is inside the polygon but the ray passes through only one vertex then the algo will return outside because of even while it is inside. please check. clotho How about a figure 8 polygon rotated 90 degrees? A line from a point to the right crosses 2 times and its in the second loop.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ badri For the first polygon , Point polygon1[] = {{0, 0}, {10, 0}, {10, 10}, {0, 10}}; say point p(-1,10) , the line intersects 3 times {10, 0} to {10, 10} , {10, 10}to {0, 10} , {0, 10} to {0, 0} , by the theorem if its odd then point lies inside the polygon , need to handle this case as well..  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks Thanks for pointing this out. We have made changes to handle this case. Now to handle all cases where a point is coliear with sides of polygon, we do following: If the point lies on the side, we return true, else false. We use onSegment() for checking whether the point lies or not. Keep it up! hh @geeksforgeeks : Your algorithm has bug. Consider a triangle and say point lie on one side of triangle .This point has two intersection points i.e. even so it should lie outside(acc. to your algo.) but it lie on the side i.e. inside. Please take a look at this.Thanks. kartik I don’t understand your question. How can a line from inside point to infinite can intersect with 2 sides of triangle. See following diagram for example. The line intersects only with one line. 
+
+
+         / \
+        / ..\........
+       /_____\ hh see diagram below: 
+        a
+       /\
+      ...\.....
+     /    \
+    /      \
+    --------
+   b         c here point lie on side ab of triangle and it intersect triangle at two points(on side ab and ac). kartik Thanks for providing this case. I think, we should check for onSegment rather than same point. Following is updated code. We will soon update the post with this code.  
+// Returns true if the point p lies inside the polygon[] with n vertices
+bool isInside(Point polygon[], int n, Point p)
+{
+    // There must be at least 3 vertices in polygon[]
+    if (n < 3)  return false;
+
+    // Create a point for line segment from p to infinite
+    Point extreme = {INF, p.y};
+
+    // Count intersections of the above line with sides of polygon
+    int count = 0, i = 0;
+    do
+    {
+        if (doIntersect(polygon[i], polygon[(i+1)%n], p, extreme))
+        {
+            if (onSegment(polygon[i], p, polygon[(i+1)%n]))
+                return true;
+            count++;
+        }
+        i = (i + 1)%n;
+    } while (i != 0);
+
+    // Return true if count is odd, false otherwise
+    return count&1;  // Same as (count%2 == 1)
+}
+ GeeksforGeeks @hh: We have updated the code to handle the cases where point lies on a side of polygon. Keep it up! mohit bool onSegment(Point p, Point q, Point r) { if (q.x = min(p.x, r.x) && q.y = min(p.y, r.y)) return true; return false; } this is wrong . consider (1,2) , (2,4) , (4,5) are not collinear best way can be to check area of triangle = 0 of 3 points then 3 points are collinear  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik Take a closer look at the usage and working of onSegment(p, q, r). This is used when we have already checked if the three points are colinear. In this function, we only want to check if q lies on segment pr or not. Chaitanya I think the best solution would be, Draw two line from the given point 1 Horizontal & 1 Vertical. Considering given point as origin , all 4 lines originating from the origin should have minimum 1 intersect with the polygon.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik This will not work. Consider the diagram of inside example. If we put a point where “Inside example” is written, the lines passing through point will intersect, but point is not inside. Chaitanya only 3 out of 4 lines will get intersect if the point is outside in the case of “inside example”. for point to be inside, all 4 lines originating from that point should have minimum 1 intersect to polygon.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Chaitanya @Kartik In case of Inside Example, if you draw a point outside polygon, then there wont be any case in which all the 4 lines originating from the point intersect a polygon at least a single time. In fact I didnt find any case. Please help me if u find any :S  
+/* Paste your code here (You may delete these lines if not writing code) */
+ bit_cracker007 Input 1: 3 // no of points 1 1 2 4 2 3 2 2 // x,y coordinates of point to check for inside or outside Input 2: 5 2 1 8 1 11 4 8 7 2 7 10 2 Output must be : 1> Inside 2> Outside But above code produces: 1> Outside 2> Outside kartik I draw a diagram for your first test case. The point (2, 2) seems to be the outside the triangle formed by (1, 1), (2, 4) and (2, 3). bit_cracker007 That was a typo, check for the below one: 3 1 1 2 3 2 1 2 2 GeeksforGeeks Thanks for providing this case. This seems to have happened due to integer overflow. If we replace INT_MAX with 200 or some other big number that doesn’t cause overflow, we get the correct output. We will update the post soon. http://in.linkedin.com/in/hiteshdholaria Hitesh Here’s another algorithm for the same purpose of checking whether the candidate point lies inside the given polygon or not. Taking a small example for better understanding the algorithm used in the code: (1) Suppose, we are given 4 polygon points in clockwise order : A, B, C, D (2) Selected candidate point is : P (3) Say, ABC = angle made by the line segments AB and BC (4) Consider the following 4 conditions ( 1 condition per each polygon angle ) : (a) ABC >= ABP && ABC >= CBP (b) BCD >= BCP && BCD >= DCP (c) CDA >= CDP && CDA >= ADP (d) DAB >= DAP && DAB >= BAP (5) If all the above conditions hold good, then the candidate point P is lying inside the polygon ABCD (6) Otherwise, point P is lying outside the polygon ABCD — Have a look at the implementation as per above algorithm ( example ) :  
+import java.util.*;
+
+class Point {
+	
+	private float x;
+	private float y;
+
+	public Point( ) {
+
+	}
+
+	public Point( float x, float y ) {
+
+		this.x = x;
+		this.y = y;
+
+	}
+
+	public float getX( ) {
+
+		return x;
+
+	}
+
+	public float getY( ) {
+
+		return y;
+
+	}
+
+	public void setX( float x ) {
+
+		this.x = x;
+
+	}
+
+	public void setY( float y ) {
+
+		this.y = y;
+
+	}
+
+	public void print( ) {
+
+		System.out.print( "(" + x + ", " + y + ") " );
+
+	}
+
+	public void println( ) {
+
+		System.out.println( "(" + x + ", " + y + ")" );
+
+	}
+
+	public String toString( ) {
+
+		return "(" + x + ", " + y + ")";
+
+	}
+
+	public Point clone( ) {
+
+		return ( new Point( x, y ) );
+
+	}
+
+}
+
+public class PointInsidePolygon {
+
+	// Check whether the first argument value lies between the other two argument values
+
+	public static boolean isBetween( float a, float b, float c ) {
+
+		if( ( b <= a && a <= c ) || ( c <= a && a <= b ) ) {
+
+			return true;
+
+		}
+
+		return false;
+	}
+
+
+	// Check whether the point A lies in between the argument points B & C
+
+	// Return true, if the point A lies inside the the imaginary rectangle, which is parallel to both the axis and drawn taking the points B and C as the opposite corner points
+
+	public static boolean isBetween( Point a, Point b, Point c ) {
+
+		if( isBetween( a.getY( ), b.getY( ), c.getY( ) ) && isBetween( a.getX( ), b.getX( ), c.getX( ) ) ) {
+
+			return true;
+
+		}
+
+		return false;
+
+	}
+
+	// Calculate the slope of the line AB
+
+	public static float slope( Point a, Point b ) {
+
+		if( a.getX( ) == b.getX( ) ) {
+
+			return Float.POSITIVE_INFINITY;
+
+		}
+
+		return ( ( a.getY( ) - b.getY( ) ) / ( a.getX( ) - b.getX( ) ) );
+	}
+
+	public static float distance( Point a, Point b ) {
+
+		return ( ( float ) Math.sqrt( ( a.getX( ) - b.getX( ) ) * ( a.getX( ) - b.getX( ) ) + 
+
+						( a.getY( ) - b.getY( ) ) * ( a.getY( ) - b.getY( ) ) ) );
+
+	}
+
+	// Check whether the argument points are co-linear or not
+
+	public static boolean areColinear( Point a, Point b, Point c ) {
+
+		if( arePointsEqual( a, b ) || arePointsEqual( a, c ) || arePointsEqual( b, c ) || 
+
+			( slope( a, b ) == slope( a, c ) ) ) {
+
+			return true;
+
+		}
+
+		return false;
+	}
+
+	// Check whether the argument points have the same co-ordinates or not
+
+	public static boolean arePointsEqual( Point a, Point b ) {
+
+		if( ( a.getX( ) == b.getX( ) ) && 
+			( a.getY( ) == b.getY( ) ) ) {
+
+			return true;
+
+		}
+
+		return false;
+	}
+
+	// Find an angle (in degree) between the lines AB and BC
+
+	public static float angle( Point a, Point b, Point c ) {
+
+		if( !areColinear( a, b, c ) && distance( a, b ) > distance( b, c ) ) {
+
+			// Swap the roles
+
+			Point t = a;
+			a = new Point( c.getX( ), c.getY( ) );
+			c = t;
+
+		}
+
+		if( areColinear( a, b, c ) ) {
+
+			// Handle various orientations of the co-linear points
+
+			if( arePointsEqual( a, b ) || arePointsEqual( a, c ) || arePointsEqual( b, c ) ) {
+
+				return 0;
+
+			} else if( isBetween( b, a, c ) ) {
+
+				return 180;
+
+			} else {
+
+				return 0;
+
+			}
+		}
+
+		float m = slope( b, c );
+
+		Point p = new Point( );		// Projection point on the line BC
+
+		// Handle zero-slope projection line
+
+		if( m == Float.POSITIVE_INFINITY ) {
+
+			p.setX( b.getX( ) );
+
+			p.setY( a.getY( ) );
+
+		} else {
+
+			p.setX( ( m * a.getY( ) +  a.getX( ) + m * m * b.getX( ) - m * b.getY( ) ) / ( 1 + m * m ) );
+
+			p.setY( m * p.getX( ) - m * b.getX( ) + b.getY( ) );
+
+		}
+
+		// Now, projection point is determined
+
+		// Handle different test cases
+
+		if( arePointsEqual( p, b ) ) {
+
+			return 90;
+
+		} else if ( isBetween( p, b, c ) ) {
+
+			return ( ( float ) ( Math.atan( distance( a, p ) / distance( b, p ) ) * 180 / Math.PI ) );
+
+		} else {
+
+			return ( ( float ) ( ( Math.PI - Math.atan( distance( a, p ) / distance( b, p ) ) ) * 180 / Math.PI ) );
+
+		}
+
+	}
+
+	public static boolean isPointInsidePolygon( Point p, LinkedList <Point> points ) {
+
+		// Handle special case
+
+		if( points.size( ) < 3 ) {
+
+			return false;
+
+		}
+		
+		// Indices of the current angle points
+
+		int i;
+		int j;
+		int k;
+
+		// Current angle points
+
+		Point a = null;
+		Point b = null;
+		Point c = null;
+		
+		for( i = 0; i < points.size( ); i++ ) {
+
+			j = ( i + 1 ) % points.size( );
+			k = ( i + 2 ) % points.size( );
+
+			a = points.get( i );
+			b = points.get( j );
+			c = points.get( k );
+
+			// If the argument point p is found to be outside of any of the corner angles,
+			// then it is outside of the convex-hull polygon
+
+			if( ( angle( a, b, c ) < angle( a, b, p ) ) || ( angle( a, b, c ) < angle( c, b, p ) ) ) {
+				
+				return false;
+
+			}
+
+		}
+		return true;
+
+	}
+
+	public static void main( String[ ] args ) {
+
+		// Create a linked list of the polygon points by adding them as per either clockwise or counter-clockwise order
+
+		LinkedList <Point> points = new LinkedList <Point> ( );
+
+		points.add( new Point( 0, 9 ) );
+		points.add( new Point( 2, 1 ) );
+		points.add( new Point( 4, 0 ) );
+		points.add( new Point( 8, 6 ) );
+		points.add( new Point( 2, 9 ) );
+
+		Point p = new Point( 7, 4 );
+
+		System.out.println( isPointInsidePolygon( p, points ) );
+
+	}
+
+}
+ sniper What if the ray passes through two vertex of the polygon. This corner case needs to be handled properly. GeeksforGeeks @sniper: Please take a closer look. If the horizontal line from p to infinite passes through two vertices, then number of intersections would be 4 which is even. As a side note, if the point is same as one of the vertices, then we immediately return true. sreeni You might want to update the line: q.y = min(r.y, r.y)) to q.y = min(p.y, r.y)) GeeksforGeeks @sreeni: Thanks for pointing this out. We have updated the code. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

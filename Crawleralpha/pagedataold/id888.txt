@@ -1,0 +1,437 @@
+Rearrange positive and negative numbers in O(n) time and O(1) extra space - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Rearrange positive and negative numbers in O(n) time and O(1) extra space An array contains both positive and negative numbers in random order. Rearrange the array elements so that positive and negative numbers are placed alternatively. Number of positive and negative numbers need not be equal. If there are more positive numbers they appear at the end of the array. If there are more negative numbers, they too appear in the end of the array. For example, if the input array is [-1, 2, -3, 4, 5, 6, -7, 8, 9], then the output should be [9, -7, 8, -3, 5, -1, 2, 4, 6] The solution is to first separate positive and negative numbers using partition process of QuickSort. In the partition process, consider 0 as value of pivot element so that all negative numbers are placed before positive numbers. Once negative and positive numbers are separated, we start from the first negative number and first positive number, and swap every alternate negative number with next positive number. 
+// A C++ program to put positive numbers at even indexes (0, 2, 4,..) 
+// and negative numbers at odd indexes (1, 3, 5, ..)
+#include <stdio.h>
+
+// prototype for swap
+void swap(int *a, int *b);
+
+// The main function that rearranges elements of given array.  It puts 
+// positive elements at even indexes (0, 2, ..) and negative numbers at 
+// odd indexes (1, 3, ..).
+void rearrange(int arr[], int n)
+{
+    // The following few lines are similar to partition process
+    // of QuickSort.  The idea is to consider 0 as pivot and
+    // divide the array around it.
+    int i = -1;
+    for (int j = 0; j < n; j++)
+    {
+        if (arr[j] < 0)
+        {
+            i++;
+            swap(&arr[i], &arr[j]);
+        }
+    }
+
+    // Now all positive numbers are at end and negative numbers at
+    // the beginning of array. Initialize indexes for starting point
+    // of positive and negative numbers to be swapped
+    int pos = i+1, neg = 0;
+
+    // Increment the negative index by 2 and positive index by 1, i.e.,
+    // swap every alternate negative number with next positive number
+    while (pos < n && neg < pos && arr[neg] < 0)
+    {
+        swap(&arr[neg], &arr[pos]);
+        pos++;
+        neg += 2;
+    }
+}
+
+// A utility function to swap two elements
+void swap(int *a, int *b)
+{
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+// A utility function to print an array
+void printArray(int arr[], int n)
+{
+    for (int i = 0; i < n; i++)
+        printf("%4d ", arr[i]);
+}
+
+// Driver program to test above functions
+int main()
+{
+    int arr[] = {-1, 2, -3, 4, 5, 6, -7, 8, 9};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    rearrange(arr, n);
+    printArray(arr, n);
+    return 0;
+}
+ Output:     4   -3    5   -1    6   -7    2    8    9 Time Complexity: O(n) where n is number of elements in given array. Auxiliary Space: O(1) Note that the partition process changes relative order of elements. This article is compiled by Abhay Rathi. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above. If you like GeeksforGeeks and would like to contribute, you can also write an article and mail your article to contribute@geeksforgeeks.org. See your article appearing on the GeeksforGeeks main page and help other Geeks.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. Mudit Tanwar my code runs on any input ……………… plss comment if any input fails my code….. void fun(int arr[],int end) { int temp,j=0,i,prev; i=j+1; while(i<end) { if(arr[j] 0) { temp=arr[j]; arr[j]=arr[i]; arr[i]=temp; prev=j; j++; i++; } else { i++; } } else { prev=j; j++; i++; } } prev=prev+1; i=0; while(arr[i] >0 && prev <end) { if(arr[i+1] <0) break; temp=arr[i+1]; arr[i+1]=arr[prev]; arr[prev]=temp; prev++; i=i+2; } } cooldude without changing order inplace conversion o(n2) public int[] putAlternatePositiveNegativeInplace(int[] input) { for(int i=0;i<input.length;i++) { if(i%2==0 && input[i]<0) { int j; for(j=i+1;j=0) break; } if(j==input.length) return input; int temp=input[j]; for(int k=j;k>=i+1;k–) { input[k]=input[k-1]; } input[i]=temp; } else if(i%2!=0 && input[i]>=0) { int j; for(j=i+1;j<input.length;j++) { if(input[j]=i+1;k–) { input[k]=input[k-1]; } input[i]=temp; } } return input; } puneet /*Another Solution with the driver. Does not require partitioning like we do in Quick Sort*/ public class Alternate { void alt(int arr[]) { int i; for (i = 0; i < arr.length; i++) { if ((i % 2 == 0) && (arr[i] 0)) swapWithNeg(arr, i); } } void swapWithPos(int[] arr, int i) { for (int j = i + 1; j 0) swap(arr, i, j); return; } void swapWithNeg(int[] arr, int i) { for (int j = i + 1; j < arr.length; j++) { if (arr[j] < 0) swap(arr, i, j); } return; } void swap(int[] arr, int i, int j) { arr[i] = arr[i] + arr[j]; arr[j] = arr[i] – arr[j]; arr[i] = arr[i] – arr[j]; } public static void main(String[] args) { Alternate a = new Alternate(); int[] arr = { -1, 2, -3, 4, 5, 6, -7, -8, 9 }; // int[] arr = { 1, 2, 3, 4, 5, 6, 7,8}; //int[] arr = {-1,-2,-3}; a.alt(arr); for (int i = 0; i < arr.length; i++) System.out.println(arr[i]); } } sambhavsharma Looks good. Can you please explain the approach? Shradha Agrawal void Alternate(int arr[], int n) { int pos = 0, neg = 1; while(pos <n && neg < n) { while(pos 0) pos+=2; while(neg<n && arr[neg] < 0) neg += 2; if(pos < n && neg <n && arr[pos]<arr[neg]) { int temp = arr[pos]; arr[pos] = arr[neg]; arr[neg] = temp; } } } devC# static void arrayswap(ref int[] arr, int idx1, int idx2) { int temp = arr[idx1]; arr[idx1] = arr[idx2]; arr[idx2] = temp; } static void Arrange(ref int[] arr) { if (arr == null || arr.Length = 0) ? false : true; while (readIdx < arr.Length && writeIdx = 0) || (!isPositive && arr[writeIdx] = 0) || (!isPositive && arr[readIdx] < 0)) { arrayswap(ref arr, writeIdx, readIdx); writeIdx++; isPositive = !isPositive; } else { readIdx++; } } } dev c# Correction : we need to make sure that the readIdx is not less the writeIdx so at the end of the while loop if(readIdx < writeIdx) { readIdx = writeIdx; } Balthazar A solution with complexity O(n) and Space O(1) This solution is a better version of the quick sort method #include<iostream> using namespace std; int main() { int i,*p; p=new int(); cout<<"Enter the array\n"; for(i=0;i<6;i++) { cin>>p[i]; } cout<<"you entered:"<<endl; for(i=0;i<6;i++) { cout<<p[i]<<endl; } int ne,pe,s,temp; s=0; ne=pe=5; while(s<6) { pe=ne=5; while(p[pe]<0) { if(pe<1) break; pe–; } while(p[ne]>0) { if(ne<1) break; ne–; } if(s%2==0) { if(p[s]<0) { temp=p[s]; p[s]=p[pe]; p[pe]=temp; if(pe>ne) ne=pe; else if(pe>0) pe–; } else { } } else { if(p[s]<0) { } else { temp=p[s]; p[s]=p[ne]; p[ne]=temp; if(ne>pe) ne=pe; else if(ne>0) ne–; } } s++; } cout<<"\n\nANswer:"<<endl; for(i=0;i<6;i++) { cout<<p[i]<<endl; } return 0; } qsn I am assuming this question is from here http://www.geeksforgeeks.org/amazon-interview-set-35/ One part of the question is not mentioned here “Note the order of negative and positive elements should be same in the modified array”. I think if this condition is added then the solution does not work any more Guest Can be done using a nested loop that is only intialised once. Rajesh public static void main(String[] args) { int[] values = { -1, 2, -3, 4, -5, 6, -7, -8, 9,-40,-2,20 }; for (int i = 1; i < values.length; i++) { int index=-1; for (int j = (i+1); j < values.length; j++) { if (values[i-1] > 0) { if (values[j] < 0) { index=j; break; } } else { if (values[j] > 0) { index=j; break; } } } if(index==-1){ break; } values[i]=values[i]+values[index]; values[index]=values[i]-values[index]; values[i]=values[i]-values[index]; } for(int val:values){ System.out.print(val+","); } } kaushik sahu time complexity : O(n) space complexity : O(1)  
+#include<stdio.h>
+#include<conio.h>
+#define len sizeof(a)/sizeof(a[0])
+
+void print_alternate(int a[],int size)
+{
+    int i=0,j=0,k;
+    int b[size];
+ 
+    for(i=0;i<size;i++)
+    {
+        if(a[i] < 0)
+            b[j++] = a[i];                
+    }
+    k = j;
+   
+    for(i=0;i<size;i++)
+    {
+        if(a[i] >= 0)
+            b[j++] = a[i];     
+    }
+    
+    for(i=0,j=k+1;j<size && i<=k;i++,j++)
+        printf(" %d %d",b[i],b[j]);
+    for(;i<=k;i++)
+        printf(" %d",b[i]); 
+    for(;j<size;j++)
+        printf(" %d",b[j]);  
+    
+}
+int main()
+{
+    int a[] = {-1,2,3,-4,6,7,-9,9};
+    print_alternate(a,len);
+    
+    getch();
+    return 0;
+}
+ Kaushik Sahu  
+#include<stdio.h>
+#include<conio.h>
+#define len sizeof(a)/sizeof(a[0])
+
+void print_alternate(int a[],int size)
+{
+    int i=0,j=0,k;
+    int b[size];
+ 
+    for(i=0;i<size;i++)
+    {
+        if(a[i] < 0)
+            b[j++] = a[i];                
+    }
+    k = j;
+   
+    for(i=0;i<size;i++)
+    {
+        if(a[i] >= 0)
+            b[j++] = a[i];     
+    }
+    
+    for(i=0,j=k+1;j<size && i<=k;i++,j++)
+        printf(" %d %d",b[i],b[j]);
+    for(;i<=k;i++)
+        printf(" %d",b[i]); 
+    for(;j<size;j++)
+        printf(" %d",b[j]);  
+    
+}
+int main()
+{
+    int a[] = {-1,2,3,-4,6,7,-9,9};
+    print_alternate(a,len);
+    
+    getch();
+    return 0;
+} Praneeth   /* Paste your code here (You may delete these lines if not writing code) */ // rearrange negative and positive integers , same can be used for 0s and 1s public static void one(int[] arr){ System.out.println(“Before : ” + Arrays.toString(arr)); int index = 0; for(int i = 0; i<arr.length; i++){ if(arr[i] == 0){ // for 0s and 1s case //if(arr[i] < 0){ // for negative and positive integers case int temp = arr[i]; arr[i] = arr[index]; arr[index] = temp; index++; } } System.out.println("After : " + Arrays.toString(arr)); } http://shashank7android@gmail.com Shashank How about this http://ideone.com/s8GzX4 #Self Explanatory Feel free to ping me if any thing wrong or need explanation , finally improvement will be welcome. Thanks atulkumar4568@gmail.com Take arry size flexible as size = sizeof(arry) / sizeof(arry0) Then check all input cases i think it fails at some occassion atulkumar4568@gmail.com This algo fails at many occassion As e.g Input int arry[] = {2, -87, -98, -65, 76, -32, 89}; output 76 -98 2 -32 89 -65 -87 GeeksforGeeks Please take a closer look at the problem statement. The output is correct for given input. atulkumar4568@gmail.com problem doesn’t clear meaning of more CASE 1: if there are n +ve number and n-1 -ve number then we can exactly alternate the nums CASE2 if there are n or more +ve and n-2 -ve num or vice versa then we can’t do exact alternate So for the given input no_of_negtive_element = no_of_positive_element +1 ,so it should exactly alternate the num Antony //Objective : to maintain even indexes(0,2,4..) with +ve values and odd indexes (1,3,5..) with -ve values //Invariants: // i – index whose value is evaluated // j – always points to a +ve value;swaps with ‘i’ if ‘i’s value has to be +ve // k – always points to a -ve value;swaps with ‘i’ if ‘i”s value has to be -ve // indexes less than ‘i’ are corrected ordered. //Having these invariants will naturally solve the problem. static void Main() { int[] array = new int[] { -1, 2, -3, 4, 5, 6, -7, 8, 9 }; //int[] array = new int[] {-1,-2,-3,-4,4,5,6}; int j=1;//+ve int k = array.Length-1;//-ve for(int i=0; i< array.Length ; i++) { if ((i % 2 == 0 && array[i] > 0) || (i % 2 != 0 && array[i] < 0)) continue; if (j < i) j = i; if(k < i) k = i; while (j < array.Length && array[j] < 0) j++; while(k < array.Length && array[k] > 0) k++; if(i % 2 == 0) { if(j < array.Length) Swap(array, i, j); } else { if(k < array.Length) Swap(array, i, k); } } Array.ForEach<int>(array, (e) => { Console.WriteLine(e); }); } static void Swap(int[] array, int i, int j) { int temp = array[i]; array[i] = array[j]; array[j] = temp; } abhishek08aug Intelligent  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Alex Goryainov The idea is to have two index functions p(x) if x > 0 and n(x) if x 0 (= source.length when it switches to consume indexes counting them down from the tail of array, and that may happen only for positive or negative values, so one counter for such case is enough. Here functions p(.) and n(.) are simple index counters. Original algorithm is correct but worse due to O(2*n) complexity, regardless asymptotically O(2*n) = O(n), additionally it does useless partitioning of the array, making each element be swapped several time, from this perspective it’s even worse than O(2*n).  
+public static int setAndGet(int[] source, int index, int newValue) {
+        int result = source[index];
+        source[index] = newValue;
+        return result;
+    }
+
+public static void rearrange(int[] source) {
+
+        if (source == null || source.length == 0) {
+            return;
+        }
+
+        int positive = 0;
+        int negative = 0;
+        int end = source.length;
+
+        int current = setAndGet(source, 0, 0);
+        for (;;) {
+            if (current > 0 && 2 * positive < end) {
+                current = setAndGet(source, 2 * positive++, current);
+            } else if (current > 0) {
+                current = setAndGet(source, --end, current);
+            } else if (current < 0 && 2 * negative + 1 < end) {
+                current = setAndGet(source, 2 * negative++ + 1, current);
+            } else if (current < 0) {
+                current = setAndGet(source, --end, current);
+            }
+            if (current == 0 && Math.min(2 * positive, 2 * negative + 1) < end) {
+                // cycle ends while mapping indexes, starting new cycle
+                current = setAndGet(source, Math.min(2 * positive, 2 * negative + 1), 0);
+            } else if (current == 0) {
+                return;
+            }
+        }
+    }
+ vishnuvardhan.2005  
+/* Paste your code here (You may delete these lines if not writing code) */
+// +ve and -ve numbers are arranged alternatively
+void reArrange(int* a,int n)
+{
+    // with 0 as pivot, sort all the elements
+    int val=0;
+    int p=0;
+    int q=n-1;
+
+    while(q>=p)
+    {
+        while(val > a[p]) p++;
+        while(val < a[q]) q--;
+        if(q>p)
+            swap(a[p],a[q]);
+    }
+    // q points to number which is less than pivot(0)
+    // So the next element is a positive number
+    q++; // now it pointing to 1st +ve number
+    p=1;
+
+    while(q<n && p<n)
+    {
+        swap(a[p],a[q]);
+        p+=2;
+        q++;
+    }
+}
+ Prateek Sharma  
+def sortByNumbers(a):
+    posList= []
+    negList =[]
+    allList =[]
+    for i in a:
+        if i<0:
+            negList.append(i)
+        else:
+            posList.append(i)
+    if len(posList)> len(negList):
+        n = len(posList)-len(negList)
+        for i in range(len(negList)):
+            allList.append(posList[i])
+            allList.append(negList[i])
+        for j in range(i+1,i+n+1):
+            allList.append(posList[j])
+    else:
+        n = len(negList)-len(posList)
+        for i in range(len(posList)-1):
+            allList.append(posList[i])
+            allList.append(negList[i])
+        for j in range(i,i+n):
+            allList.append(negList[i])
+    print allList        
+            
+           
+                        
+def main():
+    array =[-3,-4,5,6,7,8,-8,-1,3]
+    sortByNumbers(array)
+if __name__ == '__main__':
+    main()
+ SudhindraA Problem has to be coded with time complexity O(N) and space complexity O(1). Your code’s space complexity is O(N). CODER_1 Hello Geeks , i have some confusion about the code given in the 1st answer . our target is rearrange the +ve n -ve numbers ..? Note :not thinking abt the order of the given numbers . Then there is no need to rearrange the +ve and – ve numbers in the second loop only change the condition . ie if(a[j] > 0) instead of of(a[j] Thanks. CodeLover There is no problem with the logic and code. It works fine.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ CODER_1 @codeLover: My comment is code is 100% right but i am telling that if we change that condition then there is no need to rearrange the +ve and -ve numbers. my suggestion is as follow :  
+void rearrange(int arr[], int n)
+{
+    // The following few lines are similar to partition process
+    // of QuickSort.  The idea is to consider 0 as pivot and
+    // divide the array around it.
+    int i = -1;
+    for (int j = 0; j < n; j++)
+    {
+        if (arr[j] > 0)
+        {
+            i++;
+            swap(&arr[i], &arr[j]);
+        }
+    }
+
+/*no need to do following if change the above condition.
+*/
+}
+ Nirdesh I think you didn’t read the problem statement correctly.Its about rearrange +ve & -ve no alternately NOT first all +ve and all -ve. numid  
+/* Paste your code here (You may delete these lines if not writing code) */
+//what about this?No extra swapping required..
+
+#include<stdio.h>
+
+int main()
+{
+    int i,j,N,temp;
+    char want;
+    int arr[]={1,2,-3,-4,5,-6,7,-8,9};
+    N=9;i=0;j=N-1;
+    want='+';
+    while(i<j)
+    {
+              if(arr[i]<0 && want=='+')
+              {
+                          while(arr[j]<0)
+                          {
+                                         if(j<0)
+                                                break;
+                                         j--;
+                          }
+                          if(arr[j]>0)
+                          {
+                                      temp=arr[i];
+                                      arr[i]=arr[j];
+                                      arr[j]=temp;
+                          }
+                          want='-';
+                          i++;
+              }
+              else if(arr[i]>0 && want=='-')
+              {
+                          while(arr[j]>0)
+                          {
+                                         if(j<0)
+                                                break;
+                                         j--;
+                          }
+                          if(arr[j]<0)
+                          {
+                                      temp=arr[i];
+                                      arr[i]=arr[j];
+                                      arr[j]=temp;
+                          }
+                          want='+';
+                          i++;
+              }
+              else
+              {
+                  if(want=='+')
+                               want='-';
+                  else
+                               want='+';
+                  i++;
+              }
+    }        
+    //print the array....
+    
+    for(i=0;i<N;i++)
+                    printf("%d    ",arr[i]);
+    getch();
+    return 0;
+    
+}                                                 
+                          
+
+ sean shouldn’t post be +=2 below?  
+        pos++;
+        neg += 2;
+ sean typo, i mean “pos” var ravisingh3531 O(n) solution without extra space  
+#include <stdio.h>
+#define MX 9
+int main()
+{
+	int array[MX]={-1, 2, -3, 4, 5, 6, -7, 8, 9};
+	int index,temp;
+	int setindex;
+	int flag = 0;
+	for(index = MX-1 ; index>=0;index--)
+	{
+		if(flag == 0)
+		{
+			if(array[index] > 0)
+			{
+				setindex = index;
+				flag = 1;
+			}
+		}
+		else
+		{
+			if(array[index] < 0)
+			{
+				temp = array[setindex];
+				array[setindex] = array[index];
+				array[index] = temp;
+				setindex--;
+			}
+		}
+	}
+	
+	for(index =0;index < MX;index++)
+	{
+		if(index == 1)
+		{
+			setindex = index;
+		}
+		
+		if(array[index] < 0 && array[setindex] > 0)
+		{
+			temp = array[setindex];
+			array[setindex] = array[index];
+			array[index] = temp;
+			setindex = setindex + 2;
+		}
+			
+	}
+	
+	for(index =0;index < MX;index++)
+	{
+		printf("%d ", array[index]);
+	}
+	return 0;
+}
+			
+	
+ kartik Thanks for sharing the code. Could you explain approach used in ur code? ammy i think the approach is similar to partition of quick-sort and then rearranging..similar to the given approach Rahul In the following loop while (pos < n && neg < pos && arr[neg] < 0) we can remove 3rd statemetn as neg to pos all will be negative And can be modified as:- while (pos < n && neg < pos ) Correct me if m wrng SudhindraA I agree with Rahul here. Why cant we remove the 3rd statement in the condition? M  
+
+import java.util.Arrays;
+
+
+public class AlternatePositiveNegative {
+    public static void main(String[] args) {
+        int[] array = {-1, 2, -3, 4, 5, 6, -7, 8, 9};
+        int idx1=0;
+        int idx2=0;
+        int flagbit = 0;
+        while(idx2<array.length-1){
+        if(flagbit==0){
+            if(array[idx1]<0){
+                idx1++;
+                idx2++;
+                flagbit=1;
+            }
+            else if(array[idx2]<0){
+            array[idx1]=array[idx1]^array[idx2];
+            array[idx2]=array[idx1]^array[idx2];
+            array[idx1]=array[idx1]^array[idx2];
+            idx1++;
+            idx2++;
+            flagbit=1;
+            }
+        }
+        if(flagbit==1){
+            if(array[idx1]>0){
+                idx1++;
+                flagbit=0;
+            }
+            else if(array[idx2]>0){
+            array[idx1]=array[idx1]^array[idx2];
+            array[idx2]=array[idx1]^array[idx2];
+            array[idx1]=array[idx1]^array[idx2];
+            idx1++;
+            flagbit=1;
+            }
+        }
+        idx2++;
+        }
+        System.out.println(Arrays.toString(array));
+    }
+}
+
+ neha Is this statement correct For example, if the input array is [-1, 2, -3, 4, 5, 6, -7, 8, 9], then the output should be [9, -7, 8, -3, 5, -1, 2, 4, 6] Because AFAI see it the output at the end is different Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

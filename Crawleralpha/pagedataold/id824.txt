@@ -1,0 +1,374 @@
+Find the two repeating elements in a given array - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find the two repeating elements in a given array You are given an array of n+2 elements. All elements of the array are in range 1 to n. And all elements occur once except two numbers which occur twice. Find the two repeating numbers. For example, array = {4, 2, 4, 5, 2, 3, 1} and n = 5 The above array has n + 2 = 7 elements with all elements occurring once except 2 and 4 which occur twice. So the output should be 4 2. Method 1 (Basic) Use two loops. In the outer loop, pick elements one by one and count the number of occurrences of the picked element in the inner loop. This method doesn’t use the other useful data provided in questions like range of numbers is between 1 to n and there are only two repeating elements. 
+#include<stdio.h>
+#include<stdlib.h>
+void printRepeating(int arr[], int size)
+{
+  int i, j;
+  printf(" Repeating elements are ");
+  for(i = 0; i < size; i++)
+    for(j = i+1; j < size; j++)
+      if(arr[i] == arr[j])
+        printf(" %d ", arr[i]);
+}     
+
+int main()
+{
+  int arr[] = {4, 2, 4, 5, 2, 3, 1};
+  int arr_size = sizeof(arr)/sizeof(arr[0]);  
+  printRepeating(arr, arr_size);
+  getchar();
+  return 0;
+}
+ Time Complexity: O(n*n) Auxiliary Space: O(1) Method 2 (Use Count array) Traverse the array once. While traversing, keep track of count of all elements in the array using a temp array count[] of size n, when you see an element whose count is already set, print it as duplicate. This method uses the range given in the question to restrict the size of count[], but doesn’t use the data that there are only two repeating elements. 
+#include<stdio.h>
+#include<stdlib.h>
+
+void printRepeating(int arr[], int size)
+{
+  int *count = (int *)calloc(sizeof(int), (size - 2));
+  int i;
+  
+  printf(" Repeating elements are ");
+  for(i = 0; i < size; i++)
+  {  
+    if(count[arr[i]] == 1)
+      printf(" %d ", arr[i]);
+    else
+     count[arr[i]]++;
+  }    
+}     
+
+int main()
+{
+  int arr[] = {4, 2, 4, 5, 2, 3, 1};
+  int arr_size = sizeof(arr)/sizeof(arr[0]);  
+  printRepeating(arr, arr_size);
+  getchar();
+  return 0;
+}
+ Time Complexity: O(n) Auxiliary Space: O(n) Method 3 (Make two equations) Let the numbers which are being repeated are X and Y. We make two equations for X and Y and the simple task left is to solve the two equations. We know the sum of integers from 1 to n is n(n+1)/2 and product is n!. We calculate the sum of input array, when this sum is subtracted from n(n+1)/2, we get X + Y because X and Y are the two numbers missing from set [1..n]. Similarly calculate product of input array, when this product is divided from n!, we get X*Y. Given sum and product of X and Y, we can find easily out X and Y. Let summation of all numbers in array be S and product be P X + Y = S – n(n+1)/2 XY = P/n! Using above two equations, we can find out X and Y. For array = 4 2 4 5 2 3 1, we get S = 21 and P as 960. X + Y = 21 – 15 = 6 XY = 960/5! = 8 X – Y = sqrt((X+Y)^2 – 4*XY) = sqrt(4) = 2 Using below two equations, we easily get X = (6 + 2)/2 and Y = (6-2)/2 X + Y = 6 X – Y = 2 Thanks to geek4u for suggesting this method. As pointed by Beginer , there can be addition and multiplication overflow problem with this approach. The methods 3 and 4 use all useful information given in the question 
+#include<stdio.h>
+#include<stdlib.h>
+#include<math.h>
+
+/* function to get factorial of n */
+int fact(int n);
+
+void printRepeating(int arr[], int size)
+{
+  int S = 0;  /* S is for sum of elements in arr[] */
+  int P = 1;  /* P is for product of elements in arr[] */  
+  int x,  y;   /* x and y are two repeating elements */
+  int D;      /* D is for difference of x and y, i.e., x-y*/
+  int n = size - 2,  i;
+
+  /* Calculate Sum and Product of all elements in arr[] */
+  for(i = 0; i < size; i++)
+  {
+    S = S + arr[i];
+    P = P*arr[i];
+  }        
+  
+  S = S - n*(n+1)/2;  /* S is x + y now */
+  P = P/fact(n);         /* P is x*y now */
+  
+  D = sqrt(S*S - 4*P); /* D is x - y now */
+  
+  x = (D + S)/2;
+  y = (S - D)/2;
+  
+  printf("The two Repeating elements are %d & %d", x, y);
+}     
+
+int fact(int n)
+{
+   return (n == 0)? 1 : n*fact(n-1);
+}    
+
+int main()
+{
+  int arr[] = {4, 2, 4, 5, 2, 3, 1};
+  int arr_size = sizeof(arr)/sizeof(arr[0]);  
+  printRepeating(arr, arr_size);
+  getchar();
+  return 0;
+}
+ Time Complexity: O(n) Auxiliary Space: O(1) Method 4 (Use XOR) Thanks to neophyte for suggesting this method. The approach used here is similar to method 2 of this post. Let the repeating numbers be X and Y, if we xor all the elements in the array and all integers from 1 to n, then the result is X xor Y. The 1’s in binary representation of X xor Y is corresponding to the different bits between X and Y. Suppose that the kth bit of X xor Y is 1, we can xor all the elements in the array and all integers from 1 to n, whose kth bits are 1. The result will be one of X and Y. 
+void printRepeating(int arr[], int size)
+{
+  int xor = arr[0]; /* Will hold xor of all elements */
+  int set_bit_no;  /* Will have only single set bit of xor */
+  int i;
+  int n = size - 2;
+  int x = 0, y = 0;
+  
+  /* Get the xor of all elements in arr[] and {1, 2 .. n} */
+  for(i = 1; i < size; i++)
+    xor ^= arr[i];  
+  for(i = 1; i <= n; i++)
+    xor ^= i;   
+
+  /* Get the rightmost set bit in set_bit_no */
+  set_bit_no = xor & ~(xor-1);
+
+  /* Now divide elements in two sets by comparing rightmost set
+   bit of xor with bit at same position in each element. */
+  for(i = 0; i < size; i++)
+  {
+    if(arr[i] & set_bit_no)
+      x = x ^ arr[i]; /*XOR of first set in arr[] */
+    else
+      y = y ^ arr[i]; /*XOR of second set in arr[] */
+  }
+  for(i = 1; i <= n; i++)
+  {
+    if(i & set_bit_no)
+      x = x ^ i; /*XOR of first set in arr[] and {1, 2, ...n }*/
+    else
+      y = y ^ i; /*XOR of second set in arr[] and {1, 2, ...n } */
+  }
+  
+  printf("\n The two repeating elements are %d & %d ", x, y);
+}     
+
+
+int main()
+{
+  int arr[] = {4, 2, 4, 5, 2, 3, 1};
+  int arr_size = sizeof(arr)/sizeof(arr[0]);  
+  printRepeating(arr, arr_size);
+  getchar();
+  return 0;
+}
+ Method 5 (Use array elements as index) Thanks to Manish K. Aasawat for suggesting this method. 
+Traverse the array. Do following for every index i of A[].
+{
+check for sign of A[abs(A[i])] ;
+if positive then
+   make it negative by   A[abs(A[i])]=-A[abs(A[i])];
+else  // i.e., A[abs(A[i])] is negative
+   this   element (ith element of list) is a repetition
+}
+ 
+Example: A[] =  {1, 1, 2, 3, 2}
+i=0; 
+Check sign of A[abs(A[0])] which is A[1].  A[1] is positive, so make it negative. 
+Array now becomes {1, -1, 2, 3, 2}
+
+i=1; 
+Check sign of A[abs(A[1])] which is A[1].  A[1] is negative, so A[1] is a repetition.
+
+i=2; 
+Check sign of A[abs(A[2])] which is A[2].  A[2] is  positive, so make it negative. '
+Array now becomes {1, -1, -2, 3, 2}
+
+i=3; 
+Check sign of A[abs(A[3])] which is A[3].  A[3] is  positive, so make it negative. 
+Array now becomes {1, -1, -2, -3, 2}
+
+i=4; 
+Check sign of A[abs(A[4])] which is A[2].  A[2] is negative, so A[4] is a repetition.
+ Note that this method modifies the original array and may not be a recommended method if we are not allowed to modify the array. 
+#include <stdio.h>
+#include <stdlib.h>
+
+void printRepeating(int arr[], int size)
+{
+  int i;  
+ 
+  printf("\n The repeating elements are");
+  
+  for(i = 0; i < size; i++)
+  {
+    if(arr[abs(arr[i])] > 0)
+      arr[abs(arr[i])] = -arr[abs(arr[i])];
+    else
+      printf(" %d ", abs(arr[i]));
+  }         
+}     
+
+int main()
+{
+  int arr[] = {1, 3, 2, 2, 1};
+  int arr_size = sizeof(arr)/sizeof(arr[0]);
+  printRepeating(arr, arr_size);
+  getchar();
+  return 0;
+}
+ The problem can be solved in linear time using other method also, please see this and this comments Please write comments if you find the above codes/algorithms incorrect, or find better ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. nathan nice solutions smith #include void swap(int *a,int *b) { int t=*a; *a=*b; *b=t; } int obs(int x) { return x>0?x:-x; } void find(int *,int ); int main() { int arr[]={3,0,4,0,1,2,3,5}; int n=sizeof(arr)/sizeof(arr[0]); find(arr,n); } void find(int *arr,int size) { int j=size-1;while(arr[j]==0)j–;int i=0; while(i0){ arr[obs(arr[i])]=-arr[obs(arr[i])]; } else if(arr[obs(arr[i])]<0) { printf("%d ",obs(arr[i])); } i++; } if(j==size-3)printf("0"); } suggest me some test cases if i m wrong.. smith n fifth method,how to solve if 0 is present in array? smith in fifth method,how to solve if 0 is present in array? GCODE Elements must be from 0 to n-1 in that case,to use array as index. jasleen In the second method, whenever we refer to count[a[i]], count[a[i]-1] should be used, else it won’t work for the case where nth element is repeated. Correct me if I’m wrong.. sonali gupta #include #include int main() { int a[] = {4, 2, 4, 5, 2, 3, 1},i ,b[10]; for(i=0;i< =6;i++) b[i]=0; for(i=0;i<=6;i++) b[a[i]]++; for(i=0;i<=6;i++) {if(b[i]>1) printf(“%d “,i); } getch(); return 0; } Vikas Gupta This is same as method 2. vikasnitt  
+/* Paste your code here (You may delete these lines if not writing code) */
+ shahid Rauf hey can u send me solution of this task: if we take 3*3 array and take number by rand()%8 and store these number into 3*3 array and than chack repeated number and romove of these number and add again non repeated number into this array[3][3] please send me complete code in c language on this ID: shahidrauf.141@gmail.com sonali gupta  
+/* Paste your code here (You may delete these lines if not writing code) */
+ #include #include int main() { int a[] = {4, 2, 4, 5, 2, 3, 1},i ,b[10]; for(i=0;i< =6;i++) b[i]=0; for(i=0;i<=6;i++) b[a[i]]++; for(i=0;i<=6;i++) {if(b[i]>1) printf(“%d “,i); } getch(); return 0; } krishnx  
+#include<iostream>
+#include<map>
+
+using namespace std;
+
+void findRepeatingElements(int a[], int);
+
+int main()
+{
+	int a[] = {4, 2, 4, 5, 2, 3, 1};
+	int length = sizeof(a)/sizeof(a[0]);
+	
+	findRepeatingElements(a, length);
+	
+	return 0;
+}
+
+void findRepeatingElements(int a[], int length)
+{
+	map<int, int> kcs;
+	map<int, int>::iterator it;
+	
+	for(int i=0; i<length; i++) 
+	{
+		if(kcs.find(a[i]) ==  kcs.end())
+			kcs[a[i]] = 1;
+		else 
+			kcs[a[i]]++;
+	}
+	
+	for(it=kcs.begin(); it != kcs.end(); it++)
+	{
+		if(it->second > 1)
+		{
+			cout << "Element " << it->first << " occured " << it->second << " times\n";
+		}			
+	} 
+}
+ nathan in method 5, what if the duplicate repeat 3 times or more, the same result will be printed more than one time, right???  
+/* Paste your code here (You may delete these lines if not writing code) */
+ sush 2nd method will give wrong output for case {5, 2, 4, 5, 2, 3, 1} size of count array should be ‘size-1′ instead of ‘size-2′ Rajath With the below input I am getting ans as 7 and 3 3, 4, 2, 3, 4, 6,1 Where is it goign wrong ? Steve Input:{5,3,4,2,2,1,1} Can you explain the answer like you did for the example in case 5 aa @acolyte : can u further explain ur cycle detection algorithm to find duplicates using linked lists… Sourabh Goyal In method 5 suppose array A has 10 elements indexed form 0 to 9,then if values of A[i] are large say A[i]=9999,then size of array A must be atleast the maximum of all values stored in the array. This becomes almost similar to solving the problem with hashing in O(n) time. Varadharajan The neophyte method works awesome!!!! Good use of xor logic Great… http://www.ssiddique.info Shahid Hi , In step “i=3 ; list now becomes {-1,-1,2,3,2} and A[3] is not repeated now list becomes {-1,-1,-2,3,2}” according to you i= 3 and a[a[3]] is nagative so it should be repeated?? Actually I got the solutions but I think there is some mistake in this step.. GeeksforGeeks @Shahid: The explanation was correct, but it was following the convention that array indexes start from 1. We have modified the example to make more comprehensive. Now indexes start from 0. Let us know if you still have doubts. Bala Suppose if i have an array like this Arr={100,2,1,4,5}. Here when i=0, arr[arr[0]] = arr[100] = ? total size of the array here is only 5. we will get array index out of bound exception rite? GeeksforGeeks Please take a closer look at the problem statement. It is an invalid input. akshaybhogra I dont understand how the following line works in method 4 /* Get the rightmost set bit in set_bit_no */ set_bit_no = xor & ~(xor-1); Vijay Ekkaladevi Why not insert the array elements into a binary search tree, during the insertion if the node value matches the array element repeating element is caught. It works for characters as well.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks Thanks for suggesting a new method. This method works. The worst case time complexity of this method is O(nLogn) (if we use self balancing BST). Time complexity is better than method 1. The other methods work in O(n) though. alaska i still don’t get what two numbers can be used to identify and element GeeksforGeeks @alaska: Try to run it for some examples and add some printf statements to see intermediate values, and it will all make sense to you. We have also improved the language of the method to make it more comprehensive. jigard i have done simple python implementation of this problem def two_reapeat(list): k = [1 for i in range(max(list)+1)] for i in list: if(k[i] == -1): print “Rapeated number”,i else: k[i]= -k[i] Swaroop S = S – n*(n+1)/2; /* S is x + y now */ P = P/fact(n); /* P is x*y now */ D = sqrt(S*S – 4*P); /* D is x – y now */ Can someone explain how to understand the equation for the variable “D”? I am finding difficult to understand this. Adam Chu x+y=S x*y=P D^2 = (x-y)^2 = x^2+y^2-2*x*y = (x+y)^2 – 4*x*y = S*S -4*P D = sqrt(S*S-4*P) Swaroop Thanks Adam. mahe Method two is modified to terminate the loop if required two numbser are identified. So that unwanted execution of loop will be avoided  
+void printRepeating(int arr[], int size) 
+{  
+	int *count = (int *)calloc(sizeof(int), (size - 2)); 
+	int i, j=0;  
+
+	printf(" Repeating elements are ");   
+
+	for(i = 0; i < size; i++)
+	{  
+		if(count[arr[i]] == 1) 
+		{	
+			printf(" %d ", arr[i]); 
+		}
+		else    
+
+		{	
+			count[arr[i]] = 1;  
+			++j;
+
+			if ( 2 == j)
+			{
+				/*Terminate the loop if 2 duplicates numbers are identifed*/
+				break;
+				
+			}
+		} 
+	} 
+
+int main() 
+{ 
+	int arr[] = {4, 2, 4, 5, 2, 3, 1};
+
+	int arr_size = sizeof(arr)/sizeof(arr[0]); 
+
+	printRepeating(arr, arr_size);   
+
+	getchar();
+
+	return 0;
+}
+ Nishant check method 4 for following input {3,1,2,4,8,6,5,7,8,10,13,9,11,14,12,18,16,17,12,15} http://www.linkedin.com/in/ramanawithu Venki Thanks @Nishant, there is an error in the code. We will correct it. The first for loop should start at 1, in lieu of 0, as the variable xor already holds a[0] element. http://www.linkedin.com/in/ramanawithu Venki Method 1 complexity to be n2. poonam  
+class Program
+    {
+        static void Main(string[] args)
+        {
+            Program p = new Program();
+            int[] nArray = { 4, 2, 4, 5, 2, 3, 1 };
+            p.FindTwoRepeatingElement(nArray);
+            Console.ReadLine();
+            
+        }
+
+        public void FindTwoRepeatingElement(int[] nPlus2)
+        {
+            int[] countArray = new int[nPlus2.Length - 2];
+
+            for (int i = 0; i < nPlus2.Length; i++)
+            {
+                if (countArray[nPlus2[i]-1] == 1)
+                {
+                    Console.WriteLine(nPlus2[i]);
+                }
+                else
+                {
+                    countArray[nPlus2[i]-1]++;
+                }
+            }
+
+        }
+    }
+ GeeksforGeeks @poonam: Thanks for sharing code. Could you please add few word about the approach used in the program? Ravi If the value is not set(for the corresponding index in the array), set it… if it is already set, return as repeated GeeksforGeeks @Ravi: This method looks same as Method 2 given in the post. Ravi yeah… but i merely explained the logic… poonam I am using “countArray[nPlus2[i]-1]” so that it wont show u array out of bound error….. Logic is:- if size of array is say n+2=7 so the size of count array will be 5(length-2). but as array starts from 0,1,2,3,4. So as per Method 2 it will give error arr[i]=5..like count[arr[i]]=count[5]…but count array size is upto 4 not 5…it give u error…. To avoid that i have substracted 1 from the index of count array. I hope u guys can understand it now… Thanks sandy I am NOT sure somebody have suggested this method..  
+int arr[9] = {1,7, 9,10,4,5,4,8,9};
+	int asize = sizeof(arr)/sizeof(arr[0]);
+	int i,j;
+
+	for (i=0;i<asize;i++)
+	{
+		for (j=(i+1);j<asize;j++)
+		{
+			if ( (arr[i] - arr[j]) == 0)
+			{
+				printf("\nthe repeated element is in %d and %d position, "
+                                       " the number is %d", i,j, arr[j]);
+			}
+
+		}
+	}
+ GeeksforGeeks @sandy: This method is same as Method 1 of the post. Prateek Caire here is another O(n) solution  
+TRE()
+	for each i from 0 to n-1
+		while(a[i] != i+1)
+			if(a[i] != a[a[i]-1])
+				swap(i, a[i]-1)
+			else
+				print a[i]
+				a[i] = -1
+				break
+ GeeksforGeeks @Prateek Caire: Please check if your method works for the input given by Jason Huang below. We had a similar method earlier and it didn’t word for the above mentioned input. Shashank Mani Narayan last method using arr[arr[i] is not good solution @ all try fro this array …..plz correct geeksforgeek admin{13, 13, 12, 12, 1}; GeeksforGeeks @Shashank Mani Naraya: Please take a closer look at the problem statement. The given array doesn’t seem to be a valid input. Ravi the problem statement says “all the elements are in range 1 to n” but not “all elements from 1 to n are present”, so method 3 doesn’t work for Shashank mani narayan’s input. correct me if im wrong http://www.cse.iitk.ac.in/users/chitti mccarthy @Ravi: In the problem,it was asked that the length of the array is (n+2)..So it’s invalid input Nishant Agarwal Method 2 will not work for arr[] = {4, 2, 5, 5, 2, 3, 1} since a[5] is garbage in this case….. If we take count array of the size (n-1) i.e. 0 to 5 (in above case) then it will work correctly…. Nishant Agarwal oh sorry count[5] will be garbage…..not a[5]… gauravs In the method 4 we initialize int xor = arr[0]; and in the loop we are writing for(i = 0; i < size; i++) xor ^= arr[i]; but arr[0] is Xor-ed twice in the above procedure (which i think should not be done) The correct answer is coming when we loop through the first element i.e. i = 0 to n-1. But i can't understand the logic.. Please help Sunil Hi Gourav, We should initialize xor=0 OR we should do xor = a[0]^a[1] and then in the next loop we should go for(i=2; i<n; i++) …. http://knkhadanga.blogspot.com/ knkhadanga Sort the elements in Array using the best sorting algorithm. Then traverse the array. if(array[i]==array[i+1]) then the element is repeating. (Avoid null pointer exception) Khadu It can be done in following way too. Sort the Array using the best sorting algorithm. Then traverse the array. if(array[i]==array[i+1]) then the element is repeating. sagar aswani  
+#include
+
+using namespace std;
+
+int main()
+{
+    int B[7]={1,2,3,4,5,4,2};
+    int A[6]={0,0,0,0,0,0};
+
+    for(int i=0;i<7;i++)
+        {
+            A[B[i]]++;
+            if(A[B[i]]==2)
+            cout<<"\nOne of the repeated number is "<<B[i];
+        }
+     return 0;
+    }
+ Venki We can make use of bit matrix. Set all bits to zeros at start and logically mark them as 1 to N+2. Scan the array and toggle corresponding bit. Again scan the bit matrix for ‘0’ whose place value represents the repeated element. Let us array is quite large. A bit matrix will be optimum solution. Its time complexity falls under O(n) and space complexity falls to O(N/sizeof(int)*8). Venki Sorry the required bit matrix array size is (N+2)/(bits per machine word) Prashant Rai here u r taking the value of array B as a index of array A, it will fail if we replace 2 numbers in the array with 2 digits number (e.g. replace 4 with 44). sagar aswani There can be another method to it as follows: We know that the numbers are from 1 to n So make an another array A[n+1] and initializes all the element to zero and don’t use A[0]; Now we are left with A[1] to A[n]; Traverse the array and whatever you are getting the number correspondingly increment the index in Array A by 1 i.e. if you are getting 4 as a number then increment A[4] by 1; so if array B is{4,3,2,1,5,4,2} then A={0,1,2,1,2,1} i.e. index 2 and 4 are having value 2 so print these index as answers   ronnie What if in the array you have a value 100 but you don’t have an array of size 100 so where will you place that element?? You only have an array of size n. Sagar Aswani But in question it is given that the value ranges from 1 to n ,so if 100 is there in array then it must be <=n,and i am creating the array of n+1 size so that definitely will take care of that. seeker7 hey,can ny elaborate on neophyte’s method ,by citing an eg. Jason Huang Method 5 (Use Swap) is wrong. Counter example: {2, 3, 4, 5, 6, 7, 8, 11, 10, 11, 12, 9, 1, 2}; Expected output: 2, 11 Actual output: 2, 3 GeeksforGeeks Thanks for pointing this out. We have removed the swap method from the original post. Saravanan Mani In method 3, we can find XY by using another simple equation. Sum of Squares of N natural numbers is (n(n+1)(2n+1))/6 So X2+Y2 = S2 – (n(n+1)(2n+1))/6 we already know X+Y (X+Y)2= X2+Y2+2XY we can find 2XY from the above two equations. This method eliminates the multiplication overflow. acolyte Another solution is to use cycle detection. Treat the array like the linked list which node i points to the node array[i]. Consider the first n elements in array, their links will be either a loop (no duplication in it) or a lollipop (duplication in it). Use two pointers to traverse from the (n+1)th element with different speed, we will find a duplication. (If the problem contains only n+1 elements and 1 duplicated number, then we are done) Having one duplicated number, we can use the xor operation to find X xor Y and get another duplicated number. GeeksforGeeks @neophyte & @dynamic: Thanks for suggesting the new methods. We have included the methods to the original post. Keep it up! Anonymous I had found another solution. http://blog.computationalcomplexity.org/2005/03/finding-duplicates.html In the first comment of this post. Imagine the array as linked list and find the cycle in it. As long as finding one of X and Y, since X xor Y is known, we could find the answers. dynamic Traverse through the array, and do the following: 1) if (arr[index] == index), then do nothing 2) if (arr[index] != index), put arr[index] in its correct place by doing a swap. Repeat the above process once again(these steps have to be followed twice). Now the last 2 elements of the array are the ones which are repeated. Time Complexity : O(n) Space Complexity : O(1) Nik This is also a good solution indeed! Anonymous Traverse the array and do A[abs(A[i])] = -A[abs(A[i])]. Finally, the index i with positive A[i] is the answer. If the array is modifiable, there are many tricks to solve it.. kapil Can you please explain your approach for the array {1, 1, 2, 3, 2}, like what would be the contents after doing A[abs(A[i])] = -A[abs(A[i])) Anonymous It will become {1, 1, -2, 3, 2}. Since array[1] and array[2] is positive, the answers are 1 and 2. (Although array[4] and array[5] are positive, but they are greater than n = 3.) Manish K. Aasawat One better solution , while modification of list is allowed , is :–  
+traverse the list for i= 1st to n+2 elements
+{
+check for sign of A[abs(A[i])] ; 
+if positive then 
+   make it negative by   A[abs(A[i])]=-A[abs(A[i])];
+else  // i.e., A[abs(A[i])] is negative 
+   this   element (ith element of list) is a repetition
+}
+ E.g., {1,1,2,3,2} i=1 ; A[abs(A[1])] i.e,A[1] is positive ; so make it negative ; so list now is {-1,1,2,3,2} i=2 ; A[abs(A[2])] i.e., A[1] is negative ; so A[i] i.e., A[2] is repeatation now list is {-1,1,2,3,2} i=3 ; list now becomes {-1,-1,2,3,2} and A[3] is not repeated now i=4 ; list becomes {-1,-1,-2,3,2} and A[4]=3 is not repeated i=5 ; we find A[abs(A[i])] = A[2] is negative so A[i]= 2 is a repeatation ; ssp hey dude.. have you assumed that this solution holds good if the array is a sorted array… does is work for 2, 2, 1, 3, 1 warm regards. ssp Frodo Baggins @Manish K. Aasawat Awesome dude , inplace marking and we can get back the original array also , works for more than 2 repeating numbers also eugene von I just don’t understand the following: i=3 ; list now becomes {-1,-1,2,3,2} and A[3] is not repeated now according to you solution, A[3] should be 2, so A[abs(A[i])] should be A[2] which is negative, how can you get the answer?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ eugene von suppose I have 1,1,5,3,2 i=3;A[5] is 2 so you make it -2. i=5;A[2] is -1, it’s negative? Rajath Here we may have to care of size of array as well. Because if we array {10, 1, 2, 2} then a[10] will give arrayoutofboundexception. Or else we may have to dynamically resize array which is not good solution.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ada magic…it works…but why? I don’t understand… Can you please explain? spandan can anybody give an example to explain @dynamics method algomad @Dynamic – Can you explain this with the help of example nt arr[] = {4, 2, 4, 5, 2, 3, 1};. As the solution seems to be incorrect… hash_fun @dynamic -can you please explain the swapping in your pseudo code ? crazy good one…! neophyte You can use the xor operation. Let the repeating numbers be X and Y, if we xor all the elements in the array and all integers from 1 to n, then the result is X xor Y. The 1’s in binary representation of X xor Y is corresponding to the different bits between X and Y. Suppose that the kth bit of X xor Y is 1, we can xor all the elements in the array and all integers from 1 to n, whose kth bits are 1. The result will be one of X and Y. The same trick can solve n+3 elements with 3 repeating numbers. Anurag Sharma Wao! great solution indeed sameer Read XOR operator first. It says two same numbers give ZERO as result. XORing of all elements of array won’t give you X XOR Y. This question is not about asking you to find out two distinct numbers in an array where other numbers are in pairs means duplicates. @Authors, Please post solution only after analyzing the given sols. Thanks! GeeksforGeeks @sameer: Take a closer look at the solutions suggested by @neophyte. It works!!. It does XOR of all array elements and numbers 1 to n. For example if array is {4, 2, 4, 5, 3, 3, 1, 6} then we get XOR as. XOR = (4^2^4^5^3^3^1^6)^(1^2^3^4^5^6) which is equilant to 3^4 (XOR of the two repeating elements). Now we can pick a set bit in the XOR and find out the repeating elements by making two sets. sameer Gotcha My bad ! didn’t have closer look at sols.Now It looks perfectly fine to me. Thumbs up dude! Rajath With the below input I am getting ans as 7 and 3 3, 4, 2, 3, 4, 6,1 In XOR method Where is it goign wrong ? Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

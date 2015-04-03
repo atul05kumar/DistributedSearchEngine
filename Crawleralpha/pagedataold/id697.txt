@@ -1,0 +1,131 @@
+Construct a tree from Inorder and Level order traversals - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Construct a tree from Inorder and Level order traversals Given inorder and level-order traversals of a Binary Tree, construct the Binary Tree. Following is an example to illustrate the problem. 
+Input: Two arrays that represent Inorder
+       and level order traversals of a 
+       Binary Tree
+in[]    = {4, 8, 10, 12, 14, 20, 22};
+level[] = {20, 8, 22, 4, 12, 10, 14};
+
+Output: Construct the tree represented 
+        by the two arrays.
+        For the above two arrays, the 
+        constructed tree is shown in 
+        the diagram on right side
+ We strongly recommend to minimize the browser and try this yourself first. The following post can be considered as a prerequisite for this. Construct Tree from given Inorder and Preorder traversals Let us consider the above example. in[] = {4, 8, 10, 12, 14, 20, 22}; level[] = {20, 8, 22, 4, 12, 10, 14}; In a Levelorder sequence, the first element is the root of the tree. So we know ’20’ is root for given sequences. By searching ’20’ in Inorder sequence, we can find out all elements on left side of ‘20’ are in left subtree and elements on right are in right subtree. So we know below structure now. 
+             20
+           /    \
+          /      \ 
+ {4,8,10,12,14}  {22}   
+ Let us call {4,8,10,12,14} as left subarray in Inorder traversal and {22} as right subarray in Inorder traversal. In level order traversal, keys of left and right subtrees are not consecutive. So we extract all nodes from level order traversal which are in left subarray of Inorder traversal. To construct the left subtree of root, we recur for the extracted elements from level order traversal and left subarray of inorder traversal. In the above example, we recur for following two arrays. 
+// Recur for following arrays to construct the left subtree
+In[]    = {4, 8, 10, 12, 14}
+level[] = {8, 4, 12, 10, 14} Similarly, we recur for following two arrays and construct the right subtree. 
+// Recur for following arrays to construct the right subtree
+In[]    = {22}
+level[] = {22} Following is C++ implementation of the above approach. 
+/* program to construct tree using inorder and levelorder traversals */
+#include <iostream>
+using namespace std;
+
+/* A binary tree node */
+struct Node
+{
+    int key;
+    struct Node* left, *right;
+};
+
+/* Function to find index of value in arr[start...end] */
+int search(int arr[], int strt, int end, int value)
+{
+    for (int i = strt; i <= end; i++)
+        if (arr[i] == value)
+            return i;
+    return -1;
+}
+
+// n is size of level[], m is size of in[] and m < n. This
+// function extracts keys from level[] which are present in
+// in[].  The order of extracted keys must be maintained
+int *extrackKeys(int in[], int level[], int m, int n)
+{
+    int *newlevel = new int[m], j = 0;
+    for (int i = 0; i < n; i++)
+        if (search(in, 0, m-1, level[i]) != -1)
+            newlevel[j] = level[i], j++;
+    return newlevel;
+}
+
+/* function that allocates a new node with the given key  */
+Node* newNode(int key)
+{
+    Node *node = new Node;
+    node->key = key;
+    node->left = node->right = NULL;
+    return (node);
+}
+
+/* Recursive function to construct binary tree of size n from
+   Inorder traversal in[] and Level Order traversal level[].
+   inSrt and inEnd are start and end indexes of array in[]
+   Initial values of inStrt and inEnd should be 0 and n -1.
+   The function doesn't do any error checking for cases
+   where inorder and levelorder do not form a tree */
+Node* buildTree(int in[], int level[], int inStrt, int inEnd, int n)
+{
+
+    // If start index is more than the end index
+    if (inStrt > inEnd)
+        return NULL;
+
+    /* The first node in level order traversal is root */
+    Node *root = newNode(level[0]);
+
+    /* If this node has no children then return */
+    if (inStrt == inEnd)
+        return root;
+
+    /* Else find the index of this node in Inorder traversal */
+    int inIndex = search(in, inStrt, inEnd, root->key);
+
+    // Extract left subtree keys from level order traversal
+    int *llevel  = extrackKeys(in, level, inIndex, n);
+
+    // Extract right subtree keys from level order traversal
+    int *rlevel  = extrackKeys(in + inIndex + 1, level, n-inIndex-1, n);
+
+    /* construct left and right subtress */
+    root->left = buildTree(in, llevel, inStrt, inIndex-1, n);
+    root->right = buildTree(in, rlevel, inIndex+1, inEnd, n);
+
+    // Free memory to avoid memory leak
+    delete [] llevel;
+    delete [] rlevel;
+
+    return root;
+}
+
+/* Uti;ity function to print inorder traversal of binary tree */
+void printInorder(Node* node)
+{
+    if (node == NULL)
+       return;
+    printInorder(node->left);
+    cout << node->key << " ";
+    printInorder(node->right);
+}
+
+/* Driver program to test above functions */
+int main()
+{
+    int in[]    = {4, 8, 10, 12, 14, 20, 22};
+    int level[] = {20, 8, 22, 4, 12, 10, 14};
+    int n = sizeof(in)/sizeof(in[0]);
+    Node *root = buildTree(in, level, 0, n - 1, n);
+
+    /* Let us test the built tree by printing Insorder traversal */
+    cout << "Inorder traversal of the constructed tree is \n";
+    printInorder(root);
+
+    return 0;
+}
+ Output: Inorder traversal of the constructed tree is
+4 8 10 12 14 20 22 An upper bound on time complexity of above method is O(n3). In the main recursive function, extractNodes() is called which takes O(n2) time. The code can be optimized in many ways and there may be better solutions. Looking for improvements and other optimized approaches to solve this problem. This article is contributed by Abhay Rathi. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. alien nice solution disqus_0z6aYV2hDC For lines: root->left = buildTree(in, llevel, inStrt, inIndex-1, n); root->right = buildTree(in, rlevel, inIndex+1, inEnd, n); The last argument, ‘n’ is the size of the level order array passed. But llevel and rlevel both are less than ‘n’, won’t we get array out of bounds error in the calls? Gaurav Here is N^2 algo that I developed. Space Complexity N public class BuildATree { int in[] = { 4, 8, 10, 12, 14, 20, 22 }; int level[] = { 20, 8, 22, 4, 12, 10, 14 }; private HashMap map = new HashMap(); private Node root; class Node { int data; Node left; Node right; public Node(int data) { this.data = data; } } public void startBuildingTree() { for (int i = 0; i < in.length; i++) { map.put(in[i], i); } for (int i = 0; i < level.length; i++) { insert(level[i]); } } void insert(int data) { if (root == null) { root = new Node(data); return; } Node n = root; int index = map.get(data); while (true) { int i = map.get(n.data); if (index i) { if (n.right != null) { n = n.right; } else { n.right = new Node(data); return; } } } } public void travarse() { travarse(root); } public void travarse(Node n) { if (n == null) { return; } travarse(n.left); System.out.print(” ” + n.data); travarse(n.right); } } Gaurav here is the code http://ideone.com/NCpOWN Gaurav Gulzar http://ideone.com/CLC9VI Isha Some part of the code is not displayed properly in the comment box and I am not able to change that. GeeksforGeeks Isha, we have removed the previous comment. Could you please post the code on ideone.com and share the link here? Isha Here is the link: http://ideone.com/WxZurW Isha We can do it in O(n^2) time complexity and O(n) space complexity. Algorithm: We create three queues, one will store the tree nodes and other will store the starting index and the ending index of the range(as derived from inorder array) for that node. For ex: int in[] = {4, 8, 10, 12, 14, 20, 22}; int lev[] = {20, 8, 22, 4, 12, 10, 14}; For root, 20 starting index will be 0 and ending index will be 6. For node 8 the staring index will be 0 and the ending index will be 4, likewise. So basically range of a node N implies the index range in inorder traversal which contains all the nodes in the left and right subtree of that node N. First we create the root(lev[0]) and then push it in the queue for tree node, and we push its range in the respective queues. Then we move to the next element in the level order array and check if this value lies in the range of the node that is at the rear of the queue. IF it does then we create the tree node corresponding to this value and make this node the left/right child depending on its positioning before/after the root’s value in the given range. If this node was the right child of the root(node at the rear of the queue) then we popup the root from the queue as we have completed the creation of its child. We push the child node in the queue along with its range in the respective queue. If the next element dint lie in the range of the root node(node at the rear of the queue) then we simply pop-out that root node from the queue (node at the rear of the queue) and check for the next node in the queue if the element of lev[] array lies in its range or not. We do this till the queue is empty or we have reached the end of lev[] array. Since all the nodes are pushed in the queue once and for each node in the queue we search for its left child and then its right child in the range provided for that node so there will be at max 2*n traversal for each node. Hence time complexity will be O(n^2). Here is the code: #include #include using namespace std; struct btree{ int data; struct btree *left; struct btree *right; }; struct treeNode{ struct btree *root; struct treeNode *next; }; struct node{ int data; struct node *next; }; struct queueTreeNode{ struct treeNode *front,*rear; }; struct queueNode{ struct node *front,*rear; }; void pushTreeNode(struct queueTreeNode *q, struct btree *n) { struct treeNode *tn=(struct treeNode*)malloc(sizeof(struct treeNode)); tn->root=n; if(q->front==NULL) { q->front=q->rear=tn; return; } q->front->next=tn; q->front=tn; return; } void pushNode(struct queueNode *q, int data) { struct node *n=(struct node *)malloc(sizeof(struct node)); n->data=data; if(q->front==NULL) { q->front=q->rear=n; return; } q->front->next=n; q->front=n; return; } struct btree* popTreeNode(struct queueTreeNode *q) { struct treeNode *tn=q->rear; struct btree *root= tn->root; if(q->front==q->rear) { q->front=q->rear=NULL; free(tn); return root; } q->rear=q->rear->next; free(tn); return root; } struct btree* getRearTreeNode(struct queueTreeNode *q) { struct treeNode *tn=q->rear; struct btree *root= tn->root; return root; } int getRearNode(struct queueNode *q) { struct node *n=q->rear; int data= n->data; return data; } int popNode(struct queueNode *q) { struct node *n=q->rear; int data= n->data; if(q->front==q->rear) { q->front=q->rear=NULL; free(n); return data; } q->rear=q->rear->next; free(n); return data; } bool isEmptyQueueTreeNode(struct queueTreeNode *q) { return q->front==NULL?true:false; } bool isEmptyQueueNode(struct queueNode *q) { return q->front==NULL?true:false; } struct btree *newBtreeNode(int data) { struct btree *root=(struct btree*)malloc(sizeof(struct btree)); root->left=root->right=NULL; root->data=data; return root; } struct queueNode *initializeQueueNode() { struct queueNode *q=(struct queueNode*)malloc(sizeof(struct queueNode)); q->front=q->rear=NULL; return q; } struct queueTreeNode *initializeQueueTreeNode() { struct queueTreeNode *q=(struct queueTreeNode*)malloc(sizeof(struct queueTreeNode)); q->front=q->rear=NULL; return q; } /* We are searching in the inorder array if the nxtElement appears in the given range. We store the index of its occurrence in variable childIndex. We also take note of index of the root data to check if the nxtElement is the left or right child of the root. IF there isnt any occurrence of nxtElement in the range then childIndex will be -1. */ void search(int in[],int rootData,int nxtElement, int leftRange,int rightRange,int *rootIndex, int *childIndex) { int i; for(i=leftRange;i<=rightRange;i++) { if(rootData==in[i]) { *rootIndex=i; } else if(nxtElement==in[i]) { *childIndex=i; } } return; } struct btree* constructTreeLevelInorder(int lev[], int in[], int n) { struct btree *root, *head; int i=1, rootIndex,childIndex, nxtElement; struct queueNode *qLeftRange=initializeQueueNode(); struct queueNode *qRightRange=initializeQueueNode(); struct queueTreeNode *qTreeNode=initializeQueueTreeNode(); head=newBtreeNode(lev[0]); pushTreeNode(qTreeNode,head); pushNode(qLeftRange,0); pushNode(qRightRange,n-1); while(!isEmptyQueueTreeNode(qTreeNode) && idata,nxtElement, leftRange,rightRange,&rootIndex, &childIndex); // cout<data: “<data<<" nxtElement: "<<nxtElement<<" leftRange: "<<leftRange<<" rightRange: "<<rightRange<<" rootIndex: "<<rootIndex<<" childIndex: "<<childIndex<<endl; /* If childIndex is not -1, then we know that the nxtElement is either left or right child of the root. If nxtElement is the right child of the root then we pop out the root from the queue. If the nxtElement lies before th root in the given range an we already have root's left assigned to some value, it means that the nxtElement is the left child of left child of the root and hence we pop-out the root. */ if(childIndex!=-1) { if(rootIndexright=newBtreeNode(nxtElement); i++; pushTreeNode(qTreeNode,root->right); pushNode(qLeftRange,rootIndex+1); pushNode(qRightRange,rightRange); popTreeNode(qTreeNode); popNode(qLeftRange); popNode(qRightRange); } else if(rootIndex>childIndex) { if(root->left==NULL) { root->left=newBtreeNode(nxtElement); i++; pushTreeNode(qTreeNode,root->left); pushNode(qLeftRange,leftRange); pushNode(qRightRange,rootIndex-1); } else { popTreeNode(qTreeNode); popNode(qLeftRange); popNode(qRightRange); } } } /* If the childIndex is -1, then the next element is neither left/right child of the root and hence we pop up the root from the queue.*/ else { popTreeNode(qTreeNode); popNode(qLeftRange); popNode(qRightRange); } } return head; } void printInorder(struct btree* r) { if (r == NULL) return; printInorder(r->left); cout <data <right); } int main() { int in[]={4, 8, 10, 12, 14, 20, 22}; int lev[]={20, 8, 22, 4, 12, 10, 14}; //int in[]={5,6}; //int lev[]={6,5}; int i,n = sizeof(in)/sizeof(in[0]); struct btree *r=constructTreeLevelInorder(lev, in, n); cout << "Inorder traversal of the constructed tree is n"; printInorder(r); return 0; } Isha We can do it in O(n^2) time complexity and O(n) space complexity. Algorithm: We create three queues, one will store the tree nodes and other will store the starting index and the ending index of the range(as derived from inorder array) for that node. For ex: int in[] = {4, 8, 10, 12, 14, 20, 22}; int lev[] = {20, 8, 22, 4, 12, 10, 14}; For root, 20 starting index will be 0 and ending index will be 6. For node 8 the staring index will be 0 and the ending index will be 4, likewise. So basically range of a node N implies the index range in inorder traversal which contains all the nodes in the left and right subtree of that node N. First we create the root(lev[0]) and then push it in the queue for tree node, and we push its range in the respective queues. Then we move to the next element in the level order array and check if this value lies in the range of the node that is at the rear of the queue. IF it does then we create the tree node corresponding to this value and make this node the left/right child depending on its positioning before/after the root’s value in the given range. If this node was the right child of the root(node at the rear of the queue) then we popup the root from the queue as we have completed the creation of its child. We push the child node in the queue along with its range in the respective queue. If the next element dint lie in the range of the root node(node at the rear of the queue) then we simply pop-out that root node from the queue (node at the rear of the queue) and check for the next node in the queue if the element of lev[] array lies in its range or not. We do this till the queue is empty or we have reached the end of lev[] array. Since all the nodes are pushed in the queue once and for each node in the queue we search for its left child and then its right child in the range provided for that node so there will be at max 2*n traversal for each node. Hence time complexity will be O(n^2). Here is the code: #include #include using namespace std; struct btree{ int data; struct btree *left; struct btree *right; }; struct treeNode{ struct btree *root; struct treeNode *next; }; struct node{ int data; struct node *next; }; struct queueTreeNode{ struct treeNode *front,*rear; }; struct queueNode{ struct node *front,*rear; }; void pushTreeNode(struct queueTreeNode *q, struct btree *n) { struct treeNode *tn=(struct treeNode*)malloc(sizeof(struct treeNode)); tn->root=n; if(q->front==NULL) { q->front=q->rear=tn; return; } q->front->next=tn; q->front=tn; return; } void pushNode(struct queueNode *q, int data) { struct node *n=(struct node *)malloc(sizeof(struct node)); n->data=data; if(q->front==NULL) { q->front=q->rear=n; return; } q->front->next=n; q->front=n; return; } struct btree* popTreeNode(struct queueTreeNode *q) { struct treeNode *tn=q->rear; struct btree *root= tn->root; if(q->front==q->rear) { q->front=q->rear=NULL; free(tn); return root; } q->rear=q->rear->next; free(tn); return root; } struct btree* getRearTreeNode(struct queueTreeNode *q) { struct treeNode *tn=q->rear; struct btree *root= tn->root; return root; } int getRearNode(struct queueNode *q) { struct node *n=q->rear; int data= n->data; return data; } int popNode(struct queueNode *q) { struct node *n=q->rear; int data= n->data; if(q->front==q->rear) { q->front=q->rear=NULL; free(n); return data; } q->rear=q->rear->next; free(n); return data; } bool isEmptyQueueTreeNode(struct queueTreeNode *q) { return q->front==NULL?true:false; } bool isEmptyQueueNode(struct queueNode *q) { return q->front==NULL?true:false; } struct btree *newBtreeNode(int data) { struct btree *root=(struct btree*)malloc(sizeof(struct btree)); root->left=root->right=NULL; root->data=data; return root; } struct queueNode *initializeQueueNode() { struct queueNode *q=(struct queueNode*)malloc(sizeof(struct queueNode)); q->front=q->rear=NULL; return q; } struct queueTreeNode *initializeQueueTreeNode() { struct queueTreeNode *q=(struct queueTreeNode*)malloc(sizeof(struct queueTreeNode)); q->front=q->rear=NULL; return q; } /* We are searching in the inorder array if the nxtElement appears in the given range. We store the index of its occurrence in variable childIndex. We also take note of index of the root data to check if the nxtElement is the left or right child of the root. IF there isnt any occurrence of nxtElement in the range then childIndex will be -1. */ void search(int in[],int rootData,int nxtElement, int leftRange,int rightRange,int *rootIndex, int *childIndex) { int i; for(i=leftRange;i<=rightRange;i++) { if(rootData==in[i]) { *rootIndex=i; } else if(nxtElement==in[i]) { *childIndex=i; } } return; } struct btree* constructTreeLevelInorder(int lev[], int in[], int n) { struct btree *root, *head; int i=1, rootIndex,childIndex, nxtElement; struct queueNode *qLeftRange=initializeQueueNode(); struct queueNode *qRightRange=initializeQueueNode(); struct queueTreeNode *qTreeNode=initializeQueueTreeNode(); head=newBtreeNode(lev[0]); pushTreeNode(qTreeNode,head); pushNode(qLeftRange,0); pushNode(qRightRange,n-1); while(!isEmptyQueueTreeNode(qTreeNode) && idata,nxtElement, leftRange,rightRange,&rootIndex, &childIndex); // cout<data: “<data<<" nxtElement: "<<nxtElement<<" leftRange: "<<leftRange<<" rightRange: "<<rightRange<<" rootIndex: "<<rootIndex<<" childIndex: "<<childIndex<<endl; /* If childIndex is not -1, then we know that the nxtElement is either left or right child of the root. If nxtElement is the right child of the root then we pop out the root from the queue. If the nxtElement lies before th root in the given range an we already have root's left assigned to some value, it means that the nxtElement is the left child of left child of the root and hence we pop-out the root. */ if(childIndex!=-1) { if(rootIndexright=newBtreeNode(nxtElement); i++; pushTreeNode(qTreeNode,root->right); pushNode(qLeftRange,rootIndex+1); pushNode(qRightRange,rightRange); popTreeNode(qTreeNode); popNode(qLeftRange); popNode(qRightRange); } else if(rootIndex>childIndex) { if(root->left==NULL) { root->left=newBtreeNode(nxtElement); i++; pushTreeNode(qTreeNode,root->left); pushNode(qLeftRange,leftRange); pushNode(qRightRange,rootIndex-1); } else { popTreeNode(qTreeNode); popNode(qLeftRange); popNode(qRightRange); } } } /* If the childIndex is -1, then the next element is neither left/right child of the root and hence we pop up the root from the queue.*/ else { popTreeNode(qTreeNode); popNode(qLeftRange); popNode(qRightRange); } } return head; } void printInorder(struct btree* r) { if (r == NULL) return; printInorder(r->left); cout <data <right); } int main() { int in[]={4, 8, 10, 12, 14, 20, 22}; int lev[]={20, 8, 22, 4, 12, 10, 14}; //int in[]={5,6}; //int lev[]={6,5}; int i,n = sizeof(in)/sizeof(in[0]); struct btree *r=constructTreeLevelInorder(lev, in, n); cout << "Inorder traversal of the constructed tree is n"; printInorder(r); return 0; } meh I have an O(n^2) solution that could be made O(n) when using a hashmap to find the index of the current item in level_order in the inorder collection. The idea is basically to keep track of the items in the current level and the next level of the tree while at the same time keeping the indexes in the inorder collection where the sub-trees of the current root lies. The solution is iterative similar to the approach when trying to print a tree level by level. Time complexity: O(n^2) // May be improved to O(n) with hashmap Space complexity: O(lgn) // May be worsened to O(n) with hashmap Code: https://ideone.com/UoaEe1 gg No need for extractLeaves function http://ideone.com/CLC9VI L_Earner //Program to create a binary tree from inorder and level order traversal #include #include int in[] = {4, 8, 10, 12, 14, 20, 22}; int level[] = {20, 8, 22, 4, 12, 10, 14}; int n; //Declare a tree node struct tree { int data; struct tree *left; struct tree *right; }; struct tree *root; // A utility function to create a new Binary Tree node struct tree *newnode(int item) { struct tree *temp = (struct tree *)malloc(sizeof(struct tree)); temp->data = item; temp->left = temp->right = NULL; return temp; } // Function for inorder traversal void inorder(struct tree* root) { if (root) { inorder(root->left); printf( “%d t “, root->data); inorder(root->right); } } //search in inorder array int search_lt(int num,int left,int right){ int i; for(i=left;iright || leftn-1) return NULL; //Finds first node in levelorder next to index ‘local'(including local) //which ets a match in inorder array from index ‘left’ to ‘right’ // while(mid==-1 && localleft=create_tree(left,mid-1,local); temp->right=create_tree(mid+1,right,local); return temp; } void main(){ n=sizeof(in)/sizeof(in[0]); root=create_tree(0,n-1,0); inorder(root); } ATUL use map in extractKeys function to reduce its complexity to O(n) instead of O(n^2). Ravi well done abhay! solution looks good time complexity wise, you can save some auxiliary space. abhay could you provide more details, how can space be saved? pramendra rathi yoou can save space by removing the llevel and rlevel array. and by passing the start and end index of levelorder array in function as you are passing for inorder array. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

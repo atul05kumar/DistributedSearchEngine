@@ -1,0 +1,144 @@
+Stable Marriage Problem - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Stable Marriage Problem Given N men and N women, where each person has ranked all members of the opposite sex in order of preference, marry the men and women together such that there are no two people of opposite sex who would both rather have each other than their current partners. If there are no such people, all the marriages are “stable” (Source Wiki). Consider the following example. Let there be two men m1 and m2 and two women w1 and w2. Let m1‘s list of preferences be {w1, w2} Let m2‘s list of preferences be {w1, w2} Let w1‘s list of preferences be {m1, m2} Let w2‘s list of preferences be {m1, m2} The matching { {m1, w2}, {w1, m2} } is not stable because m1 and w1 would prefer each other over their assigned partners. The matching {m1, w1} and {m2, w2} is stable because there are no two people of opposite sex that would prefer each other over their assigned partners. It is always possible to form stable marriages from lists of preferences (See references for proof). Following is Gale–Shapley algorithm to find a stable matching: The idea is to iterate through all free men while there is any free man available. Every free man goes to all women in his preference list according to the order. For every woman he goes to, he checks if the woman is free, if yes, they both become engaged. If the woman is not free, then the woman chooses either says no to him or dumps her current engagement according to her preference list. So an engagement done once can be broken if a woman gets better option. Following is complete algorithm from Wiki Initialize all men and women to free
+while there exist a free man m who still has a woman w to propose to 
+{
+    w = m's highest ranked such woman to whom he has not yet proposed
+    if w is free
+       (m, w) become engaged
+    else some pair (m', w) already exists
+       if w prefers m to m'
+          (m, w) become engaged
+           m' becomes free
+       else
+          (m', w) remain engaged    
+} Input & Output: Input is a 2D matrix of size (2*N)*N where N is number of women or men. Rows from 0 to N-1 represent preference lists of men and rows from N to 2*N – 1 represent preference lists of women. So men are numbered from 0 to N-1 and women are numbered from N to 2*N – 1. The output is list of married pairs. Following is C++ implementation of the above algorithm. 
+// C++ program for stable marriage problem
+#include <iostream>
+#include <string.h>
+#include <stdio.h>
+using namespace std;
+
+// Number of Men or Women
+#define N  4
+
+// This function returns true if woman 'w' prefers man 'm1' over man 'm'
+bool wPrefersM1OverM(int prefer[2*N][N], int w, int m, int m1)
+{
+    // Check if w prefers m over her current engagment m1
+    for (int i = 0; i < N; i++)
+    {
+        // If m1 comes before m in lisr of w, then w prefers her
+        // cirrent engagement, don't do anything
+        if (prefer[w][i] == m1)
+            return true;
+
+        // If m cmes before m1 in w's list, then free her current
+        // engagement and engage her with m
+        if (prefer[w][i] == m)
+           return false;
+    }
+}
+
+// Prints stable matching for N boys and N girls. Boys are numbered as 0 to
+// N-1. Girls are numbereed as N to 2N-1.
+void stableMarriage(int prefer[2*N][N])
+{
+    // Stores partner of women. This is our output array that
+    // stores paing information.  The value of wPartner[i]
+    // indicates the partner assigned to woman N+i.  Note that
+    // the woman numbers between N and 2*N-1. The value -1
+    // indicates that (N+i)'th woman is free
+    int wPartner[N];
+
+    // An array to store availability of men.  If mFree[i] is
+    // false, then man 'i' is free, otherwise engaged.
+    bool mFree[N];
+
+    // Initialize all men and women as free
+    memset(wPartner, -1, sizeof(wPartner));
+    memset(mFree, false, sizeof(mFree));
+    int freeCount = N;
+
+    // While there are free men
+    while (freeCount > 0)
+    {
+        // Pick the first free man (we could pick any)
+        int m;
+        for (m = 0; m < N; m++)
+            if (mFree[m] == false)
+                break;
+
+        // One by one go to all women according to m's preferences.
+        // Here m is the picked free man
+        for (int i = 0; i < N && mFree[m] == false; i++)
+        {
+            int w = prefer[m][i];
+
+            // The woman of preference is free, w and m become
+            // partners (Note that the partnership maybe changed
+            // later). So we can say they are engaged not married
+            if (wPartner[w-N] == -1)
+            {
+                wPartner[w-N] = m;
+                mFree[m] = true;
+                freeCount--;
+            }
+
+            else  // If w is not free
+            {
+                // Find current engagement of w
+                int m1 = wPartner[w-N];
+
+                // If w prefers m over her current engagement m1,
+                // then break the engagement between w and m1 and
+                // engage m with w.
+                if (wPrefersM1OverM(prefer, w, m, m1) == false)
+                {
+                    wPartner[w-N] = m;
+                    mFree[m] = true;
+                    mFree[m1] = false;
+                }
+            } // End of Else
+        } // End of the for loop that goes to all women in m's list
+    } // End of main while loop
+
+
+    // Print the solution
+    cout << "Woman   Man" << endl;
+    for (int i = 0; i < N; i++)
+       cout << " " << i+N << "\t" << wPartner[i] << endl;
+}
+
+// Driver program to test above functions
+int main()
+{
+    int prefer[2*N][N] = { {7, 5, 6, 4},
+        {5, 4, 6, 7},
+        {4, 5, 6, 7},
+        {4, 5, 6, 7},
+        {0, 1, 2, 3},
+        {0, 1, 2, 3},
+        {0, 1, 2, 3},
+        {0, 1, 2, 3},
+    };
+    stableMarriage(prefer);
+
+    return 0;
+}
+ Output: Woman   Man
+ 4      2
+ 5      1
+ 6      3
+ 7      0
+ References: http://www.csee.wvu.edu/~ksmani/courses/fa01/random/lecnotes/lecture5.pdf http://www.youtube.com/watch?v=5RSMLgy06Ew#t=11m4s Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. divyansh8063 Using STACK — main() { int n,i,j,z,tmp,f1; cin>>n; int a[2*n][n],b[2*n+1]; stackmy; REP(i,2*n) { b[i]=-1; REP(j,n) cin>>a[i][j]; } REP(i,n) my.push(i); while(!my.empty()) { tmp=my.top(); my.pop(); REP(i,n) { f1=0; z=a[tmp][i]; if(b[z]==-1) { b[z]=tmp; b[tmp]=z; break; } else { REP(j,n) { if(a[z][j]==tmp) { f1=1; break; } else if(a[z][j]==b[z]) break; } if(f1) { my.push(b[z]); b[z]=tmp; b[tmp]=z; break; } } } } REP(i,n) cout << i << "—" << b[i] << endl ; return 0; } Ankit Chaudhary I think worst case complexity of above algorithm is O(n^2). This will occur when in first iteration out of n men only one remain engaged. 2nd iteration : out of n-1 only 1 men remain engaged. 3rd iteration : out of n-2 only 1 men remain engaged. and so on. Eg : men list : 0,1,2,3 0,1,2,3 0,1,2,3 0,1,2,3 women list : 3,2,1,0 3,2,1,0 3,2,1,0 3,2,1,0 Best Case : O(n) eg : men list : 0,1,2,3 0,1,2,3 0,1,2,3 0,1,2,3 women list : 0,1,2,3 0,1,2,3 0,1,2,3 0,1,2,3 Ankit Chaudhary Optimization : 1 : As said by skulldude below. 2 : Instead of using iteration from 0 to n-1 to find free men, use queue which holds free men. Complexity will remain same, but it is better then above. if men is free insert it into queue. If engaged remove it from queue. Initially fill queue will all men So while condition will be : while(queue not empty) { } zzer nice, this is the optimized code below: bool woman_prefer(int prefer[2*N][N],int woman,int man1,int man2) { for(int i = 0; i < N; i++) { //if we encounter man1 first, which indicates man1 ranks higher than man2 if(prefer[woman][i] == man1) return true; if(prefer[woman][i] == man2) return false; } } void stable_marriage(int prefer[2*N][N]) { //stores partner of woman, this is our output array that stores paing infor //the value of w_partner[i] indicates the partner assigned to woman N+i.Note that //the woman number between N and 2N-1,the value -1 indicates that (N+i)th woman is free int w_partner[N]; memset(w_partner,-1,sizeof(w_partner)); queue free_man;//it stores the no. of free man for(int i = 0; i < N; i++) free_man.push(i); //the proposed indice of man, proposed_indice[i] means the highest indice of //woman which he has proposed to before int proposed_indice[N]; memset(proposed_indice,-1,sizeof(proposed_indice)); while(!free_man.empty()) { int man = free_man.front(); free_man.pop();//????free man //this indice of highest ranked woman who has not been proposed int index_propose = ++proposed_indice[man]; //the woman who has not been proposed by this man int woman = prefer[man][index_propose]; //if this woman is free, then they are engaged if(w_partner[woman-N] == -1) { w_partner[woman-N] = man; } // if this woman has a partner else { int man_other = w_partner[woman-N]; //if this woman prefer man to man_other,then the woman engaged //man and dumped man_other if(woman_prefer(prefer,woman,man,man_other)) { w_partner[woman-N] = man; free_man.push(man_other); } else free_man.push(man); } } cout << " woman man " << endl; for(int i = 0; i < N; i++) cout << " " << i+N <<"t"<< w_partner[i] << endl; } Guest For Python Lovers: from sys import stdin from cStringIO import StringIO def main(): inp = iter(StringIO(stdin.read())).next t = int(inp()) for _ in xrange(t): n = int(inp()) w = {} m = {} freem = set([`i+1` for i in xrange(n)]) freew = set([`i+1` for i in xrange(n)]) mproposed = {} engaged = {} for i in xrange(n): w[`i+1`] = inp().split()[1:] for i in xrange(n): m[`i+1`] = inp().split()[1:] mproposed[`i+1`] = 0 while freem: item = freem.pop() wom = m[item][mproposed[item]] mproposed[item] += 1 if wom in freew: engaged[wom] = item freew.remove(wom) else: if w[wom].index(item) < w[wom].index(engaged[wom]): freem.add(engaged[wom]) engaged[wom] = item else: freem.add(item) final_ans = [] for i in engaged: final_ans.append([int(engaged[i]), int(i)]) for i, j in sorted(final_ans): print i, j main() Math Is there any example for Stable marriage problem in AImms ? I have a problem to resolve that quiet looks like this one but in AImms and I never worked with this plateform. Tks ajay for best case say each man has different preference for woma then what will be the time complexity??? nd for worst case where each man likes same woman the most????/ Please tell as fast as possible mrn bipartite problem … Abhishek J what will be the time complexity of this algorithm ? i think it will be depending on priority factor ! Abhishek J what will be the time complexity of this algorithm ? i think it will be depending on the preference list? coolabhi Shouldn’t the function name wprefersm1overm be named as wprefersmoverm1? Because in the function we are checking if w prefers m over her current engagment m1  
+/* Paste your code here (You may delete these lines if not writing code) */
+ skulldude I think we can add one optimization to the above code. Instead of checking through every woman from the beginning for the current free man, we can remember every man’s last proposal(in an array) and start after it. This is true because, once a woman rejects a man M, she is never going to accept M again because she already had a better man when she rejected M. So, there is no use for a man to propose to a woman he has already tried before and had been rejected. Please comment if you find anything wrong in it. Thanks- Balasubramanian Ankit Chaudhary Agree with u zzer the pseudo-code ” w = m’s highest ranked such woman to whom he has not yet proposed” actually shows this idea http://www.geeksforgeeks.org/stable-marriage-problem/ Atul  
+    // An array to store availability of men.  If mFree[i] is
+    // false, then man 'i' is free, otherwise engaged.
+ Wouldn’t it be logical to change the name from “mFree” to “mEngaged”. It would make it easier to understand the logic. https://github.com/phoenix2fire Abhishek Bussa Code in C#: https://github.com/phoenix2fire/traditional-marriage-algorithm/blob/master/TMA/Program.cs Vishal Hemnani Yes. The stable solution will be different when we start it with women proposing to men. This instance of GS algorithm is men-biased. Abhishek In  
+for (m = 0; m < N; m++)
+            if (mFree[m] == false)
+                break;
+ shouldn’t the condition be if(mFree[m]==True) ? kartik I think the condition is fine. mFree[m] false means that the man m is free. Abhishek // An array to store availability of men. If mFree[i] is true, then man ‘i’ is free bool mFree[N]; Then i think we should change the comment, as comment says otherwise. GeeksforGeeks Thanks Abhishek, we have updated the comment. Atul  
+    // An array to store availability of men.  If mFree[i] is
+    // false, then man 'i' is free, otherwise engaged.
+ Wouldn’t it be logical to change the name from “mFree” to “mEngaged”. It would make it easier to understand the logic. Rahul Singh (selfcompiler) //i use priority queue // #include #include #include #include using namespace std; #define FREE -1 class cmp { public: bool operator()(pair a,pair b) { if(a.first<b.first) return false; else return true; } }; class StableMarriage { private: int N,M,W; int Row; int Rank; queue FreeMen; int MPair[502]; int Pair[502]; // according to women -1 ,free for ith women Pair[i]=-1; //int Men[502][502]; //rank of women int Women[502][502];//rank of man priority_queue< pair,vector< pair >,cmp > MenPreference[502]; //rank,women // priority_queue< pair,vector< pair >,cmp > WomenPreference[502]; //rank,men public: StableMarriage() { InitializeAll(); } void InitializeAll() { scanf(“%d”,&N); for(int i=1;i<=N;i++) { Pair[i]=FREE; FreeMen.push(i); } for(int i=1;i<=N;i++) { scanf("%d",&Row); for(int rank=1;rank<=N;rank++) { scanf("%d",&M); Women[Row][M]=rank; // WomenPreference[Row].push(make_pair(rank,M)); } } for(int i=1;i<=N;i++) { scanf("%d",&Row); for(int rank=1;rank<=N;rank++) { scanf("%d",&W); // Men[Row][W]=rank; MenPreference[Row].push(make_pair(rank,W)); } } } void StableMatching() { int women,man1,man2; // printpair(); while(!FreeMen.empty()) { // printpair(); man1=FreeMen.front(); women=MenPreference[man1].top().second; if(Pair[women]==FREE) { Pair[women]=man1; FreeMen.pop(); } else { man2=Pair[women]; if(Women[women][man2]<Women[women][man1]) { MenPreference[man1].pop(); } else { MenPreference[man2].pop(); FreeMen.pop(); FreeMen.push(man2); Pair[women]=man1; } } } return ; } void printpair() { for(int i=1;i<=N;i++) printf("%d %d\n",i,Pair[i]); } void outputpair() { //man ,women; for(int i=1;i<=N;i++) { MPair[Pair[i]]=i; } for(int i=1;i<=N;i++) printf("%d %d\n",i,MPair[i]); for(int i=1;i<=N;i++) { while(!MenPreference[i].empty()) MenPreference[i].pop(); } return ; } }; int main() { int test; scanf("%d",&test); if(test==0) return 0; StableMarriage Solve; Solve.StableMatching(); Solve.outputpair(); test–; while(test–) { Solve.InitializeAll(); Solve.StableMatching(); Solve.outputpair(); } return 0; } (GeeksFollower) correct me admin.. if there are N boys n girls.. There will be at max N*N engagement.. Now say for every pair, we calculate sum of their preferences for each other. sort (in ascending order) these pairs based on this calculated sum.. Now marry the pairs based on this preference.. I tried for so many test cases.. it worked.. ur better analysis would be helpful. Vibhu Tiwari @GeeksforGeeks: I think that in the if condition of wprefersm1overm wont the wPartner[w-N]=m as now m is assigned to wpPartner[w-N] instead of m1. GeeksforGeeks Thanks for pointing this out. We have updated the line. vamshi why did we use wPartner[w-N] in all the places…why didn’t we use sPartner[w] instead… Neha What is sPartner[w] Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

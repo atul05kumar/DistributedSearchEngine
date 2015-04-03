@@ -1,0 +1,160 @@
+Iterative Quick Sort - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Iterative Quick Sort Following is a typical recursive implementation of Quick Sort that uses last element as pivot. 
+/* A typical recursive implementation of quick sort */
+
+/* This function takes last element as pivot, places the pivot element at its
+   correct position in sorted array, and places all smaller (smaller than pivot)
+   to left of pivot and all greater elements to right of pivot */
+int partition (int arr[], int l, int h)
+{
+    int x = arr[h];
+    int i = (l - 1);
+
+    for (int j = l; j <= h- 1; j++)
+    {
+        if (arr[j] <= x)
+        {
+            i++;
+            swap (&arr[i], &arr[j]);
+        }
+    }
+    swap (&arr[i + 1], &arr[h]);
+    return (i + 1);
+}
+
+/* A[] --> Array to be sorted, l  --> Starting index, h  --> Ending index */
+void quickSort(int A[], int l, int h)
+{
+    if (l < h)
+    {        
+        int p = partition(A, l, h); /* Partitioning index */
+        quickSort(A, l, p - 1);  
+        quickSort(A, p + 1, h);
+    }
+}
+ The above implementation can be optimized in many ways 1) The above implementation uses last index as pivot. This causes worst-case behavior on already sorted arrays, which is a commonly occurring case. The problem can be solved by choosing either a random index for the pivot, or choosing the middle index of the partition or choosing the median of the first, middle and last element of the partition for the pivot. (See this for details) 2) To reduce the recursion depth, recur first for the smaller half of the array, and use a tail call to recurse into the other. 3) Insertion sort works better for small subarrays. Insertion sort can be used for invocations on such small arrays (i.e. where the length is less than a threshold t determined experimentally). For example, this library implementation of qsort uses insertion sort below size 7. Despite above optimizations, the function remains recursive and uses function call stack to store intermediate values of l and h. The function call stack stores other bookkeeping information together with parameters. Also, function calls involve overheads like storing activation record of the caller function and then resuming execution. The above function can be easily converted to iterative version with the help of an auxiliary stack. Following is an iterative implementation of the above recursive code. 
+// An iterative implementation of quick sort
+#include <stdio.h>
+
+// A utility function to swap two elements
+void swap ( int* a, int* b )
+{
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
+
+/* This function is same in both iterative and recursive*/
+int partition (int arr[], int l, int h)
+{
+    int x = arr[h];
+    int i = (l - 1);
+
+    for (int j = l; j <= h- 1; j++)
+    {
+        if (arr[j] <= x)
+        {
+            i++;
+            swap (&arr[i], &arr[j]);
+        }
+    }
+    swap (&arr[i + 1], &arr[h]);
+    return (i + 1);
+}
+
+/* A[] --> Array to be sorted, l  --> Starting index, h  --> Ending index */
+void quickSortIterative (int arr[], int l, int h)
+{
+    // Create an auxiliary stack
+    int stack[ h - l + 1 ];
+
+    // initialize top of stack
+    int top = -1;
+
+    // push initial values of l and h to stack
+    stack[ ++top ] = l;
+    stack[ ++top ] = h;
+
+    // Keep popping from stack while is not empty
+    while ( top >= 0 )
+    {
+        // Pop h and l
+        h = stack[ top-- ];
+        l = stack[ top-- ];
+
+        // Set pivot element at its correct position in sorted array
+        int p = partition( arr, l, h );
+
+        // If there are elements on left side of pivot, then push left
+        // side to stack
+        if ( p-1 > l )
+        {
+            stack[ ++top ] = l;
+            stack[ ++top ] = p - 1;
+        }
+
+        // If there are elements on right side of pivot, then push right
+        // side to stack
+        if ( p+1 < h )
+        {
+            stack[ ++top ] = p + 1;
+            stack[ ++top ] = h;
+        }
+    }
+}
+
+// A utility function to print contents of arr
+void printArr( int arr[], int n )
+{
+    int i;
+    for ( i = 0; i < n; ++i )
+        printf( "%d ", arr[i] );
+}
+
+// Driver program to test above functions
+int main()
+{
+    int arr[] = {4, 3, 5, 2, 1, 3, 2, 3};
+    int n = sizeof( arr ) / sizeof( *arr );
+    quickSortIterative( arr, 0, n - 1 );
+    printArr( arr, n );
+    return 0;
+}
+ Output: 1 2 2 3 3 3 4 5 The above mentioned optimizations for recursive quick sort can also be applied to iterative version. 1) Partition process is same in both recursive and iterative. The same techniques to choose optimal pivot can also be applied to iterative version. 2) To reduce the stack size, first push the indexes of smaller half. 3) Use insertion sort when the size reduces below a experimentally calculated threshold. References: http://en.wikipedia.org/wiki/Quicksort This article is compiled by Aashish Barnwal and reviewed by GeeksforGeeks team. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. Nizamuddin Saifi We can improve performance of partition function , by simple checking the a[j]!=a[++i] , it’ll reduce number of time swap function will call. eg, int partition(int a[],int l,int h) { int x=a[h]; int i=l-1,j; for(j=l;j<=h-1;++j) { if(a[j]<x && a[j]!=a[++i]) { swap(&a[j],&a[i]); } } swap(&a[i+1],&a[h]); return i+1; } VIGY THANK YOU SOOOOO MUCH kapil How will recursion depth be reduced if we recur smaller part of the array first? kuldeep With iterative implementation, we don’t need parameters low(l) and high(h) in method Quicksort. Method signature reduces to – void quickSortIterative (int arr[]). http://www.facebook.com/barnwal.aashish Aashish The boundaries high(h) and low(l) are not necessary to specify. However, the size of the array to be sorted is a must to pass as a parameter. https://twitter.com/Nikhil_gzp Anonymous Quick Sort with (Stable+ Efficient+ in-place Sorting+ NO Need of partition method) which works for all cases including repeating elements is given below(java):  
+public static void quickSort(int A[], int l, int h)
+{
+        int pivot=(l+h)/2;
+        int pivotValue=A[pivot];
+         
+        int i=l,j=h;
+        while(i<=j)
+        {
+            while(A[i]<pivotValue)
+                    i++;
+             
+            while(A[j]>pivotValue)
+                    j--;
+             
+            if(i<=j)
+            {
+                //swap a[i] with a[j] and change i and j
+                int t=A[j];
+                A[j]=A[i];
+                A[i]=t;
+                i++;
+                j--;
+                 
+            }          
+             
+        }
+  
+        if(l<j)       
+            quickSort(A,l,j);
+  
+        if(i<h)       
+            quickSort(A,i,h);
+}
+ sindhu Above code will run into infinite loop for input: 40 20 10 80 60 50 7 30 100 – take 60 as pivot element. Anonymous I have tried my code with above sample input— 40 20 10 80 60 50 7 30 100 – take 60 as pivot element. It is working fine. Rahul You are basically implementing the partition method inside the quickSort method itself. In no way are you improving quick sort. You are just writing the code in one function.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Anonymous @Rahul- Yes. I am implementing partition code inside one function only. I have NOT improved the efficiency. Efficiency can be improved by choosing the pivot values correctly which can done if we use a randomize function which can randomly distribute the elements of input array and then applying quicksort on new randomized distributed input array. Siva Krishna very nice one  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kaur awesome!! Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

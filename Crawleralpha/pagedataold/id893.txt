@@ -1,0 +1,102 @@
+Unbounded Binary Search Example (Find the point where a monotonically increasing function becomes positive first time) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Unbounded Binary Search Example (Find the point where a monotonically increasing function becomes positive first time) Given a function ‘int f(unsigned int x)’ which takes a non-negative integer ‘x’ as input and returns an integer as output. The function is monotonically increasing with respect to value of x, i.e., the value of f(x+1) is greater than f(x) for every input x. Find the value ‘n’ where f() becomes positive for the first time. Since f() is monotonically increasing, values of f(n+1), f(n+2),… must be positive and values of f(n-2), f(n-3), .. must be negative. Find n in O(logn) time, you may assume that f(x) can be evaluated in O(1) time for any input x. A simple solution is to start from i equals to 0 and one by one calculate value of f(i) for 1, 2, 3, 4 .. etc until we find a positive f(i). This works, but takes O(n) time. Can we apply Binary Search to find n in O(Logn) time? We can’t directly apply Binary Search as we don’t have an upper limit or high index. The idea is to do repeated doubling until we find a positive value, i.e., check values of f() for following values until f(i) becomes positive. 
+  f(0) 
+  f(1)
+  f(2)
+  f(4)
+  f(8)
+  f(16)
+  f(32)
+  ....
+  ....
+  f(high)
+Let 'high' be the value of i when f() becomes positive for first time. Can we apply Binary Search to find n after finding ‘high’? We can apply Binary Search now, we can use ‘high/2′ as low and ‘high’ as high indexes in binary search. The result n must lie between ‘high/2′ and ‘high’. Number of steps for finding ‘high’ is O(Logn). So we can find ‘high’ in O(Logn) time. What about time taken by Binary Search between high/2 and high? The value of ‘high’ must be less than 2*n. The number of elements between high/2 and high must be O(n). Therefore, time complexity of Binary Search is O(Logn) and overall time complexity is 2*O(Logn) which is O(Logn). 
+#include <stdio.h>
+int binarySearch(int low, int high); // prototype
+
+// Let's take an example function as f(x) = x^2 - 10*x - 20
+// Note that f(x) can be any monotonocally increasing function
+int f(int x) { return (x*x - 10*x - 20); }
+
+// Returns the value x where above function f() becomes positive
+// first time.
+int findFirstPositive()
+{
+    // When first value itself is positive
+    if (f(0) > 0)
+        return 0;
+
+    // Find 'high' for binary search by repeated doubling
+    int i = 1;
+    while (f(i) <= 0)
+        i = i*2;
+
+    //  Call binary search
+    return binarySearch(i/2, i);
+}
+
+// Searches first positive value of f(i) where low <= i <= high
+int binarySearch(int low, int high)
+{
+    if (high >= low)
+    {
+        int mid = low + (high - low)/2; /* mid = (low + high)/2 */
+
+        // If f(mid) is greater than 0 and one of the following two
+        // conditions is true:
+        // a) mid is equal to low
+        // b) f(mid-1) is negative
+        if (f(mid) > 0 && (mid == low || f(mid-1) <= 0))
+            return mid;
+
+        // If f(mid) is smaller than or equal to 0
+        if (f(mid) <= 0)
+            return binarySearch((mid + 1), high);
+        else // f(mid) > 0
+            return binarySearch(low, (mid -1));
+    }
+
+    /* Return -1 if there is no positive value in given range */
+    return -1;
+}
+
+/* Driver program to check above functions */
+int main()
+{
+    printf("The value n where f() becomes positive first is %d",
+           findFirstPositive());
+    return 0;
+} Output: The value n where f() becomes positive first is 12 Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: Divide and Conquer Tweet Writing code in comment? Please use ideone.com and share the link here. zzer int binary_search(int low,int high) { int candidate= -1; int mid; while(low 0 ) { candidate = mid; high = mid-1; } else low = mid+1; } return candidate; } Tarzan so if the function does not return any positive value for input up till INT_MAX, then will it not get stuck in an infinite loop ? We need to change this while (f(i) <= 0) raghvendra  
+#include<stdio.h>
+#include<iostream>
+#include<cmath>
+using namespace std;
+#define p 1e-6
+double value(double x)
+{
+    return 2*x+5;
+}
+double binary(double low,double high)
+{
+    double mid;
+    while(abs(high-low)>p)
+    {
+      mid=low+(high-low)/2;
+      if(abs(value(mid))<=p)return mid;
+      else if(value(mid)>0)
+        high=mid;
+      else
+      low=mid;
+    }
+    return -1;
+}
+int main()
+{
+    //printf("%lf\n",p);
+    cout<<binary(-5.0,5.0);
+    return 0;
+}
+
+ Sunil We can do a binary search for a value of mid where, if mid satisfies the condition f(mid)*f(mid+1)<0, we return mid+1. if mid satisfies the condition f(mid)*f(mid-1)<0, we return mid. because (-ve)*(-ve)=(+ve) and (+ve)*(+ve)=(-ve) only at the point of transition there is a negative product. darkpassenger can you tell any case when binary search returns -1 i.e there is no element which is positive after checking in the function find first positive that positive element exists. Manish We can make use of f'(x)(rate of change of f(x) at x) for computing the amount by which we want to increase i. i think it will significantly reduce complexity. couldnt figure out how to use it…:( zzer then the range between low and high is bigger, and we can simple use bit maniputation to set i=i*2 by sift i = i<<2, it is faster as well md03  
+if (f(mid) > 0 && (mid == low || f(mid-1) <= 0))
+            return mid;
+ Correct me if I am wrong admin: Since the function is monotonically increasing, the condition: if(f(mid)>0 && f(mid-1)<=0) is sufficient. mid==low is satisfied when the high is equal to low or high=low+1. Even in this case f(mid-1)<=0 is satisfied. Also, mid-1 will always be non-negative since mid=0 will never be tested here, since it has already been tested in the first step of the “int findFirstPositive()” function. kartik ‘mid == low’ is also needed. Consider the case when low = 0, high = 0 or when low = 5 and high = 6. md03 In case of low=0 and high=0, mid=0. If first positive value is at index 0, it will be returned at this point: if (f(0) > 0) return 0; If the first positive value is not at index 0, thus the first condition (f(mid)>0) is found false, the second(f(mid-1)< =0) shall not be checked. In the case when low=5 and high=6, mid=5 if f(5) is the first positive, then f(4) is negative and hence condition f(mid) > 0 && f(mid-1) <= 0 is enough. if f(5) is not the the first positive then f(4) is also positive, again the aforesaid condition is sufficient. Guest agreed Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,142 @@
+Find distance between two given keys of a Binary Tree - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find distance between two given keys of a Binary Tree Find the distance between two keys in a binary tree, no parent pointers are given. Distance between two nodes is the minimum number of edges to be traversed to reach one node from other. We strongly recommend to minimize the browser and try this yourself first. The distance between two nodes can be obtained in terms of lowest common ancestor. Following is the formula. 
+Dist(n1, n2) = Dist(root, n1) + Dist(root, n2) - 2*Dist(root, lca) 
+'n1' and 'n2' are the two given keys
+'root' is root of given Binary Tree.
+'lca' is lowest common ancestor of n1 and n2
+Dist(n1, n2) is the distance between n1 and n2.
+ Following is C++ implementation of above approach. The implementation is adopted from last code provided in Lowest Common Ancestor Post. 
+/* Program to find distance between n1 and n2 using one traversal */
+#include <iostream>
+using namespace std;
+
+// A Binary Tree Node
+struct Node
+{
+    struct Node *left, *right;
+    int key;
+};
+
+// Utility function to create a new tree Node
+Node* newNode(int key)
+{
+    Node *temp = new Node;
+    temp->key = key;
+    temp->left = temp->right = NULL;
+    return temp;
+}
+
+// Returns level of key k if it is present in tree, otherwise returns -1
+int findLevel(Node *root, int k, int level)
+{
+    // Base Case
+    if (root == NULL)
+        return -1;
+
+    // If key is present at root, or in left subtree or right subtree,
+    // return true;
+    if (root->key == k)
+        return level;
+
+    int l = findLevel(root->left, k, level+1);
+    return (l != -1)? l : findLevel(root->right, k, level+1);
+}
+
+// This function returns pointer to LCA of two given values n1 and n2. 
+// It also sets d1, d2 and dist if one key is not ancestor of other
+// d1 --> To store distance of n1 from root
+// d2 --> To store distance of n2 from root
+// lvl --> Level (or distance from root) of current node
+// dist --> To store distance between n1 and n2
+Node *findDistUtil(Node* root, int n1, int n2, int &d1, int &d2, 
+                   int &dist, int lvl)
+{
+    // Base case
+    if (root == NULL) return NULL;
+
+    // If either n1 or n2 matches with root's key, report
+    // the presence by returning root (Note that if a key is
+    // ancestor of other, then the ancestor key becomes LCA
+    if (root->key == n1)
+    {
+         d1 = lvl;
+         return root;
+    }
+    if (root->key == n2)
+    {
+         d2 = lvl;
+         return root;
+    }
+
+    // Look for n1 and n2 in left and right subtrees
+    Node *left_lca  = findDistUtil(root->left, n1, n2, d1, d2, dist, lvl+1);
+    Node *right_lca = findDistUtil(root->right, n1, n2, d1, d2, dist, lvl+1);
+
+    // If both of the above calls return Non-NULL, then one key
+    // is present in once subtree and other is present in other,
+    // So this node is the LCA
+    if (left_lca && right_lca)
+    {
+        dist = d1 + d2 - 2*lvl;
+        return root;
+    }
+
+    // Otherwise check if left subtree or right subtree is LCA
+    return (left_lca != NULL)? left_lca: right_lca;
+}
+
+// The main function that returns distance between n1 and n2
+// This function returns -1 if either n1 or n2 is not present in
+// Binary Tree.
+int findDistance(Node *root, int n1, int n2)
+{
+    // Initialize d1 (distance of n1 from root), d2 (distance of n2 
+    // from root) and dist(distance between n1 and n2)
+    int d1 = -1, d2 = -1, dist;
+    Node *lca = findDistUtil(root, n1, n2, d1, d2, dist, 1);
+
+    // If both n1 and n2 were present in Binary Tree, return dist
+    if (d1 != -1 && d2 != -1)
+        return dist;
+
+    // If n1 is ancestor of n2, consider n1 as root and find level 
+    // of n2 in subtree rooted with n1
+    if (d1 != -1)
+    {
+        dist = findLevel(lca, n2, 0);
+        return dist;
+    }
+
+    // If n2 is ancestor of n1, consider n2 as root and find level 
+    // of n1 in subtree rooted with n2
+    if (d2 != -1)
+    {
+        dist = findLevel(lca, n1, 0);
+        return dist;
+    }
+
+    return -1;
+}
+
+// Driver program to test above functions
+int main()
+{
+    // Let us create binary tree given in the above example
+    Node * root = newNode(1);
+    root->left = newNode(2);
+    root->right = newNode(3);
+    root->left->left = newNode(4);
+    root->left->right = newNode(5);
+    root->right->left = newNode(6);
+    root->right->right = newNode(7);
+    root->right->left->right = newNode(8);
+    cout << "Dist(4, 5) = " << findDistance(root, 4, 5);
+    cout << "\nDist(4, 6) = " << findDistance(root, 4, 6);
+    cout << "\nDist(3, 4) = " << findDistance(root, 3, 4);
+    cout << "\nDist(2, 4) = " << findDistance(root, 2, 4);
+    cout << "\nDist(8, 5) = " << findDistance(root, 8, 5);
+    return 0;
+} Output: Dist(4, 5) = 2
+Dist(4, 6) = 4
+Dist(3, 4) = 3
+Dist(2, 4) = 1
+Dist(8, 5) = 5 Time Complexity: Time complexity of the above solution is O(n) as the method does a single tree traversal. Thanks to Atul Singh for providing the initial solution for this post. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. joud zouzou Anything wrong with this solution?: /* a: first node b: second node l_a: level of first node l_b: level of second node ans: distance between node a and node b */ while(a!=b) { if (l_b > l_a) // move to parent of b { l_b–; b/=2; ans++; } else if (l_a > l_b) // move to parent of a { l_a–; a/=2; ans++; } else // move to parent of a and parent of b { l_a–; l_b–; a/=2; b/=2; ans+=2; } } sunil This is the same question as the diameter question piyush.ag A better way :: int kDistanceChildNode(Node *root , Node *node , int level) { if (root == NULL) return -1; if (root == node) return level; int l = kDistanceChildNode(root->left , node , level+1); if (l!=-1) return l; else return kDistanceChildNode(root->right , node , level+1); } Node *lca(Node *root , Node *node1 , Node *node2) { if (root == NULL) return NULL; if (root == node1 || root == node2) return root; Node *L = lca(root->left , node1 , node2); Node *R = lca(root->right , node1 , node2); if (L&&R) return root; if (L!=NULL) return L; else return R; } int distanceBetween2Nodes(Node *root , Node *node1 , Node *node2) { if (root == NULL) return; int k = 0; if (node1 == node2) return kDistanceChildNode(root , node1 , &k); Node *ancestor = lca(root , node1 , node2); int k1 = kDistanceChildNode(root , node1,k); printf(“k1 == %d ” , k1); int k2 = kDistanceChildNode(root , node2,k); printf(“k2 == %d ” , k2); int k3 = kDistanceChildNode(root ,ancestor,k); printf(“k3 == %d ” , k3); int res = ((k1+k2)-2*k3); return res; } prashant jha find lca and get the distance from lca to both nodes below standard ques http://www.seepstation.com gaurav sachdeva I found a better way to do this. Idea is keep trying to find the nos from left and right subtrees and return 1 as soon as either no is found. Writing pseudo code:- function distance(Node root, Node N, int n1, int n2, int count) { if(!N) return 0; if(N->val == n1 || N->val == n2) return 1; int left = distance(root, N->left, a, b, count); int right = distance(root, N->right, a, b, count); if(left+right == 1) { //here 1st no is found and we are searching for 2nd count++; return 1; } if(left + right == 2) { //here second no is found return count+1; } return 0; } And we can call distance like:- print(distance(root,root,n1,n2,0)); I suppose this is way easier and is O(n). Please update incase I missed something. Aiden if both nodes have same val,the method above will not work Atul Anand another method :- 1)first find LCA of n1 and n2. 2)a=find distance of n1 from lca. 3)b=find distance of n2 from lca. 4) return a+b; new_coder Please let me know if this algo makes any sense. We can do level order traversal to find the difference between the keys.. Algo:- 1. If root is one of the two keys. Find the other key in left subtree and right subtree. Return the distance root(first key) and the other key between them. 2. Else: Traverse left subtree and right subtree. If both the keys are in the same subtree then check their levels. If they are on the same level, return distance=2. else return abs(difference in their levels). else (if both the keys are in different subtree) calculate at which level they are and return (level_leftSubtree + level_rightSubtree) Take root at level=0 Thanks. zealfire can the formula be this: if both nodes are left and right child of lca then add distance of nodes from lca,otherwise if they are on same side of lca then then : |distance of one node from lca-distance of other node from lca|,please tell if this will be right or wrong Guest int distance( tree* root , int p1 , int p2 ) { if ( !root ) return 0; int d1; int d2; bool p1_found = find_distance( root , p1, &d1); if( !p1_found) return 0; /// node does not exist bool p2_found = find_disatnce( root , p2 , &d2 ); if( !p2_found) return 0; // the value does not exist in tree.. d1 = d1 – d2; if ( d1 ) return d1; return (-d1); } bool find_distance( tree* root , int p int* dist){ //distance will tell the disatnce of // founded node from the //current node if( ! root ) return false; if( root->key == p ){ // check if cuur node is the given node , make dist = 0 dist = 0; return true; //found the node } bool x = find_distance( root ->left , p , dist ); //check in the left subtree if( x ){ // if found *dist = *dist -1; // make distnace = dist -1 as in leftsubtree return true; } x = find_distance( root->right,dist); //check in right subtree if( x ) { //if found *dist = *dist + 1; increment dist as in right subtree return true; } return false; // return not found } Let me know if you find any problem with this algo 1 . Check the curr node is the given node , make distance = 0 ; // distance of the founded node from the curr node . return true //node founded 2 . Check in the left subtree , if founded , make dsit = dist – 1; return true; 3. Check in leftsubtree , if found , make dist = dist + 1; return true; 4; it means nither the current node nor in the left subtree nor in right subtree node exist , return false micintosh If there exists duplicates in the tree, the algorithm does not work well; consider the following tree: Node * root = newNode(1); root->left = newNode(2); root->right = newNode(2); root->left->left = newNode(4); root->left->right = newNode(5); root->right->left = newNode(6); root->right->right = newNode(7); root->right->left->right = newNode(8); cout << "Dist(2, 8) = " << findDistance(root, 2, 8); Dist(2, 8) should be 2 or 4; but the algorithm above returns 3. The reason is that "If both of the above calls return Non-NULL, then one key is present in once subtree and other is present in other" is wrong. To correct the algorithm, you may need to first get lca, and then return findLevel(lca, n1, 0)+findLevel(lca, n1, 0). Rahul If we modify the node structure a little bit, we can make this problem more easier. So Here are my changes 1. in node sturcture add level and pointer to parent. while creating node assign values. For root pass -1. 2. search for both keys, store the reference in curr1 and curr2. 3. If both nodes curr1 and curr2 are not null, it means both node exist, otherwise we can return from here, as no path exists. 3. take a new variable dist as 0. 4. Now run following code temp1= curr1; temp2 = curr2; while(curr1-> level != curr2->level) { if(curr1->level > curr2->level) curr1 = curr1->parent; else curr2 = curr2->parent; dist++; } 5. Now check following condition, if one node is part of other node’s sub tree. if(curr1 == curr2) return dist; else return ((temp1->level) + (temp2->level) + dist); Let me know if you find any problem with this approach. Guest If we modify the node structure a little bit, we can make this problem more easier. So Here are my changes 1. in node sturcture add level and pointer to parent. while creating node assign values. For root pass -1. 2. search for both keys, store the reference in curr1 and curr2. 3. If both nodes curr1 and curr2 are not null, it means both node exist, otherwise we can return from here, as no path exists. 3. take a new variable dist as 0. 4. Now run following code temp1= curr1; temp2 = curr2; while(curr1-> level != curr2->level) { if(curr1->level > curr2->level) curr1 = curr1->parent; else curr2 = curr2->parent; dist++; } 5. finally return distance = (temp1->level) + (temp2->level) + dist Let me know if you find any problem with this approach. blackball Because there’s only one path from one key to another, so we could just travel the binary tree, and start counting when we found one of the keys, and end the counting when we found the other one. O(log(n)). #include using namespace std; struct TreeNode { int val; TreeNode *left, *right; explicit TreeNode(int v):val(v),left(NULL),right(NULL){} }; class Solution { public: int distance(TreeNode *root, int ka, int kb) { m_counter = 0; m_found = 0; m_ka = ka; m_kb = kb; in_order(root); if (m_found != 2) { // could not found the keys. return -1; } return m_counter; } private: int m_counter, m_ka, m_kb; int m_found; inline void in_order(TreeNode *root) { if (root == NULL) { return ; } in_order(root->left); // if found one of keys, start counters if (root->val == m_ka || root->val == m_kb) { if (m_found == 1) { m_found = 2; return ; } else { m_found = 1; // start the counter from 1 m_counter = 1; } } else { if (m_found == 1) { ++ m_counter; } } in_order(root->right); } }; int main() { TreeNode root(1), node1(2), node2(3), node3(4); root.left = &node1; root.right = &node2; node1.left = &node3; Solution sln; int d = sln.distance(&root, 3, 0); cout << d << endl; return 0; } xxmajia yes, but instead of adding one more field in the data structure, you can actually use a hashmap to keep the parent pointer, and it can be generate at O(N) time with extra O(N) space Vinay Singh i didn’t understand this code…can anyone simplify this problem. varun nice post sumit #include #include #include using namespace std; struct tree { struct tree* left; int item; struct tree* right; }; tree* newNode(int key) { tree *temp = new tree; temp->item = key; temp->left = temp->right = NULL; return temp; } int findDistance(struct tree* node, int itm1, int itm2, int* flag, int* result) { int result1 = 0; int result2 = 0; if(*flag) return 0; if(0 == node) return 0; result1 = findDistance(node->left, itm1, itm2, flag, result); if (*flag) return 0; result2 = findDistance(node->right, itm1, itm2, flag, result); if (*flag) return 0; if ( (result1 == 0 && result2 == 0) && (node->item == itm1 || node->item == itm2) ) return 1; else if (node->item == itm1 || node->item == itm2) { *flag =1; *result = result1 + result2; return *result; } if (result1 != 0 && result2 != 0) { *flag =1; *result = result1 + result2; return *result; } else if (result1) return result1 +1; else if (result2) return result2 +1; else return 0; } int main(int argc, char *argv[]) { struct tree* root = 0; int result =0; int flag = 0; root= newNode(1); root->left = newNode(2); root->right = newNode(3); root->left->left = newNode(4); root->left->right = newNode(5); root->right->left = newNode(6); root->right->right = newNode(7); root->right->left->right = newNode(8); findDistance(root, 4, 5, &flag, &result); cout << "Dist(4, 5) = " <<result; flag = 0; result = 0; findDistance(root, 4, 6, &flag, &result); cout << "Dist(4, 6) = " <<result; flag = 0; result = 0; findDistance(root, 3, 4, &flag, &result); cout << "Dist(3, 4) = " <<result; flag = 0; result = 0; findDistance(root, 2, 4, &flag, &result); cout << "Dist(2, 4) = " <<result; flag = 0; result = 0; findDistance(root, 8, 5, &flag, &result); cout << "Dist(8, 5) = " <<result; getch(); } Please let me know if i am wrong. xxmajia Thanks for sharing To improve this algo, i think we can use the LCA algo using extra space to record the level along the way. Atul Instead of calculating dist every time, do the following using flag passed by reference to function:- if (left_lca && right_lca) { if(flag) { dist = d1 + d2; flag=false; return root; } else return root; } Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

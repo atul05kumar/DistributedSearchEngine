@@ -1,0 +1,250 @@
+Check for Majority Element in a sorted array - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Check for Majority Element in a sorted array Question: Write a C function to find if a given integer x appears more than n/2 times in a sorted array of n integers. Basically, we need to write a function say isMajority() that takes an array (arr[] ), array’s size (n) and a number to be searched (x) as parameters and returns true if x is a majority element (present more than n/2 times). Examples: 
+Input: arr[] = {1, 2, 3, 3, 3, 3, 10}, x = 3
+Output: True (x appears more than n/2 times in the given array)
+
+Input: arr[] = {1, 1, 2, 4, 4, 4, 6, 6}, x = 4
+Output: False (x doesn't appear more than n/2 times in the given array)
+
+Input: arr[] = {1, 1, 1, 2, 2}, x = 1
+Output: True (x appears more than n/2 times in the given array)
+ METHOD 1 (Using Linear Search) Linearly search for the first occurrence of the element, once you find it (let at index i), check element at index i + n/2. If element is present at i+n/2 then return 1 else return 0. 
+/* Program to check for majority element in a sorted array */
+# include <stdio.h>
+# include <stdbool.h>
+
+bool isMajority(int arr[], int n, int x)
+{
+  int i;
+
+  /* get last index according to n (even or odd) */
+  int last_index = n%2? (n/2+1): (n/2);
+
+  /* search for first occurrence of x in arr[]*/
+  for (i = 0; i < last_index; i++)
+  {
+    /* check if x is present and is present more than n/2 times */
+    if (arr[i] == x && arr[i+n/2] == x)
+       return 1;
+  }
+  return 0;
+}
+
+/* Driver program to check above function */
+int main()
+{
+   int arr[] ={1, 2, 3, 4, 4, 4, 4};
+   int n = sizeof(arr)/sizeof(arr[0]);
+   int x = 4;
+   if (isMajority(arr, n, x))
+     printf("%d appears more than %d times in arr[]", x, n/2);
+   else
+    printf("%d does not appear more than %d times in arr[]", x, n/2);
+
+   getchar();
+   return 0;
+}
+ Time Complexity: O(n) METHOD 2 (Using Binary Search) Use binary search methodology to find the first occurrence of the given number. The criteria for binary search is important here. 
+/* Program to check for majority element in a sorted array */
+# include <stdio.h>;
+# include <stdbool.h>
+
+/* If x is present in arr[low...high] then returns the index of
+  first occurrence of x, otherwise returns -1 */
+int _binarySearch(int arr[], int low, int high, int x);
+
+/* This function returns true if the x is present more than n/2
+   times in arr[] of size n */
+bool isMajority(int arr[], int n, int x)
+{
+   /* Find the index of first occurrence of x in arr[] */
+   int i = _binarySearch(arr, 0, n-1, x);
+
+   /* If element is not present at all, return false*/
+   if (i == -1)
+     return false;
+
+   /* check if the element is present more than n/2 times */
+   if (((i + n/2) <= (n -1)) && arr[i + n/2] == x)
+     return true;
+   else
+     return false;
+}
+
+/* If x is present in arr[low...high] then returns the index of
+  first occurrence of x, otherwise returns -1 */
+int  _binarySearch(int arr[], int low, int high, int x)
+{
+  if (high >= low)
+  {
+    int mid = (low + high)/2;  /*low + (high - low)/2;*/
+
+    /* Check if arr[mid] is the first occurrence of x.
+        arr[mid] is first occurrence if x is one of the following
+        is true:
+        (i)  mid == 0 and arr[mid] == x
+        (ii) arr[mid-1] < x and arr[mid] == x
+     */
+    if ( (mid == 0 || x > arr[mid-1]) && (arr[mid] == x) )
+      return mid;
+    else if (x > arr[mid])
+      return _binarySearch(arr, (mid + 1), high, x);
+    else
+      return _binarySearch(arr, low, (mid -1), x);
+  }
+
+  return -1;
+}
+
+/* Driver program to check above functions */
+int main()
+{
+   int arr[] = {1, 2, 3, 3, 3, 3, 10};
+   int n = sizeof(arr)/sizeof(arr[0]);
+   int x = 3;
+   if(isMajority(arr, n, x))
+     printf("%d appears more than %d times in arr[]", x, n/2);
+   else
+    printf("%d does not appear more than %d times in arr[]", x, n/2);
+
+   return 0;
+}
+ Time Complexity: O(Logn) Algorithmic Paradigm: Divide and Conquer Please write comments if you find any bug in the above program/algorithm or a better way to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: Divide and Conquer Tweet Writing code in comment? Please use ideone.com and share the link here. OP Coder The solution in more simplifies manner 1) i = n/2 2) x = arr[i] It is the only element which may be majority element. 3) find the leftest index of the element x ie leftest_index = left(0, i-1,x) 4)Must for majority rightest_index = n/2 + 1 + index – 1 if ( arr[rightest_index] == x) “Its majority”; else “Its is not majority” Guest If the array is sorted and there is a majority element in it, then it will definitely be present at n/2. Why don’t we simply return that element. OP Coder Element at index n/2 may or may not a majority element. To check that binary search is the best we can do as we have sorted array. 1 2 3 4 5 6 7 for you i t will return 4 but that is not a majority element. I hope you understand it. dippi if the array is sorted if(a[n/2]==x && ((a[0]==x && a[n/4]==x) || (a[n]==x && a[3n/4]==x) || (a[n/4]==x && a[3n/4]==x)) return true else return false O(1) complexity correct me if i’m wrong hello i think you are wrong. its not necessary for the majority element to start from the beg,or span from n/4 to 3n/4 Vivek no it isn’t correct .. if starting index of ‘x’ is between 0 to n/4 (suppose n/8) and ending index is between n/2 to 3n/4 (suppose 5n/8 +1)…. your algo will give an incorrect output Varun Sharma Don’t know if I have not understood the question properly or something else. we need to find Majority element i.e. that appears more than N/2 times for an array of size N then why we need any algorithm? it is trivial that middle element will be the majority element. Minimum frequency of majority element = n/2 + 1. Now if majority element is also the smallest element then it is present from arr[0…n/2] consider another case where majority element = largest element of array. then it is present from arr[n/2…n] In average case majority element is always present at middle position. so we need only one operation to compute majority element in a sorted array. guest if you know it’s appearing more than n/2 times then a[n/2] is the one we need but we also need to check if it appears more than n/2 or not.. it is so simple that if an element appears more than n/2 times then the mid element is that but the viceversa is not true. Jack @geeksforgeeks If the array is sorted, only the element at a[n/2] has the chance of being the majority element. So we can compare x with a[n/2]. If they are not equal, x is not a majority element. If they are equal, we have to check for 2 cases: *If a[0] and a[(n/2)+1] are also equal to x. *If a[(n/2)-1] and a[n] are also equal to x. If any of 2 cases is true, x is a majority element. It is not otherwise. Please correct me if I am wrong anywhere. shiv kumar gupta ur approach is correct up to “it must be a middle element ” but a[0] and a[n/2+1] or a[n/2-1] and a[n] is not the only possible way !!! consider 1 2 3 3 3 3 4 none of ur case satisfy but x=3 is TRUE.. so its just to find the possibility (rejection will take just O(1)) but then u have to check n/2 indices pivoting around a[n/2] ! Hope I m right .. check once Ray Jack’s approach can be made to work by slightly modifying the search space. We need to search from the middle, N/4 elements either ways. bool majorSearch(int *a, int x, int n, int low, high) { if ( (high – low + 1) > n/2) { mid = (low + high)/2; quartLow = mid – n/4; quartHigh = mid + (n + 2)/4; if (a[quartLow ] == x && a[quartHigh] == x) return True; else if (a[quartLow] == x) return majorSearch(a, x, n, low, quartHigh – 1); else if (a[quartHigh] == x) return majorSearch(a, x, n, quartLow + 1, high); } return False; } bool isMajor(int *a, int x) { len = sizeof(a)/sizeof(a[0]); return majorSearch(a, x, len, 0, len – 1); } wannaC What if array is this: 3 3 3 3 4 5 6 and x = 3? How binary search method is going to work?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Alien It will work because Binary search method is trying to find the first occurrence of x. So adding n/2 at position zero will give x only if the input is sorted. But the drawback of this method is, it can only be used if input is sorted. kuldeepshandilya It can be done in only 3 comparisons – check values of array[0], array[mid] and array[last], if either of two have value ‘x’, just check for one occurrence of x and we have positive response (x occurs more than n/2) If array[mid] == x and ( array[0] == x || array[last] == x) return true. Plz let me know If i am missing something!!! geekguy try for 1,2,2,2,1 Jack @kuldeepshandilya: This is exactly what came to my mind. @geekguy: The array has to be sorted. This is not a sorted array. kuldeepshandilya @Jack I got where we are wrong. We are thinking that if a number x is present more than n/2 times, then either it would be in subarray from 0 to n/2 or n/2+1 to n-1. Something like {2,2,2,3,3}. But, it can be like {1,2,2,2,3} in which case neither arr[0] is 2 nor arr[n-1]. So the idea would be to find first occurrence of x and last occurrence of it. geekguy Oops, Consider it 1,2,2,2,3 geekguy oops, consider it 1,2,2,2,3 geekguy @geeksforgeeks The second method does not return majority element. It’s only checking that element x is majority or not. So, to find the majority element, It will take O(n log n) time. Please correct me if I am wrong. GeeksforGeeks This post is about finding whether x is majority or not. To find majority, you may refer this post. geekguy Ohh, My bad. Thanks for correcting me. Ronny @geeksforgeeks There is a bug in the program (linear method). the condition which computes last_index is incorrect It should be int last_index = n%2? (n/2+1): (n/2); instead of int last_index = n%2? n/2: (n/2 + 1); Since n%2 will be true (return 1) if it is odd and for that condition it should be (n/2 + 1). Please correct it.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks Ronny: Thanks for pointing this out. We have updated the code. Appreciate your contribution. Akhil @geeksforgeeks In the linear search method the for condition should be i<=last_index. Otherwise it would fail for some cases. The code written above fails for {1,2,3,4,4,4,4}. Ronny @akhil The problem is not in the loop condition rather it is in the computation of last index. the condition which computes last_index is incorrect It should be int last_index = n%2? (n/2+1): (n/2); instead of int last_index = n%2? n/2: (n/2 + 1); Since n%2 will be true (return 1) if it is odd and for that condition it should be (n/2 + 1). You can refer this link where correcting the above condition produces correct result for your test case : http://ideone.com/KhGRGA ultimate_coder worst case : O(n/2) Is this code good enough?  
+bool checkmajority(int a[],int n)
+{
+    for(int i=0;i<=n/2;i++)
+    {
+        if(a[i]==a[i+n/2])
+        return 1;
+    }
+    return 0;
+}
+ me.abhinav ASSUMPTION: There exists a majority element for sure. We can check if a number is the majority element in O(1) time because arr[n/2] will always be a majority element, where n = size of array. me.abhinav The must be sorted. ramu 1 3 5 is three majority element even it is mid of sorted array??? ronny guess u missed the ASSUMPTION : the majority element must exist ramu hmm if you have already assumed that there exits majority element then its ok…..else it is wrong. Ujjwal boolean check_Majority(int A[], int x) { int last=sizeof(A)/sizeof(int); int mid=last/2; if(A[mid+1]==A[0] || A[mid-1]==A[last-1]) /*to check whether Majority Element at all exists..!!*/ if(A[mid]==x) /*if present, should be at mid position*/ return true else return false } #correct me if i m wrong Ankit Malhotra Approach 2 can be further simplified with the complexity reduced to log(n/2) instead of logn. We know that only the term[n/2] of array can be majority. We check for first appearance of this term in initial half of array through binary search as log(n/2). If found we check element at the position n/2 ahead. For n being odd element may not be in first half at all. Then we simply check term[n-1] to match term[n/2] to see majority.  
+#include <iostream>
+#define MaxCount 101
+using namespace::std;
+typedef unsigned counter;
+typedef long element;
+
+// first insert position in sorted order
+// returns false with left = count for item > last
+// Check boundaries before use
+bool firstsortloc (element terms[], counter n, element x, counter & l)
+{
+  counter r = n, m;
+  l = 0;
+  while (l != r) {
+    m = l + (r - l)/2;
+    if (terms[m] < x)
+      l = m + 1;
+    else r = m;
+  }
+  return (l == n ? false : terms[l] == x);
+}
+
+bool sortedmajority (element terms[], counter n, element x)
+{
+  counter p;
+  if (x != terms[n/2]) return false;
+  if (firstsortloc(terms, n/2, terms[n/2], p))
+    p += n/2;
+// Assign n to p to indicate failure for even n  
+  else p = n % 2 ? n - 1 : n;
+  if (p == n || terms[p] != terms[n/2])
+    return false;
+  else return true;
+}
+
+int main()
+{
+  element x, terms[MaxCount]={0};
+  counter n, p;
+  cout << "Enter no. of terms followed by sorted array." << endl;
+  for (cin >> n, p = 0; p < n; cin >> terms[p++]);
+  cout << "Enter term to search : ";
+  cin >> x;
+  if(sortedmajority (terms, n, x))
+    cout << x << " occurs in majority." << endl;
+  else cout << x << "is not in majority." << endl;
+  return 0;
+}
+
+ Ankit Malhotra To improve firstsortloc change while condition as follows  
+while (l != r && term[l] != item)
+ Ganesh You can find the java code here for Method 2 /** * Write a C function to find if a given integer x appears more than n/2 times in a sorted array of n integers. * Example: * Input: arr[] = {1, 2, 3, 3, 3, 3, 10}, x = 3 * Output: True (x appears more than n/2 times in the given array) * @author GAPIITD * */ public class MajorityElementInSortedArray { public static void main(String[] args) { int arr[] = {1, 2, 3, 3, 3, 3, 10}; int no = 3; System.out.println(isMajority(arr, no)); } private static boolean isMajority(int[] arr, int n) { int start = 0, end = arr.length, mid = -1; while (start != end) { mid = (start + end)/2; if (n == arr[mid] && (mid == 0 || n > arr[mid-1])) { break; } else if (n > arr[mid]) start = mid + 1; else end = mid – 1; } if (mid + arr.length/2 < arr.length && arr[mid+arr.length/2] == n) return true; else return false; } } Sreekanth Hi folks, Saw a better solution using Moore’s Algorithm, that is already discussed on this site. http://www.geeksforgeeks.org/majority-element/ aygul Moore’s Algorithm, runs with O(N) time. Here the problem is different. The array is sorted. given solution runs in O(logN) Shubham Lakhiwal Common-sense, x must be the n/2th element to occur more than n/2 times. Shubham Lakhiwal Oh, it’s not sure. Palash Even if x is n/2th element, it may or may not be the majority element. That’s why binary search is necessary here.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Rahul Sundar How about this non-recursive solution. Here I make use of the fact, that we have to find out the beginning index of the given number(say x). Please let me know your comments,  
+int Majority(int a[], int n,int x)
+{
+	int low = 0,high = n-1;
+	int middle = (low+high)/2;
+
+	if(a[middle] != x)
+	{
+		printf("\n%d is not a majority\n",x);
+		return -1;
+	}
+
+	for(; low<high; middle = (low+high)/2)
+	{
+		//check if middle element is x
+		if(x==a[middle])
+		{
+			//check if previous element is also x
+			if(x==a[middle-1])
+				high = middle;
+			else
+			{			
+				printf("\nFound the beginning index of %d: %d",x,middle);
+				break;
+			}
+		}
+		//if middle is not x
+		else
+			low = middle;
+	}
+
+	if((a[middle] == x) && (a[middle+n/2]==x))
+	{
+		printf("\n%d is a majority with more than n/2 starting with index %d\n",x,middle);
+	}
+	else
+	{
+		printf("\n%d is a not a majority with more than n/2 starting with index %d\n",x,middle);
+		return -1;
+	}
+	return 1;
+}
+ Rahul Sundar The idea is to get the beginning index of the majority. Say for array {1,1,3,9,11,11,11,11} to find if 11 is majority. Here we have to find beginning index by doing binary search till 9 < 11. Explanation on the above code: 1. Since we say the majority should be more than n/2. Then it should be the middle element of the array. This condition is checked even before entering binary search logic. 2. In binary search the conditions required are, Condition1: If middle and middle-1 element are x. Then shift the high to middle(high = middle). Condition2: If middle is not x then shift the low to middle (low=middle) Repeat step 2 till low<high In Condition1, we can also check if middle-1 is zero. If so we can break there only. This code change would not be present in the above code. We can add this too. /* Paste your code here (You may delete these lines if not writing code) */ Rahul Sundar In the above code, we can improve the condition when [middle-1]==x, by also checking if middle-1 is zero. If so break out.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Rahul Sundar I am not able to register my comment  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Shyam @GeeksforGeeks can you please explain the Binary search method? i am not able to understand the reasoning behind it? Shyam I mean the 2nd Method and not Binary search tutum just return middle element of the array nothing else reply me if you have any doubt or found me wrong tutum ohh sorry i didn’t saw i also have to return true and false int last=sizeof(A)/sizeof(int); int mid=last/2; if(A[mid+1]==A[0] || A[mid-1]==A[last-1]) return true else return false tauseef If array is sorted its not a problem if(array[mid+1]==array[0] || array[mid-1]==array[last]) array[mid] is majority element else no majority element exists baskin @GeeksforGeeks How about this?  bool isMajority(int arr[], int n, int x)
+{
+    return x == arr[n/2];
+} Sandeep @baskin: This approach won’t if there is no majority element. For example, if x is 4, then this will return true for following array {1, 1, 2, 4, 4, 4, 6, 6} Algoseekar @sandeep i don’t understand ..how make sure about 1st algo..also i think u made code complex.. here is simply implementation /* Program to check for majority element in a sorted array */ # include # define bool int bool isMajority(int arr[], int n, int x) { int i; int count=0; /* search for first occurrence of x in arr[]*/ for(i = 0; i (n/2)) return 1; } return 0; } /* Driver program to check above function */ int main() { int arr[10] = {1, 2, 3, 3, 3, 3, 10}; int n = 7; int x = 3; if(isMajority(arr, n, x)) printf(“%d appears more than %d times in arr[]”, x, n/2); else printf(“%d does not appear more than %d times in arr[]”, x, n/2); getchar(); return 0; } please let know if anything wrong Algoseekar Also Please Check in Cse of Method You are Passing extra parameter n in binary search..i don’t understand this as wel.. see here is i modified program & its working fine /* Program to check for majority element in a sorted array */ #include # define bool int /* If x is present in arr[low…high] then returns the index of first occurance of x, otherwise returns -1 */ int _binarySearch(int arr[], int low, int high, int x); /* This function returns true if the x is present more than n/2 times in arr[] of size n */ bool isMajority(int arr[], int n, int x) { int i = _binarySearch(arr, 0, n-1, x); /* check if the element is present more than n/2 times */ if(((i + n/2) = low) { int mid = (low + high)/2; /*low + (high – low)/2;*/ /* Check if arr[mid] is the first occurrence of x. arr[mid] is first occurrence if x is one of the following is true: (i) mid == 0 and arr[mid] == x (ii) arr[mid-1] arr[mid-1]) && (arr[mid] == x)) return mid; else if(x > arr[mid]) return _binarySearch(arr, (mid + 1), high, x); else return _binarySearch(arr, low, (mid -1), x); } /*Return -1 if element does not appear more than n/2 times*/ return -1; } /* Driver program to check above functions */ int main() { int arr[] = {1, 3, 3, 3,3,4,10};//sorted int n = 7; int x = 3; if(isMajority(arr, n, x)) printf(“%d appears more than %d times in arr[]”, x, n/2); else printf(“%d does not appear more than %d times in arr[]”, x, n/2); getchar(); return 0; } Please let me know if anything wrong..??? sharat Also the Comment /*Return -1 if element does not appear more than n/2 times*/ in _binarysearch method seems in appropriate.. sharat in _binarySearch method There is no use of n, Please remove it. Nitin Taluja Soln. 1) find the median of the array, as the number repeated more than n/2 times or equal to n/2 times will only be the median or in other words find the index of(n/2) using modified version of the quicksort. includealldoth What if i want to actually find the majority element..divide and conquer would fail. someone How about using a hashset? vijayk in the linear search method, if condition should be modified as given below or else it will give wrong result (  if(a[i] == x && (i+n/2 <= n-1) && a[i+n/2] == x) similarly in binary search, the if condition should be  if(( mid == 0 || (mid-1 >= 0) && x > a[mid-1]) && (a[mid] == x)) seeker7 for linear search array need not b sorted ,so method 1 does not work,in case my input is:2 3 4 2 2 2 3 2 GeeksforGeeks @seeker7: The question is about sorted array only (see title). The method 1 uses linear search to check whether the element is majority or not in a given sorted array. codegeek  
+bool isMajority(int arr[], int n, int x)
+{
+   /* if mid element is not x then x is not majority element*/
+   if (n%2 == 0) {
+     if(x != arr[n/2])
+       return 0;
+   } else if ((x != arr[n/2]) && (x != arr[n/2 - 1]))
+     return 0;
+   int i = _binarySearch(arr, 0, n-1, x, n);  
+ 
+   /* check if the element is present more than n/2 times */
+   if(((i + n/2) <= (n -1)) && arr[i + n/2] == x)
+     return 1;
+   else
+     return 0;
+}   
+ last comment in _binarySearch() should be /*Return -1 if element is not present in array*/ codegeek correction:     /* if mid element is not x then x is not majority element*/
+   if (n%2 != 0) {
+     if(x != arr[n/2])
+       return 0;
+   } else if ((n>=2) && (x != arr[n/2]) && (x != arr[n/2 - 1]))
+     return 0; Shrikant I agree with this solution. seeker7 is there any proof to the logic used i.e. is it is a majority element it should also occur at i+n/2..coz it occurs atleast n/2 times? GeeksforGeeks @devendra: x may not be equal to arr[n/2] when it is not a majority element. For example arr[] = [1, 2, 3, 4, 4] and x = 4 Ashish Yaa but integer should occur more than n/2 times … so it should be minimum n/2+1 times ….. so here 4 should be minimum 5/2+1=3 times… show we will not return 4 as the majority element. devendra In above Solution-2 x will always equal to a[n/2] so we dont have to give manually or consider as a parameter Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

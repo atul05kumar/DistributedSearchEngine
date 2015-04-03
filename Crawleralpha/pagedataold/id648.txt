@@ -1,0 +1,452 @@
+Convert a given tree to its Sum Tree - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Convert a given tree to its Sum Tree Given a Binary Tree where each node has positive and negative values. Convert this to a tree where each node contains the sum of the left and right sub trees in the original tree. The values of leaf nodes are changed to 0. For example, the following tree 
+                  10
+               /      \
+	     -2        6
+           /   \      /  \ 
+	 8     -4    7    5
+ should be changed to 
+                 20(4-2+12+6)
+               /      \
+	   4(8-4)      12(7+5)
+           /   \      /  \ 
+	 0      0    0    0
+ Solution: Do a traversal of the given tree. In the traversal, store the old value of the current node, recursively call for left and right subtrees and change the value of current node as sum of the values returned by the recursive calls. Finally return the sum of new value and value (which is sum of values in the subtree rooted with this node). 
+#include<stdio.h>
+
+/* A tree node structure */
+struct node
+{
+  int data;
+  struct node *left;
+  struct node *right;
+};
+
+// Convert a given tree to a tree where every node contains sum of values of
+// nodes in left and right subtrees in the original tree
+int toSumTree(struct node *node)
+{
+    // Base case
+    if(node == NULL)
+      return 0;
+
+    // Store the old value
+    int old_val = node->data;
+
+    // Recursively call for left and right subtrees and store the sum as
+    // new value of this node
+    node->data = toSumTree(node->left) + toSumTree(node->right);
+
+    // Return the sum of values of nodes in left and right subtrees and
+    // old_value of this node
+    return node->data + old_val;
+}
+
+// A utility function to print inorder traversal of a Binary Tree
+void printInorder(struct node* node)
+{
+     if (node == NULL)
+          return;
+     printInorder(node->left);
+     printf("%d ", node->data);
+     printInorder(node->right);
+}
+
+/* Utility function to create a new Binary Tree node */
+struct node* newNode(int data)
+{
+  struct node *temp = new struct node;
+  temp->data = data;
+  temp->left = NULL;
+  temp->right = NULL;
+
+  return temp;
+}
+
+/* Driver function to test above functions */
+int main()
+{
+  struct node *root = NULL;
+  int x;
+
+  /* Constructing tree given in the above figure */
+  root = newNode(10);
+  root->left = newNode(-2);
+  root->right = newNode(6);
+  root->left->left = newNode(8);
+  root->left->right = newNode(-4);
+  root->right->left = newNode(7);
+  root->right->right = newNode(5);
+
+  toSumTree(root);
+
+  // Print inorder traversal of the converted tree to test result of toSumTree()
+  printf("Inorder Traversal of the resultant tree is: \n");
+  printInorder(root);
+
+  getchar();
+  return 0;
+}
+ Output: 
+Inorder Traversal of the resultant tree is:
+0 4 0 20 0 12 0
+ Time Complexity: The solution involves a simple traversal of the given tree. So the time complexity is O(n) where n is the number of nodes in the given Binary Tree. See this forum thread for the original question. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. AlienOnEarth @Geeksforgeeks: The above problem can be solved in o(n) time and o(n) space. The solution is as below. Please consider it. // Convert a given tree to a tree where every node contains sum of values of // nodes in left and right subtrees in the original tree int toSumTree(struct node *root) { // Base case if(root == NULL) return 0; if(root->left == NULL && root->right == NULL) { int temp = root->data; root->data =0; return temp; } int left = toSumTree(root->left); int right = toSumTree(root->right); int temp = root->data; root->data = left + right; return (root->data+temp); } Pullikesi void sumtree(struct tree* root) { int ldata,rdata,lsum,rsum; ldata=rdata=0; if root == null return 0; if root->left!=null ldata=root->left->data if root->right!=null rdata=root->right->data root->data=sumtree(root->left) + sumtree(root->right) + ldata + rdata ; return (root->data) } James Fraser Given a tree where each node has a key value, compute the sum of key values of all the nodes in the sub-tree rooted at each tree node. One restriction on the problem was that each node has a pointer to its parent node, but not to its children. How to solve the restriction? Subrahmanyan Sankaran // SumTree.cpp : Defines the entry point for the console application. #include struct Node { int data; Node *left; Node *right; Node *link; Node *parent; int depth; }; class Tree { static int sum; static Node * prev; static int l; public: Node *head; int maxdepth; Tree() { head = NULL; maxdepth = 0; } void InsertNode(Node *node,int data) { Node * tmp = node; if(head == NULL) { head = new Node; head->data = data; head->left = NULL; head->right = NULL; head->link = NULL; head->parent = NULL; head->depth = 0; return; } else if(tmp) { prev = tmp; if(data > tmp->data) { l=0; tmp = tmp -> right; InsertNode(tmp,data); } else { l=1; InsertNode(tmp->left,data); } } if(l == 1) { prev->left = new Node; prev->left->data = data; prev->left->left = NULL; prev->left->right = NULL; l = -1; return; } else if(l == 0) { prev->right = new Node; prev->right->data = data; prev->right->left = NULL; prev->right->right = NULL; l = -1; return; } } void Sum(Node *node) { if(node) { Sum(node->left); Sum(node->right); if(node->left) node->data = node->left->data; if(node->right) node->data = node->data + node->right->data; } } void Inorder(Node *node) { if(node) { Inorder(node->left); std::cout<data; Inorder(node->right); } } }; Node * Tree::prev = NULL; int Tree::l =0; int main(int argc, char* argv[]) { Tree t; t.InsertNode(t.head,10); t.InsertNode(t.head,7); t.InsertNode(t.head,13); t.InsertNode(t.head,5); t.InsertNode(t.head,9); t.InsertNode(t.head,12); t.InsertNode(t.head,15); t.InsertNode(t.head,3); t.InsertNode(t.head,6); t.InsertNode(t.head,8); t.InsertNode(t.head,11); t.InsertNode(t.head,1); t.InsertNode(t.head,4); t.InsertNode(t.head,2); t.Sum(t.head); t.Inorder(t.head); return 0; } vishal  
+int sum_tree(node_t* root)
+{
+	if(root)
+	{
+		return ( root-> key + sum_tree(root-> left) +         sum_tree(root -> right));
+		
+	}
+}
+void change_to_sum_tree(node_t* root)
+{
+	int temp = 0;
+	if(root)
+	{
+		if(root -> left == NULL && root -> right ==NULL)
+			root -> key = 0;
+		else
+		{
+			
+			root -> key = -(root -> key) +              sum_tree(root);
+		}
+		
+		change_to_sum_tree( root -> left);
+	
+		change_to_sum_tree( root -> right);
+	}
+}
+ ultimate_coder nice ! ! easy to understand abhishek08aug Intelligent DigitalFox Hi, Please let me know if it works for all cases ..  
+public static Node sumTree(Node root){
+		if(root==null){
+			return root;
+		}else{
+			
+			if(root.left!=null && root.right!=null){
+				root.data = root.left.data + root.right.data; 
+			} 
+			if(root.left==null && root.right==null){
+				root.data = 0;
+			}
+			if(root.left!=null && root.right==null){
+				root.data = root.left.data;
+			}
+			if(root.right != null && root.left == null){
+				root.data = root.right.data;
+			}
+			
+			root.left = sumTree(root.left);
+			root.right = sumTree(root.right);			
+
+			if(root.left!=null && root.right!=null){
+				root.data = root.data+root.left.data + root.right.data;
+			}
+			
+			return root;
+		}
+	}
+ Thanks cyberWolf  
+int toSumTree(treeNode* x)
+{
+        if(x->left == NULL && x->right == NULL)
+        {
+                int temp = x->data;
+                x->data = 0;
+                return temp;
+        }
+
+        int l=0,r=0;
+
+        if(x->left)
+                l=toSumTree(x->left);
+        if(x->right)
+                r=toSumTree(x->right);
+        
+        int old = x->data;
+        x->data = l+r;
+
+        return (x->data+old);
+}
+ novice.c @Bharath  
+int sum_tree(node *r)
+{
+   if (!r)
+     return 0;
+   int left_node_val =0, right_node_val =0;
+   if (r->left)
+      left_node_val = r->left->data;  //Store left node value if present
+   if (r->right)
+      right_node_val = r->right->data;  //Store right node value if present
+   r->data = (left_node_val + right_node_val + sum_tree(r->left) + sum_tree(r->right));
+   return (r->data);
+}
+ Your above solution sounds good. The solution mentioned in the post seems wrong as can be confirmed by running it for leaf nodes. It doesn’t set them to 0. Nagaraju yes I feel same  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Anonymous  
+void sumTree(tree *t)
+{
+        int leftNum = 0,rightNum = 0;
+        if(t == NULL)
+                return;
+        if(t -> left)
+        {
+                leftNum = t -> left -> num;
+        }
+        if(t -> right)
+        {
+                rightNum = t -> right -> num;
+        }
+        sumTree(t -> left);
+        sumTree(t -> right);
+
+        t -> num = leftNum + rightNum;
+        if(t -> left)
+        {
+                t -> num += t -> left -> num;
+        }
+        if(t -> right)
+        {
+                t -> num += t -> right -> num;
+        }
+        return;
+}       
+
+
+ Shaketbaby  
+
+public class BiTreeToSumTree
+{
+    public static BiTreeNode biTreeToSumTree(final BiTreeNode node)
+    {
+        if (node == null) {
+            return null;
+        }
+        BiTreeNode newNode = new BiTreeNode(0);
+        toSumTreePreCheck(node, newNode);
+        return newNode;
+    }
+
+    private static int toSumTreePreCheck(final BiTreeNode node, final BiTreeNode newNode)
+    {
+        int oldLeftData = 0,
+            oldRightData = 0;
+
+        if (node.left != null) {
+            newNode.left = new BiTreeNode(0);
+            oldLeftData = toSumTreePreCheck(node.left, newNode.left);
+        }
+        if (node.right != null) {
+            newNode.right = new BiTreeNode(0);
+            oldRightData = toSumTreePreCheck(node.right, newNode.right);
+        }
+        newNode.data = oldLeftData + oldRightData + data(newNode.left) + data(newNode.right);
+        return node.data;
+    }
+
+    private static int data(final BiTreeNode node)
+    {
+        return node == null ? 0 : node.data;
+    }
+}
+
+public class BiTreeNode
+{
+    public int data;
+    public BiTreeNode left;
+    public BiTreeNode right;
+
+    public BiTreeNode(final int data)
+    {
+        this.data = data;
+    }
+
+    public BiTreeNode(final int data, final BiTreeNode left, final BiTreeNode right)
+    {
+        this.data = data;
+        this.left = left;
+        this.right = right;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "[" + data + ", " + left + ", " + right + "]";
+    }
+
+}
+
+ kartikaditya public class SumTree { private static class Node { int key; Node left; Node right; } private Node root; private int summify(Node node) { if (node == null) { return 0; } int sum = summify(node.left) + summify(node.right); int key = node.key; node.key = sum; return key + sum; } public void summify() { summify(root); } } Bharath  
+int sum_tree(node *r)
+{
+   if (!r)
+     return 0;
+   int left_node_val =0, right_node_val =0;
+   if (r->left)
+      left_node_val = r->left->data;  //Store left node value if present
+   if (r->right)
+      right_node_val = r->right->data;  //Store right node value if present
+   r->data = (left_node_val + right_node_val + sum_tree(r->left) + sum_tree(r->right));
+   return (r->data);
+}
+ candis I didnt get the logic… wnt the following function be correct  
+int comp_sum(struct node *node)
+{
+    if(node->left==NULL&&node->right==NULL)
+    {
+                                           node->val=0;
+                                           return 0;
+                                           }
+    
+    else
+    {
+        int a,b;
+        a=node->right->val;
+        b=node->left->val;
+        
+        node->val=a+b+comp_sum(node->right)+comp_sum(node->left);
+        return node->val;
+        }
+}
+ murali529 I think this would be the correct logic. Plz correct me if I’m wrong.  
+int toSumTree(struct node *node)
+{
+    // Base case
+    if(node->left == NULL && node.right ==NULL)
+    {  
+    node->data = 0;
+ }else {
+
+ 
+    // Recursively call for left and right subtrees and store the sum as
+    // new value of this node
+    node->data = node->left->data + node -> right ->data + toSumTree(node->left) + toSumTree(node->right);
+
+  }
+
+ return node -> data;
+}
+ Shekhu This looks incorrect. Eg. for leaf nodes, you are losing the old value. The old value must be stored somewhere before updaing it to the new value. Test your program for the sample input, it will fail. murali529 Hi Shekhu, Those values will be in the stack. I’m attaching the source code i tested. Try it out.  
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package javaapplication16;
+
+/**
+ *
+ * @author murali
+ */
+public class BinaryTree {
+    
+    public class BNode {
+        BNode left_child = null;
+        BNode right_child = null;
+        int data;
+        public BNode(int data){
+            this.data = data;
+        }
+    }
+    
+    BNode root = null;
+    
+    public BNode add(BNode node, int data){
+        
+        if(root == null){
+            
+        }
+        
+        if(node == null){
+            BNode newNode = new BNode(data);
+            if(root == null){
+            root = newNode;
+            }
+            return newNode;
+           
+        }else {
+            
+            if(data <= node.data){
+              node.left_child =  add(node.left_child, data);
+            }else {
+              node.right_child = add(node.right_child, data);
+            }
+            
+        }
+        
+        return node;
+    }
+    
+    public void add(int data){
+        add(root, data);
+    }
+    
+    public void printInorder(){
+        printInorder(root);
+    }
+    
+    public void printInorder(BNode node){
+        
+        if(node == null){
+            return;
+        }
+        
+        printInorder(node.left_child);
+        System.out.print(node.data + "  ");
+        printInorder(node.right_child);
+        
+    }
+    
+    public int toSumTree(BNode node){
+        
+        if(node.left_child == null && node.right_child == null){
+            node.data = 0;
+        } else {
+            node.data = node.left_child.data + node.right_child.data + toSumTree(node.left_child) + toSumTree(node.right_child);
+        }
+        
+        return node.data;
+    }
+    
+    public void toSumTree(){
+        toSumTree(root);
+    }
+    
+}
+
+  
+
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package javaapplication16;
+
+/**
+ *
+ * @author murali
+ */
+public class JavaApplication16 {
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        BinaryTree myBinaryTree = new BinaryTree();
+        myBinaryTree.add(4);
+        myBinaryTree.add(2);
+        myBinaryTree.add(6);
+        myBinaryTree.add(1);
+        myBinaryTree.add(3);
+        myBinaryTree.add(5);
+        myBinaryTree.add(7);
+        
+        myBinaryTree.printInorder();
+        
+        myBinaryTree.toSumTree();
+        System.out.println();
+        
+        myBinaryTree.printInorder();
+    }
+}
+
+
+ agrawal25 # include using namespace std; struct bstNode{ struct bstNode *left; int data; struct bstNode *right; }; typedef struct bstNode node; void insert(node **root, int x){ if(*root==NULL){ *root = (node*) malloc(sizeof (node)); (*root)->left=NULL; (*root)->data = x; (*root)->right = NULL; } else { if(x > (*root)->data) insert(&((*root)->right),x); else insert(&((*root)->left),x); } return ; } void inorder(node *root){ if(root!=NULL){ inorder(root->left); printf(“%d\n”,root->data); inorder(root->right); } else return; } int SumTree(node *root){ if(root==NULL) return 0; else{ int oldValue = root->data; root->data=SumTree(root->left)+SumTree(root->right); return (root->data + oldValue); }} void TreeSearch (node *root, int x, node **find){ *find=NULL; if(root->data==x){ *find = root; } else if(x > root->data) TreeSearch (root->right,x,find); else if(x < root->data) TreeSearch(root->left,x,find); } int main(){ int a[]={15,6,18,3,7,17,20,2,4,13,9}; node *root; root=NULL; for(int i=0;i<11;i++){ insert(&root,a[i]); } inorder(root); node *f; TreeSearch(root,13,&f); cout< data< cout<<”value of full tree sum “<< SumTree(root)< inorder(root); system(“pause”); return 0; } Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

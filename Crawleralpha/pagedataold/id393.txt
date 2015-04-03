@@ -1,0 +1,173 @@
+Write an Efficient C Program to Reverse Bits of a Number - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Write an Efficient C Program to Reverse Bits of a Number Method1 – Simple Loop through all the bits of an integer. If a bit at ith position is set in the i/p no. then set the bit at (NO_OF_BITS – 1) – i in o/p. Where NO_OF_BITS is number of bits present in the given number. 
+/* Function to reverse bits of num */
+unsigned int reverseBits(unsigned int num)
+{
+    unsigned int  NO_OF_BITS = sizeof(num) * 8;
+    unsigned int reverse_num = 0, i, temp;
+
+    for (i = 0; i < NO_OF_BITS; i++)
+    {
+        temp = (num & (1 << i));
+        if(temp)
+            reverse_num |= (1 << ((NO_OF_BITS - 1) - i));
+    }
+ 
+    return reverse_num;
+}
+
+/* Driver function to test above function */
+int main()
+{
+    unsigned int x = 2; 
+    printf("%u", reverseBits(x));
+    getchar();
+}
+ Above program can be optimized by removing the use of variable temp. See below the modified code. 
+unsigned int reverseBits(unsigned int num)
+{
+    unsigned int  NO_OF_BITS = sizeof(num) * 8;
+    unsigned int reverse_num = 0;
+    int i;
+    for (i = 0; i < NO_OF_BITS; i++)
+    {
+        if((num & (1 << i)))
+           reverse_num |= 1 << ((NO_OF_BITS - 1) - i);  
+   }
+    return reverse_num;
+}
+ Time Complexity: O(log n) Space Complexity: O(1) Method 2 – Standard The idea is to keep putting set bits of the num in reverse_num until num becomes zero. After num becomes zero, shift the remaining bits of reverse_num. Let num is stored using 8 bits and num be 00000110. After the loop you will get reverse_num as 00000011. Now you need to left shift reverse_num 5 more times and you get the exact reverse 01100000. 
+unsigned int reverseBits(unsigned int num)
+{
+    unsigned int count = sizeof(num) * 8 - 1;
+    unsigned int reverse_num = num;
+    
+    num >>= 1; 
+    while(num)
+    {
+       reverse_num <<= 1;       
+       reverse_num |= num & 1;
+       num >>= 1;
+       count--;
+    }
+    reverse_num <<= count;
+    return reverse_num;
+}
+
+int main()
+{
+    unsigned int x = 1;
+    printf("%u", reverseBits(x));
+    getchar();
+}
+ Time Complexity: O(log n) Space Complexity: O(1) Method 3 – Lookup Table: We can reverse the bits of a number in O(1) if we know the size of the number. We can implement it using look up table. Go through the below link for details. You will find some more interesting bit related stuff there. http://www-graphics.stanford.edu/~seander/bithacks.html#BitReverseTable           Related Topics: Check if binary representation of a number is palindrome Swap two nibbles in a byte How to turn off a particular bit in a number? Check if a number is multiple of 9 using bitwise operators How to swap two numbers without using a temporary variable? Divide and Conquer | Set 4 (Karatsuba algorithm for fast multiplication) Find position of the only set bit Swap all odd and even bits Tags: Bit Magic Tweet Writing code in comment? Please use ideone.com and share the link here. rcrox There is a major flaw in first solution. ith bit should be NO_OF_BITS +1 -i from reverse rather than NO_OF_BITS -1-i Ur solution will give a garbage value Atul #include int main() { unsigned int num=67; int temp1,temp2; int temp; int j,i=31; int sizeOfNum=0; printf(“Number is =%dn”,num); while(i>=0) { temp = num&(1<i) { temp1=num&(1<<i); temp2=num&(1<<j); if((temp1==0 && temp2!=0)||(temp1!=0 && temp2==0)) { num=num^(1<<i); num=num^(1<<j); } i++; j–; } printf("After reversal Number Is =%dn",num); return 0; } hemanthreddy  
+#define INT_SIZE 32
+
+void reverse_bits(unsigned int num)
+{
+	int i=INT_SIZE-1;
+	unsigned int rev_num=0;
+	while(i>=0 && num)
+	{
+		if(num & 1)
+			rev_num |= (1<<i);
+		num>>=1;
+		i--;
+	}
+	printf("\nreversed number: %u\n",rev_num);
+}
+ http://www.geeksforgeeks.org/write-an-efficient-c-program-to-reverse-bits-of-a-number/ olive wont ~no suffice Hanish In method 2, is it necessary to initialise reverse_num = num even though we do not utilise any bit of reverse_num taken from n. and why do we check the first bit of n outside the while loop.is dat a special bit in a corner case ?? Is the following code correct or are there some corner cases missing.Please explain. unsigned int reverseBits(unsigned int num) { unsigned int count = sizeof(num) * 8 ; unsigned int reverse_num = 0; while(num) { reverse_num <>= 1; count–; } reverse_num <<= count; return reverse_num; } Hanish Sorry,there was a typing error . It should be : while(num) { reverse_num <>= 1; count–; } Ashish Here is one more way, although standard only with n/2 complexity.  
+int bitreverse(int x)
+{
+	unsigned int lmask = 0x80000000;
+	int rmask = 0x01;
+
+	while(lmask>rmask)
+	{
+		if(!(((mask1&x) != 0 && (mask2&x) != 0) || ((mask1&x)==0 && (mask2&x)==0)))
+		{
+			x=x^mask1;
+			x=x^mask2;
+		}
+		mask1>>=1;
+		mask2<<=1;
+	}
+
+	return x;
+}
+ Ashish Corrected with variable names:  
+int bitreverse(int x)
+{
+	unsigned int lmask = 0x80000000;
+	int rmask = 0x01;
+
+	while(mask1>mask2)
+	{
+		if(!(((lmask &x) != 0 && (rmask&x) != 0) || ((lmask &x)==0 && (rmask&x)==0)))
+		{
+			x=x^lmask;
+			x=x^rmask;
+		}
+		lmask >>=1;
+		rmask <<=1;
+	}
+
+	return x;
+}
+
+ ikram #include #include #define BIT 5 void swap(char *, char *); int main() { char reverse[33]; int num=18,i,a=1; for(i=BIT-1;i>=0;i–) { if(num & a) reverse[i]=’1′; else reverse[i]=’0′; a=a<<1; } reverse[BIT]=''; printf("%s\n",reverse); int ans; ans=func(reverse); printf("ans=%d\n",ans); } int func(char *reverse) { int i=0,j=BIT-1; int m=0; int sum=0; while(i=0;i–) sum= sum+ (reverse[i]-‘0′) * pow(2,m++); return sum; } void swap(char *a,char *b) { char temp; temp=*a; *a=*b; *b=temp; } Optimus Method 3 won’t work for negative integers. Tp  
+#include<stdio.h>
+unsigned int swapBits(unsigned int x, unsigned int i, unsigned int j)
+{
+        unsigned int left=((x>>i)&1);
+        unsigned int right=((x>>j)&1);
+        if(left^right)
+                x^=((1U<<i)|(1U<<j));
+        return x;
+}
+main()
+{
+        unsigned int x=1;
+        int n = sizeof(x)*8;
+        int i=0;
+        for(i=0;i<n/2;i++)
+                x=swapBits(x,i,n-i-1);
+        printf("after reversing:%u\n",x);
+}
+
+ Bharath How is the time complexity of method (2) log(n)? nicks why the complexity in the first one is O(logn) it should be O(n) ?? vendetta  
+unsigned int reverseBits(unsigned int num)
+{
+    unsigned int i=0;
+    i--;
+    return (num^i);
+}    
+ its O(1)!!! we can also use ~num http://math-puzzles-computing.blogspot.com/ Venki @vendetta, it is bit reversal not complimenting every bit. Please check the question. seeker7 hi can anyone pls elaborate on the complexity,why is it o(log n) for method 1?? thanks Shekhu I think the correct time complexity should be O(log(MAX_UNSIGNED_INT)) or O(NO_OF_BITS) where MAX_UNSIGNED_INT is maximum possible value of unsigned integer. Comments are welcome. Venki Another solution here, in the order of log(N) http://math-puzzles-computing.blogspot.com/2010/06/bit-reversal_02.html Dheeraj please provide pseudo code / C code for this solution? Venki I am providing the working code  
+unsigned __int32 reversing_bits(unsigned __int32 input)
+{
+    // complixity O(log [no.of.bits]) = O(1)
+    // On 32 bit machines it takes 5 steps (logical)
+
+    // Step 1
+    // Mask bit positions 0, 2, 4... shift LEFT this masked number by one
+    // Mask bit positions 1, 3, 5... shift RIGHT this masked number by one
+    input = (input & 0x55555555) <<  1 | (input & 0xAAAAAAAA) >>  1;
+    
+    // Step 2
+    // Mask bit positions 01, 45, 89... shift LEFT this masked number by two
+    // Mask bit positions 23, 67... shift RIGHT this masked number by two
+    input = (input & 0x33333333) <<  2 | (input & 0xCCCCCCCC) >>  2;
+
+    // Step 3
+    input = (input & 0x0F0F0F0F) <<  4 | (input & 0xF0F0F0F0) >>  4;
+    
+    // Step 4
+    input = (input & 0x00FF00FF) <<  8 | (input & 0xFF00FF00) >>  8;
+    // Sept 5
+    input = (input & 0x0000FFFF) << 16 | (input & 0xFFFF0000) >> 16;
+
+    return input;
+}
+
+// Input  0x2345ABCD (0010 0011 0100 0101 1010 1011 1100 1101)
+// Output 0xB3D5A2C4 (1011 0011 1101 0101 1010 0010 1100 0100)
+ sarath really smart…!! geeksforgeeks @game & hunny: Thanks very much for pointing this out. We have corrected the code. hunny In the last few codes, the problem is the order of reverse_num |= num & 1; reverse_num <<= 1; you do an extra shift left, which should not be done. Kindly look into it. hunny The reversal of bits of 2 should give 1073741824, but your method gives -2147483648. game I feel that the order the following lines should be reversed in all the codes. “reverse_num |= num & 1; reverse_num <<= 1;" Actually the last line right shifts the reverse_num, at the last iteration, so the reverse_num suffers from an additional shift which it should not have. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

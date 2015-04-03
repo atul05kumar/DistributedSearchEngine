@@ -1,0 +1,445 @@
+Greedy Algorithms | Set 8 (Dijkstra’s Algorithm for Adjacency List Representation) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Greedy Algorithms | Set 8 (Dijkstra’s Algorithm for Adjacency List Representation) We recommend to read following two posts as a prerequisite of this post. 1. Greedy Algorithms | Set 7 (Dijkstra’s shortest path algorithm) 2. Graph and its representations We have discussed Dijkstra’s algorithm and its implementation for adjacency matrix representation of graphs. The time complexity for the matrix representation is O(V^2). In this post, O(ELogV) algorithm for adjacency list representation is discussed. As discussed in the previous post, in Dijkstra’s algorithm, two sets are maintained, one set contains list of vertices already included in SPT (Shortest Path Tree), other set contains vertices not yet included. With adjacency list representation, all vertices of a graph can be traversed in O(V+E) time using BFS. The idea is to traverse all vertices of graph using BFS and use a Min Heap to store the vertices not yet included in SPT (or the vertices for which shortest distance is not finalized yet).  Min Heap is used as a priority queue to get the minimum distance vertex from set of not yet included vertices. Time complexity of operations like extract-min and decrease-key value is O(LogV) for Min Heap. Following are the detailed steps. 1) Create a Min Heap of size V where V is the number of vertices in the given graph. Every node of min heap contains vertex number and distance value of the vertex. 2) Initialize Min Heap with source vertex as root (the distance value assigned to source vertex is 0). The distance value assigned to all other vertices is INF (infinite). 3) While Min Heap is not empty, do following …..a) Extract the vertex with minimum distance value node from Min Heap. Let the extracted vertex be u. …..b) For every adjacent vertex v of u, check if v is in Min Heap. If v is in Min Heap and distance value is more than weight of u-v plus distance value of u, then update the distance value of v. Let us understand with the following example. Let the given source vertex be 0 Initially, distance value of source vertex is 0 and INF (infinite) for all other vertices. So source vertex is extracted from Min Heap and distance values of vertices adjacent to 0 (1 and 7) are updated. Min Heap contains all vertices except vertex 0. The vertices in green color are the vertices for which minimum distances are finalized and are not in Min Heap Since distance value of vertex 1 is minimum among all nodes in Min Heap, it is extracted from Min Heap and distance values of vertices adjacent to 1 are updated (distance is updated if the a vertex is not in Min Heap and distance through 1 is shorter than the previous distance). Min Heap contains all vertices except vertex 0 and 1. Pick the vertex with minimum distance value from min heap. Vertex 7 is picked. So min heap now contains all vertices except 0, 1 and 7. Update the distance values of adjacent vertices of 7. The distance value of vertex 6 and 8 becomes finite (15 and 9 respectively). Pick the vertex with minimum distance from min heap. Vertex 6 is picked. So min heap now contains all vertices except 0, 1, 7 and 6. Update the distance values of adjacent vertices of 6. The distance value of vertex 5 and 8 are updated. Above steps are repeated till min heap doesn’t become empty. Finally, we get the following shortest path tree. 
+// C / C++ program for Dijkstra's shortest path algorithm for adjacency
+// list representation of graph
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+// A structure to represent a node in adjacency list
+struct AdjListNode
+{
+    int dest;
+    int weight;
+    struct AdjListNode* next;
+};
+
+// A structure to represent an adjacency liat
+struct AdjList
+{
+    struct AdjListNode *head;  // pointer to head node of list
+};
+
+// A structure to represent a graph. A graph is an array of adjacency lists.
+// Size of array will be V (number of vertices in graph)
+struct Graph
+{
+    int V;
+    struct AdjList* array;
+};
+
+// A utility function to create a new adjacency list node
+struct AdjListNode* newAdjListNode(int dest, int weight)
+{
+    struct AdjListNode* newNode =
+            (struct AdjListNode*) malloc(sizeof(struct AdjListNode));
+    newNode->dest = dest;
+    newNode->weight = weight;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// A utility function that creates a graph of V vertices
+struct Graph* createGraph(int V)
+{
+    struct Graph* graph = (struct Graph*) malloc(sizeof(struct Graph));
+    graph->V = V;
+
+    // Create an array of adjacency lists.  Size of array will be V
+    graph->array = (struct AdjList*) malloc(V * sizeof(struct AdjList));
+
+     // Initialize each adjacency list as empty by making head as NULL
+    for (int i = 0; i < V; ++i)
+        graph->array[i].head = NULL;
+
+    return graph;
+}
+
+// Adds an edge to an undirected graph
+void addEdge(struct Graph* graph, int src, int dest, int weight)
+{
+    // Add an edge from src to dest.  A new node is added to the adjacency
+    // list of src.  The node is added at the begining
+    struct AdjListNode* newNode = newAdjListNode(dest, weight);
+    newNode->next = graph->array[src].head;
+    graph->array[src].head = newNode;
+
+    // Since graph is undirected, add an edge from dest to src also
+    newNode = newAdjListNode(src, weight);
+    newNode->next = graph->array[dest].head;
+    graph->array[dest].head = newNode;
+}
+
+// Structure to represent a min heap node
+struct MinHeapNode
+{
+    int  v;
+    int dist;
+};
+
+// Structure to represent a min heap
+struct MinHeap
+{
+    int size;      // Number of heap nodes present currently
+    int capacity;  // Capacity of min heap
+    int *pos;     // This is needed for decreaseKey()
+    struct MinHeapNode **array;
+};
+
+// A utility function to create a new Min Heap Node
+struct MinHeapNode* newMinHeapNode(int v, int dist)
+{
+    struct MinHeapNode* minHeapNode =
+           (struct MinHeapNode*) malloc(sizeof(struct MinHeapNode));
+    minHeapNode->v = v;
+    minHeapNode->dist = dist;
+    return minHeapNode;
+}
+
+// A utility function to create a Min Heap
+struct MinHeap* createMinHeap(int capacity)
+{
+    struct MinHeap* minHeap =
+         (struct MinHeap*) malloc(sizeof(struct MinHeap));
+    minHeap->pos = (int *)malloc(capacity * sizeof(int));
+    minHeap->size = 0;
+    minHeap->capacity = capacity;
+    minHeap->array =
+         (struct MinHeapNode**) malloc(capacity * sizeof(struct MinHeapNode*));
+    return minHeap;
+}
+
+// A utility function to swap two nodes of min heap. Needed for min heapify
+void swapMinHeapNode(struct MinHeapNode** a, struct MinHeapNode** b)
+{
+    struct MinHeapNode* t = *a;
+    *a = *b;
+    *b = t;
+}
+
+// A standard function to heapify at given idx
+// This function also updates position of nodes when they are swapped.
+// Position is needed for decreaseKey()
+void minHeapify(struct MinHeap* minHeap, int idx)
+{
+    int smallest, left, right;
+    smallest = idx;
+    left = 2 * idx + 1;
+    right = 2 * idx + 2;
+
+    if (left < minHeap->size &&
+        minHeap->array[left]->dist < minHeap->array[smallest]->dist )
+      smallest = left;
+
+    if (right < minHeap->size &&
+        minHeap->array[right]->dist < minHeap->array[smallest]->dist )
+      smallest = right;
+
+    if (smallest != idx)
+    {
+        // The nodes to be swapped in min heap
+        MinHeapNode *smallestNode = minHeap->array[smallest];
+        MinHeapNode *idxNode = minHeap->array[idx];
+
+        // Swap positions
+        minHeap->pos[smallestNode->v] = idx;
+        minHeap->pos[idxNode->v] = smallest;
+
+        // Swap nodes
+        swapMinHeapNode(&minHeap->array[smallest], &minHeap->array[idx]);
+
+        minHeapify(minHeap, smallest);
+    }
+}
+
+// A utility function to check if the given minHeap is ampty or not
+int isEmpty(struct MinHeap* minHeap)
+{
+    return minHeap->size == 0;
+}
+
+// Standard function to extract minimum node from heap
+struct MinHeapNode* extractMin(struct MinHeap* minHeap)
+{
+    if (isEmpty(minHeap))
+        return NULL;
+
+    // Store the root node
+    struct MinHeapNode* root = minHeap->array[0];
+
+    // Replace root node with last node
+    struct MinHeapNode* lastNode = minHeap->array[minHeap->size - 1];
+    minHeap->array[0] = lastNode;
+
+    // Update position of last node
+    minHeap->pos[root->v] = minHeap->size-1;
+    minHeap->pos[lastNode->v] = 0;
+
+    // Reduce heap size and heapify root
+    --minHeap->size;
+    minHeapify(minHeap, 0);
+
+    return root;
+}
+
+// Function to decreasy dist value of a given vertex v. This function
+// uses pos[] of min heap to get the current index of node in min heap
+void decreaseKey(struct MinHeap* minHeap, int v, int dist)
+{
+    // Get the index of v in  heap array
+    int i = minHeap->pos[v];
+
+    // Get the node and update its dist value
+    minHeap->array[i]->dist = dist;
+
+    // Travel up while the complete tree is not hepified.
+    // This is a O(Logn) loop
+    while (i && minHeap->array[i]->dist < minHeap->array[(i - 1) / 2]->dist)
+    {
+        // Swap this node with its parent
+        minHeap->pos[minHeap->array[i]->v] = (i-1)/2;
+        minHeap->pos[minHeap->array[(i-1)/2]->v] = i;
+        swapMinHeapNode(&minHeap->array[i],  &minHeap->array[(i - 1) / 2]);
+
+        // move to parent index
+        i = (i - 1) / 2;
+    }
+}
+
+// A utility function to check if a given vertex
+// 'v' is in min heap or not
+bool isInMinHeap(struct MinHeap *minHeap, int v)
+{
+   if (minHeap->pos[v] < minHeap->size)
+     return true;
+   return false;
+}
+
+// A utility function used to print the solution
+void printArr(int dist[], int n)
+{
+    printf("Vertex   Distance from Source\n");
+    for (int i = 0; i < n; ++i)
+        printf("%d \t\t %d\n", i, dist[i]);
+}
+
+// The main function that calulates distances of shortest paths from src to all
+// vertices. It is a O(ELogV) function
+void dijkstra(struct Graph* graph, int src)
+{
+    int V = graph->V;// Get the number of vertices in graph
+    int dist[V];      // dist values used to pick minimum weight edge in cut
+
+    // minHeap represents set E
+    struct MinHeap* minHeap = createMinHeap(V);
+
+    // Initialize min heap with all vertices. dist value of all vertices 
+    for (int v = 0; v < V; ++v)
+    {
+        dist[v] = INT_MAX;
+        minHeap->array[v] = newMinHeapNode(v, dist[v]);
+        minHeap->pos[v] = v;
+    }
+
+    // Make dist value of src vertex as 0 so that it is extracted first
+    minHeap->array[src] = newMinHeapNode(src, dist[src]);
+    minHeap->pos[src]   = src;
+    dist[src] = 0;
+    decreaseKey(minHeap, src, dist[src]);
+
+    // Initially size of min heap is equal to V
+    minHeap->size = V;
+
+    // In the followin loop, min heap contains all nodes
+    // whose shortest distance is not yet finalized.
+    while (!isEmpty(minHeap))
+    {
+        // Extract the vertex with minimum distance value
+        struct MinHeapNode* minHeapNode = extractMin(minHeap);
+        int u = minHeapNode->v; // Store the extracted vertex number
+
+        // Traverse through all adjacent vertices of u (the extracted
+        // vertex) and update their distance values
+        struct AdjListNode* pCrawl = graph->array[u].head;
+        while (pCrawl != NULL)
+        {
+            int v = pCrawl->dest;
+
+            // If shortest distance to v is not finalized yet, and distance to v
+            // through u is less than its previously calculated distance
+            if (isInMinHeap(minHeap, v) && dist[u] != INT_MAX && 
+                                          pCrawl->weight + dist[u] < dist[v])
+            {
+                dist[v] = dist[u] + pCrawl->weight;
+
+                // update distance value in min heap also
+                decreaseKey(minHeap, v, dist[v]);
+            }
+            pCrawl = pCrawl->next;
+        }
+    }
+
+    // print the calculated shortest distances
+    printArr(dist, V);
+}
+
+
+// Driver program to test above functions
+int main()
+{
+    // create the graph given in above fugure
+    int V = 9;
+    struct Graph* graph = createGraph(V);
+    addEdge(graph, 0, 1, 4);
+    addEdge(graph, 0, 7, 8);
+    addEdge(graph, 1, 2, 8);
+    addEdge(graph, 1, 7, 11);
+    addEdge(graph, 2, 3, 7);
+    addEdge(graph, 2, 8, 2);
+    addEdge(graph, 2, 5, 4);
+    addEdge(graph, 3, 4, 9);
+    addEdge(graph, 3, 5, 14);
+    addEdge(graph, 4, 5, 10);
+    addEdge(graph, 5, 6, 2);
+    addEdge(graph, 6, 7, 1);
+    addEdge(graph, 6, 8, 6);
+    addEdge(graph, 7, 8, 7);
+
+    dijkstra(graph, 0);
+
+    return 0;
+}
+ Output: Vertex   Distance from Source
+0                0
+1                4
+2                12
+3                19
+4                21
+5                11
+6                9
+7                8
+8                14 Time Complexity: The time complexity of the above code/algorithm looks O(V^2) as there are two nested while loops. If we take a closer look, we can observe that the statements in inner loop are executed O(V+E) times (similar to BFS). The inner loop has decreaseKey() operation which takes O(LogV) time. So overall time complexity is O(E+V)*O(LogV) which is O((E+V)*LogV) = O(ELogV) Note that the above code uses Binary Heap for Priority Queue implementation. Time complexity can be reduced to O(E + VLogV) using Fibonacci Heap. The reason is, Fibonacci Heap takes O(1) time for decrease-key operation while Binary Heap takes O(Logn) time. Notes: 1) The code calculates shortest distance, but doesn’t calculate the path information. We can create a parent array, update the parent array when distance is updated (like prim’s implementation) and use it show the shortest path from source to different vertices. 2) The code is for undirected graph, same dijekstra function can be used for directed graphs also. 3) The code finds shortest distances from source to all vertices. If we are interested only in shortest distance from source to a single target, we can break the for loop when the picked minimum distance vertex is equal to target (Step 3.a of algorithm). 4) Dijkstra’s algorithm doesn’t work for graphs with negative weight edges. For graphs with negative weight edges, Bellman–Ford algorithm can be used, we will soon be discussing it as a separate post. References: Introduction to Algorithms by Clifford Stein, Thomas H. Cormen, Charles E. Leiserson, Ronald L. Algorithms by Sanjoy Dasgupta, Christos Papadimitriou, Umesh Vazirani Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Vertex Cover Problem | Set 1 (Introduction and Approximate Algorithm) Snake and Ladder Problem Tarjan’s Algorithm to find Strongly Connected Components Shortest path with exactly k edges in a directed and weighted graph Count all possible walks from a source to a destination with exactly k edges Euler Circuit in a Directed Graph Given an array of strings, find if the strings can be chained to form a circle Given a sorted dictionary of an alien language, find order of characters Tags: Dijkstra, Graph, Greedy Algorithm Tweet Writing code in comment? Please use ideone.com and share the link here. hello 3rd point in the Notes section says, as soon as the distance for the target is found… break. But in case if there is other way to go that target having minimum distance than the one calculated before? so I guess even if we are interested in single target, program should loop for the whole vertices… Kumar Vikram There was some bugs in my earlier comment. This is the corrected code. #include<iostream> #include <list> #include <limits.h> using namespace std; class AdjListNode { int v; int weight; public: AdjListNode(int _v, int _w) { v = _v; weight = _w;} int getV() { return v; } int getWeight() { return weight; } }; class Graph { int V; // No. of vertices’ // Pointer to an array containing adjacency lists list<AdjListNode> *adj; public: Graph(int V); // Constructor // function to add an edge to graph void addEdge(int u, int v, int weight); void get_dist(int src); int min_dist(int dist[],bool sptSet[]); }; Graph::Graph(int V) { this->V = V; adj = new list<AdjListNode>[V]; } void Graph::addEdge(int u, int v, int weight) { AdjListNode node(v, weight); adj[u].push_back(node); // Add v to u’s list } int Graph::min_dist(int dist[],bool sptSet[]) { int min = INT_MAX, min_index; for (int v = 0; v < V; v++) if (sptSet[v] == false && dist[v] <= min) min = dist[v], min_index = v; return min_index; } void Graph::get_dist(int src) { int dist[V]; // The output array. dist[i] will hold the shortest // distance from src to i bool sptSet[V]; // sptSet[i] will true if vertex i is included in shortest // path tree or shortest distance from src to i is finalized for (int i = 0; i < V; i++) dist[i] = INT_MAX, sptSet[i] = false; // Distance of source vertex from itself is always 0 dist[src] = 0; sptSet[src] = true; list<AdjListNode>::iterator i; for(i=adj[src].begin();i!=adj[src].end();i++) { if(!sptSet[i->getV()] && (dist[i->getV()] > dist[src]+i->getWeight())) dist[i->getV()] = dist[src]+i->getWeight(); } for(int count = 0; count < V-1; count++) { int u=min_dist(dist,sptSet); sptSet[u] = true; list<AdjListNode>::iterator i; for(i=adj[u].begin();i!=adj[u].end();i++) { if(!sptSet[i->getV()] && dist[u]!=INT_MAX && (dist[i->getV()] > dist[u]+i->getWeight())) dist[i->getV()] = dist[u]+i->getWeight(); } } cout<<"Vertex\t\tDistance"<<endl; for(int i=0;i<V;i++) { cout<<i<<"\t\t"<<dist[i]<<"\t\t"; cout<<endl; } } int main() { Graph g(9); g.addEdge(0, 1, 4); g.addEdge(1, 0, 4); g.addEdge(0, 7, 8); g.addEdge(7, 0, 8); g.addEdge(1, 2, 8); g.addEdge(2, 1, 8); g.addEdge(1, 7, 11); g.addEdge(7, 1, 11); g.addEdge(2, 3, 7); g.addEdge(3, 2, 7); g.addEdge(2, 8, 2); g.addEdge(8, 2, 2); g.addEdge(2, 5, 4); g.addEdge(5, 2, 4); g.addEdge(3, 4, 9); g.addEdge(4, 3, 9); g.addEdge(3, 5, 14); g.addEdge(5, 3, 14); g.addEdge(4, 5, 10); g.addEdge(5, 4, 10); g.addEdge(5, 6, 2); g.addEdge(6, 5, 2); g.addEdge(6, 7, 1); g.addEdge(7, 6, 1); g.addEdge(6, 8, 6); g.addEdge(8, 6, 6); g.addEdge(7, 8, 7); g.addEdge(8, 7, 7); int s=0; cout <<"Following are shortest distances from source " << s <<"\n"; g.get_dist(s); return 0; } Kumar Vikram Another Implementation using Adjancency List in C++.  
+#include<iostream>
+#include <list>
+#include <limits.h>
+
+
+
+using namespace std;
+ 
+class AdjListNode
+{
+    int v;
+    int weight;
+public:
+    AdjListNode(int _v, int _w)  { v = _v;  weight = _w;}
+    int getV()       {  return v;  }
+    int getWeight()  {  return weight; }
+};
+ 
+class Graph
+{
+    int V;    // No. of vertices'
+    // Pointer to an array containing adjacency lists
+    list<AdjListNode> *adj;
+ 
+    
+    public:
+    Graph(int V);   // Constructor
+ 
+    // function to add an edge to graph
+    void addEdge(int u, int v, int weight);
+    void get_dist(int src);
+    int min_dist(int dist[],bool sptSet[],int k);
+    
+    
+};
+ 
+Graph::Graph(int V)
+{
+    this->V = V;
+    adj = new list<AdjListNode>[V];
+}
+ 
+void Graph::addEdge(int u, int v, int weight)
+{
+    AdjListNode node(v, weight);
+    adj[u].push_back(node); // Add v to u's list
+}
+
+int Graph::min_dist(int dist[],bool sptSet[],int k)
+{
+	int min = INT_MAX, min_index,j;
+ 	list<AdjListNode>::iterator i;
+	for(i=adj[k].begin();i!=adj[k].end();i++)
+	{
+		if (sptSet[i->getV()] == false && dist[i->getV()] <= min)
+			{
+         			min = dist[i->getV()], min_index = i->getV();
+				j=i->getV();
+			}
+	}
+	return (j);
+}
+
+void Graph::get_dist(int src)
+{
+	int dist[V];     // The output array.  dist[i] will hold the shortest
+                      // distance from src to i
+ 
+     bool sptSet[V]; // sptSet[i] will true if vertex i is included in shortest
+                     // path tree or shortest distance from src to i is finalized
+
+	for (int i = 0; i < V; i++)
+        dist[i] = INT_MAX, sptSet[i] = false;
+ 
+     // Distance of source vertex from itself is always 0
+      dist[src] = 0;
+	sptSet[src] = true;
+	static int k=src;
+	list<AdjListNode>::iterator i;
+		for(i=adj[src].begin();i!=adj[src].end();i++)
+		{
+			if(!sptSet[i->getV()] &&  (dist[i->getV()] > dist[src]+i->getWeight()))
+				dist[i->getV()] = dist[src]+i->getWeight();
+		}
+	for(int count = 0; count < V-1; count++)
+	{
+		int u=min_dist(dist,sptSet,k);
+		sptSet[u] = true;
+		k=u;
+		list<AdjListNode>::iterator i;
+		for(i=adj[u].begin();i!=adj[u].end();i++)
+		{
+			if(!sptSet[i->getV()] && dist[u]!=INT_MAX && (dist[i->getV()] > dist[u]+i->getWeight()))
+				dist[i->getV()] = dist[u]+i->getWeight();
+		}
+	} 
+	cout<<"Vertex\t\tDistance"<<endl;
+for(int i=0;i<V;i++)
+{
+	cout<<i<<"\t\t"<<dist[i]<<"\t\t";
+	cout<<endl;
+}
+}
+
+int main()
+{
+    
+    Graph g(5);
+    g.addEdge(0, 1, 1);
+    g.addEdge(0, 2, 4);
+    g.addEdge(1, 2, 3);
+    g.addEdge(1, 3, 5);
+    g.addEdge(1, 4, 1);
+    g.addEdge(3, 2, 5);
+    g.addEdge(3, 1, 1);
+    g.addEdge(4, 3, 1);
+ 
+    int s = 0;
+    cout << "Following are shortest distances from source " << s <<" \n";
+    g.get_dist(s);
+ 
+    return 0;
+} 
+ http://www.tsndiffopera.in Sai Nikhil many thanks for this. I was looking for this implementation can you implement the same using a Fibonnacci heap, so that the decreaseKey() operation takes constant, O(1) amortized cost and running time then becomes O(E + VlogV) … nikunj hi.. do you have the code of dijkstra implemented with fibonacci heap.? if yes, then please send it to me at coolnik2006@gmail.com Thanks nikunj hi.. do you have the code of dijkstra implemented with fibonacci heap.? if yes, then please send it to me at coolnik2006@gmail.com Thanks Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,807 @@
+Search an element in a sorted and pivoted array - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Search an element in a sorted and pivoted array Question: An element in a sorted array can be found in O(log n) time via binary search. But suppose I rotate the sorted array at some pivot unknown to you beforehand. So for instance, 1 2 3 4 5 might become 3 4 5 1 2. Devise a way to find an element in the rotated array in O(log n) time. Solution: Thanks to Ajay Mishra for initial solution. Algorithm: Find the pivot point, divide the array in two sub-arrays and call binary search. The main idea for finding pivot is – for a sorted (in increasing order) and pivoted array, pivot element is the only only element for which next element to it is smaller than it. Using above criteria and binary search methodology we can get pivot element in O(logn) time 
+Input arr[] = {3, 4, 5, 1, 2}
+Element to Search = 1
+  1) Find out pivot point and divide the array in two 
+      sub-arrays. (pivot = 2) /*Index of 5*/
+  2) Now call binary search for one of the two sub-arrays.
+      (a) If element is greater than 0th element then 
+             search in left array
+      (b) Else Search in right array 
+          (1 will go in else as 1 < 0th element(3))
+  3) If element is found in selected sub-array then return index 
+     Else return -1.
+ Implementation: 
+/* Program to search an element in a sorted and pivoted array*/
+#include <stdio.h>
+
+int findPivot(int[], int, int);
+int binarySearch(int[], int, int, int);
+
+/* Searches an element no in a pivoted sorted array arrp[]
+   of size arr_size */
+int pivotedBinarySearch(int arr[], int arr_size, int no)
+{
+   int pivot = findPivot(arr, 0, arr_size-1);
+
+   // If we didn't find a pivot, then array is not rotated at all
+   if (pivot == -1)
+     return binarySearch(arr, 0, arr_size-1, no);
+
+   // If we found a pivot, then first compare with pivot and then
+   // search in two subarrays around pivot
+   if (arr[pivot] == no)
+     return pivot;
+   if (arr[0] <= no)
+     return binarySearch(arr, 0, pivot-1, no);
+   else
+     return binarySearch(arr, pivot+1, arr_size-1, no);
+}
+
+/* Function to get pivot. For array 3, 4, 5, 6, 1, 2 it will
+   return 3. If array is not rotated at all, then it returns -1 */
+int findPivot(int arr[], int low, int high)
+{
+   // base cases
+   if (high < low)  return -1;
+   if (high == low) return low;
+
+   int mid = (low + high)/2;   /*low + (high - low)/2;*/
+   if (mid < high && arr[mid] > arr[mid + 1])
+     return mid;
+   if (mid > low && arr[mid] < arr[mid - 1])
+     return (mid-1);
+   if (arr[low] >= arr[mid])
+     return findPivot(arr, low, mid-1);
+   else
+     return findPivot(arr, mid + 1, high);
+}
+
+/* Standard Binary Search function*/
+int binarySearch(int arr[], int low, int high, int no)
+{
+   if (high < low)
+       return -1;
+   int mid = (low + high)/2;  /*low + (high - low)/2;*/
+   if (no == arr[mid])
+     return mid;
+   if (no > arr[mid])
+     return binarySearch(arr, (mid + 1), high, no);
+   else
+     return binarySearch(arr, low, (mid -1), no);
+}
+
+
+/* Driver program to check above functions */
+int main()
+{
+   // Let us search 3 in below array
+   int arr1[] = {5, 6, 7, 8, 9, 10, 1, 2, 3};
+   int arr_size = sizeof(arr1)/sizeof(arr1[0]);
+   int no = 3;
+   printf("Index of the element is %d\n",  pivotedBinarySearch(arr1, arr_size, no));
+
+    // Let us search 3 in below array
+   int arr2[] = {3, 4, 5, 1, 2};
+   arr_size = sizeof(arr2)/sizeof(arr2[0]);
+   printf("Index of the element is %d\n",  pivotedBinarySearch(arr2, arr_size, no));
+
+   // Let us search for 4 in above array
+   no = 4;
+   printf("Index of the element is %d\n",  pivotedBinarySearch(arr2, arr_size, no));
+
+   // Let us search 0 in below array
+   int arr3[] = {1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1};
+   no = 0;
+   arr_size = sizeof(arr3)/sizeof(arr3[0]);
+   printf("Index of the element is %d\n",  pivotedBinarySearch(arr3, arr_size, no));
+
+   // Let us search 3 in below array
+   int arr4[] = {2, 3, 0, 2, 2, 2, 2, 2, 2, 2};
+   no = 3;
+   arr_size = sizeof(arr4)/sizeof(arr4[0]);
+   printf("Index of the element is %d\n",  pivotedBinarySearch(arr4, arr_size, no));
+
+   // Let us search 2 in above array
+   no = 2;
+   printf("Index of the element is %d\n",  pivotedBinarySearch(arr4, arr_size, no));
+
+   // Let us search 3 in below array
+   int arr5[] = {1, 2, 3, 4};
+   no = 3;
+   arr_size = sizeof(arr5)/sizeof(arr5[0]);
+   printf("Index of the element is %d\n",  pivotedBinarySearch(arr5, arr_size, no));
+
+   return 0;
+}
+ Output: Index of the element is 8
+Index of the element is 0
+Index of the element is 1
+Index of the element is 3
+Index of the element is 1
+Index of the element is 0
+Index of the element is 2 Please note that the solution may not work for cases where the input array has duplicates. Time Complexity O(logn) Please write comments if you find any bug in above codes/algorithms, or find other ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: array Tweet Writing code in comment? Please use ideone.com and share the link here. Isha The above given code doesn’t work for test cases like: {1,1,1,1,1,1,1,1,1, 1, 1, 0, 1, 1}, {2,2,2,2,2,2,2,2,2, 3, 0, 2} Rohit Kumar #include #include int main() { int first,last,mid,pivot; int i,x,b[10],n,cnt=0; int a[]={5, 6, 7,8,9,10,11,15, 1, 2, 3}; n=sizeof(a)/sizeof(int); first=0;last=n-1; while(firsta[mid+1]){pivot=mid;break;} else if(a[mid-1]>a[mid]){pivot=mid-1;break;} else if(a[mid]=a[0]) { last=pivot;first=0; while(firstx)last=mid-1; else first=mid+1; } } else { last=n-1;first=pivot+1; while(firstx)last=mid-1; else first=mid+1; } } if(cnt==0)printf(“item not found”); return 0; } http://opensourceforgeeks.blogspot.in/ Aniket Thakur Java Code —–> http://opensourceforgeeks.blogspot.in/2014/02/search-element-in-sorted-and-pivoted.html Uma Trika A very simple solution is here : void find_num(int a[], int start, int end, int num) { int mid; if(start > end) return ; mid = (end+start)/2; if(a[mid] == num) { printf(“Num: %d is found at: %dn”, num, mid); return; } if( (num < a[start] && num num && num > a[mid-1]) || (num> a[start] && num > a[mid] )) { find_num(a, mid+1, end, num); } else { find_num(a, start, mid-1, num); } } mad_monkey It’s wrong.. watch out for the corner cases… Utkarsh try the code for the array – 1,2,3 And the findPivot() returns 2, instead it should return -1. Even though the answer would return the same but it would unnecessarily go into extra iterations. The base case in findPivot() should be if (arr[high] < arr[low]) return -1; Amit Baghel Visited Naved Alam Good work. Have a look at my approach at http://knavite.blogspot.in/2013/11/searching-element-in-rotated-sorted.html . Please give feedback. gb2793 @5d9df33f458fe136466ba62520777a26:disqus your suggestion is wrong.. the code(after removing ‘=’ in last condition of pivot function) fails for the following test cases.. {1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1}… no.= 0 {2, 3, 0, 2, 2, 2, 2, 2, 2, 2}..no.= 3 @bef33b2217708f3a0807940c9de88fbd:disqus i think this code doesn’t work for duplicate values.. plz correct me if i am wrong.. adarsh @9ff12bcf79c45debe893c2ec32fd8e10:disqus you are right. But then the code will still fail for the test case i mentioned. I think this code may not be valid for duplicate cases. adarsh @bef33b2217708f3a0807940c9de88fbd:disqus you code gives wrong pivot value for test case 3 3 3 3 3 4 5 6. Pivot returned is 0 whereas it should be 7. Suggest changing the following line in findPivot function, if(arr[low] >= arr[mid]) to if(arr[low] > arr[mid]). (remove the ‘=’) adarsh @bef33b2217708f3a0807940c9de88fbd:disqus you code gives wrong pivot value for test case 3 3 3 3 3 4 5 6. Pivot returned is 0 whereas it should be 7. Suggest changing the following line in findPivot function, if(arr[low] >= arr[mid]) to if(arr[low] > arr[mid]). (remove the ‘=’). Avinash Nigam Extension of binary search public static int findElementInRotatedSorted(int[] a, int start, int end, int key) { if (end < start) { return -1; } int middle = (start + end) / 2; if (a[middle] == key) { return middle; } if (a[start] <= a[middle]) { if (key = a[start]) { return findElementInRotatedSorted(a, start, middle - 1, key); } else { return findElementInRotatedSorted(a, middle + 1, end, key); } } else { if (a[middle] < key && key <= a[end]) { return findElementInRotatedSorted(a, middle + 1, end, key); } else { return findElementInRotatedSorted(a, start, middle - 1, key); } } } Ankit Chaudhary This is not valid input. Soumya  
+Does not work for an array which contains all elements in decending order.
+
+To find 3 in the array {7,6,5,4,3,2,1}, the above code return -1.
+ Soumya Does not work for an array which contains all elements in decending order. To find 3 in the array {7,6,5,4,3,2,1}, the above code return -1. Soumya It does not work for an array which contains all elements in decending order. For example, int arr1[] = {7,6,5,4,3,2,1}; int no = 3; The above code return -1 as return index. If we think correctly, the above array has been rotated by n(size of the array) times. nishant08  
+#include<stdio.h>
+int pivott(int [], int);
+int binaryy( int [], int , int, int );
+main()
+{
+	int a[10],i,pivot,n,res;
+	int s;
+	scanf("%d", &n);
+	for(i=0;i<n;i++)
+	scanf("%d", &a[i]);
+	
+	printf("enter search-");
+	scanf("%d", &s);
+	
+	pivot=pivott(a,n);
+
+	res=binaryy(a,pivot,s,n);
+	
+	printf("\n%d is on position %d\n",s,res);
+	
+}
+	
+int pivott(int a[],int n)
+{
+	int i;
+	for(i=0;i<n;i++)
+	{
+		if(a[i]<a[i+1])
+		continue;
+		else
+		break;
+	}
+return i;
+}
+
+int binaryy(int a[],int pivot, int s,int n)
+{
+	
+	int mid,low,high;	
+	if(a[pivot]==s)
+	return pivot;
+	
+	else if(a[0]<=s)
+	{
+		low=0;
+		high= pivot;
+		while(low<high)
+		{
+			mid=low+(high)/2;
+			if(a[mid]==s)
+			return mid;
+			
+			else if(a[mid]<s)
+			low++;
+			else
+			high--;
+		}
+
+
+	}
+
+		
+	
+	else
+	{
+		low=pivot;
+		high=n;
+		while(low<high)
+		{
+			mid=low+(high-1)/2;
+			if(a[mid]==s)
+			return mid;
+			
+			if(a[mid]<s)
+			low++;
+			else
+			high--;
+		}
+	}
+	return -1;
+}
+ Girish Reddy Finding the pivot element takes O(n) time in your case. innosam Check out this recursive solution, it could be easily converted into iterative. The good thing about this is, its easy to comprehend. http://innosamcodes.wordpress.com/searching-an-element-in-a-rotated-sorted-array/ innosam  
+int rotbsearch(std::vector<int> &v, int l1, int l2, int value){
+ if(l1 > l2) return -1;
+ if(v[l1] < v[l2]  or l1 == l2){
+   if(value < v[l1] and value > v[l2]) return -1;
+   int m = (l1+l2)/2;
+ 
+   if(value < v[m]) return rotbsearch(v,l1,m-1,value);
+   else if(value > v[m]) return rotbsearch(v,m+1,l2,value);
+   else return m;
+ 
+ }
+ int r = rotbsearch(v, l1, (l1+l2)/2, value);
+  if(r != -1) return r;
+  r = rotbsearch(v,  (l1+l2)/2+1, l2, value);
+  if(r != -1) return r;
+ 
+  return -1;
+}
+ http://innosamcodes.wordpress.com/2013/07/06/searching-an-element-in-a-rotated-sorted-array/ Try this link for more info Sandy Another implementation for non duplicate inputs works in O(lgn) def findElem(array, elem, start,end): if not array or start>end or start<0 or end>=len(array): return -1 mid = (start+end)/2 if array[mid]==elem: return mid elif (elem<array[mid] and elem<=array[end]) or (elem>array[mid] and elem<=array[end]): return findElem(array,elem,mid+1, end) elif (elem<array[mid] and elem>array[end]) or (elem>array[mid] and elem>array[end]): return findElem(array,elem,start,mid-1) tintin @GeeksforGeeks – Please look into the code for the method findPitvot(). It fails for very simple test cases like {7,8,9,10,1,2,3,4,5,6}. Please rectify it asap. GeeksforGeeks Thanks for pointing this out. We have updated the code to handle this case as well. Keep it up!! ronny @geeksforgeeks could you please specify where have you updated the code. Thanks Sandy for which number search does it fails for you code1234 #include int search(int a[],int n,int x) { int lower=0,upper=n-1,mid=(upper+lower)/2; while(lower<=upper) { mid=(lower+upper)/2; if(a[mid]==x) return mid+1; else if(x<a[mid]) { //planning to search lower half? if(xa[upper]) upper=mid-1; else lower=mid+1; } } } int main() { int a[]={3,4,5,6,1,2}; printf(“Position:%d”,search(a,6,3)); return 0; } AMIT The function findPivot doesn’t work for simple input like 7,8,9,10,1,2,3,4,5,6…It returns -1… AMIT  
+/* Program to search an element in a sorted and pivoted array*/
+#include <stdio.h>
+
+int findPivot(int[], int, int);
+int binarySearch(int[], int, int, int);
+
+/* Searches an element no in a pivoted sorted array arrp[]
+   of size arr_size */
+int pivotedBinarySearch(int arr[], int arr_size, int no)
+{
+   int pivot = findPivot(arr, 0, arr_size-1);
+    printf("pivot=%d\n",pivot);
+   // If we didn't find a pivot, then array is not rotated at all
+   if (pivot == -1)
+     return binarySearch(arr, 0, arr_size-1, no);
+
+   // If we found a pivot, then first compare with pivot and then
+   // search in two subarrays around pivot
+   if (arr[pivot] == no)
+     return pivot;
+   if (arr[0] <= no)
+     return binarySearch(arr, 0, pivot-1, no);
+   else
+     return binarySearch(arr, pivot+1, arr_size-1, no);
+}
+
+/* Function to get pivot. For array 3, 4, 5, 6, 1, 2 it will
+   return 3. If array is not rotated at all, then it returns -1 */
+int findPivot(int arr[], int low, int high)
+{
+   // base cases
+   if (high < low)  return -1;
+   if (high == low) return low;
+
+   int mid = (low + high)/2;   /*low + (high - low)/2;*/
+   if (mid < high && arr[mid] > arr[mid + 1])
+     return mid;
+   if (arr[low] >= arr[mid])
+     return findPivot(arr, low, mid-1);
+   else
+     return findPivot(arr, mid + 1, high);
+}
+
+/* Standard Binary Search function*/
+int binarySearch(int arr[], int low, int high, int no)
+{
+   if (high < low)
+       return -1;
+   int mid = (low + high)/2;  /*low + (high - low)/2;*/
+   if (no == arr[mid])
+     return mid;
+   if (no > arr[mid])
+     return binarySearch(arr, (mid + 1), high, no);
+   else
+     return binarySearch(arr, low, (mid -1), no);
+}
+
+
+/* Driver program to check above functions */
+int main()
+{
+   // Let us search 3 in below array
+   int arr1[] = {7, 8, 9, 10, 1, 2, 3,4,5,6};
+   int arr_size = sizeof(arr1)/sizeof(arr1[0]);
+   int no = 3;
+   printf("Index of the element is %d\n",  pivotedBinarySearch(arr1, arr_size, no));
+
+    // Let us search 3 in below array
+   int arr2[] = {3, 4, 5, 1, 2};
+   arr_size = sizeof(arr2)/sizeof(arr2[0]);
+   printf("Index of the element is %d\n",  pivotedBinarySearch(arr2, arr_size, no));
+
+   // Let us search for 4 in above array
+   no = 4;
+   printf("Index of the element is %d\n",  pivotedBinarySearch(arr2, arr_size, no));
+
+   // Let us search 0 in below array
+   int arr3[] = {1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1};
+   no = 0;
+   arr_size = sizeof(arr3)/sizeof(arr3[0]);
+   printf("Index of the element is %d\n",  pivotedBinarySearch(arr3, arr_size, no));
+
+   // Let us search 3 in below array
+   int arr4[] = {2, 3, 0, 2, 2, 2, 2, 2, 2, 2};
+   no = 3;
+   arr_size = sizeof(arr4)/sizeof(arr4[0]);
+   printf("Index of the element is %d\n",  pivotedBinarySearch(arr4, arr_size, no));
+
+   // Let us search 2 in above array
+   no = 2;
+   printf("Index of the element is %d\n",  pivotedBinarySearch(arr4, arr_size, no));
+
+
+   // Let us search 3 in below array
+   int arr5[] = {1, 2, 3, 4};
+   no = 3;
+   arr_size = sizeof(arr5)/sizeof(arr5[0]);
+   printf("Index of the element is %d\n",  pivotedBinarySearch(arr5, arr_size, no));
+
+   return 0;
+}
+
+ GeeksforGeeks @AMIT: Thanks for pointing this out. We have fixed the code. Please see http://ideone.com/TxrsQQ for a sample run. _naive_ I think the function findPivot isn’t working correctly for input arr[] = {1,2,3,4,5}; its returning -1 instead of 4. answer plzzzz GeeksforGeeks Please take a closer look at the code. That is how findPivot() is designed and used. If there is no rotation, then findPivot() returns -1. w.devarshi 1)Compare with the element to be searched(s) with the middle most element. 2)If BS has to be done on lower half, then compare s with the starting element of array. i) if s ii) else, do BS on the same half 3)If BS has to be done on the larger half, then compare s with the last element of array i) if s>a[size],then do BS on other half(smaller) ii) else, do BS on the same half.  
+#include <iostream>
+using namespace std;
+
+int binary(int *a,int s,int e, int q)
+{
+    int mid=(s+e)/2;
+    if(e<=s) return -1;
+    if(a[mid]==q) return mid;
+    if(s+1==e && a[e]==q) return e;
+    if(a[mid]>=q)
+    {
+        if(a[s]>q) binary(a,mid, e, q);
+        else binary( a, s, mid, q);
+    }
+    else
+    {
+        if(a[e]>=q) binary( a, mid, e, q);
+        else binary( a, s, mid, q);
+    }
+}
+
+int main()
+{
+    int a[]={3, 4, 5, 1, 2};
+    int q;
+    cout<<"enter the Query"<<endl;
+    cin>>q;
+    if(binary(a,0,4,q)!=-1) cout<<binary(a,0,4,q);
+    else cout<<"element does not exist";
+}
+
+ Abhi I didn’t go through all the comments but I think the catch is we don’t know if the array is increasing or decreasing. This has to be checked beforehand. It can be done by checking the 1st, mid n last element with their next elements. Two of them will give the same sequence either increasing or decreasing which will be the order of the initial array and then we can do the rest. aygul Referring to full iterative solution by @Ankit and full recursive solution by @Ankit Malthora, I implemented a hybrid of those solutions in c#. I could not find a better way to handle the input containing the same element in the start, middle and end. So I recursively search upper and lower portions of the array in this case. So the worst case goes to O(N) Any sugestions to reduce the worst case ???  
+public static int BinarySearchPivoted(int[] a, int k, int s, int e)
+{
+    int m;
+    while (s <= e)
+    {
+        m = (s + e) / 2;
+        if (a[m] == k) return m;
+
+        if (a[s] == a[e] && a[m] == a[e])
+        {
+            int i1 = BinarySearchPivoted(a, k, s, m - 1);
+            int i2 = BinarySearchPivoted(a, k, m + 1, e);
+            return i1 > i2 ? i1 : i2;
+        }
+
+        if (a[s] <= a[m])
+            if (a[s] <= k && k < a[m])
+                e = m - 1;
+            else
+                s = m + 1;
+        else
+            if (a[m] < k && k <= a[e])
+                s = m + 1;
+            else
+                e = m - 1;
+    }
+    return -1;
+}
+ Ankit try this…. we can do this search without fnding pivot… int rotated_binary_search(int A[], int N, int key) { int L = 0; int R = N – 1; while (L < = R) { int M = L + ((R – L) / 2); if (A[M] == key) return M; if (A[L] < = A[M]) { if (A[L] < = key && key < A[M]) R = M – 1; else L = M + 1; } else { if (A[M] < key && key < = A[R]) L = M + 1; else R = M – 1; } } return -1; } aygul Great method, working for all cases. Thanks… Ankit Malhtora This code will not work for array with multiple repeating elements as seen below.  
+int main()
+{
+   int term[] = {2, 3, 0, 2, 2, 2, 2, 2, 2, 2}, n = 3,
+   count = sizeof(term)/sizeof(int), i;
+   for (i = 0; i != count; i++)
+     cout << term[i] << ' ';
+   cout << endl;
+   cout << "Index of "<< n <<" is "<< rotated_binary_search (term, count, n) << endl;
+   return 0;
+}
+ aygul You are right, it is not working for repeating elements… aygul But even the given solution is not working for that input. Is it ? It fails in findPivot function while checking arr[mid+1] with mid = 9 while arr has 10 elements. GeeksforGeeks @aygul: Thanks for pointing this out. We have updated the original code to handle this case. aygul @GeeksforGeeks: sorry but the code is not totally fixed. You just handled the case for that input. Consider this input : 2,2,2,2,2,3,0,2,2,2 this time your fixed findPivot will return -1 which is not correct. So it will try to find the given key with regular binary search. GeeksforGeeks @aygul: Thanks for pointing this out. We have added a note for this. nomind Nice Solution. @GeeksForGeeks Please include these solution  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ankit Malhotra Improved function to accept count of elements instead of start and end.  
+#include <iostream>
+using namespace::std;
+
+long pivotedBinarySearch(long term[], long count, long element)
+{
+  if (count < 1) return -1;
+  long start = 0, end = count - 1, mid = count/2;
+
+  if (term[mid] == element)
+    return mid;
+
+  // pivoted forward
+  if (term[start] > term[mid])
+  {
+    if (element > term [mid] && element < term[start])
+      return pivotedBinarySearch (term + mid + 1, count - (mid + 1), element);
+    else
+      return pivotedBinarySearch (term, mid, element);
+  }
+  else
+  {
+    // pivoted back
+    if (term[mid] > term[end])
+    {
+      if (element < term [mid] && element > term[end])
+        return pivotedBinarySearch (term, mid, element);
+      else
+        return pivotedBinarySearch (term + mid + 1, count - (mid + 1), element);
+    }
+    else
+    {
+      // may be pivoted either way with lot of equals eg (2, 1, 2, 2,
+2) or (2, 2, 2, 3, 2)
+      if(term[start] == term[end])
+      {
+        long t1 = pivotedBinarySearch (term, mid, element);
+        long t2 = pivotedBinarySearch (term + mid + 1, count - (mid + 1), element);
+        return (t1 > t2 ? t1 : t2);
+      }
+      // Not pivoted
+      else
+      {
+        if (term[mid] < element)
+          return pivotedBinarySearch (term + mid + 1, count - (mid + 1), element);
+        else
+          return pivotedBinarySearch (term, mid, element);
+      }
+    }
+  }
+  return -1;
+}
+
+int main()
+{
+   long term[] = {2, 3, 0, 2, 2, 2, 2, 2, 2, 2}, n = 3,
+   count = sizeof(term)/sizeof(long);
+   for (unsigned long i = 0; i ! = count; i++)
+     cout << term[i] << ' ';
+   cout << endl;
+   cout << "Index of "<< n <<" is "<< pivotedBinarySearch (term, count, n) << endl;
+   return 0;
+}
+ aygul @ankit: This code has O(N) worst case running time. consider searching 3 in 2,2,2,2,2,2,2,2 You will always go here and look all af the elements in the array. if(term[start] == term[end]) { long t1 = pivotedBinarySearch (term, mid, element); long t2 = pivotedBinarySearch (term + mid + 1, count – (mid + 1), element); return (t1 > t2 ? t1 : t2); } But I could not figure out how to resolve the corner case for 2, 3, 0, 2, 2, 2, 2, 2, 2, 2 an still keep O(logN). So can this problem have a O(logN) wortcase solution at all ?? Ankit Malhotra I am not sure about the complexity for the aolution first. My approach always is to first always handle all the cases of a problem. All kinds of input need to be handled. @GeeksforGeeks, I hope you admit that this has to be done first, or the relevant constraints of the problem should be mentioned. @aygul : Technically the input 2,2,…..2 does not even meet the criteria of the problem input as this input can never be considered as pivot sorted. aygul Whether or not you take that input as pivot sorted (it is obviously a valid input btw), the worst case running time for the code you suggest is O(n). But as I said before I could not see a better way than your approach to handle too much duplicates. Ankit Malhotra Checked the previous solutions and duplicate handling was not complete. Looking at all cases including handling of duplicates, and have made O(log(n)) with all cases tested thoroughly as follows.  
+
+// Program to search an element in a sorted and pivoted array
+#include <cstdio>
+#include <iostream>
+#define higher(a, b) (a > b ? a : b)
+
+int pivotedBinarySearch(int term[], int start, int end, int element)
+{
+  int mid = start + ((end - start)/2);
+  if(start > end) return -1;
+  if(term[mid] == element) return mid;
+
+  if(term[start] > term[mid]) // pivoted forward
+    if(element > term [mid] && element < term[start])
+      return pivotedBinarySearch(term, mid + 1, end, element);
+    else return pivotedBinarySearch(term, start, mid - 1, element);
+
+  else if(term[mid] > term[end]) // pivoted back
+    if(element < term [mid] && element > term[end])
+      return pivotedBinarySearch(term, start, mid - 1, element);
+    else return pivotedBinarySearch(term, mid + 1, end, element);
+
+  // may be pivoted either way with lot of equals eg (2, 1, 2, 2, 2)
+or (2, 2, 2, 3, 2)
+  else if(term[start] == term[end])
+    return higher(pivotedBinarySearch(term, start, mid - 1, element),
+pivotedBinarySearch(term, mid + 1, end, element));
+  // Not Pivoted.
+    else if(term[mid] < element) return pivotedBinarySearch(term, mid
++ 1, end, element);
+    else return pivotedBinarySearch(term, start, mid - 1, element);
+
+  return -1;
+}
+
+/* Driver program to check above functions */
+int main()
+{
+   int term[] = {2, 3, 0, 2, 2, 2, 2, 2, 2, 2}, n = 3;
+   int count = sizeof(term)/sizeof(int);
+   printf("Index of the element is %d.", pivotedBinarySearch(term, 0,
+count - 1, n));
+   std::cout << std::endl;
+   return 0;
+}
+
+ sreeram while checking for pivot a[mid] >a[mid+1] doesnt it fail if the array is not all rotated ..since we are accessing mid+1 location ??? Sunny @geeksforgeeks: The solution provided above would hit “array out of bound” error if array size is 1 or 2. ANkit Your code is unable to find the pivot in case i supply the array as 1,1,1,0,1,1,1,1,1,1,1 anon The given method won’t work for arrays containing duplicate elements. Consider a sorted and rotated array [1,3,1,1,1] and search for 3. The given method will return -1 . limpbizkit Hi, will the code work for 1 2 3 4 5 6 7 8 9 10 I mean if the array is rotated by 0 limpbizkit yes , it will.. i got right now huha  
+#include<stdio.h>
+#include<conio.h>
+
+int search(int arr[],int l,int h,int num)
+{
+    if(l<=h)
+    {
+            int m=(l+h)/2;
+            if(num==arr[m]) {printf("found at %d\n",m); }
+                       if(num>arr[l]&&num<arr[m])
+            {
+                            search(arr,l,m-1,num);
+                            }
+            else if(num<arr[l]&&num>arr[m])
+            {
+                 search(arr,m+1,h,num);
+                 }
+            else if(num>arr[l]&&num>arr[m])
+            {
+                 printf("reached");
+                 if(arr[l]<=arr[m])
+                 search(arr,m+1,h,num);
+                 else
+                 search(arr,l,m-1,num);
+                 }
+            else
+            {
+                if(arr[l]<=arr[m])
+                search(arr,m+1,h,num);
+                 else
+                 search(arr,l,m-1,num);
+                 }
+                 }
+   //return -1;
+}
+    
+
+int main()
+{
+    int arr[5]={3,4,5,6,2};
+  search(arr,0,4,2);
+    getch();
+}
+    
+
+ huha kindly comment on any missing cases  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://www.geeksforgeeks.org/archives/1068 xin still not work for : 1,1,1,0,1,1,1,1,1,1,1  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Nargis An element in a sorted array can be found using binary search. But now we rotate that array at some unknown index. For example, 1 2 3 4 5 might become 3 4 5 1 2. Devise a method to find an element in this array. Amit Gupta Hey Guys, I’ve come up with a simpler function, hope you guys have no trouble understanding it. It’s as follows :  
+int pivotedBinarySearch (int *a, int lo, int hi, int key) {
+	int mid;
+	if (lo <= hi) {
+		mid = lo + (hi-lo)/2;
+		if (a[mid] == key) 
+			return mid;
+		if (a[mid]  a[mid]) && (key <= a[hi]))
+			return pivotedBinarySearch(a,mid+1,hi,key);
+			else
+			return pivotedBinarySearch(a,lo,mid-1,key);			
+		}
+		if (a[lo] = a[lo]) && (key < a[mid])) 
+			return pivotedBinarySearch(a,lo,mid-1,key);
+			else 
+			return pivotedBinarySearch(a,mid+1,hi,key);
+		}
+	}
+	else 
+	return -1;
+}
+ Hello http://www.techjobinterview.com/2011/08/28/rotating-a-sorted-array/ shady yup, that’s better VikasG Link not working. bunty I have another approach which also take only O(log n), but uses binarysearch and PivotedBinarySearch()  
+int PivotedBinarySearch(arr, lo, high, num)
+{
+ int mid = (lo+hi)/2;
+
+ if (arr[mid]==num)
+    return mid;
+
+ if (num < arr[mid])
+ {
+  /* Possible that elements on left may be normal sorted or may
+  be pivoted sorted. So num can be in any half */
+  if (ar[lo] < arr[mid])
+   {
+    /* Normal Sorted */
+     if (a[lo]  num) 
+     /* Num is in second half and is in between mid and hi */
+     return binarysearch(arr, mid+1, hi, num);
+    else
+      PivotedBinarySearch(arr, lo, mid-1, num);
+   }
+ }
+else // if (num > a[mid])
+{
+ /* Similar checks as of earlier conditions */
+ if (a[mid] < a[hi])
+ { /* Normal sorted */
+   if (num < a[hi])
+    return binarysearch(arr, mid+1, hi, num);
+   else
+    /* num is in second pivoted half */
+    PivotedBinarySearch(arr, lo, mid-1, num);
+ }
+ else
+ { /* Pivoted search */
+  if (a[lo] < num)
+   return binarysearch(arr, lo, mid-1, num);
+  else
+   PivotedBinarySearch(arr, mid+1, hi, num);
+ }
+} 
+}
+ Please let me know if I am correct or wrong.. bunty  
+// missed < in between a[lo] and num
+//if (a[lo] < num)
+
+/* Possible that elements on left may be normal sorted or may
+be pivoted sorted. So num can be in any half */
+if (ar[lo] < arr[mid])
+{
+/* Normal Sorted */
+if (a[lo] < num)
+/* Num is in second half and is in between mid and hi */
+return binarysearch(arr, mid+1, hi, num);
+else
+PivotedBinarySearch(arr, lo, mid-1, num);
+}
+}
+ bunty Corrected the above code, as it missed few conditions:  
+int PivotedBinarySearch(arr, lo, high, num)
+{
+ int mid = (lo+hi)/2;
+ 
+ if (arr[mid]==num)
+    return mid;
+ 
+ if (num < arr[mid])
+ {
+  /* Possible that elements on left may be normal  sorted or may be pivoted sorted. So num can be in any half */
+  if (ar[lo] < arr[mid])
+   {
+    /* Normal Sorted */
+    if (a[lo] < num)
+     /* Num is in first half and is in between lo and 
+     mid */
+     return binarysearch(arr, lo, mid-1, num);
+    else
+      PivotedBinarySearch(arr, mid+1, hi, num);
+   }
+  else // Pivoted sorted
+   {
+    if (num <a> a[mid])
+{
+ /* Similar checks as of earlier conditions */
+ if (a[mid] < a[hi])
+ { /* Normal sorted */
+   if (num < a[hi])
+    return binarysearch(arr, mid+1, hi, num);
+   else
+    /* num is in second pivoted half */
+    PivotedBinarySearch(arr, lo, mid-1, num);
+ }
+ else
+ { /* Pivoted search */
+  if (a[lo] < num)
+   return binarysearch(arr, lo, mid-1, num);
+  else
+   PivotedBinarySearch(arr, mid+1, hi, num);
+ }
+}
+}
+ Please ignore all other comment and code posted, by bunty, on 5th Sep. Those have missed few conditions. anonymous Tushar’s solution is completely correct..the extra time for finding pivot can be removed using his method help please is it possible to get the index of pivot point that is index of 5 in log n time…? help plz Sandeep @Tushar I tried below program with Dev CPP compiler.  int pivotarray(int arr[],int left,int right,int k)
+{
+    int middle = (left + right)/2;
+ 
+        if(arr[middle] == k)
+        {
+    return middle;
+   }
+ 
+   if(left > right)
+   {
+    return -1;
+   }
+ 
+   if(arr[middle] > arr[right])
+   {
+        if(arr[middle] >  k && arr[left] <= k)
+      {
+        return pivotarray(arr,left,middle-1,k);
+      }
+      else
+      {
+        return pivotarray(arr,middle+1,right,k);
+      }
+   }
+   else if(arr[middle] < arr[left])
+   {
+    if(arr[middle] = k)
+      {
+        return pivotarray(arr,middle+1,right,k);
+      }
+      else
+      {
+        return pivotarray(arr,left,middle-1,k);
+      }
+   }
+   else
+   {
+    if(arr[middle] < k)
+      {
+        return pivotarray(arr,middle+1,right,k);
+      }
+      else
+      {
+        return pivotarray(arr,left,middle-1,k);
+      }
+   }
+}
+ 
+int main()
+{
+   int arr[10] = {3, 4, 5, 6, 7, 1, 2};
+   printf("Index is %d", pivotarray(arr, 0, 6, 4));
+   getchar();
+   return 0;
+} The program prints correct results for all test cases except 4. For 4, it prints -1. Could you provide the compiler name you used for testing? Anurag I tried below case and it is not woking  
+ int arr[10] = { 6, 7, 1, 2, 3, 4, 5 };
+int key = 5;
+ Tushar hey I have this solution which does not have to find a pivot element. Here at every loop one we can have the following 1) left side is still pivoted while right side is normal sorted we check if the number to be searched is in right side sorted range and move accordingly 2) left side is normal sorted while right side is pivoted we check if the number to be sorted is in left side sorted range and move accordingly 3) it is normal sorted move like a normal binary search.  
+int pivotarray(int arr[],int left,int right,int k)
+{
+	int middle = (left + right)/2;
+	
+        if(arr[middle] == k)
+        {
+   	return middle;
+   }
+
+   if(left > right)
+   {
+   	return -1;
+   }
+
+
+   if(arr[middle] > arr[right])
+   {
+    	if(arr[middle] >  k && arr[left] <= k)
+      {
+      	pivotarray(arr,left,middle-1,k);
+      }
+      else
+      {
+      	pivotarray(arr,middle+1,right,k);
+      }
+   }
+   else if(arr[middle] < arr[left])
+   {
+   	if(arr[middle] = k)
+      {
+      	pivotarray(arr,middle+1,right,k);
+      }
+      else
+      {
+      	pivotarray(arr,left,middle-1,k);
+      }
+   }
+   else
+   {
+   	if(arr[middle] < k)
+      {
+      	pivotarray(arr,middle+1,right,k);
+      }
+      else
+      {
+      	pivotarray(arr,left,middle-1,k);
+      }
+   }
+}
+ Tushar Running time of this algo is same O(logn) Sandeep @Tushar: The code doesn’t work for below example.  
+int main()
+{
+   int arr[10] = {3, 4, 5, 6, 7, 1, 2};
+   printf("Index is %d", pivotarray(arr, 0, 6, 7));
+   getchar();
+   return 0;
+} tushar.roy.25 It worked for me. It gave answer 4 which is the index of 7. geeksforgeeks @Neeraj Kumar: Thanks for writing to us. An algorithm can be said to be using binary search methodology if size of the working array is reduced to half on the basis of some criteria, and checking for criteria takes O(1) time. In pivot finding algorithm findPivot(), criteria is to compare arr[mid] with a[mid+1] and a[low], and on the basis of comparison results we reduce the input set to half in each recursive step. Neeraj Kumar I fail to understand that how you can get the pivot element in log(n) time.The pivot could be anywhere in the array.and secondly , the binary search methodology works only if an array is completely sorted. Tushar Roy  
+ 
+   else if(arr[middle] < arr[left])
+   {
+   	if(arr[middle] < k && arr[right] >= k)
+
+ Tushar Roy This last one is the correct one. Had probs with this editor. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

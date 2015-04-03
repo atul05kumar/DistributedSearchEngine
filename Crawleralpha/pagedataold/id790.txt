@@ -1,0 +1,149 @@
+Given a sequence of words, print all anagrams together | Set 2 - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Given a sequence of words, print all anagrams together | Set 2 Given an array of words, print all anagrams together. For example, if the given array is {“cat”, “dog”, “tac”, “god”, “act”}, then output may be “cat tac act dog god”. We have discussed two different methods in the previous post. In this post, a more efficient solution is discussed. Trie data structure can be used for a more efficient solution. Insert the sorted order of each word in the trie. Since all the anagrams will end at the same leaf node. We can start a linked list at the leaf nodes where each node represents the index of the original array of words. Finally, traverse the Trie. While traversing the Trie, traverse each linked list one line at a time. Following are the detailed steps. 1) Create an empty Trie 2) One by one take all words of input sequence. Do following for each word …a) Copy the word to a buffer. …b) Sort the buffer …c) Insert the sorted buffer and index of this word to Trie. Each leaf node of Trie is head of a Index list. The Index list stores index of words in original sequence. If sorted buffe is already present, we insert index of this word to the index list. 3) Traverse Trie. While traversing, if you reach a leaf node, traverse the index list. And print all words using the index obtained from Index list. 
+// An efficient program to print all anagrams together
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#define NO_OF_CHARS 26
+
+// Structure to represent list node for indexes of words in
+// the given sequence. The list nodes are used to connect
+// anagrams at leaf nodes of Trie
+struct IndexNode
+{
+    int index;
+    struct IndexNode* next;
+};
+
+// Structure to represent a Trie Node
+struct TrieNode
+{
+    bool isEnd;  // indicates end of word
+    struct TrieNode* child[NO_OF_CHARS]; // 26 slots each for 'a' to 'z'
+    struct IndexNode* head; // head of the index list
+};
+
+
+// A utility function to create a new Trie node
+struct TrieNode* newTrieNode()
+{
+    struct TrieNode* temp = new TrieNode;
+    temp->isEnd = 0;
+	temp->head = NULL;
+	for (int i = 0; i < NO_OF_CHARS; ++i)
+		temp->child[i] = NULL;
+	return temp;
+}
+
+/* Following function is needed for library function qsort(). Refer
+   http://www.cplusplus.com/reference/clibrary/cstdlib/qsort/ */
+int compare(const void* a, const void* b)
+{  return *(char*)a - *(char*)b; }
+
+/* A utility function to create a new linked list node */
+struct IndexNode* newIndexNode(int index)
+{
+	struct IndexNode* temp = new IndexNode;
+	temp->index = index;
+	temp->next = NULL;
+	return temp;
+}
+
+// A utility function to insert a word to Trie
+void insert(struct TrieNode** root, char* word, int index)
+{
+    // Base case
+	if (*root == NULL)
+		*root = newTrieNode();
+
+	if (*word != '\0')
+		insert( &( (*root)->child[tolower(*word) - 'a'] ), word+1, index );
+	else  // If end of the word reached
+	{
+	    // Insert index of this word to end of index linked list
+		if ((*root)->isEnd)
+		{
+			IndexNode* pCrawl = (*root)->head;
+			while( pCrawl->next )
+				pCrawl = pCrawl->next;
+			pCrawl->next = newIndexNode(index);
+		}
+		else  // If Index list is empty
+		{
+			(*root)->isEnd = 1;
+			(*root)->head = newIndexNode(index);
+		}
+	}
+}
+
+// This function traverses the built trie. When a leaf node is reached,
+// all words connected at that leaf node are anagrams. So it traverses
+// the list at leaf node and uses stored index to print original words
+void printAnagramsUtil(struct TrieNode* root, char *wordArr[])
+{
+	if (root == NULL)
+		return;
+
+	// If a lead node is reached, print all anagrams using the indexes
+	// stored in index linked list
+	if (root->isEnd)
+	{
+		// traverse the list
+		IndexNode* pCrawl = root->head;
+		while (pCrawl != NULL)
+		{
+			printf( "%s \n", wordArr[ pCrawl->index ] );
+			pCrawl = pCrawl->next;
+		}
+	}
+
+	for (int i = 0; i < NO_OF_CHARS; ++i)
+		printAnagramsUtil(root->child[i], wordArr);
+}
+
+// The main function that prints all anagrams together. wordArr[] is input
+// sequence of words.
+void printAnagramsTogether(char* wordArr[], int size)
+{
+    // Create an empty Trie
+	struct TrieNode* root = NULL;
+
+	// Iterate through all input words
+	for (int i = 0; i < size; ++i)
+	{
+	    // Create a buffer for this word and copy the word to buffer
+		int len = strlen(wordArr[i]);
+	    char *buffer = new char[len+1];
+		strcpy(buffer, wordArr[i]);
+
+		// Sort the buffer
+		qsort( (void*)buffer, strlen(buffer), sizeof(char), compare );
+
+        // Insert the sorted buffer and its original index to Trie
+		insert(&root,  buffer, i);
+	}
+
+    // Traverse the built Trie and print all anagrms together
+	printAnagramsUtil(root, wordArr);
+}
+
+
+// Driver program to test above functions
+int main()
+{
+    char* wordArr[] = {"cat", "dog", "tac", "god", "act", "gdo"};
+    int size = sizeof(wordArr) / sizeof(wordArr[0]);
+    printAnagramsTogether(wordArr, size);
+    return 0;
+}
+ Output: cat
+tac
+act
+dog
+god
+gdo Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Suffix Tree Application 5 – Longest Common Substring Generalized Suffix Tree 1 Suffix Tree Application 4 – Build Linear Time Suffix Array Suffix Tree Application 3 – Longest Repeated Substring Suffix Tree Application 2 – Searching All Patterns Suffix Tree Application 1 – Substring Check Ukkonen’s Suffix Tree Construction – Part 6 Ukkonen’s Suffix Tree Construction – Part 5 Tags: Advance Data Structures Tweet Writing code in comment? Please use ideone.com and share the link here. Tarzan Trie is such a complex solution. Here is a much easier Java solution Create a HashMap of the type <String, List> The key string here will be the sorted string and list will contain all the strings from the input array which corresponds to the sorted key. For example: cat and tac will have the same key as act. So its hashmap entry will be act : cat -> tac At the end, just traverse over the entire keyset of the hashmap. alien What is time complexity for this solution? wgpshashank Just writing some quick points , let me know if anything wrong here . 1.keeping index is not necessary since you are already sort the work and then adding to trie , after sorting just search that word (O(k) k is constant here if that exist in trie just add it linked list which is leaf node..no index is needed .. while printing anagram you just need print all such linked list which contains anagrams grouped together in each list , thus extra overhead can be removed. 2. Lets talk about complexity , is it better then hashmap approach ? we are sorting n words which O(nmlogm) m is length of string , n is no of strings insertion in O(n) in trie. Overall O(nmlogm) which is same as HashTable so we are not getting any benefit, which should have been instead . Mukul Rawal Assign each character a unique number. Let’s say a prime number. For eg: a=2, b=3, c=5, so on and so forth. Now, for a string add each character’s corresponding unique number, For eg. ‘cat’ becomes 5+2+71= 78. Now we will have all the anagrams with same number as the sum of their characters unique number will be same. We can create a bucket linked list with these numbers and print the corresponding elements in each bucket of the linked list. Shubhankar Srivastava by that logic “ef (11 + 13)” is same as “ch (5 + 19)”. I think we can group all the strings with the same length and same sum, and then check for anagrams by calculating the frequency of characters in each string and comparing it with other strings to check if they are anagrams or not. Vu Duc Minh Hashing with the summation of irrational number like sqrt(2), sqrt(3) … is even better and can handle overflow. Satya What will be the space and time complexity of this code?? abhishek08aug Intelligent sreeram i think instead of hash tables we can have a int num in the trie node which can make it much easier lets say the 5th string is inserted and the num will be 5 lets say we get the anagram of the string at 7 th string we can update num to be 5*10+7 =57 in the end we can finally split the number to print them sreeram I meant instead of linked lists Aashish The idea seems good. But, it is limited to addressing the anagrams upto a range, like INT_MAX. memo Could you please give complexity analysis of above program?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Palash I think, trie of hash-table would be more efficient. R I am not able to visualize trie DS. Can you please add one diagram as well to indicate index and trie nodes ?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Jeet Nice Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

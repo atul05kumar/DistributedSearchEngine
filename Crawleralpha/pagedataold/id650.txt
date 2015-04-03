@@ -1,0 +1,1253 @@
+Find the maximum sum leaf to root path in a Binary Tree - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find the maximum sum leaf to root path in a Binary Tree Given a Binary Tree, find the maximum sum path from a leaf to root. For example, in the following tree, there are three leaf to root paths 8->-2->10, -4->-2->10 and 7->10. The sums of these three paths are 16, 4 and 17 respectively. The maximum of them is 17 and the path for maximum is 7->10. 
+                  10
+               /      \
+	     -2        7
+           /   \     
+	 8     -4    
+ Solution 1) First find the leaf node that is on the maximum sum path. In the following code getTargetLeaf() does this by assigning the result to *target_leaf_ref. 2) Once we have the target leaf node, we can print the maximum sum path by traversing the tree. In the following code, printPath() does this. The main function is maxSumPath() that uses above two functions to get the complete solution. 
+#include<stdio.h>
+#include<limits.h>
+
+/* A tree node structure */
+struct node
+{
+    int data;
+    struct node *left;
+    struct node *right;
+};
+
+// A utility function that prints all nodes on the path from root to target_leaf
+bool printPath (struct node *root, struct node *target_leaf)
+{
+    // base case
+    if (root == NULL)
+        return false;
+
+    // return true if this node is the target_leaf or target leaf is present in
+    // one of its descendants
+    if (root == target_leaf || printPath(root->left, target_leaf) ||
+            printPath(root->right, target_leaf) )
+    {
+        printf("%d ", root->data);
+        return true;
+    }
+
+    return false;
+}
+
+// This function Sets the target_leaf_ref to refer the leaf node of the maximum 
+// path sum.  Also, returns the max_sum using max_sum_ref
+void getTargetLeaf (struct node *node, int *max_sum_ref, int curr_sum,
+                   struct node **target_leaf_ref)
+{
+    if (node == NULL)
+        return;
+
+    // Update current sum to hold sum of nodes on path from root to this node
+    curr_sum = curr_sum + node->data;
+
+    // If this is a leaf node and path to this node has maximum sum so far,
+    // then make this node target_leaf
+    if (node->left == NULL && node->right == NULL)
+    {
+        if (curr_sum > *max_sum_ref)
+        {
+            *max_sum_ref = curr_sum;
+            *target_leaf_ref = node;
+        }
+    }
+
+    // If this is not a leaf node, then recur down to find the target_leaf
+    getTargetLeaf (node->left, max_sum_ref, curr_sum, target_leaf_ref);
+    getTargetLeaf (node->right, max_sum_ref, curr_sum, target_leaf_ref);
+}
+
+// Returns the maximum sum and prints the nodes on max sum path
+int maxSumPath (struct node *node)
+{
+    // base case
+    if (node == NULL)
+        return 0;
+
+    struct node *target_leaf;
+    int max_sum = INT_MIN;
+
+    // find the target leaf and maximum sum
+    getTargetLeaf (node, &max_sum, 0, &target_leaf);
+
+    // print the path from root to the target leaf
+    printPath (node, target_leaf);
+
+    return max_sum;  // return maximum sum
+}
+
+/* Utility function to create a new Binary Tree node */
+struct node* newNode (int data)
+{
+    struct node *temp = new struct node;
+    temp->data = data;
+    temp->left = NULL;
+    temp->right = NULL;
+    return temp;
+}
+
+/* Driver function to test above functions */
+int main()
+{
+    struct node *root = NULL;
+
+    /* Constructing tree given in the above figure */
+    root = newNode(10);
+    root->left = newNode(-2);
+    root->right = newNode(7);
+    root->left->left = newNode(8);
+    root->left->right = newNode(-4);
+
+    printf ("Following are the nodes on the maximum sum path \n");
+    int sum = maxSumPath(root);
+    printf ("\nSum of the nodes is %d ", sum);
+
+    getchar();
+    return 0;
+}
+ Output: 
+Following are the nodes on the maximum sum path
+7 10
+Sum of the nodes is 17
+ Time Complexity: Time complexity of the above solution is O(n) as it involves tree traversal two times. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. isidorouk Can some one help me to understand what is wrong with this method, which should get the max path of a pyramid? private long GetMax(int row, int column, Pyramid pyramid) { if (row == 0) return pyramid[row, column]; long value = pyramid[row, column]; if (row != 0) { long left = pyramid[row – 1, column]; long right = pyramid[row – 1, column + 1]; long highest = Math.Max(left, right); int nextColumn = highest == left ? column : column + 1; value += GetTotalAbove(row – 1, nextColumn, pyramid); } return value; } Akhil To print the maximum sum : An O(n) postorder simple code  
+#include<stdio.h>
+#include<stdlib.h>
+struct tree
+{
+    int info;
+    struct tree *l;
+    struct tree *r;
+};
+typedef struct tree *Tree;
+
+Tree newNode(int num)
+{
+    Tree temp = (Tree)malloc(sizeof(struct tree));
+    temp->info = num;
+    temp->l = NULL;
+    temp->r = NULL;
+    return temp;
+}
+/* the idea is to calculate the max sum from leaf to root */
+int maxRootLeaf(Tree root)
+{
+    if(!root)
+        return 0;
+    if(!root->l && !root->r)
+        return root->info;
+    /* find max sum for the subtrees*/
+    int ls = maxRootLeaf(root->l);
+    int rs = maxRootLeaf(root->r);
+    /* return maximum of subtrees+ data of the root */
+    return(root->info + (ls>rs?ls:rs));
+}
+int main()
+{
+    struct tree *root = NULL;
+
+    /* Constructing tree given in the above figure */
+    root = newNode(10);
+    root->l = newNode(-2);
+    root->r = newNode(7);
+    root->l->l = newNode(8);
+    root->l->r = newNode(-4);
+    int sum = maxRootLeaf(root);
+    printf ("\nSum of the nodes is %d ", sum);
+    return 0;
+}
+
+
+ Guest And in Haskell: data Tree a = Empty | Node (Tree a) a (Tree a) deriving (Eq,Show) maxRootLeaf :: Tree Int -> Int maxRootLeaf Empty = 0 maxRootLeaf (Node l x r) = x + (if maxRootLeaf (r) > maxRootLeaf (l) then maxRootLeaf (r) else maxRootLeaf (l)) NNavneet “The sums of these three paths are 16, 8 and 17 respectively.” It should be ” The sums of these three paths are 16, 4 and 17 respectively.” In the first paragraph.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks Thanks for pointing this out. We have corrected it. Keep it up! ysunil040  
+int maxSum(Tree root,int toPrint)
+{
+	if (root == NULL)
+		return INT_MIN;
+	if (root->left == NULL && root->right == NULL)
+	{
+		if (toPrint)
+			printf("%d\n",root->data);
+		return root->data;
+	}
+	int lsum = maxSum(root->left,0);
+	int rsum = maxSum(root->right,0);
+
+	if (toPrint)
+	{
+		printf("%d ",root->data);
+		int sum = root->data;
+		if (lsum >= rsum)
+			sum += maxSum(root->left,toPrint);
+		else
+			sum += maxSum(root->right,toPrint);
+		return sum;
+	}
+	else
+	{
+		return root->data + max(lsum,rsum);
+	}
+}
+
+Call the function as maxSum(root,1)
+It's a two pass solution.
+Time Complexity O(H*N) - H - Height of the Tree and N - Number of Nodes
+ ysunil040  
+int maxSum(Tree root,int toPrint)
+{
+        if (root == NULL)
+		return INT_MIN;
+	if (root->left == NULL && root->right == NULL)
+	{
+		if (toPrint)
+			printf("%d\n",root->data);
+		return root->data;
+	}
+	int lsum = maxSum(root->left,0);
+	int rsum = maxSum(root->right,0);
+
+	if (toPrint)
+	{
+		printf("%d ",root->data);
+		int sum = root->data;
+		if (lsum >= rsum)
+			sum += maxSum(root->left,toPrint);
+		else
+			sum += maxSum(root->right,toPrint);
+		return sum;
+	}
+	else
+	{
+		return root->data + max(lsum,rsum);
+	}
+}
+
+Call the above function as 
+  maxSum(root,1)
+
+This will print path from root to leaf and time complexity is O(H*N) H - Height of Tree and N - Number of Nodes in tree
+ abhishek08aug Intelligent ishanu //i dont understand why people are writing so complicated codes.this can be done just by using on function only  
+
+#include <iostream>
+//to find the maximum distance between root and a leaf
+using namespace std;
+
+struct bst
+{
+	int data;
+	bst *lchild;
+	bst *rchild;
+};
+bst* root=NULL;
+bst* total=NULL;
+bst* newNode(int num)
+{
+	bst*node= new bst;
+	node->data=num;
+	node->lchild=NULL;
+	node->rchild=NULL;
+	return node;
+}
+
+void preorder(bst *node,bst *total,int a[2],int sum)
+{
+    if(node==NULL)
+		return;
+    
+    sum=sum+node->data;
+    if(sum>total->data)
+    {
+		total->data=sum;
+		a[1]=node->data;
+	}
+    preorder(node->lchild,total,a,sum);
+ 
+   preorder(node->rchild,total,a,sum);
+ 
+   
+}
+
+
+
+int main()
+{
+	bst* total=new bst;
+	total->data=0;
+	
+	  root = newNode(10);
+    root->lchild = newNode(-2);
+    root->rchild = newNode(7);
+    root->lchild->lchild = newNode(8);
+    root->lchild->rchild = newNode(-4);
+   int a[2];
+    a[0]=root->data;
+	
+	preorder(root,total,a,0);
+cout<<"\nmaximum path is:"<<total->data;
+cout<<"\nthe maximum path is between "<<a[0]<<" & "<<a[1];
+
+
+
+}
+ ishanu a minor change to the above code  
+#include <iostream>
+//to find the maximum distance between root and a leaf
+using namespace std;
+
+struct bst
+{
+	int data;
+	bst *lchild;
+	bst *rchild;
+};
+bst* root=NULL;
+bst* total=NULL;
+bst* newNode(int num)
+{
+	bst*node= new bst;
+	node->data=num;
+	node->lchild=NULL;
+	node->rchild=NULL;
+	return node;
+}
+
+void preorder(bst *node,bst *total,int a[2],int sum)
+{
+    if(node==NULL)
+		return;
+    
+    sum=sum+node->data;
+    if(sum>total->data&&node->lchild==NULL&&node->rchild==NULL)
+    {
+		total->data=sum;
+		a[1]=node->data;
+	}
+    preorder(node->lchild,total,a,sum);
+ 
+   preorder(node->rchild,total,a,sum);
+ 
+   
+}
+
+
+
+int main()
+{
+	bst* total=new bst;
+	total->data=0;
+	
+	  root = newNode(10);
+    root->lchild = newNode(6);
+    root->rchild = newNode(7);
+    root->lchild->lchild = newNode(8);
+    root->lchild->rchild = newNode(-4);
+   int a[2];
+    a[0]=root->data;
+	
+	preorder(root,total,a,0);
+cout<<"\nmaximum path is:"<<total->data;
+cout<<"\nthe maximum path is between "<<a[0]<<" & "<<a[1];
+
+
+
+}
+
+ ishanu a minor change to the above code  
+#include <iostream>
+//to find the maximum distance between root and a leaf
+using namespace std;
+
+struct bst
+{
+	int data;
+	bst *lchild;
+	bst *rchild;
+};
+bst* root=NULL;
+
+bst* newNode(int num)
+{
+	bst*node= new bst;
+	node->data=num;
+	node->lchild=NULL;
+	node->rchild=NULL;
+	return node;
+}
+
+void preorder(bst *node,bst *total,int a[2],int sum)
+{
+    if(node==NULL)
+		return;
+    
+    sum=sum+node->data;
+    if(sum>total->data&&node->lchild==NULL&&node->rchild==NULL)
+    {
+		total->data=sum;
+		a[1]=node->data;
+	}
+    preorder(node->lchild,total,a,sum);
+ 
+   preorder(node->rchild,total,a,sum);
+ 
+   
+}
+
+
+
+int main()
+{
+	bst* total=new bst;
+	total->data=0;
+	
+	  root = newNode(10);
+    root->lchild = newNode(6);
+    root->rchild = newNode(7);
+    root->lchild->lchild = newNode(8);
+    root->lchild->rchild = newNode(-4);
+   int a[2];
+    a[0]=root->data;
+	
+	preorder(root,total,a,0);
+cout<<"\nmaximum path is:"<<total->data;
+cout<<"\nthe maximum path is between "<<a[0]<<" & "<<a[1];
+
+
+
+}
+
+ sirisha  
+main()
+{
+struct node *root=NULL;
+root=newnode(10);
+root->left=newnode(-2);
+root->right=newnode(7);
+root->left->left=newnode(8);
+root->left->right=newnode(-4);
+print_max_sum_path(root);
+}
+struct node* newnode(int n)
+{
+struct node *nu;
+nu=(struct node*)malloc(sizeof(struct node));
+nu->data=n;
+nu->left=NULL;
+nu->right=NULL;
+return nu;
+}
+int max_sum_path(struct node *root)
+{
+if(root==NULL)
+  return;
+
+if(root->left==NULL && root->right==NULL)
+   return root->data;
+
+int ls,rs;
+
+ls=max_sum_path(root->left);
+rs=max_sum_path(root->right);
+
+if(ls>rs)
+return ls+root->data ;
+else
+return rs+root->data;
+}
+
+void print_max_sum_path(struct node *root)
+{
+if(root==NULL)
+  return;
+
+if(root->left==NULL && root->right==NULL)
+  {
+   printf("%d ",root->data);
+   return;
+  }
+
+int ls,rs;
+
+ls=max_sum_path(root->left);
+rs=max_sum_path(root->right);
+
+if(ls>rs)
+print_max_sum_path(root->left);
+else
+print_max_sum_path(root->right);
+
+printf("%d ",root->data);
+}
+
+                                                                                                                                   
+ Karthik How about simple postorder traversal? class Node { public: Node* left; Node* right; int data; Node(int data, Node*right = NULL, Node* left = NULL):data(data),right(right),left(left){}; }; int postorderSum(Node* root, vector<int> &list) { if(!root) return 0; vector<int> rightList, leftList; int rightSum = postorderSum(root->right, rightList); int leftSum = postorderSum(root->left, leftList); int result = 0; if(rightSum > leftSum) { list = rightList; list.push_back(root->data); result = rightSum + root->data; } else { list = leftList; list.push_back(root->data); result = leftSum + root->data; } return result; } void maxSumLeaf(Node* root) { if(!root) return; vector<int> list; int sum = postorderSum(root,list); cout << "Sum is " << sum << endl; for(vector<int>::iterator it = list.begin(); it != list.end(); ++it) cout<<*it<<" "; } Nikhil #include<iostream> using namespace std; #include<stdio.h> #include<stdlib.h> struct node { int info; struct node *left; struct node *right; }; typedef struct node *nodeptr; nodeptr head=NULL; nodeptr maketree(int x) { nodeptr p; p=(nodeptr)malloc(sizeof(struct node)); p->info=x; p->left=NULL; p->right=NULL; return p; } int maxSum(nodeptr root) { int max; if(root==NULL) return 0; int a=maxSum(root->left)+root->info; int b=maxSum(root->right)+root->info; if(a>b) max=a; else max=b; return max; } int main() { nodeptr root=maketree(10); root->left=maketree(-2); root->right=maketree(7); root->left->left=maketree(8); root->left->right=maketree(-4); root->right->left=maketree(6); root->right->right=maketree(8); cout<<maxSum(root); return 0; } RJ  
+#include <iostream>
+#include<string>
+#include<cstdlib>
+using namespace std;
+
+struct node
+{
+    int data;
+    struct node *left;
+    struct node *right;
+};
+void PrintMaxSum(struct node* , int , int&  , string , string&);
+void Print(struct node* root)
+{
+	int sum = 0;
+	int maxsum = 0;
+	string path ="";
+	string maxpath="";
+	PrintMaxSum(root, sum,maxsum, path, maxpath);
+	cout<<"maxpath is "<<maxpath<<endl;
+	cout<<"maxsum is"<<maxsum<<endl;
+}
+
+void PrintMaxSum(struct node* root, int sum, int& maxsum , string path, string& maxpath)
+{
+	
+	if(root==NULL)
+		return;
+	else if(root->left==NULL && root->right==NULL)
+	{
+		sum+=root->data;
+		path+=itoa(root->data);
+		if(sum > maxsum)
+		{
+			maxsum = sum;
+			maxpath = path;
+		}
+	}
+	else
+	{
+	   sum+=root->data;
+	   path+=itoa(root->data);
+	   PrintMaxSum(root->left, sum, maxsum,path,maxpath);
+	   PrintMaxSum(root->right, sum, maxsum, path,maxpath);
+	}
+	
+}
+
+struct node* newNode (int data)
+{
+    struct node *temp = new struct node;
+    temp->data = data;
+    temp->left = NULL;
+    temp->right = NULL;
+    return temp;
+}
+
+int main (int argc, char * const argv[]) {
+    // insert code here...
+	
+    struct node *root = NULL;
+    root = newNode(10);
+    root->left = newNode(-2);
+    root->right = newNode(7);
+    root->left->left = newNode(8);
+    root->left->right = newNode(-4);
+	Print(root);
+    
+	
+	return 0;
+}
+ Kundan Sir, The explanation is good. But if the solution for the problem is little bit in an elaborated way, it would be good for a learner to understand in a crystal clear way. apologies if my idea doesnt fit here.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ RameshSuthan int maxSumtoLeaf(tnodeptr node,int sum,char *decisionTree,int nodePos) { if(node==NULL) { return sum; } int nodesum = sum + node->val; int leftSum = maxSumtoLeaf(node->left,nodesum,decisionTree,left(nodePos)); int rightSum = maxSumtoLeaf(node->right,nodesum,decisionTree,right(nodePos)); decisionTree[nodePos]= (leftSum > rightSum)? ‘L’ : ‘R'; int max = ( leftSum > rightSum ) ? leftSum : rightSum ; return max; } void printMaxSumPath(tnodeptr node,char* decisionTree,int index) { char decision= decisionTree[index]; if(node==NULL) return; printf(“-> %d”,node->val); if(decision==’L’) { printMaxSumPath(node->left,decisionTree,left(index)); } else { printMaxSumPath(node->right,decisionTree,right(index)); } } int left(int i) { return (2*i+1); } int right(int i) { return (2*i+2); } int main() { //treesize -> 2^ height of the tree char* decisionTree = (char *) malloc(treesize * sizeof(char)); maxsum = maxSumtoLeaf(root,0,decisionTree,0); printf(“\n\n maximum sum leaf to root path : %d \n\n”,maxsum); printf(“DecisionTree : %s \n”,decisionTree); printMaxSumPath(root,decisionTree,0); return 0; } //this program uses extra space to store the decision -> 2^ height of the tree //can be optimized by not storing the leaf node decision. //Further can be optimized as Single bit is enough to store the decision 1 / \ 2 3 / \ / \ 4 5 9 7 maximum sum leaf to root path: 13 DecisionTree : RRLRRRR -> 1-> 3-> 9 RameshSuthan  
+/* Paste your code here (You may delete these lines if not writing code) */
+int maxSumtoLeaf(tnodeptr node,int sum,char *decisionTree,int nodePos)
+{
+	if(node==NULL)
+	{
+		return sum;
+	}
+	
+        int nodesum = sum + node->val;
+	int leftSum  = maxSumtoLeaf(node->left,nodesum,decisionTree,left(nodePos));
+	int rightSum =  maxSumtoLeaf(node->right,nodesum,decisionTree,right(nodePos));
+	
+	decisionTree[nodePos]= (leftSum > rightSum)? 'L' : 'R';
+	int max =  ( leftSum > rightSum ) ? leftSum : rightSum ;
+
+	return max;
+}
+
+
+void printMaxSumPath(tnodeptr node,char* decisionTree,int index)
+{
+	char decision= decisionTree[index];
+
+	if(node==NULL)
+		return;
+	
+	printf("-> %d",node->val);
+
+	if(decision=='L') 
+	{
+		printMaxSumPath(node->left,decisionTree,left(index));
+	}
+	else
+	{
+		printMaxSumPath(node->right,decisionTree,right(index));
+	}
+
+}
+
+int left(int i)
+{
+	return (2*i+1);
+}
+
+int right(int i)
+{
+	return (2*i+2);
+}
+
+int main()
+{
+	//treesize -> 2^ height of the tree
+	char* decisionTree = (char *) malloc(treesize * sizeof(char));
+	maxsum = maxSumtoLeaf(root,0,decisionTree,0);
+	printf("\n\n maximum sum leaf to root path : %d \n\n",maxsum);
+	printf("DecisionTree : %s \n",decisionTree);
+	printMaxSumPath(root,decisionTree,0);
+
+	return 0;
+
+}
+
+//this program uses extra space to store the decision -> 2^ height of the tree
+//can be optimized by not storing the leaf node decision.
+//Further can be optimized as Single bit is enough to store the decision 
+    	1
+      /    \
+     2      3
+   /   \   /   \
+  4     5  9    7
+maximum sum leaf to root path: 13   
+DecisionTree : RRLRRRR 
+-> 1-> 3-> 9
+ 
+ Robin Thanks Ramesh Suthan  
+int maxSumtoLeaf(tnodeptr node,int sum,char *decisionTree,int nodePos)
+{
+	if(node==NULL)
+	{
+		return sum;
+	}
+	
+        int nodesum = sum + node->val;
+	int leftSum  = maxSumtoLeaf(node->left,nodesum,decisionTree,left(nodePos));
+	int rightSum =  maxSumtoLeaf(node->right,nodesum,decisionTree,right(nodePos));
+	
+	decisionTree[nodePos]= (leftSum > rightSum)? 'L' : 'R';
+	int max =  ( leftSum > rightSum ) ? leftSum : rightSum ;
+
+	return max;
+}
+
+
+void printMaxSumPath(tnodeptr node,char* decisionTree,int index)
+{
+	char decision= decisionTree[index];
+
+	if(node==NULL)
+		return;
+	
+	printf("-> %d",node->val);
+
+	if(decision=='L') 
+	{
+		printMaxSumPath(node->left,decisionTree,left(index));
+	}
+	else
+	{
+		printMaxSumPath(node->right,decisionTree,right(index));
+	}
+
+}
+
+int left(int i)
+{
+	return (2*i+1);
+}
+
+int right(int i)
+{
+	return (2*i+2);
+}
+
+int main()
+{
+	//treesize -> 2^ height of the tree
+	char* decisionTree = (char *) malloc(treesize * sizeof(char));
+	maxsum = maxSumtoLeaf(root,0,decisionTree,0);
+	printf("\n\n maximum sum leaf to root path : %d \n\n",maxsum);
+	printf("DecisionTree : %s \n",decisionTree);
+	printMaxSumPath(root,decisionTree,0);
+	printf("\n");
+
+	return 0;
+
+}
+
+//this program uses extra space to store the decision -> 2^ height of the tree
+//can be optimized by not storing the leaf node decision.
+//Further can be optimized as Single bit is enough to store the decision 
+    	1
+      /    \
+     2      3
+   /   \   /   \
+  4     5  9    7
+maximum sum leaf to root path: 13   
+DecisionTree : RRLRRRR 
+-> 1-> 3-> 9
+ 
+ Shipra Agrawal I too have a recursive method which also prints the path from leaf to root.  
+
+#include<stdio.h>
+#include<conio.h>
+#include<iostream.h>
+#include<stdlib.h>
+void createbst(int,struct tree**);
+int maxsump(struct tree*);
+int max(int,int);
+struct tree{
+		int val;
+		struct tree* left;
+		struct tree* right;
+		};
+void main()
+{
+	clrscr();
+	int ch=0,val;
+	struct tree* root1=NULL,*root2=NULL;
+	cout<<"enter elements of 1st bst";
+	do{
+		cout<<"enter";
+		cin>>val;
+		createbst(val,&root1);
+		cout<<"want more?";
+		cin>>ch;
+		}while(ch==1);
+
+	int x = maxsump(root1);
+	cout<<"path from leaf to root is ";
+	cout<<"\n"<<root1->val;
+	cout<<"\nsum is "<<x;
+
+
+	getch();
+}
+
+void createbst(int val,struct tree** root)
+{
+	struct tree* t=(struct tree*)malloc(sizeof(struct tree));
+	t->val=val;
+	t->left=NULL;
+	t->right=NULL;
+	struct tree* ptr=*root,*par;
+	char child='c';
+	if(*root==NULL)
+		*root=t;
+
+	while(ptr!=NULL)
+	{
+		if(val<ptr->val)
+		{
+			par=ptr;
+			ptr=ptr->left;
+			child='l';
+		}
+		else if(val>ptr->val)
+		{
+			par=ptr;
+			ptr=ptr->right;
+			child='r';
+		}
+	}
+	if(child=='l')
+		par->left=t;
+	else if(child=='r')
+		par->right=t;
+}
+
+
+int maxsump(struct tree* ptr)
+{
+	if(ptr==NULL)
+		return 0;
+
+		int temp1=maxsump(ptr->left);
+		int temp2=maxsump(ptr->right);
+		int temp=max(temp1,temp2);
+		if(temp!=0)
+		{
+			if(temp==temp1)
+				cout<<"\n "<<ptr->left->val;
+			else
+				cout<<" \n"<<ptr->right->val;
+		}
+		return(ptr->val+temp);
+}
+
+int max(int a,int b)
+{
+	if(a>b)
+	{
+
+	return a;
+	}
+	else
+	{
+
+	return b;
+	}
+
+}
+
+
+
+ Thanks, Shipra Sreenivas This is simple and good Anil arya /* Paste your code here (You may delete these lines if not writing code) */ [/ void max_sum(struct node *root,int *max) { if(root==NULL) return ; if(root->left==NULL&&root->right==NULL) { if(root->data>*max) *max=root->data; } if(root->left) root->left->data+=root->data; if(root->right) root->right->data+=root->data; max_sum(root->left,max); max_sum(root->right,max); } ] xerox this code changes the tree structure and doesn’t prints path  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Algogeek we can print from root to leaf by little modification in the print_path() function.  
+
+int array[20]={0};
+int path_print(struct node* root,struct node* targetleaf)
+{
+    static int i=0;
+    if(root==NULL)
+        return 0;
+    if((root==targetleaf)||path_print(root->left,targetleaf)||path_print(root->right,targetleaf))
+    {
+        array[i++]= root->data;
+        return i;
+    }
+return 0;
+}
+
+ In the main function, we can print the array elements from i-1 to 0. This will be path from root to node. red Yeah nice .  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Arpit  
+/* Paste your code here (You may delete these lines if not writing code)
+#include<stdio.h>
+#include<limits.h>
+
+struct node
+{
+       int data;
+       struct node *left;
+       struct node *right;
+}*root;
+
+struct node *newNode(int key)
+{
+       struct node*tmp=(struct node*)malloc(sizeof(struct node));
+       tmp->left=NULL;
+       tmp->right=NULL;
+       tmp->data=key;
+       return tmp;
+}
+
+    int prevsum=INT_MIN;
+    int a[100],arr[100],sum=0,x;
+       
+maxsum_leafroot(struct node *root,int a[],int n,int sum)
+{
+                       int i;
+                       if(root==NULL) return;
+                       a[n++]=root->data;
+                       sum+=root->data;
+                       if(root->left==NULL && root->right==NULL)
+                       {
+                                          // printf("\nsum=%d prevsum=%d",sum,prevsum);
+                                           if(sum>prevsum)
+                                           {
+                                             prevsum=sum;
+                                           for(i=0;i<n;i++)
+                                              arr[i]=a[i];
+                                              x=n;
+                                           }  
+                                              
+                       }
+ maxsum_leafroot(root->left,a,n,sum);                         
+ maxsum_leafroot(root->right,a,n,sum);      
+}     
+                
+                
+displaytree(struct node *root)
+{
+               if(root==NULL) return;
+               displaytree(root->left);
+               printf("%d ",root->data);
+               displaytree(root->right);
+}
+
+
+    
+int main()
+{
+    /* Let us construct the following Tree
+          50
+       /      \
+     10        60
+    /  \       /  \
+   5   20    75    70
+            /     /  \
+          85     65    80
+  */
+ 
+  struct node *root = newNode(50);
+  root->left        = newNode(10);
+  root->right       = newNode(60);
+  root->left->left  = newNode(5);
+  root->left->right = newNode(20);
+  root->right->left  = newNode(75);
+  root->right->left->left  = newNode(85);
+  root->right->right = newNode(70);
+  root->right->right->left = newNode(65);
+  root->right->right->right = newNode(80);
+      
+     maxsum_leafroot(root,a,0,0);
+      int i;
+      printf("\n Maximum sum is : %d",prevsum);
+      printf("\n Nodes are leaf to root are:");
+     for(i=x-1;i>=0;i--)
+       printf("%d ",arr[i]);
+      
+      getchar();
+}
+ */
+ bobby I found a recursive solution that uses extra memory to track and print the path. http://www.codingissue.com/QuestionSearch.aspx?id=PrintMaxSumPath ani i need code to draw parse tree Gautam  
+#include<stdio.h>
+#include<stdlib.h>
+#include<limits.h>
+ 
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+   int data;
+   struct node* left;
+   struct node* right;
+};
+ 
+ //static int maxsum=INT_MIN;
+ int maxpath[1000];
+ int maxsumlen=0;
+/* Prototypes for funtions needed in printPaths() */
+void printPathsRecur(struct node* node, int path[], int pathLen);
+void printArray(int ints[], int len);
+ 
+/*Given a binary tree, print out all of its root-to-leaf
+ paths, one per line. Uses a recursive helper to do the work.*/
+void printPaths(struct node* node)
+{
+  int path[1000];
+   printPathsRecur(node, path, 0);
+}
+ 
+/* Recursive helper function -- given a node, and an array containing
+ the path from the root node up to but not including this node,
+ print out all the root-leaf paths.*/
+void printPathsRecur(struct node* node, int path[], int pathLen)
+{
+  if (node==NULL)
+    return;
+ 
+  /* append this node to the path array */
+  path[pathLen] = node->data;
+  pathLen++;
+  /* it's a leaf, so print the path that led to here  */
+  if (node->left==NULL && node->right==NULL)
+  {
+    printArray(path, pathLen);
+  }
+  else
+  {
+    /* otherwise try both subtrees */
+    printPathsRecur(node->left, path, pathLen);
+    printPathsRecur(node->right, path, pathLen);
+  }
+}
+ 
+/* UTILITY FUNCTIONS */
+/* Utility that prints out an array on a line. */
+void printArray(int ints[], int len)
+{
+  static int maxsum=INT_MIN;
+  int i;
+  int sum=0;
+  for (i=0; i<len; i++)
+  {
+    sum+=ints[i];
+  }
+  
+  if(maxsum < sum)
+  {
+    maxsum=sum;
+    for (i=0; i<len; i++)
+     {
+      maxpath[i]=ints[i];
+     }
+    maxsumlen=len; 
+  }
+}   
+ 
+int PrintMaxPath()
+{
+ int i;
+ int sum=0;
+ for (i=0; i<maxsumlen; i++)
+  {
+    sum+=maxpath[i];
+    printf("%d ", maxpath[i]);
+  }
+  printf("\n");
+  return sum;
+} 
+/* utility that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+  struct node* node = (struct node*)
+                       malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+ 
+  return(node);
+}
+ 
+/* Driver program to test above functions*/
+int main()
+{
+   struct node *root = NULL;
+   
+    /* Constructing tree given in the above figure */
+    root = newNode(10);
+    root->left = newNode(-2);
+    root->right = newNode(7);
+    root->left->left = newNode(8);
+    root->left->right = newNode(-4);
+ 
+    printf ("Following are the nodes on the maximum sum path \n");
+    printPaths(root);
+    int sum= PrintMaxPath();
+    printf ("Sum of the nodes is %d ", sum);
+    getchar();
+    return 0;
+}
+ http://effprog.blogspot.com Sambasiva http://effprog.blogspot.com/2011/06/print-path-of-minimum-sum-in-binary.html Daddy  
+#include<stdio.h>
+#include<conio.h>
+#include<malloc.h>
+
+struct node{
+       int data;
+       struct node* left;
+       struct node* right;
+       };
+int maxsum,k;       
+int d[10];
+struct node* insert(struct node* ,int );
+struct node* newnode(int );
+void preorder(struct node*);
+void printmaxpath(struct node* );
+void checkallpaths(struct node*,int [],int);
+void maxpath(struct node*,int [],int);
+void printpath(int [],int);
+
+int main()
+{
+    struct node *root = newnode(9);
+  root->left        = newnode(5);
+ root->right       = newnode(10);
+  root->left->left  = newnode(4);
+  root->left->left->left  = newnode(3);
+  root->right->right = newnode(11);
+  root=insert(root,7);
+  root=insert(root,6);
+    preorder(root);
+    printmaxpath(root);
+    getch();
+    return 0;
+}
+
+struct node* newnode(int data)
+{
+       struct node* node=(struct node*)malloc(sizeof(struct node));
+       node->data=data;
+       node->left=NULL;
+       node->right=NULL;
+       return node;
+}
+
+struct node* insert(struct node* node,int n)
+{
+       if(node==NULL)
+       return(newnode(n));
+       else
+       {
+           if(n<=node->data)
+           node->left=insert(node->left,n);
+           else
+           node->right=insert(node->right,n);
+           return node;
+       }
+}          
+
+void preorder(struct node* node)
+{
+     if(node==NULL)
+     return;
+         
+         printf("%d ",node->data);
+         preorder(node->left);
+         preorder(node->right);
+         
+}
+
+void printmaxpath(struct node *root)
+{
+     int arr[10],i;
+     checkallpaths(root,arr,0);
+     printf("\nThe sum is %d\n",maxsum);
+     for(i=0;i<k;i++)
+     printf("%d ",d[i]);
+}
+
+void checkallpaths(struct node* node,int arr[],int i)
+{
+     if(node==NULL)
+     return;
+     arr[i++]=node->data;
+     if((node->left==NULL)&&(node->right==NULL))
+     maxpath(node,arr,i);
+     else
+     {
+     checkallpaths(node->left,arr,i);
+     checkallpaths(node->right,arr,i);
+     }
+}
+
+void maxpath(struct node* node,int arr[],int i)
+{
+     int j,sum=0;
+     for(j=0;j<i;j++)
+     sum+=arr[j];
+     if(sum>maxsum)
+     {
+     maxsum=sum;
+     k=i;
+     for(j=0;j<i;j++)
+     d[j]=arr[j];
+     }
+}
+
+void printpath(int arr[],int i)
+{
+     int j;
+          printf("\nThere is but one path...\n");
+     for(j=0;j<i;j++)
+     {                
+     printf("%d ",arr[j]);
+     }
+     printf("\n");
+}
+
+ akshayjohri  
+/* Paste your code here (You may delete these lines if not writing code) */
+int max=0;
+char *maxdir="";
+char *curdir="";
+void push(char ch){
+curdir[++top]=ch;
+}
+char pop(){
+return curdir[top--];
+}
+
+void maxpath(Node root,int val,char dir){
+    if(root==NULL) return 0;
+    root->val= root->val + val;
+    push(dir);
+    if(root->val>max){
+       max=root->val;
+       strcpy(maxdir,curdir);
+    }
+    maxpath(root->left,root->val,l);
+    maxpath(root->right,root->val,r);
+}
+//Here we have converted the tree from
+    3
+   / \
+  4  7
+ / \
+2   5
+
+to 
+    3
+   / \
+  7  10
+ / \
+9   12
+
+Since when we get the max val we save the path to it i.e. a string of 'l' and 'r'
+
+//Now we just need to traverse the tree once to print this value and path
+//And one traversal required to return the tree to normal state
+
+
+
+
+
+
+ Agniswar Here is the recursive function i have written..  
+/* Paste your code here (You may delete these lines if not writing code)*/
+
+int maxSumPath(node *root)
+{
+    if(root==NULL)
+                  return 0;
+    else
+    {
+        int ls=maxSumPath(root->left);
+        int rs=maxSumPath(root->right);
+        
+        int max=(ls>rs)? ls: rs;
+        return root->data + max;
+    }
+}
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+ kartik @Agniswar: thanks for suggesting a new method. This seems good. Could you add code to print path as well. We will add it to the original post. gaurav good one dumbcoder #include #include #include /* A tree node structure */ struct Node { Node(int dat) { data = dat; left = NULL; right = NULL; maxSum = INT_MIN; } ~Node() { if (left != NULL) delete left; if (right != NULL) delete right; } int data; Node *left; Node *right; std::vector path; int maxSum; }; int maxSum(Node* node) { // base case if (node == NULL) { return INT_MIN; } (node->path).push_back(node); // add self // Leaf node if (node->left == NULL && node->right == NULL) { node->maxSum = node->data; return node->maxSum; } // Any other node int maxSumLeft = maxSum(node->left); int maxSumRight = maxSum(node->right); std::vector::const_iterator it; std::vector* survivingPath; if (maxSumLeft > maxSumRight) { node->maxSum = maxSumLeft + node->data; survivingPath = &(node->left->path); } else if (maxSumRight > maxSumLeft) { node->maxSum = maxSumRight + node->data; survivingPath = &(node->right->path); } else { node->maxSum = maxSumLeft + node->data; // doesn’t matter which one you pick survivingPath = &(node->left->path); } for (it = (*survivingPath).begin(); it != (*survivingPath).end(); it++) { (node->path).push_back(*it); // add the members of the surviving path of the child node to current node’s path } return node->maxSum; } Node* generateTestTree(int testcase) { Node* root = NULL; switch (testcase) { case 0: root = NULL; break; case 1: // happy case root = new Node(10); root->left = new Node(-2); root->right = new Node(7); root->left->left = new Node(8); root->left->right = new Node(-4); break; case 2: // test equal case root = new Node(10); root->left = new Node(-1); root->right = new Node(7); root->left->left = new Node(8); root->left->right = new Node(-4); break; case 3: // unbalanced case root = new Node(10); root->left = new Node(-2); root->left->left = new Node(-8); root->left->left->left = new Node(-4); break; default: return NULL; } return root; } /* Driver function to test above functions */ int main() { for (int testcase = 0; testcase < 4; testcase++) { Node* root = generateTestTree(testcase); int max_sum = INT_MIN; if (root != NULL) { // Recursively build max_sum and surviving path within node struct O(n) max_sum = maxSum(root); std::cout << "Max sum " << max_sum; std::cout << "; Surviving path = "; std::vector::const_iterator it; for (it = (root->path).begin(); it != (root->path).end(); it++) { std::cout <data << " "; } delete root; } std::cout << "\n"; } return 0; } rohit  
+would you like to share the printing code
+ http://ostechnoinfo.blogspot.com/ Nitin Gupta I have another method which work recursively…. take a static variable called Current_value it will contain the value so far which have highest sum. a current_sum variable which will hold current sum. a max_sum variable which will hold maximum sum connected with current_value variable we are going to find maximum sum from left side of the root then proceed right side of the root of tree. example: initially Current_sum = max_sum= current_value=0 Say you have tree like 
+                  10
+               /      \
+	     -2        7
+           /   \
+	 8     -4
+ root=10 current sum = 10 current value = 10 max_sum = 10 move left of Root(10) we got -2 so current_sum = 8 compare current_sum with max_sum we got current value = 10 then left of -2 is 8 so current sum = 16 which greater than max_sum so max_sum = 16 current_value = 8 since there is no left child of 8 so we back to the root of 8 which is -2 and current_sum = current_sum – current_value = 8 then move right of -2 which is -4 so current_sum = 4 and max_sum = 16 and current_value = 8 Up to we got max_sum = 16 and leaf node value = 8 now there is no more child left of left side of the tree corresponding to root ( 10 ) so we move right side of the root(10) proceed in same way as above explained. at last we got current_sum = 17 max_sum = 17 and current_value = 7 for printing traverse the tree from root (10) to 7 and print all of them total complexity is O(log n * log n) Pls tell me if i m wrong .. /* Paste your code here (You may delete these lines if not writing code) */ avinash  
+I think it is printing the path from leaf to root.
+ GeeksforGeeks @avinash: Thanks for pointing this out. We have changed the title of the post. g33k I have a recursive algorithm, which I believe is correct. int maxPath(Node root){ if(root == null) return 0; //find sum path of left tree and right tree int maxLeft = maxPath(root->left); int maxRight = maxPath(root->right); //max can be either of the two if(maxLeft > maxRight){ retunrn max(maxLeft, root, root + maxLeft); else return max(maxRIght, root, root+maxRight); } I will modify the code to get the path or someone can do. It should be easy. Ila When you are taking max(maxLeft,root,root+maxleft) u may or may not include the root node in the maxsum but the question requires to display a complete path from root to leaf if i am not wrong. You should make it return max(maxRight,maxLeft) and store whichever node returns max for the printing of path. g33k I think you are right. Just remove the root from max funtcion.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

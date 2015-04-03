@@ -1,0 +1,149 @@
+Analysis of Algorithms - GeeksQuiz GeeksQuiz Computer science mock tests for geeks Home Latest Questions Articles C/C++ Programs Contribute Books Subscribe Analysis of Algorithms Please wait while the activity loads. If this activity does not load, try refreshing your browser. Also, this page requires javascript. Please visit using a browser with javascript enabled. If loading fails, click here to try again Question 1 What is time complexity of fun()? 
+int fun(int n)
+{
+  int count = 0;
+  for (int i = n; i > 0; i /= 2)
+     for (int j = 0; j < i; j++)
+        count += 1;
+  return count;
+}
+ A O(n^2) B O(nLogn) C O(n) D O(nLognLogn) Discuss it Question 1 Explanation:  For a input integer n, the innermost statement of fun() is executed following times. So time complexity T(n) can be written as T(n) = O(n + n/2 + n/4 + ... 1) = O(n) The value of count is also n + n/2 + n/4 + .. + 1 Question 2 What is the time complexity of fun()? 
+int fun(int n)
+{
+  int count = 0;
+  for (int i = 0; i < n; i++)
+     for (int j = i; j > 0; j--)
+        count = count + 1;
+  return count;
+} 
+ A Theta (n) B Theta (n^2) C Theta (n*Logn) D Theta (nLognLogn) Discuss it Question 2 Explanation:  The time complexity can be calculated by counting number of times the expression "count = count + 1;" is executed. The expression is executed 0 + 1 + 2 + 3 + 4 + .... + (n-1) times. Time complexity = Theta(0 + 1 + 2 + 3 + .. + n-1) = Theta (n*(n-1)/2) = Theta(n^2) Question 3 The recurrence relation capturing the optimal time of the Tower of Hanoi problem with n discs is. (GATE CS 2012) A T(n) = 2T(n – 2) + 2 B T(n) = 2T(n – 1) + n C T(n) = 2T(n/2) + 1 D T(n) = 2T(n – 1) + 1 Discuss it Question 3 Explanation:  Following are the steps to follow to solve Tower of Hanoi problem recursively. Let the three pegs be A, B and C. The goal is to move n pegs from A to C.
+To move n discs from peg A to peg C:
+    move n-1 discs from A to B. This leaves disc n alone on peg A
+    move disc n from A to C
+    move n?1 discs from B to C so they sit on disc n The recurrence function T(n) for time complexity of the above recursive solution can be written as following. T(n) = 2T(n-1) + 1 Question 4 Let w(n) and A(n) denote respectively, the worst case and average case running time of an algorithm executed on an input of size n. which of the following is ALWAYS TRUE? (GATE CS 2012) (A) (B) (C) (D) A A B B C C D D Discuss it Question 4 Explanation:  The worst case time complexity is always greater than or same as the average case time complexity. Question 5 Which of the following is not O(n^2)? A (15^10) * n + 12099 B n^1.98 C n^3 / (sqrt(n)) D (2^20) * n Discuss it Question 5 Explanation:  The order of growth of option c is n^2.5 which is higher than n^2. Question 6 Which of the given options provides the increasing order of asymptotic complexity of functions f1, f2, f3 and f4? 
+  f1(n) = 2^n
+  f2(n) = n^(3/2)
+  f3(n) = nLogn
+  f4(n) = n^(Logn) A f3, f2, f4, f1 B f3, f2, f1, f4 C f2, f3, f1, f4 D f2, f3, f4, f1 Discuss it Question 7 Consider the following program fragment for reversing the digits in a given integer to obtain a new integer. Let n = D1D2…Dm 
+int n, rev; 
+rev = 0; 
+while (n > 0) 
+{ 
+   rev = rev*10 + n%10; 
+   n = n/10; 
+}
+ The loop invariant condition at the end of the ith iteration is: (GATE CS 2004) A n = D1D2….Dm-i and rev = DmDm-1…Dm-i+1 B n = Dm-i+1…Dm-1Dm and rev = Dm-1….D2D1 C n != rev D n = D1D2….Dm and rev = DmDm-1…D2D1 Discuss it Question 8 What is the time complexity of the below function? 
+void fun(int n, int arr[])
+{
+    int i = 0, j = 0;
+    for(; i < n; ++i)
+        while(j < n && arr[i] < arr[j])
+            j++;
+}
+ A O(n) B O(n^2) C O(nlogn) D O(n(logn)^2) Discuss it Question 8 Explanation:  In the first look, the time complexity seems to be O(n^2) due to two loops. But, please note that the variable j is not initialized for each value of variable i. So, the inner loop runs at most n times. Please observe the difference between the function given in question and the below function: 1 Question 9 In a competition, four different functions are observed. All the functions use a single for loop and within the for loop, same set of statements are executed. Consider the following for loops: 
+A) for(i = 0; i < n; i++)
+
+B) for(i = 0; i < n; i += 2)
+
+C) for(i = 1; i < n; i *= 2)
+
+D) for(i = n; i > -1; i /= 2)
+ If n is the size of input(positive), which function is most efficient(if the task to be performed is not an issue)? A A B B C C D D Discuss it Question 9 Explanation:  The time complexity of first for loop is O(n). The time complexity of second for loop is O(n/2), equivalent to O(n) in asymptotic analysis. The time complexity of third for loop is O(logn). The fourth for loop doesn't terminate. Question 10 The following statement is valid. log(n!) = (n log n). A True B False Discuss it Question 10 Explanation:  Order of growth of [Tex]\log n![/Tex] and [Tex]n\log n[/Tex] is same for large values of [Tex]n[/Tex], i.e., [Tex]\theta (\log n!) = \theta (n\log n)[/Tex]. So time complexity of fun() is [Tex] \theta (n\log n)[/Tex]. The expression [Tex]\theta (\log n!) = \theta (n\log n)[/Tex] can be easily derived from following Stirling's approximation (or Stirling's formula). [Tex] \log n! = n\log n - n +O(\log(n))\ [/Tex] Question 11 What does it mean when we say that an algorithm X is asymptotically more efficient than Y? A X will be a better choice for all inputs B X will be a better choice for all inputs except small inputs C X will be a better choice for all inputs except large inputs D Y will be a better choice for small inputs Discuss it Question 11 Explanation:  In asymptotic analysis we consider growth of algorithm in terms of input size. An algorithm X is said to be asymptotically better than Y if X takes smaller time than y for all input sizes n larger than a value n0 where n0 > 0. Question 12 What is the time complexity of Floyd–Warshall algorithm to calculate all pair shortest path in a graph with n vertices? A O(n^2logn) B Theta(n^2logn) C Theta(n^4) D Theta(n^3) Discuss it Question 12 Explanation:  Floyd–Warshall algorithm uses three nested loops to calculate all pair shortest path. So, time complexity is Thete(n^3). Read here for more details. Question 13 Consider the following functions: 
+  f(n)   = 2^n
+  g(n)   = n!
+  h(n)   = n^logn Which of the following statements about the asymptotic behavior of f(n), g(n), and h(n) is true? (A) f(n) = O(g(n)); g(n) = O(h(n)) (B) f(n) = (g(n)); g(n) = O(h(n)) (C) g(n) = O(f(n)); h(n) = O(f(n)) (D) h(n) = O(f(n)); g(n) = (f(n)) A A B B C C D D Discuss it Question 13 Explanation:  According to order of growth: h(n) < f(n) < g(n) (g(n) is asymptotically greater than f(n) and f(n) is asymptotically greater than h(n) ) We can easily see above order by taking logs of the given 3 functions 
+   lognlogn < n < log(n!)  (logs of the given f(n), g(n) and h(n)). Note that log(n!) = [Tex]\theta[/Tex](nlogn) Question 14 In the following C function, let n >= m. 
+int gcd(n,m)
+{
+  if (n%m ==0) return m;  
+  n = n%m;
+  return gcd(m, n);
+}
+ How many recursive calls are made by this function? (A) (logn) (B) (n) (C) (loglogn) (D) (sqrt(n)) A A B B C C D D Discuss it Question 14 Explanation:  Above code is implementation of the Euclidean algorithm for finding Greatest Common Divisor (GCD). Please see http://mathworld.wolfram.com/EuclideanAlgorithm.html for time complexity. Question 15 Consider the following functions Which of the following is true? (GATE CS 2000) (a) h(n) is 0(f(n)) (b) h(n) is 0(g(n)) (c) g(n) is not 0(f(n)) (d) f(n) is 0(g(n)) A a B b C c D d Discuss it Question 15 Explanation:  g(n) = 2^[Tex](\sqrt{n} \log{n} )[/Tex] = n^[Tex](\sqrt{n})[/Tex] f(n) and g(n) are of same asymptotic order and following statements are true. f(n) = O(g(n)) g(n) = O(f(n)). (a) and (b) are false because n! is of asymptotically higher order than n^[Tex](\sqrt{n})[/Tex]. Question 16 Consider the following three claims I (n + k)^m = (n^m), where k and m are constants II 2^(n + 1) = 0(2^n) III 2^(2n + 1) = 0(2^n) Which of these claims are correct? (GATE CS 2003) A I and II B I and III C II and III D I, II and III Discuss it Question 16 Explanation:  
+(I)  (n+m)^k = n^k + c1*n^(k-1) + ... k^m = [Tex]\theta[/Tex](n^k)
+(II)  2^(n+1) = 2*2^n = O(2^n)
+ Question 17 Let s be a sorted array of n integers. Let t(n) denote the time taken for the most efficient algorithm to determined if there are two elements with sum less than 1000 in s. which of the following statements is true? (GATE CS 2000) a) t (n) is 0 (1) b) n < t (n) < n c) n log 2 n < t (n) < d) t (n) = A a B b C c D d Discuss it Question 17 Explanation:  Let array be sorted in ascending order, if sum of first two elements is less than 1000 then there are  two elements with sum less than 1000 otherwise not. For array sorted in descending order we need to check last two elements. For an array data structure, number of operations are fixed in both the cases and not dependent on n, complexity is O(1) Question 18 Consider the following function  int unknown(int n) {
+    int i, j, k = 0;
+    for (i  = n/2; i <= n; i++)
+        for (j = 2; j <= n; j = j * 2)
+            k = k + n/2;
+    return k;
+ } What is the returned value of the above function? (GATE CS 2013) 
+(A) 
+(B) 
+(C) 
+(D)  A A B B C C D D Discuss it Question 18 Explanation:  The outer loop runs n/2 or [Tex]\Theta(n)[/Tex] times. The inner loop runs [Tex]\Theta(Logn)[/Tex] times (Note that j is divide by 2 in every iteration). So the statement "k = k + n/2;" runs [Tex]\Theta(nLogn)[/Tex] times. The statement increases value of k by n/2. So the value of k becomes n/2* [Tex]\Theta(nLogn)[/Tex] which is [Tex]\Theta(n^2Logn)[/Tex] Question 19 Consider the following two functions. What are time complexities of the functions? 
+int fun1(int n)
+{
+    if (n <= 1) return n;
+    return 2*fun1(n-1);
+}
+ 
+int fun2(int n)
+{
+    if (n <= 1) return n;
+    return fun2(n-1) + fun2(n-1);
+}
+ A O(2^n) for both fun1() and fun2() B O(n) for fun1() and O(2^n) for fun2() C O(2^n) for fun1() and O(n) for fun2() D O(n) for both fun1() and fun2() Discuss it Question 19 Explanation:  Time complexity of fun1() can be written as T(n) = T(n-1) + C which is O(n) Time complexity of fun2() can be written as T(n) = 2T(n-1) + C which is O(2^n) Question 20 Consider the following segment of C-code: 
+  int j, n;
+  j = 1;
+  while (j <= n)
+        j = j*2; The number of comparisons made in the execution of the loop for any n > 0 is: Base of Log is 2 in all options. A CEIL(logn) + 1 B n C CEIL(logn) D FLOOR(logn) + 1 Discuss it Question 20 Explanation:  We can see it by taking few examples like n = 1, n = 3, etc. Question 21 Consider the following C-program fragment in which i, j and n are integer variables. 
+for (i = n, j = 0; i >0; i /= 2, j += i);
+ Let val(j) denote the value stored in the variable j after termination of the for loop. Which one of the following is true? (A) val(j) = (logn) (B) vaI(j) = (sqrt(n)) (C) val(j) = (n) (D) val(j) = (nlogn) A A B B C C D D Discuss it Question 21 Explanation:  See question 1 of http://www.geeksforgeeks.org/c-language-set-6/ Question 22 The minimum number of comparisons required to find the minimum and the maximum of 100 numbers is _________________. A 147.1 to 148.1 B 145.1 to 146.1 C 140 to 146 D 140 to 148 Discuss it Question 23 Consider the following pseudo code. What is the total number of multiplications to be performed? 
+D = 2
+for i = 1 to n do
+   for j = i to n do
+      for k = j + 1 to n do
+           D = D * 3 A Half of the product of the 3 consecutive integers. B One-third of the product of the 3 consecutive integers. C One-sixth of the product of the 3 consecutive integers. D None of the above. Discuss it Question 23 Explanation:  See question 2 of http://www.geeksforgeeks.org/data-structures-algorithms-set-33/ Question 24 Consider the following C-function: 
+double foo (int n)
+{
+    int i;
+    double sum;
+    if (n = = 0) return 1.0;
+    else
+    {
+        sum = 0.0;
+        for (i = 0; i < n; i++)
+            sum += foo (i);
+        return sum;
+    }
+}
+ The space complexity of the above function is: A O(1) B O(n) C O(n!) D O(nn) Discuss it Question 24 Explanation:  Note that the function foo() is recursive. Space complexity is O(n) as there can be at most O(n) active functions (function call frames) at a time. Question 25 Consider the following C-function: 
+double foo (int n)
+{
+    int i;
+    double sum;
+    if (n = = 0) return 1.0;
+    else
+    {
+        sum = 0.0;
+        for (i = 0; i < n; i++)
+            sum += foo (i);
+        return sum;
+    }
+}
+ Suppose we modify the above function foo() and store the values of foo (i), 0 < = i < n, as and when they are computed. With this modification, the time complexity for function foo() is significantly reduced. The space complexity of the modified function would be: A O(1) B O(n) C O(n!) D O(nn) Discuss it Question 25 Explanation:  Space complexity now is also O(n). We would need an array of size O(n). The space required for recursive calls would be O(1) as the values would be taken from stored array rather than making function calls again and again. Question 26 Two matrices M1 and M2 are to be stored in arrays A and B respectively. Each array can be stored either in row-major or column-major order in contiguous memory locations. The time complexity of an algorithm to compute M1 × M2 will be A best if A is in row-major, and B is in column- major order B best if both are in row-major order C best if both are in column-major order D independent of the storage scheme Discuss it Question 26 Explanation:  This is a trick question. Note that the questions asks about time complexity, not time taken by the program. for time complexity, it doesn't matter how we store array elements as it always constant or O(1) time to do random access in arrays, the constants may differ for different schemes, but not the time complexity. Question 27 Let A[1, ..., n] be an array storing a bit (1 or 0) at each location, and f(m) is a unction whose time complexity is θ(m). Consider the following program fragment written in a C like language: 
+counter = 0;
+for (i = 1; i < = n; i++)
+{ 
+      if (A[i] == 1) 
+         counter++;
+      else {
+         f(counter); 
+         counter = 0;
+      }
+} The complexity of this program fragment is A Ω(n2) B Ω(nlog n) and O(n2) C θ(n) D O(n) Discuss it Question 27 Explanation:  Please note that inside the else condition, f() is called first, then counter is set to 0. Consider the following cases: 
+a) All 1s in A[]: Time taken is Θ(n) as
+                  only counter++ is executed n times.
+
+b) All 0s in A[]: Time taken is Θ(n) as
+                  only f(0) is called n times
+
+c) Half 1s, then half 0s: Time taken is  Θ(n) as
+                  only f(n/2) is called once. Question 28 The recurrence equation 
+T(1) = 1
+T(n) = 2T(n - 1) + n, n ≥ 2 evaluates to A 2n + 1- n - 2 B 2n - n C 2n + 1 - 2n - 2 D 2n - n Discuss it Question 29 Consider the following three claims 
+1. (n + k)m = Θ(nm), where k and m are constants
+2. 2n + 1 = O(2n)
+3. 22n + 1 = O(2n) Which of these claims are correct ? A 1 and 2 B 1 and 3 C 2 and 3 D 1, 2, and 3 Discuss it Question 29 Explanation:  (n + k)m and Θ(nm) are asymptotically same as theta notation can always be written by taking the leading order term in a polynomial expression. 2n + 1 and O(2n) are also asymptotically same as 2n + 1 can be written as 2 * 2n and constant multiplication/addition doesn't matter in theta notation. 22n + 1 and O(2n) are not same as constant is in power. See Asymptotic Notations for more details. There are 29 questions to complete. You have completed questions question Your score is Correct Wrong Partial-Credit You have not finished your quiz. If you leave this page, your progress will be lost. Correct Answer You Selected Not Attempted Final Score on Quiz Attempted Questions Correct Attempted Questions Wrong Questions Not Attempted Total Questions on Quiz Question Details Results Date Score Hint Time allowed minutes seconds Time used Answer Choice(s) Selected Question Text All done Need more practice! Keep trying! Not bad! Good work! Perfect!      Tweet Categories Articles (105) Algorithms (21) C (13) C++ (16) Data Structures (29) DBMS (1) Interview Experiences (6) Java (2) Operating Systems (1) Searching and Sorting (10) Programs (35) Quizzes (1,744) Aptitude (1) Computer Science Quizzes (1,742) Algorithms (147) C (207) C++ (129) Data Structures (132) DBMS (2) GATE (1,046) Java (51) Operating Systems (28) Web technologies (1) Recent Discussions Valid XHTML Strict 1.0 Powered by WordPress & MooTools | MiniMoo 1.3.4

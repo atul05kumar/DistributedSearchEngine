@@ -1,0 +1,350 @@
+Two elements whose sum is closest to zero - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Two elements whose sum is closest to zero Question: An Array of integers is given, both +ve and -ve. You need to find the two elements such that their sum is closest to zero. For the below array, program should print -80 and 85. METHOD 1 (Simple) For each element, find the sum of it with every other element in the array and compare sums. Finally, return the minimum sum. Implementation 
+# include <stdio.h>
+# include <stdlib.h> /* for abs() */
+# include <math.h>
+void minAbsSumPair(int arr[], int arr_size)
+{
+  int inv_count = 0;
+  int l, r, min_sum, sum, min_l, min_r;
+
+  /* Array should have at least two elements*/
+  if(arr_size < 2)
+  {
+    printf("Invalid Input");
+    return;
+  }
+
+  /* Initialization of values */
+  min_l = 0;
+  min_r = 1;
+  min_sum = arr[0] + arr[1];
+
+  for(l = 0; l < arr_size - 1; l++)
+  {
+    for(r = l+1; r < arr_size; r++)
+    {
+      sum = arr[l] + arr[r];
+      if(abs(min_sum) > abs(sum))
+      {
+        min_sum = sum;
+        min_l = l;
+        min_r = r;
+      }
+    }
+  }
+
+  printf(" The two elements whose sum is minimum are %d and %d",
+          arr[min_l], arr[min_r]);
+}
+
+/* Driver program to test above function */
+int main()
+{
+  int arr[] = {1, 60, -10, 70, -80, 85};
+  minAbsSumPair(arr, 6);
+  getchar();
+  return 0;
+}
+ Time complexity: O(n^2) METHOD 2 (Use Sorting) Thanks to baskin for suggesting this approach. We recommend to read this post for background of this approach. Algorithm 1) Sort all the elements of the input array. 2) Use two index variables l and r to traverse from left and right ends respectively. Initialize l as 0 and r as n-1. 3) sum = a[l] + a[r] 4) If sum is -ve, then l++ 5) If sum is +ve, then r– 6) Keep track of abs min sum. 7) Repeat steps 3, 4, 5 and 6 while l < r Implementation 
+# include <stdio.h>
+# include <math.h>
+# include <limits.h>
+
+void quickSort(int *, int, int);
+
+/* Function to print pair of elements having minimum sum */
+void minAbsSumPair(int arr[], int n)
+{
+  // Variables to keep track of current sum and minimum sum
+  int sum, min_sum = INT_MAX;
+
+  // left and right index variables
+  int l = 0, r = n-1;
+
+  // variable to keep track of the left and right pair for min_sum
+  int min_l = l, min_r = n-1;
+
+  /* Array should have at least two elements*/
+  if(n < 2)
+  {
+    printf("Invalid Input");
+    return;
+  }
+
+  /* Sort the elements */
+  quickSort(arr, l, r);
+
+  while(l < r)
+  {
+    sum = arr[l] + arr[r];
+
+    /*If abs(sum) is less then update the result items*/
+    if(abs(sum) < abs(min_sum))
+    {
+      min_sum = sum;
+      min_l = l;
+      min_r = r;
+    }
+    if(sum < 0)
+      l++;
+    else
+      r--;
+  }
+
+  printf(" The two elements whose sum is minimum are %d and %d",
+          arr[min_l], arr[min_r]);
+}
+
+/* Driver program to test above function */
+int main()
+{
+  int arr[] = {1, 60, -10, 70, -80, 85};
+  int n = sizeof(arr)/sizeof(arr[0]);
+  minAbsSumPair(arr, n);
+  getchar();
+  return 0;
+}
+
+/* FOLLOWING FUNCTIONS ARE ONLY FOR SORTING
+    PURPOSE */
+void exchange(int *a, int *b)
+{
+  int temp;
+  temp = *a;
+  *a   = *b;
+  *b   = temp;
+}
+
+int partition(int arr[], int si, int ei)
+{
+  int x = arr[ei];
+  int i = (si - 1);
+  int j;
+
+  for (j = si; j <= ei - 1; j++)
+  {
+    if(arr[j] <= x)
+    {
+      i++;
+      exchange(&arr[i], &arr[j]);
+    }
+  }
+
+  exchange (&arr[i + 1], &arr[ei]);
+  return (i + 1);
+}
+
+/* Implementation of Quick Sort
+arr[] --> Array to be sorted
+si  --> Starting index
+ei  --> Ending index
+*/
+void quickSort(int arr[], int si, int ei)
+{
+  int pi;    /* Partitioning index */
+  if(si < ei)
+  {
+    pi = partition(arr, si, ei);
+    quickSort(arr, si, pi - 1);
+    quickSort(arr, pi + 1, ei);
+  }
+}
+ Time Complexity: complexity to sort + complexity of finding the optimum pair = O(nlogn) + O(n) = O(nlogn) Asked by Vineet Please write comments if you find any bug in the above program/algorithm or other ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: array Tweet Writing code in comment? Please use ideone.com and share the link here. adude Quicksort has a worst case of O(n^2), which I feel is worth noting. Your time complexity is wrong. ashu This can be further optimized to O(nlogn + logn). Do a binary search for 0 in the sorted array.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ neham what if there are ties between the pairs i.e. two pairs with same lowest sum say 1 for example (10,8,3,5,-9,-7,6) here there are three pairs ((10,-9) = 1),((8,-9) = -1), ((8,-7) = 1) whose abs(sum) is 1 Acc. to above algo it print (10,-9) pair as it comes first in sorted array. what should be the right output in this case?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ajiteshpathak Here is another try for solution. Thought is to calculate the sum for each combination till the counter reaches the last element int SumCloseToZero(int *arr, int n) { int x, y; // Variables to store the indexes of the two numbers int i = 0, j = 1; int min_sum = INT_MAX; int min_curr; while (i < n – 1) { min_curr = arr[i] + arr[j]; if (abs(min_curr) < min_sum) { min_sum = abs(min_curr); x = i; y = j; } j++; if (j == n) { i++; j = i + 1; } } printf(” Values are (%d, %d)”, arr[x], arr[y]); return min_sum; } asd sorry the previous algo needs a bit of changes… Here is the updated one. ———————- If there are minimum of 2 numbers in the array { a1, a2 = (1) Find the positive first and second minimum from the array. b1, b2 = (2) Find the negative first max and second max from the array. Do all four combinations of additions and then output that value whose absolute value is minimum. } else Print the no. present amitp49 Will it work on {-300,-2,-1,5,6,300} ? i guess ans should be -300 & 300 , but ur algo would give -2,-1 as ans combination.. ronny You are right @ amitp49..the above code by @ asd would not work for many test cases..great job asd If there are minimum of 2 numbers in the array { (1) Find the positive first and second minimum from the array. (2) Find the negative first max and second max from the array. if there is a positive minimum and there is a positive maximum then add those two and print it as the result. else if there is a no positive minimum then output the sum of first negative maximum and second negative maximum else if there is a no negative maximum then output the sum of first negative minimum and second negative minimum } else Print the no. present sourabh method 2 will fail when sum=0. It will get stuck in the while loop. There should be another check in the loop : if(sum == 0) {print arr[l] and arr[r]; return;} http://geeksforgeeks.org/ Sandeep @sourabh: Please take a closer look at the solution, it works for all cases. If you still feel that it doesn’t work then please provide an example for which it fails. Dreamer For Method 2:: What about {-100, -30, 1, 2, 7} for instance. The answer should be 1 and 2 since 3 is the closest sum the zero. Sandeep @Dreamer: The method doesn’t seem to work for this example. We will get back with modifications to handle this case. baskin Sandeep, how is it is different from the well known question of finding 2 elements whose sum is = k. Here k = 0. We try our best to get as close to k as possible. // sort array // Start ptr i from left end and j from right end. // s = a[i] + a[j] // if s is too -ve, i++ // if s is too ve, j– // keep track of abs min. // break when i >= j http://geeksforgeeks.org/ Sandeep @baskin: Thanks for suggesting this. This is simpler and seems to work for all cases. We have modified the original post to use this method. @Dreamer: We have method 2. The updated method works well for the inputs like {-100, -30, 1, 2, 7}. http://www.linkedin.com/in/ramanawithu Venki Logical error at “-10 + 1 = 9″ and next few steps of given example. Sandeep @venki: Thanks for pointing this out. We have corrected it. balaji_ramani Doesn’t method #2 fail for the following input: {-500,-300,1,2} While the expected pair is {1,2}, the answer we get is {-300,2} We need to handle the case where the two absolute min elements are of the same sign. Two extra checks after finding l and r should do I guess. mAc Besides doing the thing already mentioned… We can also store the sum of the first two elements of the positive sorted array and and same for negative sorted array. Then the overall minimum would be: min(min(sum_positive_array,sum_negative_array),Value_already_found) Rider In Method 2 : while(a[r] < -0 && r< arrsize-1) the condition r < arrsize -1 should come first otherwise for all negative it will cause segmentation fault.. Rider sry for the above comment code is ok.I forget to see r goes from 0 to arr_size-2 not arr_size – 1 http://wemeanourthoughts.blogspot.com/ Venki @Moderators, In METHOD 1, What is the significance of the following statements, min_l = l; min_r = r; In both the methods, we can optimize the for loops by checking for sentinel zero. Since the absolute difference can’t be less than zero. GeeksforGeeks @Venki: Thanks for pointing out the typo. We have corrected it. Could you please provide more details (or code if possible) for optimization of loops. http://wemeanourthoughts.blogspot.com/ Venki In the code, the expression “if(abs(min_sum) > abs(sum))” will always returns false once the “min_sum” becomes zero. The inner and outer loops will iterate over entire array. Same is the case with other method. Let me know, if I am missing anything to understand. http://math-puzzles-computing.blogspot.com/ Venki Optimized loop,  for(l = 0; l < (arr_size - 1) && (0 != min_sum) ; l++)
+    {
+        for(r = l+1; (r < arr_size) && (0 != min_sum); r++)
+        {
+            sum = arr[l] + arr[r];
+
+            count++;
+
+            if( abs(min_sum) > abs(sum) )
+            {
+                min_sum = sum;
+                min_l = l;
+                min_r = r;
+            }
+        }
+    } http://arif-ali-saiyed.blogspot.com Arif Ali Saiyed Well! I have another suggestion here correct if I am wrong. It’s not very efficient but still not listed here. Lets say number of elements in given array are N, then I will create a matrix of size nxn… and store the sum of elements For given exmaple {1, 60, -10, 70, -80, 85}; my sparse matrix will look like this 0 | 61| 9 | 71 | -79 | 86 0 | 0 | 50 | 130 | 20 | 145 0 | 0 | 0 | 60 | -90 | 75 0 | 0 | 0 | 0 | 10 | 155 0 | 0 | 0 | 0 | 0 | 5 while creating this sparse matrix… keep a track of min_element & element_one and element_two For creation of this list you to traverse the array n ( first pass) + n -1 ( second pass) + n -3 ( third pass) … 2 + 1 = so order complexity is going to be O(n^2) Space complexity can be reduced by completely eliminating Sparse matrix…. while traversing just keep track of min_element & element_one and element_two Jing This is basically METHOD 1 in the post. Laxmikant Hi, I tried method 2 on {-30, 2, 3, 7} and its giving me sum as -23 and elements as -30 and 7. Whereas the correct answer should be 5 and elements as 2 and 3 Jing You are right. The code does not consider the case where the 2 numbers are of same sign. Jing A little add-on will fix it. After sorting, check the sum of the 2 largest negative numbers, and the sum of the 2 smallest positive numbers. Use the smaller one as the initial min_sum and proceed as before. RandomSurfer Well that’s a good idea. But what if the array is something like [-80,1,2] In this case there aren’t 2 negative numbers. Or say [-80,-1,93] doesn’t have 2 positive integers. There will be quite a few cases to handle, won’t there? Sandeep @ims_china: Could you add few words about the approach used in the given code, please? ims_china First I want to say there should be more space-efficient solution using my approach. To find two elements giving minimal sum, their absolute values should be as close as possible while one is positive and another one is negative. So the basic idea is to change the original array to an array with all positive elements, while keeping the sign information separately. Then we sort the resultant array and just scan it for find the two adjacent elements giving minimal sum (considering their original sign). A more space-efficient variant could be: just using  
+static bool CustomLessFunc(int nA, int nB){
+            return abs(nA) < abs(nB);
+ };
+ in the STL based sorting. In this way, there is no need for using an extra tagMegaNum structure. I coded it just in five min and didn't consider too much ims_china So in summary, when you sorting the array (non-STL is also okay), you only compare the absolute values , don’t consider the sign ims_china Just my 2 cents (not checked very much  
+int FindLeastSum(int Array[],  int nSize, int& nValA, int& nValB)
+{
+	typedef struct tagMegaNum{
+
+		tagMegaNum(){
+	
+			nAbsVal = 0;
+			nSignVal = 1;
+
+		};
+
+		tagMegaNum(int nNum){
+
+			if( nNum>=0 ){
+				nAbsVal = nNum;
+				nSignVal = 1;
+			}
+			else{
+				nAbsVal = -nNum;
+				nSignVal = -1;
+
+			}
+
+		};
+
+		int GetValue() const{
+	
+			return nAbsVal*nSignVal;
+
+		};
+
+		static bool LessFunc(const tagMegaNum& tA, const tagMegaNum& tB){
+
+			return tA.nAbsVal < tB.nAbsVal;
+		};
+
+		static int SumFunc(const tagMegaNum& tA, const tagMegaNum& tB){
+
+			return tA.GetValue()  + tB.GetValue();
+		};
+
+	private:
+
+		unsigned int nAbsVal;
+		int	 nSignVal;
+
+
+	}tMegaNum;
+	
+	std::vector vecVals;
+
+	for(int k=0; k<nSize; ++k){
+
+		vecVals.push_back(tMegaNum(Array[k]));
+
+	}
+
+	std::sort(vecVals.begin(), vecVals.end(), tagMegaNum::LessFunc );
+
+	int nIndexA = 0;
+	int nIndexB = 1;
+
+	int nMinSum = tagMegaNum::SumFunc(vecVals[0], vecVals[1]);
+
+	for(int k=1; k < nSize; ++k ){
+ 
+    int nSum = vecVals[k] + vecVals[k+1];
+
+    if(abs(nSum) < abs(nMinSum) ){
+
+			nMinSum = nSum;
+
+			nIndexA = k;
+			nIndexB = k+1;
+		}
+
+	}
+
+	nValA = vecVals[nIndexA].GetValue();
+	nValB = vecVals[nIndexB].GetValue();
+
+	return nMinSum;
+
+}
+ ims_china Improved version: (The code below is just for showing the basic idea, it’s kind of ugly  
+static bool CumstomLessFunc(const int& nA, const int& nB){
+
+	return abs(nA) < abs(nB);
+};
+
+
+int FindLeastSum2(int Array[],  int nSize, int& nValA, int& nValB)
+{
+	std::vector vecVals;
+
+	for(int k=0; k<nSize; ++k){
+
+		vecVals.push_back(Array[k]);
+
+	}
+
+	std::sort(vecVals.begin(), vecVals.end(), CumstomLessFunc );
+
+	int nIndexA = 0;
+	int nIndexB = 1;
+
+	int nMinSum = vecVals[0] + vecVals[1];
+
+for(int k=1; k < nSize; ++k ){
+ 
+    int nSum = vecVals[k] + vecVals[k+1];
+
+    if(abs(nSum) < abs(nMinSum) ){
+
+			nMinSum = nSum;
+
+			nIndexA = k;
+			nIndexB = k+1;
+		}
+
+	}
+
+	nValA = vecVals[nIndexA];
+	nValB = vecVals[nIndexB];
+
+	return nMinSum;
+
+}
+ GeeksforGeeks The code has been corrected. Let us know if it is still not what you have posted. Very sorry for the inconvenience. Appreciate your effort. ims_china No, it’s still right It should be:  
+for(int k=1; k < nSize; ++k ){
+ 
+    int nSum = vecVals[k] + vecVals[k+1];
+
+    if(abs(nSum) < abs(nMinSum) ){
+
+       nMinSum = nSum; 
+       nIndexA = k;
+       nIndexB = k+1;
+    } 
+}
+ (Wish this time the code can be posted correctly Sorry for making the comments messy. If possible, please delete all my posts except corrected final version abhishek the code provided in method 2 worked just fine, it gives the minimum absolute sum, not the minimum sum as doubted by some other readers as far as viresh’s method goes, it fails for {-6,-2, 0, 1, 2, 3} as the inputed array rv_10987 @viresh chaudhari- Dat won’t print the sum closest to ‘0’ bt instead will print out the minimum sum of a given array..!! Viresh Chaudhari  
+int LeastSum(int a[], UInt n)
+{
+   //=== Find min value
+  int min = a[0];
+  int index = 0;
+  for(UInt i = 1;i<n;i++)
+  {	
+    if(a[i] < min)
+    {
+      min = a[i];
+      index = i;
+    }
+  }
+
+  int sum = INT_MAX;
+ for(UInt i = 0;i<n;i++)
+ {
+   if( i!= index)
+   {
+     int tempsum = a[i]+ min;
+     if( abs( tempsum) < abs(sum))
+       sum = tempsum;
+   }
+ }
+
+ return sum;
+}
+
+void main()
+{
+  int a[6] = { -1,-2,0,1,2,3 };
+  cout<<LeastSum(a,6);
+}
+ Time Complexity : O(n)+ O(n) = O(2n) ~ O(n) Asit This will not work if the min_element of the array is not associated with the result. Test with this array: 1,60,-59,70,-80,85. It will still print 5, but the result is 1(diff between 60 and -59) Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

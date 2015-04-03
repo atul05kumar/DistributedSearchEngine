@@ -1,0 +1,294 @@
+Iterative Preorder Traversal - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Iterative Preorder Traversal Given a Binary Tree, write an iterative function to print Preorder traversal of the given binary tree. Refer this for recursive preorder traversal of Binary Tree. To convert an inherently recursive procedures to iterative, we need an explicit stack. Following is a simple stack based iterative process to print Preorder traversal. 1) Create an empty stack nodeStack and push root node to stack. 2) Do following while nodeStack is not empty. ….a) Pop an item from stack and print it. ….b) Push right child of popped item to stack ….c) Push left child of popped item to stack Right child is pushed before left child to make sure that left subtree is processed first. 
+#include <stdlib.h>
+#include <stdio.h>
+#include <iostream>
+#include <stack>
+
+using namespace std;
+
+/* A binary tree node has data, left child and right child */
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+/* Helper function that allocates a new node with the given data and
+   NULL left and right  pointers.*/
+struct node* newNode(int data)
+{
+    struct node* node = new struct node;
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+    return(node);
+}
+
+// An iterative process to print preorder traversal of Binary tree
+void iterativePreorder(node *root)
+{
+    // Base Case
+    if (root == NULL)
+       return;
+
+    // Create an empty stack and push root to it
+    stack<node *> nodeStack;
+    nodeStack.push(root);
+
+    /* Pop all items one by one. Do following for every popped item
+       a) print it
+       b) push its right child
+       c) push its left child
+    Note that right child is pushed first so that left is processed first */
+    while (nodeStack.empty() == false)
+    {
+        // Pop the top item from stack and print it
+        struct node *node = nodeStack.top();
+        printf ("%d ", node->data);
+        nodeStack.pop();
+
+        // Push right and left children of the popped node to stack
+        if (node->right)
+            nodeStack.push(node->right);
+        if (node->left)
+            nodeStack.push(node->left);
+    }
+}
+
+// Driver program to test above functions
+int main()
+{
+    /* Constructed binary tree is
+            10
+          /   \
+        8      2
+      /  \    /
+    3     5  2
+  */
+  struct node *root = newNode(10);
+  root->left        = newNode(8);
+  root->right       = newNode(2);
+  root->left->left  = newNode(3);
+  root->left->right = newNode(5);
+  root->right->left = newNode(2);
+  iterativePreorder(root);
+  return 0;
+}
+ Output: 10 8 3 5 2 2 This article is compiled by Saurabh Sharma and reviewed by GeeksforGeeks team. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. carmen cojocaru Can you post an implementation for the post-order also? I’ve seen some versions over the Internet but they’re pretty complicated. Yours is so clean. Thank you. Vivek no need to push the right child into the stack void preOrderIterative(struct node *root) { struct stknode *st=NULL; while(!empty(st) || root) { while(root) { printf("%d ",root->data); push(&st,root); root=root->left; } root=pop(&st); root=root->right; } } Amit Bgl wow code dex  
+/*
+iterative preorder of bst using explicit stack
+*/
+
+#include<stdio.h>
+#include<stdlib.h>
+
+struct tree
+{
+	int data;
+	struct tree *left;
+	struct tree *right;
+};
+typedef struct tree node;
+void addnode(node *,int);
+
+
+struct llist
+{
+	struct tree *tp;
+	struct llist *next;
+};
+typedef struct llist stack;
+stack *createStack(stack *);
+int stackIsEmpty(stack *);
+void push(stack **,node *);
+node *pop(stack **top);
+
+
+int main()
+{
+	int i,n,a;
+	printf("enter the number of elements in the tree \n");
+	scanf("%d",&a);
+	node *head=(node *)malloc(sizeof(node));
+	node *treehead=head;
+	head->left=NULL;
+	head->right=NULL;
+	printf("enter numbers \n");
+	scanf("%d",&head->data);
+	for(i=0;i<a-1;i++)
+	{
+		scanf("%d",&n);
+		addnode(head,n);
+	}
+
+	stack st;
+	stack *top=createStack(&st);
+	push(&top,treehead); // push the root node's address on to stack top
+	printf("preorder is \n\n");
+	
+	
+	while(stackIsEmpty(top))
+	{
+		treehead=pop(&top);
+		if(treehead!=NULL)
+		{		
+			printf("%d\t",treehead->data); // printing the data after popping
+			printf("->");
+			push(&top,treehead->right);  // push left one last so that it gets operated first
+			push(&top,treehead->left); // I'm getting correct answer if i exchange this statement wid above one but it doesnt make sense w.r.t stack's LIFO property
+	
+		}
+
+	}
+	
+	
+	printf("preorder traversal is completed successfully\n");
+	
+	return 0;
+}
+
+void addnode(node *p,int n)
+{
+	if(p->data>n)
+	{
+		if(p->right!=NULL)
+		{
+			addnode(p->right,n);
+	
+		}
+		else
+		{
+			p->right=(node *)malloc(sizeof(node));
+			p=p->right;
+			p->data=n;
+			p->left=NULL;
+			p->right=NULL;
+		}		
+		
+	}
+
+	else
+	{
+
+		if(p->left!=NULL)
+		{
+			addnode(p->left,n);
+	
+		}
+		else
+		{
+			p->left=(node *)malloc(sizeof(node));
+			p=p->left;
+			p->data=n;
+			p->left=NULL;
+			p->right=NULL;
+		}		
+
+
+	}
+
+}
+
+stack *createStack(stack *top)
+{
+	top=NULL;
+	return top;
+}
+
+int stackIsEmpty(stack *top)
+{
+	if(top==NULL)
+	return 0;
+
+	else 
+	return 1;
+
+}
+
+void push(stack **top,node *t) // tell me if my stack implementation is wrong somewhere
+{
+	stack *temp=(stack *)malloc(sizeof(stack));
+	if(temp==NULL)
+	{
+		printf("memory error\n");
+		return;
+	}	
+	temp->tp=t;
+	temp->next=*top;
+	*top=temp;
+
+}
+
+node *pop(stack **top)
+{
+	if(top==NULL)
+	{
+		printf("stack is empty\n");
+		return (node *)0;
+	}
+
+	stack *temp=*top;
+	*top=(*top)->next;
+	node *t=temp->tp;
+	free(temp);
+	return t;
+
+}
+
+
+
+ dex debugged!, I constructed the tree itself wrong while checking p->data and n . dex /* iterative preorder of bst using explicit stack */ #include #include struct tree { int data; struct tree *left; struct tree *right; }; typedef struct tree node; void addnode(node *,int); struct llist { struct tree *tp; struct llist *next; }; typedef struct llist stack; stack *createStack(stack *); int stackIsEmpty(stack *); void push(stack **,node *); node *pop(stack **top); int main() { int i,n,a; printf(“enter the number of elements in the tree \n”); scanf(“%d”,&a); node *head=(node *)malloc(sizeof(node)); node *treehead=head; head->left=NULL; head->right=NULL; printf(“enter numbers \n”); scanf(“%d”,&head->data); for(i=0;idata); // printing the data after popping printf(“->”); push(&top,treehead->right); // push left one last so that it gets operated first push(&top,treehead->left); // I’m getting correct answer if i exchange this statement wid above one but it doesnt make sense w.r.t stack’s LIFO property } } printf(“preorder traversal is completed successfully\n”); return 0; } void addnode(node *p,int n) { if(p->data>n) { if(p->right!=NULL) { addnode(p->right,n); } else { p->right=(node *)malloc(sizeof(node)); p=p->right; p->data=n; p->left=NULL; p->right=NULL; } } else { if(p->left!=NULL) { addnode(p->left,n); } else { p->left=(node *)malloc(sizeof(node)); p=p->left; p->data=n; p->left=NULL; p->right=NULL; } } } stack *createStack(stack *top) { top=NULL; return top; } int stackIsEmpty(stack *top) { if(top==NULL) return 0; else return 1; } void push(stack **top,node *t) // tell me if my stack implementation is wrong somewhere { stack *temp=(stack *)malloc(sizeof(stack)); if(temp==NULL) { printf(“memory error\n”); return; } temp->tp=t; temp->next=*top; *top=temp; } node *pop(stack **top) { if(top==NULL) { printf(“stack is empty\n”); return (node *)0; } stack *temp=*top; *top=(*top)->next; node *t=temp->tp; free(temp); return t; } zyzz i think this one is easy  
+/void preorder(struct node *temp){
+int top=0;
+struct node *s[20];
+s[0]=NULL;
+printf("preorder : \n");
+while(temp!=NULL){
+    printf("%d \t",temp->data);
+
+    if(temp->right!=NULL){
+
+        s[++top]=temp->right;
+    }
+
+
+
+    if(temp->left!=NULL){
+
+        temp=temp->left;
+    } else{
+
+      temp=s[top--];
+    }
+
+
+}
+
+}
+ abhishek08aug Intelligent SHASHI KUMAR #include #include struct node { int data; struct node *right; struct node *left; }*root,*S[10]; int i=0; void Push(struct node *p) { S[i++]=p; } struct node *Pop() { return S[–i]; } void preorder() { //int j=1; struct node *ptr=root; struct node *popped; while(ptr!=NULL) { struct node *psh=ptr; while(psh!=NULL) { Push(psh); printf(“%d “,psh->data); psh=psh->left; } while(i>0) { popped=Pop(); //if(j==k) //rslt=popped->data; // printf(“%d “,popped->data); //j++; if(popped->right!=NULL) break; } ptr=popped->right; } printf(“\n”); } struct node *createnode(int k) { struct node *nwnode=malloc(sizeof(struct node)); nwnode->data=k; nwnode->left=NULL; nwnode->right=NULL; return nwnode; } int main(int args,char *argv[]) { root=createnode(11); root->left=createnode(4); root->right=createnode(15); root->left->left=createnode(3); root->left->right=createnode(8); root->left->right->left=createnode(7); root->right->left=createnode(13); root->right->right=createnode(17); root->right->right->right=createnode(19) ; printf(“the preorder traversal of the given graph is “); preorder(); } http://www.gagangupt16.wordpress.com Veer Verma Is modified version of Morris Traversal possible for PreOrder?? Ashok Using stack is as good as using recursion. Modify the morris algorithm from inorder traversal to preorder or post order to get the intended answer. Ashok Using stack is as good as using recursion. Modify the morris algorithm from inorder traversal to preorder or post order to get the intended answer.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Venki I guess the code can be refactored. Preorder relatively consumes less stack space. In the above code it pushes both the nodes to stack, which is not necessary. See sample code (not tested),  
+void Preorder(Node *pRoot) {
+    Node *pMove = pRoot;
+    stack<Node *> s;
+
+    s.push(NULL); // To recognize end of processing
+    while( pMove ) {
+	
+	cout << pMove->key;
+
+	if( pMove->right )
+	    s.push(pMove->right); // Only we need to keep track of right sub-trees
+
+	if( pMove->left )
+	    pMove = pMove->left;
+	else {
+	    pMove = s.top();
+  	    s.pop();
+	}
+    }
+}
+ Palash You’d at best be saving one node space in the stack, that you are anyway using by saving that NULL in the beginning. No point of this. Venki It is nothing but do-undo beheviour. It consumes processing power for no value addition. Pushing one NULL doesn’t cost much when compared to repeated do-undo actions. Suman public static void traverseIterative(TreeNode root){ Stack<TreeNode> stack = new Stack<TreeNode>(); stack.push(root); TreeNode currentNode = root; while(!stack.isEmpty()){ while (currentNode != null){ System.out.println(currentNode.data); currentNode = currentNode.left; if (currentNode != null){ stack.push(currentNode); } } currentNode = stack.pop(); currentNode = currentNode.right; if (currentNode != null){ stack.push(currentNode); } } } Leet Can we do preorder traversal without recursion and without stack? Vikas That would be using Morris Traversal. Look it up on wiki. atul morris traversal does inorder traversal  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

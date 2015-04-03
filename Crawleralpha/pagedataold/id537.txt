@@ -1,0 +1,887 @@
+Alternating split of a given Singly Linked List - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Alternating split of a given Singly Linked List Write a function AlternatingSplit() that takes one list and divides up its nodes to make two smaller lists ‘a’ and ‘b’. The sublists should be made from alternating elements in the original list. So if the original list is 0->1->0->1->0->1 then one sublist should be 0->0->0 and the other should be 1->1->1. Method 1(Simple) The simplest approach iterates over the source list and pull nodes off the source and alternately put them at the front (or beginning) of ‘a’ and b’. The only strange part is that the nodes will be in the reverse order that they occurred in the source list. Method 2 inserts the node at the end by keeping track of last node in sublists. 
+/*Program to alternatively split a linked list into two halves */
+#include<stdio.h>
+#include<stdlib.h>
+#include<assert.h>
+
+/* Link list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+
+/* pull off the front node of the source and put it in dest */
+void MoveNode(struct node** destRef, struct node** sourceRef) ;
+
+/* Given the source list, split its nodes into two shorter lists.
+  If we number the elements 0, 1, 2, ... then all the even elements
+  should go in the first list, and all the odd elements in the second.
+  The elements in the new lists may be in any order. */
+void AlternatingSplit(struct node* source, struct node** aRef, 
+                            struct node** bRef) 
+{
+  /* split the nodes of source to these 'a' and 'b' lists */
+  struct node* a = NULL; 
+  struct node* b = NULL;
+  
+  struct node* current = source;
+  while (current != NULL) 
+  {
+    MoveNode(&a, &current); /* Move a node to list 'a' */
+    if (current != NULL) 
+    {
+       MoveNode(&b, &current); /* Move a node to list 'b' */
+    }
+  }
+  *aRef = a;
+  *bRef = b;
+}
+
+/* Take the node from the front of the source, and move it to the front of the dest.
+   It is an error to call this with the source list empty. 
+   
+   Before calling MoveNode():
+   source == {1, 2, 3}   
+   dest == {1, 2, 3}
+      
+   Affter calling MoveNode():
+   source == {2, 3}      
+   dest == {1, 1, 2, 3}      
+*/
+void MoveNode(struct node** destRef, struct node** sourceRef) 
+{
+  /* the front source node  */
+  struct node* newNode = *sourceRef; 
+  assert(newNode != NULL);
+  
+  /* Advance the source pointer */
+  *sourceRef = newNode->next;
+  
+  /* Link the old dest off the new node */
+  newNode->next = *destRef; 
+  
+  /* Move dest to point to the new node */
+  *destRef = newNode; 
+}
+
+/* UTILITY FUNCTIONS */
+/* Function to insert a node at the beginging of the linked list */
+void push(struct node** head_ref, int new_data)
+{
+  /* allocate node */
+  struct node* new_node =
+            (struct node*) malloc(sizeof(struct node));
+
+  /* put in the data  */
+  new_node->data  = new_data;
+
+  /* link the old list off the new node */
+  new_node->next = (*head_ref);     
+
+  /* move the head to point to the new node */
+  (*head_ref)    = new_node;
+}
+
+/* Function to print nodes in a given linked list */
+void printList(struct node *node)
+{
+  while(node!=NULL)
+  {
+   printf("%d ", node->data);
+   node = node->next;
+  }
+} 
+
+/* Drier program to test above functions*/
+int main()
+{
+  /* Start with the empty list */
+  struct node* head = NULL;
+  struct node* a = NULL;
+  struct node* b = NULL;  
+
+  /* Let us create a sorted linked list to test the functions
+   Created linked list will be 0->1->2->3->4->5 */
+  push(&head, 5);
+  push(&head, 4);
+  push(&head, 3);
+  push(&head, 2);
+  push(&head, 1);                                    
+  push(&head, 0);  
+
+  printf("\n Original linked List:  ");
+  printList(head); 
+
+  /* Remove duplicates from linked list */
+  AlternatingSplit(head, &a, &b); 
+
+  printf("\n Resultant Linked List 'a' ");
+  printList(a);            
+
+  printf("\n Resultant Linked List 'b' ");
+  printList(b);            
+
+  getchar();
+  return 0;
+}
+ Time Complexity: O(n) where n is number of node in the given linked list. Method 2(Using Dummy Nodes) Here is an alternative approach which builds the sub-lists in the same order as the source list. The code uses a temporary dummy header nodes for the ‘a’ and ‘b’ lists as they are being built. Each sublist has a “tail” pointer which points to its current last node — that way new nodes can be appended to the end of each list easily. The dummy nodes give the tail pointers something to point to initially. The dummy nodes are efficient in this case because they are temporary and allocated in the stack. Alternately, local “reference pointers” (which always points to the last pointer in the list instead of to the last node) could be used to avoid Dummy nodes. 
+void AlternatingSplit(struct node* source, struct node** aRef, 
+                            struct node** bRef) 
+{
+  struct node aDummy;
+  struct node* aTail = &aDummy; /* points to the last node in 'a' */
+  struct node bDummy;
+  struct node* bTail = &bDummy; /* points to the last node in 'b' */
+  struct node* current = source;
+  aDummy.next = NULL;
+  bDummy.next = NULL;
+  while (current != NULL) 
+  {
+    MoveNode(&(aTail->next), &current); /* add at 'a' tail */
+    aTail = aTail->next; /* advance the 'a' tail */
+    if (current != NULL) 
+    {
+      MoveNode(&(bTail->next), &current);
+      bTail = bTail->next;
+    }
+  }
+  *aRef = aDummy.next;
+  *bRef = bDummy.next;
+}
+ Time Complexity: O(n) where n is number of node in the given linked list. Source: http://cslibrary.stanford.edu/105/LinkedListProblems.pdf Please write comments if you find the above code/algorithm incorrect, or find better ways to solve the same problem.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. Mohan Rajoria An alternate way is the same as deleting alternative nodes. We can add deleted nodes to new list, by this way we’ll get solution for both the problem 1.Delete alternative nodes. 2. Split alternative nodes into two list. Ankur Teotia an easier way to do this would be to traverse the list and have a counter integer initialized to zero which would increment whenever a node would get traversed. now if the counter is even then put the node in one list and if it is odd , put it in another list. the complete code -> http://ideone.com/CEN0ss here’s the code snippet of the modifield alternating split function. struct node* b1 = NULL; struct node* a1= NULL; void AlternatingSplit(struct node* source, struct node** aRef, struct node** bRef) { /* split the nodes of source to these ‘a’ and ‘b’ lists */ struct node* a = NULL; struct node* b = NULL; int count = 0; struct node* current = source; while (current != NULL) { a = current; b = current; current = current -> next; count = count + 1; if(count%2==0){ printf(“hello”); push(&a1,a->data); }else{ printf(“tello”); push(&b1,a->data); } } } Vishal My below post will give the list as required but having the reference of the original list… So below program is just to print the expected output… no new memory allocations… Vishal void AlternatingSplit(Node *head, Node **evenlist,Node **oddlist) { Node *temp = head; Node *pevenlist = *evenlist; Node *poddlist = *oddlist; int i =0; while(temp) { if(i%2 == 0) { if(pevenlist){ pevenlist->next= temp; pevenlist = pevenlist->next;} else{ pevenlist = temp; *evenlist = pevenlist; } }else { if(poddlist){ poddlist->next= temp; poddlist = poddlist->next;} else { poddlist = temp; *oddlist = poddlist; } } temp = temp->next; i++; } } Himanshu Dagar whole source code from dummy variable concept is here(at below link) http://ideone.com/Xw7Wh1 bhavesh #include #include #include /* Link list node */ struct node { int data; struct node* next; }; /* pull off the front node of the source and put it in dest */ void MoveNode(struct node** destRef, struct node** sourceRef) ; /* Given the source list, split its nodes into two shorter lists. If we number the elements 0, 1, 2, … then all the even elements should go in the first list, and all the odd elements in the second. The elements in the new lists may be in any order. */ void AlternatingSplit(struct node* source, struct node** aRef, struct node** bRef) { /* split the nodes of source to these ‘a’ and ‘b’ lists */ struct node* a = NULL; struct node* b = NULL; int turn=1; struct node* current = source; while (current != NULL) { if(turn){ turn=0; if(*aRef) { a->next=current; a=current; current=current->next; //printf(“Start a1″); } else{ *aRef=a=current; current=current->next; //printf(“Start a2″); } } else { turn=1; if(*bRef) { b->next=current; b=current; current=current->next; //printf(“Start b1″); } else{ *bRef=b=current; current=current->next; //printf(“Start b2″); } } } a->next=NULL; b->next=NULL; } /* UTILITY FUNCTIONS */ /* Function to insert a node at the beginging of the linked list */ void push(struct node** head_ref, int new_data) { /* allocate node */ struct node* new_node = (struct node*) malloc(sizeof(struct node)); /* put in the data */ new_node->data = new_data; /* link the old list off the new node */ new_node->next = (*head_ref); /* move the head to point to the new node */ (*head_ref) = new_node; } /* Function to print nodes in a given linked list */ void printList(struct node *node) { while(node!=NULL) { printf(“%d “, node->data); node = node->next; } } /* Drier program to test above functions*/ int main() { /* Start with the empty list */ struct node* head = NULL; struct node* a = NULL; struct node* b = NULL; /* Let us create a sorted linked list to test the functions Created linked list will be 0->1->2->3->4->5 */ //push(&head, 5); //push(&head, 4); push(&head, 3); push(&head, 2); //push(&head, 1); //push(&head, 0); printf(“n Original linked List: “); printList(head); /* Remove duplicates from linked list */ AlternatingSplit(head, &a, &b); printf(“n Resultant Linked List ‘a’ “); printList(a); printf(“n Resultant Linked List ‘b’ “); printList(b); getchar(); return 0; } Marsha Donna http://ideone.com/JvD1UP can this be simplified further Vikash876 node * list_split_alternate(node *head) { node *sav, *retnode = head->next; while(head->next!=NULL) { sav = head->next; head->next = head->next->next; head = sav; } sav->next = NULL; return retnode; } ankit #include #include struct treeNode { int val; struct treeNode *next; }; struct treeNode *root=NULL; struct treeNode *a=NULL; struct treeNode *b=NULL; struct treeNode* getNode() { return (struct treeNode*)malloc(sizeof(struct treeNode)); } struct treeNode* addNode(struct treeNode* root,int val) { struct treeNode *node=getNode(); node->val=val; node->next=root; root=node; return root; } void printLinkList(struct treeNode* root) { struct treeNode *node=root; printf(“n Link List :: “); while(node!=NULL) { printf(“%d “, node->val); node=node->next; } } void splitLinkListIntoTwo(struct treeNode * root) { if(root==NULL) return; struct treeNode *tempa=NULL; struct treeNode *tempb=NULL; tempa=a=root; if(root->next!=NULL) tempb=b=root->next; if(a==NULL || b==NULL) return; while(tempa->next!=NULL && tempa->next->next!=NULL) { tempa->next=tempa->next->next; tempb->next=tempb->next->next; tempa=tempa->next; tempb=tempb->next; } tempa->next=NULL; } int main() { struct treeNode *root=NULL; root=addNode(addNode(addNode(addNode(NULL,10),9),8),7); printLinkList(root); splitLinkListIntoTwo(root); printLinkList(a); printLinkList(b); } GP 
+
+/* simple approach*/
+
+void alternatingSplit(struct node** head_ref,struct node** head1,struct node** head2)
+
+            {
+
+                 if(*head_ref==NULL||(*head_ref)-&gt;next==NULL)
+
+                 return;
+
+                 struct node* current=*head_ref;
+
+                 struct node* nNext,*next;
+
+                 *head1=*head_ref;
+
+                 *head2=(*head_ref)-&gt;next;
+
+                 while(current!=NULL&amp;&amp;nNext!=NULL)
+
+                 {
+
+                                      next=current-&gt;next;
+
+                                      nNext=current-&gt;next-&gt;next;
+
+                                      current-&gt;next=nNext;
+
+                                      current=next;
+
+                                      }
+
+                                      current-&gt;next=NULL;
+
+                  }
+
+/* comment if any mistake*/
+
+ Soumya Sengupta split_list(struct node*head) { split_listUtil(struct node*head) { if(head==null) return; temp=head->next; if(temp==null) return; struct node *new=(struct node*)malloc(sizeof(stuct node)); new=temp; head->next=temp-next; new->next=split_listUtil(head->next); return new; } return head; } Soumya Sengupta split_list(struct node*head) { split_listUtil(struct node*head) { if(head==null) return; temp=head->next; if(temp==null) return; struct node *new=(struct node*)malloc(sizeof(stuct node)); new=temp; head->next=temp-next; temp->next=split_listUtil(head->next); return temp; } return head; } Deepak Here is third method.. just remove alternate node from original list and add to another list. In last we will find two sublists.. original list is not preserve..   /* Dividing a list into two sbulists where each list has alternate element of original list and only assumption made is we don’t need original list anymore */ #include #include typedef struct node { int data; struct node *link; }list; void insert(list **,int); void show(list *); /* In alternate function we just remove alternate element from original list and attach it to a sub list header. In last there will be two sublists (1) One that was original has become sublist having odd position elements, (2)sublist has all even position elements */ void alternate(list **org,list **sub) { list *temp; list *list1=(*org); list *list2=(*sub); list *header1,*header2; header1=(*org); /* save header of first list */ while(list1->link!=NULL) { temp=list1->link; list1->link=list1->link->link; list1=list1->link; if(list2==NULL) { temp->link=list2; list2=temp; header2=temp;/* save header of second list */ } else { while(list2->link!=NULL) list2=list2->link; temp->link=list2->link; list2->link=temp; } (*org)=header1; /* assign address of first sublist header */ (*sub)=header2; /* assign address of second sublist header */ } } /* utility functions */ void insert(list **head, int value) { list *b; list *a; a=(list *)malloc(sizeof(list)); a->data=value; if((*head)==NULL) { (*head)=a; a->link=NULL; } else { b=(*head); while(b->link!=NULL) b=b->link; b->link=a; a->link=NULL; } } void show(list *head) { if(head==NULL) printf(“\nlist is empty”); else while(head!=NULL) { printf(“\n\n%d”,head->data); head=head->link; } } /* Main function */ void main() { list *head1=NULL; list *head2=NULL; clrscr(); insert(&head1,2); insert(&head1,32); insert(&head1,26); insert(&head1,42); insert(&head1,21); insert(&head1,48); insert(&head1,132); printf(“\n\noriginal list is :\n\n”); show(head1); if(head1==NULL) printf(“\n\nList is empty”); else if(head1->link==NULL) printf(“\n\nList has only one element “); else { alternate(&head1,&head2); /* Pass head of both lists, one is initially empty */ printf(“\n\n”); printf(“\nFirst Sublist:”); show(head1); printf(“\n\nSecond sublist:”); show(head2); } getch(); } omguptanitdgp @geeksforgeeks here is an easy solution take two pointer ,one points to first node in the list and other points to second node initiaaly .now advance both pointer by next->next(means two times) and store nodes in two linked lists. please inform me whether i m correct or not Marsha Donna @omguptanitdgp see my code given above implements the same algorithm Himanshu /* we can use a bool variable which when true add nodes of source list to a and when false add nodes to the b list. #include #include #include #include using namespace std; /* Link list node */ struct node { int data; struct node* next; }; void AlternatingSplit(struct node* source, struct node** aRef, struct node** bRef) { bool var=true; struct node* temp1=NULL; struct node *temp2=NULL; struct node * curr=source; struct node *temp=curr; struct node *a=NULL; struct node * b=NULL; while(curr!=NULL ) { if(var) { if(a==NULL) { a=curr; curr=curr->next; a->next=NULL; temp1=a; } else { temp1->next=curr; temp1=curr; curr=curr->next; temp1->next=NULL; } } else { if(b==NULL) { b=curr; curr=curr->next; b->next=NULL; temp2=b; } else { temp2->next=curr; temp2=curr; curr=curr->next; temp2->next=NULL; } } var=!var; } *aRef=a; *bRef=b; } void push(struct node** head_ref, int new_data) { struct node* new_node =(struct node*) malloc(sizeof(struct node)); new_node->data = new_data; new_node->next = (*head_ref); (*head_ref) = new_node; } void printList(struct node *node) { while(node!=NULL) { printf(“%d “, node->data); node = node->next; } } / int main() { struct node* head = NULL; struct node* a = NULL; struct node* b = NULL; push(&head,6); push(&head, 5); push(&head, 4); push(&head, 3); push(&head, 2); push(&head, 1); push(&head, 0); printf(“\n Original linked List: “); printList(head); /* Remove duplicates from linked list */ AlternatingSplit(head, &a, &b); printf(“\n Resultant Linked List ‘a’ “); printList(a); printf(“\n Resultant Linked List ‘b’ “); printList(b); getchar(); return 0; } lizard I think the following code is fairly easy to understand and to code also and it do preserve the order of the elements.  
+
+void alternate(node *head,node **one,node **two)
+{
+    node *a=head,*b=head->nxt;
+    *one=a;
+    *two=b;
+    while(b!=NULL)
+    {
+        a->nxt=b->nxt;
+        a=b;
+        b=a->nxt;
+    }
+}
+
+ and will be called from main as:  
+    node *one,*two;
+    alternate(head,&one,&two);
+    print(one);  //function to print the list.
+    cout<<endl;
+    print(two); 
+ Happy Coding aishlnch can anyone explain it to me please??? Vibhu Tiwari @GeeksForGeeks i think it can also be done by the following method. It uses your link for deleting alternate nodes of a linked list. Now before freeing the node copy the node’s data to another linked list that contains these alternate nodes.At last just reverse the new linked list that we have made to get the alternative nodes in order. In the end just display the two lists.Below is the code  
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct node node_t;
+struct node
+{
+    int data;
+    node_t *next;
+};
+node_t *reverse(node_t *n)
+{
+    node_t *new_root=NULL;
+    while(n)
+    {
+        node_t *next=n->next;
+        n->next=new_root;
+        new_root=n;
+        n=next;
+    }
+    return new_root;
+}
+void push(node_t **head_ref,int data)
+{
+    node_t *n=(node_t *)malloc(sizeof(node_t));
+    n->data=data;
+    n->next=(*head_ref);
+    (*head_ref)=n;
+}
+void push1(node_t **head_ref,int data)
+{
+    node_t *n=(node_t *)malloc(sizeof(node_t));
+    n->data=data;
+    n->next=(*head_ref);
+   (*head_ref)=n;
+}
+void delAlt(node_t *head)
+{
+    node_t *prev=head;
+    node_t *newList=NULL;
+    node_t *n=head->next;
+    while(prev!=NULL&&n!=NULL)
+    {
+        prev->next=n->next;
+        push1(&newList,n->data);
+        free(n);
+        prev=prev->next;
+        if(prev!=NULL)
+            n=prev->next;
+    }
+    node_t *a=reverse(newList);
+    printList(a);
+}
+void printList(node_t *head)
+{
+    node_t *temp=head;
+    while(temp!=NULL)
+    {
+        printf(" %d ",temp->data);
+        temp=temp->next;
+    }
+}
+int main()
+{
+    node_t *head=NULL;
+    push(&head,6);
+    push(&head,5);
+    push(&head,4);
+    push(&head,3);
+    push(&head,2);
+    push(&head,1);
+    printList(head);
+    printf("\n");
+    delAlt(head);
+    printf("\n");
+    printList(head);
+
+}
+
+ Ankur void split(node *temp,node **one,node **two) { if(temp==NULL) { *one =NULL; *two=NULL; return ; } node *ptr1=(node *)malloc(sizeof(node)); node *ptr2=(node *)malloc(sizeof(node)); *one=ptr1; *two=ptr2; ptr1->val=temp->val; if(temp->next) { ptr2->val=temp->next->val; split(temp->next->next,&(ptr1->next),&(ptr2->next)); return ; } ptr1->next=NULL; *two=NULL; } Hanish Bansal Here is one simple implementation without using Movenode function or dummy node : void AlternatingSplit(struct node* source, struct node** aRef, struct node** bRef) { struct node *a, *b=NULL; a=source; if(a) b=a->next; *aRef = a; *bRef = b; while ( a && b ) { a->next=b->next; a=a->next; if(a) b->next=a->next; b=b->next; } } Ronny Even I thought this approach on reading this question. This is a neat and simple algorithm without using additional notes. Thanks for providing with code. lakshay Exactly! Great approach hanish vikasnitt Excellent approach hanish..:) mualloc First of all, thank you very much for your neat solution and also, I have developed your code for doubly linked lists. Sorry for the identifier names. typedef struct node { int data; struct node *prev; struct node *next; } node; #define DATA(p) ((p)->data) #define NEXT(p) ((p)->next) #define PREV(p) ((p)->prev) void split ( node* head, node **first, node **second ) { node* firstCurrent = head; node* secondCurrent = NULL; node* dummyforbprev = NULL; if ( firstCurrent ) { secondCurrent = NEXT(firstCurrent); if(secondCurrent) PREV(secondCurrent)=NULL; } *first = firstCurrent; *second = secondCurrent; while ( firstCurrent && secondCurrent ) { NEXT(firstCurrent) = NEXT(secondCurrent); dummyforbprev = PREV(firstCurrent); firstCurrent = NEXT(firstCurrent); if(firstCurrent) PREV(firstCurrent) = PREV(secondCurrent); if ( firstCurrent ) NEXT(secondCurrent) = NEXT(firstCurrent); PREV(secondCurrent) = dummyforbprev; secondCurrent = NEXT(secondCurrent); } if ( firstCurrent ) NEXT(firstCurrent) = NULL; if ( secondCurrent ) NEXT(secondCurrent) = NULL; } hunter while(p&&p->next) { temp=p->next; p->next=temp->next; temp->next=NULL; if(second==NULL) second=q=temp; else { q->next=temp; q=temp; } p=p->next; } ultimate_coder I think its simpler to understand and easier one. head,head1 and head2 global variables. 1.Fisrt list head is head1. 2.Second list head is head2. 3.Original list head is head.  
+void splitlist(void)
+{
+    unsigned count=1;
+    struct node *temp=head;
+               //iterative loop
+    while(temp)
+    {
+        if(count & 1)         //check for even or odd
+            push(&head1,temp->data);   //odd to first list
+        else push(&head2,temp->data);  //even to second list
+        temp=temp->next;
+        ++count;          
+    }
+}
+
+ beginner very easy approach compared to al…thank u…. Marsha Donna i think the question is to split 1 list into 2 separate lists..not create 2 lists using data present in the list..correct me if i m wrong abhishek08aug  
+#include<stdio.h>
+#include<stdlib.h>
+
+struct node {
+  int data;
+  struct node * next;
+};
+
+void insert_node(struct node ** head_ref, int value) {
+  struct node * head=*head_ref;
+  struct node * new_node=NULL;
+  if(head==NULL) {
+    new_node=(struct node *)malloc(sizeof(struct node));
+    new_node->data=value;
+    new_node->next=NULL;
+    *head_ref=new_node;
+  } else {
+    insert_node(&head->next, value);
+  }
+}
+
+void print_list(struct node * head) {
+  struct node * current=head;
+  while(current!=NULL) {
+    printf("%d ", current->data);
+    current=current->next;
+  }
+  printf("\n");
+}
+
+struct node * split_list(struct node * head) {
+  if(head==NULL) {
+    return head;
+  } else if(head->next==NULL) {
+    return head->next;
+  } else {
+    struct node * second_list_head=head->next;
+    struct node * first_list_node=head;
+    struct node * second_list_node=head->next;
+    while(second_list_node!=NULL) {
+      first_list_node->next=second_list_node->next;
+      if(first_list_node->next!=NULL) {
+        second_list_node->next=first_list_node->next->next;
+      }
+      first_list_node=first_list_node->next;
+      second_list_node=second_list_node->next;
+    }
+    return second_list_head;
+  }
+}
+
+int main() {
+  struct node * head=NULL;
+
+  insert_node(&head, 40);
+  insert_node(&head, 30);
+  insert_node(&head, 50);
+  insert_node(&head, 25);
+  insert_node(&head, 75);
+  insert_node(&head, 100);
+  insert_node(&head, 250);
+
+  print_list(head);
+  struct node * split_list_head=split_list(head);
+  print_list(head);
+  print_list(split_list_head);
+
+  return 0;
+}
+ 40 30 50 25 75 100 250 40 50 75 250 30 25 100 yatharth.sharma  
+
+
+void alternate()
+{
+    
+head1=head;
+head2=head->next;
+ node *t1=head1,*t2=head2;
+while(t1!=NULL && t2!=NULL)
+ {       if(t1->next==NULL)
+            break;
+       t1->next=t2->next;
+       t1=t1->next;
+       if(t2->next==NULL)
+       break;
+       t2->next=t1->next;
+       t2=t2->next; 
+ }
+     
+}
+
+
+
+ Shivam void AlternatingSplit(struct node *source, struct node *a, struct node *b) // where a is source and b is source->next. { if(a==NULL). return;. while(a->next!=NULL&&b->next!=NULL){ a->next=a->next->next; a=a->next; b->next=b->next->next; b=b->next; } if(a->next!=NULL) a->next=NULL; } Nikin Kumar Jain  
+void addNode(node **sr, int data)
+{
+	node *temp = new node;
+	temp->data = data;
+	temp->next = NULL;
+	if(*sr == NULL)
+	{	
+		*sr = temp;
+		return;
+	}
+	else
+	{
+		while((*sr)->next != NULL)
+			*sr = (*sr)->next;
+		(*sr)->next = temp;
+	}
+}
+
+void alternateSplits(node *sr, node **sr1, node **sr2)
+{
+	if(sr == NULL)
+		return;
+	while(sr != NULL)
+	{
+		addNode(sr1, sr->data);
+		sr = sr->next;
+		if(sr)
+		{
+			addNode(sr2, sr->data);
+			sr = sr->next;
+		}
+	}
+}
+ ramkumarp  
+/* Paste your code here (You may delete these lines if not writing code) */
+
+void SplitAlt (Node* head, Node*& hx, Node*& hy){
+
+  if (head == NULL || head -> next == NULL){
+        hx = head;
+        hy = NULL;
+        return;
+  }
+  hx = head;
+  hy = head->next;
+
+  Node *h1 = head;
+
+  Node* h2 = head->next;
+
+  while ( h1 != NULL && h2 != NULL){
+
+     if (h1->next != NULL){
+        h1->next = h1->next->next;
+     }
+     
+     if (h2->next != NULL ){
+        h2->next = h2->next->next;
+     }    
+  
+   h1 = h1->next;
+   h2 = h2->next;
+  }
+return;
+}
+ sush There is no need to do so much. Alternating split can be written in this simple way.  
+
+void AlternatingSplit(struct node* h, struct node** a,struct node** b) 
+							{
+								if(h==NULL || h->next==NULL)
+								{
+									*a=h;*b=NULL;return;
+								}
+								*a=h;*b=h->next;
+								AlternatingSplit((*b)->next,&((*a)->next),&((*b)->next));
+							} 
+ PG Any comment on this solution?  
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node{
+	int data;
+	struct node *  next;
+};
+
+void pushfront(struct node **, int);
+void print_list(struct node*);
+
+void split_alternate_keep_original_list(struct node *, struct node **, struct node **);
+
+int main(){
+	struct node *head = NULL;
+	struct node *head2 = NULL;
+	struct node *head3 = NULL;
+
+	pushfront(&head, 7);
+	pushfront(&head, 6);
+	pushfront(&head, 5);
+	pushfront(&head, 4);
+	pushfront(&head, 3);
+	pushfront(&head, 2);
+	pushfront(&head, 1);
+
+	print_list(head);
+
+
+	split_alternate_keep_original_list(head, &head2, &head3);
+
+
+	print_list(head2);
+	print_list(head3);
+}
+
+void pushfront(struct node **head_ref, int data){
+	
+	
+	struct node * newnode = (struct node*) malloc(sizeof(struct node));
+	newnode->data = data;
+	newnode->next = *head_ref;
+	*head_ref = newnode;
+}
+
+void print_list(struct node *head){
+	if(head){
+		struct node * current = head;
+		printf("\n");
+		while(current!=NULL){
+			printf("%d ", current->data);
+			current = current->next;
+		}
+	}
+	else{
+		printf("\nNull linked list.");
+		return;
+	}	
+}
+
+void split_alternate_keep_original_list(struct node *head, struct node **head2_ref, struct node **head3_ref){
+	int count = 1;
+	struct node * current = head;
+	struct node dummy1;
+	dummy1.next = NULL;
+	struct node * tail1 = &dummy1;
+
+	struct node dummy2;
+	dummy2.next = NULL;
+	struct node *tail2 = &dummy2;
+
+	while(current!=NULL){
+		if(count%2 != 0){
+			pushfront(&(tail1->next), current->data);
+			tail1 = tail1->next;
+			current = current->next;
+			count++;
+		}
+		else{
+			pushfront(&(tail2->next), current->data);
+			tail2 = tail2->next;
+			current = current->next;
+			count++;
+		}
+	}
+	*head2_ref = dummy1.next;
+	*head3_ref = dummy2.next;
+
+}
+ himanshu can be done using recursion like this easily… void alternate_split(node *start,node *&first,node *&second) { if(start==NULL) { first=NULL;second=NULL;return; } if(start->n==NULL) { first=start;second=NULL;return; } first=start; second=start->n; alternate_split(start->n->n,first->n,second->n); } Gurusimhe What is the problem here in this code? When I give Input 1–>0–>1–>0 it prints 1–>0 and 0–>1 instead of 1–>1 and 0–>0 void Altsplit( list *head, list **h1, list **h2) { if(head==NULL) return; list *p = head; *h1 = head; *h2 = head->next; while(p && p->next) { list *t = p->next; p->next = t->next; p = t; } } Gurusimhe Its working fine.My list was being modified.Please check if it has any other problem. Thanks, Gurusimhe  
+/* Paste your code here (You may delete these lines if not writing code) */
+ vick its a recursive approach…n simple enough.. plz comment if anything found wrong with the code..  
+
+void alternateSplit(node *q,node **a,node **b)
+{
+	if(q==NULL)return;
+	
+	node *aa,*bb;
+	aa=q;
+	bb=q->link;
+	
+	if(bb!=NULL)
+	aa->link=bb->link;
+	
+	if(aa->link!=NULL)
+	bb->link=aa->link->link;
+	
+	alternateSplit(aa->link,a,b);
+	
+	(*a)=aa;
+	(*b)=bb;
+	
+	return;
+	 
+}
+ Manish Kumar  
+void AlternatingSplit(struct node* head, struct node** aRef, 
+                            struct node** bRef) 
+{
+  /* split the nodes of source to these 'a' and 'b' lists */
+  struct node* head1 = head; 
+  struct node* head2 = head->next;
+  struct node *s1 = head1;
+  struct node *s2 = head2;
+  struct node *p1,*p2;
+  
+  while(s1!=NULL && s2!=NULL && s2->next!=NULL && s2->next->next!=NULL){
+      p1=s2->next;
+      p2=s2->next->next;
+      s1->next=p1;
+      s2->next=p2;
+      s1=p1; s2=p2;
+  }
+  
+  if(s1->next){
+      s1->next=NULL;
+  }
+  if(s2->next){
+      s1->next=s2->next;
+      s2->next=NULL;
+  }
+   
+  *aRef = head1;
+  *bRef = head2;
+}
+ shen Recursive approach…. function will be called in giving start of the linked list and pointer to the new start1 and start2 …  
+void alternativeSplit(node *s,node **s1, node **s2)
+{
+    if(s==NULL)
+    {
+        *s1=NULL;
+        *s2=NULL;
+        return;
+    }
+    node *a,*b,*temp;
+    *s1=s;
+    *s2=s->link;
+    if(s->link!=NULL)
+    {
+        alternativeSplit(s->link->link,&a,&b);
+        temp=s->link;
+        s->link=a;
+        temp->link=b;
+    }
+}
+ Ankur Garg A Recursive solution in O(n)  
+void AlternatingSplit(struct node* &head, struct node* &A,struct node* &B){
+  if(! head ){
+    A=NULL;
+    B=NULL;
+    return;
+  }
+  if(! head->next ){
+    A=head;
+    B=NULL;
+    return;
+  }
+  node* current=head;
+  A=current;
+  B=current->next;
+  current=current->next->next;
+  AlternatingSplit(current,A->next,B->next);
+}
+ Sudha Malpeddi  
+/* Paste your code here (You may delete these lines if not writing code) */
+
+void copy(struct node *p, struct node **q)
+{
+	if(p!=NULL)
+	{ 
+		*q=(struct node*)malloc(sizeof(struct node)); 
+		(*q)->num=p->num; 
+		(*q)->next=NULL; 
+		copy(p->next, &((*q)->next)); 
+		(*q)->arbit=p->arbit;
+	}
+}
+
+ kamlesh meghwal //p Points To Second Node And q Points To First Node q->next=p->next; while(p&&q) { if(q->next) p->next=q->next->next else p->next=Null } increament p And q i.e p=p->next,q=q->next http://www.linkedin.com/in/ramanawithu Venki For Method 1, iterative code without “MoveNode” function. As @fuzz pointed passing pointers/dual pointers can create confusion.  
+void AlternatingSplit(struct node* source, struct node** aRef,
+struct node** bRef)
+{
+    struct node** current_list = aRef;
+    struct node* current_node = source;
+    struct node* next_node = NULL;
+
+    while (current_node != NULL)
+    {
+        next_node = current_node->next;
+        current_node->next = (*current_list);
+        (*current_list) = current_node;
+        current_node = next_node;
+
+        current_list = (current_list == aRef) ? bRef : aRef;
+    }
+}
+ http://www.linkedin.com/in/ramanawithu Venki Removing if (ternary) condition inside the loop  
+void AlternatingSplit(struct node* source, struct node** aRef,
+struct node** bRef)
+{
+    unsigned exor;
+    struct node** current_list = aRef;
+    struct node* current_node = source;
+    struct node* next_node = NULL;
+ 
+    /* Smarty compiler, don't warn me,
+       I know what I am doing */
+    exor = (unsigned)aRef ^ (unsigned)bRef;
+
+    while (current_node != NULL)
+    {
+        next_node = current_node-&gt;next;
+        current_node-&gt;next = (*current_list);
+        (*current_list) = current_node;
+        current_node = next_node;
+ 
+        current_list = (struct node**)((unsigned)current_list ^ exor);
+    }
+}
+ Bandicoot Sambasiva’s solution is both simpler and cleaner than either of the solutions provided above. Please include it as method 3. R.Srinivasan @Bandicoot Sambasiva’s program fails(“runtime error”) when the number of nodes is odd(1,3,etc), since temp=NULL(temp=p->next) when p becomes the last node and the illegal pointer Exception in “p->next=temp->next”.(temp=NULL). Bandicoot My bad. You are right. Sambasiva should have added a if(!temp) conditional before trying to access either temp or temp->next. Apart from that, his soln is good. http://sudhansu-codezone.blogspot.com Sudhansu list alternateNode(list head) { list newlist = head->link; /* newlist and head are two heads of required Lists */ list temp, p; //For Traversing the List for(p = head; p ; p = p->link) { temp = p->link; if(!temp) p->link=temp; else { p->link = temp->link; if(temp->link) temp->link = temp->link->link;} } return newlist; }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ sourabhjakhar here is the recursive code .  
+struct * alternatesplit(struct node*head)
+{
+  struct node *result=NULL;
+  struct node *result=head->next;
+  head->next=head->next->next;
+  result->next=alternatesplit(head->next);
+  return result;
+}
+ fuzz I think the first solution is missing: current = current->next statement after move statement! GeeksforGeeks If you take a closer look at MoveNode(), then you can see that it changes the current pointer. That is why a pointer to current is passed. Usman Here is an alternate solution that uses recursion. Algorithm: base case: if head is null return empty lists for both first and second. recursive case: if head is not null, call split alternately again with head->next and store the first list returned into the second variable and the second list on first. append the first variable to head ->next and return head as first while second is returned as is.  
+typedef struct LinkNode
+{
+	int data;
+	struct LinkNode *next;
+}LinkedNode;
+
+void SplitAlternating(LinkedNode *head, LinkedNode **first, LinkedNode **second)
+{
+	if(!first ||!second)
+		return;
+	*first = NULL;
+	*second = NULL;
+
+	if (!head)
+		return;
+	SplitAlternating(head->next,second,first);
+	head->next = *first;
+	*first = head;
+} swami  
+void split(struct node *ptr)
+{
+  struct node *current;
+  if(ptr==NULL)
+   return ;
+  current=ptr;
+  while(current){
+       q=current;
+       current=current->next;
+       q->next=a;
+       a=q;
+       if(currnet){
+          q=current
+          current=current->next;
+          q->next=b;
+          b=q;
+       }
+                       
+  }
+
+}
+ http://effprog.blogspot.com Sambasiva  
+
+list alternateNode(list l)
+{
+        Node *newlist = l->next;
+        Node *temp, p;
+
+        for(p = l; p ; p = p->next)
+        {
+                temp = p->next;
+                p->next = temp->next;
+                if(temp->next)
+                        temp->next = temp->next->next;
+        }
+
+        return newlist;
+
+}
+ http://effprog.blogspot.com Sambasiva  
+
+list alternateNode(list l)
+{
+        Node *newlist = l->next;
+        Node *temp, *p;
+
+        for(p = l; p ; p = p->next)
+        {
+                temp = p->next;
+                p->next = temp->next;
+                if(temp->next)
+                        temp->next = temp->next->next;
+        }
+
+        return newlist;
+
+}
+ vinit I guess, when you are at last node at that time this statement p->next = temp->next; will crash the program as p->next is NULL. Please correct me if i am wrong. abhimanu Alternate Solution: Pass the head pointer and head->next pointer to AlternatingSplit() function.  
+/* Given the head pointer and head->next pointer. split the list into two.
+  If we number the elements 0, 1, 2, ... then all the even elements
+  should go in the first list(head_), and all the odd elements in the second(head_sn). */
+void AlternatingSplit(struct node** head_s, struct node** head_sn)
+{
+   
+  struct node* current1 = *head_s;
+  struct node* current2 = *head_sn;
+  while (current1 && current2)
+  {
+	  if (current1->next) {
+		  current1->next = current1->next->next;
+		  current1 = current1->next;
+	  }
+
+	  if (current2->next) {
+		  current2->next = current2->next->next;
+		  current2 = current2->next;
+	  }
+  }
+//this is done to take care of cases when number of elements are odd/even
+    if (current1 != NULL)
+    {
+	    current1->next=NULL;
+    }
+    if (current2 != NULL)
+    {
+	    current2->next=NULL;
+    }
+} abhimanu The output of Method 1(Simple) is as follows: Original linked List: 0 1 2 3 4 5 Resultant Linked List ‘a’ 4 2 0 Resultant Linked List ‘b’ 5 3 1 The code should be corrected to give o/p in correct order.  
+
+void AlternatingSplit(struct node* source, struct node** aRef,
+                            struct node** bRef)
+{
+  /* split the nodes of source to these 'a' and 'b' lists */
+  struct node* a = NULL;
+  struct node* b = NULL;
+
+// prev_a is used to store the 'a' pointer
+  struct node* prev_a = a;
+// prev_b is used to store the 'b' pointer
+  struct node* prev_b = b;
+  bool flag=true;
+ 
+  struct node* current = source;
+  while (current != NULL)
+  {
+    MoveNode(&a, &current); /* Move a node to list 'a' */
+    if (current != NULL)
+    {
+       MoveNode(&b, &current); /* Move a node to list 'b' */
+    }
+    if (flag) {
+	    prev_a=a;
+	    prev_b=b;
+	    flag=false;
+    }
+  }
+  *aRef = prev_a;
+  *bRef = prev_b;
+}
+
+void MoveNode(struct node** destRef, struct node** sourceRef)
+{
+  /* the front source node  */
+  struct node* newNode = *sourceRef;
+  assert(newNode != NULL);
+ 
+  /* Advance the source pointer */
+  *sourceRef = newNode->next;
+ 
+  /* Link the old dest off the new node */
+  newNode->next = NULL;
+ 
+  /* Move dest to point to the new node */
+  if (*destRef != NULL) {
+	  (*destRef)->next = newNode;
+  }
+  *destRef = newNode;
+} Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

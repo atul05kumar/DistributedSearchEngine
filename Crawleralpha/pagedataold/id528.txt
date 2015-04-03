@@ -1,0 +1,299 @@
+Remove duplicates from a sorted linked list - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Remove duplicates from a sorted linked list Write a removeDuplicates() function which takes a list sorted in non-decreasing order and deletes any duplicate nodes from the list. The list should only be traversed once. For example if the linked list is 11->11->11->21->43->43->60 then removeDuplicates() should convert the list to 11->21->43->60. Algorithm: Traverse the list from the head (or start) node. While traversing, compare each node with its next node. If data of next node is same as current node then delete the next node. Before we delete a node, we need to store next pointer of the node Implementation: Functions other than removeDuplicates() are just to create a linked linked list and test removeDuplicates(). 
+/*Program to remove duplicates from a sorted linked list */
+#include<stdio.h>
+#include<stlib.h>
+
+/* Link list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+
+/* The function removes duplicates from a sorted list */
+void removeDuplicates(struct node* head)
+{
+  /* Pointer to traverse the linked list */
+  struct node* current = head;
+
+  /* Pointer to store the next pointer of a node to be deleted*/
+  struct node* next_next; 
+  
+  /* do nothing if the list is empty */
+  if(current == NULL) 
+     return; 
+
+  /* Traverse the list till last node */
+  while(current->next != NULL) 
+  {
+   /* Compare current node with next node */
+    if(current->data == current->next->data) 
+    {
+       /*The sequence of steps is important*/               
+      next_next = current->next->next;
+      free(current->next);
+      current->next = next_next;  
+    }
+    else /* This is tricky: only advance if no deletion */
+    {
+      current = current->next; 
+    }
+  }
+}
+
+/* UTILITY FUNCTIONS */
+/* Function to insert a node at the beginging of the linked list */
+void push(struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node =
+            (struct node*) malloc(sizeof(struct node));
+            
+    /* put in the data  */
+    new_node->data  = new_data;
+                
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);     
+        
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+/* Function to print nodes in a given linked list */
+void printList(struct node *node)
+{
+  while(node!=NULL)
+  {
+   printf("%d ", node->data);
+   node = node->next;
+  }
+} 
+
+/* Drier program to test above functions*/
+int main()
+{
+  /* Start with the empty list */
+  struct node* head = NULL;
+  
+  /* Let us create a sorted linked list to test the functions
+   Created linked list will be 11->11->11->13->13->20 */
+  push(&head, 20);
+  push(&head, 13);
+  push(&head, 13);  
+  push(&head, 11);
+  push(&head, 11);
+  push(&head, 11);                                    
+
+  printf("\n Linked list before duplicate removal  ");
+  printList(head); 
+
+  /* Remove duplicates from linked list */
+  removeDuplicates(head); 
+
+  printf("\n Linked list after duplicate removal ");         
+  printList(head);            
+  
+  getchar();
+}
+ Time Complexity: O(n) where n is number of nodes in the given linked list. References: cslibrary.stanford.edu/105/LinkedListProblems.pdf           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. Kunal Arora We can even use hash table to delete duplicate entries in linked list.. 1.) We will map every value of linked list to hash table. 2.) While mapping we can compare if the two values hash to same location in hash table,then we get the address of the two values in linked list and delete one of them. 3.)Arrange pointers of the linked list . Advantage:if there are millions and more elements and few of them are duplicated then it is much optimized then above solution. Disadvantage:extra space for hash table implementation @GeeksforGeeks please correct me if i am wrong… Jonathan Chen How is it more optimized? I don’t think it is. The original strategy traverses the list only once. In order to remove duplicates in general, you have to look at every item at least once. Your strategy goes through every element once as well. However, the downside is that you also use an auxiliary hashtable which is worse in terms of space complexity. If there are millions more elements, your strategy has to traverse through every single one of them, just like the above approach does. danny Yes, you are write It is not much optimized then above algorithm but it’s another way of doing it and I even mentioned this disadvantage in my post…. but it can come in handy when linked list is not sorted . Himanshu Dagar can refer to the below code also http://ideone.com/BOzFhK setu If there are millions of data in it and one number is duplicate somewhere in middle then how we will traverse it one by one then would take lot of time while compilation. please provide a solution for it neo @GeeksforGeeks team the condition in the while statement should contain current!=null also because we are doing current=current->next in else part ,so if current is null then current->next in while condition will cause seg fault.please correct me if i am wrong Jayanth I dont think it is necessary as when “current->next” itself is not null current cannot be null…So i dont think that check is necessary…in fact that check is implied…can u post some test cases where it might fail…may be i am not seeing something u hav… Jayanth I dont think it is necessary as when “current->next” itself is not null current cannot be null…So i dont think that check is necessary…in fact that check is implied…can u post some test cases where it might fail…may be i am not seeing something u hav… ankit struct treeNode * removeDuplicateFrmOrderedLinkList(struct treeNode* root) { struct treeNode *next=root; struct treeNode *prev=NULL; while(next!=NULL) { prev=next; next=next->next; while(next!=NULL && next->val==prev->val) { struct treeNode *current=next; next=next->next; free(current); } prev->next=next; } return root; } Adarsh  
+#include <stdio.h>
+#include <string.h>
+
+typedef struct node
+{
+    int data;
+    struct node *next;
+}node;
+
+
+void insert(node **head_ref, int val)
+{
+    node *curr;
+    node *temp;
+    temp = (node *)malloc(sizeof(node));
+    temp->data = val;
+    temp->next = NULL;
+    curr = *head_ref;
+    if (curr == NULL)
+    {
+        *head_ref = temp;
+        return;
+    }
+    else
+    {
+        while(curr->next != NULL)
+        {
+            curr = curr->next;
+        }
+        curr->next = temp;
+        return;
+    }
+
+}
+
+
+void display(node **head_ref)
+{
+    node *temp = NULL;
+    temp = *head_ref;
+    if(temp == NULL)
+    {
+        printf("Sorry list is empty");
+        return;
+    }
+    else
+    {
+        while(temp != NULL)
+        {
+            printf("The value is: %d\n",temp->data);
+            temp = temp->next;
+        }
+    return;
+    }
+}
+
+
+int hashtab(int *hash_ref,int val)
+{
+    int key;
+    key = val%7;
+    if(hash_ref[key] == 0)
+    {
+        hash_ref[key] = val;
+        return 0;
+    }
+    else
+    {
+        while(hash_ref[key] != 0)
+        {
+            if(hash_ref[key] == val)
+                return 1;
+            if(hash_ref[key] == 0)
+                hash_ref[key] = val;
+            key = key+1;
+            return 0;
+        }
+    }
+}
+void remrep(node **head_ref)
+{
+    node *temp = *head_ref;
+    node *prev = *head_ref;
+    int ret;
+    int i,j;
+    int hash[10];
+    for(i = 0;i <10; i++)
+    {
+        hash[i] = 0;   
+    }
+    for(i = 0;i <10; i++)
+    {
+        
+            printf("the hash is:%d.\n",hash[i]);
+    }
+    if(NULL == temp)
+    {
+        printf("The list is empty.\n");
+        return;
+    }
+    else
+    {
+        while(temp!=NULL)
+        {
+            ret = hashtab(hash,temp->data);
+            if(ret == 1)
+            {
+                printf("Repeat is occur.\n");
+                prev->next = temp->next;
+                if(temp->next != NULL)
+                    temp = temp->next;
+            }
+            printf("What.\n");
+            prev = temp;
+            temp= temp->next;
+            //printf("What.\n");
+        }
+        printf("In the else.\n");
+    }
+    return;
+
+}
+
+
+
+main()
+{
+    node *head = NULL;
+    insert(&head, 1);
+    insert(&head, 4);
+    insert(&head, 1);
+    insert(&head, 12);
+    insert(&head, 1);
+    display(&head);
+    remrep(&head);
+    display(&head);
+
+}
+
+ ultimate_coder  
+/* Paste your code here (You may delete these lines if not writing code) */
+ trilok /* The function removes duplicates from a sorted list */ void removeDuplicates(struct node* head) { /* Pointer to traverse the linked list */ struct node* current = head; /* Pointer to store the next pointer of a node to be deleted*/ struct node* dup_node; /* do nothing if the list is empty */ if(current == NULL) return; /* Traverse the list till last node */ while(current->next != NULL) { /* Compare current node with next node till duplicates exist*/ while( (current->next != NULL) && (current->data == current->next->data) ) { /*The sequence of steps is important*/ dup_node = current->next; current->next = dup_node->next; free(dup_node); } current = current->next; } } Ujjwal How about using 2 pointers to solve this..!! -Both point to head initially. -Advance 2nd pointer, if same data, go on advancing 2nd pointer until we get node with different data. Once we get that node, make 1st_node->next = 2nd_node; 1st_node = 2nd_node; Repeat this till we reach the end of the list.. Correct me if i m wrong.. http://www.geeksforgeeks.org/remove-duplicates-from-a-sorted-linked-list/ Deepak Your code will remove duplicate nodes but it has wastage of space because you didn’t free those nodes which have duplicate values. Pranav  
+/* Paste your code here (You may delete these lines if not writing code) */
+void removeDuplicates(struct node* head)
+{
+  /* Pointer to traverse the linked list */
+  struct node* p = head;
+  struct node* t=NULL;
+  while(p)
+  {
+     t=p;
+     if(!p->next)
+        return;
+     p=p->next;
+     if( t->data == p->data )
+     {
+        t->next = p->next;
+        free(p);
+        p=t;
+     }
+  }
+}
+ http://mystuffs.co.nr Sunny Similar code,but instead of next used prev. #include <iostream> #include <stdlib.h> using namespace std; typedef struct link { int x; struct link* next; }node; node* head; void add(int a) { node* temp=new node;//(node*)malloc(sizeof(node)); temp->x=a; temp->next=head; head=temp; } void end(int a) { node* cur,*temp; //node* temp=new node;//(node*)malloc(sizeof(node)); temp->x=a; temp->next=0; cur=head; if(head==0) { head=temp; return; } while(cur->next!=0) {cur=cur->next;} cur->next=temp; } void display() { node* cur; cur=head; cout<<endl; while(cur!=0) { cout<<cur->x<<" "; cur=cur->next; } } void del(int a) { node * cur,*prev; cur=prev=head; while(cur!=0) { if(cur->x==a) { if(cur==head) {head=cur->next; delete cur; //free(cur); return; } else if(cur->next==0) { prev->next=0; delete cur;//free(cur); return; } prev->next=cur->next; break; } prev=cur; cur=cur->next; } delete cur;//free(cur); } void dup() { node *cur,*prev; prev=cur=head; while(cur!=0) { if(prev->x==cur->x) del(cur->x); prev=cur; cur=cur->next; } } int main() { /*int n,ch; do { cout<<"ADD infront(1)/ADD end(2)::"; cin>>ch; if(ch!=1 && ch!=2) {cout<<"bye bye!"<<endl;break;} cout<<"enter data(in sorted format)::"; cin>>n; if(ch==1) add(n); else if(ch==2) end(n); }while(true); */ end(11); end(11); end(11); end(21); end(43); end(43); end(60); display(); dup(); display(); return 0; } Kunaal Ahuja This code removes duplicates only if they occur in succession.Otherwise it won’t work. for eg. 12 2 7 9 12 2 9 for these set of inputs the code won’t work  
+/* Paste your code here (You may delete these lines if not writing code) */
+ hARRY Hello read the problem statement carefully!! Tim  
+int RemoveDuplicates(linklist l){ //array as a helper to store the pointers
+     linklist p = l->next;
+     linklist a[100] = {0};
+     a[0] = p;
+     int i = 0;
+     int j = 0;
+     
+     while(p != NULL){
+           p = p->next;
+           if (p == NULL) break;
+           
+           while(j >0 || j == 0 ){
+                 if(p->data == a[j]->data)
+                    break;
+                 j--;
+           }
+           
+           if (j < 0){ 
+              i++;
+              a[i] = p;
+           }
+           
+           j = i;
+     }
+     
+     i = 0;
+
+     while (a[i] != 0){
+           a[i]->next = a[i+1];
+           ++i;
+     }
+     
+     l->next = a[0];
+     return 0;
+
+} sourabhjakhar this code do not remove the dulpicat if present in the last node Shekhu Java code: public class ListNode { int data; ListNode next; } public removeDuplicatesSorted( ListNode p ) { while( p != null ) { while( p.next != null && p.data == p.next.data ) p.next = p.next.next; p = p.next; } // this pair of loops is linear: in each while loop iteration we either // (a) delete a node or (b) move to the next node. } Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

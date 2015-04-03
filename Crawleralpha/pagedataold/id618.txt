@@ -1,0 +1,697 @@
+Given a binary tree, print out all of its root-to-leaf paths one per line. - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Given a binary tree, print out all of its root-to-leaf paths one per line. Asked by Varun Bhatia Here is the solution. Algorithm: 
+initialize: pathlen = 0, path[1000] 
+/*1000 is some max limit for paths, it can change*/
+
+/*printPathsRecur traverses nodes of tree in preorder */
+printPathsRecur(tree, path[], pathlen)
+   1) If node is not NULL then 
+         a) push data to path array: 
+                path[pathlen] = node->data.
+         b) increment pathlen 
+                pathlen++
+   2) If node is a leaf node then print the path array.
+   3) Else
+        a) Call printPathsRecur for left subtree
+                 printPathsRecur(node->left, path, pathLen)
+        b) Call printPathsRecur for right subtree.
+                printPathsRecur(node->right, path, pathLen)
+ Example: Example Tree Output for the above example will be 
+  1 2 4
+  1 2 5
+  1 3 
+ Implementation: 
+/*program to print all of its root-to-leaf paths for a tree*/
+#include <stdio.h>
+#include <stdlib.h>
+
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+void printArray(int [], int);
+void printPathsRecur(struct node*, int [], int);
+struct node* newNode(int );
+void printPaths(struct node*);
+
+/* Given a binary tree, print out all of its root-to-leaf
+   paths, one per line. Uses a recursive helper to do the work.*/   
+void printPaths(struct node* node) 
+{
+  int path[1000];
+  printPathsRecur(node, path, 0);
+}
+
+/* Recursive helper function -- given a node, and an array containing
+ the path from the root node up to but not including this node,
+ print out all the root-leaf paths. */
+void printPathsRecur(struct node* node, int path[], int pathLen) 
+{
+  if (node==NULL) return;
+
+  /* append this node to the path array */
+  path[pathLen] = node->data;
+  pathLen++;
+
+  /* it's a leaf, so print the path that led to here */
+  if (node->left==NULL && node->right==NULL) 
+  {
+    printArray(path, pathLen);
+  }
+  else 
+  {
+  /* otherwise try both subtrees */
+    printPathsRecur(node->left, path, pathLen);
+    printPathsRecur(node->right, path, pathLen);
+  }
+}
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+  struct node* node = (struct node*)
+                       malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+
+  return(node);
+}
+
+/* Utility that prints out an array on a line */
+void printArray(int ints[], int len)
+{
+  int i;
+  for (i=0; i<len; i++) {
+    printf("%d ", ints[i]);
+  }
+  printf("\n");
+} 
+
+/* Driver program to test mirror() */
+int main()
+{
+  struct node *root = newNode(1);
+  root->left        = newNode(2);
+  root->right       = newNode(3);
+  root->left->left  = newNode(4);
+  root->left->right = newNode(5); 
+
+  /* Print all root-to-leaf paths of the input tree */
+  printPaths(root);
+
+  getchar();
+  return 0;
+}
+ References: http://cslibrary.stanford.edu/110/BinaryTrees.html           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. Tony public void allPathSum(BNode root,Stack s){ if (root == null){ return; } s.add(root); if (root.left == null && root.right == null){ int sum =0; for (BNode node : s){ System.out.print(node.data+” + “); sum =sum+node.data; } System.out.print(” = “+(sum)+” n”); } allPathSum(root.left,s); allPathSum(root.right,s); s.pop(); } Marsha Donna #include #include #include struct node { char data; struct node *left; struct node *right; }; struct node* insert(char item) { struct node *temp=(struct node *)malloc(sizeof(struct node)); temp->data=item; temp->left=NULL; temp->right=NULL; return temp; } void display(struct node *root) { if(root==NULL)return; printf(“%c “,root->data); display(root->left); display(root->right); } void disp_all_root_2_leaf_path(struct node *node,char arr[],int j) { int i; if(node==NULL)return; if((node->left==NULL)&&(node->right==NULL)) { arr[j]=node->data; for(i=0;idata; j++; disp_all_root_2_leaf_path(node->left,arr,j); disp_all_root_2_leaf_path(node->right,arr,j); } int main(void) { int i,j=0; char arr[50]; struct node*root=insert(‘a’); root->left=insert(‘b’); root->right=insert(‘c’); root->left->left=insert(‘d’); root->left->right=insert(‘e’); root->right->left=insert(‘f’); printf(“now the tree is displayed in preordern”); display(root); printf(“n”); for(i=0;i<50;i++) arr[i]=''; disp_all_root_2_leaf_path(root,arr,j); return 0; } cruser11232 void PrintPathSub(node * root, stack * stk) { if(root== NULL) return; push(stk,root->data); PrintPathSub(root->left,stk); PrintPathSub(root->right,stk); if(root->left==NULL && root->right==NULL ) { print(stk); } pop(stk); } Kush Pandey A recursive implementation of above problem  
+void printpath()
+{
+    printReculen(root,0)
+}
+void printReculen(node *root,int length)
+{
+    int i=1,path[50];
+    if(root==0)
+    {
+        while(i<length)
+       {
+        printf("%d",path[i]);
+       }
+        printf("\n");
+        return
+    }
+    path[length]=root->data;
+    length++;
+    printReculen(root->left,length);
+    printReculen(root->right,length);
+}
+ shek8034 This post is duplicate of http://www.geeksforgeeks.org/given-a-binary-tree-print-all-root-to-leaf-paths/ Sasuke Here is my code for the same using stack  
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct tNode
+{
+    int data ;
+    struct tNode *left ;
+    struct tNode *right ;
+} tNode ;
+
+typedef struct sNode
+{
+    int data;
+    struct sNode *next ;
+} sNode ;
+
+sNode *stackTop ;
+tNode *btree ;
+int noOfElementsInStack = 0;
+void pushIntoStack(int data)
+{
+    sNode *tmp = (sNode *)malloc(sizeof(sNode));
+    tmp->data = data ;
+    tmp->next = stackTop ;
+    noOfElementsInStack++;
+    stackTop = tmp ;
+}
+
+void popFromStack()
+{
+    sNode *tmp = stackTop ;
+    stackTop = stackTop->next ;
+    free(tmp);
+    noOfElementsInStack--;
+}
+
+tNode *insertIntoTree(int n)
+{
+    tNode *tmp = (tNode *)malloc(sizeof(tNode));
+    tmp->data = n;
+    tmp->left = NULL ;
+    tmp->right = NULL ;
+
+    return tmp ;
+}
+
+void printStack()
+{
+    int a[noOfElementsInStack],i=0;
+    sNode *tmp = stackTop ;
+    while(tmp != NULL)
+    {
+        a[i++] = tmp->data;
+        tmp = tmp->next ;
+    }
+
+    printf("\n");
+    for(i = noOfElementsInStack-1 ; i >= 0 ; i--)
+        printf("%d\t",a[i]);
+}
+
+void rootToLeaf(tNode *root)
+{
+    if(root==NULL)
+        return;
+    else
+    {
+        pushIntoStack(root->data);
+        rootToLeaf(root->left);
+        rootToLeaf(root->right);
+
+        if(root->left == NULL && root->right == NULL)
+            printStack();
+
+        popFromStack();
+    }
+}
+
+int main()
+{
+    btree = insertIntoTree(1);
+    btree->left = insertIntoTree(2);
+    btree->right = insertIntoTree(3);
+    btree->left->left = insertIntoTree(4);
+    btree->left->right = insertIntoTree(5);
+    btree->right->left = insertIntoTree(6);
+    btree->right->right = insertIntoTree(7);
+
+    rootToLeaf(btree);
+}
+
+ huntur //iterative solution void roottoleaf(struct node *root) { struct node *t; int a[MAX],i,j,flag=0; i=0; t=root; while(1) { while(t->left) { push(t); a[i]=t->data; i++; t=t->left; } while(t->right==NULL) { a[i]=t->data; for(j=0;jright; i++; } } } abhishek08aug C++ code: extended from my last post on: http://www.geeksforgeeks.org/given-a-binary-tree-print-out-all-of-its-root-to-leaf-paths-one-per-line/  
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+ 
+class tree_node {
+  private:
+    int data;
+    tree_node * left;
+    tree_node * right;
+  public:
+    tree_node() {
+      left=NULL;
+      right=NULL;
+    }
+    void set_data(int data) {
+      this->data=data;
+    }
+    int get_data() {
+      return this->data;
+    }
+    void set_left(tree_node * left) {
+      this->left=left;
+    }
+    tree_node * get_left() {
+      return this->left;
+    }
+    void set_right(tree_node * right) {
+      this->right=right;
+    }
+    tree_node * get_right() {
+      return this->right;
+    }
+    tree_node ** get_left_ref() {
+      return &(this->left);
+    }
+    tree_node ** get_right_ref() {
+      return &(this->right);
+    }
+};
+ 
+class tree {
+  private:
+    tree_node * root;
+    int size;
+    void _recursive_insert(tree_node ** root_ref, int value);
+    void _print_preorder(tree_node * root);
+    void _print_inorder(tree_node * root);
+    void _print_postorder(tree_node * root);
+    int _find_size(tree_node * root);
+    int _are_identical(tree_node * tn1, tree_node * tn2);
+    int _find_height(tree_node * root);
+    void _delete_tree(tree_node ** root);
+    void _mirror(tree_node * root);
+    void _print_paths(tree_node * root, int * path_nodes, int next_vacant_position);
+    void _print_array(int * array, int len);
+  public:
+    tree() {
+      root=NULL;
+      size=0;
+    }
+    void insert(int value);
+    void recursive_insert(int value);
+    void print_preorder();
+    void print_inorder();
+    void print_postorder();
+    int find_size();
+    int get_size() {
+      return this->size;
+    }
+    int are_identical(tree t);
+    int find_height();
+    void delete_tree();
+    void mirror();
+    void print_paths();
+};
+ 
+void tree::insert(int value) {
+  if(root==NULL) {
+    root=new tree_node;
+    root->set_data(value);
+  } else {
+    tree_node * parent=NULL;
+    tree_node * current=root;
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    while(current!=NULL) {
+      if(value<=current->get_data()) {
+        parent=current;
+        current=current->get_left();
+      } else {
+        parent=current;
+        current=current->get_right();
+      }
+    }
+    if(value<=parent->get_data() && parent->get_left()==NULL) {
+      parent->set_left(new_node);
+    } else if(value>parent->get_data() && parent->get_right()==NULL) {
+      parent->set_right(new_node);
+    }
+  }
+  size++;
+}
+ 
+void tree::recursive_insert(int value) {
+  _recursive_insert(&root, value);
+  size++;
+}
+ 
+void tree::_recursive_insert(tree_node ** root_ref, int value) {
+  if(*root_ref==NULL) {
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    *root_ref=new_node;   
+  } else {
+    if(value<=(*root_ref)->get_data()) {
+      _recursive_insert((*root_ref)->get_left_ref(), value);
+    } else {
+      _recursive_insert((*root_ref)->get_right_ref(), value);
+    }
+  }
+}
+ 
+void tree::print_preorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_preorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_preorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  cout<<root->get_data()<<" ";
+  if(root->get_left()!=NULL)
+    _print_preorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_preorder(root->get_right());
+}
+ 
+void tree::print_inorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_inorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_inorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_inorder(root->get_left());
+  cout<<root->get_data()<<" ";
+  if(root->get_right()!=NULL)
+    _print_inorder(root->get_right());
+}
+ 
+void tree::print_postorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_postorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_postorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_postorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_postorder(root->get_right());
+  cout<<root->get_data()<<" ";
+}
+
+int tree::find_size() {
+  return _find_size(root);
+}
+
+int tree::_find_size(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else {
+    return 1+_find_size(root->get_left())+_find_size(root->get_right());
+  }
+}
+
+int tree::are_identical(tree t) {
+  return _are_identical(this->root, t.root);
+}
+
+int tree::_are_identical(tree_node * tn1, tree_node * tn2) {
+  if(tn1==NULL && tn2==NULL) {
+    return 1;
+  } else if((tn1==NULL && tn2!=NULL) || (tn1!=NULL && tn2==NULL) || (tn1->get_data()!=tn2->get_data())) {
+    return 0;
+  } else {
+    return _are_identical(tn1->get_left(), tn2->get_left()) && _are_identical(tn1->get_right(), tn2->get_right());
+  }
+}
+
+int tree::find_height() {
+  return _find_height(root);
+}
+
+int tree::_find_height(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  }
+  else {
+    return 1+max(_find_height(root->get_left()), _find_height(root->get_right()));
+  }
+}
+
+void tree::delete_tree() {
+  _delete_tree(&root);
+  size=0;
+}
+
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      _delete_tree((*root)->get_left_ref());
+    }
+    if((*root)->get_right()!=NULL) {
+      _delete_tree((*root)->get_right_ref());
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+
+/* alternate _delete_tree */
+/*
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      tree_node * left_ref=(*root)->get_left();
+      _delete_tree(&left_ref);
+    }
+    if((*root)->get_right()!=NULL) {
+      tree_node * right_ref=(*root)->get_right();
+      _delete_tree(&right_ref);
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+*/
+
+void tree::mirror() {
+  _mirror(root);
+}
+
+void tree::_mirror(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+
+  tree_node * temp=root->get_left();
+  root->set_left(root->get_right());
+  root->set_right(temp);
+  _mirror(root->get_left());
+  _mirror(root->get_right());
+}
+
+void tree::print_paths(){
+   int max_path_length=find_height();
+   int * path_nodes=(int *)calloc(sizeof(int), max_path_length);
+  _print_paths(root, path_nodes, 0);
+}
+
+void tree::_print_paths(tree_node * root, int * path_nodes, int next_vacant_position){
+  if(root==NULL) {
+    return;
+  } else if(root->get_left()==NULL && root->get_right()==NULL) {
+    *(path_nodes+next_vacant_position)=root->get_data();
+    _print_array(path_nodes, next_vacant_position);
+  } else {
+    *(path_nodes+next_vacant_position)=root->get_data();
+    _print_paths(root->get_left(), path_nodes, next_vacant_position+1);
+    _print_paths(root->get_right(), path_nodes, next_vacant_position+1);
+  }
+}
+
+void tree::_print_array(int * array, int len) {
+  int i;
+  for(i=0; i<=len; i++) {
+    cout<<*(array+i)<<" ";
+  }
+  cout<<endl;
+}
+
+int main() {
+  tree t1;
+
+  t1.recursive_insert(5);
+  t1.recursive_insert(3);
+  t1.insert(1);
+  t1.insert(7);
+  t1.recursive_insert(50);
+  t1.recursive_insert(6);
+
+  cout<<"Inorder Traversal"<<endl;
+  t1.print_inorder();
+  cout<<"Path to leaf nodes"<<endl;
+  t1.print_paths();
+
+  return 0;
+}
+ Inorder Traversal 1 3 5 6 7 50 Path to leaf nodes 5 3 1 5 7 6 5 7 50 abhishek07july inelligent very tricky code… Nishant Kumar We can also use Queue in place of array for less auxiliary space  
+void printPath(tree* root,node* top){
+    if(root==NULL)
+    return;
+    
+    enQueue(top,root->data);
+    
+    if(root->left == NULL && root->right == NULL){
+        printQueue(top);
+        printf("\n");
+        deQueue(top);
+    }
+    else{
+        printPath(root->left,top);
+        printPath(root->right,top);
+        deQueue(top);
+    }
+}
+ stupid  
+void printarr(int a[],int level){
+     if(level<0){
+              printf("\n");
+              return;
+     }
+     printarr(a,level-1);
+     printf("%d  ",a[level]);
+}
+void findroottoleafpath(struct node * root,int a[],int level){
+     if(root == NULL){
+             return;
+     }
+     a[level]=root->data;
+     level++;
+     if(root->left == NULL && root->right == NULL){
+                   printarr(a,level-1);
+     }
+     findroottoleafpath(root->left,a,level);
+     findroottoleafpath(root->right,a,level);
+}
+ Nikin  
+
+void printArray(int path[], int pathLen)
+{
+for(int i=0;i<pathLen;i++)
+cout<<path[i];
+}
+
+void printPathsRecur(node *sr, int path[], int pathLen)
+{
+if(sr == NULL) return;
+path[pathLen++] = sr->data;
+if(sr->left == NULL && sr->right == NULL)
+{
+printArray(path, pathLen);
+return;
+}
+printPathsRecur(sr->left);
+printPathsRecur(sr->right);
+}
+
+void printPaths(node *sr)
+{
+int path[100];
+printPathsRecur(sr, path, 0);
+}
+ trilok sharma /* 6 5 2 8 9 6 11 8 2 9 5 11 6 */ #include #include #include using namespace std; struct node { int data; node *left; node *right; }; node* Newnode(int data) { node * curr; curr = (node *)malloc(sizeof(node)); curr->data = data; curr->left = curr->right = NULL; return(curr); } int search(int inorder[],int start,int end,int data) { for(int i=start;i end) return NULL; data=preorder[pre_index++]; in_pos=search(inorder,start,end,data); node *root=Newnode(data); printf(“%d”,root->data); if(start == end) return root; root->left=createTree(preorder,inorder,start,in_pos-1); root->right=createTree(preorder,inorder,in_pos+1,end); return root; } static int out[100000],out_end=0; void print_result() { for(int i=0;i<out_end;i++) printf("%d ", out[i]); cout<data; preOrder(node->left); preOrder(node->right); if ((node->left == NULL) && (node->right == NULL) ) print_result(); out_end–; } int main() { int n,in[100000],pre[100000],i; node *root; cout<>n; cout<<"Enter preorder sequence = "; for(i=0;i>pre[i]; cout<<"Enter inorder sequence = "; for(i=0;i>in[i]; root=createTree(pre,in,0,n-1); cout<<"output inorder sequence = "; preOrder(root); //print_result(); return 0; } sandeep Hi. The pathlen variable is NOT reset when a leaf node is reached ,This needs to be changed to be reset as and when a leaf node is reached. if (node->left==NULL && node->right==NULL) { printArray(path, pathLen); pathlen = 0; mrn  
+/* Paste your code here (You may delete these lines if not writing code) */
+void root_to_leaf(Node *n,vector<int> &v)
+{
+	if(n->l==NULL && n->r==NULL) 
+	{
+		for(vector<int>::iterator it=v.begin();it!=v.end();it++)
+				cout<<*it<<" ";
+		cout<<n->v;
+		cout<<endl;
+	return;
+	}
+	v.push_back(n->v);
+	if(n->l)
+	root_to_leaf(n->l,v);
+	if(n->r)
+	root_to_leaf(n->r,v);
+	v.pop_back();
+return;	
+}
+ Sahil There is no need to allocate any memory to print the paths.  
+
+void printallpaths(struct node* node)
+{
+     if(node==NULL){return;}
+
+//Insert a newline character when the node is leaf     
+
+     if(node->left==NULL && node->right==NULL)
+     {  
+        printf("\n");
+     }
+     
+     else
+     {
+         //For left subtree path
+         printf("%d ",node->data);
+         printallpaths(node->left);
+         
+         //For right subtree path
+         printf("%d ",node->data);
+         printallpaths(node->right);
+         
+         return;
+     }
+}  
+ Sahil A small correction  
+void printallpaths(struct node* node)
+{
+     if(node==NULL){return;}
+ 
+//Insert a newline character when the node is leaf     
+ 
+     if(node->left==NULL && node->right==NULL)
+     {
+        printf("%d ",node->data);
+        printf("\n");
+     }
+ 
+     else
+     {
+         //For left subtree path
+         printf("%d ",node->data);
+         printallpaths(node->left);
+ 
+         //For right subtree path
+         printf("%d ",node->data);
+         printallpaths(node->right);
+ 
+         return;
+     }
+}
+ jane no it wont work for mre than 2 level trees as 15 / \ 10 7 / \ \ 6 4 9 it will not print the path 15->10>4 for leaf node 4 instead it will print 10->4 only yahoo it doesnt work for more than 2 levels.. you have to store it in a array .. Raja will this work? or am i missing any cases? // create a global stock “st”. root-to-leaf(root) { if (root == null ) return root; st.push(root->data); if( root->left == null && root->right == null ) { print(st); st.pop(); } else{ root-to-leaf(root->left); root-to-leaf(root-> right); } } Ramakrishna I don’t think I have understood this.. For the given example, after printing 1,2,4 and 1,2,5 – the stack now contains 1,2. Now we go to 3. since its left and right sub trees are null, we print the stack i.e 1,2 and 3 – where as it should print only 1,3.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://geeksforgeeks.org/?p=1005 harish verma Thanks a lot for sharing your knowledge. I am quite satisfied with the answer. A very good use of recursion and i like very much the stacking of node->right recursive call. Thanks and regards, Harish Verma g33k  
+PrintPath( Node root, String path){
+	if(root == null)
+		return;
+	if(root->left==NULL && root->right ==NULL){
+		print path + " " + root.info;
+		return;
+	}
+
+	PrintPath(root->left, path + " " + root.info);
+	PrintPath(root->right, path + " " + root.info);
+}
+ driver function:  
+	PrintPath(root, "");
+ Gandalf //From Leaf To Root without extra space. boolean rootToLeaf(Node root){ if(root == null) return false; if(!root.left && !root.right) return true; if(rootToLeaf(root.left)) System.out.println(root..left.data); if(rootToLeaf(root.right))System.out.println(root.right.data); return true; } Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

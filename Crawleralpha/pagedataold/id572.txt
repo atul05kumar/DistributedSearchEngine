@@ -1,0 +1,282 @@
+Reverse a Doubly Linked List - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Reverse a Doubly Linked List Write a C function to reverse a given Doubly Linked List See below diagrams for example.      (a) Original Doubly Linked List       (b) Reversed Doubly Linked List  Here is a simple method for reversing a Doubly Linked List. All we need to do is swap prev and next pointers for all nodes, change prev of the head (or start) and change the head pointer in the end. 
+/* Program to reverse a doubly linked list */
+#include <stdio.h>
+#include <stdlib.h>
+
+/* a node of the doubly linked list */
+struct node
+{
+  int data;
+  struct node *next;
+  struct node *prev;	
+};
+
+/* Function to reverse a Doubly Linked List */
+void reverse(struct node **head_ref)
+{
+     struct node *temp = NULL;  
+     struct node *current = *head_ref;
+     
+     /* swap next and prev for all nodes of 
+       doubly linked list */
+     while (current !=  NULL)
+     {
+       temp = current->prev;
+       current->prev = current->next;
+       current->next = temp;              
+       current = current->prev;
+     }      
+     
+     /* Before changing head, check for the cases like empty 
+        list and list with only one node */
+     if(temp != NULL )
+        *head_ref = temp->prev;
+}     
+
+
+
+/* UTILITY FUNCTIONS */
+/* Function to insert a node at the beginging of the Doubly Linked List */
+void push(struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node =
+            (struct node*) malloc(sizeof(struct node));
+ 
+    /* put in the data  */
+    new_node->data  = new_data;
+    
+    /* since we are adding at the begining, 
+      prev is always NULL */
+    new_node->prev = NULL;
+ 
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);    
+
+	/* change prev of head node to new node */
+	if((*head_ref) !=  NULL)
+      (*head_ref)->prev = new_node ;    
+ 
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+/* Function to print nodes in a given doubly linked list 
+   This function is same as printList() of singly linked lsit */
+void printList(struct node *node)
+{
+  while(node!=NULL)
+  {
+   printf("%d ", node->data);
+   node = node->next;
+  }
+} 
+
+/* Drier program to test above functions*/
+int main()
+{
+  /* Start with the empty list */
+  struct node* head = NULL;
+ 
+  /* Let us create a sorted linked list to test the functions
+   Created linked list will be 10->8->4->2 */
+  push(&head, 2);
+  push(&head, 4);
+  push(&head, 8);
+  push(&head, 10);
+ 
+  printf("\n Original Linked list ");
+  printList(head);
+ 
+  /* Reverse doubly linked list */
+  reverse(&head);
+ 
+  printf("\n Reversed Linked list ");
+  printList(head);           
+ 
+  getchar();
+}
+ Time Complexity: O(n) We can also swap data instead of pointers to reverse the Doubly Linked List. Method used for reversing array can be used to swap data. Swapping data can be costly compared to pointers if size of data item(s) is more. Please write comments if you find any of the above codes/algorithms incorrect, or find better ways to solve the same problem.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. Amit I don’t understand what is the need of all this code. Just store the pointer of the last node to the start, the double linked list is reversed. Done Nishant M Gandhi revise your concepts via figure. It wont work. Castle Age What is the last nodes’s next pointer points to? NULL Nikolche Kolev void reverse(Node * &head){ Node * prev = NULL; Node * next; Node * temp; while(head){ temp = head; //remember next next = head->next; // set next head->next = prev; // set prev head->prev = next; // set prev for next prev = head; head = next; } head = prev; } Arunx  
+node* reversedouble(node* &L){
+ 
+node* ahead = L;
+node* curr  = NULL;
+
+if(!ahead){
+	
+	cout << " empty list";
+	return L;
+}
+
+while(ahead){
+
+ curr = ahead;
+ ahead = ahead->next;
+ curr-> next = curr -> prev;
+ curr-> prev = ahead;  	
+
+}
+return curr;  
+}
+ Arunx [sourcecodnode* reversedouble(node* &L){ node* ahead = L; node* curr = NULL; if(!ahead){ cout < < " empty list"; return L; } while(ahead){ curr = ahead; ahead = ahead->next; curr-> next = curr -> prev; curr-> prev = ahead; } return curr; } abhishek08aug  
+#include<stdio.h>
+#include<stdlib.h>
+
+struct node {
+  int data;
+  struct node * prev;
+  struct node * next;
+};
+
+void insert_node(struct node ** head_ref, struct node *prev_node, int value) {
+  struct node * head=*head_ref;
+  struct node * new_node=NULL;
+  if(head==NULL) {
+    new_node=(struct node *)malloc(sizeof(struct node));
+    new_node->data=value;
+    new_node->prev=prev_node;
+    new_node->next=NULL;
+    *head_ref=new_node;
+  } else {
+    insert_node(&head->next, head, value);
+  }
+}
+
+void print_dll(struct node * head) {
+  struct node * current=head;
+  while(current!=NULL) {
+    printf("%d ", current->data);
+    current=current->next;
+  }
+  printf("\n");
+}
+
+
+void print_dll_reverse_order(struct node * head) {
+  struct node * current=head;
+  struct node * prev=NULL;
+  while(current!=NULL) {
+    prev=current;
+    current=current->next;
+  }
+  while(prev!=NULL) {
+    printf("%d ", prev->data);
+    prev=prev->prev;
+  }
+  printf("\n");
+}
+
+struct node * reverse_dll(struct node ** head_ref) {
+  struct node * head=*head_ref;
+  if(head==NULL) {
+    return head;
+  } else {
+    struct node * temp=head->next;
+    head->next=head->prev;
+    head->prev=temp;
+    if(temp!=NULL) return reverse_dll(&temp);
+  }
+}
+
+int main() {
+  struct node * head=NULL;
+
+  insert_node(&head, NULL, 40);
+  insert_node(&head, NULL, 30);
+  insert_node(&head, NULL, 50);
+  insert_node(&head, NULL, 25);
+  insert_node(&head, NULL, 35);
+  insert_node(&head, NULL, 45);
+  insert_node(&head, NULL, 55);
+  insert_node(&head, NULL, 60);
+  insert_node(&head, NULL, 65);
+  insert_node(&head, NULL, 70);
+  insert_node(&head, NULL, 75);
+  insert_node(&head, NULL, 100);
+
+  print_dll(head);
+  print_dll_reverse_order(head);
+  head=reverse_dll(&head);
+  print_dll(head);
+
+  return 0;
+}
+ 40 30 50 25 35 45 55 60 65 70 75 100 100 75 70 65 60 55 45 35 25 50 30 40 100 75 70 65 60 55 45 35 25 50 30 40 prakash by just swaping the data of elements itself will satisfy the requirement.since this is doubly linked list we have head and tail ptrs front_ptr=head; back_ptr=tail; while(front_ptr!=back_ptr && back_ptr->next!=frotn_ptr) { temp_var=back_ptr->data; back_ptr->data=front_ptr->data; front_ptr->data=temp_var } whizkid08 Wrote the same function using Recursion:  
+#include<stdio.h>
+#include<stdlib.h>
+#include<conio.h>
+
+struct Node
+{
+int data;
+struct Node* next;
+struct Node* prev;
+};
+
+void push(struct Node** head, int val)
+{
+	struct Node* temp = (struct Node*)malloc(sizeof(struct Node));
+
+	if((*head)==0)
+	{
+	temp->data = val;
+	temp->next = 0;
+	temp->prev = 0;
+	*head=temp;
+	}
+	else
+	{
+	temp->data = val;
+	temp->next = (*head);
+	(*head)->prev = temp;
+	temp->prev = 0;
+	(*head) = temp;
+	}
+}
+
+void revDouble(struct Node **ref)
+{
+	struct Node *temp;
+
+	if((*ref) == 0)
+	return;
+
+	temp = (*ref)->prev;
+	revDouble(&((*ref)->next));
+
+	(*ref)->prev = (*ref)->next; //Swap next and prev ptrs for each node
+	(*ref)->next = temp;
+	if((*ref)->prev != 0) //For changing the head ptr accordingly
+		(*ref) = (*ref)->prev;
+}
+
+void main()
+{
+	struct Node *head=0;
+	struct Node *temp;
+
+	clrscr();
+	push(&head,19);
+	push(&head,23);
+	push(&head,21);
+	push(&head,28);
+	push(&head,24);
+
+	revDouble(&head);
+	temp = head;
+
+	while(temp != 0)
+	{
+	printf("value = %d\n",temp->data);
+	temp = temp->next;
+	}
+}
+ pinkyponky  
+/* Paste your code here (You may delete these lines if not writing code) */
+ #include #include using namespace std; struct list { int data; struct list *next; struct list *prev; }*head=NULL,*head1; int ins(int n) { struct list *temp,*temp1; if(!head) { head=new list; head->data=n; head->next=NULL; head->prev=NULL; } else { temp=head; while(temp->next!=NULL) temp=temp->next; temp1=new list; temp1->data=n; temp->next=temp1; temp1->prev=temp; temp1->next=NULL; } return 0; } int reverse_doublelist() { struct list *current=head,*nextt; while(current) { nextt=current->next; current->next=current->prev; current->prev=nextt; head1=current; current=nextt; } return 0; } int display() { struct list *temp=head1; while(temp) { printf(“%d”,temp->data); temp=temp->next; } return 0; } int main() { int n,i,m; printf(“enter the number of elements to insert:\n”); scanf(“%d”,&n); for(i=0;i { scanf(“%d”,&m); ins(m); } reverse_doublelist(); display(); return 0; } Nitin gupta iitian template void Doubly :: ReverseLL( ) { Current = Head ; Tail = Head ; while ( Current) { Head = Current->prev ; Current->prev = Current->next ; Current->next = Head ; Current = Current->prev ; } if ( Head ) Head = Head->prev ; }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ankur A more simpler one void reverse(struct node **head_ref) { struct node *temp = NULL; struct node *current = *head_ref; /* swap next and prev for all nodes of doubly linked list */ while (current != NULL) { // temp = current->prev; current->prev = current->next; current->next = temp; temp = current; current = current->prev; } *head_ref = temp; } jagdish Can’t we just set the head pointer to the last node that will reverse the list what say? Sandeep @jagdish: We need to change prev and next pointers of all nodes so that the meaning of prev and next remains same. vinodh Yes we need to preserve the meaning of prev and next pointers. so why can’t we swap the values of the prev and next pointers inside the node which is much easier the swapping the nodes? Please do give your opinion.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ vinodh Yes we need to preserve the meaning of prev and next pointers. so why can’t we swap the values of the prev and next pointers inside the node which is much easier the swapping the nodes? Please do give your opinion.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://www.technicalypto.com Bragaadeesh Here is my two cents, Program to reverse a singly list ITERATIVELY Program to reverse a linked list RECURSIVELY Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

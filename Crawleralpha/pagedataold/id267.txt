@@ -1,0 +1,228 @@
+Write a C program to calculate pow(x,n) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Write a C program to calculate pow(x,n) Below solution divides the problem into subproblems of size y/2 and call the subproblems recursively. 
+#include<stdio.h>
+
+/* Function to calculate x raised to the power y */
+int power(int x, unsigned int y)
+{
+    if( y == 0)
+        return 1;
+    else if (y%2 == 0)
+        return power(x, y/2)*power(x, y/2);
+    else
+        return x*power(x, y/2)*power(x, y/2);
+
+}
+
+/* Program to test function power */
+int main()
+{
+    int x = 2;
+    unsigned int y = 3;
+
+    printf("%d", power(x, y));
+    getchar();
+    return 0;
+}
+ Time Complexity: O(n) Space Complexity: O(1) Algorithmic Paradigm: Divide and conquer. Above function can be optimized to O(logn) by calculating power(x, y/2) only once and storing it. 
+/* Function to calculate x raised to the power y in O(logn)*/
+int power(int x, unsigned int y)
+{
+    int temp;
+    if( y == 0)
+        return 1;
+    temp = power(x, y/2);
+    if (y%2 == 0)
+        return temp*temp;
+    else
+        return x*temp*temp;
+}
+ Time Complexity of optimized solution: O(logn) Let us extend the pow function to work for negative y and float x. 
+/* Extended version of power function that can work
+ for float x and negative y*/
+#include<stdio.h>
+
+float power(float x, int y)
+{
+    float temp;
+    if( y == 0)
+       return 1;
+    temp = power(x, y/2);       
+    if (y%2 == 0)
+        return temp*temp;
+    else
+    {
+        if(y > 0)
+            return x*temp*temp;
+        else
+            return (temp*temp)/x;
+    }
+}  
+
+/* Program to test function power */
+int main()
+{
+    float x = 2;
+    int y = -3;
+    printf("%f", power(x, y));
+    getchar();
+    return 0;
+}
+           Related Topics: Comparison of a float with a value in C Pure virtual destructor in C++ C++ mutable keyword Is it possible to call constructor and destructor explicitly? Multithreading in C How to print range of basic data types without any library function and constant in C? C++ final specifier Print substring of a given string without using any string function and loop in C Tags: Divide and Conquer Tweet Writing code in comment? Please use ideone.com and share the link here. sana how we make a spelling check program /code on c language. admin Thanks for the post really helpful i have done it in another please have a look http://ioeengineer.blogspot.com/2014/02/write-program-to-find-x-to-power-of-y.html sana please do fast sana please reply fast johd Write a program that reads a floating-point number and prints the ceiling, floor and rounded value. You should have three different functions that accept the inputs. In the main function, there should have three variables that accept the returned values from the respective functions. Test the program you created with the following data: 123.456789 123.499999 123.500001… please help me code this one..I’m just a C language beginner groomnestle how about below int pow(int x, int n) { int sum = 1, i; for(i=1;i<=n;i++) sum*=x; return sum; } which takes O(n). vb Doesnt handle n with negative values joeshmo Here’s an iterative version of it: //Time Complexity of optimized solution: O(logn) #include float power(float x, int y) { float temp; if( y == 0) return 1; temp = power(x, y/2); if (y%2 == 0) return temp*temp; else { if(y > 0) return x*temp*temp; else return (temp*temp)/x; } } double pow(double x, int n) { // Start typing your C/C++ solution below // DO NOT write int main() function int power = (n > 0) ? n : -1 * n; double result = 1; double base = x; while(power > 0) { if(1 == power % 2) { if(n > 0) result *= base; else result /= base; } base = base * base; power /= 2; } return result; } /* Program to test function power */ int main() { float x = 2; int y = -3; printf(“%f”, power(x, y)); getchar(); return 0; } Leo Dynamic private static int power(int x, int y) { if (x < 0) return 0; int[] powers = new int[y + 1]; powers[0] = 1; for (int i = 1; i<=y; i++) { powers[i] = powers[i-1]*x; } return powers[y]; } Leonidas Giannoulis uint64_t power(uint64_t b,uint8_t e) { return e?e%2?power(b*b,e/2)*b:power(b*b,e/2):1; } Tarun Kumar how to solve this if number overflow is there? n^k and k is large, say power(2, 40); rocky The complexity of the first program can be achieved as O(logn) by: /*int power(int x,int n) { if(n==0) return 1; if(n==1) return x; else if(n%2==0) return power(x*x,n/2); else return power(x*x,n/2)*x; }*/ Am i correct? ljk In case of negative y, what’s wrong with just:  
+y<0?printf("%f",1/pow(x,y*-1));:printf("%f",pow(x,y));
+return 0;
+ AG The method suggested doesn’t work for negative exponent. DexterLtd No doubt the use of Temp variable reduces the complexity but still the constant factor is too large. This code can be further improved by using a transcript array rather than a temporary variable.( Giving this problem a touch of dynamic programming solution) The transcript array can be global or passed as argument.  
+
+ Dexterltd  
+#define MAX 100000 /* should be in order of y */
+
+/* this will initialize all elemnts to zero */
+int Transcript[MAX] = {0}; 
+
+int pow(int x,int y)
+{
+    if ( y == 0 )
+       return 1;
+    
+    if ( Transcript[y] != 0)
+        return Transcript[y];
+       
+    if ( y == 1)
+    {
+       Transcript[1] = x;
+    }
+    else if( y%2 == 0)
+    {
+       Transcript[y] = Transcript[y/2]*Transcript[y/2];
+    }
+    else
+    {
+       Transcript[y] = Transcript[y/2]*Transcript[y/2]*x;
+    }
+    
+    return Transcript[y];
+} 
+ Dexterltd little correction in above code   
+int pow(int x,int y)
+{
+    if ( y == 0 )
+       return 1;
+    
+    if ( Transcript[y] != 0)
+        return Transcript[y];
+       
+    if ( y == 1)
+    {
+       Transcript[1] = x;
+    }
+    else if( y%2 == 0)
+    {
+       Transcript[y] = pow(x,y/2)*pow(x,y/2);
+    }
+    else
+    {
+       Transcript[y] = pow(x,y/2)*pow(x,y/2)*x;
+    }
+    
+    return Transcript[y];
+} 
+ Dexterltd little correction in the code   
+int pow(int x,int y)
+{
+    if ( y == 0 )
+       return 1;
+    
+    if ( Transcript[y] != 0)
+        return Transcript[y];
+       
+    if ( y == 1)
+    {
+       Transcript[1] = x;
+    }
+    else if( y%2 == 0)
+    {
+       Transcript[y] = pow(x,y/2)*pow(x,y/2);
+    }
+    else
+    {
+       Transcript[y] = pow(x,y/2)*pow(x,y/2)*x;
+    }
+    
+    return Transcript[y];
+} 
+ http://www.tsndiffopera.in Sai Nikhil this is again O(n) and no way better than above O(lg(n)) implementation. Dexterltd This code is same efficient as the temp variable one if we run it once. for multiple call of pow() function, this will work fast cause of transcript. KJD The function is not generic enough to be called multiple times. Since x is fixed. If the function is called with different value of x and same value of y 2nd time it will give incorrect result. example: >>first call pow(2,1)returns 1 >>second call pow(5,1)returns 1 again (wrong). KJD correction in above comment both the times returned value will be 2 and not 1. sana can you help me a code sana how we make a game on c language can you help me Rahul #include #include class power { int base,exp,i,temp; public: void get(); void cal(); void dis(); power() { temp=1; } }; void power::get() { cout<>base>>exp; } void power::cal() { for(i=1;i<=exp;i++) { temp=temp*base; } } void power::dis() { cout<<"Calculated="<<temp; } void main() { clrscr(); power p; p.get(); p.cal(); p.dis(); getch(); } http://c johir I see a program without semicolon…… #include #include void main(){ if(printf(“zeal”)){ } } compile….alt+f9; run……..ctrl+f9; but in turbo c the o/p can not show long time because “getch();” not use.Again see the o/p press “alt+f5; Anuj  
+#include<stdio.h>
+main()
+{
+        int num, p , result;
+        printf("Enter the number : ");
+        scanf("%d",&num);
+        printf("\nAnd its power also. : ");
+        scanf("%d",&p);
+
+        result = power(num,p);
+        printf("\nThe result is %d\n", result);
+}
+power(int x, int y)
+{
+        int i,temp =1;
+        if(y==0)
+                return(1);
+        if(y==1)
+                return(x);
+        else
+        {
+                for(i=1;i<=y;i++)
+                        temp = temp*x;
+                return(temp);
+        }
+}
+ Anuj I think it’s pretty simple KK123 Dude!! Din u notice time complexity?? Anuj i didn’t. u tell me KK123 ur algo takes O(n) whereas the one in article is O(logn)… Raj How to calculate power(float x, float y) ? Snehal Masne Thanks for the code.. interesting.. http://wemeanourthoughts.blogspot.com/ Venki  
+// Similar function, but depends on set bits
+// in the exponent (no recursion - logN)
+int power(int x, unsigned n) {
+    // Holds next power
+    // Will be used if next bit is set (odd)
+    int intermediateProduct = x;
+    // Final result
+    int result = 1;
+
+    // Repeat this till we iterate all the set bits
+    while(n)
+    {
+        // Effectively equvalent to n%2
+        if (n & 1)
+        {
+            // If n is odd
+            // power(a, b) = a * power(a, b/2) * power(a, b/2)
+            // Note that next two terms are picked in the down statement
+            result = intermediateProduct * result;
+        }
+
+        // Make up next bit
+        n >>= 1;
+
+        // Make the multiplication for next bit
+        // Contributes for multiplication when n is even
+        // power(a, b) = power(a, b/2) * power(a, b/2)
+        intermediateProduct = intermediateProduct * intermediateProduct;
+    }
+
+    // Done! Return.
+    return result;
+}
+
+// Driver
+void main()
+{
+    printf("%d\n", power(2, 5));
+}
+ Prabhakar we have to calculate x^n;  
+int n;
+while(n)
+{
+if(n&&1)  
+x=x*y;
+y=y*y;
+n=n>>1;
+}
+ Time Complexity=O(log(n)) codegeek why if (n&&1) its same as if (n) what is initial value of y here?? Prabhakar @codegeeks sorry. It is (n&1) not (n&&1). here intialise x=1,y=n; nikhil @Prabhakar In the above initialisation we are not using value of anywhere in the expression x^n. since x=1 and y=n and n=n . so how value of x will be used. I hope u understand my question. Prabhakar @nikhil basically we want to compute a^b. In above code, we y will be equal to a and n will be equal to b. The final answer will be stored in variable x which was intialized with 1. Hope this clarifies your confusion. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

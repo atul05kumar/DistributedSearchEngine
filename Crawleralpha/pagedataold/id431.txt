@@ -1,0 +1,339 @@
+Depth First Traversal for a Graph - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Depth First Traversal for a Graph Depth First Traversal (or Search) for a graph is similar to Depth First Traversal of a tree. The only catch here is, unlike trees, graphs may contain cycles, so we may come to the same node again. To avoid processing a node more than once, we use a boolean visited array. For example, in the following graph, we start traversal from vertex 2. When we come to vertex 0, we look for all adjacent vertices of it. 2 is also an adjacent vertex of 0. If we don’t mark visited vertices, then 2 will be processed again and it will become a non-terminating process. Depth First Traversal of the following graph is 2, 0, 1, 3 See this post for all applications of Depth First Traversal. Following is C++ implementation of simple Depth First Traversal. The implementation uses adjacency list representation of graphs. STL‘s list container is used to store lists of adjacent nodes. 
+#include<iostream>
+#include <list>
+
+using namespace std;
+
+// Graph class represents a directed graph using adjacency list representation
+class Graph
+{
+    int V;    // No. of vertices
+    list<int> *adj;    // Pointer to an array containing adjacency lists
+    void DFSUtil(int v, bool visited[]);  // A function used by DFS
+public:
+    Graph(int V);   // Constructor
+    void addEdge(int v, int w);   // function to add an edge to graph
+    void DFS(int v);    // DFS traversal of the vertices reachable from v
+};
+
+Graph::Graph(int V)
+{
+    this->V = V;
+    adj = new list<int>[V];
+}
+
+void Graph::addEdge(int v, int w)
+{
+    adj[v].push_back(w); // Add w to v’s list.
+}
+
+void Graph::DFSUtil(int v, bool visited[])
+{
+    // Mark the current node as visited and print it
+    visited[v] = true;
+    cout << v << " ";
+
+    // Recur for all the vertices adjacent to this vertex
+    list<int>::iterator i;
+    for(i = adj[v].begin(); i != adj[v].end(); ++i)
+        if(!visited[*i])
+            DFSUtil(*i, visited);
+}
+
+// DFS traversal of the vertices reachable from v. It uses recursive DFSUtil()
+void Graph::DFS(int v)
+{
+    // Mark all the vertices as not visited
+    bool *visited = new bool[V];
+    for(int i = 0; i < V; i++)
+        visited[i] = false;
+
+    // Call the recursive helper function to print DFS traversal
+    DFSUtil(v, visited);
+}
+
+int main()
+{
+    // Create a graph given in the above diagram
+    Graph g(4);
+    g.addEdge(0, 1);
+    g.addEdge(0, 2);
+    g.addEdge(1, 2);
+    g.addEdge(2, 0);
+    g.addEdge(2, 3);
+    g.addEdge(3, 3);
+
+    cout << "Following is Depth First Traversal (starting from vertex 2) \n";
+    g.DFS(2);
+
+    return 0;
+}
+ Output: 
+Following is Depth First Traversal (starting from vertex 2)
+2 0 1 3
+ Note that the above code traverses only the vertices reachable from a given source vertex. All the vertices may not be reachable from a given vertex (example Disconnected graph). To do complete DFS traversal of such graphs, we must call DFSUtil() for every vertex. Also, before calling DFSUtil(), we should check if it is already printed by some other call of DFSUtil(). Following implementation does the complete graph traversal even if the nodes are unreachable. The differences from the above code are highlighted in the below code. 
+#include<iostream>
+#include <list>
+using namespace std;
+
+class Graph
+{
+    int V;    // No. of vertices
+    list<int> *adj;    // Pointer to an array containing adjacency lists
+    void DFSUtil(int v, bool visited[]);  // A function used by DFS
+public:
+    Graph(int V);   // Constructor
+    void addEdge(int v, int w);   // function to add an edge to graph
+    void DFS();    // prints DFS traversal of the complete graph
+};
+
+Graph::Graph(int V)
+{
+    this->V = V;
+    adj = new list<int>[V];
+}
+
+void Graph::addEdge(int v, int w)
+{
+    adj[v].push_back(w); // Add w to v’s list.
+}
+
+void Graph::DFSUtil(int v, bool visited[])
+{
+    // Mark the current node as visited and print it
+    visited[v] = true;
+    cout << v << " ";
+
+    // Recur for all the vertices adjacent to this vertex
+    list<int>::iterator i;
+    for(i = adj[v].begin(); i != adj[v].end(); ++i)
+        if(!visited[*i])
+            DFSUtil(*i, visited);
+}
+
+// The function to do DFS traversal. It uses recursive DFSUtil()
+void Graph::DFS()
+{
+    // Mark all the vertices as not visited
+    bool *visited = new bool[V];
+    for(int i = 0; i < V; i++)
+        visited[i] = false;
+
+    // Call the recursive helper function to print DFS traversal
+    // starting from all vertices one by one
+    for(int i = 0; i < V; i++)
+        if(visited[i] == false)
+            DFSUtil(i, visited);
+}
+
+int main()
+{
+    // Create a graph given in the above diagram
+    Graph g(4);
+    g.addEdge(0, 1);
+    g.addEdge(0, 2);
+    g.addEdge(1, 2);
+    g.addEdge(2, 0);
+    g.addEdge(2, 3);
+    g.addEdge(3, 3);
+
+    cout << "Following is Depth First Traversal (starting from vertex 0) \n";
+    g.DFS();
+
+    return 0;
+}
+ Time Complexity: O(V+E) where V is number of vertices in the graph and E is number of edges in the graph. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Vertex Cover Problem | Set 1 (Introduction and Approximate Algorithm) Snake and Ladder Problem Tarjan’s Algorithm to find Strongly Connected Components Shortest path with exactly k edges in a directed and weighted graph Count all possible walks from a source to a destination with exactly k edges Euler Circuit in a Directed Graph Given an array of strings, find if the strings can be chained to form a circle Given a sorted dictionary of an alien language, find order of characters Tags: Graph Tweet Writing code in comment? Please use ideone.com and share the link here. Gallon Non-recursive Implementation using STL stack void Graph::DFSUtil(int v, bool visited[]) { // Mark the current node as visited and print it stack my_stack; cout<<v<<" "; visited[v] = true; my_stack.push(v); while(!my_stack.empty()) { int top = my_stack.top(); /* Value check if v has any unvisited neighbour (0 or 1) */ bool no_unvisited_neighbour = true; for(auto iter = adj[top].begin(); iter!=adj[top].end(); iter++) { /* Found 1st unvisited adjacent node of v and push it to the stack */ if(!visited[*iter]) { no_unvisited_neighbour = false; cout<<*iter<<" "; visited[*iter] = true; my_stack.push(*iter); break; } } /* If v has no unvisited neighbours, pop it from the stack */ if(no_unvisited_neighbour) { my_stack.pop(); } } } Gallon void Graph::DFSUtil(int v, bool visited[]) { // Mark the current node as visited and print it stack my_stack; cout<<v<<" "; visited[v] = true; my_stack.push(v); while(!my_stack.empty()) { int top = my_stack.top(); /* Value check if v has any unvisited neighbour (0 or 1) */ bool no_unvisited_neighbour = true; for(auto iter = adj[top].begin(); iter!=adj[top].end(); iter++) { /* Found 1st unvisited adjacent node of v and push it to the stack */ if(!visited[*iter]) { no_unvisited_neighbour = false; cout<<*iter<<" "; visited[*iter] = true; my_stack.push(*iter); break; } } /* If v has no unvisited neighbours, pop it from the stack */ if(no_unvisited_neighbour) { my_stack.pop(); } } } Well How to implement it in NON-recursive approach? khushal cyclic graph won’t have topological order. your code doesn’t say a word if graph is cyclic Alien /* C program for DFS traversal of a graph where graph is presented using Adjacency Matrix */ #include #define V 5 void dfsUtil(int graph[V][V], int visited[], int v) { visited[v] = 1; printf(“nvertex: %d”,v); int i; // DFS search for each connected component for(i=0;i<V;i++) { // call DFS recursively, if there is path from vertex v to vertex i and vertex i has not been visited yet if(graph[v][i] != 0 && visited[i] ==0) { dfsUtil(graph,visited,i); } } } void dfs(int graph[V][V], int visited[]) { int i; // check for each connected component for(i=0;i<V;i++) { if(visited[i] != 1) dfsUtil(graph,visited,i); } } int main() { /* 2 connected components 1——-5 4 | / | 2——-3 */ int graph[V][V] = {{0,1,0,0,1},{1,0,1,0,1},{0,1,0,0,1},{0,0,0,0,0},{1,1,1,0,0}}; int visited[V] = {0}; dfs(graph,visited); return 0; } Alien /* C program for DFS traversal of a graph where graph is presented using Adjacency list */ #include #include // A structure to represent an adjacency list node struct AdjListNode { int vertex_num; struct AdjListNode *next; }; // A structure to represent an adjacency list struct AdjList { struct AdjListNode *head; }; // A structure to represent a graph. A graph is an array of adjacency lists. // Size of array will be V (number of vertices in graph) struct Graph { int noofvertex; struct AdjList* array; }; // A utility function to create a new adjacency list node struct AdjListNode* newAdjListNode(int v) { struct AdjListNode* newNode = (struct AdjListNode*)malloc(sizeof(struct AdjListNode)); newNode->vertex_num = v; newNode->next = NULL; return newNode; } // A utility function that creates a graph of V vertices struct Graph* createGraph(int n) { int i; struct Graph* graph = (struct Graph*)malloc(sizeof(struct Graph)); graph->noofvertex = n; // Create an array of adjacency lists. Size of array will be n graph->array = (struct AdjList*)malloc(n * sizeof(struct AdjList)); // Initialize each adjacency list as empty by making head as NULL for(i=0;iarray[i].head = NULL; } return graph; } // Adds an edge to an undirected graph void addEdge(struct Graph *graph, int src, int dest) { // Add an edge from src to dest. A new node is added to the adjacency // list of src. The node is added at the begining struct AdjListNode* newNode = newAdjListNode(dest); newNode->next = graph->array[src].head; graph->array[src].head = newNode; // Since graph is undirected, add an edge from dest to src also newNode = newAdjListNode(src); newNode->next = graph->array[dest].head; graph->array[dest].head = newNode; } // A utility function to print the adjacenncy list representation of graph void printGraph(struct Graph* graph) { int v; for (v = 0; v noofvertex; ++v) { struct AdjListNode* pCrawl = graph->array[v].head; printf(“n Adjacency list of vertex %dn head “, v); while (pCrawl) { printf(“-> %d”, pCrawl->vertex_num); pCrawl = pCrawl->next; } printf(“n”); } } void dfsUtil(struct Graph *graph, int visited[], int v) { int i; int n = graph->noofvertex; visited[v] = 1; printf(“n Vertex: %d”,v); struct AdjListNode* pCrawl = graph->array[v].head; // TRAP: Not same as matrix representation // check the adjacents of current node has been visited or not. If not, call DFSUtil again while(pCrawl != NULL) { if(visited[pCrawl->vertex_num] == 0) dfsUtil(graph,visited,pCrawl->vertex_num); pCrawl = pCrawl->next; } } void dfs(struct Graph *graph, int visited[]) { int i; int n = graph->noofvertex; // for each connected component for(i=0;i<n;i++) { if(visited[i] == 0) dfsUtil(graph,visited,i); } } int main() { /* 2 connected components 1——-5 4 | / | 2——-3 */ // create the graph given in above fugure int V = 5; int visited[5] = {0}; struct Graph* graph = createGraph(V); addEdge(graph, 0, 1); addEdge(graph, 0, 4); addEdge(graph, 1, 2); addEdge(graph, 1, 3); addEdge(graph, 1, 4); addEdge(graph, 2, 3); addEdge(graph, 3, 4); // print the adjacency list representation of the above graph dfs(graph,visited); // printGraph(graph); return 0; } Vijay Apurva here is the code in C #include #include struct gnode{ int data ; struct gnode * next ; }; struct adnode{ struct gnode * top ; }; struct graph{ int v; struct adnode * array ; }; struct graph * createGraph(int v){ struct graph * g = (struct graph *)malloc(sizeof(struct graph)); g->v=v; g->array=(struct adnode *)malloc(v*sizeof(struct adnode)); int i; for(i=0;iarray[i].top=NULL; return g; } struct gnode * add(int data){ struct gnode * temp = (struct gnode *)malloc(sizeof(struct gnode)); temp->data=data; temp->next=NULL; return temp; } void addEdge(struct graph * g , int src, int dest){ struct gnode * temp = add(dest); temp->next=g->array[src].top; g->array[src].top=temp; } void dfsUtil(struct graph * g , int visit[] , int x){ visit[x]=1 ; printf(“%d “,x); struct gnode * temp = g->array[x].top; while(temp!=NULL){ if(visit[temp->data]==0) dfsUtil( g,visit,temp->data); temp=temp->next; } } void dfs(struct graph *g){ int i; int visit[g->v]; for(i=0;iv;i++) visit[i]=0; printf(” dfs traversal of a graph is n n “); for(i=0;iv;i++){ if(visit[i]==0) dfsUtil(g , visit , i); } } void main(){ int v = 4; struct graph* g = createGraph(v); addEdge(g,0, 1); addEdge(g,0, 2); addEdge(g,1, 2); addEdge(g,2, 0); addEdge(g,2, 3); addEdge(g,3, 3); dfs(g); } dhruv18 @jayanta you have just ensured that output is printed from different starting point but what about making sure that whole graph is printed when it is a disconnected graph? i think 2nd code is for printing whole graph but in your different connected component will be printed. avanee //program for dfs #include #include using namespace std; int edgei_j[100][100],n; int visited[1000]; void dfs(int); stack stk; int main() { int i,j,m,tops; scanf(“%d %d”,&n,&m); for(i=0;i<m;i++) { scanf("%d %d",&i,&j); edgei_j[i][j]=1; } stk.push(0); visited[0]=1; while(!stk.empty()) { tops=stk.top(); dfs(tops); } } void dfs(int tops) { int i,x; for(i=0;i<n;i++) { if(edgei_j[tops][i]==1&&visited[i]!=1) { visited[i]=0; stk.push(i); dfs(i); } } if(i==n) { x=stk.top(); cout<<x<<endl; stk.pop(); } } avanee //simple imlementation for dfs #include #include using namespace std; int edgei_j[100][100],n; int visited[1000]; void dfs(int); stack stk; int main() { int i,j,m,tops; scanf(“%d %d”,&n,&m); for(i=0;i<m;i++) { scanf("%d %d",&i,&j); edgei_j[i][j]=1; } stk.push(0); visited[0]=1; while(!stk.empty()) { tops=stk.top(); dfs(tops); } } void dfs(int tops) { int i,x; for(i=0;i<n;i++) { if(edgei_j[tops][i]==1&&visited[i]!=1) { visited[i]=0; stk.push(i); dfs(i); } } if(i==n) { x=stk.top(); cout<<x<<endl; stk.pop(); } } amitmac2  
+#include<stdio.h>
+#include<stdlib.h>
+#include<conio.h>
+int time;
+struct node
+{	
+	int color;
+	int parent;
+	int key;
+    int dest;
+    struct node* next;	//next pointer
+	struct node* head;	//head pointer
+};
+struct graph
+{
+    int v;	//number of vertices
+    struct node* array;	//array of all vertices
+};
+struct node* createNode(int dest)	//create new node
+{
+    struct node* newnode=(struct node*)malloc(sizeof(struct node));	//allocating memory
+    newnode->dest=dest;	//dest is the next vertex which is pointed
+    newnode->next=NULL; 
+    return newnode;
+}
+struct graph* createGraph(int v)		//creating adjacency list
+{
+    struct graph* g=(struct graph*)malloc(sizeof(struct graph));
+    g->v=v;	//v is number of vertices
+    g->array=(struct node*)malloc(v*sizeof(struct node));	//allocating memory for the array of v vertices
+    for(int i=0;i<v;i++)	
+    {	//initializing the adjacency list
+		g->array[i].head=NULL;
+		g->array[i].key=i;
+	}
+    return g;
+}
+void addEdge(struct graph* g,int src,int dest)	//adding node to the adjacency list
+{
+    struct node* newnode=createNode(dest);	//creating new node pointing to 'dest' vertex
+    newnode->next=g->array[src].head;	//next pointer of newnode points to the head of src vertex
+    g->array[src].head=newnode;	//adding in the beginning of list
+    newnode=createNode(src);	//for undirected graphs both vertex point each other
+    newnode->next=g->array[dest].head;
+    g->array[dest].head=newnode;
+}
+void dfsVisit(struct graph* g,struct node* u)
+{
+    time++;
+	u->color=1; //color of vertex is changed
+	struct node* p=u;	
+	while(p!=NULL)
+    {
+        p=p->next; 
+		if(p->color==0)
+		{
+			p->parent = u->key;	//parent of p is given the key of u as u-->p
+			dfsVisit(g,p);	//recursing
+		}
+    }
+	u->color=2;
+	printf("%d ",u->key);	//printing the vertex key
+	time++;
+}
+void dfs(struct graph* g)
+{
+    int v=g->v; //v contains the number of vertices in graph
+    for(int i=0;i<v;i++)
+    {
+		g->array[i].color=0; //initializing color and parent property
+		g->array[i].parent=-1;
+    }
+    time=0;
+    for(int i=0;i<v;i++)
+		if( g->array[i].color==0 ) //if i'th vertex not visited call dfs visit
+			dfsVisit(g,&g->array[i]);
+}
+int main()
+{
+	int v = 4;
+    struct graph* g = createGraph(v);
+    addEdge(g,0, 1);
+    addEdge(g,0, 2);
+    addEdge(g,1, 2);
+    addEdge(g,2, 0);
+    addEdge(g,2, 3);
+    addEdge(g,3, 3);
+	dfs(g);
+	getch();
+	return 0;
+}
+
+ amitmac2 there is error in above program… AAZ How is complexity O(V+E) ? Don’t we have one for loop inside DFSUtil Function call which is itself inside for loop ? Shouldn’t it be O(VE) ? Jayanta // Pasted the modified (correct) dfs code.  
+#include<iostream>
+#include <list>
+ 
+using namespace std;
+ 
+class Graph
+{
+    int V;    // No. of vertices
+    list<int> *adj;    // Pointer to an array containing adjacency lists
+    void DFSUtil(int v, bool visited[]);  // A function used by DFS
+public:
+    Graph(int V);   // Constructor
+    void addEdge(int v, int w);   // function to add an edge to graph
+    void DFS();    // prints DFS traversal of the complete graph
+};
+ 
+Graph::Graph(int V)
+{
+    this->V = V;
+    adj = new list<int>[V];
+}
+ 
+void Graph::addEdge(int v, int w)
+{
+    adj[v].push_back(w); // Add w to v’s list.
+}
+ 
+void Graph::DFSUtil(int v, bool visited[])
+{
+    if(visited[v] == false)
+    {
+       // Mark the current node as visited and print it
+       visited[v] = true;
+       cout << v << " ";
+ 
+       // Recur for all the vertices adjacent to this vertex
+       list<int>::iterator i;
+       for(i = adj[v].begin(); i != adj[v].end(); ++i)
+           if(!visited[*i])
+              DFSUtil(*i, visited);
+    }
+}
+ 
+// The function to do DFS traversal. It uses recursive DFSUtil()
+void Graph::DFS()
+{
+    // Mark all the vertices as not visited
+    bool *visited = new bool[V];
+ 
+    // Call the recursive helper function to print DFS traversal
+    // starting from all vertices one by one
+    for(int i = 0; i < V; i++)
+    {
+    	for(int i1 = 0; i1 < V; i1++)
+        	visited[i1] = false;
+
+	cout<<endl<<"DFS starting from node: "<< i<< ". :"<< endl;
+        DFSUtil(i, visited);
+    }
+}
+
+int main()
+{
+    // Create a graph given in the above diagram
+    Graph g(4);
+
+    g.addEdge(0, 1);
+//    g.addEdge(0, 2);
+  //  g.addEdge(1, 2);
+//    g.addEdge(2, 0);
+    g.addEdge(2, 3);
+//    g.addEdge(3, 3); 
+    cout << "Following is Depth First Traversal (starting from all vertices) \n";
+    g.DFS();
+ 
+    return 0;
+}
+
+
+ http://www.geeksforgeeks.org/archives/18212 deep @Jayanta you are right  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik @Jayanta and @deep: could you please let us know the problem with the code given in above post? In below comment, you mentioned that the given code will print “0 1 2 3″ for given graph. Isn’t “0 1 2 3″ correct output? Please let me know if my understanding is incorrect. Jayanta The second code for visiting all nodes in DFS() is wrong as it does not set false to visited[v] ever. For the following main() it will also print 0 1 2 3. int main() { // Create a graph given in the above diagram Graph g(4); g.addEdge(0, 1); g.addEdge(2, 3); cout << "Following is Depth First Traversal (starting from vertex 2) \n"; g.DFS(); return 0; } Venki Iterative DFS, looking for an efficient implementation. I know an explicit stack can be used. One way is, use explicit stack, and keep pushing all the adjacent nodes while exploring each path node in unexplored path. Following this approach, in the worst case, explicit stack will have all the adjacent nodes in the longest path of a node in graph. Where as in recursive approach, the system stack will have max nodes proportional to the depth of the longest node. Any thoughts? I am thinking to keep track of visited node and current exploring node in it’s adjacent list. In other words, mitigating system stack functionality by storing stack frame explicitly. Venki Here is pseudo code,  
+dfs(source)
+    stack.push(source)
+    v = stack.top()
+ 
+    while( stack not empty )
+        stack.pop()
+        visited[v] = true
+ 
+        for( each x in G.ADJ(v) )
+            if( !visited[x] )
+                stack.push(x)
+ 
+        v = stack.top()
+        while( (stack not empty) AND (v is visited) )
+            v = stack.top()
+            stack.pop()
+ Sreenivas Doosa The following is the code for DFS Iterative… import java.util.ArrayList; import java.util.Stack; public class Graph { private int V; // no of vertices private ArrayList<ArrayList<Integer>> adj; // adjacency list public Graph(int V) { this.V = V; this.adj = new ArrayList<ArrayList<Integer>>(V); for(int i = 0; i < V; i++) { this.adj.add(new ArrayList<Integer>()); } } public void addEdge(int u, int v) { adj.get(u).add(v); // adding v to array list u } public void DFSIterative(int v) { System.out.print("DFS Iterative –> "); // use stack and visited array boolean visited[] = new boolean[V]; for(int i = 0; i < visited.length; i++) { visited[i] = false; } Stack<Integer> stack = new Stack<Integer>(); stack.push(v); visited[v] = true; System.out.print(v + " "); while(!stack.isEmpty()) { int top = stack.peek(); // check if the top element has any unvisited nodes int child = getNextUnvisitedChild(top, visited); if(child == -1) { // no more unvisited childs hence pop it stack.pop(); } else { stack.push(child); visited[child] = true; System.out.print(child + " "); } } System.out.println(); } private int getNextUnvisitedChild(int v, boolean visited[]) { for(int i = 0; i < adj.get(v).size(); i++) { if(visited[adj.get(v).get(i)] == false) { return adj.get(v).get(i); } } return -1; } } atul inside main() , it should be for(int i = 0; i < V; i++) g.DFS(i); because we need to check added if graph has more than one component. as question does not mention that we need to find all nodes which are reachable from given node. /* Paste your code here (You may delete these lines if not writing code) */ GeeksforGeeks @atul: Thanks for pointing this out. We have added a new version of the code that does DFS traversal of the complete graph. Marc how would I find the recursive complexity and how to solve it for the DFS ?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks @Marc: The function DFSUtil runs for all adjacent vertices of all the vertices in a given graph. Total count of adjacent vertices is equal to Theta(E). So total time complexity will be Theta(V+E) Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

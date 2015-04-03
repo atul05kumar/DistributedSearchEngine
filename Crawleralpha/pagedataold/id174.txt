@@ -1,0 +1,408 @@
+Dynamic Programming | Set 10 ( 0-1 Knapsack Problem) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Dynamic Programming | Set 10 ( 0-1 Knapsack Problem) Given weights and values of n items, put these items in a knapsack of capacity W to get the maximum total value in the knapsack. In other words, given two integer arrays val[0..n-1] and wt[0..n-1] which represent values and weights associated with n items respectively. Also given an integer W which represents knapsack capacity, find out the maximum value subset of val[] such that sum of the weights of this subset is smaller than or equal to W. You cannot break an item, either pick the complete item, or don’t pick it (0-1 property). A simple solution is to consider all subsets of items and calculate the total weight and value of all subsets. Consider the only subsets whose total weight is smaller than W. From all such subsets, pick the maximum value subset. 1) Optimal Substructure: To consider all subsets of items, there can be two cases for every item: (1) the item is included in the optimal subset, (2) not included in the optimal set. Therefore, the maximum value that can be obtained from n items is max of following two values. 1) Maximum value obtained by n-1 items and W weight (excluding nth item). 2) Value of nth item plus maximum value obtained by n-1 items and W minus weight of the nth item (including nth item). If weight of nth item is greater than W, then the nth item cannot be included and case 1 is the only possibility. 2) Overlapping Subproblems Following is recursive implementation that simply follows the recursive structure mentioned above. 
+/* A Naive recursive implementation of 0-1 Knapsack problem */
+#include<stdio.h>
+
+// A utility function that returns maximum of two integers
+int max(int a, int b) { return (a > b)? a : b; }
+
+// Returns the maximum value that can be put in a knapsack of capacity W
+int knapSack(int W, int wt[], int val[], int n)
+{
+   // Base Case
+   if (n == 0 || W == 0)
+       return 0;
+
+   // If weight of the nth item is more than Knapsack capacity W, then
+   // this item cannot be included in the optimal solution
+   if (wt[n-1] > W)
+       return knapSack(W, wt, val, n-1);
+
+   // Return the maximum of two cases: (1) nth item included (2) not included
+   else return max( val[n-1] + knapSack(W-wt[n-1], wt, val, n-1),
+                    knapSack(W, wt, val, n-1)
+                  );
+}
+
+// Driver program to test above function
+int main()
+{
+    int val[] = {60, 100, 120};
+    int wt[] = {10, 20, 30};
+    int  W = 50;
+    int n = sizeof(val)/sizeof(val[0]);
+    printf("%d", knapSack(W, wt, val, n));
+    return 0;
+}
+ It should be noted that the above function computes the same subproblems again and again. See the following recursion tree, K(1, 1) is being evaluated twice. Time complexity of this naive recursive solution is exponential (2^n). 
+In the following recursion tree, K() refers to knapSack().  The two 
+parameters indicated in the following recursion tree are n and W.  
+The recursion tree is for following sample inputs.
+wt[] = {1, 1, 1}, W = 2, val[] = {10, 20, 30}
+
+                       K(3, 2)         ---------> K(n, W)
+                   /            \ 
+                 /                \               
+            K(2,2)                  K(2,1)
+          /       \                  /    \ 
+        /           \              /        \
+       K(1,2)      K(1,1)        K(1,1)     K(1,0)
+       /  \         /   \          /   \
+     /      \     /       \      /       \
+K(0,2)  K(0,1)  K(0,1)  K(0,0)  K(0,1)   K(0,0)
+Recursion tree for Knapsack capacity 2 units and 3 items of 1 unit weight.
+ Since suproblems are evaluated again, this problem has Overlapping Subprolems property. So the 0-1 Knapsack problem has both properties (see this and this) of a dynamic programming problem. Like other typical Dynamic Programming(DP) problems, recomputations of same subproblems can be avoided by constructing a temporary array K[][] in bottom up manner. Following is Dynamic Programming based implementation. 
+// A Dynamic Programming based solution for 0-1 Knapsack problem
+#include<stdio.h>
+
+// A utility function that returns maximum of two integers
+int max(int a, int b) { return (a > b)? a : b; }
+
+// Returns the maximum value that can be put in a knapsack of capacity W
+int knapSack(int W, int wt[], int val[], int n)
+{
+   int i, w;
+   int K[n+1][W+1];
+
+   // Build table K[][] in bottom up manner
+   for (i = 0; i <= n; i++)
+   {
+       for (w = 0; w <= W; w++)
+       {
+           if (i==0 || w==0)
+               K[i][w] = 0;
+           else if (wt[i-1] <= w)
+                 K[i][w] = max(val[i-1] + K[i-1][w-wt[i-1]],  K[i-1][w]);
+           else
+                 K[i][w] = K[i-1][w];
+       }
+   }
+
+   return K[n][W];
+}
+
+int main()
+{
+    int val[] = {60, 100, 120};
+    int wt[] = {10, 20, 30};
+    int  W = 50;
+    int n = sizeof(val)/sizeof(val[0]);
+    printf("%d", knapSack(W, wt, val, n));
+    return 0;
+}
+ Time Complexity: O(nW) where n is the number of items and W is the capacity of knapsack. References: http://www.es.ele.tue.nl/education/5MC10/Solutions/knapsack.pdf http://www.cse.unl.edu/~goddard/Courses/CSCE310J/Lectures/Lecture8-DynamicProgramming.pdf Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: Dynamic Programming Tweet Writing code in comment? Please use ideone.com and share the link here. Jordan I like the bottom-up memoized solution, but it seem that there is a small mistake: K[i][w] = max(val[i-1] + K[i-1][w-wt[i-1]], K[i-1][w]); should be K[i][w] = max(val[i-1] + K[i][w-wt[i-1]], K[i-1][w]); http://www.e-islam.tk mtik Thanks so much! My exam is tomorrow and i’ve found it very helpful Code_Addict Java version of above problem (both recursive and iterative): http://ideone.com/mFaz8X rohit gupta there is a slight mistake in the algorithm….it should be… the maximum value that can be obtained from n items is max of following two values.1) Maximum value obtained by n-1 items and W weight (excluding nth item). 2) Value of nth item plus maximum value obtained by n items and W minus weight of the nth item (including nth item). notice a small change made here by me…its must be n items and not n-1 items http://www.e-islam.tk mtik Thank you. GeeksforGeeks The recurrence relation given in the post looks correct. You can verify the same from wikipedia (http://en.wikipedia.org/wiki/Knapsack_problem#0.2F1_Knapsack_Problem) Note that there is only one item of every type. Let us know if we missed anything. chandeep How to solve the following? What is the Minimum Amount not possible using an infinite supply of coins (Unbounded knapsack) You are given coins of Denominations {v1, v2 , v3, v4 ….vn } of weight {w1, w2, w3 …..wn} Now that you have a bag of capacity W . Find the smallest Value V that is not possible to have in the bag. daggerhunt In this particular solution, is it required to have the weights always in increasing order. Akhil A space optimised version of above.  
+#include<stdio.h>
+#include<stdlib.h>
+
+/** a space optimised solution space required O(2n) **/
+int knapsack(int p[], int w[], int size, int Weight)
+{
+    int *T = (int*)calloc(Weight,sizeof(int));
+    int i,j;
+    int *T_ = (int*)malloc(sizeof(int)*Weight);
+    for(i=0;i<size;i++)
+    {
+        for(j=0;j<Weight;j++) T_[j] = T[j];
+        for(j=1;j<Weight;j++)
+            if(j-w[i]>=0 && T[j]<p[i]+T_[j-w[i]])
+                T[j] = p[i] + T_[j-w[i]];
+        for(j=1;j<Weight;j++)
+            printf("%d ",T[j]);
+        printf("\n");
+    }
+    int val = T[Weight-1];
+    free(T);
+    free(T_);
+    return val;
+}
+int main()
+{
+    int W = 10;
+    int p[] = {10,40,30,50};
+    int w[] = {5,4,6,3};
+    int size = sizeof(p)/sizeof(p[0]);
+    printf("%d",knapsack(p,w,size,W));
+    return 0;
+}
+
+ proton nice….can u make variable name more readable …! lakshay Great article shek8034 Very nicely explained Thanks. bappa nice launde.. lage raho .. Niks Hi, Can someone please help me on it. How do we keep track of the subset involved in maximum weight using recursive method.For table method I understand it could be done using keep matrix. But how will it be done using recursive methid.Please help. Thanks http://facebook.com/android forme Can you write program for bigger instances of knapsack problem. like 10000 items ans capacity of 4000000 cashew1  
+#include<stdbool.h>
+int knapsack(int * weight, int * values, int w, int n);
+int max(int a, int b);
+int main()
+{
+	int weight[] = {2,3,4,5};
+	int values[] = {3,4,5,6};
+	int w = 5;
+	int n = sizeof(weight)/sizeof(int);
+	printf("\nThe total weight is %d\n", knapsack(weight, values, w, n));
+}
+int knapsack(int * weight, int * values, int w, int n)
+{
+	int i, j;
+	int k[n+1][w+1];
+	bool keep[n+1][w+1];
+	for(i=0;i<=n;i++)
+		for(j=0;j<=w;j++)
+			keep[i][j] = 0;
+	for(i=0;i<=n;i++)
+	{
+		for(j=0;j<=w;j++)
+		{
+			if(i==0 || j==0) 
+				k[i][j] = 0;
+			else if(weight[i-1]<=j) 
+			{
+				k[i][j] = max(k[i-1][j-weight[i-1]] + values[i-1], k[i-1][j]); 
+				if(k[i][j] == k[i-1][j-weight[i-1]] + values[i-1])
+					keep[i][j] = 1;	
+			}
+			else 
+				k[i][j] = k[i-1][j];	
+		}
+	}
+	j = w;
+	printf("The weight of the items which fills the knapsack are\n");
+	for(i = n;i>=1;i--)
+	{
+		if(keep[i][j] == 1)
+		{
+			printf("%d  ",weight[i]);
+			j = j - weight[i-1];
+		}	
+	}
+	return k[n][w];
+}
+int max(int a, int b)
+{
+	return ((a>b)?a:b);	
+}
+
+ Niks Hi Cashew1, Can you please show how can we find the subset of knapsack in recurion method.For table method I understand it could be done using keep matrix. But how will it be done using recursive methid.Please help. Thanks rui1526 This site is so good! Kanishka Ganguly Can someone please help me to find the number of items included in the solution of the Knapsack problem? I mean with a pseudocode maybe. Masterlynx Hey thanks guys……It was crystal clear jk  
+typedef struct
+{
+	int arr[100];
+	int top;
+} stack;
+
+stack* newStack()
+{
+	stack *s = (stack*)malloc(sizeof(stack));
+	s->top = -1;
+	return s;
+}
+
+void push(stack* s, int i)
+{
+	s->arr[++s->top] = i;
+}
+
+int pop(stack* s)
+{
+	return (s->arr[(s->top)--]);
+}
+
+int empty(stack* s)
+{
+	return (s->top == -1);
+}
+
+void freeStack(stack* s)
+{
+	free(s);
+}
+
+stack* stk;
+
+int maxKnapsackVal(int *val, int *wt, int Max_Wt, int n)
+{
+	if(n == 0 || Max_Wt == 0)
+		return 0;
+
+	push(stk, -1);
+	int val1 = maxKnapsackVal(val + 1, wt + 1, Max_Wt, n - 1);
+	stack *s1 = newStack();
+	int num1;
+	while((num1 = pop(stk)) != -1) push(s1, num1);
+
+	if(wt[0] > Max_Wt)
+	{
+		while(!empty(s1)) push(stk, pop(s1));
+		freeStack(s1);
+		return val1;
+	}
+
+	push(stk, -1);
+	int val2 = maxKnapsackVal(val + 1, wt + 1, Max_Wt - wt[0], n - 1);
+	stack *s2 = newStack();
+	int num2;
+	while((num2 = pop(stk)) != -1) push(s2, num2);
+
+	if(val1 > val2 + val[0])
+	{
+		while(!empty(s1)) push(stk, pop(s1));
+		freeStack(s1);
+		freeStack(s2);
+		return val1;
+	}
+	else
+	{
+		while(!empty(s2)) push(stk, pop(s2));
+		freeStack(s1);
+		freeStack(s2);
+		push(stk, val[0]);
+		return val2 + val[0];
+	}
+}
+
+int main()
+{
+	int val[] = {60, 100, 120, 200};
+    int wt[] = {10, 20, 30, 20};
+    int  W = 50;
+    int n = sizeof(val)/sizeof(val[0]);
+    stk = newStack();
+    printf("\n%d\n", maxKnapsackVal(val, wt, W, n));
+    while(!empty(stk))
+		printf("%d ", pop(stk));
+	free(stk);
+    return 0;
+}
+
+ jk  
+typedef struct
+{
+	int arr[100];
+	int top;
+} stack;
+
+stack* newStack()
+{
+	stack *s = (stack*)malloc(sizeof(stack));
+	s->top = -1;
+	return s;
+}
+
+void push(stack* s, int i)
+{
+	s->arr[++s->top] = i;
+}
+
+int pop(stack* s)
+{
+	return (s->arr[(s->top)--]);
+}
+
+int empty(stack* s)
+{
+	return (s->top == -1);
+}
+
+void freeStack(stack* s)
+{
+	free(s);
+}
+
+stack* stk;
+
+int maxKnapsackVal(int *val, int *wt, int Max_Wt, int n)
+{
+	printf("(W: %d, N: %d\n", Max_Wt, n);
+	if(n == 0 || Max_Wt == 0)
+		return 0;
+
+	push(stk, -1);
+	int val1 = maxKnapsackVal(val + 1, wt + 1, Max_Wt, n - 1);
+	stack *s1 = newStack();
+	int num1;
+	while((num1 = pop(stk)) != -1) push(s1, num1);
+
+	if(wt[0] > Max_Wt)
+	{
+		while(!empty(s1)) push(stk, pop(s1));
+		freeStack(s1);
+		return val1;
+	}
+
+	push(stk, -1);
+	int val2 = maxKnapsackVal(val + 1, wt + 1, Max_Wt - wt[0], n - 1);
+	stack *s2 = newStack();
+	int num2;
+	while((num2 = pop(stk)) != -1) push(s2, num2);
+
+	if(val1 > val2 + val[0])
+	{
+		while(!empty(s1)) push(stk, pop(s1));
+		freeStack(s1);
+		freeStack(s2);
+		return val1;
+	}
+	else
+	{
+		while(!empty(s2)) push(stk, pop(s2));
+		freeStack(s1);
+		freeStack(s2);
+		push(stk, val[0]);
+		return val2 + val[0];
+	}
+}
+
+int main()
+{
+	int val[] = {60, 100, 120, 200};
+    int wt[] = {10, 20, 30, 20};
+    int  W = 50;
+    int n = sizeof(val)/sizeof(val[0]);
+    stk = newStack();
+    printf("\n%d\n", maxKnapsackVal(val, wt, W, n));
+    while(!empty(stk))
+		printf("%d ", pop(stk));
+	free(stk);
+    return 0;
+}
+
+ camster Here is a C++ recursive function which figures which items were specifically selected to fill up the knapsack. If FindCombination(…) returns true than the int arr[] and count arguments of FindCombination will contain the specific values used to fill the knapsack. Thank you, camster.  
+/* Paste your code here (You may delete these lines if not writing code) */
+bool FindCombination(int arr[], int count, int N, int W, 
+		 int** M, int* v, int TargetWeight){
+
+    if (N < 0){
+	return false;
+    }
+	
+    if (W < 0){
+	return false;
+    }
+
+
+    if (W == 0) { 
+	return true;
+    }
+	
+    for (int j = 1; j <= W ; j++){
+	if ((M[N][W] > M[N][W - j])){ 
+	   arr[count] = v[N - 1];
+
+	   for (int k = 1; k <= N ; k++){
+	      if (M[N - k][W - j] 
+                    <= 
+                 M[N][W- j]){
+		     if (FindCombination(arr, 
+                                        count + 1,  
+				        N - k, 
+                                        TargetWeight - v[N-1], 
+					M, 
+                                        v, 
+                                        TargetWeight - v[N-1]))
+			   == true){
+				      return true;
+		     }
+	      }
+	   }
+	}
+    }	
+	
+    return false;
+
+}
+
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

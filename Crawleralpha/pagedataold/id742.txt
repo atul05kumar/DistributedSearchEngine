@@ -1,0 +1,430 @@
+k largest(or smallest) elements in an array | added Min Heap method - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph k largest(or smallest) elements in an array | added Min Heap method Question: Write an efficient program for printing k largest elements in an array. Elements in array can be in any order. For example, if given array is [1, 23, 12, 9, 30, 2, 50] and you are asked for the largest 3 elements i.e., k = 3 then your program should print 50, 30 and 23. Method 1 (Use Bubble k times) Thanks to Shailendra for suggesting this approach. 1) Modify Bubble Sort to run the outer loop at most k times. 2) Print the last k elements of the array obtained in step 1. Time Complexity: O(nk) Like Bubble sort, other sorting algorithms like Selection Sort can also be modified to get the k largest elements. Method 2 (Use temporary array) K largest elements from arr[0..n-1] 1) Store the first k elements in a temporary array temp[0..k-1]. 2) Find the smallest element in temp[], let the smallest element be min. 3) For each element x in arr[k] to arr[n-1] If x is greater than the min then remove min from temp[] and insert x. 4) Print final k elements of temp[] Time Complexity: O((n-k)*k). If we want the output sorted then O((n-k)*k + klogk) Thanks to nesamani1822 for suggesting this method. Method 3(Use Sorting) 1) Sort the elements in descending order in O(nLogn) 2) Print the first k numbers of the sorted array O(k). Time complexity: O(nlogn) Method 4 (Use Max Heap) 1) Build a Max Heap tree in O(n) 2) Use Extract Max k times to get k maximum elements from the Max Heap O(klogn) Time complexity: O(n + klogn) Method 5(Use Oder Statistics) 1) Use order statistic algorithm to find the kth largest element. Please see the topic selection in worst-case linear time O(n) 2) Use QuickSort Partition algorithm to partition around the kth largest number O(n). 3) Sort the k-1 elements (elements greater than the kth largest element) O(kLogk). This step is needed only if sorted output is required. Time complexity: O(n) if we don’t need the sorted output, otherwise O(n+kLogk) Thanks to Shilpi for suggesting the first two approaches. Method 6 (Use Min Heap) This method is mainly an optimization of method 1. Instead of using temp[] array, use Min Heap. Thanks to geek4u for suggesting this method. 1) Build a Min Heap MH of the first k elements (arr[0] to arr[k-1]) of the given array. O(k) 2) For each element, after the kth element (arr[k] to arr[n-1]), compare it with root of MH. ……a) If the element is greater than the root then make it root and call heapify for MH ……b) Else ignore it. // The step 2 is O((n-k)*logk) 3) Finally, MH has k largest elements and root of the MH is the kth largest element. Time Complexity: O(k + (n-k)Logk) without sorted output. If sorted output is needed then O(k + (n-k)Logk + kLogk) All of the above methods can also be used to find the kth largest (or smallest) element. Please write comments if you find any of the above explanations/algorithms incorrect, or find better ways to solve the same problem. References: http://en.wikipedia.org/wiki/Selection_algorithm Asked by geek4u           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: array, Order-Statistics Tweet Writing code in comment? Please use ideone.com and share the link here. Guest /* k largest(or smallest) elements in an array | added Min Heap method Question: Write an efficient program for printing k largest elements in an array. Elements in array can be in any order. For example, if given array is [1, 23, 12, 9, 30, 2, 50] and you are asked for the largest 3 elements i.e., k = 3 then your program should print 50, 30 and 23. Method 1 (Use selection k times) 1) Modify selection Sort to run the outer loop at most k times. 2) Print the firts k elements of the array obtained in step 1. Time Complexity: O(nk) */ #include void main() { int i, n,j,k,temp,max; int a[20]; printf(“Enter the number of numbers in the arrayn”); scanf(“%d”,&n); for(i=0;i<n;i++) { printf("Enter the %d th elementn",i+1); scanf("%d",&a[i]); } printf("Enter the value of kn"); scanf("%d",&k); for(i=0;i<k;i++) { max=i; for(j=i+1;ja[max]) { max=j; } temp=a[max]; a[max]=a[i]; a[i]=a[max]; } } printf(“The %d largest elements aren”,k); for(i=0;i<k;i++) printf("%dn",a[i]); printf("n"); Guest /* /* k largest(or smallest) elements in an array | added Min Heap method Question: Write an efficient program for printing k largest elements in an array. Elements in array can be in any order. For example, if given array is [1, 23, 12, 9, 30, 2, 50] and you are asked for the largest 3 elements i.e., k = 3 then your program should print 50, 30 and 23. Method 1 (Use selection k times) 1) Modify selection Sort to run the outer loop at most k times. 2) Print the firts k elements of the array obtained in step 1. Time Complexity: O(nk) */ #include void main() { int i, n,j,k,temp,max; int a[20]; printf(“Enter the number of numbers in the arrayn”); scanf(“%d”,&n); for(i=0;i<n;i++) { printf("Enter the %d th elementn",i+1); scanf("%d",&a[i]); } printf("Enter the value of kn"); scanf("%d",&k); for(i=0;i<k;i++) { max=i; for(j=i+1;ja[max]) { max=j; } temp=a[max]; a[max]=a[i]; a[i]=a[max]; } } printf(“The %d largest elements aren”,k); for(i=0;i<k;i++) printf("%dn",a[i]); printf("n"); } foo > Time Complexity: O(k + (n-k)Logk) without sorted output. If sorted output is needed then O(k + (n-k)Logk + kLogk) No. The total complexity is O(k + n log k). meh I don’t quite understand the min heap approach, if n = k, then the root is the smallest element and not the kth largest one. Shouldn’t it be a max-heap? Say, you insert the first k elements into the max-heap, for all consecutive elements, if they are greater or equal than root then ignore them, otherwise, replace current root with each element and heapify. KJ if k = n, then the smallest number IS the kth largest one. [1,4,2,3], 4 is the largest and 1 is the 4th largest. If you are finding kth smallest number, then a max heap should be used. Thomas Solution below in C++, linear time : #include #include #include using namespace std; vector smallest(vector L, int k) { int sup; vector sublist; if (L.size() <= k) { return L; } for (int i = 0; i < L.size(); ++i) { if (i sup) { sublist.push_back(sup); sup = L[i]; } else { sublist.push_back(L[i]); } } else { if (L[i] < sup) { sublist.push_back(L[i]); } } } if (sublist.size() < k) { sublist.push_back(sup); return sublist; } else { return smallest(sublist, k); } } int main(int argc, char **argv) { vector L, sublist; while (–argc > 0) { L.push_back(atoi(argv[argc])); } sublist = smallest(L, 3); for (vector::iterator it = sublist.begin(); it < sublist.end(); ++it) { cout << *it << endl; } return 0; } mizhao I have an approach cost only O(n) times, and it can print the results in sorting order! Here is how it works: It is based on Method 4. 1) Build a Max Heap tree in O(n), call it h1. 2) important observation: the second largest element can only appear as a child of the largest element. The third largest element can only appear under the largest one or the second largest one. 3) We put the largest element of the h1 into another empty heap h2. 4) We output the maximum element of heap h2, and put his children in h1 to h2. 5) Repeat step 3,4,5 until we output k elements Time complexity: We get 2*k elements from heap h1, which cost O(k). Each operation is O(1) because we know the index of the element in h1. We do 2*k insertion in heap h2. The total cost is O(k). We do k poll operation to heap h2 which cost O(k). The total time complexity is: O(n+k) in case k is less than n is O(n). What do you think? Suraj Method 4 has wrong time complexity 1) Build a Max Heap tree in O(n)? creating Max heap is O(nlogn) 2) Use Extract Max k times to get k maximum elements from the Max Heap O(klogn)?? extractMax from Max heap is O(1) so its O(k) Time complexity should be : O(k + nlogn) ~ O(nlogn) Coder011 @Suraj: plz check your facts before posting, http://www.geeksforgeeks.org/g-fact-85/ , and even though extract max is O(1) , but heapify procedure would still have to be called , in order to bring the largest element on top, thus you get O(logn) for one call to extract max (+heapify) and this done k times so O(k*log(n)). So overall complexity is O(n + k*logn). gourav pathak Doesn’t building a max heap take O(nlogn) time for n keys??…i think @Suraj’s first doubt is correct Babrael Build heap essentially takes O(n) time.A good explanation can be found in Introduction to algorithms by Cormen gourav pathak Got it..Thanks Aditya Tirodkar Wait… why can’t you just use Quick Select and just extract the values till k? That’s a perfect O(n) solution. Suraj O(n) is average case using Quick Select.. Worst case is O(n^2).. I agree quick select can be used if k is decently enough large compared to the size of input.. if k is minuscule then min heap is better Code_Addict What suraj told is perfectly correct. Worst Case complexity of quickselect is O(n^2). Check here: http://en.wikipedia.org/wiki/Quickselect Raj How to solve this problem N machines and each machine contains M integers sorted in increasing order. How to find K smallest numbers. For example Machine A : 5, 60, 70 Machine B : 10, 20, 30 K = 2 Output should be 5, 10 Best time and space complexity? Vinod @Raj…Refer to another post : http://www.geeksforgeeks.org/tournament-tree-and-binary-heap/ Alien Could you please post code for this. Satyarth There is a typo mistake in method 6. First line should be “This method is mainly an optimization of method 2″ instead of “This method is mainly an optimization of method 1″. Thanks! Akhil Simple Code for MinHeap Method  
+#include<stdio.h>
+
+void swap(int *a, int *b)
+{
+    *a = *a + *b;
+    *b = *a - *b;
+    *a = *a - *b;
+}
+
+void minHeapify(int a[], int size, int i)
+{
+    int l = 2*i;
+    int r = 2*i+1;
+    int smallest = i;
+    if(l<size && a[l]<a[smallest])
+        smallest = l;
+    if(r<size && a[r]<a[smallest])
+        smallest  = r;
+    if(smallest!=i)
+    {
+        swap(&a[i],&a[smallest]);
+        minHeapify(a,size,smallest);
+    }
+}
+
+void buildMinHeap(int a[], int size)
+{
+    for(int i=size/2;i>=0;i--)
+        minHeapify(a,size,i);
+}
+
+int kthLargest(int a[], int size, int k)
+{
+    int minHeap[k];
+    int i;
+    for(i=0;i<k;i++)
+        minHeap[i] = a[i];
+    buildMinHeap(minHeap,k);
+    for(i=k;i<size;i++)
+        if(a[i]>minHeap[0])
+        {
+            minHeap[0]=a[i];
+            minHeapify(minHeap,k,0);
+        }
+    return minHeap[0];
+}
+
+int main()
+{
+    int a[] = {6,7,8,4,2,3,5,1};
+    int size = sizeof(a)/sizeof(a[0]);
+    int k = 3;
+    printf("%d ",kthLargest(a,size,k));
+    return 0;
+}
+
+ Bharath G M Very good one. I think there is little redundancy. In MinHeapify.. if(smallest!=i) { swap(&a[i],&a[smallest]); minHeapify(a,size,smallest); //I dont think we need to call minHeapify again. “swap” is fine } Nizamuddin Saifi No its fine . If there is no recursive call in minHeapify , In kthLargest fun , in second last line , when we call minHeapify there would be problem. Ronny Can anyone explain Method 5. I am having problem grabbing the concept behind that method. Thanks. Asap First u have to get Kth rank element in array. Then u can partition array based on this Kth rank element. Check this video http://www.youtube.com/watch?v=OcAT3kP7LQw&list=PL9F7D7A438CAAD165 Ronny @Asap Thanks a lot. was of great help. here is the link LINK TO FIND RANK OF AN ELEMENT IN AN ARRAY Ronny @geeksforgeeks I guess there is a typo in description of Method 6 “This method is mainly an optimization of method 1. Instead of using temp[] array, use Min Heap.” It should be “method 2″. Method 1 stated above uses sorting techniques k times. Method 2 uses a temporary array to store first k elements. joker Method 6 : O(k +(n-k)logk)  
+{    
+     int n,k,x,i;
+     vector<int> a,ans;
+     priority_queue<int,vector<int>,greater<int> > p;     // min_heap
+     
+     scanf("%d %d",&n,&k);
+     for(i=0;i<n;i++)   
+           scanf("%d",&x), a.push_back(x); 
+     
+     for(i=0;i<k;i++)   
+           p.push(a[i]);
+     
+     for(i=k;i<n;i++)
+           if(a[i]>(x=p.top()))
+              p.pop() , p.push(a[i]);
+              
+     for( ;!p.empty();p.pop()) 
+           ans.push_back(x=p.top(););
+          
+
+     
+     for(i=0;i<ans.size();i++)  printf("%d ",ans[i]);
+     puts("");
+} 
+ Ujjwal We could alsouse this algorithm : -find out the element with rank ‘k’, using median finding algo in O(n) -once we have found out the element, just traverse the array again to print all elements >=(element with rank ‘k’) /*to print elements greater than ‘kth’ largest.. correct me if i am wrong..!! Manolis Lourakis  
+/* Find the kth smallest element of an array using Method 5 (Order Statistics)
+ * 
+ * This is a C/C++ version of the Java implementation above. The code has been
+ * made more compact by inlining partition() and eliminating recursion.
+ *
+ * Written by Manolis Lourakis, Nov. 2012
+ */
+
+/* Select the kth smallest element among elements a[l]..a[r] of array a.
+ * For an array of n elements invoke as quickSelect(a, 0, n-1, k);
+ */
+int quickSelect(int a[], int l, int r, int k)
+{
+register int i, j;
+int s;
+int pivot, temp;
+
+  //if(k<1 || k>=r-l+1) return -1; // k out of range
+
+  while(1){
+    //if(l==r) return a[l]; // uncommenting this might expedite return in some cases
+#if 1 // use a[r] as pivot
+    pivot=a[r];
+#else // random pivot
+    i=(int)uniform(l, r); // uniform(a, b) is assumed to return a uniformly distributed value in the range [a, b]
+    pivot=a[i]; a[i]=a[r]; a[r]=pivot;
+#endif
+    for(i=j=l; j<r; ++j)
+      if(a[j]<=pivot){
+        temp=a[i]; a[i]=a[j]; a[j]=temp;
+        ++i;
+      }
+
+    temp=a[r]; a[r]=a[i]; a[i]=temp;
+    // i now equals partition(a, l, r);
+
+    s=i-l+1;
+
+    if(k<s) r=i-1; // quickSelect(a, l, i-1, k);
+    else if(k>s) {l=i+1; k-=s;} // quickSelect(a, i+1, r, k-s);
+    else return a[i];
+  }
+}
+
+/* sample driver */
+#include <stdio.h>
+
+int main()
+{
+int a[]={2, 8, 7, 1, 3, 5, 6, 4};
+
+  printf("kth largest element is %d\n", quickSelect(a, 0, sizeof(a)/sizeof(int)-1, 7)); // prints 7
+}
+
+
+ Manolis Lourakis  
+/* Find the kth smallest element of an array using Method 5 (Order Statistics)
+ * 
+ * This is a C/C++ version of the Java implementation above. The code has been
+ * made more compact by inlining partition() and eliminating recursion.
+ *
+ * Written by Manolis Lourakis, Nov. 2012
+ */
+
+/* Select the kth smallest element among elements a[l]..a[r] of array a.
+ * For an array of n elements invoke as quickSelect(a, 0, n-1, k);
+ */
+int quickSelect(int a[], int l, int r, int k)
+{
+register int i, j;
+int s;
+int pivot, temp;
+
+  //if(k<1 || k>=r-l+1) return -1; // k out of range
+
+  while(1){
+    //if(l==r) return a[l]; // uncommenting this might expedite return in some cases
+#if 1 // use a[r] as pivot
+    pivot=a[r];
+#else // random pivot
+    i=(int)uniform(l, r); // uniform(a, b) is assumed to return a uniformly distributed value in the range [a, b]
+    pivot=a[i]; a[i]=a[r]; a[r]=pivot;
+#endif
+    for(i=j=l; j<r; ++j)
+      if(a[j]<=pivot){
+        temp=a[i]; a[i]=a[j]; a[j]=temp;
+        ++i;
+      }
+
+    temp=a[r]; a[r]=a[i]; a[i]=temp;
+    // i now equals partition(a, l, r);
+
+    s=i-l+1;
+
+    if(k<s) r=i-1; // quickSelect(a, l, i-1, k);
+    else if(k>s) {l=i+1; k-=s;} // quickSelect(a, i+1, r, k-s);
+    else return a[i];
+  }
+}
+
+/* sample driver */
+#include <stdio.h>
+
+int main()
+{
+int a[]={2, 8, 7, 1, 3, 5, 6, 4};
+
+  printf("kth largest element is %d\n", quickSelect(a, 0, sizeof(a)/sizeof(int)-1, 7)); // prints 7
+}
+
+ Kasim class ThreeBiggestDemo{ public static void main (String args[]){ int ar [] = new int[10]; int big1, big2, big3, temp; ar[0] = 29; ar[1] = 2; ar[2] = 43; ar[3] = 8; ar[4] = 72; ar[5] = 17; ar[6] = 92; ar[7] = 113; ar[8] = 11; ar[9] = 0; big1 = ar[0]; big2 = ar[1]; big3 = ar[2]; if (big1 > big2){ if (big1> big3){ big1 = big1; if (big2> big3) { big2 = big2; big3 = big3; } else{ temp = big2; big2 = big3; big3 = temp; } } else{ temp = big1; big1 = big3; big3 = big2; big2 = temp; } } else if (big2 > big3){ if (big1 > big3){ temp = big1; big1 = big2; big2 = temp; big3 = big3; } else{ temp = big1; big1 = big2; big2 = big3; big3 = temp; } } else{ temp = big1; big1 = big3; big2 = big2; big3 = temp; } for (int i=3; i big3){ if (ar[i] > big2){ if (ar[i] > big1){ temp = big1; big1 = ar[i]; big2 = temp; big3 = big3; } else{ big1= big1; temp = big2; big2 = ar[i]; big3 = temp; } } else big3 = ar[i]; } } System.out.println (“Big 1 ” + big1); System.out.println (“Big 2 ” + big2); System.out.println (“Big 3 ” + big3); } } Nithish How about randomized QuickSort with a small tweak? Choose the pivot for the QuickSort as any number from the given array and say after doing a single iteration of QuickSort, it was found the pivot element belonged to index ‘X’ of the say N array elements given. If we had to find the Kth smallest element, then if X was greater an K – 1, apply randomized QuickSort on the element 0 to X – 1 because we know that all element from 0 to X – 1 are smaller than the element X and X + 1 to N are greater than X. If we had to find the Kth largest element, then the element we have to find the element that belongs in the index N – K – 1 and apply the same logic. geek Building a heap of n elements require nLogn operations . How can you build a heap in O(n) in your examples ? shanky in method 4 how can we build a max heap in O(n).it requires O(nlogn) http://geeksforgeeks.org/ Sandeep @shanky: Build Heap takes O(n) time. See this G-Fact Imran  
+/* Based on Method 5 of Order Statistics. It finds kth Smallest element.
+* Java Code using Partition as the first element.
+* Comments and suggestions are appreciated. 
+* We can enhance this code by calculating Median of Medians to find pivot each time.
+* For reference consult this explanation. 
+* http://www.comp.dit.ie/rlawlor/Prob_Solv/Imperative_Algs/Quick%20Sort%20Explanation.pdf
+*/
+public static int quickSelect( int a[], int l, int r, int x) 
+	{
+                // if x is outOfRange return -1
+		if(x < 1 || x > r) return -1; 
+                
+		if(l==r) return a[l];
+		if(l < r)  
+		{ 
+	      // divide and conquer 
+	       int j = partition( a, l, r); 
+	       int k = j-l+1;
+	       if(k == x) 
+	    	   return a[j];
+	       else if(x < k) 
+	    	   return quickSelect( a, l, j-1, x); 
+	       else 
+	    	   return quickSelect( a, j+1, r, x-k); 
+		}
+		return -1;
+	}
+	
+	public static int partition(int a[], int l, int r) 
+	{ 
+		System.out.print("left = " + l +", right = " + r);
+		int pivot = a[l], i, j, temp; 
+		i = l; j = r+1; 
+		System.out.print(", pivot = " + pivot +", ");
+		while(true)
+		{   
+		  do ++i; while( i <= r && a[i] <= pivot); 
+		  do --j; while( a[j] > pivot ); 
+		  if( i >= j ) break; 
+		  temp = a[i];  a[i] = a[j];  a[j] = temp; 
+		}
+	   temp = a[l];  a[l] = a[j];  a[j] = temp; 
+	   System.out.print("j = " + j);
+	   System.out.print(", a[j] = " + a[j] + ", ");
+	   System.out.println(Arrays.toString(a));
+	   return j;
+	}
+ lalu Can you explain , how its O(n) ? WgpShashank here you can also get Min-Max Heap http://forestofcode.blogspot.com/2010/12/c-min-max-heap-implementation.html laxman @sandeep…maderator,, venki hi geeks please provide the working code fro the 6th method..this is highly in demand..plz..plz..try to post solution asap…everyone looking forward. Thanks Rahul Sandeep @Rahul: Following is the code for method 6.  
+#include<iostream>
+#include<stdio.h>
+using namespace std;
+
+void swap(int *x, int *y) {
+  int temp = *x;
+  *x = *y;
+  *y = temp;
+}
+
+class Heap
+{
+  int *arr; // pointer to array of elements in heap
+  int heap_size;
+public:
+  Heap(int a[], int size);
+  void buildminHeap();
+  void minHeapify(int );
+  void heapSort();
+  void changeRoot(int x);
+  int getRoot() {return arr[0];}
+  int parent(int i){ return (i-1)/2; } ;
+  int left(int i)  { return (2*i + 1); } ;
+  int right(int i) { return (2*i + 2); } ;
+};
+
+Heap::Heap(int a[], int size) {
+  heap_size = size;
+  arr = a;
+}
+
+
+void Heap::changeRoot(int x)
+{
+   int root = arr[0];
+   if (root < x)
+   {
+      arr[0] = x;
+   }
+   minHeapify(0);
+}
+
+void Heap::minHeapify(int i) {
+  int l = left(i);
+  int r = right(i);
+  int largest;
+  if (l < heap_size && arr[l] < arr[i])
+    largest = l;
+  else
+    largest = i;
+  if (r < heap_size && arr[r] < arr[largest])
+    largest = r;
+  if (largest != i)
+  {
+    swap(&arr[i], &arr[largest]);
+    minHeapify(largest);
+  }
+}
+
+void Heap::buildminHeap() {
+  int i = (heap_size - 1)/2;
+  while (i >= 0)
+  {
+    minHeapify(i);
+    i--;
+  }
+}
+
+int kthLargest(int arr[], int n, int k)
+{
+   Heap hp(arr, k);
+   hp.buildminHeap();
+   int i;
+   for(i = k; i < n; i++)
+   {
+     hp.changeRoot(arr[i]);
+   }
+   return hp.getRoot();
+}
+
+int main()
+{
+    int k = 4;
+    int arr[] = {12, 34, 10, 8, 9, 4, 56};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    printf(" %d ", kthLargest(arr, n, k));
+    getchar();
+    return 0;
+}
+ I haven’t tested it much. Once I test it for some significant number of cases and add some error handing code, I will add it to the original post. http://wgpsahshank.co.cc wgpshashank @sandeep u haven’t done any boundary checking its not a good programming .in c no excpetion but in java u will get exception..at fisrt step itsel…hope u will rerposet it with correct boundary checing & with some test case as well Algoseekar @geeksforgeeks,venki,,all geeks everyone know that method 6 using heap is best method can anyone provide the exact implementation of that.. Thank Algoseekar reg_frenzy We could use Winner trees approach. At each time, we compare two adjacent elements, thus reducing the comparisons by 2 at each iteration. Eg: 12 5 8 1 78 90 Outcome of First iteration: (Compare adjacent elements, winner is the bigger of the 2 elements) If it is odd, retain the last element. 12 8 90 Proceeding similarly, Outcome of Second iteration: 12 90 Outcome of Third iteration: 90 This is based on the concept of tournament trees. Now, the first largest element is 90. To find the second largest element, we play a tournament again with the elements with which the largest element(90) was compared, before becoming largest. In this example, the lit shrinks to: 78 12 So, when we compare these 2 elements, after first iteration, the winner is 78. Complexity analysis: This algorithm takes O(n + k log n) complexity, which for any fixed k independent of n is O(n). bunty Another algorithm which will take O(n(1+k)) – Scan through the original array and create a temp array, “temp”, of k elements, such that temp elements are in ascending order. This temp array will have our k largest elements. – Arr[n] – Make and array temp[k] with k ( here 3) elements: temp[i] = 0 for i = 0 to 1 max = temp[2] = Arr[0] = 0 temp[] = {0,0, Arr[0]); // Comparing each element of Arr with temp[k-1] and place the //larger one in temp[k-1], maintaining temp in ascending order. for (count=0;count<n;count++) {// n comparison if (temp[k-1] < Arr[count]) { // Assigning Arr[count] to temp[k-1] and keeping array in // order and over writing the lowest element in temp. count2=0; while(count2<temp[k-1]) // (k-2) shifts. temp[count2] = temp[count2+1]; temp[count2] = Arr[count]; } let us take and example of worst case; Arr[] = {0,1,2,3,4,5,6,7}; and k = 3 1) temp = 0,0,0 on comparing temp[2]<Arr[1] so new temp will be temp = 0,0,1 2) now temp[2]<Arr[2] new temp = 0,1,2 …….. when temp = 4,5,6 and temp[2]<Arr[7] then new temp will be temp = 5,6,7….which are the largest 3 numbers of Arr. But it is the worst case, probably avg case would be little bit better. Please do let me know for nay issue with the algo. RK @ Method 5 I am not sure why we need to sort the elements(step 3)once we have already found the kth largest element. The question says the elements larger then kth largest element can be in any order. In my opinion, the running time be O(n). Please correct me if I am wrong. GeeksforGeeks @RK: Thanks for sharing your thoughts, we have added a note for this. Mahesh Link in method 5 broken. GeeksforGeeks @Mahesh: Thanks for pointing this out. We ave fixed it. Ashish what about forming a binary tree (as a preprocessing step ) with each node storing the number of elements on its left child side? this is the solution i gave in my interview codetrash Isnt the complexity of this NLogN?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Virender You can use the Median of Median method for this problem to reduce the Time complexity to O(n). Median of Median modifies the partition method of quick sort to find “Good” pivot. Explained here kartik I thing the method that you are suggesting and Method 5 in the above post are same. dejected Not really. There needs no partitioning as mentioned under method 5. Just pick the values which is greater than or equal to k-th largest element. Simple O(n) solution. Anand Hi I am interested in knowing how we gonna approach if the array contains , say billion integers. Obviously, we cannot put them all in memory and apply sorting due to memory constraint. suggestions, any? kartik You can use method 2 or method 6 because these methods do not require all the billion integers to be present in memory. Among these two methods, method 6 is a better choice. Shailendra We could apply Bubble Sort for K times so the largest/smallest k elements will be sorted. GeeksforGeeks Thanks for suggesting a new method. We have included it to the original post. GeeksforGeeks @ankit: This is quite interesting. Please see http://en.wikipedia.org/wiki/Binary_heap#Building_a_heap for proof that heap can be built in O(n) time. ankit How can you build a max heap tree in O(n) time? It should be O(nlogn). GeeksforGeeks @nesamani1822: Thanks for suggesting a new approach. We have added it to the original post. Keep it up!! nesamani1822 @Sandeep: Here is the explanation for your example. [1, 23, 12, 9, 30, 2, 50, 3] 1)Array creation int *max=malloc(N,sizeof(int)); in your case N is 3 2) Initialize the array with first N elements max[0] = 1 max[1] = 23 max[2] = 12 3) compare from the index 3 to 7 i=3 max[0] = 9 max[1] = 23 max[2] = 12 i=4 max[0] = 9 max[1] = 23 max[2] = 30 i=5 No change (Not greater than any element) max[0] = 9 max[1] = 23 max[2] = 30 i=6 max[0] = 50 max[1] = 23 max[2] = 30 i=7 No change (Not greater than any element) max[0] = 50 max[1] = 23 max[2] = 30 nikhil jain it should be after each iteration find the min again in temp and replace this with the next larger number in arr[] Sandeep @nesamani1822: Could you please explain the approach with below example. Find 3 largest elements of the array [1, 23, 12, 9, 30, 2, 50, 3] I could easily understand first two steps, just have doubts about the third step. nesamani1822 We can do in other way also. Here is the way how to do it. 1) Create one array based on the N provided. 2) Initialize that array with the first N elements of original array. 3) then compare the next elements of the array with the newly initialized array and replace with lowest element of that newly initialized array. Sam Here is the implementation  
+int[] array = { 1, 23, 12, 9, 30, 2, 50, 3 };
+            int k = 5;
+
+            for (int i = k; i < array.Length - 1; i++)
+            {
+                //Find Min
+                int min_index = 0;
+                for (int j = 1; j  array[j])
+                    {
+                        min_index = j;
+                        array[min_index] = array[j];
+                    }
+                }
+
+                //Swap item if min < array[i]
+                if (array[min_index] < array[i])
+                {
+                    int temp = array[min_index];
+                    array[min_index] = array[i];
+                    array[i] = temp;
+                }
+            }
+
+            //Print output
+            foreach (int item in array)
+            {
+                Console.Write("{0} ", item);
+            }
+ Sandeep @Madhav: Method 1 talks about same. i.e., sort the elements and get the k largest elements. @duke87: Could you please explain how the given code find k largest elements. Also, there seems to be typos in below lines.  
+    for(h=p;hn) /* What is hn ?*/
+    search(arr,p,q-1,n,o);
+    else  /* ---> Else without if*/
+     search(arr,q+1,r,n-q,o);
+ Madhav quick sort thrice nd u get d 3 largest/smallest elements .. duke87 algo called quick select which u write in method 3rd  
+#include
+int partation(int [], int ,int);
+void search(int[],int ,int ,int,int);
+int main()
+{
+    int n;
+    printf("enter the n for nth larest element\n");
+    scanf("%d",&n);
+    
+    int arr[]={5,2,7,1,8,9,6};
+    
+    search(arr,0,6,n-1,n-1);
+    //printf("%d ",partation(arr,0,6));
+    getchar();
+    getchar();
+    return 0;
+}
+
+void search(int arr[],int p,int r, int n,int o)
+{
+          
+  if(r>p)
+  {
+           int h;
+           int q=partation(arr,p,r);
+           for(h=p;hn)
+               search(arr,p,q-1,n,o);
+               else
+               search(arr,q+1,r,n-q,o);
+           }
+  }
+}
+               
+               
+               
+               
+               
+               
+               
+int partation(int a[],int p,int r)
+{
+              int i,j;
+              j=p;
+              i=j-1;
+              while(j<=r)
+              {
+                      if(a[j]<a[r])
+                      {
+                                   i++;
+                                   int temp=a[j];
+                                   a[j]=a[i];
+                                   a[i]=temp;
+                      }
+                      j++;
+              }
+              int temp=a[i+1];
+              a[i+1]=a[r];
+              a[r]=temp;
+
+return i+1;              
+}
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

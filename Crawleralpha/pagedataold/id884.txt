@@ -1,0 +1,266 @@
+Merge Overlapping Intervals - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Merge Overlapping Intervals Given a set of time intervals in any order, merge all overlapping intervals into one and output the result which should have only mutually exclusive intervals. Let the intervals be represented as pairs of integers for simplicity. For example, let the given set of intervals be {{1,3}, {2,4}, {5,7}, {6,8} }. The intervals {1,3} and {2,4} overlap with each other, so they should be merged and become {1, 4}. Similarly {5, 7} and {6, 8} should be merged and become {5, 8} Write a function which produces the set of merged intervals for the given set of intervals. A simple approach is to start from the first interval and compare it with all other intervals for overlapping, if it overlaps with any other interval, then remove the other interval from list and merge the other into the first interval. Repeat the same steps for remaining intervals after first. This approach cannot be implemented in better than O(n^2) time. An efficient approach is to first sort the intervals according to starting time. Once we have the sorted intervals, we can combine all intervals in a linear traversal. The idea is, in sorted array of intervals, if interval[i] doesn’t overlap with interval[i-1], then interval[i+1] cannot overlap with interval[i-1] because starting time of interval[i+1] must be greater than or equal to interval[i]. Following is the detailed step by step algorithm. 1. Sort the intervals based on increasing order of starting time. 2. Push the first interval on to a stack. 3. For each interval do the following ……..a. If the current interval does not overlap with the stack top, push it. ……..b. If the current interval overlaps with stack top and ending time of current interval is more than that of stack top, update stack top with the ending time of current interval. 4. At the end stack contains the merged intervals. Below is a C++ implementation of the above approach. 
+// A C++ program for merging overlapping intervals
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <stack>
+using namespace std;
+
+// An interval has start time and end time
+struct Interval
+{
+    int start;
+    int end;
+};
+
+// Compares two intervals according to their staring time.
+// This is needed for sorting the intervals using library
+// function std::sort(). See http://goo.gl/iGspV
+bool compareInterval(Interval i1, Interval i2)
+{  return (i1.start < i2.start)? true: false; }
+
+// The main function that takes a set of intervals, merges
+// overlapping intervals and prints the result
+void mergeIntervals(vector<Interval>& intervals)
+{
+    // Test if the given set has at least one interval
+    if (intervals.size() <= 0)
+        return;
+
+    // Create an empty stack of intervals
+    stack<Interval> s;
+
+    // sort the intervals based on start time
+    sort(intervals.begin(), intervals.end(), compareInterval);
+
+    // push the first interval to stack
+    s.push(intervals[0]);
+
+    // Start from the next interval and merge if necessary
+    for (int i = 1 ; i < intervals.size(); i++)
+    {
+        // get interval from stack top
+        Interval top = s.top();
+
+        // if current interval is not overlapping with stack top,
+        // push it to the stack
+        if (top.end < intervals[i].start)
+        {
+            s.push( intervals[i] );
+        }
+        // Otherwise update the ending time of top if ending of current 
+        // interval is more
+        else if (top.end < intervals[i].end)
+        {
+            top.end = intervals[i].end;
+            s.pop();
+            s.push(top);
+        }
+    }
+
+    // Print contents of stack
+    cout << "\n The Merged Intervals are: ";
+    while (!s.empty())
+    {
+        Interval t = s.top();
+        cout << "[" << t.start << "," << t.end << "]" << " ";
+        s.pop();
+    }
+
+    return;
+}
+
+// Functions to run test cases
+void TestCase1()
+{
+    // Create a set of intervals
+    Interval intvls[] = { {6,8}, {1,9}, {2,4}, {4,7} };
+    vector<Interval> intervals(intvls, intvls+4);
+
+    // Merge overlapping inervals and print result
+    mergeIntervals(intervals);
+}
+void TestCase2()
+{
+    // Create a set of intervals
+    Interval intvls[] = { {6,8},{1,3},{2,4},{4,7} };
+    vector<Interval> intervals(intvls, intvls+4);
+
+    // Merge overlapping inervals and print result
+    mergeIntervals(intervals);
+}
+void TestCase3()
+{
+    // Create a set of intervals
+    Interval intvls[] = { {1,3},{7,9},{4,6},{10,13} };
+    vector<Interval> intervals(intvls, intvls+4);
+
+    // Merge overlapping inervals and print result
+    mergeIntervals(intervals);
+}
+
+// Driver program to test above functions
+int main()
+{
+    TestCase1();
+    TestCase2();
+    TestCase3();
+    return 0;
+}
+ Output: 
+
+ The Merged Intervals are: [1,9]
+ The Merged Intervals are: [1,8]
+ The Merged Intervals are: [10,13] [7,9] [4,6] [1,3]
+ Time complexity of the method is O(nLogn) which is for sorting. Once the array of intervals is sorted, merging takes linear time. This article is compiled by Ravi Chandra Enaganti. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: stack Tweet Writing code in comment? Please use ideone.com and share the link here. Sreek It has to be if (top.end + 1 < intervals[i].start) to support the use case [1,2] [3,4] to give the output [1,4]. anonym2 Another solution: A min heap of the pairs with respect to the start element can also be maintained. Although this also gives O(nlogn) solution. Deepak Shrivastava I wrote a java implementation of the problem. Please find it below… import java.util.Arrays; import java.util.Comparator; public class Solution { public static void main(String[] args) { Integer arr[][] = { { 1, 3 }, { 6, 8 }, { 2, 4 }, { 5, 7 } }; Arrays.sort(arr, new Comparator() { @Override public int compare(Integer[] o1, Integer[] o2) { if (o1[0] > o2[0]) return 1; if (o1[0] < o2[0]) return -1; return 0; } }); // stack Integer tmp[][] = new Integer[arr.length][]; int curr = 0; tmp[0] = arr[0]; for (int i = 1; i < arr.length; i++) { if (arr[i][0] <= tmp[curr][1]) { tmp[curr][1] = arr[i][1]; } else { curr++; tmp[curr] = arr[i]; } } curr++; System.out.println("output intervals: "); for (int j = 0; j < curr; j++) { System.out.println("{" + tmp[j][0] + " , " + tmp[j][1] + "}"); } } } Sriharsha g.r.v can some one explain me how is the complexity O(nlogn)..what is the worst case complexity i.e when neither of intervals overlap? is the complexty nlogn occuring because of sorting the intervals?? Guest can some explain me how is the complexity O(nlogn)..what is the worst case complexity i.e when neither of intervals overlap? is the complexty nlogn occuring because of sorting the intervals?? Guest can some explain me how is the complexity O(nlogn)..what is the worst case complexity i.e when neither of intervals overlap? Ankit Chaudhary Variation of above problem: suppose intervals are coming one by one and u have to show all merged intervals every time when new interval comes. Means at every instant u have to show merged intervals. This can be implemented using doubly linked list. DRAGONWARRIOR IN BODY OF ELSE IF SINCE END IS UPDATED FOR TOP ELEMENT(top() function return ref to top element ) WHY WE NEED POP STATEMENT rakitic #include #include #include #include #include using namespace std; struct interval{ int start; int end; }; stackS; vectorV; bool compare(const struct interval &a,const struct interval &b){ return(a.start < b.start); } int main(){ struct interval a; a.start = 1; a.end = 3; V.push_back(a); struct interval b; b.start = 5; b.end = 7; V.push_back(b); struct interval c; c.start = 2; c.end = 4; V.push_back(c); struct interval d; d.start = 6; d.end = 8; V.push_back(d); cout<<"nInitial_Intervals : "; for(vector::iterator it = V.begin();it != V.end();it++){ cout<<"n"<start<<" "<end; } sort(V.begin(),V.end(),compare); S.push(V[0]); for(int i = 1;i<V.size();i++){ if(V[i].start S.top().end){ S.top().end = V[i].end; } } else{ S.push(V[i]); } } cout<<"nFinal_Intervals : "; while(!S.empty()){ cout<<"nn"<<S.top().start<<" "<<S.top().end; S.pop(); } getch(); return 0; } rakitic #include #include #include #include #include using namespace std; struct interval{ int start; int end; }; stackS; vectorV; bool compare(const struct interval &a,const struct interval &b){ return(a.start < b.start); } int main(){ struct interval a; a.start = 1; a.end = 3; V.push_back(a); struct interval b; b.start = 5; b.end = 7; V.push_back(b); struct interval c; c.start = 2; c.end = 4; V.push_back(c); struct interval d; d.start = 6; d.end = 8; V.push_back(d); cout<<"nInitial_Intervals : "; for(vector::iterator it = V.begin();it != V.end();it++){ cout<<"n"<start<<" "<end; } sort(V.begin(),V.end(),compare); S.push(V[0]); for(int i = 1;i<V.size();i++){ if(V[i].start S.top().end){ S.top().end = V[i].end; } } else{ S.push(V[i]); } } cout<<"nFinal_Intervals : "; while(!S.empty()){ cout<<"nn"<<S.top().start<<" "<<S.top().end; S.pop(); } getch(); return 0; } Guest this can be done in O(n lg n) by building a segment tree. nikhil // assuming i have a sort function to sort the interval array  
+
+struct Interval{
+int first;
+int second;
+};
+void merge(struct Interval a[],int n){
+int i=0, j;
+sort(a,n);
+while(i<n){
+j=i;
+while( a[j].second > a[j+1].first )
+j++;
+cout<<"["<<a[i].first<<","<<a[j].second<<"]"<<endl;
+i=j+1;
+}
+}
+
+
+ Time complexity will be O(nlogn(sort)+n(merge)). Space complexity O(1). nikhil //assuming i have a sort function to sort the interval array struct Interval{ int first; int second; }; void merge(struct Interval a[],int n){ int i=0,j; sort(a,n); while(i a[j+1].first) j++; cout<<"["<<a[i].first<<","<<a[j].second<<"]"<<endl; i=j+1; } } Time complexity will be O(nlogn(sort)+n(merge)). Space complexity O(1). Mani I tried to implement in java. import java.util.LinkedHashMap; import java.util.Map; import java.util.Set; import java.util.TreeMap; public class MergeIntervals { /** * @param args */ public static void main(String[] args) { // TODO Auto-generated method stub int a[][] =new int[][]{ {2,3}, {7,9}, {4,6}, {1,13}}; //int a[][] =new int[][]{{6,8}, {1,9}, {2,4}, {4,7}}; //int a[][] =new int[][]{{1,3},{4,6},{5,10}}; //int a[][] =new int[][]{{1,4},{2,4},{5,5},{6,8}}; int b[][] =new int[4][]; int count=3; Map m=new TreeMap(); for(int i=0;i<a.length;i++){ m.put(a[i][0], a[i][1]); } System.out.println(m); Map m1=new LinkedHashMap(); while(count > 0){ Integer a2=0; Integer a1=0; if(count != 3){ m.clear(); m.putAll(m1); } Set<Map.Entry> s=m.entrySet(); for(Map.Entry Es:s){ if(a2 !=0 && Es.getKey() a2){ m1.put(a1, Es.getValue()); ); } else{ m1.put(a1, a2); m1.remove(Es.getKey()); } } else{ m1.put(Es.getKey(), Es.getValue()); } a1=Es.getKey(); a2=Es.getValue(); } count–; } System.out.println(m1); } } Bamftubb Or another shorter one:  
+var sorted = ranges.OrderBy(r => r[0]).ToArray();
+var result = new LinkedList<int[]>();
+result.AddFirst(sorted[0]);
+foreach (var range in sorted) {
+    var top = result.Last.Value;
+    if (range[0] <= top[1])
+        top[1] = top[1] < range[1] ? range[1] : top[1];
+    else
+        result.AddLast(range);
+}
+return result.ToArray();
+ Bamftubb Here C# variant without using stack. It uses List for collecting ranges. class Program { static void Main(string[] args) { var given = new int[][] { new[] { 0, 5 }, new[] { -1, 5 }, new[] { 6, 10 }, new[] { 3, 4 }, new[] { 15, 20 }, new[] { -10, 6 } }; Console.WriteLine("Given: [{0}]", string.Join("], [", given.Select(r => string.Format("{0}, {1}", r[0], r[1])))); Console.WriteLine("Result: [{0}]", string.Join("], [", Merge(given).Select(r => string.Format("{0}, {1}", r[0], r[1])))); } static int[][] Merge(int[][] ranges) { if (ranges == null || ranges.Length == 0) throw new ArgumentNullException(); var result = new List<int[]> { ranges[0] }; foreach (int[] range in ranges) { if (range[0] > result[result.Count – 1][1]) result.Add(range); else if (range[1] < result[0][0]) result.Insert(0, range); else { int start = result.Count – 1; while (range[0] < result[start][0] && –start > -1) ; int end = 0; while (range[1] > result[end][1] && ++end < result.Count) ; if (start == end) continue; // range is inside one of ranges, so no need to add it int min = start == -1 ? range[0] : result[start][0]; int max = end == result.Count ? range[1] : result[end][1]; if (start < 0) start = 0; int length = end – start + 1; if (length > result.Count) length = result.Count; result.RemoveRange(start, length); result.Insert(start, new[] { min, max }); } } return result.ToArray(); } } Daddy Here is implementation in C : #include #include #include #include using namespace std; struct interval{ int start; int end; }; struct stack{ struct interval* arr; int top; }; struct stack* createstack(int n) { struct stack *s=(struct stack* )malloc(sizeof(struct stack)); s->arr=(struct interval* )malloc(sizeof(struct interval)*n); s->top=-1; } void push(struct stack* s,struct interval i) { s->top++; s->arr[s->top]=i; } int isstackempty(struct stack* s) { return (s->top==-1); } struct interval pop(struct stack* s) { struct interval t; if(!isstackempty(s)) { t=s->arr[s->top]; s->top–; return t; } } void deletestack(struct stack* s) { if(s) { if(s->arr) free(s->arr); free(s); } } void swap(struct interval *a,struct interval *b) { struct interval t; t=*a; *a=*b; *b=t; } void sort(struct interval arr[],int n) { int i,j; for(i=0;i { for(j=i+1;j { if(arr[i].start>arr[j].start) swap(&arr[i],&arr[j]); } } } void printintervals(struct interval arr[],int n) { int i; for(i=0;i { cout<<"\n"< } } void mergeintervals(struct interval arr[],int n) { int i; struct interval it; struct stack* s=createstack(n); // cout<<"\nb4 sorting\n"; // printintervals(arr,n); sort(arr,n); /* cout<<"after sorting\n"; printintervals(arr,n); */ it=arr[0]; push(s,it); for(i=1;i { if(s->arr[s->top].end { // cout<<"\nPushing\n"; push(s,arr[i]); } else if(s->arr[s->top].end { // cout<<"\nmerging interval\n"; s->arr[s->top].end=arr[i].end; } } while(!(isstackempty(s))) { // cout<<”\nprinting ans\n”; struct interval i; i=pop(s); cout<<”\n”<<”[“< } deletestack(s); } main() { struct interval arr[4]={ {7,9},{1,3},{4,6},{10,13} }; mergeintervals(arr,4); getch(); return 0; } http://effprog.blogspot.com Sambasiva http://effprog.wordpress.com/2013/03/22/merge-overlapping-intervals/ Anon Here is another implementation in C++.  
+/* Paste your code here (You may delete these lines if not writing code) */
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <stack>
+using namespace std ;
+
+void print ( vector <pair<int,int> > v )
+{
+    vector <pair<int,int> > :: iterator it ;
+    for ( it = v.begin() ; it != v.end() ; ++it )
+        cout << (*it).first << " " << (*it).second << endl ;
+    return ;
+}
+
+int main()
+{
+    vector <pair<int,int> > v ;
+    stack <pair<int,int> > s ;
+    vector <pair<int,int> > :: iterator it ;
+    pair <int,int> p ;
+    int i, n ;
+    int x, y ;
+    cin >> n ;
+    for ( i = 0 ; i < n ; ++i )
+    {
+        cin >> x >> y ;
+        v.push_back(make_pair(x,y));
+    }
+    //cout << v.size() << endl;
+    //print(v);
+    sort(v.begin(), v.end());
+    //print(v);
+    s.push(v[0]);
+    it = v.begin() ;
+    ++it ;
+    for (  ; it != v.end() ; ++it )
+    {
+        p = s.top() ;
+        if ( p.second > (*it).first )
+        {
+            s.pop();
+            s.push(make_pair(p.first,max((*it).second,p.second)));
+        }
+        else
+        {
+            s.push(*it);
+        }
+    }
+    while ( !s.empty() )
+    {
+        p = s.top() ;
+        cout << p.first << " " << p.second << endl ;
+        s.pop() ;
+    }
+    return 0 ;
+}
+ Gupt An O(n) in time and O(n) in memory approach could be this, where n is the highest number in interval  
+create an array of size n, say sets
+fill it with -1
+
+current setnb = 1;
+for (each interval)
+{
+    if (set[interval.start == -1])
+         currentmarker = setnb++;
+    else
+         currentmarker = set[interval.start]
+
+     for (i = interval.start to interval.end)
+      {
+           sets[i] = currentmarker;
+      }
+}
+
+now the sets array contains different interval, we dont need any sorting here.
+just extract those intervals by traversing in array.
+
+
+
+ vishal Please correct me if i’m wrong but, what will be the output for {{6,8},{1,3},{2,4},{4,9},{4,7}}, I guess output should be {1,9}……..but as per current code it will be {1,8}. GeeksforGeeks @vishal: Thanks for pointing this out. The post is updated to handle this case. aasshishh The above code has a bug. I changed the inputs. Test Case 1: {6,8}, {1,9}, {2,4}, {4,7} Test Case 2: {2,3}, {7,9}, {4,6}, {1,13} Output were: Test case 1 : [1,8] Test case 2 : [7,9] [4,6] [1,3] Outputs should be : Test case 1 : [1,9] Test case 2 : [1,13] The code should be as follows  
+  if (top.end < intervals[i].start)
+        {
+            s.push( intervals[i] );
+        }
+        else // otherwise update the ending time of stack top.
+        {
+       // the following line is added
+            if(top.end < intervals[i].end)
+                top.end = intervals[i].end;
+            s.pop();
+            s.push(top);
+        }
+ GeeksforGeeks @aasshishh: Thanks for pointing this out and suggesting the resolution. We have updated the post. aasshishh There is a bug in the program. I changed the inputs. Test Case 1: {6,8}, {1,9}, {2,4}, {4,7} Test Case 2: {2,3}, {7,9}, {4,6}, {1,13} Output were: Test case 1 : [1,8] Test case 2 : [7,9] [4,6] [1,3] Outputs should be : Test case 1 : [1,9] Test case 2 : [1,13] The following code has bug.  
+ if (top.end < intervals[i].start)
+        {
+            s.push( intervals[i] );
+        }
+        else // otherwise update the ending time of stack top.
+        {
+            top.end = intervals[i].end;
+            s.pop();
+            s.push(top);
+        }
+ It should be as follows  
+ if (top.end < intervals[i].start)
+        {
+            s.push( intervals[i] );
+        }
+        else // otherwise update the ending time of stack top.
+        {
+//the following condition is added
+            if(top.end < intervals[i].end)
+                  top.end = intervals[i].end;
+            s.pop();
+            s.push(top);
+        }
+ Ashwini Chaudhary Implementation in python: from stack import Stack from operator import itemgetter lis=[(1,3),(2,4),(5,7),(6,8)] lis.sort(key=itemgetter(0)) s=Stack() s.push(lis[0]) for x,y in lis[1:]: topx,topy=s.top() if topx<x<=topy: s.pop() s.push((topx,y)) else: s.push((x,y)) print s.stack Ashwini Chaudhary Edit: the push should be  
+s.push((min(x,topx),max(y,topy)))
+ Somu Good work Ravi Chandra! Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

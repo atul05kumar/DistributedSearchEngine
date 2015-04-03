@@ -1,0 +1,82 @@
+Find the maximum path sum between two leaves of a binary tree - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find the maximum path sum between two leaves of a binary tree Given a binary tree in which each node element contains a number. Find the maximum possible sum from one leaf node to another. The maximum sum path may or may not go through root. For example, in the following binary tree, the maximum sum is 27(3 + 6 + 9 + 0 – 1 + 10). Expected time complexity is O(n). A simple solution is to traverse the tree and do following for every traversed node X. 1) Find maximum sum from leaf to root in left subtree of X (we can use this post for this and next steps) 2) Find maximum sum from leaf to root in right subtree of X. 3) Add the above two calculated values and X->data and compare the sum with the maximum value obtained so far and update the maximum value. 4) Return the maximum value. The time complexity of above solution is O(n2) We can find the maximum sum using single traversal of binary tree. The idea is to maintain two values in recursive calls 1) Maximum root to leaf path sum for the subtree rooted under current node. 2) The maximum path sum between leaves (desired output). For every visited node X, we find the maximum root to leaf sum in left and right subtrees of X. We add the two values with X->data, and compare the sum with maximum path sum found so far. Following is C++ implementation of the above O(n) solution. 
+// C++ program to find maximum path sum between two leaves of
+// a binary tree
+#include <iostream>
+using namespace std;
+
+// A binary tree node
+struct Node
+{
+    int data;
+    struct Node* left, *right;
+};
+
+// Utility function to allocate memory for a new node
+struct Node* newNode(int data)
+{
+    struct Node* node = new(struct Node);
+    node->data = data;
+    node->left = node->right = NULL;
+    return (node);
+}
+
+// Utility function to find maximum of two integers
+int max(int a, int b)
+{   return (a >= b)? a: b;  }
+
+// A utility function to find the maximum sum between any two leaves.
+// This function calculates two values:
+// 1) Maximum path sum between two leaves which is stored in res.
+// 2) The maximum root to leaf path sum which is returned.
+int maxPathSumUtil(struct Node *root, int &res)
+{
+    // Base case
+    if (root==NULL) return 0;
+
+    // Find maximum sum in left and right subtree. Also find
+    // maximum root to leaf sums in left and right subtrees
+    // and store them in lLPSum and rLPSum
+    int lLPSum = maxPathSumUtil(root->left, res);
+    int rLPSum = maxPathSumUtil(root->right, res);
+
+    // Find the maximum path sum passing through root
+    int curr_sum = max((lLPSum+rLPSum+root->data), max(lLPSum, rLPSum));
+
+    // Update res (or result) if needed
+    if (res < curr_sum)
+        res = curr_sum;
+
+    // Return the maximum root to leaf path sum
+    return max(lLPSum, rLPSum)+root->data;
+}
+
+// The main function which returns sum of the maximum
+// sum path between two leaves.  This function mainly uses
+// maxPathSumUtil()
+int maxPathSum(struct Node *root)
+{
+    int res = 0;
+    maxPathSumUtil(root, res);
+    return res;
+}
+
+// driver program to test above function
+int main()
+{
+    struct Node *root = newNode(-15);
+    root->left = newNode(5);
+    root->right = newNode(6);
+    root->left->left = newNode(-8);
+    root->left->right = newNode(1);
+    root->left->left->left = newNode(2);
+    root->left->left->right = newNode(6);
+    root->right->left = newNode(3);
+    root->right->right = newNode(9);
+    root->right->right->right= newNode(0);
+    root->right->right->right->left= newNode(4);
+    root->right->right->right->right= newNode(-1);
+    root->right->right->right->right->left= newNode(10);
+    cout << "Max pathSum of the given binary tree is " << maxPathSum(root);
+    return 0;
+}
+ Output: Max pathSum of the given binary tree is 27. This article is contributed by Kripal Gaurav. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

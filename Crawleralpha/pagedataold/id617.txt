@@ -1,0 +1,90 @@
+If you are given two traversal sequences, can you construct the binary tree? - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph If you are given two traversal sequences, can you construct the binary tree? It depends on what traversals are given. If one of the traversal methods is Inorder then the tree can be constructed, otherwise not. Therefore, following combination can uniquely identify a tree. Inorder and Preorder. Inorder and Postorder. Inorder and Level-order. And following do not. Postorder and Preorder. Preorder and Level-order. Postorder and Level-order. For example, Preorder, Level-order and Postorder traversals are same for the trees given in above diagram. Preorder Traversal = AB Postorder Traversal = BA Level-Order Traversal = AB So, even if three of them (Pre, Post and Level) are given, the tree can not be constructed.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tags: Binary Tree, Tree Traveral Tweet Writing code in comment? Please use ideone.com and share the link here. smith when preorder and inorder is given: code is #include #include struct node { int data; struct node *left; struct node *right; }; struct node *construct(int *,int *,struct node *,int ,int,int,int); struct node *newnode(int data); int partition(int *,int,int,int); void travers(struct node *); void printnode(struct node *,int); int main() { int inorder[]={4,2,5,1,3}; int preorder[]={1,2,3,5,3}; struct node *root=NULL;int i=0;int n=5; root=construct(inorder,preorder,root,i,0,n-1,n); travers(root); } void printnode(struct node *root,int level) { if(root==NULL)return ; if(level==1)printf(“%d “,root->data); printnode(root->left,level-1); printnode(root->right,level-1); } void travers(struct node *root) { for(int i=1;ihigh)return NULL; if(low==high)return newnode(ino[low]); (root)=newnode(preo[i]); k=partition(ino,preo[i],low,high); root->left=construct(ino,preo,((root)->left),i+1,low,k-1,n); root->right=construct(ino,preo,((root)->right),i+1,k+1,high,n); return root; } int partition(int *ino,int x,int low,int high) { for(int i=low;idata=data; newnod->left=NULL; newnod->right=NULL; return newnod; } Rahul Singh @geeksforgeeks team if we know any one of the traversal except inorder we can construct the unique BST . because we can ourself find the inorder traversal by sort the given traversal sequence. Rahul @Rahul Singh We are talking about Binary tree not BST trilok sharma #include #include #include using namespace std; struct node { int data; node *left; node *right; }; node* Newnode(int data) { node * curr; curr = (node *)malloc(sizeof(node)); curr->data = data; curr->left = curr->right = NULL; return(curr); } int search(int inorder[],int start,int end,int data) { for(int i=start;i end) return NULL; data=postorder[post_index–]; node *root=Newnode(data); if(start == end) return root; in_pos=search(inorder,start,end,data); root->right=createTree(postorder,inorder,in_pos+1,end); root->left=createTree(postorder,inorder,start,in_pos-1); return root; } void display_inOrder(struct node* node) { if (node == NULL) return; display_inOrder(node->left); printf(“%d “, node->data); display_inOrder(node->right); } int main() { int n,in[100000],post[100000],i; node *root; cout<>n; cout<<"Enter postorder sequence = "; for(i=0;i>post[i]; cout<<"Enter inorder sequence = "; for(i=0;i>in[i]; root=createTree(post,in,0,n-1); cout<<"output inorder sequence = "; display_inOrder(root); return 0; } Himanshu Here is a an algorithm from the URL http://stackoverflow.com/questions/4575719/binary-tree-from-in-order-and-level-order-traversals that mentions how to construct a BST given inorder and level order. f(inorder, levelorder): if length(levelorder) == 0: return None root = levelorder[0]#set root to first element in levelorder subIn1, subIn2 = partition(inorder, levelorder[0]) #partition inorder based on root subLevel1 = extract(levelOrder, subIn1)#remove elements in level order not in subIn1 subLevel2 = extract(levelOrder, subIn2)#remove elements in level order not in subIn2 root->left = f(subIn1, subLevel1) root->right = f(subIn2, subLevel2) return root Avinash  
+/* Paste your code here (You may delete these lines if not 
+writing code) */
+Construct Tree from given Inorder and Preorder traversals
+April 16, 2010
+Let us consider the below traversals:
+
+Inorder sequence: D B E A F C
+Preorder sequence: A B D E C F
+
+BuildTree(inorder[],preorder[],start,end)
+{
+	static int preindex=0;
+	If start>end return NULL;
+	
+	struct node *newnode=new(preorder(preindex));
+	preindex=preindex+1;
+	
+	If start==end return node;
+	
+	int searchind=search(inorder,start,end,node->data);
+	
+	node->left=BuildTree(inorder,preorder,start,searchind-1);
+	node->right=BuildTree(inorder,preorder,searchind+1,end);
+	
+	return newnode;
+}
+=========================
+Given inorder and postorder traversals construct a binary tree
+
+Inorder sequence: D B E A F C
+Postorder sequence: D E B F C A
+
+struct node *BuidTree(int postorder[], int inorder[], int start, int end)
+{
+	static int postindex=n-1;
+	int searchindex;
+	If start>end return NULL;
+	struct node *newNode=new(postorder[postindex--]);
+	If (start==end) return newNode;
+	searchindex=search(inorder,start,end);
+	newNode->right=BuildTree(postorder, inorder, searchindex+1,end);
+	newNode->left=BuildTree(postorder,inorder,start,searchindex-1);
+	
+	return newNode;
+}
+ Avinash Let us consider the below traversals: Inorder sequence: D B E A F C Preorder sequence: A B D E C F BuildTree(inorder[],preorder[],start,end) { static int preindex=0; If start>end return NULL; struct node *newnode=new(preorder(preindex)); preindex=preindex+1; If start==end return node; int searchind=search(inorder,start,end,node->data); node->left=BuildTree(inorder,preorder,start,searchind-1); node->right=BuildTree(inorder,preorder,searchind+1,end); return newnode; } ========================= Given inorder and postorder traversals construct a binary tree Inorder sequence: D B E A F C Postorder sequence: D E B F C A struct node *BuidTree(int postorder[], int inorder[], int start, int end) { static int postindex=n-1; int searchindex; If start>end return NULL; struct node *newNode=new(postorder[postindex–]); If (start==end) return newNode; searchindex=search(inorder,start,end); newNode->right=BuildTree(postorder, inorder, searchindex+1,end); newNode->left=BuildTree(postorder,inorder,start,searchindex-1); return newNode; } Devansh Inorder of a tree is must as from other traversal we are getting the root node of that tree and from inorder we get the child nodes which are in left subtree and right subtree as nodes which are in left subtree appears before root node in inorder traversal and the ones which are in right subtree appears after root. An Hey can u xplain how to create a tree from inorder and level order !! I tried but can’t figure out how we will get the knowledge of which child to attach to which root. Anand Given a post order and pre order traversal you can still construct a unique tree provide each internal nodes has two childern’s anandtechblog.blogspot.com/2011/06/construct-given-tree-from-pre-order-and.html Anand anandtechblog.blogspot.com/2011/06/construct-given-tree-from-inorder-and.html manishj Let I(n) = i0,i1,i2,i3….in be elements of a inorder traversal of a binary tree. Simillarly let Pre(n) = p0,p1,p2……pn be the elements of a preorder traversal of a binary tree. Now If we know that ik is root of binary tree , we can be sure that elements i0..ik-1 are in left subtree of tree and elements from 1k+1..in are in right-subtree rooted at ik(we can prove this by contradiction). Now , if we fix ik to be root. We inturn fix its left subtree (i0..ik-1), and its right right-subtree(ik+1…n), thus in essence we fix the tree (we can apply induction on n to mathematically prove this). Inorder to fix the root , we can use either pre-order traversal.In any preorder traversal Pre(n) ,p0 is root of the the binarytree. We can also use Postorder traversal Post(n) say q0..qn in which qn is always the root of the tree. So this proves that inorder combined with either post-order or preorder uniquely determine a tree. Himanshu Aggarwal Similarly, for trees like : 
+    A                 A
+   /       and          \
+ B                        B
+ both have preorder(and level-order) AB and postorder BA Himanshu Aggarwal consider Two Binary Trees For tree1 : Root = A Left Chid = B Preorder: A,B Postorder: B,A and for tree 2: Root = A Right Child = B Preorder: A,B Postorder: B,A For given preorder and postorder two different binary trees can be formed Karthick Forget about binary tree. What about a BST with just pre-order or a post-order? http://www.wgpshashank.co.cc wgpshashank It is not very clear why InOrder is a must to recreate the tree. Can you please provide more details regarding the same? tech.login.id2 It is not very clear why InOrder is a must to recreate the tree. Can you please provide more details regarding the same? Rohini //preIndex is global  
+node* BST::buildTree(int in[],int inStrt,int inEnd,int len,int pre[])
+{
+    if(preIndex >= len || inStrt > inEnd)
+        return NULL;
+
+    node *retNode = makeNode(pre[preIndex++]);
+
+    if(inStrt == inEnd)
+        return retNode;
+
+    int inIndex = findNodeIn(in,inStrt, inEnd, retNode->data);
+    retNode->left = buildTree(in, inStrt,inIndex-1,len,pre);
+    retNode->right = buildTree(in,inIndex+1,inEnd,len,pre);
+
+    return retNode;
+
+}
+
+int BST::findNodeIn(int in[],int inStrt, int inEnd,int value)
+{
+    int i = inStrt ;
+    for(;i<=inEnd;i++)
+        if(in[i] == value)
+            return i;
+
+
+}
+
+//test code
+int preIndex;
+
+int main()
+{
+preIndex = 0;
+int in[] = {1,2,3,4,5,7,8};
+int pre[] = {4,2,1,3,7,5,8};
+root = buildTree(in,0,6,7,pre);
+}
+ GeeksforGeeks @Rohini: Thanks for providing the code. We have published it here. abhi What about the case when we have duplicates in the Binary Tree ? We can’t identify the tree, right ? suppose for the case : when all node values are 1’s only. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

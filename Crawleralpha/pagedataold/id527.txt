@@ -1,0 +1,136 @@
+Write a recursive function to print reverse of a Linked List - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Write a recursive function to print reverse of a Linked List Note that the question is only about printing the reverse. To reverse the list itself see this Difficulty Level: Rookie Algorithm 
+printReverse(head)
+  1. call print reverse for hed->next
+  2. print head->data
+ Implementation: 
+#include<stdio.h>
+#include<stdlib.h>
+ 
+/* Link list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+ 
+/* Function to reverse the linked list */
+void printReverse(struct node* head)
+{
+  // Base case  
+  if(head == NULL)
+    return;
+
+  // print the list after head node
+  printReverse(head->next);
+
+  // After everything else is printed, print head
+  printf("%d  ", head->data);
+}
+ 
+/*UTILITY FUNCTIONS*/
+/* Push a node to linked list. Note that this function
+  changes the head */
+void push(struct node** head_ref, char new_data)
+{
+    /* allocate node */
+    struct node* new_node =
+            (struct node*) malloc(sizeof(struct node));
+ 
+    /* put in the data  */
+    new_node->data  = new_data;
+ 
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);   
+ 
+    /* move the head to pochar to the new node */
+    (*head_ref)    = new_node;
+} 
+ 
+/* Drier program to test above function*/
+int main()
+{
+
+  struct node* head = NULL;
+    
+  push(&head, 1);
+  push(&head, 2);
+  push(&head, 3);
+  push(&head, 4);
+  
+  printReverse(head);
+  getchar();
+}
+ Time Complexity: O(n)           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. Codeguru complete c code to reverse a linked list #include #include struct node { int data; struct node * link; }; void insert_beg(struct node ** head,int num) { struct node * temp; temp=(struct node *)malloc(sizeof(struct node)); temp->data=num; temp->link=*head; *head=temp; return; } void traverse(struct node * head) { while(head!=NULL) { printf(“%dn”,head->data); head=head->link; } } void reverse(struct node ** head) { struct node * first; struct node * rest; if(*head==NULL) return; first=*head; rest=first->link; if(rest==NULL) return; reverse(&rest); first->link->link=first; first->link=NULL; *head=rest; } void main() { struct node * head=NULL; insert_beg(&head,10); insert_beg(&head,100); insert_beg(&head,100); insert_beg(&head,10000); insert_beg(&head,1); printf(“the list is :”); traverse(head); reverse(&head); printf(“after reverse :”); traverse(head); } prathviraj Could you give a solution without using recursive function? Anon will be sort of cheating but you can use a stack Abhay /* ya linklist can be reversed using stack or simply array*/ first count the number of elements in the list, and make the maximum size of the stack equal to the sizeof the list. After theat push element on to the stack, after pushing all the element start popping and read the element. doing this you can pring the linklist in reverse order. the simple array code is given below i=0; while(ptr->link!=NULL) { arr[i]=ptr->info; ptr=ptr->link; i++; } for(j=i-1;j>=0;j–) printf(“%d”,arr[j]); code4fun Here it is in C  
+typedef struct node
+{
+	int data;
+	struct node* next;
+}NODE,*PNODE;
+
+PNODE reverseLinkList(PNODE head)
+{
+	PNODE temp ;
+	if (!head || !head->next)
+		return head;
+
+	temp = reverseLinkList(head->next);
+	head->next->next = head;
+	head->next = NULL;
+	return temp;
+} BlackMath A java program to actually reverse a linked list by recursion, not only printing it.  
+/* Paste your code here (You may delete these lines if not writing code) */
+class LNode
+{
+   int value;
+   LNode next;
+
+   LNode (int val)
+   {
+      value = val;
+   }
+}
+
+public class ReverseLinkedListByRecursion
+{
+  public static void printList (LNode head)
+  {
+    while (head != null)
+    {
+      System.out.print (head.value + "   ");
+      head = head.next;
+    }
+    System.out.println();
+  }
+  
+  public static LNode reverseList (LNode head, LNode prev)
+  {
+    if (head == null)
+      return prev;
+    
+    LNode tmp = head.next;
+    head.next = prev;
+    prev = reverseList (tmp, head);
+    return prev;
+  }
+  
+  public static void main (String args[])
+  {
+    LNode a = new LNode (11);
+    LNode b = new LNode (12);a.next = b;
+    LNode c = new LNode (13);b.next = c;
+    LNode d = new LNode (14);c.next = d;
+    LNode e = new LNode (15);d.next = e;
+    LNode f = new LNode (37);e.next = f;
+    LNode g = new LNode (39);f.next = g;
+    
+    LNode head = a;
+    System.out.println ("Before reversing list : ");
+    printList(head);
+    
+    head = reverseList (head, null);
+    
+    System.out.println ("After reversing list : ");
+    printList(head);
+  }
+}
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

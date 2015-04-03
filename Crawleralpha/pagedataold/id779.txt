@@ -1,0 +1,125 @@
+Segment Tree | Set 2 (Range Minimum Query) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Segment Tree | Set 2 (Range Minimum Query) We have introduced segment tree with a simple example in the previous post. In this post, Range Minimum Query problem is discussed as another example where Segment Tree can be used. Following is problem statement. We have an array arr[0 . . . n-1]. We should be able to efficiently find the minimum value from index qs (query start) to qe (query end) where 0 <= qs <= qe <= n-1. The array is static (elements are not deleted and inserted during the series of queries). A simple solution is to run a loop from qs to qe and find minimum element in given range. This solution takes O(n) time in worst case. Another solution is to create a 2D array where an entry [i, j] stores the minimum value in range arr[i..j]. Minimum of a given range can now be calculated in O(1) time, but preprocessing takes O(n^2) time. Also, this approach needs O(n^2) extra space which may become huge for large input arrays. Segment tree can be used to do preprocessing and query in moderate time. With segment tree, preprocessing time is O(n) and time to for range minimum query is O(Logn). The extra space required is O(n) to store the segment tree. Representation of Segment trees 1. Leaf Nodes are the elements of the input array. 2. Each internal node represents minimum of all leaves under it. An array representation of tree is used to represent Segment Trees. For each node at index i, the left child is at index 2*i+1, right child at 2*i+2 and the parent is at . Construction of Segment Tree from given array We start with a segment arr[0 . . . n-1]. and every time we divide the current segment into two halves(if it has not yet become a segment of length 1), and then call the same procedure on both halves, and for each such segment, we store the minimum value in a segment tree node. All levels of the constructed segment tree will be completely filled except the last level. Also, the tree will be a Full Binary Tree because we always divide segments in two halves at every level. Since the constructed tree is always full binary tree with n leaves, there will be n-1 internal nodes. So total number of nodes will be 2*n – 1. Height of the segment tree will be . Since the tree is represented using array and relation between parent and child indexes must be maintained, size of memory allocated for segment tree will be . Query for minimum value of given range Once the tree is constructed, how to do range minimum query using the constructed segment tree. Following is algorithm to get the minimum. 
+// qs --> query start index, qe --> query end index
+int RMQ(node, qs, qe) 
+{
+   if range of node is within qs and qe
+        return value in node
+   else if range of node is completely outside qs and qe
+        return INFINITE
+   else
+    return min( RMQ(node's left child, qs, qe), RMQ(node's right child, qs, qe) )
+} Implementation: 
+// Program for range minimum query using segment tree
+#include <stdio.h>
+#include <math.h>
+#include <limits.h>
+
+// A utility function to get minimum of two numbers
+int minVal(int x, int y) { return (x < y)? x: y; }
+
+// A utility function to get the middle index from corner indexes.
+int getMid(int s, int e) {  return s + (e -s)/2;  }
+
+/*  A recursive function to get the minimum value in a given range of array
+    indexes. The following are parameters for this function.
+
+    st    --> Pointer to segment tree
+    index --> Index of current node in the segment tree. Initially 0 is
+             passed as root is always at index 0
+    ss & se  --> Starting and ending indexes of the segment represented by
+                 current node, i.e., st[index]
+    qs & qe  --> Starting and ending indexes of query range */
+int RMQUtil(int *st, int ss, int se, int qs, int qe, int index)
+{
+    // If segment of this node is a part of given range, then return the
+    // min of the segment
+    if (qs <= ss && qe >= se)
+        return st[index];
+
+    // If segment of this node is outside the given range
+    if (se < qs || ss > qe)
+        return INT_MAX;
+
+    // If a part of this segment overlaps with the given range
+    int mid = getMid(ss, se);
+    return minVal(RMQUtil(st, ss, mid, qs, qe, 2*index+1),
+                  RMQUtil(st, mid+1, se, qs, qe, 2*index+2));
+}
+
+// Return minimum of elements in range from index qs (quey start) to
+// qe (query end).  It mainly uses RMQUtil()
+int RMQ(int *st, int n, int qs, int qe)
+{
+    // Check for erroneous input values
+    if (qs < 0 || qe > n-1 || qs > qe)
+    {
+        printf("Invalid Input");
+        return -1;
+    }
+
+    return RMQUtil(st, 0, n-1, qs, qe, 0);
+}
+
+// A recursive function that constructs Segment Tree for array[ss..se].
+// si is index of current node in segment tree st
+int constructSTUtil(int arr[], int ss, int se, int *st, int si)
+{
+    // If there is one element in array, store it in current node of
+    // segment tree and return
+    if (ss == se)
+    {
+        st[si] = arr[ss];
+        return arr[ss];
+    }
+
+    // If there are more than one elements, then recur for left and
+    // right subtrees and store the minimum of two values in this node
+    int mid = getMid(ss, se);
+    st[si] =  minVal(constructSTUtil(arr, ss, mid, st, si*2+1),
+                     constructSTUtil(arr, mid+1, se, st, si*2+2));
+    return st[si];
+}
+
+/* Function to construct segment tree from given array. This function
+   allocates memory for segment tree and calls constructSTUtil() to
+   fill the allocated memory */
+int *constructST(int arr[], int n)
+{
+    // Allocate memory for segment tree
+    int x = (int)(ceil(log2(n))); //Height of segment tree
+    int max_size = 2*(int)pow(2, x) - 1; //Maximum size of segment tree
+    int *st = new int[max_size];
+
+    // Fill the allocated memory st
+    constructSTUtil(arr, 0, n-1, st, 0);
+
+    // Return the constructed segment tree
+    return st;
+}
+
+// Driver program to test above functions
+int main()
+{
+    int arr[] = {1, 3, 2, 7, 9, 11};
+    int n = sizeof(arr)/sizeof(arr[0]);
+
+    // Build segment tree from given array
+    int *st = constructST(arr, n);
+
+    int qs = 1;  // Starting index of query range
+    int qe = 5;  // Ending index of query range
+
+    // Print minimum value in arr[qs..qe]
+    printf("Minimum of values in range [%d, %d] is = %d\n",
+                           qs, qe, RMQ(st, n, qs, qe));
+
+    return 0;
+}
+ Output:  
+Minimum of values in range [1, 5] is = 2 Time Complexity: Time Complexity for tree construction is O(n). There are total 2n-1 nodes, and value of every node is calculated only once in tree construction. Time complexity to query is O(Logn). To query a range minimum, we process at most two nodes at every level and number of levels is O(Logn). Please refer following links for more solutions to range minimum query problem. http://community.topcoder.com/tc?module=Static&d1=tutorials&d2=lowestCommonAncestor#Range_Minimum_Query_(RMQ) http://wcipeg.com/wiki/Range_minimum_query Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tags: Advance Data Structures, Advanced Data Structures Tweet Writing code in comment? Please use ideone.com and share the link here. prashant saxena This code looks fine.. I would be glad to know if someone points out any issue with this. #include #include #include #include #include class range_min_query { #define M_LOG2E 1.443 int* segment_tree; int max_size; int populate_segment_tree(int* array, int start, int end, int index) { if(start == end) { *(segment_tree+index) = *(array+start); return *(array+start); } int min_val = 0; int median = (start+end)/2; int left_min = populate_segment_tree(array, start, median, 2*index+1); int right_min = populate_segment_tree(array, median+1, end, 2*index+2); if(left_minstart_s and end > end_s */ if(start==start_s && end==end_s) { return *(segment_tree+index); } //I don't expect this though. if(endend_s) return 10000; if(start>=start_s && end=end) return Query_min(start, end, start_s, median, 2*index+1); else if(median<end) { int min_left = Query_min(start, median, start_s, median, 2*index+1); int min_right = Query_min(median+1, end, median+1, end_s, 2*index+2); return (min_left<min_right)?min_left:min_right; } } } public: void compute_min_range(int* array, int size) { initialize(&array[0], size); #ifdef DEBUG dump_segment_tree(); #endif } void dump_segment_tree() { for(int i=0;i<max_size;i++) { if(*(segment_tree+i)) std::cout<<*(segment_tree+i)<<"n"; } } private: double log2(int n) { return log((double)n) * M_LOG2E; } }; int main() { int array3[] = {21, 4, 13, 10,9,8,6,23,11,15,17,19}; range_min_query a; a.compute_min_range(&array3[0],12); std::cout<<a.Query_min(1,7,0,11,0)<<"n"; } prashant saxena If qs>ss and qe<se, |The query might return a value which is min still not a part of range {qs,qe}. How is it handled in recursion? Vishal Agrawal can i update the segment tree(storing minimum values in a range) in o(log(n)) time?if yes then how? pls reply…  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Adrian Carballo http://sportcoder.com/segment-trees-lazy-updates/ sap Can’t we update values in array? in 0(log n)  
+/* Paste your code here (You may delete these lines if not writing code) */
+ abhishek08aug Intelligent kk Can this problem be solved using BIT?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Madhav Please ignore above comment. Can the same solution be extended for (Range MAXIMUM Query)? Srinath To easily use this for ranged max insert -element instead of element,while retrieving interpret it as minus of returned value Madhav Can the same solution be extended for (Range Minimum Query)? Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

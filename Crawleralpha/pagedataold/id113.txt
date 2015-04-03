@@ -1,0 +1,66 @@
+Selection Sort - GeeksQuiz GeeksQuiz Computer science mock tests for geeks Home Latest Questions Articles C/C++ Programs Contribute Books Subscribe Selection Sort January 31, 2014 The selection sort algorithm sorts an array by repeatedly finding the minimum element (considering ascending order) from unsorted part and putting it at the beginning. The algorithm maintains two subarrays in a given array. 1) The subarray which is already sorted. 2) Remaining subarray which is unsorted. In every iteration of selection sort, the minimum element (considering ascending order) from the unsorted subarray is picked and moved to the sorted subarray. Following example explains the above steps: 
+arr[] = 64 25 12 22 11
+
+// Find the minimum element in arr[0...4] and place it at beginning
+11 25 12 22 64
+
+// Find the minimum element in arr[1...4] and 
+// place it at beginning of arr[1...4]
+11 12 25 22 64
+
+// Find the minimum element in arr[2...4] and 
+// place it at beginning of arr[2...4]
+11 12 22 25 64
+
+// Find the minimum element in arr[3...4] and 
+// place it at beginning of arr[3...4]
+11 12 22 25 64 
+// C program for implementation of selection sort
+#include <stdio.h>
+
+void swap(int *xp, int *yp)
+{
+    int temp = *xp;
+    *xp = *yp;
+    *yp = temp;
+}
+
+void selectionSort(int arr[], int n)
+{
+    int i, j, min_idx;
+
+    // One by one move boundary of unsorted subarray
+    for (i = 0; i < n-1; i++)
+    {
+        // Find the minimum element in unsorted array
+        min_idx = i;
+        for (j = i+1; j < n; j++)
+          if (arr[j] < arr[min_idx])
+            min_idx = j;
+
+        // Swap the found minimum element with the first element
+        swap(&arr[min_idx], &arr[i]);
+    }
+}
+
+/* Function to print an array */
+void printArray(int arr[], int size)
+{
+    int i;
+    for (i=0; i < size; i++)
+        printf("%d ", arr[i]);
+    printf("\n");
+}
+
+// Driver program to test above functions
+int main()
+{
+    int arr[] = {64, 25, 12, 22, 11};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    selectionSort(arr, n);
+    printf("Sorted array: \n");
+    printArray(arr, n);
+    return 0;
+}
+ Output: Sorted array:
+11 12 22 25 64 Time Complexity: O(n*n) as there are two nested loops. Auxiliary Space: O(1) The good thing about selection sort is it never makes more than O(n) swaps and can be useful when memory write is a costly operation. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above Related Questions: Binary Insertion Sort Sorting Terminology ShellSort Bubble Sort Binary Search QuickSort Heap Sort Merge Sort Tweet       ama12 Is selection sort the best algorithm in terms of number of swaps? jagadish Quicksort even better then selection sort in terms of number of swaps. ama12 Is selection Sort the best algorithm in terms of memory writes? Jai ama12, Cycle Sort is a better algorithm in terms of memory writes. selection sort is good for nothhing jagadish Selection sort is good if we use with the combination with heap, which results time complexity O(nlogn). Guest what if we want to order numbers in array in increasing order through selection sort? jagadish Pick the Maximum element from the unsorted array each time and place it in the front of sorted array. jagadish We Can optimize the Selection Sort algorithm by selecting minimum element using Heap, which takes O(logn) to get the minimum element. The Total Time Complexity will be reduced from O(n^2) to O(nlogn). Categories Articles (105) Algorithms (21) C (13) C++ (16) Data Structures (29) DBMS (1) Interview Experiences (6) Java (2) Operating Systems (1) Searching and Sorting (10) Programs (35) Quizzes (1,744) Aptitude (1) Computer Science Quizzes (1,742) Algorithms (147) C (207) C++ (129) Data Structures (132) DBMS (2) GATE (1,046) Java (51) Operating Systems (28) Web technologies (1) Recent Discussions Valid XHTML Strict 1.0 Powered by WordPress & MooTools | MiniMoo 1.3.4

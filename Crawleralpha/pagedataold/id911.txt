@@ -1,0 +1,345 @@
+A Boolean Matrix Question - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph A Boolean Matrix Question Given a boolean matrix mat[M][N] of size M X N, modify it such that if a matrix cell mat[i][j] is 1 (or true) then make all the cells of ith row and jth column as 1. 
+Example 1
+The matrix
+1 0
+0 0
+should be changed to following
+1 1
+1 0
+
+Example 2
+The matrix
+0 0 0
+0 0 1
+should be changed to following
+0 0 1
+1 1 1
+
+Example 3
+The matrix
+1 0 0 1
+0 0 1 0
+0 0 0 0
+should be changed to following
+1 1 1 1
+1 1 1 1
+1 0 1 1
+ Method 1 (Use two temporary arrays) 1) Create two temporary arrays row[M] and col[N]. Initialize all values of row[] and col[] as 0. 2) Traverse the input matrix mat[M][N]. If you see an entry mat[i][j] as true, then mark row[i] and col[j] as true. 3) Traverse the input matrix mat[M][N] again. For each entry mat[i][j], check the values of row[i] and col[j]. If any of the two values (row[i] or col[j]) is true, then mark mat[i][j] as true. Thanks to Dixit Sethi for suggesting this method. 
+#include <stdio.h>
+#define R 3
+#define C 4
+
+void modifyMatrix(bool mat[R][C])
+{
+    bool row[R];
+    bool col[C];
+
+    int i, j;
+
+
+    /* Initialize all values of row[] as 0 */
+    for (i = 0; i < R; i++)
+    {
+       row[i] = 0;
+    }
+
+
+    /* Initialize all values of col[] as 0 */
+    for (i = 0; i < C; i++)
+    {
+       col[i] = 0;
+    }
+
+
+    /* Store the rows and columns to be marked as 1 in row[] and col[]
+       arrays respectively */
+    for (i = 0; i < R; i++)
+    {
+        for (j = 0; j < C; j++)
+        {
+            if (mat[i][j] == 1)
+            {
+                row[i] = 1;
+                col[j] = 1;
+            }
+        }
+    }
+
+    /* Modify the input matrix mat[] using the above constructed row[] and
+       col[] arrays */
+    for (i = 0; i < R; i++)
+    {
+        for (j = 0; j < C; j++)
+        {
+            if ( row[i] == 1 || col[j] == 1 )
+            {
+                mat[i][j] = 1;
+            }
+        }
+    }
+}
+
+/* A utility function to print a 2D matrix */
+void printMatrix(bool mat[R][C])
+{
+    int i, j;
+    for (i = 0; i < R; i++)
+    {
+        for (j = 0; j < C; j++)
+        {
+            printf("%d ", mat[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+/* Driver program to test above functions */
+int main()
+{
+    bool mat[R][C] = { {1, 0, 0, 1},
+        {0, 0, 1, 0},
+        {0, 0, 0, 0},
+    };
+
+    printf("Input Matrix \n");
+    printMatrix(mat);
+
+    modifyMatrix(mat);
+
+    printf("Matrix after modification \n");
+    printMatrix(mat);
+
+    return 0;
+}
+ Output: 
+Input Matrix
+1 0 0 1
+0 0 1 0
+0 0 0 0
+Matrix after modification
+1 1 1 1
+1 1 1 1
+1 0 1 1
+ Time Complexity: O(M*N) Auxiliary Space: O(M + N) Method 2 (A Space Optimized Version of Method 1) This method is a space optimized version of above method 1. This method uses the first row and first column of the input matrix in place of the auxiliary arrays row[] and col[] of method 1. So what we do is: first take care of first row and column and store the info about these two in two flag variables rowFlag and colFlag. Once we have this info, we can use first row and first column as auxiliary arrays and apply method 1 for submatrix (matrix excluding first row and first column) of size (M-1)*(N-1). 1) Scan the first row and set a variable rowFlag to indicate whether we need to set all 1s in first row or not. 2) Scan the first column and set a variable colFlag to indicate whether we need to set all 1s in first column or not. 3) Use first row and first column as the auxiliary arrays row[] and col[] respectively, consider the matrix as submatrix starting from second row and second column and apply method 1. 4) Finally, using rowFlag and colFlag, update first row and first column if needed. Time Complexity: O(M*N) Auxiliary Space: O(1) Thanks to Sidh for suggesting this method. Please write comments if you find the above codes/algorithms incorrect, or find other ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. cooldude public int[][] changeMatrixRowsColumnAt1(int[][] mat) { boolean fR=false,fC=false; for(int col=0;col<mat[0].length;col++) { if(mat[0][col]==1) { fR=true; break; } } for(int row=0;row<mat[0].length;row++) { if(mat[row][0]==1) { fC=true; break; } } for(int i=1;i<mat.length;i++) { for(int j=1;j<mat[0].length;j++) { if(mat[i][j]==1) { mat[i][0]=1; mat[0][j]=1; } } } for(int col=1;col<mat[0].length;col++) { if(mat[0][col]==1) { for(int row=1;row<mat.length;row++) { mat[row][col]=1; } } } for(int row=1;row<mat.length;row++) { if(mat[row][0]==1) { for(int col=1;col<mat[0].length;col++) { mat[row][col]=1; } } } if(fR) { for(int col=0;col<mat[0].length;col++) mat[0][col]=1; } if(fC) { for(int row=0;row<mat.length;row++) mat[row][0]=1; } return mat; } cooldude public int[][] changeMatrixRowsColumnAt1(int[][] mat) { boolean fR=false,fC=false; for(int col=0;col<mat[0].length;col++) { if(mat[0][col]==1) { fR=true; break; } } for(int row=0;row<mat[0].length;row++) { if(mat[row][0]==1) { fC=true; break; } } for(int i=1;i<mat.length;i++) { for(int j=1;j<mat[0].length;j++) { if(mat[i][j]==1) { mat[i][0]=1; mat[0][j]=1; } } } for(int col=1;col<mat[0].length;col++) { if(mat[0][col]==1) { for(int row=1;row<mat.length;row++) { mat[row][col]=1; } } } for(int row=1;row<mat.length;row++) { if(mat[row][0]==1) { for(int col=1;col<mat[0].length;col++) { mat[row][col]=1; } } } if(fR) { for(int col=0;col<mat[0].length;col++) mat[0][col]=1; } if(fC) { for(int row=0;row<mat.length;row++) mat[row][0]=1; } return mat; } cooldude public int[][] changeMatrixRowsColumnAt1(int[][] mat) { boolean fR=false,fC=false; for(int col=0;col<mat[0].length;col++) { if(mat[0][col]==1) { fR=true; break; } } for(int row=0;row<mat[0].length;row++) { if(mat[row][0]==1) { fC=true; break; } } for(int i=1;i<mat.length;i++) { for(int j=1;j<mat[0].length;j++) { if(mat[i][j]==1) { mat[i][0]=1; mat[0][j]=1; } } } for(int col=1;col<mat[0].length;col++) { if(mat[0][col]==1) { for(int row=1;row<mat.length;row++) { mat[row][col]=1; } } } for(int row=1;row<mat.length;row++) { if(mat[row][0]==1) { for(int col=1;col<mat[0].length;col++) { mat[row][col]=1; } } } if(fR) { for(int col=0;col<mat[0].length;col++) mat[0][col]=1; } if(fC) { for(int row=0;row<mat.length;row++) mat[row][0]=1; } return mat; } cooldude i think second method is correct as if we are not zeroing the first row or first column after storing value in 2 boolean variables and when we run our case for submatrix of m-1*n-1 then we are only setting row column 1 in first row and first column if in submatrix we have one, if we have zero leave it counter example given as 0 0 0 1 1 0 0 0 1 0 0 0 but as all zero in submatrix first row and column as it is so final output 1 1 1 1 1 1 1 1 1 1 1 1 anonymous I have a doubt related to the second method. Suppose the matrix is 0 0 0 1 1 0 0 0 1 0 0 0 Now both roFlag and colFlag will be set. But how will we know after going through A[m-1][n-1] which row or column have to be set after seeing roFlag and colFlag. Like in the above example, we have to set two such rows as 1. How is that maintained via roFlag? Guest Using second method, after preparing first row and first column. we can scan the first column and starting from second row, if 1 is found then we can set that complete row values to 1 using memset, that will further improve running time. Tinku /* using only one temporary variable, it is done bt time complexity is of order O(m*n)*/ int main() { int arr[4][4]={{1,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}}; int arr1[4][4]; int i,j,k; for(i=0;i<4;i++) for(j=0;j<4;j++) arr1[i][j]=0; for(i=0;i<4;i++) { for(j=0;j<4;j++) { if(arr[i][j]==1) { for(k=0;k<4;k++) { arr1[i][k]=1; arr1[k][j]=1; } } } } for(i=0;i<4;i++) { for(j=0;j<4;j++) printf("t%d",arr1[i][j]); printf("n"); } } Marsha Donna @d4868dd64c637016efc578852ad7cd68:disqus i think method 2 wil fail for the following arr {1,0,0,1 1,0,0,0 1,0,0,0} because it will give op as {1,1,1,1 1,0,0,0 1,0,0,0} whereas corrct op is {1,1,1,1 1,0,0,1 1,0,0,1} method2 also requires some auxillary space to hold col indexes of row 0 and row indexes of col 0 which hav val 1 so that that particular row or col can be modified …in above eg we need to store arr[0][3] has val 1 so we should modify col 3 as well…pl correct me if anything is wrong wasseypuriyan We can modify method 2 to first update the submatrix (M-1)*(N-1) and later depending on m[0][0] value we can modify 1st row and 1st col. Upasana Sharma Changing element to 2 works for Boolean matrix, and is extendible to any situation using, different symbols in place of 2. Geeksforgeeks team, please add! Guest #include int main() { int a[4][4]={ {1,0,0,1}, {0,0,0,0}, {0,0,1,0}, {0,0,0,0} }; int i,j,x=0,n=4; for(i=0;i<n;i++) { for(j=0;j<n;j++) { if(a[i][j]==1) { for(x=0;x<n;x++) { if(a[i][x]==0) { a[i][x]=2; } } for(x=0;x<n;x++) { if(a[x][j]==0) { a[x][j]=2; } } } } } for(i=0;i<n;i++) { for(j=0;j<n;j++) { if(a[i][j]==2) a[i][j]=1; printf(" %d ",a[i][j]); } printf("n"); } getch(); return 0; } wakeup123 someone Please help me understand the question. I am not getting what is being asked. Prateek Sharma Second method fails……… Consider Example [1 0 0 0 0 0 1 0 0] According to Second method ,answer is [1 1 1 1 0 1 1 0 1] But the actual answer is [1 1 1 1 0 0 1 1 1 ] According to me problem occurs here: When we use the first row and first column to store values for rest of matrix, the initial values stored in first row and column get overwritten which causes problem later.In my example,third row first column has initially one in it.Later after traversing the submatrix and updating the first row and first column ,this one remains unchanged. But now , we don’t know whether this one is bcoz of one in third column (which is not in this example or it’s an initial one. Correct me if i’m wrong….. COde according to 2nd method  
+def makingRowsandColumnsOne(a):
+    rowflag =0
+    columnflag =0
+    for j in a[0]:
+        if j == 1:
+            rowflag =1
+            break
+    for i in range(len(a)):
+        if a[i][0] ==1:
+            columnflag =1
+            break
+    for i in range(1,len(a)):
+        for j in range(1,len(a[i])):
+            if a[i][j] ==1:
+                a[0][i] =1
+                a[j][0] =1
+    for i in range(1,len(a)):
+        for j in range(1,len(a[i])):
+            if a[0][i] ==1:
+                a[i][j] =1
+    for i in range(1,len(a)):
+        if a[i][0] ==1:
+            for j in range(1,len(a)):
+                a[j][i] =1
+    for j in range(len(a[0])):
+        if rowflag ==1:
+            a[0][j] =1
+        else:
+            a[0][j] =0
+    for i in range(len(a)):
+        if columnflag ==1:
+            a[i][0] =1
+        else:
+            a[i][0] =0
+    print a                             
+                    
+               
+def main():
+    array =[[1,0,0],
+            [0,0,0],
+            [1,0,0]]
+    makingRowsandColumnsOne(array) 
+if __name__ == '__main__':
+    main()
+ Priyanka Another solution with more time complexity but constant space complexity  
+void modifyMatrix(bool mat[R][C])
+{   
+    int i, j; 	
+ 
+    /* Store the rows and columns to be marked as 1 in row[] and col[]
+       arrays respectively */
+    for (i = 0; i < R; i++)
+    {
+        for (j = 0; j < C; j++)
+        {
+            if (mat[i][j] == 1)
+            { 
+                int row=i;
+                for(i;i<R;i++)		
+		  mat[i][j]=1;		
+                for(j;j<C;j++)
+		  mat[row][j]=1;					
+            }
+        }
+    }   
+}
+ Harshit Gupta will not give correct answer for some cases…. Alien This will not work because there is not way to check that if mat[i][j] is 1 that means it has already been processed or still needs to be process. this will work if we use int matrix. We can differentiate processed rows and cols by representing them with 2. Kartheek J Please Check Below,I think below is more optimized than method 2  
+void modifyBoolMatrix(int *array,int rowLength,int colLength)
+{
+	
+	for (int i= 0 ; i < rowLength; i++)
+	{
+		for (int j = 0; j < colLength; j++)
+		{
+			if (*((array+i*colLength)+j) == 1)
+			{
+				*(array+i*colLength) = 1;
+				*(array+j) = 1;
+			}
+		}
+	}
+	
+	for (int i= rowLength-1; i >= 0; i--)
+	{
+		for (int j= colLength-1; j >= 0 ; j--)
+		{
+			*((array+i*colLength)+j) = *(array+i*colLength)| *(array+j) ;
+		}
+	}
+}
+
+
+ Aashish Solution for approach 2  
+void flip(int M[][COL])
+{
+        int i, j, r, c, flagRow, flagCol;
+ 
+        for( r = 0, flagCol = 0; r < ROW; ++r )
+                flagCol |= M[r][0];
+ 
+        for( c = 0, flagRow = 0; c < COL; ++c )
+                flagRow |= M[0];
+ 
+        for( r = 1; r < ROW; ++r )
+                for( c = 1; c < COL; ++c )
+                {
+                        M[0] |= M[r];
+                        M[r][0] |= M[r]; 
+                }
+ 
+        for( r = 1; r < ROW; ++r )
+                for( c = 1; c < COL; ++c )
+                        if( M[0] || M[r][0] )
+                                M[r] = 1;
+ 
+        if( flagRow )
+                for( c = 0; c < COL; ++c )
+                        M[0] = 1;
+        
+        if( flagCol )
+                for( r = 0; r < ROW; ++r )
+                        M[r][0] = 1;
+ 
+        printM(M);
+}
+ http://ideone.com/NheVl dreamer An easier method which will work and no extra space will be needed: Step 1: Scan each row and if any element is 1 then make following changes in its row and column: a) If element is 0, change it to 2. b) If it is 1 or 2, leave it. Step 2. FOr the matrix change all elements which have a value 2 to 1. Time Complexity : O(m*n). No extra space needed. Please point out any cases for which this might not work.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ rahul sundar Works perfect for non boolean matrix  
+/* Paste your code here (You may delete these lines if not writing code) */
+ shek8034 Your logic is correct… I was thinking the same logic but then i found your comment.. Thanks rk will u guys mind explaining how complexity is O(m*n)?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ shek8034 Your logic is correct… I was thinking the same logic but then i found your comment.. Thanks dreamer Upasana Sharma perfect! But the complexity is in O(n*n*n) Cube. anu my comment: The method 2 fails when there is only one 1 in the 1st row and the entire column is 0’s or when there is only one 1 in the 1st column and the entire row is 0’s.because we are not storing that info anywhere ex: 1 0 0 1 0 0 1 0 0 0 0 0 vk heu anu, rowflag is a 1xn and col flag is a mx1 array thus will work properly…… i think u assumed it to be a single variable (which if the case …will not work) anu Then what is the point in optimizing the space if they are arrays?? shiv hey vk can u xplain d lgic plz in detail …method 2 sudohack Can anyone please explain output for this case acc to 2nd method: 0 0 0 0 0 1 0 1 0 0 0 0 0 0 1 1 As 2nd method says: step1 : scan row and col and set colflag and rowflag accordingly which in this case must be 0 as no element in first row and col is one. Step2: apply method one on submatrix , then sub matrix will be 1 1 1 1 1 1 1 1 1 step3 : now update row1 and col1 acc to rowflag and colflag (which are 0 ), so output will be: 0 0 0 0 0 1 1 1 0 1 1 1 0 1 1 1 but actual ans is : 0 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 Ashish I think the second method will fail for this example 1 0 0 1 1 0 0 0 1 0 0 0 output will be 1 1 1 1 1 1 1 1 1 1 1 1 Can anyone please confirm.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik Take a closer look at the problem statement. The following output is correct for your input matrix. 1 1 1 1 1 1 1 1 1 1 1 1 Bharti I doubt whether only two variables rowFlag and columnFlag will be able to hold the information contained in first row and columns. Anybody please explain how is it possible? For eg: lets say in first row we have elements 2 and 4th set. Now we know that we need to set whole 1st row, but how to store information about 2nd and 4th columns? Bharti Its clear to me now. Kindly ignore the post. naveen I am also having the doubt you had but i cant figure out how information is sufficient.Please help me out Dixit Sethi Thanks Sidh. Your idea is really appreciable PsychoCoder Working code for method 2.  
+#include<stdio.h>
+#include<stdlib.h>
+#include<conio.h>
+
+int** allocateMatrix (int row, int col) {
+  int **matrix , i;
+  matrix = (int ** ) malloc (sizeof(int *) * row) ;
+  for ( i = 0 ; i < row ; i ++ )
+    *(matrix + i) = (int *) malloc (sizeof(int) * col) ;
+  return matrix ;
+}
+
+int** getInput (int row, int col) {
+  int **matrix , i , j;
+  matrix = allocateMatrix (row,col) ;
+  for ( i = 0 ; i < row ; i ++ ) {
+    for ( j = 0 ; j < col ; j ++ ) {
+      printf ( "\nmatrix[%d][%d] = " , i, j) ;
+      scanf ( "%d", &matrix[i][j] ) ;
+    }
+  }
+  return matrix ;
+}
+
+void printMatrix (int **matrix, int row, int col) {
+  int i, j ;
+  for ( i = 0 ; i < row ; i ++ ) {
+    printf ( "\n" ) ;
+    for ( j = 0 ; j < col ; j ++ ) 
+      printf ( "%d ", matrix[i][j] ) ;
+  }
+}
+
+void modifyMatrix (int **matrix, int row, int col) {
+   int i, j ;
+   int rowFlag = 0, colFlag = 0;
+   printf ( "\n\nBefore Modification\n" ) ;
+   printMatrix(matrix, row, col) ;
+   for ( i = 0 ; i < row ; i ++ ) {
+     if ( matrix[i][0] ) {
+       colFlag = 1 ;
+       break ;
+     }
+   }
+   for ( j = 0 ; j < col ; j ++ ) {
+     if ( matrix[0][j] ) {
+       rowFlag = 1 ;
+       break ;
+     }
+   }
+   for ( i = 1 ; i < row ; i ++ ) {
+     for ( j = 1 ; j < col ; j ++ ) {
+       if ( matrix[i][j] ){
+         matrix[0][j] = 1 ;
+         matrix[i][0] = 1 ;
+       }
+     }
+   }
+   for ( i = 1 ; i < row ; i ++ ) {
+     for ( j = 1 ; j < col ; j ++ ) {
+       if ( matrix[0][j] || matrix[i][0] )
+         matrix[i][j] = 1 ;
+     }
+   }
+   if ( colFlag )
+     for ( i = 0 ; i < row ; i ++ )
+       matrix[i][0] = 1 ;
+   if ( rowFlag )
+     for ( j = 0 ; j < col ; j ++ )
+       matrix[0][j] = 1 ;
+   printf ( "\n\nAfter Modification\n" ) ;
+   printMatrix(matrix, row, col) ;       
+}
+
+int main() {
+  int **matrix, row, col ;
+  printf ( "\nEnter the number of rows:\t" ) ;
+  scanf( "%d", &row );
+  printf ( "\nEnter the number of columns:\t" ) ;
+  scanf ( "%d", &col ) ;
+  matrix = getInput (row, col) ;
+  modifyMatrix (matrix, row, col) ;
+  getch () ;
+  return 1 ;
+}
+ Amol Running solution based on your code.. h t t p://ideone.com/RdFgi chaitu2289 Code for the second solution. http://ideone.com/GGgkq CaesiumX http://ideone.com/UHq6V rohit what is the point of sharing this link? the code has compilation errors. CaesiumX because compiler over there – gcc tested on – turbo c (working fine) praveen A simple method, time complexity is O((M+N)*M*N) in worst case. Matrix cells for which row and column are 0 are the only cells which are going to remain 0, everything else is going to be 1. So for every cell mat[i][j], check if ith row and jth column both are zero. If so then store the cell no. devan Method 1 is wrong. If you traverse through the 2D array and change the entries as said, then in no time the entire matrix will be 1’s. We can not distinguish the 1’s that were already present and the 1’s that were put later. GeeksforGeeks @devan: Thanks for pointing this out. We have removed Method 1 from post. Method 2 is now method 1 and method 3 is method 2. Keep it up!! harsh How about the following question for non-boolean numbers. If a matrix cell mat[i][j] is 0 then make all the cells of ith row and jth column as 0. Ex 7 4 8 5 0 0 6 0 0 4 3 0 should be changed to following 0 0 8 0 0 0 0 0 0 0 0 0 rohit Method 2 is fantastic will3 Sorry for spam. I commented on wrong post.Please delete this post.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

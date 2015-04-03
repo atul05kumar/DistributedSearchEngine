@@ -1,0 +1,1045 @@
+Maximum Length Bitonic Subarray - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Maximum Length Bitonic Subarray Given an array A[0 … n-1] containing n positive integers, a subarray A[i … j] is bitonic if there is a k with i <= k <= j such that A[i] <= A[i + 1] ... <= A[k] >= A[k + 1] >= .. A[j – 1] > = A[j]. Write a function that takes an array as argument and returns the length of the maximum length bitonic subarray. Expected time complexity of the solution is O(n) Simple Examples 1) A[] = {12, 4, 78, 90, 45, 23}, the maximum length bitonic subarray is {4, 78, 90, 45, 23} which is of length 5. 2) A[] = {20, 4, 1, 2, 3, 4, 2, 10}, the maximum length bitonic subarray is {1, 2, 3, 4, 2} which is of length 5. Extreme Examples 1) A[] = {10}, the single element is bitnoic, so output is 1. 2) A[] = {10, 20, 30, 40}, the complete array itself is bitonic, so output is 4. 3) A[] = {40, 30, 20, 10}, the complete array itself is bitonic, so output is 4. Solution Let us consider the array {12, 4, 78, 90, 45, 23} to understand the soultion. 1) Construct an auxiliary array inc[] from left to right such that inc[i] contains length of the nondecreaing subarray ending at arr[i]. For for A[] = {12, 4, 78, 90, 45, 23}, inc[] is {1, 1, 2, 3, 1, 1} 2) Construct another array dec[] from right to left such that dec[i] contains length of nonincreasing subarray starting at arr[i]. For A[] = {12, 4, 78, 90, 45, 23}, dec[] is {2, 1, 1, 3, 2, 1}. 3) Once we have the inc[] and dec[] arrays, all we need to do is find the maximum value of (inc[i] + dec[i] – 1). For {12, 4, 78, 90, 45, 23}, the max value of (inc[i] + dec[i] – 1) is 5 for i = 3. 
+#include<stdio.h>
+#include<stdlib.h>
+
+int bitonic(int arr[], int n)
+{
+    int i;
+    int *inc = new int[n];
+    int *dec = new int[n];
+    int max;
+    inc[0] = 1; // The length of increasing sequence ending at first index is 1
+    dec[n-1] = 1; // The length of increasing sequence starting at first index is 1
+
+    // Step 1) Construct increasing sequence array
+    for(i = 1; i < n; i++)
+    {
+        if (arr[i] > arr[i-1])
+            inc[i] = inc[i-1] + 1;
+        else
+            inc[i] = 1;
+    }
+
+    // Step 2) Construct decreasing sequence array
+    for (i = n-2; i >= 0; i--)
+    {
+        if (arr[i] > arr[i+1])
+            dec[i] = dec[i+1] + 1;
+        else
+            dec[i] = 1;
+    }
+
+    // Step 3) Find the length of maximum length bitonic sequence
+    max = inc[0] + dec[0] - 1;
+    for (i = 1; i < n; i++)
+    {
+        if (inc[i] + dec[i] - 1 > max)
+        {
+            max = inc[i] + dec[i] - 1;
+        }
+    }
+
+    // free dynamically allocated memory
+    delete [] inc;
+    delete [] dec;
+
+    return max;
+}
+
+/* Driver program to test above function */
+int main()
+{
+    int arr[] = {12, 4, 78, 90, 45, 23};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    printf("\n Length of max length Bitnoic Subarray is %d", bitonic(arr, n));
+    getchar();
+    return 0;
+}
+ Time Complexity: O(n) Auxiliary Space: O(n) As an exercise, extend the above implementation to print the longest bitonic subarray also. The above implementation only returns the length of such subarray. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. Gaurav Gupta Here is simple solution which takes O(n) times and constant extra space. Correct me If wrong… #include int max(int a, int b){ return a>b ? a :b ; } int main(){ int max_length_so_far = 2, currnt_length = 2, flag = 0, i; int a[] = {1,2,45,21,4,7,8,1,2,3,9,0,12,23,34,45}; int size = sizeof(a)/sizeof(a[0]); // a single element array and size 2 array is always bitonic // so there is no checking for those arrays so min length of // bitonic array is set to 2. if(size < 3) return size; flag = a[1] < a[0] ? 1 : 0 ; for(i = 2 ; i a[i-1]) { if(flag){ flag = 0; currnt_length = 2; } else{ currnt_length++ ; max_length_so_far = max( max_length_so_far , currnt_length); } } else if(a[i] < a[i-1]){ flag = 1 ; currnt_length++ ; max_length_so_far = max(max_length_so_far , currnt_length); } else currnt_length++; max_length_so_far = max(max_length_so_far , currnt_length); } printf("max length so far is %d", max_length_so_far); return 0; } Guest The method for finding the inc and dec above is flawed. Either change the definition of inc[i] and dec[i] or better check the logic behind it. Himanshu Hi This is not working for the following test case: {1, 11, 2, 10, 4, 5, 2,1} .Your algo is printing the o/p as 4 whereas the max. bitonic sequence in the array is 1,11,10,4,2,1. so length should be 6. chaks The question is to print the maximum length of ”bitonic subarray” i.e. (4,5,2,1) in your example. therock Please explain. Why it is {4,5,2,1} ? and Why (1,11,10,4,2,1.) is not a bitonic subarray? chaks Subarray is sonething which is contiguous subsequence whereas (1,11,10,4,2,1) are not continuous in the given sequence. sandeep why to find keep aux array of in and dec. Not just keeping track of max bitonic seq seen so far enuf and updating it wen seen greater… O(1) space complexity CP Here’s a solution with Time Complexity: O(n) & Space Complexity : O(1). http://codepad.org/C8AjYnaQ Sahil Here’s a solution with Time Complexity: O(n) & Space Complexity : O(1). #include using namespace std; int bitonic(int a[], int n); int main() { int a[] = {20, 4, 1, 2, 3, 4, 2,100,1,2,3,4,5,6,5,4,3,2,1}; int n=sizeof(a)/sizeof(int); cout<<bitonic(a,n); return 0; } int bitonic(int a[], int n) { int i=0,j=0,k=0; int len=0; while(i<n) { while(i<n) { if(a[i+1]<a[i]) { i++; } else break; } j=i; while(ja[j]) { j++; } else break; } k=j; while(k<n) { if(a[k+1]len) { len=k-i+1; } i=k; } return len; } Rahul Verma I think the logic for finding the increasing and decreasing sub sequence is flawed. the increasing sub sequence for array {12, 4, 78, 90, 45, 23} should be {1, 1, 2, 3, 2, 2} and not {1, 1, 2, 3, 1, 1} and finding this correct increasing and decreasing sub sequence will take O(n^2) time. Innocent Why is this algorithm working, pls some one explain logic Marsha Donna @d4868dd64c637016efc578852ad7cd68:disqus pls help,…i m not able to copy paste c code from vc++ as comment here..after it gets uploaded as comment it is not displayed correctly Guest can sum1 pls validate this void bitonic(int arr[],int n) { int i,diff[20],str_ind,end_ind,max_diff=0; if(n==1) printf(“arr is bitonicn”); for(i=0;iarr[i+1]) break; } if(i==n-1) printf(“arr is bitonicn”); for(i=0;i<n-1;i++) //check if entire arr is in desc order { if(arr[i]<arr[i+1]) break; } if(i==n-1) printf("arr is bitonicn"); for(i=0;i<n-1;i++) diff[i]=arr[i+1]-arr[i]; for(i=0;i=0) { str_ind=i; do{i++;}while(diff[i]>=0); if(diff[i]<0) do{i++;} while(diff[i]<0&&i<n-1); end_ind=i; max_diff=max(max_diff,end_ind-str_ind); } if(diff[i]<0&&i<n-1) { str_ind=i; do{i++;}while(diff[i]<0); end_ind=i; max_diff=max(max_diff,end_ind-str_ind); } } printf("nn%dn",max_diff+1); } Guest can sum1 pls validate the following code void bitonic(int arr[],int n) { int i,diff[20],str_ind,end_ind,max_diff=0; if(n==1) printf(“arr is bitonicn”); for(i=0;iarr[i+1]) break; } if(i==n-1) printf(“arr is bitonicn”); for(i=0;i<n-1;i++) //check if entire arr is in desc order { if(arr[i]<arr[i+1]) break; } if(i==n-1) printf("arr is bitonicn"); for(i=0;i<n-1;i++) diff[i]=arr[i+1]-arr[i]; for(i=0;i=0) { str_ind=i; do{i++;}while(diff[i]>=0); if(diff[i]<0) do{i++;} while(diff[i]<0&&i<n-1); end_ind=i; max_diff=max(max_diff,end_ind-str_ind); } if(diff[i]<0&&i<n-1) { str_ind=i; do{i++;}while(diff[i]<0); end_ind=i; max_diff=max(max_diff,end_ind-str_ind); } } printf("nn%dn",max_diff+1); } Pawan Parekh Sudhanshu , try for {1,11,2,10,4,5,2,1} it will give wrong output 4 , The right output is 6 {1,2,10,5,2,1} sunil {1,2,10,5,2,1} is not a subarray. SudhanshuAnand This is a simple solution in linear time and constant space. We can keep the count till the condition is satisfied and check it with max Length so far.  
+int bitonic(int a[], int size){
+	int maxLength = 0;
+	int flag = 0, count = 1;
+	for(int i= 0 ;i<size-1;i++){
+		if(flag == 0){
+			if(a[i]<=a[i+1]){
+				count++;
+			}else if(a[i]>a[i+1]){
+				flag = 1;
+				count++;
+			}
+		}
+		else if(flag == 1){
+			if(a[i]>=a[i+1]){
+				count++;
+			}else{
+				flag = 0;
+				maxLength = max(maxLength, (count));
+				count = 2;
+			}
+		}
+	}
+	maxLength = max(maxLength, count);
+	return maxLength;
+}
+ trying public static int maxBitonicSubArray(int[] a) { if(a.length == 0) { throw new IllegalArgumentException(); } boolean isIncreasing = true; int count = 1, max = Integer.MIN_VALUE; for(int i=1; i<a.length; i++) { if(a[i]>a[i-1]) { if(!isIncreasing) { count = 2; isIncreasing = true; } else { count++; } } else if(a[i]<a[i-1]) { if(isIncreasing) { count++; isIncreasing = false; } else { count++; } } else { count++; } max=(max<count)?count:max; } return max == Integer.MIN_VALUE? count : max;//if one element } vishal Another code with space O(1) and Time O(n)  
+#include<stdio.h>
+struct parameters
+{
+    int start;
+    int end;
+    int count;
+};
+typedef struct parameters parameters;
+
+parameters bitonic(int a[] , int n)
+{
+        int count, start = -1 , end = -1;
+        parameters p;
+        p.start = p.end = p.count = -1;
+        int i = 0;
+        if( n == 1)
+        {
+            p.start = p.end = 0;
+            p.count = 1;
+        }
+        else if( a[0] > a[1])   // for decreasing order array
+        {
+                while( i < n-1 && a[i] > a[i+1])
+                {
+                    ++i;
+                    ++count;
+                }
+                if( i == n-1)
+                {
+                         p.count = n;
+                         p.start = 0;
+                         p.end = n-1;
+                }
+        }
+        else
+        {
+                while (i  < n-1)
+                {
+                        if( a[i] < a[i+1])
+                        {
+                                count = 1;
+                                start = i;
+                                ++i;
+
+                                while(i < n-1 && a[i]  < a[i+1])
+                                {
+                                    ++count;
+                                    ++i;
+                                }
+                                if( i == n-1)  // Increasing order array
+                                {
+                                        p.count = n;
+                                        p.start = 0;
+                                        p.end = n-1;
+                                }
+                                else
+                                {
+                                            while (i < n-1 && a[i] > a[i+1])
+                                            {
+                                                ++i;
+                                                ++count;
+                                                end = i;
+                                            }
+                                            --i;
+                                }
+                                if( count > p.count)
+                                {
+                                        p.count = count;
+                                        p.start = start;
+                                        p.end = end;
+                                }
+                        }
+                        ++i;
+                }
+        }
+        return p;
+}
+int main()
+{
+        int i;
+        int a[14] = {12, 4,78, 90 , 45 , 3 , 10 , 25 , 50 , 25 , 20 , 10 , 4 , 56};
+        parameters p = bitonic(a , 14);
+        printf("Bitonic subarray \n");
+        if( p.count == -1)
+                printf("No bitonic array found\n");
+        else
+                for( i = p.start ; i <= p.end ; ++i)
+                        printf("%d\t" , a[i]);
+}
+
+ skulldude The following code runs in O(n) time and used O(1) space. It is based on the following observation: If [i,j] is a bitonic subarray that starts at i and ends at j, then it is enough to start searching from j for the next bitonic subarray. You can observe it by drawing some examples. The following code uses that fact to run in O(n) time and O(1) space complexity  
+void maxBitonicSubarray(int a[],int len){
+
+	int i=0,maxLen=1,start=0;
+	
+	while(i<len){
+		int j=i+1;
+
+                // finding an increasing subarray from i
+		while(j<len && a[j]>a[j-1])
+			++j;
+		
+                // finding a decreasing subarray from j
+		while(j<len && a[j]<a[j-1])
+			++j;
+				
+		if(j-i>maxLen){
+			maxLen=j-i;
+			start=i;
+		}
+		
+		if(j==len)
+			break;
+
+		// changing i to the end of the current bitonic subarray
+		i=j-1;
+	}
+	
+        printf("maxLen=%d\n",maxLen);
+
+	for(int i=start;i<start+maxLen;++i)
+		printf("%d ",a[i]);
+	
+	return;
+}
+ Please comment if you find bugs in the code. -Balasubramanian.N sush  
+ 
+int bitonic(int a[], int n)
+{
+    int i=1,ml=-1,d=0,cl=1,k;
+	for(k=1;k<n;++k)
+	{
+		if(i)
+		{
+			if(a[k]>a[k-1])
+				cl++;
+			else
+			{
+				d=1;i=0;cl++;
+			}
+		}
+		if(d)
+		{
+			if(a[k]<a[k-1])
+				cl++;
+			else
+			{
+				i=1;d=0;
+				if(cl>ml)
+					ml=cl;
+				cl=1;
+			}
+		}
+	}
+	if(cl>ml)
+	ml=cl;
+	return ml;
+}
+ Aditya Ambashtha O(n) implementation for constant space  
+#include<stdio.h>
+
+int returnMaxBitonicLength(int *,int);
+int higg(int *,int);
+int loww(int *,int);
+int max(int,int);
+
+int main()
+{
+    int maxl;
+    int arr[]={12, 4, 78, 90, 45, 23};
+
+    maxl=returnMaxBitonicLength(arr,6);
+
+    printf("Max bitonic size = %d\n",maxl);
+
+    return 0;
+}
+
+int returnMaxBitonicLength(int *arr,int size)
+{
+    int low,hig,bitsiz,flag,cnt;                    /*low and hig store the last low and high encountered*/
+
+    bitsiz=1;flag=0;
+
+    if (arr[0]>arr[1])                              /*Decide whether arr[0] is high or low*/
+        hig=arr[0];
+    else
+        low=arr[0];
+
+    for (cnt=1;cnt<size;cnt++)
+    {
+        if (higg(arr,cnt))                          /*if a high has been encountered, means low must have been there too in the past*/
+        {                                           /*since low and high are relative by definition*/
+            bitsiz=max(bitsiz,cnt-low+1);           /*cnt is high...this line is counting the size of low-high type of bitnoic*/
+            hig=cnt;                                /*new high*/
+            flag=1;                                 /*enabling this to look for low2 in the future since low1-high-low2 is also a bitonic form*/
+        }
+        else if (loww(arr,cnt))                     /*if a low has been observed, there must have been high*/
+        {
+            if (flag)                               /*flag means this bitonic is low-high-low i.e. count is a low too*/
+            {
+                bitsiz=max(bitsiz,cnt-low+1);       /*cnt-low+1 is the elements between 2 lows*/
+                flag=0;                             /*high-low-high is over*/
+            }
+            else
+                bitsiz=max(bitsiz,cnt-hig+1);
+            low=cnt;                                /*new low*/
+        }
+    }
+
+    return bitsiz;
+}
+
+int higg(int *arr,int cnt)
+{
+    if (arr[cnt]>arr[cnt-1]&&arr[cnt]>arr[cnt+1])       /*if an element is greater than previous and next, its a high*/
+        return 1;
+    else
+        return 0;
+}
+
+int loww(int *arr,int cnt)
+{
+    if (arr[cnt]<arr[cnt-1]&&arr[cnt]<arr[cnt+1])       /*if an element is smaller than previous and next, its a low*/
+        return 1;
+    else
+        return 0;
+}
+
+int max(int a,int b)
+{
+    if (a>b)
+        return a;
+    else
+        return b;
+}
+
+
+ Aditya Ambashtha change this if (arr[0]>arr[1]) /*Decide whether arr[0] is high or low*/ hig=arr[0]; else low=arr[0]; to this if (arr[0]>arr[1]) /*Decide whether arr[0] is high or low*/ hig=0; else low=0; Aditya Ambashtha change this if (arr[0]>arr[1]) /*Decide whether arr[0] is high or low*/ hig=arr[0]; else low=arr[0]; to this if (arr[0]>arr[1]) /*Decide whether arr[0] is high or low*/ hig=0; else low=0; varr There might not be a need for additional arrays. Is this solution correct.If yes, please tell me.(I shall give the explanation.) //max length bitonic subarray #include int maxlenbiseq(int arr[],int n) { int maxlen=1,curlen=1; int i,prev=arr[0],flag=0,beg=0,maxbeg=0; for(i=1;i { if(flag==0) { if(arr[i]>=prev) curlen++; else { curlen++; flag=1; } } else //flag==1 { if(arr[i]< =prev) curlen++; else { beg=i-1; curlen=2; flag=0; } } prev=arr[i]; if(curlen>maxlen) { maxlen=curlen; maxbeg=beg; } } printf(“\nMaxmim length bitonic subarray starts at:%d”,maxbeg); return maxlen; } varr some part is missing.. int maxlenbiseq(int arr[],int n) { int maxlen=1,curlen=1; int i,prev=arr[0],flag=0,beg=0,maxbeg=0; for(i=1;i { if(flag==0) { if(arr[i]>=prev) curlen++; else { curlen++; flag=1; } } else //flag==1 { if(arr[i]< =prev) curlen++; else { beg=i-1; curlen=2; flag=0; } } prev=arr[i]; if(curlen>maxlen) { maxlen=curlen; maxbeg=beg; } } printf(“\nMaxmim length bitonic subarray starts at:%d”,maxbeg); return maxlen; } int main() { int arr[] = {12, 4, 78, 90, 45, 23}; int n = sizeof(arr)/sizeof(arr[0]); printf(“\n Length of max length Bitnoic Subarray is %d”, maxlenbiseq(arr, n)); getchar(); return 0; } varr for loop has not come again: for(i=1;i { …. } varr There might not be a need for additional arrays. Is this solution correct.If yes, please tell me.(I shall give the explanation.) //max length bitonic subarray #include int maxlenbiseq(int arr[],int n) { int maxlen=1,curlen=1; int i,prev=arr[0],flag=0,beg=0,maxbeg=0; for(i=1;i { if(flag==0) { if(arr[i]>=prev) curlen++; else { curlen++; flag=1; } } else //flag==1 { if(arr[i]< =prev) curlen++; else { beg=i-1; curlen=2; flag=0; } } prev=arr[i]; if(curlen>maxlen) { maxlen=curlen; maxbeg=beg; } } printf(“\nMaxmim length bitonic subarray starts at:%d”,maxbeg); return maxlen; } int main() { int arr[] = {12, 4, 78, 90, 45, 23}; int n = sizeof(arr)/sizeof(arr[0]); printf(“\n Length of max length Bitonic Subarray is %d”, maxlenbiseq(arr, n)); getchar(); return 0; } abhishek08aug What a messy solution!! Here I give you all a simple one. Cheers!  
+#include<stdio.h>
+
+int find_max_bitonic_length(int array[], int n) {
+  int i;
+  int max_bitonic_length, current_bitonic_length;
+
+  for(i=0, max_bitonic_length=0, current_bitonic_length=0;i<n; i++) {
+      current_bitonic_length++;
+      if(current_bitonic_length>max_bitonic_length)
+        max_bitonic_length=current_bitonic_length;
+
+      if(i-1>=0 && array[i-1]>array[i] && i+1<=n-1 && array[i]<array[i+1])
+        current_bitonic_length=1;
+  }
+  return max_bitonic_length;
+}
+
+int main(){
+  int array[]={40, 5, 6, 34, 56, 76, 4, 5, 6, 7, 8, 23, 21, 54, 67, 54, 34, 32};
+  int n=sizeof(array)/sizeof(array[0]);
+  printf("Maximum length of bitonic array in the given array is %d", find_max_bitonic_length(array, n));
+  return 0;
+}
+ Maximum length of bitonic array in the given array is 7 abhishek08aug Another optimization to ensure that maximum_bitonic_length is not updated for every element in a ripple. With ripple I mean a sequence of increase+decrease  
+#include<stdio.h>
+ 
+int find_max_bitonic_length(int array[], int n) {
+  int i;
+  int max_bitonic_length, current_bitonic_length;
+ 
+  for(i=0, max_bitonic_length=0, current_bitonic_length=0;i<n; i++) {
+      current_bitonic_length++;
+ 
+      if(i-1>=0 && array[i-1]>array[i] && i+1<=n-1 && array[i]<array[i+1]) {
+        if(current_bitonic_length>max_bitonic_length)
+          max_bitonic_length=current_bitonic_length;
+        current_bitonic_length=1;
+      }
+  }
+  return max_bitonic_length;
+}
+ 
+int main(){
+  int array[]={40, 5, 6, 34, 56, 76, 4, 5, 6, 7, 8, 23, 21, 54, 67, 54, 34, 32};
+  int n=sizeof(array)/sizeof(array[0]);
+  printf("Maximum length of bitonic array in the given array is %d", find_max_bitonic_length(array, n));
+  return 0;
+}
+ rakitic we can use only decrease variable , if no is smaller then previous , decrease =1 , if no is greater then previous and decrease =1…that means one length is complete , now make decrease = 0 and keep updating in this way…..did you even got what i said ?? reply plz bhavneet time complexity o(n) space o(1) pls help to find if any problem with this algo  
+#include<stdio.h>
+int func(int arr[], int n)
+{
+        int max=0;
+        int i, inc=1, dec=0;
+        for( i=2; i<n; i++)
+        {
+                if ( arr[i]< arr[i-1])
+                        dec++;
+                else if ( dec>0)
+                {
+                        if( inc +dec >max)
+                                max = inc+ dec;
+                        dec=0;
+                        inc =2;
+                }
+                else
+                        inc ++;
+
+        }
+            if( inc +dec >max)
+                                max = inc+ dec;
+
+        return max;
+}
+
+int main()
+{
+        int arr[]={12, 4, 78, 90, 45, 23};
+        printf("%d", func(arr,6));
+        return 0;
+}
+
+ bhavneet will only work for strictly increasing and decreasing  
+/* Paste your code here (You may delete these lines if not writing code) */
+ hunter good one…….. Arvind B R Failing test case : input : 2,2,2,2,2,2,2,2,1 expected output : 9 received output : 2 check this link http://ideone.com/uneqG5 bhavneet make the following changes in code if (arr[i] >= arr[i+1]) dec[i] = dec[i+1] + 1; else if (arr[i] <= arr[i+1]) dec[i] = 1; n similarly for inc stupid Here I have a doubt. If numbers are not unique like 12 4 4 78 90 90 45 30. Then maximum bitonic sub-array should be 4 4 78 90 90 45 30. Then the If condition should be if(a[i-1]=a[i+1]) for right. Please correct me If I am wrong. stupid Condition should be if(a[i-1]=a[i+1]) for right. Please correct me If I am wrong. sam Hi, What would be the bitonic sequence of an array{1,2,4,0,3,8,6,5,9} Executing the above code gives me the answer as 5 but I think there exist a sequence like 1,2,3,8,6,5. Therefore the length will be 6. Kindly share your thoughts. GeeksforGeeks Please see the above reply. rakitic we can use only decrease variable , if no is smaller then previous , decrease =1 , if no is greater then previous and decrease =1…that means one length is complete , now make decrease = 0 and keep updating in this way…..did you even got what i said ?? reply plz Nishant Kumar O(n) without extra space int foo(int[] array){ int max=0; int count=0; boolean prv=false; boolean curr=false; int diff; for(int i=0;i<array.length-1;i++){ diff=array[i+1]-array[i]; curr=(diff>=0)?true:false; if(prv | !curr) count++; else count=1; if(count>max) max=count; prv=(diff>=0)?true:false; } return max+1; } https://sites.google.com/site/nishantonl9/ Nishant Kumar This solution doesn’t require extra space and iterate only once through array. given : i < = k <= j such that A[i] <= A[i + 1] ... <= A[k] >= A[k + 1] >= .. A[j – 1] > = A[j] It means we need to find largest array which increase first and then decrease. Monotonically increasing and decreasing array are boundary conditions. Let’s assume if an array element is greater than previous element it is denoted as 1 else 0. curr=(diff>=0)?true:false; we will check current diff and previous diff value. if we are getting previous and current pair (pre,curr) as (1,0),(1,1) or (0,0) than it fall in wanted condition. if(prv | !curr) if pair is (0,1) it means array decreased and then increased so current element can’t be part of maximum length subarray calculated till previous step and we should start again. Correct me if my logic is wrong Prateek Caire O(n) without extra space. Although logic is same as original author’s solution but without extra space.  
+ML()
+	i = 1
+	c = 1
+	while(i < n)
+		c = 1
+		while(a[i] >= a[i-1] && i < n)
+			c++
+			i++
+		while(a[i] <= a[i-1] && i < n)
+			c++
+			i++
+		if(c > max)
+			max = c
+ Aadarsh O(n) time, without using extra space. The main aim is to find the transition from greater to lesser and then greater which shoud update the lower index accordingly  
+void bitonicArray(int *arr,int size)
+{
+    int lower=0,higher,diff,maxDiff = -11111,i;
+    bool greater = true;
+    for(i=0;i<size-1;i++)
+    {
+        higher = i + 1;
+        if(arr[i+1] < arr[i])
+            greater = false;
+        else
+        {
+            if(!greater)
+                lower = i;
+            greater = true;
+        }
+        diff = higher - lower;
+        if(diff > maxDiff) maxDiff = diff;
+    }
+    cout << "Diff is " << maxDiff + 1 << endl;
+}
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ganesh /** * Given an array A[0 … n-1] containing n positive integers, a subarray A[i … j] is bitonic * if there is a k with i <= k <= j such that A[i] <= A[i + 1] … <= A[k] >= A[k + 1] >= .. A[j – 1] > = A[j]. * Example: A[] = {12, 4, 78, 90, 45, 23}, the maximum length bitonic subarray is {4, 78, 90, 45, 23} * which is of length 5. * @author GAPIITD * */ public class MaximumLengthBitonicSubarray { public static void main(String[] args) { int arr[] = {12, 4, 78, 90, 45, 23}; System.out.println(FindMaxLenBitonicSubarray(arr)); } private static int FindMaxLenBitonicSubarray(int[] arr) { int incr[] = new int[arr.length]; int decr[] = new int[arr.length]; incr[0] = decr[arr.length – 1] = 1; // Construct increasing sequence array for (int i = 1; i < arr.length; i++) { if (arr[i] > arr[i-1]) incr[i] = incr[i-1] + 1; else incr[i] = 1; } // Construct decreasing sequence array for (int i = arr.length – 2; i > 0; i–) { if (arr[i] > arr[i+1]) decr[i] = decr[i+1] + 1; else decr[i] = 1; } // Find the length of maximum length bitonic sequence int max = incr[0] + decr[0] – 1; for (int i = 1; i < arr.length; i++) { if (max < incr[i] + decr[i] – 1) max = incr[i] + decr[i] – 1; } return max; } } vj #include using namespace std; #define maxi(a,b)(((a)>(b))?a:b) int main() { int a[]={12, 4, 78, 90, 45, 23}; int curlen=1; int maxlen=1; int n= sizeof(a)/sizeof(a[0]); for(int i=1;i<n;i++) { if(i==n-1) curlen++; else if(a[i]<a[i-1] && a[i]<a[i+1]) { curlen++; maxlen=maxi(maxlen,curlen); curlen=1; } else curlen++; } maxlen=maxi(maxlen,curlen); cout<<maxlen<<endl; return 0; } Vix Here’s a simpler version that runs in O(n) time and takes O(1) space. The key insight is to track the transition the state of the sequence and store the longest sequence so far. The problem can be broken down into 4 cases: 1) The sequence increases (up) and decreases (down) 2) The sequence only increases (up) OR The sequence only decreases (down) 3) There’s one element 4) The sequence decreases (down) and then increases (up) The counter is incremented for cases 1 and 2 while the state is toggled for 4.  
+#include<stdio.h>
+#include<stdlib.h>
+ 
+int bitonic(int arr[], int n)
+{
+	//Initialize sequence counters
+	int longest_so_far = 1;
+	int longest_current = 1;
+	
+    int i;
+	//Initially assume that the sequence is increasing
+	bool upstate = true; //false = going down
+
+    for(i = 1; i < n; i++)
+    {
+        if (arr[i-1] <= arr[i])
+		{
+			//Is this a state transition?
+			if(upstate)
+			{
+				//No state transition
+				longest_current++;
+			}
+			else
+			{
+				//State transitioned from down to up
+				//Store the longest bitonic so far
+				if (longest_so_far < longest_current)
+				{
+					longest_so_far = longest_current;					
+				}
+				
+				//Reset variables
+				longest_current = 2; //This is two because we have already encountered 2 numbers of the sequence
+				upstate = true;
+			}
+		}            
+        else
+		{
+			if (upstate)
+			{
+				//Reset upstate
+				upstate = false;
+			}
+			longest_current++;
+		}            
+    }
+
+	//Check at the end
+	if (longest_so_far < longest_current)
+	{
+		longest_so_far = longest_current;
+	}
+	
+    return longest_so_far;
+}
+ 
+/* Driver program to test above function */
+int main()
+{
+    int arr[] = {12, 4, 78, 90, 45, 23}; //5
+	//int arr[] = {12, 4, 78, 90, 45}; //4
+	//int arr[] = {20, 4, 1, 2, 3, 4, 2, 10,11}; //5
+	
+	//int arr[] = {10, 20, 30, 40}; //4
+	//int arr[] = {40, 30, 20, 10}; //4
+    int n = sizeof(arr)/sizeof(arr[0]);
+    printf("\n Length of max length Bitnoic Subarray is %d", bitonic(arr, n));
+    getchar();
+    return 0;
+}
+ Rahul #include #include main() { int a[]={12, 4, 78, 90, 45, 23}; int n=6,MAX=0; int ch=0,inc=0,dec=0; for(int i=0;i<n;i++) { if(ch==1) { if(MAXa[i])&& (dec==0)) { printf(“%d “,a[i]); inc++; } if(a[i+1]a[i+1]||i+1==n-1) ch=1; } } printf(“the maximum length bitionic sequence is %d “,MAX+1); getch(); } shani   [int bitonic(int arr[], int n) { int max = 0; int current_max = 1; int index = 0; if(n < 3) return n; while(index < n-1) //scanning whole array { while(index < n-1 && arr[index] <= arr[index + 1]) { current_max++; index++; } while(index = arr[index + 1]) { current_max++; index++; } if(current_max > max) max = current_max; current_max = 1; } return max; }] vijay_kansal I think the given simple solution of O(n) time and O(1) space must work. Please indicate errors in the code, if any…  
+int longest_bitonic(int *a,int n)
+{
+ if(n<=0)
+  return 0;
+ int i,max,lastdistincti=0,starti;
+ i=0;
+ while(i<n)
+ {
+  starti=lastdistincti;
+
+  for(;i<n&&a[i]>=a[i-1];i++)
+   ;
+
+  for(;i<n&&a[i]<=a[i-1];i++)
+   if(a[i]<a[i-1])
+    lastdistincti=i;
+  
+  if(i-starti>max)
+   max=i-starti;
+ }
+ return max;
+}
+ elijah.resurrects Hey everyone thanks for such elegant codes, but I don’t think it’s helpful at all unless they are documented. I think it will be more helpful for others if the code is accompanied with the logic. Is it so difficult to add the logic that is being used in your codes? Thanks.. Tinku yes you are write.but if any have any knowledge about coding then he/she can understand the code easily.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ camster Here is a method that not uses extra space, runs in O(N) time complexity , and returns the first array pos and last array pos of the maxiumum length bitonic sequence(thereby saving the printing operations) frankc  
+
+int findbitoniclength(int* arr,int ctr,int original, 
+                      int& count, int& ctrlast){
+        int length(0);
+	int i(0);
+	bool increasing(false);
+	bool decreasing(false);
+	if (arr[ctr] < arr[ctr + 1]){
+		increasing = true;
+	}
+	else{
+		decreasing = true;
+	}
+	if (increasing){
+		for (i = ctr + 0; i < original - 1 ;i++){
+		   if (i < original  &&
+			(count == 0 && arr[i] < arr[i + 1]) 
+                         || arr[i] > arr[i+1]){
+			if (arr[i] > arr[i+1]){
+			   count += 1;
+			}
+	        }
+		else{
+				break;
+		}
+	     }
+	     ctrlast = i;
+	     return ctrlast - ctr + 1; 
+	}
+	else if (decreasing){
+		for (i = ctr; i < original - 1; i++){
+			if (arr[i] > arr[i + 1]){
+				length += 1;
+			}
+			else{
+				break;
+			}
+		}
+		ctrlast = i;
+		return length;
+	}
+}
+
+
+
+int h18helper(int*& arr, int ctr, int len, int& currmax, 
+	      int original, int& zfirstpos, int& zlastpos){
+	int retval;
+	int tmp(0);
+	int lastpos(0);
+	int count(0);
+
+	if (len == 0)
+		return currmax; 
+
+	if (ctr == original){
+		return currmax;  
+	}
+
+	
+	if (arr[ctr] <= arr[ctr + 1]){ 
+		retval = 
+		findbitoniclength(arr,ctr,
+                                  original,
+				  count,lastpos);
+
+		if (retval >= currmax){
+			currmax = retval;
+			zfirstpos = ctr;
+                        zlastpos = lastpos;
+		}
+		if (count > 0){
+			return h18helper(arr, 
+                                        ctr + retval - 1,  
+					len - retval, 
+                                        currmax, 
+			                original,
+                                        zfirstpos,
+                                        zlastpos);	
+		}
+		else{
+			return h18helper(arr, ctr + retval,  
+					len - retval, 
+                                        currmax, 
+			                original,
+                                        zfirstpos,
+                                        zlastpos);
+
+		}
+	}	
+	else if (arr[ctr] < arr[ctr + 1]){ 
+	    return h18helper(arr, ctr + 1, len - 1, 
+			currmax, original,zfirstpos,zlastpos);
+	}	
+	else if (arr[ctr] >= arr[ctr + 1]){ 
+		return h18helper(arr, ctr + 1, len - 1, 
+			currmax, original,zfirstpos,zlastpos);
+	}	
+	return currmax;
+}
+
+int h989(int* arr, int len,  int ctr, int len2, 
+		 int& result,int& firstpos,int& lastpos){
+    int tmp(0);
+	int found(0);
+	if (len < 2){
+		for (int m = 1; m < len2  ; m++){
+			if (aux[0] != aux[m]){
+				found = 1;
+				break;
+			}				
+		}
+		if (found == 1){
+			 result =  h18helper(arr, 0, 
+                                             len2, tmp, len2, 
+				             firstpos,lastpos);
+			 return result;
+		}
+		else {
+			return len2;
+		}
+	}
+	if (ctr <= len2){
+		  return h989(arr, len - 1, 
+			      ctr + 1, len2, 
+			      result,firstpos,lastpos);
+	}	
+	return result;
+}
+
+//testing
+int xretval(0);
+   int firstpos,lastpos;
+ 
+   int arr5[] = {12,4,78,90,45,23,100,200,300,400,500,600,700,800,900};  	
+
+   xretval = h989(arr5, sizeof(arr5)/sizeof(int), 0, 
+	              sizeof(arr5)/sizeof(int),xretval,firstpos,lastpos);
+
+
+   printf("%d %d %d\n",xretval,firstpos,lastpos);
+
+
+/* Paste your code here (You may delete these lines if not writing code) */
+ geek without using extra space  
+int LengthOfMaxBitonicArray(int[] input, int length)
+{
+	int count= 0;
+	int maxbitonic = 0;
+	int curbitonic = 1;
+	bool inc = true;
+	
+	if (length<3) return length;
+
+	while (count<(length - 1))
+	{
+		if(inc==true)
+		{
+			if(input[count] > input[count+1])
+			{
+				inc= false;				
+			}
+			currbitonic++;	
+		}
+		else
+		{
+			if(input[count] < input[count+1])
+			{
+				inc=true;
+				maxbitonic = maxbitonic>currbitonic?maxbitonic:currbitonic;
+				curbitonic = 2;
+			}
+			else
+			{
+				curbitonic++;
+			}			
+		}		
+		count++;
+	}
+
+	return maxbitonic>currbitonic?maxbitonic:currbitonic;	
+}
+ Tarun Kumar WITHOUT USING EXTRA SPACE Logic: first find increasing subarray then find decreasing subarray. The code is … public class up_down { public static void print_array(int a[],int size) { for(int i=0;ib) return a; else return b; } public static int largest_subarray(int a[],int size) { int length; int max_length=1; int i=0; do{ length=1; start=i; while(i!=size-1&&a[i+1]>=a[i]) { ++i; length++; } while(i!=size-1&&a[i+1]<=a[i]) { ++i; length++; } end=i; max_length=MAX(max_length,length); }while(i!=size-1); return max_length; } public static void main(String[] args) { int size=10;// just change this size int array[]=new int[size]; for(int i=0;i<size;++i) array[i]=(int)(Math.random()*100); print_array(array,size); System.out.println("The largest subarray has length "+largest_subarray(array,size)); } } camster This is a improved solution of the recursive maximum bitonic sequence length problem which runs in O(n) time complexity and 0(n) space complexity. Please let me know if you have comments or bug reports. Thank you. FrankC  
+
+int findbitoniclength(int* aux,int ctr,int original, int& ctrlast){
+        int length(0);
+	int i(0);
+	bool increasing(false);
+	bool decreasing(false);
+	if (aux[ctr] == 1){
+		increasing = true;
+	}
+	else{
+		decreasing = true;
+	}
+	if (increasing){
+		for (i = ctr; i < original; i++){
+		    if (i < original  && aux[i] >= aux[i + 1]){
+				length += 1;
+		    }
+		    else{
+				break;
+		    }
+		}
+		ctrlast = i - 1;
+		return length;
+	}
+	else if (decreasing){
+	   for (i = ctr; i < original; i++){
+		if (i < original - 1 && aux[i] == aux[i + 1]){
+				length += 1;
+		}
+		else{
+				break;
+		}
+		}
+		ctrlast = i - 1;
+		return length;
+	}
+}
+
+
+
+int h18helper(int*& aux, int ctr, int len, int& currmax, 
+			  int original){
+	int retval;
+	int tmp(0);
+	int lastpos(0);
+
+	if (len == 0)
+		return currmax; 
+
+	if (ctr == original){
+		return currmax;  
+	}
+
+	
+	if (aux[ctr] == aux[ctr + 1]){ 
+	  retval = findbitoniclength(aux,ctr,original,lastpos);
+
+          currmax = MAX(currmax,retval);
+
+	  return h18helper(aux, ctr + retval,  len - retval, 
+			                  currmax, 
+			                  original);	
+
+  
+	
+	}	
+	else if (aux[ctr] < aux[ctr + 1]){
+	    return h18helper(aux, ctr + 1, len - 1, 
+                             currmax, original);
+	}	
+	else if (aux[ctr] > aux[ctr + 1]){
+	    return h18helper(aux, ctr + 1, 
+                                  len-1, currmax, original);
+	}	
+	return currmax;
+}
+
+int h989(int* arr, int len, int*& aux, int ctr, int len2, int& result){
+    int tmp(0);
+    int found(0);
+    if (len < 2){
+		for (int m = 1; m < len2  ; m++){
+			if (aux[0] != aux[m]){
+				found = 1;
+				break;
+			}				
+		}
+		if (found == 1){
+	          result =  h18helper(aux, 0, len2, tmp, len2);
+		  return result;
+		}
+		else {
+		  return len2;
+		}
+	}
+	if (ctr <= (len2 - 0) && arr[ctr] < arr[ctr + 1]){
+                  aux[ctr] = 1;
+		  aux[ctr + 1] = 1;
+        return h989(arr, len - 1, aux, ctr + 1, len2, result);
+	}	
+	else if (ctr <= (len2 - 2) && 
+                 arr[ctr] >= arr[ctr + 1]){
+                 aux[ctr] = -1;
+		 aux[ctr + 1] = -1;
+	return h989(arr, len - 1, aux, ctr + 1, len2, result);
+	}	
+	return result;
+}
+
+  // test program
+  int xretval(0);
+ 
+   int arr5[] = {12,4,78,90,45,23,100,200,300,400,500,600,700,800,900};  
+   int* aux = new int[sizeof(arr5)/sizeof(int)];	
+
+   xretval = h989(arr5, sizeof(arr5)/sizeof(int), aux, 0, 
+	              sizeof(arr5)/sizeof(int),xretval);
+
+
+   printf("%d\n",xretval);
+
+
+
+
+/* Paste your code here (You may delete these lines if not writing code) */
+ CodeBoy  
+public static int getMaximumBitonicLength(int A[]){
+int length = A.length;
+if(length == 1){
+System.out.println("All arrays of size 1 are bitonic");
+return 1;
+}
+int st=0,st_so_far=0;
+int end=0,end_so_far=0;
+boolean inNewSubArray =false;
+int i;
+//Check if array is sorted increasing or decreasing then return (both are bitonic)
+for(i = 1;i<length;i++){
+if(A[i-1]<A[i]){
+end =i;
+inNewSubArray =false;
+}else{
+inNewSubArray =true;
+}
+if(inNewSubArray){
+if((end_so_far-st_so_far)<(end-st)){
+st_so_far =st;
+end_so_far=end;
+}
+st =i;
+inNewSubArray =false;
+}
+}
+for(i = end_so_far+1;i<length;i++){
+if(A[i-1]<A[i]){
+inNewSubArray =true;
+end_so_far =i;
+break;
+}
+}
+if(!inNewSubArray && i == length){
+end_so_far =i;
+}
+printArray(A,st_so_far,end_so_far);
+return end_so_far -st_so_far;
+}
+ camster Here is a recursive O(N) version of the bitonic array length problem. This is my first try so please let me know I how can improve this program. Thank you  
+
+int h18helper(int*& aux, int ctr, int len, int& currmax, int original, int& tmp){
+	int retval;
+	int sum(0);
+	int newsum(0);
+
+
+	if (len == 0)
+	    return tmp;
+	if (ctr == (original-1)){
+	    return tmp; 
+	}
+
+	
+	if (aux[ctr] == aux[ctr + 1]){ 
+		tmp = 0;
+		for (int r = ctr; r < (original - 1); r++){
+			if (aux[r] == aux[r+1]){
+				sum += 1;
+				tmp = 1; 
+			}
+			else{
+				break;
+			}
+		}
+		currmax = MAX(sum,currmax); 
+		if ( ctr + sum < original ){
+	            return h18helper(aux, ctr + sum,  
+                                     len - 1, currmax, 
+		                     original,++sum);
+		}	
+	}	
+	else if (aux[ctr] < aux[ctr + 1]){
+		currmax = tmp + 1;
+		return h18helper(aux, ctr + 1, len-1, 
+                                 currmax, original,tmp);
+	}	
+	else if (aux[ctr] > aux[ctr + 1]){
+		currmax = tmp + 1;
+		return 1 + h18helper(aux,
+                                     ctr+1,len - 1,
+                                     currmax, original, 
+			                 tmp);
+	}	
+	return currmax;
+}
+
+int h989(int* arr, int len, int*& aux, int ctr, int len2, 
+         int& result){
+       int tmp(0);
+       int x(0);
+       int found(0);
+       if (len < 2){
+		for (int m = 1; m < len2  ; m++){
+			if (aux[0] != aux[m]){
+				found = 1;
+				break;
+			}				
+		}
+		if (found == 1){
+		 result =  
+                       h18helper(aux, 0, len2, tmp, len2,x);
+			 return result;
+		}
+		else {
+			return len2;
+		}
+	}
+	if (ctr <= (len2 - 0) && arr[ctr] < arr[ctr + 1]){
+                   aux[ctr] = 1;
+		   aux[ctr + 1] = 1;
+		   return h989(arr, len - 1, aux, 
+                               ctr + 1, len2, result);
+	}	
+	else if (ctr <= (len2 - 2) 
+                    && arr[ctr] >= arr[ctr + 1]) {
+                 aux[ctr] = -1;
+		 aux[ctr + 1] = -1;
+		 return h989(arr, len - 1, aux, ctr + 1, 
+                    len2, result);
+	}	
+	return result;
+}
+
+int main(int argc, char* argv[]){
+    int xretval(0);
+ 
+     int arr5[] = {12,4,78,90,45,23};  
+     int* aux = new int[sizeof(arr5)/sizeof(int)];	
+
+     xretval = h989(arr5, sizeof(arr5)/sizeof(int), aux, 0, 
+	              sizeof(arr5)/sizeof(int),xretval);
+
+
+     printf("%d\n",xretval);
+}
+
+  
+
+
+/* Paste your code here (You may delete these lines if not writing code) */
+ Abhay Without using Extra Space- The idea is to find the largest increasing sub array from left to right and then find the decreasing sequence starting from the end of the largest increasing sub array Code public static int getMaximumBitonicLength(int A[]){ int length = A.length; if(length == 1){ System.out.println(“All arrays of size 1 are bitonic”); return 1; } int st=0,st_so_far=0; int end=0,end_so_far=0; boolean inNewSubArray =false; int i; //Check if array is sorted increasing or decreasing then return (both are bitonic) for(i = 1;i<length;i++){ if(A[i-1]<A[i]){ end =i; inNewSubArray =false; }else{ inNewSubArray =true; } if(inNewSubArray){ if((end_so_far-st_so_far)<(end-st)){ st_so_far =st; end_so_far=end; } st =i; inNewSubArray =false; } } for(i = end_so_far+1;i<length;i++){ if(A[i-1]<A[i]){ inNewSubArray =true; end_so_far =i; break; } } if(!inNewSubArray && i == length){ end_so_far =i; } printArray(A,st_so_far,end_so_far); return end_so_far -st_so_far; } geek4u Extended version that prints the longest Bitonic subarray.  
+int bitonic(int arr[], int n)
+{
+    int i;
+    int *inc = new int[n];
+    int *dec = new int[n];
+    int max;
+    int maxi = 0;
+    inc[0] = 1; // The length of increasing sequence ending at first index is 1
+    dec[n-1] = 1; // The length of increasing sequence starting at first index is 1
+
+    // Step 1) Construct increasing sequence array
+    for(i = 1; i < n; i++)
+    {
+        if (arr[i] > arr[i-1])
+            inc[i] = inc[i-1] + 1;
+        else
+            inc[i] = 1;
+    }
+
+    // Step 2) Construct decreasing sequence array
+    for (i = n-2; i >= 0; i--)
+    {
+        if (arr[i] > arr[i+1])
+            dec[i] = dec[i+1] + 1;
+        else
+            dec[i] = 1;
+    }
+
+    // Step 3) Find the length of maximum length bitonic sequence
+    max = inc[0] + dec[0] - 1;
+    for (i = 1; i < n; i++)
+    {
+        if (inc[i] + dec[i] - 1 > max)
+        {
+            max = inc[i] + dec[i] - 1;
+            maxi = i;
+        }
+    }
+
+    for(i = maxi - inc[maxi] + 1;  i <= maxi; i++)
+       printf("%d ", arr[i]);
+    for(i = maxi+1;  i < maxi + dec[maxi]; i++)
+       printf("%d ", arr[i]);
+    printf("\n");
+
+    delete [] inc;
+    delete [] dec;    
+    return max;
+}
+ Codegirl I have just included equality sign in steps 2 and 3 !!!since we should not consider only the strictly increasing and decreasing case. // Step 1) Construct increasing sequence array for(i = 1; i = arr[i-1]) inc[i] = inc[i-1] + 1; else inc[i] = 1; } // Step 2) Construct decreasing sequence array for (i = n-2; i >= 0; i–) { if (arr[i] >= arr[i+1]) dec[i] = dec[i+1] + 1; else dec[i] = 1; } krishna The given method looks great. Any other way to solve the problem without using extra space? Palash This can be done in O(1) space. Traverse through the array and find local minimas. And as you go, keep comparing the distance between two consecutive minimas with the minimum so far.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,300 @@
+Write a C program to Calculate Size of a tree - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Write a C program to Calculate Size of a tree Size of a tree is the number of elements present in the tree. Size of the below tree is 5. Example Tree Size() function recursively calculates the size of a tree. It works as follows: Size of a tree = Size of left subtree + 1 + Size of right subtree Algorithm: 
+size(tree)
+1. If tree is empty then return 0
+2. Else
+     (a) Get the size of left subtree recursively  i.e., call 
+          size( tree->left-subtree)
+     (a) Get the size of right subtree recursively  i.e., call 
+          size( tree->right-subtree)
+     (c) Calculate size of the tree as following:
+            tree_size  =  size(left-subtree) + size(right-
+                               subtree) + 1
+     (d) Return tree_size
+ 
+#include <stdio.h>
+#include <stdlib.h>
+
+/* A binary tree node has data, pointer to left child 
+   and a pointer to right child */
+struct node 
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data) 
+{
+  struct node* node = (struct node*)
+                       malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+  
+  return(node);
+}
+
+/* Computes the number of nodes in a tree. */
+int size(struct node* node) 
+{  
+  if (node==NULL) 
+    return 0;
+  else     
+    return(size(node->left) + 1 + size(node->right));  
+}
+
+/* Driver program to test size function*/    
+int main()
+{
+  struct node *root = newNode(1);
+  root->left        = newNode(2);
+  root->right       = newNode(3);
+  root->left->left  = newNode(4);
+  root->left->right = newNode(5);   
+
+  printf("Size of the tree is %d", size(root));  
+  getchar();
+  return 0;
+}
+ Time & Space Complexities: Since this program is similar to traversal of tree, time and space complexities will be same as Tree traversal (Please see our Tree Traversal post for details)           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tags: Size of a Tree, Tree Size, TreeSize Tweet Writing code in comment? Please use ideone.com and share the link here. san using System; using System.Collections.Generic; using System.Linq; using System.Text; namespace ConsoleApplication5 { class Program { static void Main(string[] args) { Node root = new Node(1); root.left = new Node(2); root.right = new Node(3); root.left.left = new Node(4); root.left.right = new Node(5); Node.preOrder(root); Console.WriteLine(); Node.postOrder(root); Console.WriteLine(); Node.inOrder(root); Console.WriteLine(); Console.WriteLine(“size:{0}”,Node.size(root)); Console.ReadLine(); } } class Node where T : IComparable { private T data; public Node left, right; public Node(T item) { data = item; left = null; right = null; } public static void preOrder(Node root) { if (root == null) return; Console.Write(“{0}”, root.data); preOrder(root.left); preOrder(root.right); } public static void postOrder(Node root) { if (root == null) return; postOrder(root.left); postOrder(root.right); Console.Write(“{0}”, root.data); } public static void inOrder(Node root) { if (root == null) return; inOrder(root.left); Console.Write(“{0}”, root.data); inOrder(root.right); } public static int size(Node root) { if (root == null) return 0; else return (size(root.left) + 1 + size(root.right)); } T Data { get { return data; } set { data = value; } } } } rikitic inserting count variable in pre-order traversal will do it..i suppose . any one contradicting ??  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Vibhu Tiwari I think any order traversal will do it because in the traversal of the trees with any of the mechanism just increment the count variable as in these traversals every time we are encountering a new element. Thus the number of these elements will hold in the variable count. abhishek08aug Below is the C++ code for getting the size of the tree. I have just extended my program on this post: http://www.geeksforgeeks.org/618/ Have made all the _* functions in tree class private as they are not called from outside ever. Also added a size member in tree class to keep track of the number of inserts i.e. size of the BST.  
+#include<iostream>
+using namespace std;
+ 
+class tree_node {
+  private:
+    int data;
+    tree_node * left;
+    tree_node * right;
+  public:
+    tree_node() {
+      left=NULL;
+      right=NULL;
+    }
+    void set_data(int data) {
+      this->data=data;
+    }
+    int get_data() {
+      return this->data;
+    }
+    void set_left(tree_node * left) {
+      this->left=left;
+    }
+    tree_node * get_left() {
+      return this->left;
+    }
+    void set_right(tree_node * right) {
+      this->right=right;
+    }
+    tree_node * get_right() {
+      return this->right;
+    }
+    tree_node ** get_left_ref() {
+      return &(this->left);
+    }
+    tree_node ** get_right_ref() {
+      return &(this->right);
+    }
+};
+ 
+class tree {
+  private:
+    tree_node * root;
+    int size;
+    void _recursive_insert(tree_node ** root_ref, int value);
+    void _print_preorder(tree_node * root);
+    void _print_inorder(tree_node * root);
+    void _print_postorder(tree_node * root);
+    int _find_size(tree_node * root);
+  public:
+    tree() {
+      root=NULL;
+      size=0;
+    }
+    void insert(int value);
+    void recursive_insert(int value);
+    void print_preorder();
+    void print_inorder();
+    void print_postorder();
+    int find_size();
+    int get_size() {
+      return this->size;
+    }
+};
+ 
+void tree::insert(int value) {
+  if(root==NULL) {
+    root=new tree_node;
+    root->set_data(value);
+  } else {
+    tree_node * parent=NULL;
+    tree_node * current=root;
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    while(current!=NULL) {
+      if(value<=current->get_data()) {
+        parent=current;
+        current=current->get_left();
+      } else {
+        parent=current;
+        current=current->get_right();
+      }
+    }
+    if(value<=parent->get_data() && parent->get_left()==NULL) {
+      parent->set_left(new_node);
+    } else if(value>parent->get_data() && parent->get_right()==NULL) {
+      parent->set_right(new_node);
+    }
+  }
+  size++;
+}
+ 
+void tree::recursive_insert(int value) {
+  _recursive_insert(&root, value);
+  size++;
+}
+ 
+void tree::_recursive_insert(tree_node ** root_ref, int value) {
+  if(*root_ref==NULL) {
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    *root_ref=new_node;   
+  } else {
+    if(value<=(*root_ref)->get_data()) {
+      _recursive_insert((*root_ref)->get_left_ref(), value);
+    } else {
+      _recursive_insert((*root_ref)->get_right_ref(), value);
+    }
+  }
+}
+ 
+void tree::print_preorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_preorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_preorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  cout<<root->get_data()<<" ";
+  if(root->get_left()!=NULL)
+    _print_preorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_preorder(root->get_right());
+}
+ 
+void tree::print_inorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_inorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_inorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_inorder(root->get_left());
+  cout<<root->get_data()<<" ";
+  if(root->get_right()!=NULL)
+    _print_inorder(root->get_right());
+}
+ 
+void tree::print_postorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_postorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_postorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_postorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_postorder(root->get_right());
+  cout<<root->get_data()<<" ";
+}
+
+int tree::find_size() {
+  return _find_size(root);
+}
+
+int tree::_find_size(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else {
+    return 1+_find_size(root->get_left())+_find_size(root->get_right());
+  }
+}
+
+int main() {
+  tree t;
+  t.recursive_insert(5);
+  t.recursive_insert(3);
+  t.insert(1);
+  t.insert(7);
+  t.recursive_insert(50);
+  t.recursive_insert(6);
+  cout<<"Preorder Traversal"<<endl;
+  t.print_preorder();
+  cout<<"Inorder Traversal"<<endl;
+  t.print_inorder();
+  cout<<"Postorder Traversal"<<endl;
+  t.print_postorder();
+  cout<<"Size of the tree (as stored in tree object) is: "<<t.get_size()<<endl;
+  cout<<"Size of the tree is: "<<t.find_size()<<endl;
+  return 0;
+}
+ abhishek08aug Preorder Traversal 5 3 1 7 6 50 Inorder Traversal 1 3 5 6 7 50 Postorder Traversal 1 3 6 50 7 5 Size of the tree (as stored in tree object) is: 6 Size of the tree is: 6 Nikin  
+int size(node *sr)
+{
+if(sr) return size(sr->left) + size(sr->right) + 1;
+return 0;
+}
+ Sun Why doesn’t this code work ?  
+	private int size(Node node,int count)
+	{
+		 
+		if(node == null)
+		{
+			return 0;
+		}
+		
+		
+		size(node.left,count);
+		count++;
+		size(node.right,count);
+		
+		return count;
+		 
+		
+		 
+			
+		 
+	}
+	 enchantress count is local here to every recursive call.. either make count global or do count+=size(node.left,count); count++; count+=size(node.right,count); Marsha Donna @enchantress your code wil not work …for the tree shwn in above figur it wil giv the output as size is 13..uma’s approach is correct prakash hi dude, this wont work. since ur count variable is not a pointer so,count of left sub tree will not reflect to root Uma Trika void sizeUtil(struct node *node, int *size) { if(node == NULL) return ; *size = *size +1; sizeUtil(node->left, size); sizeUtil(node->right, size); } Karun You are not providing a pointer to the parameters you are passing. Their value is lost after the scope is over. Gaurav pruthi Each count variable is having its local scope.. either take it global or use its address to update its value Srikar count value is not changing…. varahi both left and right sub tree’s count needs to be added Sunil The function to find the size of the tree can also be written like this.  
+int size(struct node* root)
+{
+	static int count=0;
+	if(root!=NULL)
+	{
+		size(root->llink);
+		count++;
+		size(root->rlink);
+	}
+	return count;
+}
+ Pandhari Not needed  static int count=0; It requires extra memory and that exists throughout life of process as it is static Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

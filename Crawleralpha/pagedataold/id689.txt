@@ -1,0 +1,77 @@
+Sum of all the numbers that are formed from root to leaf paths - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Sum of all the numbers that are formed from root to leaf paths Given a binary tree, where every node value is a Digit from 1-9 .Find the sum of all the numbers which are formed from root to leaf paths. For example consider the following Binary Tree. 
+                                          6
+                                      /      \
+                                    3          5
+                                  /   \          \
+                                 2     5          4  
+                                      /   \
+                                     7     4
+  There are 4 leaves, hence 4 root to leaf paths:
+   Path                    Number
+  6->3->2                   632
+  6->3->5->7               6357
+  6->3->5->4               6354
+  6->5>4                    654   
+Answer = 632 + 6357 + 6354 + 654 = 13997 We strongly recommend you to minimize the browser and try this yourself first. The idea is to do a preorder traversal of the tree. In the preorder traversal, keep track of the value calculated till the current node, let this value be val. For every node, we update the val as val*10 plus node’s data. 
+// C program to find sum of all paths from root to leaves
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node
+{
+    int data;
+    struct node *left, *right;
+};
+
+// function to allocate new node with given data
+struct node* newNode(int data)
+{
+    struct node* node = (struct node*)malloc(sizeof(struct node));
+    node->data = data;
+    node->left = node->right = NULL;
+    return (node);
+}
+
+// Returns sum of all root to leaf paths. The first parameter is root
+// of current subtree, the second parameter is value of the number formed
+// by nodes from root to this node
+int treePathsSumUtil(struct node *root, int val)
+{
+    // Base case
+    if (root == NULL)  return 0;
+
+    // Update val
+    val = (val*10 + root->data);
+
+    // if current node is leaf, return the current value of val
+    if (root->left==NULL && root->right==NULL)
+       return val;
+
+    // recur sum of values for left and right subtree
+    return treePathsSumUtil(root->left, val) +
+           treePathsSumUtil(root->right, val);
+}
+
+// A wrapper function over treePathsSumUtil()
+int treePathsSum(struct node *root)
+{
+    // Pass the initial value as 0 as there is nothing above root
+    return treePathsSumUtil(root, 0);
+}
+
+// Driver function to test the above functions
+int main()
+{
+    struct node *root = newNode(6);
+    root->left        = newNode(3);
+    root->right       = newNode(5);
+    root->right->right= newNode(7);
+    root->left->left  = newNode(2);
+    root->left->right = newNode(5);
+    root->right->right = newNode(4);
+    root->left->right->left = newNode(7);
+    root->left->right->right = newNode(4);
+    printf("Sum of all paths is %d", treePathsSum(root));
+    return 0;
+}
+ Output: Sum of all paths is 13997 Time Complexity: The above code is a simple preorder traversal code which visits every exactly once. Therefore, the time complexity is O(n) where n is the number of nodes in the given binary tree. This article is contributed by Ramchand R. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. Ronak Hingar Awesome code!!! Mário Barbosa Python http://pastebin.com/EKHi7WTP Sarthak This code seem Incorrect. You are summing the numbers at each node. However, You should sum the numbers when you encounter a leaf. call the below code with num=0 and ans=0. I have tested this code and submitted it on a portal. void sum(TreeNode *root, int num, int *ans){ if(root == NULL){ return; } num = num*10+ root->val; if(!root->left && !root->right){ *ans += num; return; } sum(root->left,num,ans); sum(root->right,num,ans); } Kartik Thanks for sharing your thought. The code looks fine to me. Could you provide an example tree for which the code doesn’t work. Sarthak My mistake. The code given in this page is correct. http://opensourceforgeeks.blogspot.in/ Aniket Thakur There appears to be typing error in the example provided . Answer must be 632 + 6357 + 6354 + 654 = 13997. Java code with output –> http://opensourceforgeeks.blogspot.in/2014/01/sum-of-all-numbers-that-are-formed-from.html GeeksforGeeks Thanks for pointing this out. We have corrected typo. Gaurav pruthi //The program is to to sum the numbers created from root to leaf traversal of nodes.. #include #include using namespace std; typedef struct treeStruct{ int element; struct treeStruct *left; struct treeStruct *right; }treeStruct; struct treeStruct* newNode(int data) { struct treeStruct *newElement = new(struct treeStruct); newElement->left = NULL; newElement->right = NULL; newElement->element = data; return newElement; } struct treeStruct* treeCreator(){ //create the main pointer struct treeStruct *mainPtr; mainPtr = newNode(8); mainPtr->left = newNode(6); mainPtr->right = newNode(2); mainPtr->left->left = newNode(2); mainPtr->left->right = newNode(9); mainPtr->right->left = newNode(1); mainPtr->right->right = newNode(8); mainPtr->right->right->left = newNode(5); mainPtr->right->right->right = newNode(0); return mainPtr; } int sum = 0; int counter = 0; char arr[20] = {-1}; void countNodes(struct treeStruct *ptr){ if(ptr->left == NULL || ptr->right == NULL) { arr[counter++] = ptr->element; //count the number of nodes in array… int tmp = 0; for(int i=1;ielement; countNodes(ptr->left); –counter; countNodes(ptr->right); –counter; } int main(){ struct treeStruct *rootPtr = treeCreator(); //int count = countNodes(rootPtr); cout<<"Number of nodes in tree : "<<sum<<endl; return 0; } Lathe Here is the one in Python: class Tree: def __init__(self, value): self.value = value self.left = None self.right = None def ListRootLeaf(self, col, ls=[]): ls.append(self.value) if self.left: self.left.ListRootLeaf(col, ls) if self.right: self.right.ListRootLeaf(col, ls) if not (self.left or self.right): col.append(tuple(ls)) ls.pop() if __name__ == “__main__”: root = Tree(6) root.left = Tree(3) root.right= Tree(5) root.left.left = Tree(2) root.left.right = Tree(5) root.right.right = Tree(4) root.left.right.left = Tree(7) root.left.right.right = Tree(4) col=[] root.ListRootLeaf(col) Sum =[] for e in col: total = 0 for n in e: total = total*10 + n Sum.append(total) print col, Sum SBUser #include #include #include #include #include using namespace std; typedef struct tree { int val; struct tree *left; struct tree *right; struct tree *sibling; }TREE; TREE* makenode(int val) { TREE* node = (TREE *)malloc(sizeof(struct tree)); node->val = val; node->left = NULL; node->right = NULL; node->sibling = NULL; return node; } void maketree(TREE *root) { TREE* node; std::queue treeq; treeq.push(root); for(int i = 2; i left = makenode(i); node->right = makenode(++i); treeq.push(node->left); treeq.push(node->right); } } int sumofall2(TREE *node) { std::stack <std::pair > tstack; tstack.push(std::pair (node, node->val)); int sum = 0; std::vector final; // printf("%d, %d", ((TREE *)tstack.top().first)->val, tstack.top().second); while (!tstack.empty()) { TREE *temp = (TREE *)tstack.top().first; int tval = (int)tstack.top().second; tstack.pop(); if(temp->right != NULL) tstack.push(std::pair (temp->right, ((tval*10) + temp->right->val))); if(temp->left != NULL) tstack.push(std::pair (temp->left, ((tval*10) + temp->left->val))); if(temp->left == NULL || temp->right == NULL) final.push_back(tval); } for(int i = 0; i<final.size(); ++i) sum += final[i]; return sum; } int main() { TREE *root = makenode(1); maketree(root); printf("nsum: %dn", sumofall2(root)); system("PAUSE"); return 0; } SBUser Iterative version using stack: int sumofall2(TREE *node) { std::stack <std::pair > tstack; tstack.push(std::pair (node, node->val)); int sum = 0; std::vector final; // printf(“%d, %d”, ((TREE *)tstack.top().first)->val, tstack.top().second); while (!tstack.empty()) { TREE *temp = (TREE *)tstack.top().first; int tval = (int)tstack.top().second; tstack.pop(); if(temp->right != NULL) tstack.push(std::pair (temp->right, ((tval*10) + temp->right->val))); if(temp->left != NULL) tstack.push(std::pair (temp->left, ((tval*10) + temp->left->val))); if(temp->left == NULL || temp->right == NULL) final.push_back(tval); } for(int i = 0; i<final.size(); ++i) sum += final[i]; return sum; } dhrumil will this code work fine if the tree has a root node and only a single left node but no right node? Gaurav pruthi I dont think so Kartik seems to be working for all cases. could u provide an example tree for which it doesn’t work? Sreenivas // SumRootToLeaf.cpp : Defines the entry point for the console application. // #include “stdafx.h” #include using namespace std; int g_TotalSum = 0; struct Node { int data; Node *left; Node *right; Node(int n) { data = n; left = NULL; right = NULL; } }; void SumOfRootToLeaf(Node* tree,int num) { num = num*10 + tree->data; if ( tree->left == NULL && tree->right == NULL ) { g_TotalSum += num; } else { if ( tree->left != NULL ) SumOfRootToLeaf( tree->left, num ); if ( tree->right != NULL ) SumOfRootToLeaf( tree->right, num ); } } int main(int argc, char* argv[]) { Node *tree = new Node(6); tree->left = new Node(3); tree->right = new Node(5); tree->left->left = new Node(2); tree->left->right = new Node(5); tree->right->right = new Node(4); tree->left->right->left = new Node(7); tree->left->right->right = new Node(4); SumOfRootToLeaf(tree, 0); cout<<"Sum of all root to leaf numbers is"<<g_TotalSum<<endl; return 0; } I got output: 13997 Dikshith Gokhale Brilliant:):) I would have done using the print path method from root to leaf and take the sum.. That would require global variable.. This is definitely better.. Thanks for sharing.. Santosh Kumar package com.NewsCast; import java.util.ArrayList; import java.util.List; public class BSTtest { static List leafList = new ArrayList(4); class TreeNode { int val; TreeNode left, right; TreeNode(TreeNode t1, TreeNode t2, int i) { this.left = t1; this.right = t2; this.val = i; } } public static void main(String[] args) { BSTtest bstDL = new BSTtest(); TreeNode l1 = bstDL.new TreeNode(null, null, 3); TreeNode l2 = bstDL.new TreeNode(null, null, 5); TreeNode l3 = bstDL.new TreeNode(null, null, 7); TreeNode l4 = bstDL.new TreeNode(null, null, 9); TreeNode m1 = bstDL.new TreeNode(l1, l2, 4); TreeNode m2 = bstDL.new TreeNode(l3, l4, 8); TreeNode r1 = bstDL.new TreeNode(m1, m2, 6); preorder(r1); System.out.println(“sumOfAllNumbers:: ” + sumOfAllNumbers(r1)); } public static void preorder(TreeNode node) { if (node == null) return; if (node.left == null || node.right == null) leafList.add(node); System.out.println(node.val + ” ::leafList:: ” + leafList.size()); preorder(node.left); preorder(node.right); } public static int sumOfAllNumbers(TreeNode node) { int number = 0, temp = 0, i = 0; boolean flag = true; TreeNode node2=node; while (leafList.size() != i) { flag = true; node=node2; System.out.println(“leafList.size(): “+leafList.size()); System.out.println(“Final thread temp:: ” + temp); temp = 0; while (flag) { System.out.println(“temp:: ” + temp); if (node == null) flag = false; else { temp = temp * 10 + node.val; if (node.val == leafList.get(i).val) { flag = false; } else if (node.val > leafList.get(i).val) node = node.left; else node = node.right; } } i++; number += temp; } return number; } } Rahman Awesome code..Power of recusion Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,360 @@
+Backtracking | Set 1 (The Knight's tour problem) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Backtracking | Set 1 (The Knight’s tour problem) Backtracking is an algorithmic paradigm that tries different solutions until finds a solution that “works”. Problems which are typically solved using backtracking technique have following property in common. These problems can only be solved by trying every possible configuration and each configuration is tried only once. A Naive solution for these problems is to try all configurations and output a configuration that follows given problem constraints. Backtracking works in incremental way and is an optimization over the Naive solution where all possible configurations are generated and tried. For example, consider the following Knight’s Tour problem. The knight is placed on the first block of an empty board and, moving according to the rules of chess, must visit each square exactly once. Let us first discuss the Naive algorithm for this problem and then the Backtracking algorithm. Naive Algorithm for Knight’s tour The Naive Algorithm is to generate all tours one by one and check if the generated tour satisfies the constraints. 
+while there are untried tours
+{ 
+   generate the next tour 
+   if this tour covers all squares 
+   { 
+      print this path;
+   }
+}
+ Backtracking works in an incremental way to attack problems. Typically, we start from an empty solution vector and one by one add items (Meaning of item varies from problem to problem. In context of Knight’s tour problem, an item is a Knight’s move). When we add an item, we check if adding the current item violates the problem constraint, if it does then we remove the item and try other alternatives. If none of the alternatives work out then we go to previous stage and remove the item added in the previous stage. If we reach the initial stage back then we say that no solution exists. If adding an item doesn’t violate constraints then we recursively add items one by one. If the solution vector becomes complete then we print the solution. Backtracking Algorithm for Knight’s tour Following is the Backtracking algorithm for Knight’s tour problem. 
+If all squares are visited 
+    print the solution
+Else
+   a) Add one of the next moves to solution vector and recursively 
+   check if this move leads to a solution. (A Knight can make maximum 
+   eight moves. We choose one of the 8 moves in this step).
+   b) If the move chosen in the above step doesn't lead to a solution
+   then remove this move from the solution vector and try other 
+   alternative moves.
+   c) If none of the alternatives work then return false (Returning false 
+   will remove the previously added item in recursion and if false is 
+   returned by the initial call of recursion then "no solution exists" )
+ Following is C implementation for Knight’s tour problem. It prints one of the possible solutions in 2D matrix form. Basically, the output is a 2D 8*8 matrix with numbers from 0 to 63 and these numbers show steps made by Knight. 
+#include<stdio.h>
+#define N 8
+
+int solveKTUtil(int x, int y, int movei, int sol[N][N], int xMove[],
+                int yMove[]);
+
+/* A utility function to check if i,j are valid indexes for N*N chessboard */
+int isSafe(int x, int y, int sol[N][N])
+{
+    if ( x >= 0 && x < N && y >= 0 && y < N && sol[x][y] == -1)
+        return 1;
+    return 0;
+}
+
+/* A utility function to print solution matrix sol[N][N] */
+void printSolution(int sol[N][N])
+{
+    for (int x = 0; x < N; x++)
+    {
+        for (int y = 0; y < N; y++)
+            printf(" %2d ", sol[x][y]);
+        printf("\n");
+    }
+}
+
+/* This function solves the Knight Tour problem using Backtracking.  This
+function mainly uses solveKTUtil() to solve the problem. It returns false if
+no complete tour is possible, otherwise return true and prints the tour.
+Please note that there may be more than one solutions, this function
+prints one of the feasible solutions.  */
+bool solveKT()
+{
+    int sol[N][N];
+
+    /* Initialization of solution matrix */
+    for (int x = 0; x < N; x++)
+        for (int y = 0; y < N; y++)
+            sol[x][y] = -1;
+
+    /* xMove[] and yMove[] define next move of Knight.
+       xMove[] is for next value of x coordinate
+       yMove[] is for next value of y coordinate */
+    int xMove[8] = {  2, 1, -1, -2, -2, -1,  1,  2 };
+    int yMove[8] = {  1, 2,  2,  1, -1, -2, -2, -1 };
+
+    // Since the Knight is initially at the first block
+    sol[0][0]  = 0;
+
+    /* Start from 0,0 and explore all tours using solveKTUtil() */
+    if(solveKTUtil(0, 0, 1, sol, xMove, yMove) == false)
+    {
+        printf("Solution does not exist");
+        return false;
+    }
+    else
+        printSolution(sol);
+
+    return true;
+}
+
+/* A recursive utility function to solve Knight Tour problem */
+int solveKTUtil(int x, int y, int movei, int sol[N][N], int xMove[N],
+                int yMove[N])
+{
+   int k, next_x, next_y;
+   if (movei == N*N)
+       return true;
+
+   /* Try all next moves from the current coordinate x, y */
+   for (k = 0; k < 8; k++)
+   {
+       next_x = x + xMove[k];
+       next_y = y + yMove[k];
+       if (isSafe(next_x, next_y, sol))
+       {
+         sol[next_x][next_y] = movei;
+         if (solveKTUtil(next_x, next_y, movei+1, sol, xMove, yMove) == true)
+             return true;
+         else
+             sol[next_x][next_y] = -1;// backtracking
+       }
+   }
+
+   return false;
+}
+
+/* Driver program to test above functions */
+int main()
+{
+    solveKT();
+    getchar();
+    return 0;
+}
+ Output: 
+  0  59  38  33  30  17   8  63
+ 37  34  31  60   9  62  29  16
+ 58   1  36  39  32  27  18   7
+ 35  48  41  26  61  10  15  28
+ 42  57   2  49  40  23   6  19
+ 47  50  45  54  25  20  11  14
+ 56  43  52   3  22  13  24   5
+ 51  46  55  44  53   4  21  12
+ Note that Backtracking is not the best solution for the Knight’s tour problem. See this for other better solutions. The purpose of this post is to explain Backtracking with an example. References: http://see.stanford.edu/materials/icspacs106b/H19-RecBacktrackExamples.pdf http://www.cis.upenn.edu/~matuszek/cit594-2009/Lectures/35-backtracking.ppt http://mathworld.wolfram.com/KnightsTour.html http://en.wikipedia.org/wiki/Knight%27s_tour Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: Backtracking Tweet Writing code in comment? Please use ideone.com and share the link here. KC Knight moves 2 squares in the direction of one of the axes of the board, and then 1 square in an orthogonal direction. This definition can then be generalized to obtain an (a, b) knight. If the numbers a+b and a-b are coprime, tour is also possible in non 8×8 board using this similar algorithm. Probe Here is also my implementation of the above algorithm for java: public class HorseTraversing{
+    
+    public static void printBoard(int[][] board){
+        for (int i=0; i&lt;board.length; i++){
+            for (int y=0; y&lt;board.length; y++){
+                if (board[i][y] &gt; 9){
+                    System.out.print(board[i][y] + &quot;  &quot;);
+                }else {
+                    System.out.print(&quot; &quot; + board[i][y] + &quot;  &quot;);
+                }
+            }
+            System.out.println();
+        }
+    }
+    
+    public static boolean isSafeMove(int moveX, int moveY, int[][] board){
+        int maxPosition = (board.length - 1);
+        
+        if (moveX &lt;= maxPosition &amp;&amp; moveY &lt;= maxPosition &amp;&amp; moveX &gt;= 0
+                &amp;&amp; moveY &gt;= 0 &amp;&amp; board[moveX][moveY] == 0){
+            return true;
+        }else
+            return false;
+    }
+    
+    public static void traverse(int[][] board, int startX, int startY){
+     
+        int xMove[] = {  2, 1, -1, -2, -2, -1,  1,  2 };
+        int yMove[] = {  1, 2,  2,  1, -1, -2, -2, -1 };
+     
+        // Since the Knight is initially at the first block
+        board[startX][startY]  = 1;
+     
+        if(traverseUtil(startX, startY, 2, board, xMove, yMove) == false)
+        {
+            System.out.print(&quot;There is no solution!&quot;);
+        }
+        else
+            printBoard(board);
+    }
+    
+    public static boolean traverseUtil(int startX, int startY, int moveNumber, 
+            int[][] board, int[] xMoves, int[] yMoves){
+        
+        int nextX; 
+        int nextY;
+        
+           if (moveNumber == (board.length * board.length) + 1){
+               return true;
+           }
+               
+           /* Try all next moves from the current coordinate x, y */
+           for (int i = 0; i &lt; 8; i++){
+               
+               nextX = startX + xMoves[i];
+               nextY = startY + yMoves[i];
+               
+               if (isSafeMove(nextX, nextY, board))
+               {
+                 board[nextX][nextY] = moveNumber;
+                 if (traverseUtil(nextX, nextY, moveNumber + 1,
+                         board, xMoves, yMoves) == true)
+                     return true;
+                 else
+                     board[nextX][nextY] = 0;// backtracking
+               }
+           }
+         
+           return false;
+    }
+
+    
+    public static void main(String[] args) {
+        
+        int[][] board = new int[4][4];
+        
+        System.out.println(&quot;Board before traversing:&quot;);
+        printBoard(board);
+        System.out.println(&quot;Board after traversing:&quot;);
+        traverse(board, 0, 0);
+
+    }
+
+}
+ dark_night I am still not getting the difference between backtracking and recursion.. especially for this problem Here also we are using every possible move and in recursion too we do the same , so how does backtracking is more efficient than recursion. shashank How to decide xMove[8] and yMove[8] arrays contents? Dev Khanna They are the contents of the possible moves from any given square. For instance, one possible move is to go left one and up two. The corresponding “vector” would be (1, 2) coder can anyone tell me why this code works so slow  
+#include<iostream>
+#define max 8
+using namespace std;
+void printsol(int arr[][max])
+{
+    int i,j;
+    for(i=0;i<=max-1;i++)
+    {
+        for(j=0;j<=max-1;j++)
+        cout<<arr[i][j]<<' ';
+        cout<<'\n';
+    }
+    return ;
+}
+bool issafe(int arr[][max],int i,int j)
+{
+    if(i>=0&&i<=max-1&&j>=0&&j<=max-1&&arr[i][j]==-1)
+    return true;
+    else
+    return false;
+}
+bool knight(int arr[][max],int i,int j,int current)
+{
+    arr[i][j]=current;
+    if(current==max*max-1)
+    {
+        printsol(arr);
+        return true;
+    }
+    if(issafe(arr,i+2,j+1))
+    {
+        if(knight(arr,i+2,j+1,current+1))
+        return true;
+    }
+    if(issafe(arr,i+2,j-1))
+    {
+        if(knight(arr,i+2,j-1,current+1))
+        return true;
+    }
+    if(issafe(arr,i+1,j+2))
+    {
+        if(knight(arr,i+1,j+2,current+1))
+        return true;
+        
+    }
+    if(issafe(arr,i-2,j+1))
+    {
+        if(knight(arr,i-2,j+1,current+1))
+        return true;
+    }
+    if(issafe(arr,i-2,j-1))
+    {
+        if(knight(arr,i-2,j-1,current+1))
+        return true;
+    }
+    if(issafe(arr,i-1,j+2))
+    {
+        if(knight(arr,i-1,j+2,current+1))
+        return true;
+    }
+    if(issafe(arr,i-1,j-2))
+    {
+        if(knight(arr,i-1,j-2,current+1))
+        return true;
+    }
+    arr[i][j]=-1;
+    return false;
+}
+int main(void)
+{
+    int arr[max][max],i,j;
+    for(i=0;i<=max-1;i++)
+    {
+        for(j=0;j<=max-1;j++)
+        arr[i][j]=-1;
+    }
+    if(!knight(arr,0,0,0))
+    cout<<"no solution exists"<<'\n';
+    return 0;
+}
+ 
+ Guest There is a reason why geekforgeeks folks chose xMove[8] = { 2, 1, -1, -2, -2, -1, 1, 2 } yMove[8] = { 1, 2, 2, 1, -1, -2, -2, -1 } Only for this configuration of steps by knight, the recursion runs faster because it backtracks quite quickly in later stages. For any other configuration like xMove[8] = { 2, 2, 1, 1, -2, -2, -1, -1 } yMove[8] = { 1, -1, 2, -2, 1, -1, 2, -2 } it’s much much slower. But the 2nd configuration is correct too. It’s just that it takes more time zaraki Hi, Maybe I am missing something. I did code this up to get the exact same output. I believe 0 represents the leftmost square and 63 the rightmost. The order that is printed does not seem to be how a knight would move: row-wise: 0(0,0) 59(7,3) 38(4,6) 33 30 17 8 63 if I take it columnwise still the coordinates seem too far. Please let me know if this is unordered or there is some other order of the tour that I am missing. Thanks! Priyanka Hi, the values being printed here in the solution tells the order of Knight moves. Square with value 0 means knight will start from this square. Square with value 1 means knight will move to this square next. Square with value 2 means knight will move to this square next and so on.. Since we are moving 64 times (0 to 63) it signifies the solution covers all the square, hence the correct solution. Hope this helps. http://www.ashokraju.in yashraj #include #define N 8 typedef enum{false,true} bool; int solveKTutil(int sol[N][N],int nx[N],int ny[N],int x,int y,int nmove); int is_safe(int sol[N][N],int x,int y) { if(x>=0 && x=0 && y<N && sol[x][y]==-1) return 1; return 0; } void print_sol(int sol[N][N]) { int i,j; for(i=0;i<N;i++) { for(j=0;j<N;j++) { printf("%d ",sol[i][j]); } printf("\n"); } } void solveKT() { int i,j; int nx[]={1,1,2,2,-1,-1,-2,-2}; int ny[]={2,-2,1,-1,2,-2,1,-1}; int sol[N][N]; for(i=0;i<N;i++) { for(j=0;j<N;j++) { sol[i][j]=-1; } } sol[0][0]=0; if(solveKTutil(sol,nx,ny,0,0,1)) print_sol(sol); } int solveKTutil(int sol[N][N],int nx[N],int ny[N],int x,int y,int nmove) { int next_x,next_y; int i; if(nmove==N*N) return true; for(i=0;i<N;i++) { next_x=x+nx[i]; next_y=y+ny[i]; if(is_safe(sol,next_x,next_y)) { sol[next_x][next_y]=nmove; if(solveKTutil(sol,nx,ny,next_x,next_y,nmove+1)) return true; sol[next_x][next_y]=-1; } } return false; } int main() { solveKT(); getchar(); return 0; } please tell why the above code.. im getting time limit exceeded, which is exact copy of what you wrote Abhinav Priyadarshi one very interesting thing to notice here is that changing the order of moves increases the execution time by a huge amount. here ( http://ideone.com/gzVrt ) is the orignal code executing in 0.48 seconds. while this( http://ideone.com/qfsf3 ) one is taking huge amount of time(time limit exceeded), in which only the order of moves has been changed. nitin gupta  
+/* can some body tell me why? 
+int xMove[8] = {  2, 1, -1, -2, -2, -1,  1,  2 };
+    int yMove[8] = {  1, 2,  2,  1, -1, -2, -2, -1 };
+are like that ...wt it means?*/
+ nitin gupta can some body tell me …XMove and YMove array ke content aise hi kyo hai ?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ anant @geeksforgeeks: please tell(or if possible explain), the time complexity for knight tour using backtracking kartik @anant: Getting a tight upper bound for such problems is never easy. We can get a loose upper bound though. The recursion tree will be a tree of depth 64. Every internal node will have at most 8 children. So we can say the upper bound on time complexity is 1 + 8 + 8*8 + 8*8*8 + … (64 times). More expert comments from other users are welcome! Dedicated Programmer I have used this code, but unable to figure out why it is printing same solution multiple times..pls help me out Dedicated Programmer  
+/* Paste your code here (You may delete these lines if not writing code) */#include <stdio.h>
+#define N 5
+
+int isValidPosition(int (*Table)[N],int row,int col)
+{
+	if(row>=0 && row<N && col>=0 && col<N && !Table[row][col])
+		return 1;
+	return 0;
+}
+
+void printSolution(int (*Table)[N],int top)
+{
+	int i,j;
+		
+	for(i=0;i<N;i++)
+	{
+		for(j=0;j<N;j++)
+			printf("%d ",Table[i][j]);
+		printf("\n");
+	}
+	printf("\n");
+}
+
+
+void knightTour(int (*Table)[N],int row,int col,int top)
+{
+	if(top==N*N+1)
+		printSolution(Table,top);
+	
+	else if(isValidPosition(Table,row,col))
+	{
+		Table[row][col]=top;
+		
+		knightTour(Table,row-2,col-1,top+1);
+		knightTour(Table,row-2,col+1,top+1);
+		knightTour(Table,row+2,col-1,top+1);
+		knightTour(Table,row+2,col+1,top+1);
+
+		knightTour(Table,row-1,col-2,top+1);
+		knightTour(Table,row-1,col+2,top+1);
+		knightTour(Table,row+1,col-2,top+1);
+		knightTour(Table,row+1,col+2,top+1);
+		
+		Table[row][col]=0;
+		
+	}
+}
+
+int main()
+{
+	int Table[N][N]={0};
+	
+	knightTour(Table,0,0,1);
+	
+	return 0;
+}
+ Ajinkya What is the time complexity of this?? and also please comment on the time complexity of a backtracking solution in general… I know it is dependent on the problem, but if possible discuss complexities of 8 queens problem, rat maze problem… Thanks a ton… Geeksforgeeks is savior and a great educator!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ vivek Additional information about topic: Knight’s tour is a variation of Hamiltonian path problem in graph theory. Knight’s tour is a NP complete problem. anantha89 Hi All, When I tried with, int a[8] = {-2, +2, +1, +1, -2, +2, -1, -1}; int b[8] = {+1, +1, -2, +2, -1, -1, -2, +2}; It did not solve, when I used int a[8] = {2, 1, -1, -2, -2, -1, 1, 2}; int b[8] = {1, 2, 2, 1, -1, -2, -2, -1}; It solved in less time. How? yashraj i think the number of waste moves with the second one are far less compared to the first one.. that is number of backtracks are less in second case.. so it is running fast towards the solution.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ alan @geeksforgeeks In your back-traking code, how are you making sure that ‘knight ends on a square attacking the square from which it began’. http://geeksforgeeks.org/ Sandeep @alan: There was an error in post. The code and algorithm actually print a Knight’s tour. The printed tour can be open or close. I have updated the post. asd Is this the best possible solution. ? Is there any better solution ? http://geeksforgeeks.org/ Sandeep @asd: The above solution is not the best solution for Knight’s tour problem. See this for other better solutions. The purpose of this post is to explain Backtracking with an example. I have added same note to the original post. shanker @sandeep can you post the solution of 8 queen,knapsack,partition problems as well ..gud work keep it up http://geeksforgeeks.org/ Sandeep @shankar: Thanks! We will be covering more problems on Backtracking as separate posts. shanker @sandeep can you post the solution of 8 queen,knapsack,partition problems as well ..gud work keep it up Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

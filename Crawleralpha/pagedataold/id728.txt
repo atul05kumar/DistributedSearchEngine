@@ -1,0 +1,220 @@
+Floor and Ceil from a BST - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Floor and Ceil from a BST There are numerous applications we need to find floor (ceil) value of a key in a binary search tree or sorted array. For example, consider designing memory management system in which free nodes are arranged in BST. Find best fit for the input request. Ceil Value Node: Node with smallest data larger than or equal to key value. Imagine we are moving down the tree, and assume we are root node. The comparison yields three possibilities, A) Root data is equal to key. We are done, root data is ceil value. B) Root data < key value, certainly the ceil value can’t be in left subtree. Proceed to search on right subtree as reduced problem instance. C) Root data > key value, the ceil value may be in left subtree. We may find a node with is larger data than key value in left subtree, if not the root itself will be ceil node. Here is code in C for ceil value. 
+// Program to find ceil of a given value in BST
+#include <stdio.h>
+#include <stdlib.h>
+
+/* A binary tree node has key, left child and right child */
+struct node
+{
+    int key;
+    struct node* left;
+    struct node* right;
+};
+
+/* Helper function that allocates a new node with the given key and
+   NULL left and right  pointers.*/
+struct node* newNode(int key)
+{
+    struct node* node = (struct node*)malloc(sizeof(struct node));
+    node->key = key;
+    node->left = NULL;
+    node->right = NULL;
+    return(node);
+}
+
+// Function to find ceil of a given input in BST. If input is more
+// than the max key in BST, return -1
+int Ceil(node *root, int input)
+{
+    // Base case
+    if( root == NULL )
+        return -1;
+
+    // We found equal key
+    if( root->key == input )
+        return root->key;
+
+    // If root's key is smaller, ceil must be in right subtree
+    if( root->key < input )
+        return Ceil(root->right, input);
+
+    // Else, either left subtree or root has the ceil value
+    int ceil = Ceil(root->left, input);
+    return (ceil >= input) ? ceil : root->key;
+}
+
+// Driver program to test above function
+int main()
+{
+    node *root = newNode(8);
+
+    root->left = newNode(4);
+    root->right = newNode(12);
+
+    root->left->left = newNode(2);
+    root->left->right = newNode(6);
+
+    root->right->left = newNode(10);
+    root->right->right = newNode(14);
+
+    for(int i = 0; i < 16; i++)
+        printf("%d  %d\n", i, Ceil(root, i));
+
+    return 0;
+}
+ Output: 0  2
+1  2
+2  2
+3  4
+4  4
+5  6
+6  6
+7  8
+8  8
+9  10
+10  10
+11  12
+12  12
+13  14
+14  14
+15  -1 Exercise: 1. Modify above code to find floor value of input key in a binary search tree. 2. Write neat algorithm to find floor and ceil values in a sorted array. Ensure to handle all possible boundary conditions. — Venki. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. devil I think this is much better approach. Do inorder traverasl and update Ceil & Floor as we iterate. http://ideone.com/oswEpn Piyush Kapoor Your code is not even compiling !! srb  
+/* Paste your code here (You may delete these lines if not writing code)
+
+int floor(node *root, int input)
+{
+    // Base case
+    if( root == NULL )
+        return -1;
+ 
+    // We found equal key
+    if( root->key == input )
+        return root->key;
+ 
+    // If root's key is bigger, floor must be in left subtree
+    if( root->key> input )
+        return floor(root->left, input);
+ 
+    // Else, either right subtree or root has the floor value
+    int floor = floor(root->right, input);
+    return (floor <= input && floor!=-1) ? floor : root->key;
+}
+  */
+ abhishek08aug Intelligent Amit  
+/* Paste your code here (You may delete these lines if not writing code) */
+#include<stdio.h>
+#include <limits.h>
+#include<stdlib.h>
+int floor = 0;
+int ceil = 0;
+struct node{
+       int data;
+       struct node *left;
+       struct node *right;
+};
+struct node * newNode(int data ){
+       struct node * node = (struct node *)malloc(sizeof(struct node));
+       node->left = NULL;
+       node->data = data;
+       node->right = NULL;
+       return node;
+}
+void findfloor(struct node * root,int data){
+     if(root==NULL){
+                    return ;
+     }
+     if(root->data == data){
+                   
+                   floor = root->data;
+     }
+     else if(root->data < data){
+                  if(root->data < data && root->data > floor){
+                                floor = root->data;
+                  }
+                  findfloor(root->right,data);      
+     }
+     else if(root->data > data){
+                  if(root->data < data && root->data > floor){
+                                floor = root->data;
+                  }
+                  findfloor(root->left,data);      
+     }
+}
+void findceil(struct node * root,int data){
+     if(root==NULL){
+                    return ;
+     }
+     if(root->data == data){
+                   
+                   ceil = root->data;
+     }
+     else if(root->data < data){
+                  if(root->data > data && root->data < ceil){
+                                ceil = root->data;
+                  }
+                  findceil(root->right,data);      
+     }
+     else if(root->data > data){
+                  if(root->data > data && root->data < ceil){
+                                ceil = root->data;
+                  }
+                  findceil(root->left,data);      
+     }
+}
+
+int main()
+{
+//  struct node *root  = newNode(18);
+//  root->left         = newNode(12);
+//  root->left->left   = newNode(4);
+//  root->left->right  = newNode(15);
+//  root->left->left->left = newNode(1);
+//  root->left->left->left->right = newNode(3);
+//  root->left->right = newNode(15);
+//  root->left->right->left = newNode(13);
+//  root->left->right->left->right = newNode(14);
+//  root->right = newNode(25);
+//  root->right->left = newNode(25);
+//  root->right->right = newNode(30);
+//  root->right->right->left= newNode(28);
+//  root->right->right->left->right = newNode(29);
+// Driver program to test above function
+    int i;
+    struct node *root = newNode(8);
+ 
+    root->left = newNode(4);
+    root->right = newNode(12);
+ 
+    root->left->left = newNode(2);
+    root->left->right = newNode(6);
+ 
+    root->right->left = newNode(10);
+    root->right->right = newNode(14);
+    
+    printf("Ceil :-\n");
+    for(i = 0; i < 16; i++){
+        ceil = INT_MAX;  
+        findceil(root, i);
+        if(ceil == INT_MAX){
+                ceil = -1;
+        }
+        printf("%d  %d\n", i, ceil);
+    } 
+    printf("\nfloor :-\n"); 
+    for(i = 0; i < 16; i++){
+        floor = 0;      
+        findfloor(root,i);
+        if(floor == 0){
+                floor = -1;
+        }
+        printf("%d  %d\n", i,floor ); 
+    }
+  getchar();
+  return 0;
+}
+ Nomind #include #include #include /* A binary tree node has key, left child and right child */ struct node { int key; struct node* left; struct node* right; }; /* Helper function that allocates a new node with the given key and NULL left and right pointers.*/ struct node* newNode(int key) { struct node* node = (struct node*)malloc(sizeof(struct node)); node->key = key; node->left = NULL; node->right = NULL; return(node); } // Function to find ceil of a given input in BST. If input is more // than the max key in BST, return -1 int floor(node *root, int input) { // Base case if( root == NULL ) return INT_MAX; // We found equal key if( root->key == input ) return root->key; // If root’s key is smaller, ceil must be in right subtree if( root->key > input ) return floor(root->left, input); // Else, either left subtree or root has the ceil value int Floor = floor(root->right, input); return (Floor key; } // Driver program to test above function int main() { node *root = newNode(8); root->left = newNode(4); root->right = newNode(12); root->left->left = newNode(2); root->left->right = newNode(6); root->right->left = newNode(10); root->right->right = newNode(14); for(int i = 0; i < 16; i++) printf("%d %d\n", i, floor(root, i)); getchar(); return 0; } Paparao Veeragandham  
+ int ceil = INT_MIN;
+  if(root->data > input) //with-out this condition it will go left-most tree(If no right tree is present case) irrespective input.
+ ceil = Ceil(root->left, input);
+ kiran Good post !!! Just with minimal change in BST algo Venki @Kiran, it is simple algorithm. We are just using the binary search tree property to make left or right leaning. However, this approach leads to linear search when the tree is skewed. It is the limitation of unbalanced binary search tree. Try yourself to write bug free code for the same algorithms on sorted array. Make sure you handled all test conditions. a2 Could you please explain me why this has been added in the return statement – ceil key ??? Won’t ceil always be less than root-key since it is in the left subtree ? a2  
+ceil < root->key
+ Kartik Thanks for sharing your thoughts. Your point is valid, we have removed the condition. Meghanath Macha Hey Ceil / Floor is similar to Successor / Predecessor right ? spandan Yes Kamal Cool! the floor program will be similar, only left right conditions will be reversed. http://digitalcrop.blogspot.com vishal can you explain how conditions are changed and what is output Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

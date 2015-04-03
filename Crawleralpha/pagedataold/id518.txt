@@ -1,0 +1,171 @@
+Nth node from the end of a Linked List - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Nth node from the end of a Linked List Given a Linked List and a number n, write a function that returns the value at the nth node from end of the Linked List. Method 1 (Use length of linked list) 1) Calculate the length of Linked List. Let the length be len. 2) Print the (len – n + 1)th node from the begining of the Linked List. 
+#include<stdio.h>
+#include<stdlib.h>
+
+/* Link list node */
+struct node
+{
+  int data;
+  struct node* next;
+};
+
+/* Function to get the nth node from the last of a linked list*/
+void printNthFromLast(struct node* head, int n)
+{
+    int len = 0, i;
+    struct node *temp = head;
+
+    // 1) count the number of nodes in Linked List
+    while (temp != NULL)
+    {
+        temp = temp->next;
+        len++;
+    }
+
+    // check if value of n is not more than length of the linked list
+    if (len < n)
+      return;
+
+    temp = head;
+
+    // 2) get the (n-len+1)th node from the begining
+    for (i = 1; i < len-n+1; i++)
+       temp = temp->next;
+
+    printf ("%d", temp->data);
+
+    return;
+}
+
+void push(struct node** head_ref, int new_data)
+{
+  /* allocate node */
+  struct node* new_node =
+          (struct node*) malloc(sizeof(struct node));
+
+  /* put in the data  */
+  new_node->data  = new_data;
+
+  /* link the old list off the new node */
+  new_node->next = (*head_ref);
+
+  /* move the head to point to the new node */
+  (*head_ref)    = new_node;
+}
+
+/* Drier program to test above function*/
+int main()
+{
+  /* Start with the empty list */
+  struct node* head = NULL;
+
+  // create linked 35->15->4->20
+  push(&head, 20);
+  push(&head, 4);
+  push(&head, 15);
+  push(&head, 35);
+
+  printNthFromLast(head, 5);
+  getchar();
+  return 0; 
+}
+ Following is a recursive C code for the same method. Thanks to Anuj Bansal for providing following code. 
+void printNthFromLast(struct node* head, int n) 
+{
+    static int i = 0;
+    if(head == NULL)
+       return;
+    printNthFromLast(head->next, n);
+    if(++i == n)
+       printf("%d", head->data);
+}
+ Time Complexity: O(n) where n is the length of linked list. Method 2 (Use two pointers) Maintain two pointers – reference pointer and main pointer. Initialize both reference and main pointers to head. First move reference pointer to n nodes from head. Now move both pointers one by one until reference pointer reaches end. Now main pointer will point to nth node from the end. Return main pointer. Implementation: 
+#include<stdio.h>
+#include<stdlib.h>
+
+/* Link list node */
+struct node
+{
+  int data;
+  struct node* next;
+};
+
+/* Function to get the nth node from the last of a linked list*/
+void printNthFromLast(struct node *head, int n)
+{
+  struct node *main_ptr = head;
+  struct node *ref_ptr = head;
+
+  int count = 0;
+  if(head != NULL)
+  {
+     while( count < n )
+     {
+        if(ref_ptr == NULL)
+        {
+           printf("%d is greater than the no. of "
+                    "nodes in list", n);
+           return;
+        }
+        ref_ptr = ref_ptr->next;
+        count++;
+     } /* End of while*/
+
+     while(ref_ptr != NULL)
+     {
+        main_ptr = main_ptr->next;
+        ref_ptr  = ref_ptr->next;
+     }
+     printf("Node no. %d from last is %d ", 
+              n, main_ptr->data);
+  }
+}
+
+void push(struct node** head_ref, int new_data)
+{
+  /* allocate node */
+  struct node* new_node =
+          (struct node*) malloc(sizeof(struct node));
+
+  /* put in the data  */
+  new_node->data  = new_data;
+
+  /* link the old list off the new node */
+  new_node->next = (*head_ref);    
+
+  /* move the head to point to the new node */
+  (*head_ref)    = new_node;
+}
+
+/* Drier program to test above function*/
+int main()
+{
+  /* Start with the empty list */
+  struct node* head = NULL;
+  push(&head, 20);
+  push(&head, 4);
+  push(&head, 15); 
+
+  printNthFromLast(head, 3);
+  getchar();
+}
+ Time Complexity: O(n) where n is the length of linked list. Please write comments if you find the above codes/algorithms incorrect, or find other ways to solve the same problem.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tags: Linked Lists Tweet Writing code in comment? Please use ideone.com and share the link here. Arvind seems second method gives nth node from beginning instead of end. am i wrong? tried to run it on ideone. VeridisQuo the program is correct Note: the function push adds an element to the beginning of the linked list. https://www.facebook.com/?q=#/jambotkar?ref=tn_tnmn AMIT JAMBOTKAR can you explain it.How it make diff adding elements from beginning Saket Pandey although trivial, but for ppl looking code in java public Link getNthNode(int N){ Link nthNode = null; Link firstNode = head; int cnt = 1; while(firstNode != null){ if(cnt == N){ nthNode = head; } if(cnt > N){ nthNode = nthNode.getNext(); } firstNode = firstNode.getNext(); ++cnt; } return nthNode; } neo Recursive solution typedef struct node n; n* getn(n* head,int *k) { //Base case if(head==NULL) return NULL; else { //tail recursion n* t = getn(head->next,k); if(t!=NULL) return t; if(*k==1) return head; else *k=*k-1; return NULL; } } sanjeen fsdjfu I am not sure about the requirement.But on my opinion it must print nth from the last element inserted into the linked list,but this code prints nth from first. Guest I am not sure,this code is for printing nth from last,but it is printing nth from first. Underground Above program would break if the SLL contains loop ! Guest Shouldn’t count be initialized to 1 in Method 2 ???? hemanthreddy n value less than zero case is not handled here rahulcynosure void printnthfromlast(struct Node * head,int n) { struct Node * temp = head; int count=0; while(head) { if(count>=n) temp=temp->next; head=head->next; count++; } if(count>=n) printf(“%d”,temp->data); } neelabh Explanation of above code: In your coding first you initialize temp=head and count=0. in while loop you are incrementing head node until meet to last node. in the while loop there is if condition in if condition will increment temp pointer until count>=n means it will maintain n node distance between head and temp pointer. after reaching last node temp will indicate the Nth node from last node. Very nice solution given by you.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Kumar In Method 2: second while loop it should be while(ref_ptr -> next != NULL) Kartik Please take a closer look at the program. The condition is correct. Mohinder Only if count is 1. GeeksforGeeks @Anuj Bansal & Agniswar: Thanks for inputs. We have added method 1 to the original post. Keep it up! Nishant Kumar Time complexity should be O(n^2) for recursive method. Am i right ?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Kartik It is a simple O(n) program. Anuj Bansal One recursive solution could be as follows:  
+void Nth(NODEPTR node, int n) {
+    static int i =0;
+    if(node == NULL) 
+       return;
+    Nth(node->next, n);
+    if(++i == n)
+       printf("%d", node->info);
+} 
+ kartik @Anuj Bansal: Thanks for sharing the recursive solution. This solution first recursively traverses the list and then gets the nth node. zaid @anuj bansal:what is the time complexity for the above code??????  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Nishant Kumar Time complexity should be O(n^2) for recursive method. Am i right ?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Yogesh Batra No, Time complexity is Linear. It traverses the list twice. once forward and then backward. O(2n)~O(n)  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Agniswar I think we can solve this problem in this way too- Nth node from the end essentially means (len-N)th node from the front where len is the length of the list. So,we simply need one pointer to find the (len-N)th node instead of the 2 pointers mentioned in the solution above.Plz tell me if i am wrong ! kartik @Agniswar: Generally, we only have header node of a given Linked list, we don’t know the length. We can get the length first by traversing the complete list and then get the (len – N)th node. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

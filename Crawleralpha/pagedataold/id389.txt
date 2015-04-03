@@ -1,0 +1,110 @@
+Check for Integer Overflow - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Check for Integer Overflow Write a “C” function, int addOvf(int* result, int a, int b) If there is no overflow, the function places the resultant = sum a+b in “result” and returns 0. Otherwise it returns -1. The solution of casting to long and adding to find detecting the overflow is not allowed. Method 1 There can be overflow only if signs of two numbers are same, and sign of sum is opposite to the signs of numbers. 
+1)  Calculate sum
+2)  If both numbers are positive and sum is negative then return -1
+     Else 
+        If both numbers are negative and sum is positive then return -1
+        Else return 0
+ 
+#include<stdio.h>
+#include<stdlib.h>
+
+/* Takes pointer to result and two numbers as
+    arguments. If there is no overflow, the function
+    places the resultant = sum a+b in “result” and
+    returns 0, otherwise it returns -1 */
+ int addOvf(int* result, int a, int b)
+ {
+     *result = a + b;
+     if(a > 0 && b > 0 && *result < 0)
+         return -1;
+     if(a < 0 && b < 0 && *result > 0)
+         return -1;
+     return 0;
+ }
+
+ int main()
+ {
+     int *res = (int *)malloc(sizeof(int));
+     int x = 2147483640;
+     int y = 10;
+
+     printf("%d", addOvf(res, x, y));
+
+     printf("\n %d", *res);
+     getchar();
+     return 0;
+}
+ Time Complexity : O(1) Space Complexity: O(1) Method 2 Thanks to Himanshu Aggarwal for adding this method. This method doesn’t modify *result if there us an overflow. 
+#include<stdio.h>
+#include<limits.h>
+#include<stdlib.h>
+
+int addOvf(int* result, int a, int b)
+{
+   if( a > INT_MAX - b)
+     return -1;
+   else
+   {
+     *result = a + b;
+      return 0;
+   }
+}
+
+int main()
+{
+  int *res = (int *)malloc(sizeof(int));
+  int x = 2147483640;
+  int y = 10;
+
+  printf("%d", addOvf(res, x, y));
+  printf("\n %d", *res);
+  getchar();
+  return 0;
+}
+ Time Complexity : O(1) Space Complexity: O(1) Please write comments if you find any bug in above codes/algorithms, or find other ways to solve the same problem           Related Topics: Check if binary representation of a number is palindrome Swap two nibbles in a byte How to turn off a particular bit in a number? Check if a number is multiple of 9 using bitwise operators How to swap two numbers without using a temporary variable? Divide and Conquer | Set 4 (Karatsuba algorithm for fast multiplication) Find position of the only set bit Swap all odd and even bits Tags: Bit Magic Tweet Writing code in comment? Please use ideone.com and share the link here. neelabhsingh How to check the overflow without using branch? amit Even 1st method won’t work if we take a>0 at boundary level and b<0 in that case it should return -1 but it is returning 0 Anubhav Gupta I think both the methods are partially correct. If one(or both) of the given numbers are already exceeding the integer ranges, then any of the methods do not identify it. For eg. if a = 32768, b = 3 then result = -32765 Is that wrong? ajith  
+int addOvf(int *result, int a,int b)
+{
+   int temp;
+   *result=a+b;
+   temp=(b-a)/2 + a;
+   if(*result/2 == temp)
+   return 0;
+
+   return -1;
+}
+ akshat gupta msb1=n1&(1<<31); msb2=n2&(1<<31); n1=n1-(msb1<<31); n2=n2-(msb2<<31); ovflow= (n1+n2)&(1<<31); if((msb1&&msb2)||(msb1||msb2)&&ovflow ) return(-1); return(0); ultimate_coder hey…plzz tell me… is method 1 using roll over concept??? Hanish Method 2 does not work for the case when b is negative. e.g. if a= 50 and b= -10 result should be 40 with no overflow. but method 2 gives the ans as -1 since, INT_MAX – b = -2147483639 thus, a>INT_MAX – b hence it returns -1 which is incorrect. Kindly correct this RDD Yes you are correct. pajju  /* portable for any Compiler*/
+int addOvf(int* result, int a, int b) 
+{
+ if(a>0 && b>0) 
+    if ((a+b)<0)               //a+b<0 at Positive Overflow
+    return -1;
+ else if(a<0 && b<0) 
+         if ((a+b)>0)          //a+b>0 at Negative Overflow
+    return -1;
+ 
+ else 
+  {
+  *result = a+b; 
+  return 0;   
+  }
+}
+ http://www.fefe.de/intof.html dipendra this site describes the overflow detection to the best possible in generalized approach Himanshu Aggarwal Hi, I think that first solution is non-compliant. K&R, second edition, Appendix A- Section A.7, quotes : “The handling of overflow, divide check, and other exceptions in expression evaluation is not defined by the language.” Hence the solution is non-portable as per my understanding. Regards, Himanshu Aggarwal pajju Your solution is not portable. You are expecting INT_MAX to be defined for your compiler? pi if((a>INT_MAX-b)||(a INT_MAX – b) statement of second method Bandicoot I didn’t understand the motivation behind method 2. The post says method 2 is better because it doesn’t modify *result. In that case why can’t we use temp = a + b in method 1 instead of *result = a+b ? Also, in method 2, is there an assumption that both a >0 and b >0 ? If both are less than 0, then shouldn’t there be another case which checks a < INT_MIN – b ? Himanshu Aggarwal Hi, That would be an underflow if a<0 and b<0. The aforementioned problem explicitly asks for overflow detection. Thanks, Himanshu GeeksforGeeks @Himanshu Aggarwal: Thanks for suggesting a new method. We have included it to original post. Keep it up!! @Hary: If we do not want to modify *result in case of overflow then we can use method 2 suggested by Himanshu Aggarawal. Himanshu Aggarwal Hi, Let the two numbers be ‘a’ and ‘b’ we can also write the overflow condition as :  
+int addOvf(int* result, int a, int b)
+{
+      if( a > INT_MAX - b)
+          return -1;
+      else {
+           *result = a + b;
+            return 0;
+      }
+}
+ Hary Not very sure but to me the main solution also seems to be non-compliant. Reason is the comment & the question itself says store the sum in “result” only if an overflow has not occured. geeksforgeeks @Raj: Thanks, your solution looks concise, but when looked into this carefully, we found that it doesn’t work always. It always returns 0. Gautam Raj’s solution doesn’t works for boundary conditions. raj  
+int addOvf(int* result, int a, int b)
+{
+    *result = a + b;
+    if((*result-a)==b)
+    return 0;
+
+     return -1 ;
+}
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,263 @@
+Construct Special Binary Tree from given Inorder traversal - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Construct Special Binary Tree from given Inorder traversal Given Inorder Traversal of a Special Binary Tree in which key of every node is greater than keys in left and right children, construct the Binary Tree and return root. Examples: 
+Input: inorder[] = {5, 10, 40, 30, 28}
+Output: root of following tree
+         40
+       /   \
+      10     30
+     /         \
+    5          28 
+ The idea used in Construction of Tree from given Inorder and Preorder traversals can be used here. Let the given array is {1, 5, 10, 40, 30, 15, 28, 20}. The maximum element in given array must be root. The elements on left side of the maximum element are in left subtree and elements on right side are in right subtree. 
+         40
+      /       \  
+   {1,5,10}   {30,15,28,20}
+ We recursively follow above step for left and right subtrees, and finally get the following tree. 
+          40
+        /   \
+       10     30
+      /         \
+     5          28
+    /          /  \
+   1         15    20
+ Algorithm: buildTree() 1) Find index of the maximum element in array. The maximum element must be root of Binary Tree. 2) Create a new tree node ‘root’ with the data as the maximum value found in step 1. 3) Call buildTree for elements before the maximum element and make the built tree as left subtree of ‘root’. 5) Call buildTree for elements after the maximum element and make the built tree as right subtree of ‘root’. 6) return ‘root’. Implementation: Following is C/C++ implementation of the above algorithm. 
+/* program to construct tree from inorder traversal */
+#include<stdio.h>
+#include<stdlib.h>
+
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+/* Prototypes of a utility function to get the maximum
+   value in inorder[start..end] */
+int max(int inorder[], int strt, int end);
+
+/* A utility function to allocate memory for a node */
+struct node* newNode(int data);
+
+/* Recursive function to construct binary of size len from
+   Inorder traversal inorder[]. Initial values of start and end
+   should be 0 and len -1.  */
+struct node* buildTree (int inorder[], int start, int end)
+{
+    if (start > end)
+        return NULL;
+
+    /* Find index of the maximum element from Binary Tree */
+    int i = max (inorder, start, end);
+
+    /* Pick the maximum value and make it root */
+    struct node *root = newNode(inorder[i]);
+
+    /* If this is the only element in inorder[start..end],
+       then return it */
+    if (start == end)
+        return root;
+
+    /* Using index in Inorder traversal, construct left and
+       right subtress */
+    root->left  = buildTree (inorder, start, i-1);
+    root->right = buildTree (inorder, i+1, end);
+
+    return root;
+}
+
+/* UTILITY FUNCTIONS */
+/* Function to find index of the maximum value in arr[start...end] */
+int max (int arr[], int strt, int end)
+{
+    int i, max = arr[strt], maxind = strt;
+    for(i = strt+1; i <= end; i++)
+    {
+        if(arr[i] > max)
+        {
+            max = arr[i];
+            maxind = i;
+        }
+    }
+    return maxind;
+}
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode (int data)
+{
+    struct node* node = (struct node*)malloc(sizeof(struct node));
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+
+    return node;
+}
+
+/* This funtcion is here just to test buildTree() */
+void printInorder (struct node* node)
+{
+    if (node == NULL)
+        return;
+
+    /* first recur on left child */
+    printInorder (node->left);
+
+    /* then print the data of node */
+    printf("%d ", node->data);
+
+    /* now recur on right child */
+    printInorder (node->right);
+}
+
+/* Driver program to test above functions */
+int main()
+{
+   /* Assume that inorder traversal of following tree is given
+         40
+       /   \
+      10     30
+     /         \
+    5          28 */
+
+    int inorder[] = {5, 10, 40, 30, 28};
+    int len = sizeof(inorder)/sizeof(inorder[0]);
+    struct node *root = buildTree(inorder, 0, len - 1);
+
+    /* Let us test the built tree by printing Insorder traversal */
+    printf("\n Inorder traversal of the constructed tree is \n");
+    printInorder(root);
+    return 0;
+}
+ Output: 
+ Inorder traversal of the constructed tree is
+ 5 10 40 30 28 Time Complexity: O(n^2) Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. sunil /* If this is the only element in inorder[start..end], then return it */ if (start == end) return root; is not required, the condition at the start of the function is sufficient. alveko The proper name for this “Special Binary Tree” is Cartesian tree which can be constructed in O(n) AMIT I already posted a cmnt with an algo in o(n) time and o(1) extra space see my comment with name ammy  
+/* Paste your code here (You may delete these lines if not writing code) */
+ alexander.korobeynikov It does not seem to be O(1) extra space AMIT only recursion stack is used..if you consider it too,its o(height of tree) space uva RMQ can make it O(nlgn) alveko Theoretically, RMQ can make it O(n) Upendra @alvenko how you can say that RMQ can make this O(n) because n times we need to find maximum element in a range and finding max using Range Maximum Query cost O(log(n)) so total cost will be O(nLogn); If you construct RMQ such a way that finding max can be done in O(1) than may be this possible. Confirm me if you are thinking to implement RMQ such that finding max can be done in O(1). Happy Coding!!! alveko It’s a bit tricky RMQ can be solved with sparse tables in O(1) with O(N) preprocessing time/memory. Have a look at this paper: http://www.ics.uci.edu/~eppstein/261/BenFar-LCA-00.pdf And this page: http://www.topcoder.com/tc?d1=tutorials&d2=lowestCommonAncestor&module=Static Very briefly: a generic RMQ can be linear-time-reduced to LCA on Cartesian tree, which can be linear-time-reduced back to a specific case of RMQ (+/- 1RMQ), which can be solved in . So, yes, the coefficient in O(N) is probably high, bad in practice, but asymptotically and in theory it works alveko … which can be solved in O(1) with O(N) preprocessing. Upendra Thanks men I got it.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ammy this can be done in o(n) no need to search for largest value let a[1..n] be the given array if a[i]>a[i-1] then node with value a[i] will be the parent of node with value a[i-1] and a[i-1] its left child else node with value a[i] will be in the right subtree of node with value a[i-1] so,by maintaining a max value a node can attend,this can be done in o(n) code– this function returns the head of BST  
+
+typedef struct node2 *bst;
+typedef struct node2{
+        int data;
+        bst left,right;
+        }bintree;
+bst special(int a[],int *start,int end,int min,int max)
+{ 
+//MIN NOT REQD
+    bst p,q=NULL;
+    if((*start)>=end)
+    return NULL;
+    int i;
+    p=(struct node2 *)malloc(sizeof(struct node2));
+    p->data=a[*start];
+    p->left=NULL;
+    p->right=NULL;
+    printf("%d\n",*start);
+    (*start)++;
+    for(i=(*start);i<end;i++,(*start)++)
+    {
+        if(a[i]>max || a[i]<min)
+        return p;
+        if(a[i-1]>a[i])
+        {
+            p->right=special(a,start,end,min,a[i-1]);
+            (*start)--;
+            i=*start;
+        }
+        else
+        {
+            q=(struct node2 *)malloc(sizeof(struct node2));
+            q->data=a[i];
+            q->left=p;
+            q->right=NULL;
+            p=q;
+        }
+    }
+    return p;
+}
+int main()
+{
+   int a[]={1, 5, 10, 40, 30, 15, 28, 20};
+   int x=0;
+   n=sizeof(a)/sizeof(a[0]);
+   head=special(a,&x,n,-1000,1000);
+/*DO ANY TRAVERSAL TO VERIFY*/
+}
+ ammy bst head=NULL; xiaoc10 What’re ‘min’ and ‘max’ used for?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ammy @xiaoc10–to find where to stop building a subtree. suppose we inserted 50 / 10 and then,,we see a value 20 which is greater than 10.so,,20 cant be inserted as a child of 10,i.e max value is the value of father node.for a child of 10, max value can be 9. min has no use.ignore it Ashish Can we do this divide and conquer: think about three nodes 1,2,3 in inorder traversal. They can be put into 4 combinations LIKE: [2[1,3]] [1R[2R[3]]] [3L[2L[1]]] [3L[1R[2]]] RETURN THE ROOT FROM THIS FUNTION. SO DIVIDE THE ARRAY IN TWO PARTS: 1 AND 3 AND 2 IS THE PART THAT DIVIDED. pb even a heap satisfy this property…this kind of tree can be think of as a subset of heap properties..so make a heap it will take O(nlogn)  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik It’s other way. Heap can be said as a subset of this special tree. Also, heap construction can be done in O(n) time. But, the heap construction algorithm cannot be applied here. Palash It can be done in NlogN, by sorting the inorder array initially, along with index of the elements in the original inorder and then using it.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Palash Check out the implementation of NlogN version below.  
+/*
+int getNext(anode *sort, int index, int com, int n, int start, int end)
+{
+	int i=index+1;
+	if(com)
+	{
+		while(sort[index].index>sort[i].index && i<n)i++;
+		if(i>=n || sort[i].index<start || sort[i].index>end)return -1;
+		return i;
+	}
+	if(!com)
+	{
+		while(sort[index].index<sort[i].index && i<n)i++;
+		if(i>=n || sort[i].index<start || sort[i].index>end)return -1;
+		return i;
+	}
+}
+
+node *constructUtil(anode *sort, int index, int n, int start, int end)
+{
+	
+	if(index==-1)return NULL;
+//	int max=maxOfArray(in,start,end);
+	node *root=newNode(sort[index].data);
+	int a=getNext(sort,index,1,n,start,end);
+	int b=getNext(sort,index,0,n,start,end);
+	
+	root->left=constructUtil(sort,b,n,start,sort[index].index-1);
+	root->right=constructUtil(sort,a,n,sort[index].index+1,end);
+	return root;
+}
+
+node *constructFromSpecialInorder(int *in, int n)
+{
+	int i;
+	anode sort[1000];
+	if(!n)return NULL;
+	for(i=0;i<n;i++)
+	{
+		sort[i].data=in[i];
+		sort[i].index=i;
+	}
+	qsort(sort,n,sizeof(anode),compare);
+	return constructUtil(sort,0,n,0,n-1);
+}
+
+int main()
+{
+	int i,in[1000],hgt,n;
+
+	printf("Enter the number of elements -\n");
+	scanf("%d",&n);
+	printf("Enter the preorder array\n");
+	for(i=0;i<n;i++)scanf("%d",&in[i]);
+	
+	node *root;
+	root=constructFromSpecialInorder(in,n);
+	
+	printf("\n");
+	preorder(root);
+	printf("\n");
+	return 0;
+}
+
+*/
+ Robin Good http://www.dealsindiadeals.com Praveen Excellent Post. It’s an amazon interview question. Mukesh kumar Agrawal I think its complexity should be O(n*logn) as follow: T(n) = n + 2T(n/2) On expanding it, u will get T(n) = O(n*logn). Please point me out if I am wrong.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik Consider the case of a skewed tree to see worst case complexity. 100 / 90 / 80 / 70 In worst case, time complexity T(n) = T(n-1) + cn Mukesh Thanks It is not mentioned that it is a proper binary tree. hemant Max heap kartik It is not max heap. It follows only one property of Max Heap. The other property is that all levels must be filled except the last level and the last level should be filled only from left side. Seehttp://en.wikipedia.org/wiki/Max_heap rakesh we can find the max element in array with log(n) right? since the array is always increasing and then decreasing. so the overall complexity would be decreased. kartik It is not always first increasing and then decreasing. rakesh we can find the max element in an array with log(n) since the array and subarrays are always first increasing and then decreasing.that way we can decrease the total complexity. pkm good to see this problem here. it’s an Amazon interview question. akash bansal why u r taking the largest element to be the root ? i mean there is no compulsion in binary tree that the root is the largest element.”the maximum elememnt in the array must be root”?????  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks @akash bansal: Please take a closer look at the problem statement. It is about a special Binary Tree in which key of every node is greater than keys in left and right children akash bansal okk thanks my mistake i must have read the question thoroughly. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

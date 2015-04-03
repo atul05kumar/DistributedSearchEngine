@@ -1,0 +1,1638 @@
+Vertical Sum in a given Binary Tree - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Vertical Sum in a given Binary Tree Given a Binary Tree, find vertical sum of the nodes that are in same vertical line. Print all sums through different vertical lines. Examples: 
+      1
+    /   \
+  2      3
+ / \    / \
+4   5  6   7
+ The tree has 5 vertical lines Vertical-Line-1 has only one node 4 => vertical sum is 4 Vertical-Line-2: has only one node 2=> vertical sum is 2 Vertical-Line-3: has three nodes: 1,5,6 => vertical sum is 1+5+6 = 12 Vertical-Line-4: has only one node 3 => vertical sum is 3 Vertical-Line-5: has only one node 7 => vertical sum is 7 So expected output is 4, 2, 12, 3 and 7 Solution: We need to check the Horizontal Distances from root for all nodes. If two nodes have the same Horizontal Distance (HD), then they are on same vertical line. The idea of HD is simple. HD for root is 0, a right edge (edge connecting to right subtree) is considered as +1 horizontal distance and a left edge is considered as -1 horizontal distance. For example, in the above tree, HD for Node 4 is at -2, HD for Node 2 is -1, HD for 5 and 6 is 0 and HD for node 7 is +2. We can do inorder traversal of the given Binary Tree. While traversing the tree, we can recursively calculate HDs. We initially pass the horizontal distance as 0 for root. For left subtree, we pass the Horizontal Distance as Horizontal distance of root minus 1. For right subtree, we pass the Horizontal Distance as Horizontal Distance of root plus 1. Following is Java implementation for the same. HashMap is used to store the vertical sums for different horizontal distances. Thanks to Nages for suggesting this method. 
+import java.util.HashMap;
+ 
+// Class for a tree node
+class TreeNode {
+ 
+    // data members
+    private int key;
+    private TreeNode left;
+    private TreeNode right;
+ 
+    // Accessor methods
+    public int key()        { return key; }
+    public TreeNode left()  { return left; }
+    public TreeNode right() { return right; }
+ 
+    // Constructor
+    public TreeNode(int key) { this.key = key; left = null; right = null; }
+ 
+    // Methods to set left and right subtrees
+    public void setLeft(TreeNode left)   { this.left = left; }
+    public void setRight(TreeNode right) { this.right = right; }
+}
+ 
+// Class for a Binary Tree
+class Tree {
+ 
+    private TreeNode root;
+ 
+    // Constructors
+    public Tree() { root = null; }
+    public Tree(TreeNode n) { root = n; }
+ 
+    // Method to be called by the consumer classes like Main class
+    public void VerticalSumMain() { VerticalSum(root); }
+ 
+    // A wrapper over VerticalSumUtil()
+    private void VerticalSum(TreeNode root) {
+ 
+        // base case
+        if (root == null) { return; }
+ 
+        // Creates an empty hashMap hM
+        HashMap<Integer, Integer> hM = new HashMap<Integer, Integer>();
+ 
+        // Calls the VerticalSumUtil() to store the vertical sum values in hM
+        VerticalSumUtil(root, 0, hM);
+ 
+        // Prints the values stored by VerticalSumUtil()
+        if (hM != null) {
+            System.out.println(hM.entrySet());
+        }
+    }
+ 
+    // Traverses the tree in Inoorder form and builds a hashMap hM that
+    // contains the vertical sum
+    private void VerticalSumUtil(TreeNode root, int hD,
+                                          HashMap<Integer, Integer> hM) {
+ 
+        // base case
+        if (root == null) {  return; }
+ 
+        // Store the values in hM for left subtree
+        VerticalSumUtil(root.left(), hD - 1, hM);
+ 
+        // Update vertical sum for hD of this node
+        int prevSum = (hM.get(hD) == null) ? 0 : hM.get(hD);
+        hM.put(hD, prevSum + root.key());
+ 
+        // Store the values in hM for right subtree
+        VerticalSumUtil(root.right(), hD + 1, hM);
+    }
+}
+ 
+// Driver class to test the verticalSum methods
+public class Main {
+ 
+    public static void main(String[] args) {
+        /* Create following Binary Tree
+              1
+            /    \
+          2        3
+         / \      / \
+        4   5    6   7
+ 
+        */
+        TreeNode root = new TreeNode(1);
+        root.setLeft(new TreeNode(2));
+        root.setRight(new TreeNode(3));
+        root.left().setLeft(new TreeNode(4));
+        root.left().setRight(new TreeNode(5));
+        root.right().setLeft(new TreeNode(6));
+        root.right().setRight(new TreeNode(7));
+        Tree t = new Tree(root);
+ 
+        System.out.println("Following are the values of vertical sums with "
+                + "the positions of the columns with respect to root ");
+        t.VerticalSumMain();
+    }
+}
+ See this for a sample run. Time Complexity: O(n) Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. Archit This is a C++ code using map http://ideone.com/fbcs2v smith #include #include struct node { int data; struct node *left; struct node *right; }; struct node *newnode(int); void find(struct node *root,int d,int hd,int *); int main() { struct node *root=NULL; root=newnode(1); root->left=newnode(2); root->right=newnode(3); root->left->left=newnode(4); root->left->right=newnode(5); root->right->left=newnode(6); root->right->right=newnode(7); int arr[5]={0};int k=0; for(int i=-2;i<=2;i++) { find(root,0,i,&arr[k]);k++; } for(int i=0;idata; } find(root->left,d-1,hd,k); find(root->right,d+1,hd,k); } struct node *newnode(int data) { struct node *newnod=(struct node *)malloc(sizeof(struct node)); newnod->data=data; newnod->left=NULL; newnod->right=NULL; return newnod; } pavansrinivas Using levelOrder Traversal: void horizontalDistancefromRoot(){ Queue q = new LinkedList(); Hashtable h =new Hashtable(); Node temp = root; int distance = 0; q.add(temp); q.add(distance); while(!q.isEmpty()){ temp = (Node)q.poll(); distance =(Integer)q.poll(); System.out.println(temp.iData+"="+distance); if(!h.containsKey(distance)){ h.put(distance, temp.iData); }else{ int sum = h.get(distance); h.put(distance, sum+temp.iData); } if(temp.left!=null){ int leftD = distance-1; q.add(temp.left); q.add(leftD); } if(temp.right!=null){ int rightD = distance+1; q.add(temp.right); q.add(rightD); } } System.out.print(h); } ultimate_coder  
+void vertical_line(int base,int hd,struct node * node)
+{
+    if(!node) return;
+    vertical_line(base-1,hd,node->left);
+    if(base==hd) cout<<node->data<<" ";
+    vertical_line(base+1,hd,node->right);
+}
+void vertical_sum(struct node * node)
+{
+    int l=0,r=0;
+    struct node * temp=node;
+    while(temp->left){
+        --l;temp=temp->left;
+    }
+    temp=node;
+    while(temp->right){
+    ++r;temp=temp->right;
+    }
+    for(int i=l;i<=r;i++)
+    {
+        cout<<endl<<"VERTICAL LINE "<<i-l+1<<" : ";
+        vertical_line(0,i,node);
+    }
+}
+
+// CORRECTIONS AND OPTIMIZATIONS WELCOME
+ Pavan  
+/* check your code for this tree , according to your code there are 5 vertical lines , i think in this tree there are 6 vertical lines (-3 to 2) , correct me if i am wrong */ 
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<iostream>
+using namespace std;
+struct node
+{
+    int data;
+    struct node *left;
+    struct node *right;
+};
+  
+struct node* newNode (int data)
+{
+    struct node* temp = (struct node *) malloc( sizeof(struct node) );
+ 
+    temp->data = data;
+    temp->left = temp->right = NULL;
+ 
+    return temp;
+}
+void vertical_line(int base,int hd,struct node * node)
+{
+    if(!node) return;
+    vertical_line(base-1,hd,node->left);
+    if(base==hd) cout<<node->data<<" ";
+    vertical_line(base+1,hd,node->right);
+}
+void vertical_sum(struct node * node)
+{
+    int l=0,r=0;
+    struct node * temp=node;
+    while(temp->left){
+        --l;temp=temp->left;
+    }
+    temp=node;
+    while(temp->right){
+    ++r;temp=temp->right;
+    }
+    for(int i=l;i<=r;i++)
+    {
+        cout<<endl<<"VERTICAL LINE "<<i-l+1<<" : ";
+        vertical_line(0,i,node);
+    }
+}int main()
+{
+   
+    struct node *root=newNode(2);
+    root->left=newNode(1);
+    (root->left)->left=newNode(6);
+    (root->left)->right=newNode(7);
+    root->right=newNode(3);
+    (root->right)->left=newNode(4);
+    root->right->left->left=newNode(3);
+    root->right->left->left->left=newNode(20);
+    root->right->left->left->left->left=newNode(14);
+    (root->right)->right=newNode(5);
+    root->right->right->left=newNode(10);
+    vertical_sum(root);
+    return 0;
+}
+ NoFear207 A o(n) time complexity solution using Doubly linked list for this Question.  
+#include<iostream.h>
+#include<conio.h>
+#include<stdio.h>
+
+struct tree{
+   int data;
+   tree *l;
+   tree *r;
+
+};
+struct tree* newnode(int d)
+{               struct tree *r=new tree;
+		r->data=d;
+		r->l=NULL;
+		r->r=NULL;
+		return r;
+
+}
+
+struct tree* ct(struct tree* node,int id)
+{
+struct tree *nn=new tree;
+nn->data=0;
+if(id)
+{
+	nn->l=NULL;
+	nn->r=node;
+}
+
+if(!id)
+{
+	nn->r=NULL;
+	nn->l=node;
+
+}
+
+return nn;
+
+
+}
+
+void findvsum(struct tree *root,struct tree **dl)
+{
+
+	if(root==NULL)
+	{
+	return;
+	}
+	(*dl)->data=((*dl)->data)+root->data;
+  printf("%d\n",root->data);
+	if(!(*dl)->l && root->l)
+	(*dl)->l=ct(*dl,1);
+	if(!(*dl)->r && root->r)
+	(*dl)->r=ct(*dl,0);
+	findvsum(root->l,&(*dl)->l);
+	findvsum(root->r,&(*dl)->r);
+
+}
+void main()
+{
+
+clrscr();
+
+struct tree *root;
+root=newnode(2);
+
+(root->l)=newnode(7);
+(root->r)=newnode(8);
+(root->l)->r=newnode(9);
+(root->r)->l=newnode(9);
+(root->l)->l=newnode(4);
+(root->r)->r=newnode(6);
+
+
+//printf("%d",(root->l)->data);
+
+struct tree *dl = new tree;
+dl->data=0;
+dl->l=NULL;
+dl->r=NULL;
+
+findvsum(root,&dl);
+//printf("%d",dl->data);
+
+while(dl->l)
+{
+ dl=dl->l;
+
+}
+int cnt=0;
+while(dl)
+{  cnt++;
+   printf("\n\n\n %d vertical line sum is %d",cnt,dl->data);
+    dl=dl->r;
+}
+
+printf("\n\n\n\n totalnumber of lines = %d",cnt);
+getch();
+}
+ NoFear207 Space complexity also o(n). Let me know if anywhere code can be optimized. NoFear207 A o(n) time complexity solution using Doubly linked list for this Question is bellow please let me know if anything needs to be corrected.  
+/*#include<iostream.h>
+#include<conio.h>
+#include<stdio.h>
+
+struct tree{
+   int data;
+   tree *l;
+   tree *r;
+
+};
+struct tree* newnode(int d)
+{               struct tree *r=new tree;
+		r->data=d;
+		r->l=NULL;
+		r->r=NULL;
+		return r;
+
+}
+
+struct tree* ct(struct tree* node,int id)
+{
+struct tree *nn=new tree;
+nn->data=0;
+if(id)
+{
+	nn->l=NULL;
+	nn->r=node;
+}
+
+if(!id)
+{
+	nn->r=NULL;
+	nn->l=node;
+
+}
+
+return nn;
+
+
+}
+
+void findvsum(struct tree *root,struct tree **dl)
+{
+
+	if(root==NULL)
+	{
+	return;
+	}
+	(*dl)->data=((*dl)->data)+root->data;
+  printf("%d\n",root->data);
+	if(!(*dl)->l && root->l)
+	(*dl)->l=ct(*dl,1);
+	if(!(*dl)->r && root->r)
+	(*dl)->r=ct(*dl,0);
+	findvsum(root->l,&(*dl)->l);
+	findvsum(root->r,&(*dl)->r);
+
+}
+void main()
+{
+
+clrscr();
+
+struct tree *root;
+root=newnode(2);
+
+(root->l)=newnode(7);
+(root->r)=newnode(8);
+(root->l)->r=newnode(9);
+(root->r)->l=newnode(9);
+(root->l)->l=newnode(4);
+(root->r)->r=newnode(6);
+
+
+//printf("%d",(root->l)->data);
+
+struct tree *dl = new tree;
+dl->data=0;
+dl->l=NULL;
+dl->r=NULL;
+
+findvsum(root,&dl);
+//printf("%d",dl->data);
+
+while(dl->l)
+{
+ dl=dl->l;
+
+}
+int cnt=0;
+while(dl)
+{  cnt++;
+   printf("\n\n\n %d vertical line sum is %d",cnt,dl->data);
+    dl=dl->r;
+}
+
+printf("\n\n\n\n totalnumber of lines = %d",cnt);
+getch();
+} */
+ abhishek08aug Intelligent mrn  
+struct node{
+	int v;
+	struct node *l,*r;
+	};
+
+typedef struct node* Node;
+
+
+Node root=NULL;
+
+void insert(int v)
+{
+	Node n=(Node)calloc(1,sizeof(struct node ));
+	n->v=v;
+	if(root==NULL)
+	{root=n;return;	}
+	struct node *y,*x=root;
+	while(x!=NULL)
+	{
+		y=x;
+		if(x->v < v)x=x->r;
+		else	x=x->l;
+	}
+	
+	if(y->v < v) y->r=n;
+	else y->l=n;
+}
+void vertical_sum(Node n,int *a,int p)
+{
+	if(n==NULL) return;
+	vertical_sum(n->l,a,p-1);
+	a[p]=a[p]+n->v;
+	vertical_sum(n->r,a,p+1);
+}
+
+int calc_pl(Node n,int pivot)
+{
+	if(n==NULL) return pivot;
+	int a=calc_pl(n->l,pivot+1);
+	int b=calc_pl(n->r,pivot-1);
+	return a>b?a:b;
+}
+
+int calc_pr(Node n,int pivot)
+{
+	if(n==NULL) return pivot;
+	int a=calc_pr(n->r,pivot+1);
+	int b=calc_pr(n->l,pivot-1);
+	return a>b?a:b;
+}
+int main()
+{
+	int n,t;
+	cin>>n;
+	for(int i=0;i<n;i++)
+		{
+			cin>>t;
+			insert(t);
+		}
+	struct node *ndnew=NULL;
+	int d,pivot_l=0,pivot_r=0;
+	pivot_l=calc_pl(root,pivot_l);
+	pivot_r=calc_pr(root,pivot_r);
+	d=pivot_l+pivot_r-1;
+	int *a=new int[d];
+	memset(a,0,d*sizeof(int));
+	vertical_sum(root,a,pivot_l-1);
+	for(int i=0;i<d;i++)
+		cout<<a[i]<<" ";
+	cout<<endl;
+return 0;
+}
+		
+	
+	
+ nandu  
+/* Paste your code here (You may delete these lines if not writing code) */
+#include <stdio.h>
+#include <stdlib.h>
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+    struct node* node = (struct node*)malloc(sizeof(struct node));
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+    return(node);
+}
+
+void maxLeftRight(struct node * node,int curHD,int *left,int *right)
+{
+    if(node==NULL) return;
+    if(curHD < *left) *left=curHD;
+    else if(curHD > *right) *right=curHD;
+    maxLeftRight(node->left,curHD-1,left,right);
+    maxLeftRight(node->right,curHD+1,left,right);
+}
+
+
+void findVerticalSumRec(struct node *root,int HD,int *arr,int leftMargin) //HD:horizonal distance from root
+{
+    if(root)
+    {
+        printf("Data : %d, HD: %d\n",root->data,HD);
+        arr[leftMargin+HD] += root->data;
+
+        findVerticalSumRec(root->left,HD-1,arr,leftMargin); // preorder traversal on left recursion
+        findVerticalSumRec(root->right,HD+1,arr,leftMargin); // preorder traversal on right recursion
+    }
+}
+
+int *findVerticalSum(struct node *root,int *len)
+{
+    int SpanCount,leftSpan,rightSpan;
+    leftSpan=rightSpan=SpanCount=0;
+    maxLeftRight(root,0,&leftSpan,&rightSpan);
+    //printf("\nleft : %d\t right : %d\n",leftSpan,rightSpan);
+
+    SpanCount = rightSpan-leftSpan + 1;
+
+    int *arr = (int *)calloc(SpanCount,sizeof(int));
+
+    findVerticalSumRec(root,0,arr,-leftSpan); // preorder traversal recursion
+    *len = SpanCount;
+    return arr;
+}
+
+/* Driver program to test above functions*/
+int main()
+{
+    struct node *root = newNode(1);
+    root->left        = newNode(2);
+    root->right       = newNode(3);
+    root->left->left  = newNode(4);
+    root->left->right = newNode(5);
+    root->right->left = newNode(6);
+    root->right->right  = newNode(7);
+
+    /*
+       Constructed bunary tree is:
+            1
+          /  \
+         2    3
+       /  \  /  \
+       4   56    7
+     */
+
+
+    int *vsum_arr,i,len=0;
+    vsum_arr = findVerticalSum(root,&len);
+
+    for(i=0;i<len;i++)
+    {
+
+        printf("Vertical Line %d, Sum : [%d] \n",i+1,vsum_arr[i]);
+    }
+    getchar();
+    return 0;
+}
+
+ http://a kaur vei nyc code.. amitp49 I tried to allocate memory as much as required by counting max left and right span of tree. Let me know if any error…  
+#include <stdio.h>
+#include <stdlib.h>
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+	int data;
+	struct node* left;
+	struct node* right;
+};
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+	struct node* node = (struct node*)
+		malloc(sizeof(struct node));
+	node->data = data;
+	node->left = NULL;
+	node->right = NULL;
+	return(node);
+}
+
+int maxLeft(struct node * node)
+{
+	int leftcount=0;
+	while(node->left || node->right)
+	{
+		leftcount++;
+		node = node->left?node->left:node->right;
+	}
+	return leftcount;
+}
+
+int maxRight(struct node *node)
+{
+	int rightcount=0;
+	while(node->right || node->left)
+	{
+		rightcount++;
+		node = node->right?node->right:node->left;
+	}
+	return rightcount;
+}
+void findVerticalSumRec(struct node *root,int HD,int *arr,int leftMargin) //HD:horizonal distance from root
+{
+	if(root)
+	{
+		printf("Data : %d, HD: %d\n",root->data,HD);
+		arr[leftMargin+HD] += root->data;
+		
+		findVerticalSumRec(root->left,HD-1,arr,leftMargin); // preorder traversal on left recursion
+		findVerticalSumRec(root->right,HD+1,arr,leftMargin); // preorder traversal on right recursion	
+	}
+}
+
+int *findVerticalSum(struct node *root,int *len)
+{	
+	int SpanCount=0;
+	int leftSpan = maxLeft(root);
+	int rightSpan = maxRight(root);
+	
+	SpanCount = leftSpan + rightSpan + 1;
+
+	int *arr = (int *)calloc(SpanCount,sizeof(int));
+
+	findVerticalSumRec(root,0,arr,leftSpan); // preorder traversal recursion
+	*len = SpanCount;
+	return arr;
+}
+
+/* Driver program to test above functions*/
+int main()
+{
+	struct node *root = newNode(1);
+	root->left        = newNode(2);
+	root->right       = newNode(3);
+	root->left->left  = newNode(4);
+	root->left->right = newNode(5);
+	root->right->left = newNode(6);
+	root->right->right  = newNode(7);
+
+	/*
+	   Constructed bunary tree is:
+	        1
+	      /  \
+	     2    3
+	   /  \  /  \
+	   4   56    7
+	 */
+	
+	
+	int *vsum_arr,i,len=0;
+	vsum_arr = findVerticalSum(root,&len);
+
+	for(i=0;i<len;i++)
+	{
+
+		printf("Vertical Line %d, Sum : [%d] \n",i+1,vsum_arr[i]);
+	}
+	getchar();
+	return 0;
+}
+ bob How your code works for a tree with more depth???Can u elaborate the question for that scenario.What will be the result??? Varadharajan  
+void printAllpaths(Node root, int[] a, int i){
+	If(node == null)
+		return;
+A[i] = node.data;
+printAllpaths(root.left, a,i+1);
+printAllpaths(root.right,a,i+1);
+printTheArray(a,i);
+}
+
+ Varadharajan Sorry it was a wrongly posted… My bad..  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Varadharajan Sorry it was a wrongly posted… My bad.. NoFear207  
+/* 
+#include<conio.h>
+#include<stdio.h>
+#include<iostream.h>
+struct tree{
+
+	int data;
+	tree *left;
+	tree *right;
+
+};
+
+
+struct tree *createnode(int d)
+{
+	struct tree *node=new tree;
+	node->data=d;
+	node->left=NULL;
+	node->right=NULL;
+	return node;
+
+}
+
+/*int max(int a,int b)
+{
+
+	return a<b?b:a;
+}*/
+
+int findnodes(struct tree *root)
+{
+	if(root==NULL)
+	return 0;
+
+	else
+	return 1+findnodes(root->left)+findnodes(root->right);
+}
+
+void findvsum(struct tree *root,int *vsum,int mid)
+{
+
+	if(root==NULL)
+	return;
+
+
+	printf("Mid =%d",mid);
+	vsum[mid]=root->data;
+	findvsum(root->left,vsum,mid-1);
+	findvsum(root->right,vsum,mid+1);
+
+}
+
+
+void main()
+{
+	int vsum[100];
+
+	clrscr();
+	struct tree *root=createnode(2);
+	root->left=createnode(1);
+	(root->left)->left=createnode(6);
+	(root->left)->right=createnode(7);
+	root->right=createnode(3);
+	(root->right)->left=createnode(4);
+	(root->right)->right=createnode(5);
+
+	int n=findnodes(root);
+	printf("Number of nodes=%d\n",n);
+
+	for(int i=0;i<n;i++)
+	{
+		vsum[i]=-1;
+
+	}
+
+
+	findvsum(root,vsum,(n/2)-1);
+
+	int cnt=0;
+	for(int j=0;j<n;j++)
+	{
+		if(vsum[j]!=-1)
+		{
+		cnt++;
+		printf("%d",vsum[j]);
+		}
+	}
+
+	printf("Number of vertical sum is=%d\n",cnt);
+getch();
+} */
+ the above one was the very easy solution but space complexity is o(n) . time complexity is also o(n). Please correct me if i’m wrong. NoFear207  
+
+#include<conio.h>
+#include<stdio.h>
+#include<iostream.h>
+struct tree{
+
+	int data;
+	tree *left;
+	tree *right;
+
+};
+
+
+struct tree *createnode(int d)
+{
+	struct tree *node=new tree;
+	node->data=d;
+	node->left=NULL;
+	node->right=NULL;
+	return node;
+
+}
+
+/*int max(int a,int b)
+{
+
+	return a<b?b:a;
+}*/
+
+int findnodes(struct tree *root)
+{
+	if(root==NULL)
+	return 0;
+
+	else
+	return 1+findnodes(root->left)+findnodes(root->right);
+}
+
+void findvsum(struct tree *root,int *vsum,int mid)
+{
+
+	if(root==NULL)
+	return;
+
+
+	printf("Mid =%d",mid);
+	vsum[mid]=root->data;
+	findvsum(root->left,vsum,mid-1);
+	findvsum(root->right,vsum,mid+1);
+
+}
+
+
+void main()
+{
+	int vsum[100];
+
+	clrscr();
+	struct tree *root=createnode(2);
+	root->left=createnode(1);
+	(root->left)->left=createnode(6);
+	(root->left)->right=createnode(7);
+	root->right=createnode(3);
+	(root->right)->left=createnode(4);
+	(root->right)->right=createnode(5);
+
+	int n=findnodes(root);
+	printf("Number of nodes=%d\n",n);
+
+	for(int i=0;i<n;i++)
+	{
+		vsum[i]=-1;
+
+	}
+
+
+	findvsum(root,vsum,(n/2)-1);
+
+	int cnt=0;
+	for(int j=0;j<n;j++)
+	{
+		if(vsum[j]!=-1)
+		{
+		cnt++;
+		printf("%d",vsum[j]);
+		}
+	}
+
+	printf("Number of vertical sum is=%d\n",cnt);
+getch();
+}
+ Mady your program to find the sum is correct but number of verticals lines are incorrect. Number of lines grows like this. (calling root level 1) Level 1 : Lines = 1 Level 2 : Lines = 3 Level 3 : Lines = 5 Level 4 : Lines = 7 It is forming a A.P series. If max level = n then Total num of vertical lines = a + (n-1)d For level 3 vertical lines = 1 + (3-1)2 = 5 NoFear207 Hey Friend, You are correct man! I misunderstood the question! but i can still give you the solution by altering my above code ! It is simple!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ NoFear207 Here is the correct answer buddy ! let me know if you need any clarifications! /* #include #include #include struct tree{ int data; tree *left; tree *right; }; struct tree *createnode(int d) { struct tree *node=new tree; node->data=d; node->left=NULL; node->right=NULL; return node; } int findnodes(struct tree *root) { if(root==NULL) return 0; else return 1+findnodes(root->left)+findnodes(root->right); } void findvsum(struct tree *root,int *vsum,int mid) { if(root==NULL) return; // printf(“\nMid =%d”,mid); vsum[mid]=(root->data)+vsum[mid]; findvsum(root->left,vsum,mid-1); findvsum(root->right,vsum,mid+1); } void main() { int vsum[100]; clrscr(); struct tree *root=createnode(2); root->left=createnode(1); (root->left)->left=createnode(6); (root->left)->right=createnode(7); root->right=createnode(3); (root->right)->left=createnode(4); (root->right)->right=createnode(5); int n=findnodes(root); printf(“\nNumber of nodes=%d\n”,n); for(int i=0;i<n;i++) { vsum[i]=-1; } findvsum(root,vsum,(n/2)); int cnt=0,vl=1; for(int j=0;j<n;j++) { while(vsum[j]!=-1) { cnt++; printf("\nLine Number :%d sum of the respective vertical line : %d",vl++,(vsum[j]+1)); j++; } } printf("\nNumber of vertical lines is=%d\n",cnt); getch(); } */ NoFear207 Correct answer is in bellow!  
+/* 
+#include<conio.h>
+#include<stdio.h>
+#include<iostream.h>
+struct tree{
+
+	int data;
+	tree *left;
+	tree *right;
+
+};
+
+
+struct tree *createnode(int d)
+{
+	struct tree *node=new tree;
+	node->data=d;
+	node->left=NULL;
+	node->right=NULL;
+	return node;
+
+}
+
+/*int max(int a,int b)
+{
+
+	return a<b?b:a;
+}*/
+
+int findnodes(struct tree *root)
+{
+	if(root==NULL)
+	return 0;
+
+	else
+	return 1+findnodes(root->left)+findnodes(root->right);
+}
+
+void findvsum(struct tree *root,int *vsum,int mid)
+{
+
+	if(root==NULL)
+	return;
+
+
+       //	printf("\nMid =%d",mid);
+
+	vsum[mid]=(root->data)+vsum[mid];
+	findvsum(root->left,vsum,mid-1);
+	findvsum(root->right,vsum,mid+1);
+
+}
+
+
+void main()
+{
+	int vsum[100];
+
+	clrscr();
+	struct tree *root=createnode(2);
+	root->left=createnode(1);
+	(root->left)->left=createnode(6);
+	(root->left)->right=createnode(7);
+	root->right=createnode(3);
+	(root->right)->left=createnode(4);
+	(root->right)->right=createnode(5);
+
+	int n=findnodes(root);
+	printf("\nNumber of nodes=%d\n",n);
+
+	for(int i=0;i<n;i++)
+	{
+		vsum[i]=-1;
+
+	}
+
+
+	findvsum(root,vsum,(n/2));
+
+	int cnt=0,vl=1;
+	for(int j=0;j<n;j++)
+	{
+
+		while(vsum[j]!=-1)
+		{
+
+		cnt++;
+		printf("\nLine Number :%d sum of the respective vertical line : %d",vl++,(vsum[j]+1));
+		j++;
+		}
+	}
+
+	printf("\nNumber of vertical lines is=%d\n",cnt);
+getch();
+} */
+ ARK ur code works super cool .great can u explain the logic u followed and time complexity of ur code NoFear207 Hi, The time complexity is o(n) but the space complexity is o(n).  
+/* Paste your code here (You may delete these lines if not writing code) */
+ NoFear207 Logic is bellow! void findvsum(struct tree *root,int *vsum,int mid) { if(root==NULL) return; // printf(“\nMid =%d”,mid); vsum[mid]=(root->data)+vsum[mid]; findvsum(root->left,vsum,mid-1); findvsum(root->right,vsum,mid+1); }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Rax Would this code work if the binary tree is skewed? I think you cannot use n/2 in the function findvsum unless you are sure that it is a balanced tree. and in that can you solution will not be generic. Correct me if I am missing on anything information here.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ NoFear207 Yes You are correct! It will not So we need to have 2n space to make this code work for skewed tree.It is worst occupying 2n space.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ iCodeS What will be the total vertical lines of this tree ?? 
+                    5
+                3       6  
+            2         7    8  
+               4        5
+            1               9
+        2                       2
+    8                               3
+ camster iCode3 , Please write a program that builds this tree. If you can do that, then I can try to tell you the total vertical lines and their sums.Thank you,camster.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://www.groupme.in Nikin Kumar Jain Check out this Simple Code.  
+void btree::getVerticalSum(int a[], node *sr, int num)
+{
+	if(sr==NULL)
+		return;
+	a[num]+= sr->data;
+	getVerticalSum(a, sr->left, num-1);
+	getVerticalSum(a, sr->right, num+1);
+}
+ camster Nikin Kumar Jain, Your program does not give the right answer for the test case below. Thank you camster.  
+  struct node* node20X;
+   struct node* node60;
+   struct node* node120;
+   struct node* node160;
+   struct node* node40;
+   struct node* node140;
+   struct node* node100;
+   struct node* node10;
+   struct node* node30;
+   struct node* node50;
+   struct node* node70;
+   struct node* node110;
+   struct node* node130;
+   struct node* node150;
+   struct node* node170;
+
+   node10 = new node;
+   node10->data = 10;
+   node10->left = NULL;
+   node10->right = NULL;
+
+   node30 = new node;
+   node30->data = 30;
+   node30->left = NULL;
+   node30->right = NULL;
+
+   node50 = new node;
+   node50->data = 50;
+   node50->left = NULL;
+   node50->right = NULL;
+
+   node70 = new node;
+   node70->data = 70;
+   node70->left = NULL;
+   node70->right = NULL;
+
+   node110 = new node;
+   node110->data = 110;
+   node110->left = NULL;
+   node110->right = NULL;
+
+   node130 = new node;
+   node130->data = 130;
+   node130->left = NULL;
+   node130->right = NULL;
+
+   node150 = new node;
+   node150->data = 150;
+   node150->left = NULL;
+   node150->right = NULL;
+
+   node170 = new node;
+   node170->data = 170;
+   node170->left = NULL;
+   node170->right = NULL;
+
+
+
+   node20X = new node;
+   node20X->data = 20;
+   node20X->left = node10;
+   node20X->right = node30;
+
+   node60 = new node;
+   node60->data = 60;
+   node60->left = node50;
+   node60->right = node70;
+
+   node120 = new node;
+   node120->data = 120;
+   node120->left = node110;
+   node120->right = node130;
+
+   node160 = new node;
+   node160->data = 160;
+   node160->left = node150;
+   node160->right = node170;
+
+   node40 = new node;
+   node40->data = 40;
+   node40->left = node20X;
+   node40->right = node60;
+
+   node140 = new node;
+   node140->data = 140;
+   node140->left = node120;
+   node140->right = node160;
+
+
+   node100 = new node;
+   node100->data = 100;
+   node100->left = node40;
+   node100->right = node140;
+
+  int a[64];
+  memset(a, 0, 64 * sizeof(int));
+
+ getVerticalSum(a, node100, 10);
+
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ajinkya Why would it not work??  
+/* Paste your code here (You may delete these lines if not writing code) */
+ camster Ajinkya. The correct answer for the example in my posting Vertical Sum is 10,20,120,60,280,120,420,160,170. Nikin Jain’s answer for my exampe is 10,20,30,280,480,160.170. My theory about why Nikin Jain’s answer is wrong is because Nikin Jain’s code does not recursively calulate the sum of the subtree root and its tree predecessor and its tree sucessor. Thank you.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ajinkya Can you please explain how you got 9 columns in your answer? I have a code at my end, ans that too gives answer in 7 columns. rather, the same answer that the 3 line recursive code would give.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ anon This code will not work, because the index num can become negative. camster Here is C/C++ proposed answer with worst time complexity 0(n * log(n) ). Thank you camster.  
+
+struct node {   
+	int data;   
+	struct node *left;   
+	struct node *right; 
+};   
+
+
+node * TreeMaximum(node* z){
+	node* tmp;
+	if (z == NULL)
+		return NULL;
+	tmp = z;
+	while (tmp->right != NULL){
+		tmp = tmp->right;
+	}
+	if (z == tmp){
+		return NULL;
+	}
+	return tmp;
+}
+
+node * TreeMinimum(node* z){
+	node* tmp;
+	if (z == NULL)
+		return NULL;
+	tmp = z;
+	while (tmp->left != NULL){
+		tmp = tmp->left;
+	}
+	if (z == tmp){
+		return NULL;
+	}
+	return tmp;
+}
+
+
+
+void VerticalSum(node* root,node* r, node* s){
+	node* precede;
+	node* successor;
+
+
+	if (root == NULL){
+		return;
+	}
+
+
+	VerticalSum(root->left, r, s);
+
+	precede = TreeMaximum(root->left);
+	successor = TreeMinimum(root->right);
+	if (root != NULL){
+		if ((root->left && root->right)
+			     ||
+		    (root->left == NULL 
+                          && 
+                     root->right == NULL 
+                          &&
+		    (root == r || root == s))){
+		 printf(" %d ",
+                         root->data 
+			      + 
+                         (precede ? precede->data : 0)
+			      +  
+                         (successor ? successor->data : 0));
+	     }
+	}
+
+	VerticalSum(root->right, r, s);
+}
+
+
+struct node* node20X;
+   struct node* node60;
+   struct node* node120;
+   struct node* node160;
+   struct node* node40;
+   struct node* node140;
+   struct node* node100;
+   struct node* node10;
+   struct node* node30;
+   struct node* node50;
+   struct node* node70;
+   struct node* node110;
+   struct node* node130;
+   struct node* node150;
+   struct node* node170;
+
+   node10 = new node;
+   node10->data = 10;
+   node10->left = NULL;
+   node10->right = NULL;
+
+   node30 = new node;
+   node30->data = 30;
+   node30->left = NULL;
+   node30->right = NULL;
+
+   node50 = new node;
+   node50->data = 50;
+   node50->left = NULL;
+   node50->right = NULL;
+
+   node70 = new node;
+   node70->data = 70;
+   node70->left = NULL;
+   node70->right = NULL;
+
+   node110 = new node;
+   node110->data = 110;
+   node110->left = NULL;
+   node110->right = NULL;
+
+   node130 = new node;
+   node130->data = 130;
+   node130->left = NULL;
+   node130->right = NULL;
+
+   node150 = new node;
+   node150->data = 150;
+   node150->left = NULL;
+   node150->right = NULL;
+
+   node170 = new node;
+   node170->data = 170;
+   node170->left = NULL;
+   node170->right = NULL;
+
+
+
+   node20X = new node;
+   node20X->data = 20;
+   node20X->left = node10;
+   node20X->right = node30;
+
+   node60 = new node;
+   node60->data = 60;
+   node60->left = node50;
+   node60->right = node70;
+
+   node120 = new node;
+   node120->data = 120;
+   node120->left = node110;
+   node120->right = node130;
+
+   node160 = new node;
+   node160->data = 160;
+   node160->left = node150;
+   node160->right = node170;
+
+   node40 = new node;
+   node40->data = 40;
+   node40->left = node20X;
+   node40->right = node60;
+
+   node140 = new node;
+   node140->data = 140;
+   node140->left = node120;
+   node140->right = node160;
+
+
+   node100 = new node;
+   node100->data = 100;
+   node100->left = node40;
+   node100->right = node140;
+
+   VerticalSum(node100, 
+               TreeMinimum(node100), 
+               TreeMaximum(node100));
+
+
+
+/* Paste your code here (You may delete these lines if not writing code) */
+ harsh #include<iostream> #include<cstdio> using namespace std; int nsum[20],psum[20]; typedef struct node treenode; struct node { int key; treenode * left; treenode * right; }; int maxleft,maxright; treenode * getnode(treenode * node,int data) { node = new treenode(); node->left=NULL; node->right=NULL; node->key=data; return node; } treenode * insert(treenode * head,int data) { treenode * node = head; if (node!=NULL) { if(data < (node->key)) node->left=insert(node->left,data); else if(data > (node->key)) node->right=insert(node->right,data); } else { node=getnode(node,data); } return node; } void inorder(treenode * head) { if(head) { inorder(head->left); printf("%d ",head->key); inorder(head->right); } else return ; } void verticalsum(treenode * head,int vline) { if(head) { if(vline < 0){ // cout<<"f"<<vline; nsum[(-1*vline)]+=head->key; if(maxleft > (vline)) maxleft=(vline); } if(vline>=0){ psum[vline]+=head->key; if(maxright < vline) maxright=vline; } verticalsum(head->left,vline-1); verticalsum(head->right,vline+1); } else return; } int main() { treenode * head=NULL; head=insert(head,4); head=insert(head,2); head=insert(head,1); head=insert(head,3); head=insert(head,6); head=insert(head,5); head=insert(head,7); inorder(head); verticalsum(head,0); maxleft*=-1; cout<<maxleft<<" "<<maxright<<endl; for(int i=maxleft;i>0;i–) printf("%d ",nsum[i]); for(int i=0;i<=maxright;i++) printf("%d ",psum[i]); return 0; } pikachu In case we want to generalize this problem for n-ary tree? http://effprog.blogspot.com Sambasiva http://effprog.blogspot.com/2011/10/vertical-sums-of-binary-tree.html Ajinkya And if you do wanna use a big code, use this coz this comes straight from Brendon Mccullum….  
+In main: {
+int left_columns=lc(root); //get number of vertical columns to the left of root
+int right_columns=rc(root); // same for right
+int *column_number;
+column_number=(int*)malloc(sizeof(int)*(left_columns+right_columns+1));
+for(int i=0;i<(left_columns+right_columns+1);i++)
+column_number[i]=0;
+preorder1(root1,0,column_number,left_columns);
+
+for(int i=0;i<(left_columns+right_columns+1);i++)
+cout<<"\nColumn number: "<<(i-left_columns)<<", Sum: "<<column_number[i];
+}
+
+void preorder1(node *T,int vertical_column_number,int C[],int left_columns)
+{
+if(T!=NULL)
+{
+C[vertical_column_number+left_columns]+=T->data;
+preorder1(T->left,vertical_column_number-1,C,left_columns);
+preorder1(T->right,vertical_column_number+1,C,left_columns);
+}
+}
+
+//count number of vertical columns to the left of root
+int lc(node*T)
+{
+int count=0;
+if(T==NULL || T->left==NULL)
+return(count);
+else {
+T=T->left; count++; }
+while(1) {
+while(T->left!=NULL) {
+T=T->left;
+count++; }
+if(T->right==NULL)
+return(count);
+else
+T=T->right;
+}
+}
+
+//count number of vertical columns to the right of root
+int rc(node*T)
+{
+int count=0;
+if(T==NULL || T->right==NULL)
+return(count);
+else {
+T=T->right; count++; }
+while(1) {
+while(T->right!=NULL) {
+T=T->right;
+count++; }
+if(T->left==NULL)
+return(count);
+else
+T=T->left;
+}
+}
+ Ajinkya What are these rascala big codes, when you can do this in 3 lines? Yenna rascala mind it… Look @ code below… Rajnikanth is gr8 but every morning he bows down infront of Sachin GOD Tendulkar!!  
+Inside main: {
+map<int,int> H;
+preorder(root,0);
+//iterate through the map to get the sums
+}
+
+//any traversal will work!
+void preorder(node *T,int vertical_column_number)
+{
+     if(T!=NULL)
+     {
+                H[vertical_column_number]+=T->data;
+                preorder(T->left,vertical_column_number-1);
+                preorder(T->right,vertical_column_number+1);
+     }
+}
+ sidh This approach is similar to Sudha’s Approach below. kamlesh meghwal Haha…Anna Rascala ..Mind It….Salute 2 Rajnikanth….! codinglearner  
+/*
+
+/*----CALCULATE THE VERTICAL SUM OF THE GIVEN TREE----*/
+#include<stdio.h>
+#include<stdlib.h>
+struct node{
+int data;
+struct node *left,*right;
+};
+struct node* newnode(int data)
+{
+struct node* node=(struct node*)malloc(sizeof(struct node));
+node->data=data;
+node->left=node->right=NULL;
+return node;
+}
+int max(int a,int b)
+{
+return (a>b)?a:b;
+}
+int maxdepth(struct node *root)
+{
+if(root==NULL)
+return -1;
+int ldepth=maxdepth(root->left);
+int rdepth=maxdepth(root->right);
+return (max(ldepth,rdepth)+1);
+}
+void verticalsum(struct node* root,int hdist,int **count)
+{
+if(root==NULL)
+return ;
+*(*count+hdist)+=root->data;
+verticalsum(root->left,hdist-1,count);
+verticalsum(root->right,hdist+1,count);
+}
+int main()
+{
+struct node* root=newnode(1);
+root->left=newnode(2);
+root->right=newnode(3);
+root->left->left=newnode(4);
+root->left->right=newnode(5);
+root->right->left=newnode(6);
+root->right->right=newnode(7);
+int d=maxdepth(root);
+int *count=(int*)malloc(sizeof(int)*(2*d +1));
+verticalsum(root,d,&count);
+for(int i=0;i<(2*d +1);i++)
+printf("%d\t",count[i]);
+printf("\n%d",d);
+return 0;
+} */
+ nnn Output: -1819044961 -1819044970 -1819044966 -1819044973 -1819044973 2  
+/* Paste your code here (You may delete these lines if not writing code) */
+ codinglearner chk dis out… http://ideone.com/0pkfH pikachu Nice implementation Sudha  
+/* Paste your code here (You may delete these lines if not writing code) */
+#include<stdio.h>
+#include<malloc.h>
+
+struct node
+{
+	int data;
+	struct node *left;
+	struct node *right;
+};
+
+int a[100];
+
+void insert(struct node**,int);
+void inorder(struct node*);
+void vertical_sum(struct node*);
+int leftmost(struct node*);
+void inorder_sum(struct node*,int);
+void print(int);
+int rightmost(struct node *);
+
+int main()
+{
+	struct node *head;
+	head=NULL;
+
+	insert(&head,21);
+	insert(&head,15);
+	insert(&head,10);
+	insert(&head,19);
+	insert(&head,20);
+	insert(&head,9);
+	insert(&head,14);
+	insert(&head,13);
+	insert(&head,11);
+	insert(&head,16);
+	insert(&head,17);
+	insert(&head,29);
+	insert(&head,25);
+	insert(&head,35);
+	insert(&head,23);
+	insert(&head,27);
+	insert(&head,32);
+	insert(&head,36);
+	insert(&head,39);
+
+	inorder(head);
+
+	printf("\n\n");
+
+	vertical_sum(head);
+
+	return 0;
+}
+
+void insert(struct node **p,int value)
+{
+	struct node *temp,*r;
+
+	r=(struct node *)malloc(sizeof(struct node));
+	r->data=value;
+	r->left=NULL;
+	r->right=NULL;
+
+	temp=*p;
+
+	if(*p==NULL)
+	{
+		*p=r;
+		temp=*p;
+	}
+	else
+	{
+		while(temp!=NULL)
+		{
+			if(r->data < temp->data)
+			{
+				if(temp->left==NULL)
+				{
+					temp->left=r;
+					return;
+				}
+				else
+					temp=temp->left;
+			}
+			else
+			{
+				if(temp->right==NULL)
+				{
+					temp->right=r;
+					return;
+				}
+				else
+					temp=temp->right;
+			}
+		}
+	}
+	
+}
+
+void inorder(struct node *root)
+{
+	if(root==NULL)
+		return;
+	inorder(root->left);
+	printf("%d\t",root->data);
+	inorder(root->right);
+}
+
+void vertical_sum(struct node *root)
+{
+	int lht,rht;
+
+	lht=leftmost(root);
+
+	rht=rightmost(root);
+
+	inorder_sum(root,lht-1);
+
+	print(lht+rht-1);
+}
+
+int leftmost(struct node *p)
+{
+	int r=0;
+	
+	while(p!=NULL)
+	{
+		r++;
+		p=p->left;
+	}
+	return r;
+}
+
+int rightmost(struct node *p)
+{
+	int i=0;
+
+	while(p!=NULL)
+	{
+		i++;
+		p=p->right;
+		
+	}
+	return i;
+
+}
+void print(int n)
+{
+	int k;
+	for(k=0;k<n;k++)
+		printf("%d\t",a[k]);
+}
+
+void inorder_sum(struct node *root,int ht)
+{
+	if(root==NULL)
+		return;
+
+	inorder_sum(root->left,ht-1);
+	a[ht]=a[ht]+root->data;
+	inorder_sum(root->right,ht+1);
+}
+ kartik @Sudha: Thanks for sharing the code. Could you please provide the algo for the approach used in your implementation? http://royalraj26.myopenid.com/ yash Inorder to make the last index of a array to stop at zero,leftmost is calculated. and for finding the whole size of the array,rigthmost is calculated. isn’t it? Nice Sudha Algorithm: 1) Lets determine the count of verticals of the binary tree. 2) Total verticals of the binary tree = (count of leftmost nodes of the root) + (count of rightmost nodes of the root) -1(because in both counts root is considered). 3) The vertical for the root would be count of leftmost nodes of the tree(which is determined earlier). 4) To calculate the every vertical sum of the tree we will use in-order traversal. 5) For in-order_sum function we will pass root and its vertical number of root. By recursive in-order traversal: a)visit left node of root & decrease vertical by one, b)Add the node value to the array[vertical], and c)visit right node of root & increase vertical by one. kartik Thanks Sudha. Sreenivas Doosa @Sudha, Does ur program for finding leftmost node work for the following case. Please check. 20 / 10 / 6 \ 9 / 8 / 7 In the above case the leftmost node is 7, but as per ur program it gives 6. Srb @sudha first,thanx for sharing ur code….second their is problem in calculating the leftmost and rightmost function…check the geeksforgeeks for calculating the size of tree ..if u change ur function with that then this code will work fine and it will handle the case of skewed tree… geminisdb 7 / \ 2 45 / 35 / 30 / 29 / 24 For the above Tree, i think the code will fail because – Recursive calls to inorder_sum( root->left, ht-1) will eventually pass negative second parameter to the function. Then, array access with negative index will fail. Please correct me if I am wrong. geminisdb I think the code wont work for cases like the following : 7 / \ 3 45 / 40 / 36 / 30 / 23 / 20 Recursive calls to inorder_root(root->left, int ht-1) will soon start passing negative second parameter values. This will cause a[ht] = a[ht] + root->data; to fail. Please correct me if I am wrong. geminisdb 45 is the right child of 7. 40 is left child of 45. 36 is left child of 40. 30 is left child of 23 and so on. nikhil.srivastava what if the number of levels increase , will the vertical column overlap then , or the distance measure will be negative ? kartik @nikhil.srivastava: you question is not clear to me. Could you provide an example. donbosio here is the c implementation, with a slight modification that my program prints the elements in the same vertical line rather than printing the sum.tree used is same as above.so, the output is Vertical-Line-1 4 Vertical-Line-2 2 Vertical-Line-3 1,5,6 Vertical-Line-4 3 Vertical-Line-5 7  
+/* Paste your code here (You may delete these lines if not writing code) */
+#include<stdio.h>
+#include<conio.h>
+#include<alloc.h>
+struct node
+{
+int data;
+struct node *left;
+struct node *right;
+};
+
+void vertical_sum(struct node * , int [][10], int );
+struct node* newnode(int );
+
+int main()
+{
+int i,j,k,s=1;
+int hash_map[20][10]={0};
+ struct node *root = newnode(1);
+    root->left        = newnode(2);
+    root->right       = newnode(3);
+    root->left->left  = newnode(4);
+    root->left->right=newnode(5);
+    root->right->left=newnode(6);
+    root->right->right=newnode(7);
+vertical_sum(root,hash_map,10);
+for(i=0;i<=19;i++)
+{
+if(hash_map[i][0]>0)
+{
+printf("\n vertical-line %d: ",s);
+s++;
+j=hash_map[i][0];
+for(k=1;k<=j;k++)
+{
+printf("%d ",hash_map[i][k]);
+}
+}
+}
+getchar();
+}
+
+
+
+void vertical_sum(struct node * root, int hash_map[][10], int hd)
+{
+if(root!=NULL)
+{
+hash_map[hd][0]++;
+hash_map[hd][hash_map[hd][0]]=root->data;
+vertical_sum(root->left, hash_map, hd-1);
+vertical_sum(root->right, hash_map, hd+1);
+}
+
+}
+
+struct node* newnode(int data)
+{
+    struct node* node = (struct node*)
+			malloc(sizeof(struct node));
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+
+    return(node);
+}
+ Logistics *** Here is a Java Implementation of the same *** package trees; import java.util.HashMap; public class VertSuminBT { static HashMap sumMap = new HashMap(); public static void main(String[] args) { Node root = new Node(1); root.left = new Node(2); root.right = new Node(3); root.left.left = new Node(4); root.left.right = new Node(5); root.right.left = new Node(6); root.right.right = new Node(7); VerticalSum(root,0); System.out.println(“The vertical sums are as follows: “); System.out.println(sumMap.entrySet()); } static void VerticalSum(Node root, int hD){ if(root == null) return; VerticalSum(root.left, hD-1); int prevSum = (sumMap.get(hD) == null)? 0:sumMap.get(hD) ; sumMap.put(hD, prevSum+root.val); VerticalSum(root.right, hD+1); } } Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

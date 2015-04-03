@@ -1,0 +1,1501 @@
+The Great Tree-List Recursion Problem. - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph The Great Tree-List Recursion Problem. Asked by Varun Bhatia. Question: Write a recursive function treeToList(Node root) that takes an ordered binary tree and rearranges the internal pointers to make a circular doubly linked list out of the tree nodes. The”previous” pointers should be stored in the “small” field and the “next” pointers should be stored in the “large” field. The list should be arranged so that the nodes are in increasing order. Return the head pointer to the new list. This is very well explained and implemented at http://cslibrary.stanford.edu/109/TreeListRecursion.html           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. bhopu sorry… it’s using in order traversal… bhopu we can use preserve the current node and it’s previous node during post order traversal and make DDL..!! #include struct tree { int data; struct tree *next,*prv; }; /* function to create tree */ struct tree *insert(struct tree *root,int key){ struct tree *ptr; if(root==NULL){ ptr=(struct tree *)malloc(sizeof(struct tree)); ptr->data=key; ptr->next=NULL; ptr->prv=NULL; return ptr; }else if(root->data>key) root->prv=insert(root->prv,key); else if(root->datanext=insert(root->next,key); else printf(“duplicate”); return root; } /*traversing og tree*/ traverse_tree(struct tree *root){ if(root==NULL) return 0; traverse_tree(root->prv); printf(” %d->”,root->data); traverse_tree(root->next); return 0; } /* traversing in DDL*/ traverse_DDL(struct tree *head,struct tree *tail){ struct tree *q=head; printf(” %d->”,head->data); q=head->next; while(q!=head){ printf(” %d->”,q->data); q=q->next; } } /* function to make doubly linked list **DDL_head stro the head of list. *root is root of tree ,*par store parent,**ppreviose stores the previouse node that used to connect with current root node */ struct tree *make_DDL(struct tree *root,struct tree **DDL_head,struct tree *par,struct tree **previous){ static int i=0; if(root==NULL){ if(i==0) { *DDL_head=par; i=1; } return root; } make_DDL(root->prv,DDL_head,root,previous); if((*previous)!=NULL){ (*previous)->next=root; root->prv=*previous; } *previous=root; make_DDL(root->next,DDL_head,root,previous); return root; } main(){ struct tree *root=NULL,*DDL_head,*previous=NULL,*tail; root=insert(root,353); root=insert(root,5); root=insert(root,35); traverse_tree(root); printf(” n”); tail=make_DDL(root,&DDL_head,NULL,&previous); printf(” nn”); /*make circular */ DDL_head->prv=tail; tail->next=DDL_head; // printf(“nn %d %d”,DDL_head->prv->data,tail->next->data); traverse_DDL(DDL_head,tail); } manish kumar we can easily do same via making separate doubly link list via in-order traversal and delete current tree. Yash Girdhar Following is the code : The convert function takes a tree and 2 null pointers and sets the first pointer to the head and the second to the tail. node* convert(node *start, node** tail, node** head){ printf("for %dn",start->data); if(!start->left && !start->right){ printf("leafn"); if((*tail)){ printf("tail now= %dn",(*tail)->data); (*tail)->right = start; start->left = (*tail); (*tail)=start; printf("new tail=%dn",(*tail)->data ); } else{ printf("no tailn"); (*tail) = start; (*tail)->right = (*tail)->left = NULL; (*head) = start; (*head)->right = (*head)->left = NULL; printf("new tail=%dn",(*tail)->data ); } return (*tail); } if(start->left){ convert(start->left,tail,head); if(start->left==(*tail)){ (*tail)->right = start; (*tail) = start; } else if(start->left->right == (*tail)){ (*tail)->right = start; start->left = (*tail); (*tail) = start; } } if(start->right){ convert(start->right,tail,head); // if(start->right==(*tail)) // (*tail)->left = start; } return (*tail); } Vivek struct node { int data; struct node * small; struct node * large; }; // converts ordered tree to dll. void TreetoList(struct node *root, struct node **sml) { if(root) { TreetoList(((root)->small),sml); if(*sml) { (*sml)->large= root; (root)->small = *sml; *sml= root; } else { (root)->small= *sml; *sml = root; } TreetoList(((root)->large), sml); } } // converts dll into circular dll. struct node *tree_to_circdll(struct node **root) { struct node *temp=NULL, *t; TreetoList(*root,&temp); while(*root) { t=*root; (*root)=(*root)->small; } temp->large=t; t->small = temp; return t; } sumit5113  
+/* Paste your code here (You may delete these lines if not writing code) */
+ sumit5113 The logic is very simple, we can do inorder traversal and somehow we have to track the inorder-predecessor/inorder-successor. The following logic is implemented in a non-recursive way.  
+
+class NodeTree{
+	Int data;
+	NodeTree small;//left
+	NodeTree large;//right
+}
+
+//logic is very simple do the inorder tarversal, and modify the large and small pointer
+NodeTree treeToList(NodeTree treeRoot){
+
+	If(treeRoot==null)
+	  return;
+	Boolean isFirstTimeVisted=false;
+	Stack tracedStackedNode=new Stack();
+	NodeTree current=treeRoot;
+	NodeTree lastVisitedInOrdrTrvrsl=null;
+	NodeTree headNode=null;
+	do{
+	If(current!=null){
+	tracedStackedNode.push(current);
+	current=current.small;
+	}else{
+	current=tracedStackedNode.pop();
+	If(!isFirstTimeVisted){
+	  isFirstTimeVisited=true;
+              headNode=current;
+	}
+	If(lastVisitedInOrdrTrvrsl!=null)
+	lastVisitedInOrdrTrvrsl->large=current;
+	    
+	    current->small=lastVisitedOrdrTrvrsl;
+	lastVisitedInOrdrTrvrsl=current;
+	current=current.large;
+	}
+	
+	
+	}while(!tracedStackedNode.isEmpty())
+
+//since we have to create the circular doubly-linked list
+   headNode.small=lastVisited;
+   lastVisted.large=headNode;
+
+	return headNode;
+}
+
+ pranjalgupta void greatlist(tree* root, tree** head) { static tree* prev=NULL; if(root==NULL) return; tree* next; if(root->left) greatlist(root->left, head); if(prev==NULL) { *head=root; (*head)->left=root; root->right=root; prev=root; return; } else { prev->right=root; root->left=prev; prev=root; (*head)->left=root; next=root->right; root->right=*head; } greatlist(next, head); } The implementation for this ques becomes relatively easier if we apply modified in-order traversal. Cracker  
+/*void bin_ddl(struct tnode **root)
+{
+
+     if(*root == NULL)
+     {
+             return;
+     }
+             
+     bin_ddl(&(*root)->lwr);
+             
+     if(head == NULL)
+     {
+              tail = head = *root;
+     }
+              
+     else
+     {
+              tail->hghr = *root;
+              (*root)->lwr = tail;
+              tail = tail->hghr;
+     }
+                                
+     bin_ddl(&(*root)->hghr);
+             
+} */
+ Please correct this code , i have tried my best…,tail and head are global pointers Manish Kumar  
+/*
+ TreeList.c
+ 
+ C code version of the great Tree-List recursion problem.
+ See http://cslibrary.stanford.edu/109/ for the full
+ discussion and the Java solution.
+ 
+ This code is free for any purpose.
+ Feb 22, 2000
+ Nick Parlante nick.parlante@cs.stanford.edu
+*/
+
+
+#include <stdio.h>
+#include <stddef.h>
+#include <stdlib.h>
+
+/* The node type from which both the tree and list are built */
+struct node {
+    int data;
+    struct node* small;
+    struct node* large;
+};
+typedef struct node* Node;
+
+
+
+/*
+ helper function -- given two list nodes, join them
+ together so the second immediately follow the first.
+ Sets the .next of the first and the .previous of the second.
+*/
+static void join(Node a, Node b) {
+    a->large = b;
+    b->small = a;
+}
+
+
+/*
+ helper function -- given two circular doubly linked
+ lists, append them and return the new list.
+*/
+static Node append(Node a, Node b) {
+    Node aLast, bLast;
+    
+    if (a==NULL) return(b);
+    if (b==NULL) return(a);
+    
+    aLast = a->small;
+    bLast = b->small;
+    
+    join(aLast, b);
+    join(bLast, a);
+    
+    return(a);
+}
+
+
+/*
+ --Recursion--
+ Given an ordered binary tree, recursively change it into
+ a circular doubly linked list which is returned.
+*/
+static Node treeToList(Node root) {
+    Node aList, bList;
+    
+    if (root==NULL) return(NULL);
+
+    /* recursively solve subtrees -- leap of faith! */
+    aList = treeToList(root->small);
+    bList = treeToList(root->large);
+    
+    /* Make a length-1 list ouf of the root */
+    root->small = root;
+    root->large = root;
+
+    /* Append everything together in sorted order */
+    aList = append(aList, root);
+    aList = append(aList, bList);
+    
+    return(aList);
+
+
+
+/* Create a new node */
+static Node newNode(int data) {
+    Node node = (Node) malloc(sizeof(struct node));
+    node->data = data;
+    node->small = NULL;
+    node->large = NULL;
+    return(node);
+}
+
+
+/* Add a new node into a tree */
+static void treeInsert(Node* rootRef, int data) {
+    Node root = *rootRef;
+    if (root == NULL) *rootRef = newNode(data);
+    else {
+        if (data <= root->data) treeInsert(&(root->small), data);
+        else treeInsert(&(root->large), data);
+    }
+}
+
+
+static void printList(Node head) {
+    Node current = head;
+    
+    while(current != NULL) {
+        printf("%d ", current->data);
+        current = current->large;
+        if (current == head) break;
+    }
+    printf("\n");
+}
+
+
+/* Demo that the code works */
+int main() {
+    Node root = NULL;
+    Node head;
+    
+    treeInsert(&root, 4);
+    treeInsert(&root, 2);
+    treeInsert(&root, 1);
+    treeInsert(&root, 3);
+    treeInsert(&root, 5);
+    
+    head = treeToList(root);
+    
+    printList(head);    /* prints: 1 2 3 4 5  */
+    
+    return(0);
+}
+ 
+ 
+ sagar2693 can this b a possible sol : we populate all nodes in the tree with their inorder successors using reverse inorder traversal…. then we can traverse all nodes using these modified values of right pointers (keeping 2 ptrs prev and current as we do in a LL) and write statement like cur->left=prev to link a node with its inorder predecessor(its previous node) and then join last and head node with eachother……. plz correct me if i am wrong…..  
+/* Paste your code here (You may delete these lines if not writing code) */
+ sagar2693 #include<iostream> using namespace std; struct node{ int data; struct node *left; struct node *right; }; struct node *newnode(int n){ struct node *cur=new node; cur->left=cur->right=NULL; cur->data=n; return cur; } struct node *insert(struct node *root, int n){ if(root==NULL) return newnode(n); struct node *temp; if(root->data>n){ temp=insert(root->left,n); root->left=temp; } else{ temp=insert(root->right,n); root->right=temp; } return root; } struct node* find_minelement(struct node *root){ if(root==NULL) return NULL; struct node *temp=root; while(temp->left!=NULL) temp=temp->left; return temp; } void printlist(struct node *head){ struct node *temp=head; do{ cout<<temp->data<<‘ ‘; temp=temp->right; }while(temp!=head); } void populateNext(struct node* p,struct node **t){ if (p){ populateNext(p->right,t); p->right =*t; *t = p; populateNext(p->left,t); } } struct node *finalshape(struct node *head){ struct node *cur=head,*prev; while(cur!=NULL){ prev=cur; cur=cur->right; if(cur!=NULL) cur->left=prev; } head->left=prev; prev->right=head; return head; } void treetolist(struct node *root){ struct node *head=find_minelement(root); struct node *temp=NULL; populateNext(root,&temp); finalshape(head); cout<<"the LL obtained is \n"; printlist(head); } int main(){ struct node *root=NULL; root=insert(root,5); root=insert(root,10); root=insert(root,4); root=insert(root,7); root=insert(root,15); root=insert(root,4); treetolist(root); cout<<"\n\n……..press enter to exit…….."; cin.get(); return 0; } plz comment if whether itz correct or not…… abhishek08aug Here is my approach without the “Leap of Faith”:  
+#include<stdio.h>
+#include<stdlib.h>
+
+/* Structure of a node in tree/doubly linked list */
+struct node {
+  int data;
+  struct node * left;
+  struct node * right;
+};
+
+/* Function to insert a value in BST */
+void insert_node(struct node ** root_ref, int value) {
+  struct node * new_node=NULL;
+  if(*root_ref==NULL) {
+    new_node=(struct node *)malloc(sizeof(struct node));
+    new_node->data=value;
+    new_node->left=NULL;
+    new_node->right=NULL;
+    *root_ref=new_node;
+  } else if(value<=(*root_ref)->data) {
+    insert_node(&((*root_ref)->left), value);
+  } else if(value>(*root_ref)->data) {
+    insert_node(&((*root_ref)->right), value);
+  }
+}
+
+/* Function to print BST using inorder traversal*/
+void inorder_print(struct node * root) {
+  if(root==NULL) {
+    return;
+  } else {
+    inorder_print(root->left);
+    printf("%d ", root->data);
+    inorder_print(root->right);
+  }
+}
+
+/* Function to return address of maximum value node in BST */
+struct node * max_node(struct node * root) {
+  if(root==NULL) {
+    return NULL;
+  } else if(root->right==NULL) {
+    return root;
+  } else {
+    return max_node(root->right);
+  }
+}
+
+/* Function to return address of minimum value node in BST */
+struct node * min_node(struct node * root) {
+  if(root==NULL) {
+    return NULL;
+  } else if(root->left==NULL) {
+    return root;
+  } else {
+    return max_node(root->left);
+  }
+}
+
+/* Function to convert a BST into doubly linked list and return its head pointer */
+struct node * convert_into_dll(struct node ** root_ref) {
+  struct node * root=*root_ref;
+  
+  if(root==NULL) {
+    return;
+  } else {
+  }
+
+  struct node * left=root->left;
+  struct node * right=root->right;
+  struct node * max_in_left_subtree=max_node(left);
+  struct node * min_in_right_subtree=min_node(right);
+  struct node * min_in_left_subtree=min_node(left);
+ 
+  root->left=max_in_left_subtree;
+  root->right=min_in_right_subtree;
+
+  if(left!=NULL) {
+    convert_into_dll(&left);
+  }
+  if(right!=NULL) {
+    convert_into_dll(&right);
+  }
+
+  if(max_in_left_subtree!=NULL) {
+    max_in_left_subtree->right=root;
+  }
+  if(min_in_right_subtree!=NULL) {
+    min_in_right_subtree->left=root;
+  }
+
+  return min_in_left_subtree;
+}
+
+/* Function to print a doubly linked list */
+void print_list(struct node * head) {
+  while(head!=NULL) {
+    printf("%d ", head->data);
+    head=head->right;
+  }
+}
+
+/* Driver function */
+int main() {
+  struct node * root=NULL;
+
+  insert_node(&root, 40);
+  insert_node(&root, 30);
+  insert_node(&root, 50);
+  insert_node(&root, 25);
+  insert_node(&root, 35);
+  insert_node(&root, 45);
+  insert_node(&root, 55);
+  insert_node(&root, 60);
+  insert_node(&root, 65);
+  insert_node(&root, 70);
+  insert_node(&root, 75);
+
+  inorder_print(root);
+  printf("\n");
+
+  root=convert_into_dll(&root);
+  print_list(root);
+
+  return 0;
+}
+ 25 30 35 40 45 50 55 60 65 70 75 25 30 35 40 45 50 55 60 65 70 75 abhishek08aug Convert a tree into a Circular Doubly Linked List:  
+#include<stdio.h>
+#include<stdlib.h>
+
+/* Structure of a node in tree/doubly linked list */
+struct node {
+  int data;
+  struct node * left;
+  struct node * right;
+};
+
+/* Function to insert a value in BST */
+void insert_node(struct node ** root_ref, int value) {
+  struct node * new_node=NULL;
+  if(*root_ref==NULL) {
+    new_node=(struct node *)malloc(sizeof(struct node));
+    new_node->data=value;
+    new_node->left=NULL;
+    new_node->right=NULL;
+    *root_ref=new_node;
+  } else if(value<=(*root_ref)->data) {
+    insert_node(&((*root_ref)->left), value);
+  } else if(value>(*root_ref)->data) {
+    insert_node(&((*root_ref)->right), value);
+  }
+}
+
+/* Function to print BST using inorder traversal*/
+void inorder_print(struct node * root) {
+  if(root==NULL) {
+    return;
+  } else {
+    inorder_print(root->left);
+    printf("%d ", root->data);
+    inorder_print(root->right);
+  }
+}
+
+/* Function to return address of maximum value node in BST */
+struct node * max_node(struct node * root) {
+  if(root==NULL) {
+    return NULL;
+  } else if(root->right==NULL) {
+    return root;
+  } else {
+    return max_node(root->right);
+  }
+}
+
+/* Function to return address of minimum value node in BST */
+struct node * min_node(struct node * root) {
+  if(root==NULL) {
+    return NULL;
+  } else if(root->left==NULL) {
+    return root;
+  } else {
+    return max_node(root->left);
+  }
+}
+
+/* Function to convert a BST into doubly linked list and return its head pointer */
+struct node * convert_into_dll(struct node ** root_ref) {
+  struct node * root=*root_ref;
+  
+  if(root==NULL) {
+    return root;
+  } else {
+  }
+
+  struct node * left=root->left;
+  struct node * right=root->right;
+  struct node * max_in_left_subtree=max_node(left);
+  struct node * min_in_right_subtree=min_node(right);
+  struct node * min_in_left_subtree=min_node(left);
+ 
+  root->left=max_in_left_subtree;
+  root->right=min_in_right_subtree;
+
+  if(left!=NULL) {
+    convert_into_dll(&left);
+  }
+  if(right!=NULL) {
+    convert_into_dll(&right);
+  }
+
+  if(max_in_left_subtree!=NULL) {
+    max_in_left_subtree->right=root;
+  }
+  if(min_in_right_subtree!=NULL) {
+    min_in_right_subtree->left=root;
+  }
+
+  return min_in_left_subtree;
+}
+
+/* Function to get the last node of a doubly linked list */
+struct node * get_last_node_in_dll(struct node * head) {
+  if(head==NULL || head->right==NULL) {
+    return head;
+  } else {
+    return get_last_node_in_dll(head->right);
+  }
+}
+
+/* Function to convert a BST into circular doubly linked list */
+void convert_into_circular_dll(struct node ** root_ref) {
+  *root_ref=convert_into_dll(root_ref);
+  struct node * last_node_in_dll=get_last_node_in_dll(*root_ref);
+  (*root_ref)->left=last_node_in_dll;
+  last_node_in_dll->right=*root_ref;
+}
+
+/* Function to print a circular doubly linked list using right pointer*/
+void print_list_using_right(struct node * head) {
+  if(head==NULL) {
+    return;
+  }
+  printf("%d ", head->data);
+  struct node * current=head->right;
+  while(current!=head) {
+    printf("%d ", current->data);
+    current=current->right;
+  }
+}
+
+/* Function to print a circular doubly linked list using left pointer*/
+void print_list_using_left(struct node * head) {
+  if(head==NULL) {
+    return;
+  }
+  struct node * current=head->left;
+  do {
+    printf("%d ", current->data);
+    current=current->left;
+  }while(current!=head->left);
+}
+
+/* Function to print a circular doubly linked list using left pointer*/
+void print_list_nodes(struct node * head, int count) {
+  if(head==NULL) {
+    return;
+  }
+  int i=1;
+  struct node * current=head;
+  while(current!=NULL && i<=count) {
+    printf("%d ", current->data);
+    current=current->left;
+  }
+}
+
+/* Driver function */
+int main() {
+  struct node * root=NULL;
+
+  insert_node(&root, 40);
+  insert_node(&root, 30);
+  insert_node(&root, 50);
+  insert_node(&root, 25);
+  insert_node(&root, 35);
+  insert_node(&root, 45);
+  insert_node(&root, 55);
+  insert_node(&root, 60);
+  insert_node(&root, 65);
+  insert_node(&root, 70);
+  insert_node(&root, 75);
+  insert_node(&root, 100);
+
+  inorder_print(root);
+  printf("\n");
+
+  convert_into_circular_dll(&root);
+  print_list_using_right(root);
+  printf("\n");
+  print_list_using_left(root);
+
+  return 0;
+}
+ 25 30 35 40 45 50 55 60 65 70 75 100 25 30 35 40 45 50 55 60 65 70 75 100 100 75 70 65 60 55 50 45 40 35 30 25 stupid  
+struct node * dllStart;
+struct node * prev;
+void treetoDLL(struct node * root){
+     if(root == NULL){
+             return;
+     }
+     treetoDLL(root->left);
+     if(dllStart == NULL){
+                 dllStart = root;
+                 dllStart->left = NULL;
+     }
+     if(prev !=NULL){
+             struct node * temp = root;
+             prev->right = temp;
+             temp->left = prev;
+             
+     }
+     prev = root;
+     treetoDLL(root->right);
+}
+void printDLL(){
+     if(dllStart == NULL){
+                 return;
+     }
+     else{
+      while(dllStart){
+                            printf("%d  ",dllStart->data);
+                            dllStart = dllStart->right;
+      }    
+     }
+}
+ sush  
+struct node* TL	(struct node *r)//main function
+{
+	struct node* t;
+	return TtoL(r,&t);
+}
+struct node* TtoL(struct node* r,struct node** t)//returns tail(of list created from root) saved in *t
+{
+	if(!r)
+	{*t=NULL;return r;}
+	struct node* h1,*t1,*h2,*t2;
+	h1=TtoL(r->left,t);
+	t1=*t;
+	*t=NULL;
+	h2=TtoL(r->right,t);
+	if(h1)
+	{
+		t1->right=r;r->left=t1;//r->prev=t1;t1->next=r;
+	}
+	else
+	{
+		r->left=NULL;//r->prev=NULL;
+		h1=r;
+	}
+	if(h2)
+	{
+		r->right=h2;h2->left=r;//r->next=h2;h2->prev=r;
+	}
+	else
+	{
+		r->right=NULL;//r->next=NULL;
+		*t=r;
+	}
+	//make circular
+	/*uncomment these two lines if you want to make it circular
+	h1->left=*t;
+	(*t)->right=h1;
+	*/
+	return h1;
+}
+
+ Nikin  
+
+void join(node *a, node *b)
+{
+a->right = b;
+b->left = a;
+}
+
+node* append(node *sr1, node *sr2)
+{
+if(sr1 == NULL) return sr2;
+if(sr2 == NULL) return sr1;
+
+Node* aLast = a->left;
+Node* bLast = b->left;
+
+join(aLast, b);
+join(bLast, a);
+
+}
+
+
+node* treeToList(node *sr)
+{
+if(sr == NULL) return NULL;
+
+node* aList = treeToList(sr->left);
+node* bList = treeToList(sr->right);
+
+sr->left = sr;
+sr->right = sr;
+
+aList = append(aList, sr);
+aList = append(aList, bList);
+
+return aList;
+
+}
+
+ nir #include #include using namespace std; struct node { int data; node *left; node *right; }*root,*first; node* insert(int data,node *temp) { if(temp == NULL) { temp = new node; temp->data = data; temp->right = NULL; temp->left = NULL; } else if(data data) { temp->left = insert(data,temp->left); } else { temp->right = insert(data,temp->right); } return temp; } void convert() { node *current,*prev,*prev1; current = root; prev = NULL; first = NULL; while(current!=NULL) { if(current->left == NULL || current->left == root) { if(first == NULL) { first = current; first->left = NULL; } if(current->left != root) current->left = prev; else root->right = current; prev = current; current= current->right; } else { prev = current->left; while(prev->right != NULL && prev->right != current) prev = prev->right; if(prev->right == NULL) { prev->right = current; prev1 = current; current = current->left; prev1->left = prev; } else { //cout<data; current->left = prev; prev = current; current = current->right; } } } } int main() { int data; node *temp; cin>>data; while(data > 0) { root = insert(data,root); cin>>data; } if(root->right != NULL) { temp = root->right; while(temp->left != NULL) temp = temp->left; temp->left = root; } convert(); temp = first; while(temp!=NULL) { cout<data<right; Sleep(1); } return 0; } Vishal  
+// program to convert complete binary tree into a  doubly linked list in place
+#include<stdio.h>
+#include<stdlib.h>
+struct node 
+{
+	int data;
+	struct node * left;
+	struct node * right;
+};
+typedef struct node node;
+node * newnode(int data);
+node * todll(node * root);
+void print(node *head);
+void preorder(node* root);
+int main()
+{
+	node * root = NULL;
+	root = newnode(4);
+	root->right = newnode(5);
+	root->left = newnode(6);
+	root->left->left = newnode(7);
+	root->left->right = newnode(8);
+	root->left->right->left = newnode(60);
+	root->left->right->right = newnode(80);
+	root->right->left = newnode(9);
+	root->right->right = newnode(10);
+	root->right->right->left = newnode(11);
+	root->right->right->right = newnode(12);
+	preorder(root);
+	printf("\n");
+	node * head = todll(root);//now the head contains the head of dll and no tree exists now
+	print(head);
+}
+node * newnode(int data)
+{
+	node * new = (node *)malloc(sizeof(node));
+	new->data = data;
+	new->right = NULL;
+	new->left = NULL;
+	return new;
+}
+void preorder(node* root)
+{
+	if(root == NULL) return;
+	printf("%d ",root->data);
+	preorder(root->left);
+	preorder(root->right);
+}
+void print(node *head)
+{
+	while(head!=NULL)
+	{
+		printf("%d ",head->data);
+		head = head->right;
+	}
+	printf("\n");
+}
+node * todll(node * root)
+{
+	if(root == NULL) return NULL;
+	node * a = todll(root->left);
+	node * b = todll(root->right);
+	if(a!=NULL && b != NULL)
+	{
+		while(a->right != NULL) a = a->right;
+		a->right = root;
+		root->left = a;
+		b->left = root;
+		root->right = b;
+	}
+	if(a == NULL && b == NULL)
+	{
+		root->left = NULL;
+		root->right = NULL;
+		return root;
+	}
+	while(a->left != NULL) a = a->left;
+	root = a;
+	return root;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ Kamal Wadhwa In my solution i have used inorder traversal which gives me number from smaller to larger in the ordered binary tree. i haven’t made a new structure for doubly Link-List rather i used the structure of tree in which the node contains data, left and right. Any comments to make it better or suggestion will be great. Thanks in advance  
+
+#include<iostream>
+#include<stdlib.h>
+
+using namespace std;
+
+struct node* linkNode;
+
+struct node
+{
+	int data;
+	node* left;
+	node* right;
+	
+};
+
+struct node* newNode(int data)
+{
+	struct node* node = (struct node*) malloc(sizeof(struct node));
+	
+	node->data = data;
+	node->left = NULL;
+	node->right = NULL;
+}
+
+void dispLinkList()
+{
+	while(linkNode->left != NULL)
+		linkNode = linkNode->left;
+	
+	struct node* temp = linkNode;
+	while(temp != NULL)
+	{
+		cout << temp->data << " ";
+		temp = temp->right;
+	}
+}
+
+void treeToList(struct node* root)
+{
+	if(root == NULL)
+		return;
+		
+	treeToList(root->left);
+	
+	if(linkNode == NULL)
+		linkNode = newNode(root->data);
+
+	else
+	{
+		struct node* tempNode = newNode(root->data);		
+		tempNode->left = linkNode;
+		linkNode->right = tempNode;		
+		linkNode = linkNode->right;		
+		
+	}
+	
+	treeToList(root->right);
+	
+}
+
+
+
+int main(void)
+{
+	struct node* root = newNode(4);
+	root->left = newNode(2);
+	root->right = newNode(5);
+	root->left->left = newNode(1);
+	root->left->right = newNode(3);		
+	
+	treeToList(root);
+	dispLinkList();
+	return 0;
+}
+
+ Jatin Jindal Hello everyone, Please see below code for Tree to list implementation using In order traversal:  
+#include <stdio.h>
+#include <iostream>
+#include <stdlib.h>
+
+using namespace std;
+
+typedef struct node{
+    int data;
+    struct node* smaller;
+    struct node* larger;
+}*Node;
+
+/*Making a doubly linked list*/
+void convert2list(Node newN,Node* head,Node* tail)
+{
+    if((*head)==NULL)
+    {
+        *head=newN;
+        *tail=newN;
+    }
+    else
+    {
+        (*tail)->larger=newN;
+        newN->smaller=(*tail);
+        *tail=newN;
+    }
+}
+
+/*In order traversal*/
+void tree2list(Node root,Node* head,Node* tail)
+{
+    if(root)
+    {
+        tree2list(root->smaller,head,tail);
+        convert2list(root,head,tail);
+        tree2list(root->larger,head,tail);
+    }
+}
+
+void printList(Node head)
+{
+    Node temp=head;
+    while(temp->larger!=head)
+        {
+            cout<<temp->data;
+            temp=temp->larger;
+        }
+    cout<<temp->data;
+}
+
+/*Connecting the head and tail to make it a circular list*/
+void connectHT(Node head,Node tail)
+{
+    tail->larger=head;
+    head->smaller=tail;
+}
+
+/* Create a new node */
+static Node newNode(int data)
+{
+Node node = (Node) malloc(sizeof(struct node));
+node->data = data;
+node->smaller = NULL;
+node->larger = NULL;
+return(node);
+}
+/* Add a new node into a tree */
+static void treeInsert(Node* rootRef, int data)
+{
+Node root = *rootRef;
+    if (root == NULL)
+        *rootRef=newNode(data);
+    else
+    {
+        if (data <= root->data)
+            treeInsert(&(root->smaller), data);
+        else
+            treeInsert(&(root->larger), data);
+    }
+}
+
+int main()
+{
+Node head=NULL;
+Node tail=NULL;
+Node root=NULL;
+
+treeInsert(&root,11);
+treeInsert(&root,5);
+treeInsert(&root,3);
+treeInsert(&root,9);
+treeInsert(&root,1);
+treeInsert(&root,4);
+treeInsert(&root,7);
+treeInsert(&root,10);
+treeInsert(&root,15);
+treeInsert(&root,13);
+treeInsert(&root,17);
+tree2list(root,&head,&tail);
+connectHT(head,tail);
+printList(head);
+return 0;
+}
+ Rishabh This solution is for the doubly-linked list(non-circular). I am passing the node and its parent as parameters in the recursive function. Find the comments inline.  
+Node* function(Node* root, Node* parent)
+{
+    if(root is the leaf) return root;
+    
+    //handling the left subtree case
+    Node* temp1 = function(root->left, root);
+    root->left = temp1;
+    temp1->right = root;
+
+    //handling the right subtree case
+    Node* temp2 = function(root->right,root);
+    root->right= temp2;
+    temp2->right = root;
+
+    return temp2;
+    //this return ensures that the current root's parent gets the correct node as its "right node".
+}
+ tiger Is this code correct?? Nobody has posted replies yet???  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://roomforcreativity.wordpress.com cyclotrojan Its incorrect. Consider some node n, initially n.next points to its right child and when n is recursively passed to its parent then n.next starts pointing to the parent, breaking the chain with its right child.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ BOB /* The tree is converted to dll where the h is the head and tail if the tail of the list.The tree pointers are used as left as prev and right as next */ void convertTreeToList(node* t, node **h,node **tail) { if(t!=NULL) { convertTreeToList(t -> left,h,tail); if(*h==NULL) { *h=t; *tail=t; } else { (*tail)->right=t; t->left=*tail; *tail=t; } convertTreeToList(t -> right,h,tail); } } nitin  
+struct node *append(struct node *a,struct node *b)
+{
+    if(a==NULL) return b;
+    if(b==NULL) return a;
+    struct node *aLeft=a->left;
+    struct node *bLeft=b->left;
+    aLeft->right=b;
+    b->laeft=aLeft;
+    a->left=bLeft;
+    bLeft->right=a;
+    return a;
+}
+
+struct node *TreeToList(struct node *root)
+{
+    if(root=NULL) return NULL;
+    struct node *aList=TreeToList(root->left);
+    struct node *bList=TreeToList(root->right);
+    root->left=root;
+    root->right=root;
+    aList=append(aList,root);
+    aList=append(aList,bList);
+    return aList;
+}
+ Anuj Bansal The algorithm maintains a global stack and two global pointers list (which points to doubly connected linked list formed at the end of the algorithm) and temp (which is a temporary pointer used in the list). After the tree creation, I call the function addtoList which will push the nodes of the tree into the stack for every left subtree of a node and would pop the stack once it find the left subtree as NULL and then call another function MakeList which connects the right subtree of the node to the list and hence calls addtoList again to parse and connect the left subtree of this right subtree.  
+#include<stdio.h>
+#include<conio.h>
+#include<stdlib.h>
+
+struct node {
+	int info;
+	struct node *left;
+	struct node *right;
+};
+typedef struct node *NODEPTR;
+
+struct stack {
+	NODEPTR ptr;
+	struct stack *next;
+};
+typedef struct stack *STACK;
+
+STACK st = NULL;
+
+NODEPTR pop() {
+	if(st == NULL)
+		return (NODEPTR) NULL;
+	else {
+		STACK p = st;
+		NODEPTR q = st->ptr;
+		st = st->next;
+		free(p);
+		return q;
+	}
+}
+
+STACK getstacknode (NODEPTR p) {
+	STACK q = (STACK) malloc(sizeof(struct stack));
+	q->ptr = p;
+	q->next = NULL;
+	return q;
+}
+
+void push(NODEPTR p) {
+	if(st == NULL) {
+		st = getstacknode(p);
+	}
+	else {
+		STACK q = getstacknode(p);
+		q->next = st;
+		st = q;
+	}
+}
+
+int empty() {
+	return st == NULL ? 1 : 0;
+}
+
+NODEPTR getnode(int x) {
+	NODEPTR ptr;
+	ptr = (NODEPTR) malloc(sizeof(struct node));
+	ptr->info = x;
+	ptr->left = NULL;
+	ptr->right = NULL;
+	return ptr;
+}
+
+void insert(NODEPTR *root , int x) {
+	if(*root == NULL) {
+		*root = getnode(x);
+		return;
+	}
+	else {
+		if( x < (*root)->info)
+			insert( &((*root)->left) , x);
+		else
+			insert( &((*root)->right) , x);
+	}
+}
+
+void inorder(NODEPTR root) {
+	if(root != NULL) {
+		inorder(root->left);
+		printf("%d," , root->info);
+		inorder(root->right);
+	}
+}
+
+NODEPTR list = NULL;
+NODEPTR temp = NULL;
+
+void addtoList(NODEPTR root);
+
+void Makelist(NODEPTR p) {
+	if(list == NULL) {
+		list = p;
+		temp = p;
+		list->left = p;
+		list->right = p;
+	}
+	else {
+		NODEPTR q = p->right;
+		temp->right = p;
+		list->left = p;
+		p->left = temp;
+		p->right = list;
+		temp = p;
+		addtoList(q);
+	}
+}
+
+void addtoList(NODEPTR root) {
+	if(root) {
+		NODEPTR p = root;
+		while (p) {
+			push(p);
+			p = p->left;
+		}
+		do {
+			p = pop();
+			Makelist(p);
+		} while(!empty());
+	}
+}
+
+void printList(NODEPTR list) {
+	printf("%d,",list->info);
+	for(NODEPTR p = list->right; p!=list; p = p->right)
+		printf("%d,", p->info);
+}
+
+void main()
+{
+clrscr();
+NODEPTR root = NULL;
+insert(&(root), 12);
+insert(&(root), 6);
+insert(&(root), 13);
+insert(&(root), 14);
+insert(&(root), 5);
+insert(&(root), 8);
+insert(&(root), 7);
+insert(&(root), 10);
+insert(&(root), 9);
+insert(&(root), 11);
+insert(&(root), 4);
+insert(&(root), 2);
+insert(&(root), 1);
+insert(&(root), 3);
+insert(&(root), 16);
+insert(&(root), 15);
+insert(&(root), 17);
+
+inorder(root);
+printf("\n");
+addtoList(root);
+printList(list);
+
+getch();
+}
+ mohit Node list_head=NULL; void tree_list(Node n,Node *last) { if(n==NULL) return ; tree_list(n->l,last); if(*last) (*last)->r=n; n->l=*last; *last=n; if(list_head==NULL) list_head=n; tree_list(n->r,last); return ; } mohit  
+/* Paste your code here (You may delete these lines if not writing code) */
+List tree_to_list(Node n)
+{
+	if(n==NULL) return NULL;
+	List llst=tree_to_list(n->l);
+	
+	List nd=(List )calloc(1,sizeof(struct llist ));
+	nd->v=n->v;
+	if(my_head==NULL)
+		my_head=nd;
+	
+	if(llst!=NULL)
+		(llst)->next=nd;
+	List rlst=tree_to_list(n->r);
+	if(rlst!=NULL)
+		nd->next=(rlst);
+	return (nd);
+	
+}
+
+ Ankur I was thinking of one approach..Need your feedback frnds To do this in O(n) I will convert this BST into Circular Linked List and then make the head->left->right = NULL and head->left = NULL to convert BST into Circular DLL here is a working code struct node* treeToList(struct node* root){ struct node* node1 = NULL; struct node* node2 = NULL; if(root==NULL) return NULL; node1 = treeToList(root->left); node2 = treeToList(root->right); if(!node1 && !node2){ root->left = root; root->right = root; return root; } if(node1 && node2){ root->right = node2; root->left = node1->left; node1->left->right =root; node1->left = node2->left; node2->left->right = node1; node2->left = root; return node1; } if(!node2){ root->right = node1; root->left = node1->left; node1->left->right =root; node1->left = root; return node1; } if(!node1){ root->right = node2; root->left = node2->left; //root->right = node2->right; node2->left->right = root; node2->left= root; return root; } }   Swapnil #include “bst.cpp” struct mypair{ BST *left; BST * right; }; mypair convert_to_dll(BST *T){ mypair left_pointer; mypair right_pointer; mypair new_mypair; if(T->left == NULL && T->right == NULL){ new_mypair.left = T; new_mypair.right = T; } else if(T->left == NULL){ right_pointer = convert_to_dll(T->right); // for values coming from right pointer… T->right = right_pointer.left; right_pointer.left->left = T; new_mypair.left = T; new_mypair.right = right_pointer.right; } else if(T->right == NULL){ left_pointer = convert_to_dll(T->left); // for values coming from left pointer… left_pointer.right->right = T; T->left = left_pointer.right; new_mypair.left = left_pointer.left; new_mypair.right = T; } else { left_pointer = convert_to_dll(T->left); // for values coming from left pointer… left_pointer.right->right = T; T->left = left_pointer.right; right_pointer = convert_to_dll(T->right); // for values coming from right pointer… T->right = right_pointer.left; right_pointer.left->left = T; new_mypair.left = left_pointer.left; new_mypair.right = right_pointer.right; } return new_mypair; } int main(){ BST *T = NULL; int n; cin >> n; int temp; for(int i = 0 ; i > temp; T = insert(T,temp); } inline_traversal(T); cout<right != NULL){ cout <value <“; T=T->right; } cout <value <left != NULL){ cout <value <“; T=T->left; } cout <value <<endl; return 0; } rajcools Here is the full working code for bst to dll without using recursion i have found inorder successor based on Morris traversal and then found inorder predecessors for left pointers. Then I have modified pointers according to inorder traversal that we are making of a binary search tree. All code is in RDTraversal function  
+#include<stdio.h>
+#include<stdlib.h>
+
+/* A binary tree tNode has data, pointer to left child
+   and a pointer to right child */
+struct tNode
+{
+   int data;
+   struct tNode* left;
+   struct tNode* right;
+};
+
+/* Function to convert BST into sorted dll */
+struct tNode* RDTraversal(struct tNode *root)
+{
+  struct tNode *current,*pre,*prev,*temp;
+
+  if(root == NULL)
+     return NULL; 
+
+  current = root;
+  prev=NULL;   //previous node
+  temp = root;             // temp node which is the starting point of dll
+  while(temp->left!= NULL)
+  temp = temp->left;
+  while(current != NULL)
+  {
+    if(current->left == NULL)
+    {
+      printf(" %d ", current->data);
+      current->left=prev;
+      if(prev != NULL)
+      prev->right=current;
+      prev=current;
+      current = current->right;
+
+    }
+    else
+    {
+      /* Find the inorder predecessor of current */
+      pre = current->left;
+      while(pre->right != NULL && pre->right != current)
+        pre = pre->right;
+
+      /* Make current as right child of its inorder predecessor */
+      if(pre->right == NULL)
+      {
+        pre->right = current;
+        current = current->left;
+      }
+
+      /* Revert the changes made in if part to restore the original
+        tree i.e., fix the right child of predecssor */
+      else
+      {
+        //pre->right = NULL;
+        current->left=pre;                 //pre or prev both will work
+        printf(" %d ",current->data);
+        prev=current;
+        current = current->right;
+      } /* End of if condition pre->right == NULL */
+    } /* End of if condition current->left == NULL*/
+  } /* End of while */
+  return temp;
+}
+
+/* UTILITY FUNCTIONS */
+/* Helper function that allocates a new tNode with the
+   given data and NULL left and right pointers. */
+struct tNode* newtNode(int data)
+{
+  struct tNode* tNode = (struct tNode*)
+                       malloc(sizeof(struct tNode));
+  tNode->data = data;
+  tNode->left = NULL;
+  tNode->right = NULL;
+
+  return(tNode);
+}
+/* Driver program to test above functions*/
+int main()
+{
+
+  printf("Holla player \n");
+  struct tNode *root = newtNode(4);
+  root->left        = newtNode(2);
+  root->right       = newtNode(6);
+  root->left->left  = newtNode(1);
+  root->left->right = newtNode(3);
+  root->right->left = newtNode(5);
+  root->right->right = newtNode(7);
+  struct tNode *temp=RDTraversal(root);
+  printf("\n");
+ while(temp != NULL)
+ {
+            printf("%d ",temp->data);
+            temp = temp ->right;
+   }
+  getchar();
+  return 0;
+}
+ rajcools @moderators guys dont we need to publish this??? rajcools well i take back my last comment. Not me to suggest GeeksforGeeks @rajcools: Apologies for the delayed reply. The code looks fine. We will test it further for more cases and publish as a separate post. You are always welcome to suggest new posts and ideas. Keep it up!! rakitic what i understand from problem is , we have to traverse in_order and append nodes in doubly linked list simultaneously , please tell if i understand the problem correct so i can start implementing.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Arvind Writing code in java. Structure of a node of tree:  
+Class Node
+{
+  Node left; //this will become previous pointer of link list
+  Node right; //this will become next pointer of link list
+  int data;
+  Node(data)
+  {
+    this.data=data;
+    this.left=null;
+    this.right=null;
+  }
+
+  //Concept:
+  // traverse tree left & right recursively.
+ //  Finally at every level, break the link of current node with the tree.    
+  // you will have threee lists.Add them in proper sequence.
+
+  Node treeToList(Node root)
+  {
+    if(root==null)
+      return null;
+
+    Node aList = treeToList(root.left);
+    Node bList = treeToList(root.right);
+
+    root.left = root;
+    root.right = root;
+
+    //Now append three Lists.
+    aList = append(aList,root); //this will append root to aList.
+    aList = append(aList,bList);
+
+    return aList;
+  }
+
+   //This method would append two circular doubley link lists
+  Node append(Node aList, Node bList)
+  {
+     Node aLastNode = aList.left;
+     Node bLastNode = bList.left;
+
+    // join aLastNode to B's first node
+   aLastNode.right = bList;
+   bList.left = aLastNode;
+  
+   //Join bLastNode to A's first node
+   // this one you have to do :-)
+
+   //finally
+   return aList;
+}
+ http://sumitnee.blogspot.com long_road  
+struct tree* tree_to_list(struct tree *root,struct tree *node)
+{
+        if (root==NULL){
+                if(node!=NULL) node->small=root;
+                return node;
+        }
+        struct tree *r=tree_to_list(root->large,node);
+        root->large=r;
+        if(r!=NULL) r->small=root;
+        return tree_to_list(root->small,root);
+
+}
+ http://sumitnee.blogspot.com long_road initial calling struct tree *list=tree_to_list(root,NULL); Dreamer This method seems to me perfect and easy. But there are no comments on this. Am i missing something?? elrack It doesn’t perform it in-place. And also:  
+struct tree *r=tree_to_list(root->large,node); 
+ This statement returns local storage. It will “work” but it won’t “work-work” elrack  
+?struct tree *r=tree_to_list(root->large,node);
+ that statement puts pointers to storage which are only local to the function within the global list. (make it some alloc routine) http://sachingupta.tk sachin gupta  
+/* The node type from which both the tree and list are built */
+struct node {
+    int data;
+    struct node* small;
+    struct node* large;
+};
+typedef struct node* Node;
+
+
+
+/*
+ helper function -- given two list nodes, join them
+ together so the second immediately follow the first.
+ Sets the .next of the first and the .previous of the second.
+*/
+static void join(Node a, Node b) {
+    a->large = b;
+    b->small = a;
+}
+
+
+/*
+ helper function -- given two circular doubly linked
+ lists, append them and return the new list.
+*/
+static Node append(Node a, Node b) {
+    Node aLast, bLast;
+    
+    if (a==NULL) return(b);
+    if (b==NULL) return(a);
+    
+    aLast = a->small;
+    bLast = b->small;
+    
+    join(aLast, b);
+    join(bLast, a);
+    
+    return(a);
+}
+
+
+/*
+ --Recursion--
+ Given an ordered binary tree, recursively change it into
+ a circular doubly linked list which is returned.
+*/
+static Node treeToList(Node root) {
+    Node aList, bList;
+    
+    if (root==NULL) return(NULL);
+
+    /* recursively solve subtrees -- leap of faith! */
+    aList = treeToList(root->small);
+    bList = treeToList(root->large);
+    
+    /* Make a length-1 list ouf of the root */
+    root->small = root;
+    root->large = root;
+
+    /* Append everything together in sorted order */
+    aList = append(aList, root);
+    aList = append(aList, bList);
+    
+    return(aList);
+
+
+
+/* Create a new node */
+static Node newNode(int data) {
+    Node node = (Node) malloc(sizeof(struct node));
+    node->data = data;
+    node->small = NULL;
+    node->large = NULL;
+    return(node);
+}
+
+
+/* Add a new node into a tree */
+static void treeInsert(Node* rootRef, int data) {
+    Node root = *rootRef;
+    if (root == NULL) *rootRef = newNode(data);
+    else {
+        if (data data) treeInsert(&(root->small), data);
+        else treeInsert(&(root->large), data);
+    }
+}
+
+
+static void printList(Node head) {
+    Node current = head;
+    
+    while(current != NULL) {
+        printf("%d ", current->data);
+        current = current->large;
+        if (current == head) break;
+    }
+    printf("\n");
+}
+
+
+/* Demo that the code works */
+int main() {
+    Node root = NULL;
+    Node head;
+    
+    treeInsert(&root, 4);
+    treeInsert(&root, 2);
+    treeInsert(&root, 1);
+    treeInsert(&root, 3);
+    treeInsert(&root, 5);
+    
+    head = treeToList(root);
+    
+    printList(head);    /* prints: 1 2 3 4 5  */
+    
+    return(0);
+}
+ varnika great solution.well thought and coded. but is it inplace ?aren’t u supposed not to create a new DLL and push values in it.Just arrange the pointers somehow inplace. what is this code doing diffrent than “taking an inorder and keep pushing it into a circular DLL”? defrager @sachin: You just copied the code from the Stanford site..! http://avidullu.wordpress.com Avi I found this (pre-order traversal) method more easy to convert the tree to dll.  
+
+node *find_max_iter(node *start)
+{
+        if (start == NULL)
+                return start;
+        while (start->right)
+                start = start->right;
+        return start;
+}
+
+node *find_min_iter(node *start)
+{
+        if (start == NULL)
+                return start;
+        while (start->left)
+                start = start->left;
+        return start;
+}
+
+void treetodll(node * root) {
+        if ( root == NULL)
+                return ;
+        node *tmp_r, *tmp_l;
+        tmp_l = find_max_iter(root->left);
+        tmp_r = find_min_iter(root->right);
+        treetodll(root->left);
+        treetodll(root->right);
+        root->left = tmp_l;root->right = tmp_r;
+        if (tmp_l != NULL)
+                tmp_l->right = root;
+        if (tmp_r != NULL)
+                tmp_r->left = root;
+        return ;
+}
+
+main() {
+        // insert elements code here
+        treetodll(root);
+        while ( root->left ) {
+                root = root->left;
+        }
+        // root is now at head of list
+}
+
+ PS: I have not checked it rigorously http://web.iiit.ac.in/~singh_parmar devendraiiit root is not at head of list, so before sending to function we have to do remember starting node of linked by.. Node *NewLinked; NewLinked=find_min(root); treetodll(root); (or we can traverse back as we have doubly linked list finally) correct me if i m wrong now NewLinked point to starting to node http://avidullu.wordpress.com Avi yes, I didn’t provide the main function, it would do either of the two ways. Anyways we get a doubly linked list, you can traverse and connect head with tail. http://ashutosh7s.blogspot.com/ WgpShashank @avi.. your solution is not optimized.as you calling min & max for each node in the tree..isn’t it..?? see the function treetodll(node)..??? we should remove these part of code ..or think some other way you wants to provide the solution let me know if i interpreted it as wrong…?? http://avidullu.wordpress.com Avi “or think some other way” Please come up with an optimized solution first and then question the existing approach. On second thought, mine is the only correct solution on the page, if you have an optimized code please post, I’d be happy to review. http://androidshashank.blogspot.com/ WgpShashank @avi..sorry for delay..in responding..let me explain for every node you are calling find_min_iter & find_max_iter function recursively..so whats the complexity of this..in worst case isn’t O(n^2)…e.g. for n nodes your calling n times max,min function so its O(n^2) as i can say.. & you can see the example for such question how optimization is done..here 1. http://geeksforgeeks.org/?p=5687 2. http://geeksforgeeks.org/?p=5230 let me know if u interpreted wrong ?? http://avidullu.wordpress.com Avi I see the posts that you gave in the comment but if you notice, the problem here is very different. In both the solutions you gave in the comment, a value was uniquely required for the entire tree. Here we require max and min for each node. The only way to save some time would be DP. But it would incur extra space cost of O(n) which is forbidden by the problem. Hope you get my point. If I am still not making myself clear, then please post a working C code or at least a pseudo code for the approach you suggest. http://shashank7s.blogspot.com WgpShashank I was Thinking about this since when i saw this problem few months back . Although it can easily be seen modification of in-order traversal of tree but designing the efficient algorithm & writing quality production code is not easy task for this problem because ultimately we have to play with pointers (and reading Yashwanth Kanithkar’s Playing With Pointers is not Sufficient to solve this problem :)) It Can be solved using simple & nice in-order Traversal .once you do inorder traversal of tree u will find nodes left to the root are from left subtree & nodes right to root are from right subtree & this is what property of in-order tree traversal. isn’t it ? so as we traverse the tree in-order, we can modify a node’s left pointer to point to its predecessor. We also have to modify the predecessor’s right pointer to point to the current node to maintain the doubly linked list behavior. To make it circular we need to update the current node’s right pointer to point back to the head and the head’s left pointer to point to current node in each recursive call. finally we will have Circular Doubly Linked List where head will be head of Doubly Linked List Just Run It With Sample Teat Case Convert Me to Circular DLL Below is the pseudo code for the same  
+
+// We Will Keep Three Variable 
+//root: Current tree node
+//pre: this pointer should have the address of in-order predecessor of root
+//head: this denoted head of final link list
+
+treeToDoublyList(Node root,Node pre, Node head) 
+{
+   if (!root) return;
+ treeToDoublyList(root->left, prev, head);//call left subtree
+
+   // current node's left points to previous node
+   root->left = pre;
+   if (pre)
+       pre->right = root; 
+      // previous node's right points to current node
+   else
+      head = root;        
+     // if previous is NULL that current node is head
+
+   //Now we need to make list created till now as circular
+   head->left = root;
+   root->right = head;
+
+//For right-subtree/parent, current node is in-order predecessor
+   pre = root;
+   treeToDoublyList(root->right, pree, head);
+}
+
+ initialize pre=head=null; Time Complexity O(N) What Do You Say ?? Shashank reema @WgpShashank…its Really Awesome, How You Came to This approach please reply asap ?? rimpy best solution i have ever seen for this problem , keep it up shashank  
+/* Paste your code here (You may delete these lines if not writing code) */
+ nikhil the approach is awesome but there is a bug in this code.. after assigning root->right=head, u are calling recursive function with root->right which now points to the head. thanks  
+/* Paste your code here (You may delete these lines if not writing code) */
+ sirji Start doing in-order traversal on the binary tree recursively, when after coming out recursive call set the next and previous pointers of double linked list between the parent and child nodes. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,567 @@
+Given an array A[] and a number x, check for pair in A[] with sum as x - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Given an array A[] and a number x, check for pair in A[] with sum as x Write a C program that, given an array A[] of n numbers and another number x, determines whether or not there exist two elements in S whose sum is exactly x. METHOD 1 (Use Sorting) Algorithm: 
+hasArrayTwoCandidates (A[], ar_size, sum)
+1) Sort the array in non-decreasing order.
+2) Initialize two index variables to find the candidate 
+   elements in the sorted array.
+       (a) Initialize first to the leftmost index: l = 0
+       (b) Initialize second  the rightmost index:  r = ar_size-1
+3) Loop while l < r.
+       (a) If (A[l] + A[r] == sum)  then return 1
+       (b) Else if( A[l] + A[r] <  sum )  then l++
+       (c) Else r--    
+4) No candidates in whole array - return 0
+ Time Complexity: Depends on what sorting algorithm we use. If we use Merge Sort or Heap Sort then (-)(nlogn) in worst case. If we use Quick Sort then O(n^2) in worst case. Auxiliary Space : Again, depends on sorting algorithm. For example auxiliary space is O(n) for merge sort and O(1) for Heap Sort. Example: Let Array be {1, 4, 45, 6, 10, -8} and sum to find be 16 Sort the array A = {-8, 1, 4, 6, 10, 45} Initialize l = 0, r = 5 A[l] + A[r] ( -8 + 45) > 16 => decrement r. Now r = 10 A[l] + A[r] ( -8 + 10) < 2 => increment l. Now l = 1 A[l] + A[r] ( 1 + 10) < 16 => increment l. Now l = 2 A[l] + A[r] ( 4 + 10) < 14 => increment l. Now l = 3 A[l] + A[r] ( 6 + 10) == 16 => Found candidates (return 1) Note: If there are more than one pair having the given sum then this algorithm reports only one. Can be easily extended for this though. Implementation: 
+# include <stdio.h>
+# define bool int
+
+void quickSort(int *, int, int);
+
+bool hasArrayTwoCandidates(int A[], int arr_size, int sum)
+{
+    int l, r;
+
+    /* Sort the elements */
+    quickSort(A, 0, arr_size-1);
+
+    /* Now look for the two candidates in the sorted 
+       array*/
+    l = 0;
+    r = arr_size-1; 
+    while(l < r)
+    {
+         if(A[l] + A[r] == sum)
+              return 1; 
+         else if(A[l] + A[r] < sum)
+              l++;
+         else // A[i] + A[j] > sum
+              r--;
+    }    
+    return 0;
+}
+
+/* Driver program to test above function */
+int main()
+{
+    int A[] = {1, 4, 45, 6, 10, -8};
+    int n = 16;
+    int arr_size = 6;
+   
+    if( hasArrayTwoCandidates(A, arr_size, n))
+        printf("Array has two elements with sum 16");
+    else
+        printf("Array doesn't have two elements with sum 16 ");
+
+    getchar();
+    return 0;
+}
+
+/* FOLLOWING FUNCTIONS ARE ONLY FOR SORTING 
+    PURPOSE */
+void exchange(int *a, int *b)
+{
+    int temp;
+    temp = *a;
+    *a   = *b;
+    *b   = temp;
+}
+
+int partition(int A[], int si, int ei)
+{
+    int x = A[ei];
+    int i = (si - 1);
+    int j;
+
+    for (j = si; j <= ei - 1; j++)
+    {
+        if(A[j] <= x)
+        {
+            i++;
+            exchange(&A[i], &A[j]);
+        }
+    }
+    exchange (&A[i + 1], &A[ei]);
+    return (i + 1);
+}
+
+/* Implementation of Quick Sort
+A[] --> Array to be sorted
+si  --> Starting index
+ei  --> Ending index
+*/
+void quickSort(int A[], int si, int ei)
+{
+    int pi;    /* Partitioning index */
+    if(si < ei)
+    {
+        pi = partition(A, si, ei);
+        quickSort(A, si, pi - 1);
+        quickSort(A, pi + 1, ei);
+    }
+}
+ METHOD 2 (Use Hash Map) Thanks to Bindu for suggesting this method and thanks to Shekhu for providing code. This method works in O(n) time if range of numbers is known. Let sum be the given sum and A[] be the array in which we need to find pair. 
+1) Initialize Binary Hash Map M[] = {0, 0, …}
+2) Do following for each element A[i] in A[]
+   (a)	If M[x  - A[i]] is set then print the pair (A[i], x – A[i])
+   (b)	Set M[A[i]]
+ Implementation: 
+#include <stdio.h>
+#define MAX 100000
+
+void printPairs(int arr[], int arr_size, int sum)
+{
+  int i, temp;
+  bool binMap[MAX] = {0}; /*initialize hash map as 0*/
+
+  for(i = 0; i < arr_size; i++)
+  {
+    temp = sum - arr[i];
+    if(temp >= 0 && binMap[temp] == 1)
+    {
+      printf("Pair with given sum %d is (%d, %d) \n", sum, arr[i], temp);
+    }
+    binMap[arr[i]] = 1;
+  }
+}
+
+/* Driver program to test above function */
+int main()
+{
+    int A[] = {1, 4, 45, 6, 10, 8};
+    int n = 16;
+    int arr_size = 6;
+
+    printPairs(A, arr_size, n);
+
+    getchar();
+    return 0;
+}
+ Time Complexity: O(n) Auxiliary Space: O(R) where R is range of integers. If range of numbers include negative numbers then also it works. All we have to do for negative numbers is to make everything positive by adding the absolute value of smallest negative integer to all numbers. Please write comments if you find any of the above codes/algorithms incorrect, or find other ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: Hashing Tweet Writing code in comment? Please use ideone.com and share the link here. abhismart92 i didn’t understand why code is depended on range of numbers????? Aishwarya Kr Singh let’s say n_Max is maximum among all input numbers and let’s assume all numbers are positive then your are going to put a[n_Max]=1 to notify later that this element is present in the array. Therefore u must need array of size n_Max+1 and hence space complexity will be O(n_Max) or we can say it will depend on range of integers Rachit Chawla I didn’t understand the second method.. please explain the if condition in the for loop.. Jonathan Chen So let’s say we found a value A. We want a value B such that A+B=Sum. The if statement is saying look at index B of our HashMap. If the value inside is 1, then we have come across B before (earlier in the looping). Thus, we are done, return A and B. Otherwise, we haven’t come across B before. So, instead, we will change the value located at index A of the HashMap from 0 to 1 to indicate we have an A. In case we come across a B in the future. Sumit Method 2 stating that if range of numbers are given,,, If the range is known then we can sort them in O(n) time using counting or radix sort. Then method 1 itself will run in O(n) time. Correct me if i m wrong. Jonathan Chen Method 2 doesn’t use any sorting. If we know the range of numbers, we can simply create (in this case) a hashmap that covers the entire range of numbers. Each index in the hashmap corresponds to that number. (index 2 corresponds to the number 2 in our problem). We loop through the given array A. Do ‘Sum’ – ‘A[i]’ = (Sum – A[i]) (A, 0) into the hashtable. The ‘value’ doesn’t even matter. All that matters is that I have A as a key in the HT. In the future, if I come across B, I can simple ‘containsKey(A)’, which will return true and I can return the two values. So, it doesnt seem like I need to know the range of numbers if I were using a language such as Java. Not sure if C though. joenjoin What if the pair is not limited to 2 numbers, but as many numbers as possible? What would be the solution for that? Thanks. realsteel meet in middle algorithm !!! realsteel meet in middle algorithm !!! deepak a. User input 11.5, 12, -2.5 and 0.0 (in textarea in 4 lines) b. User input 23.5 in the text field. c. User clicks the button. d. The output would be 11.5, 12, -2.5 and 0.0 (in div in 4 lines) with line numbered 1 and 2 highlighted (which are 11.5 and 12) because they can add up to 23.5. e. If user input 12 in text field, only highlight line 2 (which is 12) meaning 12 itself one line only. f. If user input 3, highlight nothing. Show error message “No numbers can add up to this” beside the text field. Amit Baghel Interesting abhishek // handling of duplicates included #include #include void swap(int A[], int p, int r) { int temp = A[p]; A[p] = A[r]; A[r] = temp; } int partition(int A[], int p, int r) { int i = p+1; int j = r; while(i < j) { while(i <= r && A[i] p && A[j] >= A[p]) j–; if(i < j) swap(A, i, j); } if(A[j] <= A[p]) swap(A, j, p); return j; } void mqsort(int A[], int p, int r) { if(p < r) { int q = partition(A,p,r); mqsort(A, p, q-1); mqsort(A, q+1, r); } } int *returnpairs(int A[], int start, int end, int x) { int *pairs = (int *)calloc((end-start+1)*(end-start), sizeof(int)); int index = 0; mqsort(A, start, end); int left = start; int right = end; while(left x) right–; else if(A[left] + A[right] < x) left++; else { if(A[left] == A[right]) { int count = (right-left+1)*(right-left); if(right-left == 2) count = 3; else if(right-left == 1) count = 1; int ind = 0; for(ind = 0 ; ind < count ; ind++) { pairs[index++] = A[left]; pairs[index++] = A[right]; } return pairs; } else { int lcount = 1; int rcount = 1; int ind = 0; while(left+1 = start && A[right] == A[right-1]) { right–; rcount++; } while(ind < lcount*rcount) { pairs[index++] = A[left]; pairs[index++] = A[right]; ind++; } } left++; right–; } } return pairs; } void printPairs(int A[], int size) { int i = 0; for(i = 0; i < size && A[i] != 0;) { printf("%d, %dn", A[i], A[i+1]); i = i+2; } } int main() { int arr[]={1, 3,2,3,1,1,2,2}; int size = sizeof(arr)/sizeof(arr[0]); int x = 4; int *p = returnpairs(arr, 0, size-1, x); printPairs(p, size*(size-1)); return 0; } Harjit Singh Here is the working code for all the cases. Key is to use sorting and hashing. #include #include using namespace std; int compare (const void * a, const void * b) { return ( *(short int*)a – *(short int*)b ); } void display(int A[],int n) { for(int i=0;i<n;i++) cout<<A[i]<b) return b; else return a; } void find_pairs(int A[],int n,int x) { int h[x/2+1]; for(int z=0;zj))) { if(A[i]+A[j]==x) { if(!(check_hash(h,min(A[i],A[j])))) { cout<<"n"<<A[i]<<" " <x) j–; else i++; } } int main() { int n,i,x; cin>>n; int A[n]; for(i=0;i>A[i]; cout<>x; find_pairs(A,n,x); getch(); return 0; } kkk what if elements are equal. MayankSwarnkar //Given an array A[] and a number x, check for pair in A[] with sum as x #include #include #include #include using namespace std; int main() { vector v; vector::iterator pos1,pos2; int i,n; for(i=1;i<101;i++) v.push_back(rand()%100); for(pos1=v.begin();pos1!=v.end();pos1++) cout<<*pos1<<endl; sort(v.begin(),v.end()); cout<<"Enter the number"<>n; for(pos1=v.begin();pos1!=v.end();pos1++) { for(pos2=pos1;pos2!=v.end();pos2++) { if(*pos1+*pos2==n) { cout<<"One of the pair whose sum is equal to the given number is-"<<endl; cout<<*pos1<<" "<<*pos2<<endl; } } } return 0; } Harjit Singh #include #include using namespace std; int compare (const void * a, const void * b) { return ( *(short int*)a – *(short int*)b ); } void display(int A[],int n) { for(int i=0;i<n;i++) cout<<A[i]<b) return b; else return a; } void find_pairs(int A[],int n,int x) { int h[x/2+1]; for(int z=0;zj))) { if(A[i]+A[j]==x) { if(!(check_hash(h,min(A[i],A[j])))) { cout<<"n"<<A[i]<<" " <x) j–; else i++; } } int main() { int n,i,x; cin>>n; int A[n]; for(i=0;i>A[i]; cout<>x; find_pairs(A,n,x); getch(); return 0; } mahi2 One of the approach is …if n is the number for(i=0;i<n;i++) {num=n-a[i] {for(j=i+1;j<n;j++) {search for num..if found then a[i]+a[j] is the result! } } din can this be done in O(n) without hashmap?? Varunvats void printPairs(int A[], int n, int x) { map<int,int> m_map; for(int i=0; i<n; i++){ if(m_map[A[i]]){ cout<<"index:"<<m_map[A[i]]<<" "<<i; break; } else m_map[x-A[i]]=i; } } Abhay Another approach, (PS: Not read the comments , so sorry if already mentioned) . Sort the array, and traverse the array linearly , searching for x-a[i]. If found return true , else false.  
+import java.util.Arrays;
+class Solver
+{
+    
+    public boolean SolverUtil(int a[],int x)
+    {
+        Arrays.sort(a);
+        int End = a.length;
+        int cnt=0;
+        for(int i=0;i<End-1;i++)
+        {
+            if(Binsearch(a,x-a[i],0,End))
+                    return true;
+        }
+        return false;
+        
+    }
+    public boolean Binsearch(int a[],int N,int low,int high)
+    {
+        int mid=(low+high)/2;
+        if(a[mid]==N)
+            return true;
+        if(low<high)
+        {
+            if(a[mid]>N)
+                return Binsearch(a,N,low,mid-1);
+            else if(a[mid]<N)
+                return Binsearch(a,N,mid+1,high);
+        }
+        return false;
+    }
+}
+public class Main 
+{
+    public static void main(String[] args)
+    {
+        int A[] = {1, 4, 45, 6, 10, 8};
+        Solver ob1 = new Solver();
+        if(ob1.SolverUtil(A,16))
+            System.out.println("Yes");
+        else System.out.println("No");
+        
+    }
+        
+}
+ Ronny But what if the sum to be found is twice a number present but that number occurs only once. Eg. arr[]={1,5,9,12,24}; and sum to be searched is 18. your procedure will return true for this case. Refer http://ideone.com/KCFl4j Kartik This case can be easily handled by augmenting Binsearch routine. Refer here: http://ideone.com/wZF7vI rkl  
+public class Sum {
+
+	public static void main(String[] args) {
+		int[] arr = {3, -2, 5, 6, 1, 9, 7, 8, 12, 4};
+		
+		printPairs(arr, 10);
+	}
+
+	private static void printPairs(int[] arr, int sum) {
+
+		HashMap<Integer, Boolean> map = new HashMap<Integer, Boolean>();
+		
+		for(int i = 0; i < 10; i++) {
+			if (map.containsKey(sum-arr[i])) {
+				System.out.println(arr[i] + " " + (sum -arr[i]));
+			} else {
+				map.put(arr[i], true);
+			}
+		}
+	}
+}
+ Output is: 9 1 7 3 12 -2 4 6 Ashish Saxena This is a java version of method 2. Here are few comments For High N (Array Size). We also need to initialize HashMap with high capacity to avoid re hash frequently. By default the capacity is 16. Please correct me if I am wrong. ebcdic666 For the hash table solution, we need not know the range of the numbers, we can use std::set in C++ to record all the elements seen. pawan #include int arr[6]={3,5,18,7,9,-12}; int sort(int arr_len) { int i,j; printf(“2\n”); for(i=0;i<arr_len;i++) { for(j=0;jarr[j+1]) { int temp=arr[j]; arr[j]=arr[j+1]; arr[j+1]=temp; } } } for(i=0;i<arr_len;i++) printf("sorted %d\n",arr[i]); return 0; } int computation(int arr_len,int sum) { int l=0,r=arr_len-1; while(l<r) { if(arr[l]+arr[r]==sum) { printf("the sume of %d and %d is %d\n",arr[l],arr[r],sum); break; } else if(arr[l]+arr[r]<sum) l++; else r–; } } int main() { int arr_len=6; int sum=16; printf("1\n"); sort(arr_len); computation(arr_len,sum); } abhishek08aug Here is the simple quadratic O(n^2) solution:  
+#include<stdio.h>
+int find_two_elements_with_given_sum(int array[], int sum, int array_size)
+{
+  int i, j;
+  for(i=0; i<array_size; i++) {
+    for(j=i+1; j<array_size; j++) {
+      if(array[i]+array[j]==sum) {
+        return 1;
+      }
+    }
+  }
+  return 0;
+}
+
+int main()
+{
+  int array[] = {1, 4, 45, 5, 11, -8};
+  int sum = 16;
+  int array_size = sizeof(array)/sizeof(array[0]);
+  printf("%d\n", find_two_elements_with_given_sum(array, sum, array_size));
+  return 0;
+}
+ Chinmaya Alternatively 1 – Sort the array – O(nlogn) 2 – for each element in the array,perform binary search for the element(sum-A[i]). – O(nlogn) 3 – If found, print success. find_sum_elements(vector<int> a[],int sum) { sort(a.begin(),a.end()); for(int i=0;i<a.size();i++) { if(binary_search(a.begin()+i+1,a.end(),sum – a[i])) return SUCCESS; } } krishnx  
+#include<iostream>
+#include<cstdlib>
+
+using namespace std;
+
+void findPair(int a[], int, int);
+int compare(const void *a, const void *b);
+
+int main()
+{
+  int a[] = {1, 4, 45, 6, 10, -8};
+  int length = sizeof(a)/sizeof(a[0]);
+  cout << length << endl;
+
+  int sum = 0;
+  cout << "Enter the sum: \n";
+  cin >> sum;
+
+  findPair(a, length, sum);
+
+  return 0;
+}
+
+int compare(const void* a, const void* b)
+{
+  return ( *(int*)a - *(int*)b );
+}
+
+void findPair(int a[], int length, int sum)
+{
+  int left = 0;
+  int right = length - 1;
+  int result[2] ;
+
+  qsort(a, length, sizeof(int), compare);
+
+  while(left < right) {
+    if(a[left] + a[right] < sum)
+      left++;
+    else if(a[left] + a[right] > sum)
+      right--;
+    else
+      break;
+  }
+  cout << a[left] << ", " << a[right] << endl;
+ Nikin Kumar Jain Please check out Little more optimized code for performing Quicksort.  
+// QSortProject.cpp : Defines the entry point for the console application.
+//
+
+#include "stdafx.h"
+#include <iostream>
+using namespace std;
+
+
+int partition(int arr[], int si, int ei)
+{
+	int i = 0;
+	for(int j = 0; j < ei; j++)
+	{
+		if(arr[i] <= arr[ei])
+		{
+			if(i!=j)
+			{
+				swap(arr[i], arr[j]);
+			}
+			i++;
+		}
+	}
+	swap(arr[i], arr[ei]);
+	return i;
+}
+
+void quicksort(int arr[], int si, int ei)
+{
+	if(si > ei)
+		return;
+	int pi = partition(arr, si, ei);
+	quicksort(arr, si, pi-1);
+	quicksort(arr, pi+1, ei);
+}
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	int arr[] = {2, 10, 9, 8, 4, 7, 6, 5};
+	quicksort(arr, 0, sizeof(arr)/sizeof(int) -1 );
+
+	for(int i=0;i<sizeof(arr)/sizeof(int);i++)
+		cout<<arr[i]<<" ";
+	getchar();
+
+	return 0;
+}
+
+ Aman what if there are duplicate elements in second method alien doesn’t matter even if there are duplicates. Put only first occurrence of duplicate element and ignore rest because ultimately you have to find pair of numbers not indexes. http://www.piyush.co.nf binary001 if there are duplicate a you want to print all the pairs .. 1) sort the array 2) create 2d array (int ar[n][2]) which store the no and its frequency . 3) now u got duplicate free array 4) use the normal algo. and at the time of printing use loop for i =1 to f_X for j =1 to f_Y print x,y; f_x and f_y are the frequency of X and Y alien another approach: 1.) put all the elements in a hash table 2.) Use that hashtable to find element sum-a[i] from i to N #include #include #define MAX 6 #define MIN 0 #define LIMIT 100 void print(int arr[]) { int i; for(i=MIN;i<11;i++) { printf("%d, ",arr[i]); } } void pair_sum(int arr[], int sum) { int ht[LIMIT] = {0}; int remaining; int i; printf("\n"); print(ht); for(i=0;i<MAX;i++) { ht[arr[i]]+=1; } print(ht); for(i=0;i1) ) { printf(“\n%d %d”, arr[i], remaining); ht[remaining]–; ht[arr[i]]–; } else if(remaining==arr[i] && !(ht[remaining]>1)) { continue; } else if(ht[remaining]>0) { printf(“\n%d %d”, arr[i], remaining); ht[remaining]–; ht[arr[i]]–; } } } int main() { int arr[MAX] = {1,4,1,6,10,8}; pair_sum(arr,16); return 0; }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Rohan I ran this code for int a[] = {-4,-4,-4,-4,-4,1,2,3,4,3,5,6,10}; even though this array contains -ve values HASH[-ve integer] is not giving any error… and code is running fine without adding any offset… why is this happening??  
+
+#include <stdio.h>
+#include <stdlib.h>
+
+
+int HASH[10000]={0};
+
+int bin_map_solution(int a[])
+{
+	int i =0;
+	int number = 6;
+    int count=1;
+	for(i=0;i<13;i++)
+	{
+		int temp = number - a[i];
+		printf("Pass : %d with temp = %d and a[%d]=%d\n",count++,temp,i,a[i]);
+
+		if(HASH[temp]==1)
+		{
+			printf("Pair :  %d   %d \n",temp,a[i]);
+			break;
+		}
+		printf("setting HASH[%d] to 1 where a[%d]=%d\n ",a[i],i,a[i]);
+		HASH[a[i]]=1;
+	}
+
+	return EXIT_SUCCESS;
+}
+ batfan47 Correcting Bad formatting in the previous comment  
+#include <iostream>
+#include <cmath>
+#define MAX 100000
+
+using namespace::std;
+typedef long element;
+typedef unsigned long counter;
+
+long findmin(element term[], counter count, int sum)
+{
+ counter i; 
+ element min;
+ for(i = 1, min = term[0]; i != count; i++)
+   if(term[i] < min)
+     min = term [i];
+ if (min < 0)
+   if(sum < min)
+     return abs(sum);
+   else 
+     return abs(min);
+ else return 0;
+}
+
+void printPairs(element term[], counter count, long sum)
+{
+  counter i;
+  element origsum = sum, val =  findmin(term, count, sum), temp;
+  bool binMap[MAX] = {0}; /*initialize hash map as 0*/
+    // though 0 can safely be added for efficiency we check here to avoid an iteration
+  if (val)
+  {
+    for(i = 0; i < count; term[i] += val, i++);
+    sum += (2 * val);
+  }
+
+  for(i = 0; i < count; i++)
+  {
+    temp = sum - term[i];
+    if(temp >=0 && binMap[temp] == 1)
+      cout << "Pair with given sum "<< origsum << " is "
+      << term[i] - val << " and " << temp - val << "." << endl;
+    binMap[term[i]] = 1;
+  }
+}
+ 
+void printArray(element term[], counter count)
+{
+  for (counter i = 0; i != count; cout << term[i++] << ' ');
+  cout << endl;
+}  
+ 
+int main()
+{
+  element term[] = {1, 4, 45, 6, 10, 8}, sum = 16;
+  counter count = sizeof(term)/sizeof(element);
+  printArray(term, count)
+  printPairs(term, count, sum);
+  return 0;
+} 
+ Kartik This method seems to be similar to method 2 in the above post. Ankit Malhotra It is exactly the same method but it has been changed to handle negative values in both terms and the sum. batfan47 For bitmap using negative integers, twice the absolute value of the least negative has to be added to the sum. Also the value of the sum itself can also be negative and should be considered while finding the least negative value. Following is the code that includes this and solves the problem for negative values. // #include <iostream> #include <cmath> #define MAX 100000 int findmin(int arr[], int arr_size, int sum) { int i, min; for(i = 1, min = arr[0]; i < arr_size; i++) { if(arr[i] < min) { min = arr [i]; } } if (min < 0) { if(sum < min) { return std::abs(sum); } else { return std::abs(min); } } else { return 0; } } void printPairs(int arr[], int arr_size, int sum) { int i, origsum = sum, val = findmin(arr, arr_size, sum), temp; bool binMap[MAX] = {0}; /*initialize hash map as 0*/ // though 0 can safely be added for efficiency we check here to avoid an iteration if (val) { for(i = 0; i < arr_size; arr[i] += val, i++); sum += (2 * val); } for(i = 0; i < arr_size; i++) { temp = sum – arr[i]; if(temp >=0 && binMap[temp] == 1) { std::cout << "Pair with given sum "<< origsum << " is " << arr[i] – val << " and " << temp – val << "." << std::endl; } binMap[arr[i]] = 1; } } /* Driver program to test above function */ int main() { int A[] = {1, 4, 45, 6, 10, 8}; int n = 16, arr_size = sizeof(A)/sizeof(int); printPairs(A, arr_size, n); return 0; } // bunty @Geeks: Correction in second method’s last comments, Auxiliary Space: O(R) where R is range of integers. ” R can not be just the range of number given, as the sum of two numbers from a range of numbers can be out of the range of that numbers” Ex; range could be {1,2,3,4,5} and sum is 9, then Aux array must be at least 9 elements long. Also these method does not need the info of the range of number.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Spock Well we can simply use array instead of hashmap. Anuj Can you elaborate the Method 2 ? What is Hash map and why its subscript is arr[i] Shyam What does “If range of numbers include negative numbers then also it works. All we have to do for negative numbers is scale everything with reference to the smallest negative integer in the given range.” mean? Can someone please explain this statement?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks @Shyam: We have changed the language so that it makes sense now. Please let us know if it is clear now. Nihal This one works well. No extra space required. And Time Complexity = o(n)  
+#include <stdio.h>
+#include<conio.h>
+using namespace std;
+int checkpair(int[] ,int, int);
+int main()
+{
+    int a[5] = {6,1,18,3,4};      
+    bool result = checkpair(a,24,0);
+    if(result)
+    printf("pair exists");
+    else
+    printf("pair does not exists");
+    getch();
+    return 0;
+}
+
+int checkpair(int a[],int x, int k)
+{
+    int sub;
+    if(k>= 5) return false;
+    sub = x-a[k];
+    for ( int i = k+1; i<5; i++)
+    {
+        if(a[i]==sub)
+        return true;          
+        }
+        return(checkpair(a,x,k+1));      
+
+
+}
+
+ kartik @Nihal: This doesn’t seem to be O(n). You have recursion in a loop. Please correct me if i am wrong. Nihal @kartik – the recursion is outside the for loop. So it seems to be o(n).  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik Agree! Recursion is outside the loop, but the time complexity still seems to be O(n^2) as the statements inside the loop will run O(n^2) times. http://www.facebook.com/profile.php?id=100003405992366 Deepak case handled When Array Contains The Duplicates Elementi hope its will work for all cases # inlcdue # define bool intvoid quickSort(int *, int, int);void hasArrayTwoCandidates(int A[], int arr_size, int sum){ int l, r; /* Sort the elements */ quickSort(A, 0, arr_size-1); /* Now look for the two candidates in the sorted array*/ l = 0; r = arr_size-1; while(l < r) { if(A[l] + A[r] == sum) { printf( " %d %d ", A[l],A[r]); l++; r–; } else if(A[l] + A[r] sum r–; }}/* Driver program to test above function */int main(){ int A[] = {1,2,3,4,6,3,10,5}; int n = 6; int arr_size = 8; hasArrayTwoCandidates(A, arr_size, n); getchar(); return 0;}/* FOLLOWING FUNCTIONS ARE ONLY FOR SORTING PURPOSE */void exchange(int *a, int *b){ int temp; temp = *a; *a = *b; *b = temp;}int partition(int A[], int si, int ei){ int x = A[ei]; int i = (si – 1); int j; for (j = si; j Starting indexei –> Ending index*/void quickSort(int A[], int si, int ei){ int pi; /* Partitioning index */ if(si < ei) { pi = partition(A, si, ei); quickSort(A, si, pi – 1); quickSort(A, pi + 1, ei); }} Yogesh Batra yes its a naive method. O(n^2) complexity.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://www.facebook.com/profile.php?id=100003406008905 She Thanks for pointing out the typo. We have coetcrred it.Please note that there is difference between two terms “Space Complexity” and “Auxiliary Space”. Space complexity of Heap Sort, Merge Sort and QuickSort is O(n). But Auxiliary space needed in typical implementation of Merge Sort is O(n) and for Heap sort it is O(n). For a typical implementation of QuickSort, auxiliary space needed is O(n) in worst case (sorted array case). Prashanth Hi, Does method 2 works for A[]={-3,0,1} and Sum = 2 ? kartik @Prashanth: Please take a closer look at the article. It says following at the end: If range of numbers include negative numbers then also it works. All we have to do for negative numbers is scale everything with reference to the smallest negative integer in the given range Abhimanyu Vohra In method 1 before looping should we not check if A[(l+r)/2] > sum than set value of r = (l+r)/2 -1 . I think we should proceed after this check. Saurabh @Abhimanyu Vohra, I think you are right, it will prune the search space.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Saurabh @Abhimanyu Vohra, I think you are right, it will prune the search space. sama @Abhimanyu : What if the sorted array is -12 -8 5 6 7 12 and the sum needed is 4 If we go make r = (l+r)/2-1 because A[(l+r)/2] > sum, then we’ll miss the actual answer (-8, 12) Correct me if I missed anything geekyboy bingo gr8 answer you are absolutely correct the sol given above in the comment did not considered negative numbers seeker7 there is a typo in method 1 ,it says space complexity for quick sort is O(1),it should be o(logn). http://geeksforgeeks.org/ Sandeep @seeker7: Thanks for pointing out the typo. We have corrected it. Please note that there is difference between two terms “Space Complexity” and “Auxiliary Space”. Space complexity of Heap Sort, Merge Sort and QuickSort is O(n). But Auxiliary space needed in typical implementation of Merge Sort is O(n) and for Heap sort it is O(n). For a typical implementation of QuickSort, auxiliary space needed is O(n) in worst case (sorted array case). Dina This one works well. No extra space required. And Time Complexity = o(n)#include #includeusing nasacpeme std;int checkpair(int[] ,int, int);int main(){ int a[5] = {6,1,18,3,4}; bool result = checkpair(a,24,0); if(result) printf(“pair exists”); else printf(“pair does not exists”); getch(); return 0;}int checkpair(int a[],int x, int k){ int sub; if(k>= 5) return false; sub = x-a[k]; for ( int i = k+1; i<5; i++) { if(a[i]==sub) return true; } return(checkpair(a,x,k+1)); } http://ashutosh7s.blogspot.com/ WgpShashank case handled When Array Contains The Duplicates Element i hope its will work for all cases  
+# include <stdio.h>
+# define bool int
+ 
+void quickSort(int *, int, int);
+ 
+void hasArrayTwoCandidates(int A[], int arr_size, int sum)
+{
+    int l, r;
+ 
+    /* Sort the elements */
+    quickSort(A, 0, arr_size-1);
+ 
+    /* Now look for the two candidates in the sorted
+       array*/
+    l = 0;
+    r = arr_size-1;
+    while(l < r)
+    {
+         if(A[l] + A[r] == sum)
+         {
+                printf( " %d %d ", A[l],A[r]);  
+                l++;
+                 r--;
+                
+         }
+        else if(A[l] + A[r]  sum
+              r--;
+    }
+ 
+}
+ 
+/* Driver program to test above function */
+int main()
+{
+   int A[] = {1,2,3,4,6,3,10,5};
+    int n = 6;
+    int arr_size = 8;
+ 
+ 
+    hasArrayTwoCandidates(A, arr_size, n);
+     
+    getchar();
+    return 0;
+}
+ 
+/* FOLLOWING FUNCTIONS ARE ONLY FOR SORTING
+    PURPOSE */
+void exchange(int *a, int *b)
+{
+    int temp;
+    temp = *a;
+    *a   = *b;
+    *b   = temp;
+}
+ 
+int partition(int A[], int si, int ei)
+{
+    int x = A[ei];
+    int i = (si - 1);
+    int j;
+ 
+    for (j = si; j <= ei - 1; j++)
+    {
+        /* if(A[j]  Array to be sorted
+si  --> Starting index
+ei  --> Ending index
+*/
+void quickSort(int A[], int si, int ei)
+{
+    int pi;    /* Partitioning index */
+    if(si < ei)
+    {
+        pi = partition(A, si, ei);
+        quickSort(A, si, pi - 1);
+        quickSort(A, pi + 1, ei);
+    }
+}
+ arun {-4,-4,-4,-4,-4,1,2,3,3,4,5,6,10} sum=6 what will you do now? http://shashank7s.blogspot.com wgpshashank @arun how many pair do u think of here i can see -4,10 , 1,5, 2,4 , 3,3 isn’t it ? check here http://ideone.com/GhWuI i dont see any problem  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Vinod @wgpshashank … Try with array set as : {-2,-2,-2,4} and sum=2 ………I don’t see your code is printing all the pairs i.e. …-2,4….-2,4…-2,4 http://ashutosh7s.blogspot.com/ WgpShashank it might be a good idea to use BST here. create a BST of n numbers (nlogn). then, for each number in an array (of size n), subtract it from TargetSum and then look for the other number in binary tree (logn) which should take (nlogn) total time … the overall time would (nlogn + nlogn) which is nlogn… correct me if I am wrong. vartika In hash map implementation binMap is declared as bool by mistake, it should be int. kartik @vartika: For the algo to work, we need only bool binMAp only. The C99 standard for C supports bool data types. In case your compiler doesn’t support bool, then you can change the program accordingly. donbosio second method is great. however we cant tell the locations of two no in the array whose sum is x in O(n).plz corect me. viresh i and temp are the locations of those numbers donbosio only i is the location, temp is not . Nishant Agarwal we can do it by binary search assuming that array is already sorted…or can add it to method 1 after sorting complete code is  
+#define compare(x,y) (((x)<(y))?-1: ((x)==(y))?0:1)
+int bsearch(int *a,int t,int l,int r)
+{
+int mid;
+if(l<=r)
+{
+    mid= (l+r)/2;
+    switch(compare(a[mid],t))
+    {
+        case -1: return (bsearch(a, t, mid+1,r));
+        case 0: return mid;
+        case 1:return (bsearch(a,t,l,mid-1));
+    }
+}
+return 0;
+}
+int main()
+{
+	int a[5]={1,2,3,4,5},i,x;
+	printf("Enter the sum\n");
+	scanf("%d",&x);
+	for(i=0; i<5; i++)
+	{
+	        if(bsearch(a,(x-a[i]),0,4 ))
+	           printf("%d %d\n",a[i],x-a[i]) ;
+	}
+	return 0;
+}
+ Ankit Sablok Exactly what I was going to write Binary Search too results in an O(nlogn) algorithm as follows complexity of sorting O(nlogn) using lets say heapsort that sorts in place and then making asymptotically O(n) calls to binary search procedure to search for the required value. But a careful implementation of the hashmap will solve this problem in linear O(n) time.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Rider In case of Method -1 Step 3 (Algorithm Description)it should be r– rather than r++ GeeksforGeeks @Rider: Thanks for pointing this out. There was a typo. We have corrected it. ANIRBAN GHOSH Well I have another solution where no prior knowledge of RANGE is needed and no extra storage needed too. IDEA : Keep 2 pointers – left and right. At each iteration add A[left] and A[right] = k(say). If k right. TIME : O(N) SPACE: O(1) Correct me if I am wrong! Sandeep @ANIRBAN: Can you please elaborate your approach for following examples? Let the array is: arr[] = {12, 2, 34, 4, 9, 7, 1} If sum to be searched is 1, then we need to return true as 9 + 1 = 10. If the sum to be searched is 37, then we need to return false as there are no two elements for which sum is 37. ANIRBAN GHOSH Sorry for my mistake! I overlooked one thing. The array must be sorted. And this is the solution already given! Tushar In second approach if the array is just made up of only positive integers than we can initialize bitmap to size of sum rather than MAX. GeeksforGeeks @Bindu: Thanks for suggesting a new approach, we have included it to the original post. Bindu O(n) solution for this is as follows: 1. Let V- Specified Value and A – Input Array(It can be unsorted) 2. Need to create HashMap M which maps from array elements to the occurrence 3. For each element A[i]: If V-A[i] is present in M, Output A[i], V – A[i]. This pair repeats for M(V-A[i]) times If A[i] is present in M, increment M(A[i]) else initialize M(A[i]) = 1 Time Complexity – O(n) Space Complexity – O(n) Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

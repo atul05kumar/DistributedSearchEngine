@@ -1,0 +1,202 @@
+Design a stack with operations on middle element - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Design a stack with operations on middle element How to implement a stack which will support following operations in O(1) time complexity? 1) push() which adds an element to the top of stack. 2) pop() which removes an element from top of stack. 3) findMiddle() which will return middle element of the stack. 4) deleteMiddle() which will delete the middle element. Push and pop are standard stack operations. The important question is, whether to use a linked list or array for implementation of stack? Please note that, we need to find and delete middle element. Deleting an element from middle is not O(1) for array. Also, we may need to move the middle pointer up when we push an element and move down when we pop(). In singly linked list, moving middle pointer in both directions is not possible. The idea is to use Doubly Linked List (DLL). We can delete middle element in O(1) time by maintaining mid pointer. We can move mid pointer in both directions using previous and next pointers. Following is C implementation of push(), pop() and findMiddle() operations. Implementation of deleteMiddle() is left as an exercise. If there are even elements in stack, findMiddle() returns the first middle element. For example, if stack contains {1, 2, 3, 4}, then findMiddle() would return 2. 
+/* Program to implement a stack that supports findMiddle() and deleteMiddle
+   in O(1) time */
+#include <stdio.h>
+#include <stdlib.h>
+
+/* A Doubly Linked List Node */
+struct DLLNode
+{
+    struct DLLNode *prev;
+    int data;
+    struct DLLNode *next;
+};
+
+/* Representation of the stack data structure that supports findMiddle()
+   in O(1) time.  The Stack is implemented using Doubly Linked List. It
+   maintains pointer to head node, pointer to middle node and count of
+   nodes */
+struct myStack
+{
+    struct DLLNode *head;
+    struct DLLNode *mid;
+    int count;
+};
+
+/* Function to create the stack data structure */
+struct myStack *createMyStack()
+{
+    struct myStack *ms =
+               (struct myStack*) malloc(sizeof(struct myStack));
+    ms->count = 0;
+    return ms;
+};
+
+/* Function to push an element to the stack */
+void push(struct myStack *ms, int new_data)
+{
+    /* allocate DLLNode and put in data */
+    struct DLLNode* new_DLLNode =
+               (struct DLLNode*) malloc(sizeof(struct DLLNode));
+    new_DLLNode->data  = new_data;
+
+    /* Since we are adding at the begining,
+      prev is always NULL */
+    new_DLLNode->prev = NULL;
+
+    /* link the old list off the new DLLNode */
+    new_DLLNode->next = ms->head;
+
+    /* Increment count of items in stack */
+    ms->count += 1;
+
+    /* Change mid pointer in two cases
+       1) Linked List is empty
+       2) Number of nodes in linked list is odd */
+    if (ms->count == 1)
+    {
+         ms->mid = new_DLLNode;
+    }
+    else
+    {
+        ms->head->prev = new_DLLNode;
+
+        if (ms->count & 1) // Update mid if ms->count is odd
+           ms->mid = ms->mid->prev;
+    }
+
+    /* move head to point to the new DLLNode */
+    ms->head  = new_DLLNode;
+}
+
+/* Function to pop an element from stack */
+int pop(struct myStack *ms)
+{
+    /* Stack underflow */
+    if (ms->count  ==  0)
+    {
+        printf("Stack is empty\n");
+        return -1;
+    }
+
+    struct DLLNode *head = ms->head;
+    int item = head->data;
+    ms->head = head->next;
+
+    // If linked list doesn't become empty, update prev
+    // of new head as NULL
+    if (ms->head != NULL)
+        ms->head->prev = NULL;
+
+    ms->count -= 1;
+
+    // update the mid pointer when we have even number of
+    // elements in the stack, i,e move down the mid pointer.
+    if (!((ms->count) & 1 ))
+        ms->mid = ms->mid->next;
+
+    free(head);
+
+    return item;
+}
+
+// Function for finding middle of the stack
+int findMiddle(struct myStack *ms)
+{
+    if (ms->count  ==  0)
+    {
+        printf("Stack is empty now\n");
+        return -1;
+    }
+
+    return ms->mid->data;
+}
+
+// Driver program to test functions of myStack
+int main()
+{
+    /* Let us create a stack using push() operation*/
+    struct myStack *ms = createMyStack();
+    push(ms, 11);
+    push(ms, 22);
+    push(ms, 33);
+    push(ms, 44);
+    push(ms, 55);
+    push(ms, 66);
+    push(ms, 77);
+
+    printf("Item popped is %d\n", pop(ms));
+    printf("Item popped is %d\n", pop(ms));
+    printf("Middle Element is %d\n", findMiddle(ms));
+    return 0;
+}
+ Output: Item popped is 77
+Item popped is 66
+Middle Element is 33 This article is contributed by Chandra Prakash. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Swap Kth node from beginning with Kth node from end in a Linked List QuickSort on Doubly Linked List Tags: stack Tweet Writing code in comment? Please use ideone.com and share the link here. Gopi Shankar int deleteMiddle( struct myStack* stack ) { if( stack->count == 0 ) { printf( “Stack is Empty” ); return -1; } stack->mid->prev->next = stack->mid->next; stack->mid->mext->prev = stack->mid->prev; if( stack->count & 1) { stack->mid = stack->mid->prev; } stack->count–; } venkat In push function Dll Node prev pointer is not updated properly, for old nodes Aditya Raman We can use a vector of elements and do all the operations under O(1) without any complexity in the code as well. push= push_back() in vector pop=erase(vector[vector.size()-1]) mid operations with index vector.size()/2 http://www.cyukang.com/ Yukang you have to update the vector after deleting mid, that is not O(1) Vinodhini A function for deleteMiddle(): please correct me if I am wrong. Algorithm: 1)if the count is 0 then there are no elements so return -1 2) a)if count is 1, we need to update mid and head as NULL and decrement count b)else we update the mid->prev’s next and mid->next’s prev pointers provided they exist (for case where count = 0, mid->next would be null). if the count had been odd, we update mid as mid->next else mid->prev. finally we decrement count and delete the mid. int deleteMiddle(struct myStack *ms){ if(ms->count==0) return -1; if(ms->count==1){ int data=ms->mid->data; struct DLLNode * temp=ms->mid; ms->mid=NULL; ms->head=NULL; free(temp); ms->count-=1; return data; } else{ struct DLLNode * temp=ms->mid; int data=temp->data; if(temp->prev) temp->prev->next=temp->next; if(temp->next) temp->next->prev=temp->prev; if(ms->count & 1){ ms->mid=temp->next; } else{ ms->mid=temp->prev; } ms->count -=1; free(temp); return data; } } A working code: http://ideone.com/xSpJoD tosif khan I just came across this article 1 evening before my interview, this question saved my interview day and now I am in microsoft, cant thank you enough Pandian In push() function, mid should be updated only when count is even. But in code, it is given as when it is odd. Pandian In push() function, mid should be updated only when count is even. But in code, it is given as when it is odd. ritesh the explanation says if stack contains {1, 2, 3, 4}, then findMiddle() would return 2. assuming the linked list is 1->2->3->4 the code return mid element as 3 an not 2 Srishti In push function, mid pointer should be updated to ms->mid->next, since we are adding an element, same is the mistake in pop function, mid should be updated to ms->mid->prev. Please correct me if i’m wrong. skulldude In the push() function – mid is being updated only when the length becomes odd. In that case, if there are two elements in the stack say – {1,2} – mid will be pointing to 2. Now when we query for the middle element we get 2. But as per the description given at the top of the page, getMiddle() should return 1. So, mid has to be updated when count becomes even and the reverse has to be done in the pop function. Similarly delMiddle() function seems to be missing. coder there is a mistake in updating the mid pointer in the pop and push functions. http://avidullu.wordpress.com/ Avi  
+void deleteMiddle(struct myStack* ms) {
+  if (ms->count == 0) return;
+  assert(ms->mid != NULL);
+  struct DLLNode* node = ms->mid;
+  if (ms->count == 1) {
+    assert(node->next == NULL);
+    assert(node->prev == NULL);
+    ms->head = NULL;
+    ms->mid = NULL;
+  } else {
+    // If count is odd, the mid will now point to prev of mid.
+    if (ms->count & 1) {
+      assert(node->prev != NULL);
+      ms->mid = node->prev;
+      ms->mid->next = node->next;
+      node->next->prev = ms->mid;
+    } else {
+      assert(node->next != NULL);
+      ms->mid = node->next;
+      node->next->prev = node->prev;
+      // This will happen if 2 elements are left.
+      if (node->prev != NULL) {
+        node->prev->next = ms->mid;
+      }
+    }
+  }
+  --ms->count;
+  free(node);
+}
+ kind-of-beginner  
+struct myStack *ms =
+               (struct myStack*) malloc(sizeof(struct myStack));
+// cant this just be 'struct myStack *ms = malloc(sizeof(*ms));' ?
+
+/* in pop, if you want to delete -1, how will you know if you have deleted node with data '-1' or whether you got an error of empty list -1?
+Also for pop, cant we do something like:*/
+
+int pop(struct myStack *ms)
+{
+  //empty head
+  if (!ms->head)
+    return -1; //whatever message
+
+  ms->count--;
+  myNode *node = ms->head;
+
+  // single item only
+  if(ms->head->prev == NULL) {
+    ms->head = NULL;
+    ms->mid = NULL;
+  }
+  else {
+    ms->head = ms->head->prev;
+    //even #elements in stack
+    if(ms->count %2 == 0)
+      ms->mid = ms->mid->prev;
+  }
+
+  // dont like dangling pointers
+  node->prev = NULL;
+
+  free(node);
+  return 1;
+}
+
+
+ GeeksforGeeks @minoz: push() and pop() operations are like standard stack operations. We have added same to the original post. minoz Are push and pop to be done from the middle of the stack? If they are, the final status in the given example will be 22 44 55 33 11 and findMiddle() should return 55 but your program returns 33. minoz Is push and pop done from the middle of the stack? Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

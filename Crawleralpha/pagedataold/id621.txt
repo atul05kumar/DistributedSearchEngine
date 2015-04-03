@@ -1,0 +1,1594 @@
+Level order traversal in spiral form - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Level order traversal in spiral form Write a function to print spiral order traversal of a tree. For below tree, function should print 1, 2, 3, 4, 5, 6, 7. Method 1 (Recursive) This problem can bee seen as an extension of the level order traversal post. To print the nodes in spiral order, nodes at different levels should be printed in alternating order. An additional Boolean variable ltr is used to change printing order of levels. If ltr is 1 then printGivenLevel() prints nodes from left to right else from right to left. Value of ltr is flipped in each iteration to change the order. Function to print level order traversal of tree 
+printSpiral(tree)
+  bool ltr = 0;
+  for d = 1 to height(tree)
+     printGivenLevel(tree, d, ltr);
+     ltr ~= ltr /*flip ltr*/
+ Function to print all nodes at a given level 
+printGivenLevel(tree, level, ltr)
+if tree is NULL then return;
+if level is 1, then
+    print(tree->data);
+else if level greater than 1, then
+    if(ltr)
+        printGivenLevel(tree->left, level-1, ltr);
+        printGivenLevel(tree->right, level-1, ltr);
+    else
+        printGivenLevel(tree->right, level-1, ltr);
+        printGivenLevel(tree->left, level-1, ltr);
+ Following is C implementation of above algorithm. 
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+/* Function protoypes */
+void printGivenLevel(struct node* root, int level, int ltr);
+int height(struct node* node);
+struct node* newNode(int data);
+
+/* Function to print spiral traversal of a tree*/
+void printSpiral(struct node* root)
+{
+    int h = height(root);
+    int i;
+
+    /*ltr -> Left to Right. If this variable is set,
+      then the given level is traverseed from left to right. */
+    bool ltr = false;
+    for(i=1; i<=h; i++)
+    {
+        printGivenLevel(root, i, ltr);
+
+        /*Revert ltr to traverse next level in oppposite order*/
+        ltr = !ltr;
+    }
+}
+
+/* Print nodes at a given level */
+void printGivenLevel(struct node* root, int level, int ltr)
+{
+    if(root == NULL)
+        return;
+    if(level == 1)
+        printf("%d ", root->data);
+    else if (level > 1)
+    {
+        if(ltr)
+        {
+            printGivenLevel(root->left, level-1, ltr);
+            printGivenLevel(root->right, level-1, ltr);
+        }
+        else
+        {
+            printGivenLevel(root->right, level-1, ltr);
+            printGivenLevel(root->left, level-1, ltr);
+        }
+    }
+}
+
+/* Compute the "height" of a tree -- the number of
+    nodes along the longest path from the root node
+    down to the farthest leaf node.*/
+int height(struct node* node)
+{
+    if (node==NULL)
+        return 0;
+    else
+    {
+        /* compute the height of each subtree */
+        int lheight = height(node->left);
+        int rheight = height(node->right);
+
+        /* use the larger one */
+        if (lheight > rheight)
+            return(lheight+1);
+        else return(rheight+1);
+    }
+}
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+    struct node* node = (struct node*)
+                        malloc(sizeof(struct node));
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+
+    return(node);
+}
+
+/* Driver program to test above functions*/
+int main()
+{
+    struct node *root = newNode(1);
+    root->left        = newNode(2);
+    root->right       = newNode(3);
+    root->left->left  = newNode(7);
+    root->left->right = newNode(6);
+    root->right->left  = newNode(5);
+    root->right->right = newNode(4);
+    printf("Spiral Order traversal of binary tree is \n");
+    printSpiral(root);
+
+    return 0;
+}
+ Output: Spiral Order traversal of binary tree is
+1 2 3 4 5 6 7 Time Complexity: Worst case time complexity of the above method is O(n^2). Worst case occurs in case of skewed trees. Method 2 (Iterative) We can print spiral order traversal in O(n) time and O(n) extra space. The idea is to use two stacks. We can use one stack for printing from left to right and other stack for printing from right to left. In every iteration, we have nodes of one level in one of the stacks. We print the nodes, and push nodes of next level in other stack. 
+// C++ implementation of a O(n) time method for spiral order traversal
+#include <iostream>
+#include <stack>
+using namespace std;
+
+// Binary Tree node
+struct node
+{
+    int data;
+    struct node *left, *right;
+};
+
+void printSpiral(struct node *root)
+{
+    if (root == NULL)  return;   // NULL check
+
+    // Create two stacks to store alternate levels
+    stack<struct node*> s1;  // For levels to be printed from right to left
+    stack<struct node*> s2;  // For levels to be printed from left to right
+
+    // Push first level to first stack 's1'
+    s1.push(root);
+
+    // Keep ptinting while any of the stacks has some nodes
+    while (!s1.empty() || !s2.empty())
+    {
+        // Print nodes of current level from s1 and push nodes of
+        // next level to s2
+        while (!s1.empty())
+        {
+            struct node *temp = s1.top();
+            s1.pop();
+            cout << temp->data << " ";
+
+            // Note that is right is pushed before left
+            if (temp->right)
+                s2.push(temp->right);
+            if (temp->left)
+                s2.push(temp->left);
+        }
+
+        // Print nodes of current level from s2 and push nodes of
+        // next level to s1
+        while (!s2.empty())
+        {
+            struct node *temp = s2.top();
+            s2.pop();
+            cout << temp->data << " ";
+
+            // Note that is left is pushed before right
+            if (temp->left)
+                s1.push(temp->left);
+            if (temp->right)
+                s1.push(temp->right);
+        }
+    }
+}
+
+// A utility functiont to create a new node
+struct node* newNode(int data)
+{
+    struct node* node = new struct node;
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+
+    return(node);
+}
+
+int main()
+{
+    struct node *root = newNode(1);
+    root->left        = newNode(2);
+    root->right       = newNode(3);
+    root->left->left  = newNode(7);
+    root->left->right = newNode(6);
+    root->right->left  = newNode(5);
+    root->right->right = newNode(4);
+    cout << "Spiral Order traversal of binary tree is \n";
+    printSpiral(root);
+
+    return 0;
+}
+ Output: Spiral Order traversal of binary tree is
+1 2 3 4 5 6 7 Please write comments if you find any bug in the above program/algorithm; or if you want to share more information about spiral traversal.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. Klove Thanks for the code! Quick question , isnt the time complexity of method #2 O(n square) ? Vishal Hemnani Solution using Stack and Queue: http://ideone.com/LxzZS1 TheTrisha I do not think the second method gives the correct result. A SUGGESTION : use a stack and a queue. The stack will help to print a level from right to left and queue will help to print a level from left to right. Here is a C function required to serve our goal. I am using arrays, you can used linked lists. void spiral_level_order(struct node * root) { int front=0,rear=0,top=0; struct node * q[100]; struct node * s[100]; struct node * temp=NULL; s[top]=root; top=top+1; while(front0) { while(top>0) { top=top-1; temp=s[top]; printf(” %d “,temp->data); if(temp->left) { q[rear]=temp->left; rear=rear+1; } if(temp->right) { q[rear]=temp->right; rear=rear+1; } } while(frontdata); if(temp->left) { s[top]=temp->left; top=top+1; } if(temp->right) { s[top]=temp->right; top=top+1; } } } TheTrisha SORRY FOR THE WEIRD MIX-UPS IN THE TEXT. REWRITTEN COMMENT. I do not think the second method gives the correct result. A SUGGESTION : use a stack and a queue. The stack will help to print a level from right to left and queue will help to print a level from left to right. Here is a C function required to serve our goal. I am using arrays, you can used linked lists. void spiral_level_order(struct node * root) { int front=0,rear=0,top=0; struct node * q[100]; struct node * s[100]; struct node * temp=NULL; s[top]=root; top=top+1; while(front0) { while(top>0) { top=top-1; temp=s[top]; printf(” %d “,temp->data); if(temp->left) { q[rear]=temp->left; rear=rear+1; } if(temp->right) { q[rear]=temp->right; rear=rear+1; } } while(frontdata); if(temp->left) { s[top]=temp->left; top=top+1; } if(temp->right) { s[top]=temp->right; top=top+1; } } } TheTrisha Do not know what is the matter. trying to write the 2nd loop again. while(frontdata); if(temp->left) { s[top]=temp->left; top=top+1; } if(temp->right) { s[top]=temp->right; top=top+1; } } Harsh why is time complexity O(n^2)?? DarkProtocol Can any one explain y T(n) for level order is O(n^2) while its taking O(n) in other traversals…? vaibhav in right/left skewed its o(n^2) as for each node,, we have to visit all the previous nodes in the tree guest can anyone plz tell me that in 1st method how the time complexity in O(n^2) ?? thanks sbellam Method 2: Iterative solution has a bug. In the first while loop the left node has to be pushed first , then right node. As this is a stack last in first out. similarly look in the second loop as well. Here is the corrected code void printSprial(Node root) { if(root == null) return; Stack s1 = new Stack(); Stack s2 = new Stack(); s1.push(root); while(!s1.empty() || !s2.empty()) { while(!s1.empty()) { Node temp = s1.top(); s1.pop(); Console.WriteLine(temp.data); if(temp.left!=null) s2.push(temp.left); if(temp.right!=null) s2.push(temp.right); } while(!s2.empty()) { Node temp = s2.top(); s2.pop(); Console.WriteLine(temp.data); if(temp.right!=null) s1.push(temp.right); if(temp.left!=null) s1.push(temp.left); } } } twinkles Yes… please correct the code GeeksforGeeks Could u please provide an example tree for which the method 2 doesn’t work? Guest This can also be implemented using One Stack and One Queue and using a flag to switch between stack and queues. Here is the code snippet… void LevelOrderTraversalInSpiral(Tree *root) { if(root == NULL) return; else { Queue Q; Stack S; bool flag=true; S.Push(root); while(!S.IsStackEmpty() || !Q.IsQueueEmpty()) { if(flag) { while(!S.IsStackEmpty()) { root=S.Pop(); cout<data<left) Q.EnQueue(root->left); if(root->right) Q.EnQueue(root->right); } } else { while(!Q.IsQueueEmpty()) { root=Q.DeQueue(); cout<data<left) S.Push(root->left); if(root->right) S.Push(root->right); } } flag^=true; } } bakwasscoder this doesn’t work: http://ideone.com/d7V9te I don’t think we can do it with a stack and a queue. Vishal Hemnani Using Stack and Queue: http://ideone.com/LxzZS1 Sumit Monga the pop_back() and push_front() can be exchanged in odd and even levels keeping one operation at front and other at the back. Sumit Monga here is the code for solution using deque. #include #include #include #include using namespace std; typedef struct node { int data; struct node * left,*right; }Node; Node * newNode(int data) { Node * temp = new(Node); temp->data = data; temp->left = NULL; temp->right = NULL; return temp; } void LOT_spiral(Node * root) { if(root == NULL) return; dequeq; q.push_back(root); Node * temp = NULL; int nodecount = 0; int level = 1; while(1) { nodecount = q.size(); if(nodecount == 0) return; while(nodecount > 0) { if(level % 2) { temp = q.front(); q.pop_front(); printf(” %d “,temp->data); if(temp->right) q.push_back(temp->right); if(temp->left) q.push_back(temp->left); } else { temp = q.back(); q.pop_back(); printf(” %d “,temp->data); if(temp->left) q.push_front(temp->left); if(temp->right) q.push_front(temp->right); } nodecount–; } level++; } } int main() { Node * root = NULL; root = newNode(10); root->left = newNode(8); root->left->right = newNode(5); root->left->left = newNode(3); root->right = newNode(2); root->right->left = newNode(2); LOT_spiral(root); } Sumit Monga Can also be done using the “deque” container. For every odd level, use pop_back() and push_front() with right child pushed first then the left child. For every even level,use pop_front() and push_back() with left child pushed first then the right child prakash plz tell me how you will track the level guets we can keep a field in the queue data structure which will keep a count of the level.. before pushing elements of the next level we will check the level and act accordingly GeeksforGeeks @Prakhar Jain and all, Thanks for your comments. We have added 2 Stack based method to the original post. Keep it up! http://mahajanneha.blogspot.com/ neham we must check for base condition in stack method like root should not be null. if(root!- NULL) { s1.push(root) … .. // rest same } GeeksforGeeks @neham: Thanks for pointing this out. We have added a condition for null check. Keep it up! Prakhar Jain Here is a solution using two stacks.  
+#include <iostream>
+#include <stack>
+
+using namespace std;
+
+struct node {
+	int data;
+	struct node *left, *right;
+};
+
+void printspiral(struct node *root) {
+	stack<struct node*> s1;
+	stack<struct node*> s2;
+	bool flag = true;
+	s1.push(root);
+	while (!s1.empty() || !s2.empty()) {
+		if (flag) {
+			flag = false;
+			while (!s1.empty()) {
+				struct node *temp = s1.top();
+				s1.pop();
+				printf("%d ", temp->data);
+				if (temp->right)
+					s2.push(temp->right);
+				if (temp->left)
+					s2.push(temp->left);
+			}
+		}
+		else {
+			flag = true;
+			while (!s2.empty()) {
+				struct node *temp = s2.top();
+				s2.pop();
+				printf("%d ", temp->data);
+				if (temp->left)
+					s1.push(temp->left);
+				if (temp->right)
+					s1.push(temp->right);
+			}
+		}
+	}
+}
+
+struct node* newNode(int data)
+{
+  struct node* node = (struct node*)
+                       malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+ 
+  return(node);
+}
+
+int main() {
+	struct node *root = newNode(1);
+ 	root->left        = newNode(2);
+ 	root->right       = newNode(3);
+	root->left->left  = newNode(7);
+	root->left->right = newNode(6);
+	root->right->left  = newNode(5);
+	root->right->right = newNode(4);
+	printspiral(root);
+}
+ manishsinha   /* Paste your code here (You may delete these lines if not writing code) */ public void printZigZag(Node root){ if(root==null) return ; Stack current = new Stack(); current.push(root); boolean lr=false; zigzag(current,lr); } public void zigzag(Stack current,boolean lr){ if(current.empty()){ return; } System.out.println(); Stack next = new Stack(); if(lr){ //System.out.println(current.size()); while(!current.empty()){ Node tmp = (Node)current.pop(); System.out.print(tmp.val + ” “); if(tmp.right!=null){ //System.out.println(“here”+tmp.right.val); next.push(tmp.right); } if(tmp.left!=null){ //System.out.println(“here”+tmp.left.val); next.push(tmp.left); } } }else{ while(!current.empty()){ Node tmp = current.pop(); System.out.print(tmp.val+” “); if(tmp.left!=null){ next.push(tmp.left); } if(tmp.right!=null){ next.push(tmp.right); } } } lr = !lr; zigzag(next,lr); return; } aman1234 We can do it using a single array of nodes pointers. Akhil Solutionusing two stacks. void printLevelOrderZigZag(BinaryTree *root) { stack<BinaryTree*> currentLevel, nextLevel; bool leftToRight = true; currentLevel.push(root); while (!currentLevel.empty()) { BinaryTree *currNode = currentLevel.top(); currentLevel.pop(); if (currNode) { cout << currNode->data << " "; if (leftToRight) { nextLevel.push(currNode->left); nextLevel.push(currNode->right); } else { nextLevel.push(currNode->right); nextLevel.push(currNode->left); } } if (currentLevel.empty()) { cout << endl; leftToRight = !leftToRight; swap(currentLevel, nextLevel); } } } BackBencher @all : I think the complexity of solution is O(n^2). Please let me know i am right or not? alveko Yes, it’s quadratic. The 2 stacks solution below is linear. Baahu Zigzag implementation using 2 Stacks.  
+/* Paste your code here (You may delete these lines if not writing code) */
+
+void ZigZag(struct node *root)
+{
+        stack<node *> s1;
+        stack<node *> s2;
+        struct node *temp;
+        /*Put the first node into stack*/
+        s1.push(root);
+        while(1)
+        {
+                while(s1.size() > 0)
+                {
+                        temp = s1.top();
+                        s1.pop();
+                        cout<<" "<<temp->data;
+                        /*Put the data in left right fashion*/
+                        if(temp->left)
+                                s2.push(temp->left);
+                        if(temp->right)
+                                s2.push(temp->right);
+                }
+                while(s2.size() > 0)
+                {
+                        temp = s2.top();
+                        s2.pop();
+                        cout<<" "<<temp->data;
+                        /*REVERSE!!!Put the data in right left fashion*/
+                        if(temp->left)
+                                s1.push(temp->right);
+                        if(temp->right)
+                                s1.push(temp->left);
+                }
+                if(s2.size() == 0 && s1.size() == 0)
+                        break;
+        }
+
+
+}
+
+ rkl This code is majorly good and efficient. But in the second inner loop’s if condition null-check for proper child. You are checking left child while pushing right child and vice versa. alveko +1. Also the if-break condition can be moved to the while line for a cleaner look Rajneesh  
+//using single queue
+void printLevelOrder(BinaryTree *root) {
+  if (!root) return;
+  queue<BinaryTree*> nodesQueue;
+
+  nodesQueue.push(root);
+  int nodesInCurrentLevel = 1;
+  int nodesInNextLevel = 0;
+  int ltr=0;
+  
+  while (!nodesQueue.empty()) {
+    BinaryTree *currNode = nodesQueue.front();
+    nodesQueue.pop();
+    nodesInCurrentLevel--;
+    if (currNode) {
+      cout << currNode->data << " ";
+	  if(ltr==0){
+		nodesQueue.push(currNode->left);
+		nodesQueue.push(currNode->right);
+	  }
+	  else{
+		nodesQueue.push(currNode->right);
+		nodesQueue.push(currNode->left);
+	  }
+	  
+      nodesInNextLevel += 2;
+    }
+    if (nodesInCurrentLevel == 0) {
+      cout << endl;
+	  ltr=(ltr==0)?1:0;
+      nodesInCurrentLevel = nodesInNextLevel;
+      nodesInNextLevel = 0;
+    }
+  }
+}
+ Ark I think this code is not correct . It is wrong . Ark U should use the concept of deque (Double Ended queue) data structure if u want to implement using a single queue . Ur code will give wrong output. See abishek’s post below dec 20, 2011 to do that . That code will work fine . Rajneesh Yes..you are right. It will not work. It can be solved by either use of single doubly ended queue or using two queues. Thanks for pointing out mistake joker #include <iostream> using namespace std; int turn = 0; struct node { int data; node *left; node *right; }*root; struct list { struct node* val; list *next; }*front1,*front2; void traverse() { list *temp,*temp2,*newlt; node * print; front2 = NULL; front1 = NULL; if(root != NULL) { cout<<root->data<<"\t"; if(root->left!=NULL) { front1 = new list; front1->val = root->left; //cout<<front1->val->data; front1->next = NULL; } if(root->right!=NULL) { temp = new list; temp->val = root->right; temp->next = NULL; if(front1 != NULL) front1->next = temp; else front1 = temp; } } while(front1 != NULL || front2 != NULL){ if(turn %2 == 0) { turn++; temp = front1; while(temp!= NULL) { print = temp->val; cout<<print->data<<"\t"; if(print->left != NULL){ newlt = new list; newlt->val = print->left; newlt->next = front2; front2 = newlt; } if(print->right != NULL){ newlt = new list; newlt->val = print->right; newlt->next = front2; front2 = newlt; } temp2 = temp; temp = temp->next; delete(temp2); } front1 = temp; } else { turn++; temp = front2; while(temp!=NULL) { print = temp->val; cout<<print->data<<"\t"; if(print->right != NULL){ newlt = new list; newlt->val = print->right; newlt->next = front1; front1 = newlt; } if(print->left != NULL) { newlt = new list; newlt->val = print->left; newlt->next = front1; front1 = newlt; } temp2 = temp; temp = temp->next; delete(temp2); } front2 = NULL; } } } node* insert(int data,node *temp) { if(temp == NULL) { temp = new node; temp->data = data; temp->right = NULL; temp->left = NULL; } else if(data <= temp->data) { temp->left = insert(data,temp->left); } else { temp->right = insert(data,temp->right); } return temp; } int main() { int data; cin>>data; while(data > 0) { root = insert(data,root); cin>>data; } //cout<<root->data<<"******"<<endl; traverse(); return 0; } mrn  
+/* Paste your code here (You may delete these lines if not writing code) */
+void spiral(Node *n)
+{
+	Node dummy;
+	queue<Node *>q;
+	q.push(n);
+	q.push(&dummy);
+	int cnt=1;
+	vector<int> v;
+	while(!q.empty())
+	{
+		Node *tmp=q.front();q.pop();
+		
+		if(tmp==&dummy)
+		{
+		if(!q.empty()) q.push(&dummy);
+		cout<<endl;
+		if(cnt%2==0)
+			for(vector<int>::reverse_iterator it=v.rbegin();it!=v.rend();it++)
+				cout<<*it<<" ";
+			
+		else
+			for(vector<int>::iterator it=v.begin();it!=v.end();it++)
+				cout<<*it<<" ";
+			
+		cnt++;
+		v.clear();
+		continue;
+		}
+		
+		v.push_back(tmp->v);
+		if(tmp->l)q.push(tmp->l);
+		if(tmp->r)q.push(tmp->r);
+				
+	}
+}
+ orgzero I didn’t find a simpler solution I had in mind. I’ve provided that below, let me know if I’m missing something.  
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+public class LevelOrderSpiralTreeTraversal {
+	private static class TreeNode {
+		int		   data;
+		TreeNode	left;
+		TreeNode	right;
+		
+		public TreeNode(int aData) {
+			data = aData;
+		}
+	}
+	
+	private static void traverseSpiral(TreeNode root) {
+		traverseInternal(new TreeNode[] {
+			root
+		}, false);
+	}
+	
+	private static void traverseInternal(TreeNode[] treeNodes, boolean l2r) {
+		if (null == treeNodes || treeNodes.length < 1) {
+			return;
+		}
+		List<TreeNode> nextLevel = new ArrayList<>();
+		if (l2r) {
+			for (int i = 0; i < treeNodes.length; i++) {
+				nextLevel.addAll(process(treeNodes[i]));
+			}
+		} else {
+			for (int i = treeNodes.length - 1; i >= 0; i--) {
+				nextLevel.addAll(process(treeNodes[i]));
+			}
+		}
+		traverseInternal(nextLevel.toArray(new TreeNode[nextLevel.size()]), !l2r);
+	}
+	
+	private static Collection<? extends TreeNode> process(TreeNode treeNode) {
+		System.out.println(treeNode.data);
+		Collection<TreeNode> l = new ArrayList<>();
+		if (null != treeNode.left) {
+			l.add(treeNode.left);
+		}
+		if (null != treeNode.right) {
+			l.add(treeNode.right);
+		}
+		return l;
+	}
+	
+	public static void main(String[] args) {
+		TreeNode root = new TreeNode(1);
+		root.left = new TreeNode(2);
+		root.right = new TreeNode(3);
+		root.left.left = new TreeNode(7);
+		root.left.right = new TreeNode(6);
+		root.right.right = new TreeNode(4);
+		root.right.left = new TreeNode(5);
+		traverseSpiral(root);
+	}
+}
+
+ syang use a queue and a stack to keep track of nodes at different level alternatively. Pseudo Java code as following:  
+void spiral(Node root) {
+
+    if (root == null) return;
+    LinkedList<Node> queue = new LinkedList<Node>();
+    LinkedList<Node> stack = new LinkedList<Node>();
+
+    stack.addFirst(root);
+    boolean useStack = true;
+
+    while ((useStack && stack.size() > 0) || 
+           (!useStack && queue.size() > 0) 
+    {
+        Node node = (useStack ? stack.removeFirst() : 
+                                queue.poll());
+        
+        System.out.println(node.value);
+
+        if (useStack) {
+            if (node.left != null) 
+                queue.offer(node.left);
+            if (node.right != null)
+                queue.offer(node.right);
+        } else {
+            if (node.left != null) 
+                stack.addFirst(node.left);
+            if (node.right != null)
+                stack.addFirst(node.right);
+        }
+
+        if (useStack && stack.size() == 0) {
+            useStack = false;
+            continue;
+        }
+
+        if (!useStack && queue.size() == 0) {
+            useStack = true;
+            continue;
+        }
+    } /* while */
+}
+
+ Nikhil This can also be solved using queue right??? Using queue method of level order traversal,we just need maintain a boolean for left to right or vice versa traversal.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ syang I think it’d better to use a queue as well as a stack.  
+void spiral(Node root) {
+
+    if (root == null) return;
+
+    LinkedList<Node> stack = new LinkedList<Node>();
+    LinkedList<NOde> queue = new LinkedList<Node>();
+
+    boolean use_stack = true;
+    stack.addFirst(root);
+
+    while ((use_stack && stack.size() > 0) ||
+           (!use_stack && queue.size() > 0)) 
+    {
+        Node node = use_stack ? stack.removeFirst() : queue.poll();
+
+        System.out.println(node.value);
+
+        if (node.left != null) {
+            if (use_stack) 
+                queue.offer(node.left);
+            else
+                stack.addFirst(node.left);
+        }
+
+
+        if (node.right != null) {
+            if (use_stack) 
+                queue.offer(node.right);
+            else
+                stack.addFirst(node.right);
+        }
+
+        if (use_stack && stack.size() == 0) {
+            use_stack = false;
+        } else if (!use_stack && queue.size() == 0) {
+            use_stack = true;
+        }
+    }
+}
+ Rahim Looks good! Guddu sharma Here is the iterative version using two stacks.  
+void zigZagTraversal(struct node *root)
+{
+	struct node *Stack1[20],*Stack2[20],*temp;
+	int top1=-1,top2=-1,LeftToRight=1;
+	
+	Stack1[++top1]=root;
+	
+	while(top1>=0 || top2>=0)
+	{
+		if(LeftToRight)
+		{
+			while(top1>=0)
+			{
+				temp=Stack1[top1--];
+				printf("%d ",temp->data);
+				
+				if(temp->left)
+					Stack2[++top2]=temp->left;
+					
+				if(temp->right)
+					Stack2[++top2]=temp->right;
+			}
+			printf("|");
+		}
+		else
+		{
+			while(top2>=0)
+			{
+				temp=Stack2[top2--];
+				printf("%d ",temp->data);
+				
+				if(temp->right)
+					Stack1[++top1]=temp->right;
+					
+				if(temp->left)
+					Stack1[++top1]=temp->left;
+			}
+			printf("|");
+		}
+		LeftToRight=1-LeftToRight;
+	}
+}
+ Please let me know if anything is wrong. krishna Using two stacks is a better approach. http://roomforcreativity.wordpress.com cyclotrojan Perfect  
+/* Paste your code here (You may delete these lines if not writing code) */
+ rahul perfect  
+/* Paste your code here (You may delete these lines if not writing code) */
+ vikash time complexity is O(n). plz correct me if i m worng …. BackBencher Hi, Nice Solution..! http://anshulsalvo.blogspot.in/ Anshul  
+public static void zigZag(TreeNode node) {
+		int direction = 1;
+		ArrayList<TreeNode> alist = new ArrayList<TreeNode>();
+		alist.add(node);
+		int count1 = 1;
+		int count2 = 0;
+		while (alist.size() > 0) {
+			if (direction == 1) {
+				for (int i = 0; i < count1; i++) {
+					TreeNode n = alist.get(i);
+					if (n.left != null) {
+						count2++;
+						alist.add(n.left);
+					}
+					if (n.right != null) {
+						count2++;
+						alist.add(n.right);
+					}
+					
+				}
+				for (int i = 0; i < count1; i++) {
+					System.out.print(alist.get(0).data + " ");
+					alist.remove(0);
+				}
+				count1 = 0;
+			} else {
+				int pos2 = alist.size() - 1;
+				int pos1 = alist.size() - count2;
+				for (int i = pos1; i <= pos2; i++) {
+					TreeNode n = alist.get(i);
+					if (n.left != null) {
+						count1++;
+						alist.add(n.left);
+					}
+					if (n.right != null) {
+						count1++;
+						alist.add(n.right);
+					}
+				}
+
+				for (int i = pos2; i >= pos1; i--) {
+					System.out.print(alist.get(i).data + " ");
+					alist.remove(i);
+				}
+				count2 = 0;
+			}
+			direction = direction ^ 1;
+		}
+	}
+ http://anshulsalvo.blogspot.in/ Anshul * The above uses only a single arraylist and performs a BFS type traversal * We actually dont use 2 stacks or 2 queues. * The algorithm is linear  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Pranshu public void spiralOrder(Tree root, boolean isEven) { if (root != null) { System.out.println(root.getValue()); if (!isEven) { if (root.getLeftChild() != null) queue.add(root.getLeftChild()); if (root.getRightChild() != null) queue.add(root.getRightChild()); if (!stack.isEmpty()) spiralOrder(stack.pollFirst(), isEven); else if (!queue.isEmpty()) spiralOrder(queue.poll(), !isEven); } else { if (root.getLeftChild() != null) stack.addFirst(root.getLeftChild()); if (root.getRightChild() != null) stack.addFirst(root.getRightChild()); if (!queue.isEmpty()) spiralOrder(queue.poll(), isEven); else if (!stack.isEmpty()) spiralOrder(stack.pollFirst(), !isEven); } } } Ashot Madatyan Hey guys. There is a very good DS out there in STL called std::deque, and this problem can be easily solved by using that DS. The following code uses a single std::deque and a boolean to indicate the printing order, so I am sharing a complete s/c to one of my favourite programming sites:  
+#include <iostream>
+#include <queue>
+
+struct Node {
+    Node *left;
+    Node *right;
+    int data;
+    Node(Node* l, Node* r, int dat):left(l), right(r), data(dat){};
+};
+
+typedef int (*bst_visit)(Node*);
+
+int print_node(Node *pNode)
+{
+    if (NULL == pNode){
+        cout << "NULL pointer" << endl;
+        return 1;
+    }
+    
+    cout << pNode->data << endl;
+    return 0;
+}
+
+void bst_LNR(Node *pNode, bst_visit visit)
+{
+    if (NULL == pNode)
+        return;
+
+    /* Process the left subtree */
+    if (pNode->left)
+        bst_LNR(pNode->left, visit);
+    
+    visit(pNode);
+
+    /* Process the right subtree */
+    if (pNode->right)
+        bst_LNR(pNode->right, visit);    
+}
+
+void bst_RNL(Node *pNode, bst_visit visit)
+{
+    if (NULL == pNode)
+        return;
+
+    /* Process the right subtree */
+    if (pNode->right)
+        bst_LNR(pNode->right, visit);
+        
+    /* Process the node itself */
+    visit(pNode);
+    
+    /* Process the left subtree */
+    if (pNode->left)
+        bst_LNR(pNode->left, visit);    
+}
+
+void bst_BFS(Node *pNode, bst_visit visit)
+{
+    using namespace std;
+    int sz, i, level = 0;
+    queue<Node*> Q;
+    
+    if (NULL == pNode)
+        return;
+        
+    Q.push(pNode);
+    
+    while (! Q.empty()){
+        cout << "L: " << level << endl;
+        
+        sz = Q.size();
+        for (i = 0; i < sz; i++){
+            Node *pTmpNode = Q.front();
+            Q.pop();
+            
+            visit(pTmpNode);
+            
+            /* Add the children of this node to the queue */
+            if (pTmpNode->left)
+                Q.push(pTmpNode->left);
+            if (pTmpNode->right)
+                Q.push(pTmpNode->right);
+        }
+        cout << endl;
+        ++level;
+    }
+    
+    return;
+}
+
+void bst_BFS_spiral(Node *pNode, bst_visit visit)
+{
+    using namespace std;
+    int sz, i, level = 0;
+    deque<Node*> DQ;
+    bool bFillFromLeft = false;
+    
+    if (NULL == pNode)
+        return;
+        
+    DQ.push_back(pNode);
+    
+    while (! DQ.empty()){
+        cout << "L: " << level << endl;
+        
+        sz = DQ.size();
+        for (i = 0; i < sz; i++){
+            Node *pTmpNode;
+            if (bFillFromLeft) {
+                pTmpNode = DQ.front();
+                DQ.pop_front();
+            }
+            else {
+                pTmpNode = DQ.back();
+                DQ.pop_back();
+            }
+            
+            visit(pTmpNode);
+            
+            /* Add the children of this node to the queue */
+            if (bFillFromLeft) {
+                if (pTmpNode->left)
+                    DQ.push_back(pTmpNode->left);
+                if (pTmpNode->right)
+                    DQ.push_back(pTmpNode->right);        
+            }
+            else {
+                if (pTmpNode->right)
+                    DQ.push_front(pTmpNode->right);        
+                if (pTmpNode->left)
+                    DQ.push_front(pTmpNode->left);
+            }
+        }
+        cout << endl;
+        ++level;
+        bFillFromLeft = !bFillFromLeft;
+    }
+    
+    return;
+}
+
+
+void bst_add_node(Node *pRoot, Node *pNewNode)
+{
+    if (NULL == pNewNode)
+        return;
+
+    if (pNewNode->data < pRoot->data) {
+        if (NULL == pRoot->left)
+            pRoot->left = pNewNode;
+        else
+            bst_add_node(pRoot->left, pNewNode);
+    }
+    else {
+        if (NULL == pRoot->right)
+            pRoot->right = pNewNode;
+        else
+            bst_add_node(pRoot->right, pNewNode);
+    }    
+    return;
+}
+
+Node* bst_node_create(int value)
+{
+    Node *pNewNode = new Node(NULL, NULL, value);
+    return pNewNode;
+}
+
+Node* bst_CTOR(int arr[], int cnt)
+{
+    Node *pRoot = bst_node_create(arr[0]);
+    Node *pNewNode = NULL;
+    int i;
+    
+    for (i = 1; i < cnt; i++){
+        pNewNode = bst_node_create(arr[i]);
+        bst_add_node(pRoot, pNewNode);
+    }
+    return pRoot;
+}
+
+void bst_DTOR(Node *pRoot, int dir)
+{
+    Node *pLeft, *pRight;
+    int val;
+    
+    if (NULL == pRoot)
+        return;
+        
+    pLeft = pRoot->left;
+    pRight = pRoot->right;
+
+    if (pLeft)
+        bst_DTOR(pLeft, -1);
+    if (pRight)
+        bst_DTOR(pRight, 1);
+        
+    val = pRoot->data;
+    cout << pRoot->data << "(" << dir << ")" << endl;
+    delete pRoot;
+    cout << "Deleted " << val << endl;
+}
+
+int main(int argc, char *argv[])
+{
+    Node *pRoot = NULL;
+    int arr[] = {25, 55, 37, 8, 14, 9, 40, 1, 60};
+    int cnt = sizeof(arr)/sizeof(arr[0]);
+    
+    cout << "Bari luis" << endl;
+    pRoot = bst_CTOR(arr, cnt);
+    
+    bst_LNR(pRoot, print_node);
+    
+    cout << "\n--- BFS ---\n";
+    bst_BFS(pRoot, print_node);
+    cout << endl;
+
+    cout << "\n--- BFS-SPIRAL ---\n";
+    bst_BFS_spiral(pRoot, print_node);
+    cout << endl;
+    
+    bst_DTOR(pRoot, 0);
+}
+ Ashot Madatyan Hey guys. There is a very good DS out there in STL called std::deque, and this problem can be easily solved by using that DS. The following code uses a single std::deque and a boolean to indicate the printing order, so I am sharing a complete s/c to one of my favourite programming sites:  
+#include <iostream>
+#include <queue>
+
+struct Node {
+    Node *left;
+    Node *right;
+    int data;
+    Node(Node* l, Node* r, int dat):left(l), right(r), data(dat){};
+};
+
+typedef int (*bst_visit)(Node*);
+
+int print_node(Node *pNode)
+{
+    if (NULL == pNode){
+        cout << "NULL pointer" << endl;
+        return 1;
+    }
+    
+    cout << pNode->data << endl;
+    return 0;
+}
+
+void bst_LNR(Node *pNode, bst_visit visit)
+{
+    if (NULL == pNode)
+        return;
+
+    /* Process the left subtree */
+    if (pNode->left)
+        bst_LNR(pNode->left, visit);
+    
+    visit(pNode);
+
+    /* Process the right subtree */
+    if (pNode->right)
+        bst_LNR(pNode->right, visit);    
+}
+
+void bst_RNL(Node *pNode, bst_visit visit)
+{
+    if (NULL == pNode)
+        return;
+
+    /* Process the right subtree */
+    if (pNode->right)
+        bst_LNR(pNode->right, visit);
+        
+    /* Process the node itself */
+    visit(pNode);
+    
+    /* Process the left subtree */
+    if (pNode->left)
+        bst_LNR(pNode->left, visit);    
+}
+
+void bst_BFS(Node *pNode, bst_visit visit)
+{
+    using namespace std;
+    int sz, i, level = 0;
+    queue<Node*> Q;
+    
+    if (NULL == pNode)
+        return;
+        
+    Q.push(pNode);
+    
+    while (! Q.empty()){
+        cout << "L: " << level << endl;
+        
+        sz = Q.size();
+        for (i = 0; i < sz; i++){
+            Node *pTmpNode = Q.front();
+            Q.pop();
+            
+            visit(pTmpNode);
+            
+            /* Add the children of this node to the queue */
+            if (pTmpNode->left)
+                Q.push(pTmpNode->left);
+            if (pTmpNode->right)
+                Q.push(pTmpNode->right);
+        }
+        cout << endl;
+        ++level;
+    }
+    
+    return;
+}
+
+void bst_BFS_spiral(Node *pNode, bst_visit visit)
+{
+    using namespace std;
+    int sz, i, level = 0;
+    deque<Node*> DQ;
+    bool bFillFromLeft = false;
+    
+    if (NULL == pNode)
+        return;
+        
+    DQ.push_back(pNode);
+    
+    while (! DQ.empty()){
+        cout << "L: " << level << endl;
+        
+        sz = DQ.size();
+        for (i = 0; i < sz; i++){
+            Node *pTmpNode;
+            if (bFillFromLeft) {
+                pTmpNode = DQ.front();
+                DQ.pop_front();
+            }
+            else {
+                pTmpNode = DQ.back();
+                DQ.pop_back();
+            }
+            
+            visit(pTmpNode);
+            
+            /* Add the children of this node to the queue */
+            if (bFillFromLeft) {
+                if (pTmpNode->left)
+                    DQ.push_back(pTmpNode->left);
+                if (pTmpNode->right)
+                    DQ.push_back(pTmpNode->right);        
+            }
+            else {
+                if (pTmpNode->right)
+                    DQ.push_front(pTmpNode->right);        
+                if (pTmpNode->left)
+                    DQ.push_front(pTmpNode->left);
+            }
+        }
+        cout << endl;
+        ++level;
+        bFillFromLeft = !bFillFromLeft;
+    }
+    
+    return;
+}
+
+
+void bst_add_node(Node *pRoot, Node *pNewNode)
+{
+    if (NULL == pNewNode)
+        return;
+
+    if (pNewNode->data < pRoot->data) {
+        if (NULL == pRoot->left)
+            pRoot->left = pNewNode;
+        else
+            bst_add_node(pRoot->left, pNewNode);
+    }
+    else {
+        if (NULL == pRoot->right)
+            pRoot->right = pNewNode;
+        else
+            bst_add_node(pRoot->right, pNewNode);
+    }    
+    return;
+}
+
+Node* bst_node_create(int value)
+{
+    Node *pNewNode = new Node(NULL, NULL, value);
+    return pNewNode;
+}
+
+Node* bst_CTOR(int arr[], int cnt)
+{
+    Node *pRoot = bst_node_create(arr[0]);
+    Node *pNewNode = NULL;
+    int i;
+    
+    for (i = 1; i < cnt; i++){
+        pNewNode = bst_node_create(arr[i]);
+        bst_add_node(pRoot, pNewNode);
+    }
+    return pRoot;
+}
+
+void bst_DTOR(Node *pRoot, int dir)
+{
+    Node *pLeft, *pRight;
+    int val;
+    
+    if (NULL == pRoot)
+        return;
+        
+    pLeft = pRoot->left;
+    pRight = pRoot->right;
+
+    if (pLeft)
+        bst_DTOR(pLeft, -1);
+    if (pRight)
+        bst_DTOR(pRight, 1);
+        
+    val = pRoot->data;
+    cout << pRoot->data << "(" << dir << ")" << endl;
+    delete pRoot;
+    cout << "Deleted " << val << endl;
+}
+
+int main(int argc, char *argv[])
+{
+    Node *pRoot = NULL;
+    int arr[] = {25, 55, 37, 8, 14, 9, 40, 1, 60};
+    int cnt = sizeof(arr)/sizeof(arr[0]);
+    
+    cout << "Bari luis" << endl;
+    pRoot = bst_CTOR(arr, cnt);
+    
+    bst_LNR(pRoot, print_node);
+    
+    cout << "\n--- BFS ---\n";
+    bst_BFS(pRoot, print_node);
+    cout << endl;
+
+    cout << "\n--- BFS-SPIRAL ---\n";
+    bst_BFS_spiral(pRoot, print_node);
+    cout << endl;
+    
+    bst_DTOR(pRoot, 0);
+}
+ Ashot Madatyan Hey guys. There is a very good DS out there in STL called std::deque, and this problem can be easily solved by using that DS. The following code uses a single std::deque and a boolean to indicate the printing order, so I am sharing a complete s/c to one of my favourite programming sites: /* Paste your code here (You may delete these lines if not writing code) */ #include <iostream> #include <queue> struct Node { Node *left; Node *right; int data; Node(Node* l, Node* r, int dat):left(l), right(r), data(dat){}; }; typedef int (*bst_visit)(Node*); int print_node(Node *pNode) { if (NULL == pNode){ cout << "NULL pointer" << endl; return 1; } cout << pNode->data << endl; return 0; } void bst_LNR(Node *pNode, bst_visit visit) { if (NULL == pNode) return; /* Process the left subtree */ if (pNode->left) bst_LNR(pNode->left, visit); visit(pNode); /* Process the right subtree */ if (pNode->right) bst_LNR(pNode->right, visit); } void bst_RNL(Node *pNode, bst_visit visit) { if (NULL == pNode) return; /* Process the right subtree */ if (pNode->right) bst_LNR(pNode->right, visit); /* Process the node itself */ visit(pNode); /* Process the left subtree */ if (pNode->left) bst_LNR(pNode->left, visit); } void bst_BFS(Node *pNode, bst_visit visit) { using namespace std; int sz, i, level = 0; queue<Node*> Q; if (NULL == pNode) return; Q.push(pNode); while (! Q.empty()){ cout << "L: " << level << endl; sz = Q.size(); for (i = 0; i < sz; i++){ Node *pTmpNode = Q.front(); Q.pop(); visit(pTmpNode); /* Add the children of this node to the queue */ if (pTmpNode->left) Q.push(pTmpNode->left); if (pTmpNode->right) Q.push(pTmpNode->right); } cout << endl; ++level; } return; } void bst_BFS_spiral(Node *pNode, bst_visit visit) { using namespace std; int sz, i, level = 0; deque<Node*> DQ; bool bFillFromLeft = false; if (NULL == pNode) return; DQ.push_back(pNode); while (! DQ.empty()){ cout << "L: " << level << endl; sz = DQ.size(); for (i = 0; i < sz; i++){ Node *pTmpNode; if (bFillFromLeft) { pTmpNode = DQ.front(); DQ.pop_front(); } else { pTmpNode = DQ.back(); DQ.pop_back(); } visit(pTmpNode); /* Add the children of this node to the queue */ if (bFillFromLeft) { if (pTmpNode->left) DQ.push_back(pTmpNode->left); if (pTmpNode->right) DQ.push_back(pTmpNode->right); } else { if (pTmpNode->right) DQ.push_front(pTmpNode->right); if (pTmpNode->left) DQ.push_front(pTmpNode->left); } } cout << endl; ++level; bFillFromLeft = !bFillFromLeft; } return; } void bst_add_node(Node *pRoot, Node *pNewNode) { if (NULL == pNewNode) return; if (pNewNode->data < pRoot->data) { if (NULL == pRoot->left) pRoot->left = pNewNode; else bst_add_node(pRoot->left, pNewNode); } else { if (NULL == pRoot->right) pRoot->right = pNewNode; else bst_add_node(pRoot->right, pNewNode); } return; } Node* bst_node_create(int value) { Node *pNewNode = new Node(NULL, NULL, value); return pNewNode; } Node* bst_CTOR(int arr[], int cnt) { Node *pRoot = bst_node_create(arr[0]); Node *pNewNode = NULL; int i; for (i = 1; i < cnt; i++){ pNewNode = bst_node_create(arr[i]); bst_add_node(pRoot, pNewNode); } return pRoot; } void bst_DTOR(Node *pRoot, int dir) { Node *pLeft, *pRight; int val; if (NULL == pRoot) return; pLeft = pRoot->left; pRight = pRoot->right; if (pLeft) bst_DTOR(pLeft, -1); if (pRight) bst_DTOR(pRight, 1); val = pRoot->data; cout << pRoot->data << "(" << dir << ")" << endl; delete pRoot; cout << "Deleted " << val << endl; } int main(int argc, char *argv[]) { Node *pRoot = NULL; int arr[] = {25, 55, 37, 8, 14, 9, 40, 1, 60}; int cnt = sizeof(arr)/sizeof(arr[0]); cout << "Bari luis" << endl; pRoot = bst_CTOR(arr, cnt); bst_LNR(pRoot, print_node); cout << "\n— BFS —\n"; bst_BFS(pRoot, print_node); cout << endl; cout << "\n— BFS-SPIRAL —\n"; bst_BFS_spiral(pRoot, print_node); cout << endl; bst_DTOR(pRoot, 0); } Ashot Madatyan Hey guys. There is a very good DS out there in STL called std::deque, and this problem can be easily solved by using that DS. The following code uses a single std::deque and a boolean to indicate the printing order, so I am sharing a complete s/c to one of my favourite programming sites: #include <iostream> #include <queue> struct Node { Node *left; Node *right; int data; Node(Node* l, Node* r, int dat):left(l), right(r), data(dat){}; }; typedef int (*bst_visit)(Node*); int print_node(Node *pNode) { if (NULL == pNode){ cout << "NULL pointer" << endl; return 1; } cout << pNode->data << endl; return 0; } void bst_LNR(Node *pNode, bst_visit visit) { if (NULL == pNode) return; /* Process the left subtree */ if (pNode->left) bst_LNR(pNode->left, visit); visit(pNode); /* Process the right subtree */ if (pNode->right) bst_LNR(pNode->right, visit); } void bst_RNL(Node *pNode, bst_visit visit) { if (NULL == pNode) return; /* Process the right subtree */ if (pNode->right) bst_LNR(pNode->right, visit); /* Process the node itself */ visit(pNode); /* Process the left subtree */ if (pNode->left) bst_LNR(pNode->left, visit); } void bst_BFS(Node *pNode, bst_visit visit) { using namespace std; int sz, i, level = 0; queue<Node*> Q; if (NULL == pNode) return; Q.push(pNode); while (! Q.empty()){ cout << "L: " << level << endl; sz = Q.size(); for (i = 0; i < sz; i++){ Node *pTmpNode = Q.front(); Q.pop(); visit(pTmpNode); /* Add the children of this node to the queue */ if (pTmpNode->left) Q.push(pTmpNode->left); if (pTmpNode->right) Q.push(pTmpNode->right); } cout << endl; ++level; } return; } void bst_BFS_spiral(Node *pNode, bst_visit visit) { using namespace std; int sz, i, level = 0; deque<Node*> DQ; bool bFillFromLeft = false; if (NULL == pNode) return; DQ.push_back(pNode); while (! DQ.empty()){ cout << "L: " << level << endl; sz = DQ.size(); for (i = 0; i < sz; i++){ Node *pTmpNode; if (bFillFromLeft) { pTmpNode = DQ.front(); DQ.pop_front(); } else { pTmpNode = DQ.back(); DQ.pop_back(); } visit(pTmpNode); /* Add the children of this node to the queue */ if (bFillFromLeft) { if (pTmpNode->left) DQ.push_back(pTmpNode->left); if (pTmpNode->right) DQ.push_back(pTmpNode->right); } else { if (pTmpNode->right) DQ.push_front(pTmpNode->right); if (pTmpNode->left) DQ.push_front(pTmpNode->left); } } cout << endl; ++level; bFillFromLeft = !bFillFromLeft; } return; } void bst_add_node(Node *pRoot, Node *pNewNode) { if (NULL == pNewNode) return; if (pNewNode->data < pRoot->data) { if (NULL == pRoot->left) pRoot->left = pNewNode; else bst_add_node(pRoot->left, pNewNode); } else { if (NULL == pRoot->right) pRoot->right = pNewNode; else bst_add_node(pRoot->right, pNewNode); } return; } Node* bst_node_create(int value) { Node *pNewNode = new Node(NULL, NULL, value); return pNewNode; } Node* bst_CTOR(int arr[], int cnt) { Node *pRoot = bst_node_create(arr[0]); Node *pNewNode = NULL; int i; for (i = 1; i < cnt; i++){ pNewNode = bst_node_create(arr[i]); bst_add_node(pRoot, pNewNode); } return pRoot; } void bst_DTOR(Node *pRoot, int dir) { Node *pLeft, *pRight; int val; if (NULL == pRoot) return; pLeft = pRoot->left; pRight = pRoot->right; if (pLeft) bst_DTOR(pLeft, -1); if (pRight) bst_DTOR(pRight, 1); val = pRoot->data; cout << pRoot->data << "(" << dir << ")" << endl; delete pRoot; cout << "Deleted " << val << endl; } int main(int argc, char *argv[]) { Node *pRoot = NULL; int arr[] = {25, 55, 37, 8, 14, 9, 40, 1, 60}; int cnt = sizeof(arr)/sizeof(arr[0]); cout << "Bari luis" << endl; pRoot = bst_CTOR(arr, cnt); bst_LNR(pRoot, print_node); cout << "\n— BFS —\n"; bst_BFS(pRoot, print_node); cout << endl; cout << "\n— BFS-SPIRAL —\n"; bst_BFS_spiral(pRoot, print_node); cout << endl; bst_DTOR(pRoot, 0); } http://extremecodeworld.blogspot.com Sheikh Abdul Wahid your height calculating function will not probably work. it will always return 0. If i am work please do explain your logic. ashu  
+/* int level_spiral(struct node *root)
+{
+    char flag='L';
+    stack<struct node *> mystk1;
+    stack<struct node *> mystk2;
+    
+    mystk1.push(root);
+    cout<<root->data<<"\t";
+    
+    while(1)
+    {
+        while(!mystk1.empty())
+        {
+            struct node *temp=mystk1.top();
+            mystk1.pop();
+        
+            if(flag=='L')
+            {
+                if(temp->left!=NULL)
+                {
+                    mystk2.push(temp->left);
+                    cout<<temp->left->data<<"\t";
+                }
+                if(temp->right!=NULL)
+                {
+                    mystk2.push(temp->right);
+                    cout<<temp->right->data<<"\t";
+                }
+            }
+            else if(flag=='R')
+            {
+                if(temp->right!=NULL)
+                {
+                    mystk2.push(temp->right);
+                    cout<<temp->right->data<<"\t";
+                }
+                if(temp->left!=NULL)
+                {
+                    mystk2.push(temp->left);
+                    cout<<temp->left->data<<"\t";
+                }
+            }
+        }
+        if(!mystk2.empty())
+        {
+            swap(mystk2,mystk1);
+            if(flag=='L')
+                flag='R';
+            else 
+                flag='L';
+        }
+        else
+            break;
+    }
+    return 0;
+}*/
+ ashu it uses two stacks… and alternatively switch between left to right and right to left depending upon flag… ashu Solution using two stacks: int level_spiral(struct node *root) { char flag=’L'; stack mystk1; stack mystk2; mystk1.push(root); cout< data< <"\t"; while(1) { while(!mystk1.empty()) { struct node *temp=mystk1.top(); mystk1.pop(); if(flag=='L') { if(temp->left!=NULL) { mystk2.push(temp->left); cout< left->data< <"\t"; } if(temp->right!=NULL) { mystk2.push(temp->right); cout< right->data< <"\t"; } } else if(flag=='R') { if(temp->right!=NULL) { mystk2.push(temp->right); cout< right->data< <"\t"; } if(temp->left!=NULL) { mystk2.push(temp->left); cout< left->data<<”\t”; } } } if(!mystk2.empty()) { swap(mystk2,mystk1); if(flag==’L’) flag=’R'; else flag=’L'; } else break; } return 0; } Ajinkya RAJNIKANTH’S CODE: Rascala pussies… shortest and simplest solution…. sweet rascala mind it!!  
+stack s1,s2;
+bool flag=1;
+s1.push(root);
+cout<<root->data;
+
+while(!s1.empty())
+{
+    s2.init();
+    while(!s1.empty())
+    {
+           if(flag)   {
+                       node *p=s1.pop();
+                       if(p->left!=NULL) {
+                         s2.push(p->left); cout<<p->left->data; }
+                       if(p->right!=NULL) {
+                          s2.push(p->right); cout<<p->right->data; }
+
+           else {
+                 /*tume change-u 
+                  -check right child 1st and push if !=NULL
+                  -check left child 2nd and push if !=NULL
+                }
+     }
+     s1=s2;
+     flag=~flag;
+}
+
+Thats it machchas... NORMAL traversal QUEUE. SPIRAL traversal STACK. Keep it simple silly.
+
+ khush there is small typo declaration of printGivenLevel method is printGivenLevel(tree,level) two argument but solution is calling printGivenLevel(tree,level,ltr) GeeksforGeeks @khush: Thanks for pointing out the typo in the algorithm. We have corrected it now. codinglearner another soln …. correct me if wrong  
+/*LEVEL ORDER TRAVERSAL IN THE SPIRAL ORDER*/
+#include<stdio.h>
+#include<stdlib.h>
+struct node{
+int data;
+struct node *left,*right;
+};
+struct node* newNode(int d)
+{
+struct node *f=(struct node*)malloc(sizeof(struct node));
+f->data=d;
+f->left=f->right=NULL;
+return f;
+}
+int height(struct node* root)
+{
+if(root==NULL)
+return 0;
+else
+{
+int lheight=height(root->left);
+int rheight=height(root->right);
+if(lheight>=rheight)
+return (lheight+1);
+else
+return (rheight+1);
+}
+}
+void printlevel(struct node* node,int level)
+{
+if(node==NULL)
+return;
+if(level==1)
+printf("%d\t",node->data);
+else
+{
+        if(level%2==0)
+        {
+        printlevel(node->right,level-1);
+        printlevel(node->left,level-1);
+        }
+        else
+        {
+        printlevel(node->left,level-1);
+        printlevel(node->right,level-1);
+        }
+}
+}
+void printlevelorder(struct node *tree)
+{
+if(tree==NULL)
+return;
+for(int i=1;i<=height(tree);i++)
+printlevel(tree,i);
+}
+int main()
+{
+struct node* root=newNode(4);
+root->left=newNode(2);
+root->right=newNode(5);
+root->left->left=newNode(1);
+root->right->left=newNode(3);
+printlevelorder(root);
+return 0;
+}
+ codinglearner  
+/*LEVEL ORDER TRAVERSAL IN THE SPIRAL ORDER*/
+#include<stdio.h>
+#include<stdlib.h>
+struct node{
+int data;
+struct node *left,*right;
+};
+struct node* newNode(int d)
+{
+struct node *f=(struct node*)malloc(sizeof(struct node));
+f->data=d;
+f->left=f->right=NULL;
+return f;
+}
+int height(struct node* root)
+{
+if(root==NULL)
+return 0;
+else
+{
+int lheight=height(root->left);
+int rheight=height(root->right);
+if(lheight>=rheight)
+return (lheight+1);
+else
+return (rheight+1);
+}
+}
+void printlevel(struct node* node,int level)
+{
+if(node==NULL)
+return;
+if(level==1)
+printf("%d\t",node->data);
+else
+{
+        if(level%2==0)
+        {
+        printlevel(node->right,level-1);
+        printlevel(node->left,level-1);
+        }
+        else
+        {
+        printlevel(node->left,level-1);
+        printlevel(node->right,level-1);
+        }
+}
+}
+void printlevelorder(struct node *tree)
+{
+if(tree==NULL)
+return;
+for(int i=1;i<=height(tree);i++)
+printlevel(tree,i);
+}
+int main()
+{
+struct node* root=newNode(4);
+root->left=newNode(2);
+root->right=newNode(5);
+root->left->left=newNode(1);
+root->right->left=newNode(3);
+printlevelorder(root);
+return 0;
+}
+ Abhishek void printLevelOrderSpiral(node* root) { if (!root) return; deque nodesQueue; int nodesInCurrentLevel = 1; int nodesInNextLevel = 0; nodesQueue.push_back(root); bool dir = true; while (!nodesQueue.empty()) { node* currNode ; if(dir){ currNode = nodesQueue.front(); nodesQueue.pop_front(); } else { currNode = nodesQueue.back(); nodesQueue.pop_back(); } nodesInCurrentLevel–; if (currNode) { cout <data <left); nodesQueue.push_back(currNode->right); } else { nodesQueue.push_front(currNode->right); nodesQueue.push_front(currNode->left); } nodesInNextLevel += 2; } if (nodesInCurrentLevel == 0) { cout << endl; nodesInCurrentLevel = nodesInNextLevel; nodesInNextLevel = 0; dir = dir ? false: true; } } } Abhishek  
+void printLevelOrderSpiral(node* root) {
+  if (!root) return;
+  deque <node*> nodesQueue;
+  int nodesInCurrentLevel = 1;
+  int nodesInNextLevel = 0;
+  nodesQueue.push_back(root);
+  bool dir = true;
+  while (!nodesQueue.empty()) {
+    node* currNode ;
+    if(dir){
+       currNode = nodesQueue.front();
+       nodesQueue.pop_front();
+    }
+    else {
+       currNode = nodesQueue.back();
+       nodesQueue.pop_back();
+    }
+    nodesInCurrentLevel--;
+    if (currNode) {
+      cout << currNode->data << " ";
+      if(dir) {
+         nodesQueue.push_back(currNode->left);
+         nodesQueue.push_back(currNode->right);
+      }
+      else {
+         nodesQueue.push_front(currNode->right);
+         nodesQueue.push_front(currNode->left);
+      }
+      nodesInNextLevel += 2;
+    }
+    if (nodesInCurrentLevel == 0) {
+      cout << endl;
+      nodesInCurrentLevel = nodesInNextLevel;
+      nodesInNextLevel = 0;
+      dir = dir ? false: true;
+
+    }
+  }
+}
+ KK Excellent sollution  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Mad Coder SOLUTION USING 2 STACKS  
+#include<iostream>
+#include<cstdlib>
+using namespace std;
+struct tree
+{
+	int data;
+	struct tree * left;
+	struct tree * right;
+}*stack1[10]={NULL},*stack2[10]={NULL};
+int top1=0,top2=0;
+struct tree * newNode(int data)
+{
+	struct tree * temp;
+	temp=(struct tree *)malloc(sizeof(struct tree));
+	temp->data=data;
+	temp->left=NULL;
+	temp->right=NULL;
+	return temp;
+}
+void spiralorder(struct tree * n1,int level)
+{
+	if(!n1)
+		return;
+	if(level%2)
+	{
+		if(!top1)
+			return;
+		cout<<stack1[top1]->data<<" ";
+		if(n1->left)
+			stack2[++top2]=n1->left;
+		if(n1->right)
+			stack2[++top2]=n1->right;
+		while(--top1>0)
+			spiralorder(stack1[top1],level);
+		spiralorder(stack2[top2],level+1);
+		return;
+	}
+		if(!top2)
+			return;
+		cout<<stack2[top2]->data<<" ";
+		if(n1->right)
+			stack1[++top1]=n1->right;
+		if(n1->left)
+			stack1[++top1]=n1->left;
+		while(--top2>0)
+			spiralorder(stack2[top2],level);
+		spiralorder(stack1[top1],level+1);
+		return;
+}
+int main()
+{
+	struct tree * root1=newNode(7);
+	struct tree * n1=newNode(2);
+	struct tree * n2=newNode(30);
+	struct tree * n3=newNode(1);
+	struct tree * n4=newNode(5);
+	struct tree * n5=newNode(8);
+	struct tree * n6=newNode(4);
+	struct tree * n7=newNode(10);
+	root1->left=n1;
+	root1->right=n2;
+	n1->right=n3;
+	n2->left=n4;
+	n2->right=n5;
+	n3->left=n6;
+	n3->right=n7;
+	stack1[++top1]=root1;
+	spiralorder(root1,1);
+	return 0;
+}
+ pphanireddy  
+/****************************************************************************
+     * Print spirally
+     ****************************************************************************/
+    public void printSpiral() {
+	Stack<Node> spiralStack1 = new Stack<Node>();
+	Stack<Node> spiralStack2 = new Stack<Node>();
+	Node tempNode;
+	int stackIdx = 0;
+	int depth = 0;
+	if(root != null) {
+	    spiralStack1.push(root);
+	}
+	
+	while(!spiralStack1.isEmpty() || !spiralStack2.isEmpty()) {
+	    System.out.println("--------------( depth: " + depth + " )--------------");
+	    if (stackIdx == 0) {
+    	    	while (!spiralStack1.isEmpty()) {
+    	    	    tempNode = spiralStack1.pop();
+    	    	    if (tempNode != null) {
+	    		System.out.println("(" + tempNode.key + ", " + tempNode.val + ") ");
+	    		spiralStack2.push(tempNode.left);
+	    		spiralStack2.push(tempNode.right);
+    	    	    }
+    	    	    else {
+	    		System.out.println("(NULL, NULL) ");
+    	    	    } 
+    	    	}
+	    }
+	    else {
+    	    	while (!spiralStack2.isEmpty()) {
+    	    	    tempNode = spiralStack2.pop();
+    	    	    if (tempNode != null) {
+	    		System.out.println("(" + tempNode.key + ", " + tempNode.val + ") ");
+	    		spiralStack1.push(tempNode.right);
+	    		spiralStack1.push(tempNode.left);
+    	    	    }
+    	    	    else {
+	    		System.out.println("(NULL, NULL) ");
+    	    	    } 
+    	    	}
+	    }
+	    depth++;
+	    stackIdx = depth%2;
+	}
+	
+    }
+ root.node SOLUTION USING TWO STACKS  
+#include<iostream>
+#include<stack>
+#include<queue>
+
+   using namespace std;
+
+   struct Node {
+      Node(){}
+   
+      Node(int info){
+         this->info=info;	
+         left=NULL;
+         right=NULL;
+      }
+   	
+      int info;
+      Node * left;
+      Node * right;
+   };
+
+
+
+   void printLevelOrder(Node *root) 
+   {
+      queue<Node *> q;
+      Node *temp;
+      q.push(root);
+      while(!q.empty())
+      {	
+         temp=q.front();
+         cout<<temp->info<<" ";
+         q.pop();
+      
+         if(temp->left)
+            q.push(temp->left);
+      
+         if(temp->right)
+            q.push(temp->right);
+      }
+   
+   
+   
+   }
+
+   void printZigZag(Node *root);
+
+   int main()
+   {
+    
+      Node *root=new Node(1);
+      root->left=new Node(2);
+      root->right=new Node(3);
+      root->left->left=new Node(4);
+      root->left->right=new Node(5);
+      root->right->left=new Node(6);
+      root->right->right=new Node(7);
+      printLevelOrder(root);
+   
+      cout<<endl;
+      printZigZag(root);
+   
+      return 0;
+   
+   
+   }
+
+
+   void printZigZag(Node *root)
+   {
+      stack<Node *> s1,s2;
+      Node *temp;
+      s1.push(root);
+   
+   
+      while(!s1.empty() || !s2.empty())
+      {
+      
+         if(!s1.empty())
+         {
+            while(!s1.empty())
+            {
+               temp=s1.top();
+               s1.pop();
+               cout<<temp->info<<" ";
+            
+            
+               if(temp->left)
+                  s2.push(temp->left);
+            
+            
+               if(temp->right)
+                  s2.push(temp->right);
+            
+            }
+         
+         
+         }
+         else
+         {
+         
+            while(!s2.empty())
+            {
+               temp=s2.top();
+               s2.pop();
+               cout<<temp->info<<" ";
+            
+               
+		if(temp->right)
+                  s1.push(temp->right);
+					
+		if(temp->left)
+                  s1.push(temp->left);
+             
+            
+            
+            }			
+         
+         }
+      
+      }
+   
+   }
+ Phen0m A problem which could be easily coded by BFS O(n)-Time and O(n)-Memory.But a dumber iterative deepening algorithm is proposed . rammi we can easily do it by using two stacks http://www.linkedin.com/in/ramanawithu Venki Good idea, a ‘left to right stack’ and a ‘right to left stack’ can hold the items read on each alternative level. ska You don’t need to maintain ltr variable separately. Can do a % operation on level to decide which way to insert. Algorithmus Hi all, Can someone explain the complexity of above code ??? jalajb2k7 n^2 when tree is skewed  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Arindam Nayak If the question is only for Binary search tree and level has not be indicated by new line then i have one suggestion. We can store it in an array . If root is stored at index n then its left child will be stored at location 2n + 1 and right child will be stored at location 2n + 2 and print the whole array for level order traversal. Example: A / \ B C / \ / \ D E * F lets say C doesn’t have left child. Array Structure Index: 0 1 2 3 4 5 6 7 8 9 Element: A B C D E * F I am explaining only for single node. A is root node so its index is 0 B is left child so its index is 2*0 +1 = 1 D is left child of B so its index will be 2*(Index of B) + 1 = 2*1 +1 = 3 http://dzmitryhuba.blogspot.com Dzmitry Huba I described algorithm and implementation in my blog Traverse binary tree in level order by spiral http://dzmitryhuba.blogspot.com Dzmitry Huba We can traverse level by spiral using two stacks in O(n) time and O(n) space using the following algorithm: – Use two stacks (current and next). – Swap current and next stacks – At each level we maintain order (left to right or right to left) and change it with each level – Pop item from current stack, print it (or process in any other way) and push their children into next stack. If it is left to right order we first push right child and then left child; otherwise push left child first and then right child – Continue until next stack has items You can find C# code below: static IEnumerable<T> LevelOrderBySpiral<T>(TreeNode<T> root) where T:IComparable<T> { var curr = new Stack<TreeNode<T>>(); var next = new Stack<TreeNode<T>>(); var leftToRight = true; next.Push(root); do { ObjectExtensions.Swap(ref curr, ref next); while(curr.Count > 0) { var node = curr.Pop(); yield return node.Value; if (leftToRight) { Push(next, node.Right); Push(next, node.Left); } else { Push(next, node.Left); Push(next, node.Right); } } leftToRight = !leftToRight; } while (next.Count > 0); } static void Push<T>(Stack<T> stackWithMin, T value) where T: class { if (value != null) stackWithMin.Push(value); } nikhils Using a stack and a queue, this can be done in O(n) time and O(n) space complexity. Complexity of current solution is O(n^2) deb Can you provide a bit more explanation on this?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ tls I think we can add another check in the if condition apart from root == NULL. if ( root == NULL || level == 0) this will help eliminate to traverse all the left links, right links when level is 0. Any comments pl. let me know GeeksforGeeks @tls: Nice suggestion! We have modified the if condition. coderyogi I’m not able to see how level == 0 condition will ever be true. GeeksforGeeks @coderyogi: Your point is valid. We have removed level == 0 condition. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

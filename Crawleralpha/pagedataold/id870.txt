@@ -1,0 +1,318 @@
+Maximum circular subarray sum - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Maximum circular subarray sum Given n numbers (both +ve and -ve), arranged in a circle, fnd the maximum sum of consecutive number. Examples: 
+Input: a[] = {8, -8, 9, -9, 10, -11, 12}
+Output: 22 (12 + 8 - 8 + 9 - 9 + 10)
+
+Input: a[] = {10, -3, -4, 7, 6, 5, -4, -1} 
+Output:  23 (7 + 6 + 5 - 4 -1 + 10) 
+
+Input: a[] = {-1, 40, -14, 7, 6, 5, -4, -1}
+Output: 52 (7 + 6 + 5 - 4 - 1 - 1 + 40) There can be two cases for the maximum sum: Case 1: The elements that contribute to the maximum sum are arranged such that no wrapping is there. Examples: {-10, 2, -1, 5}, {-2, 4, -1, 4, -1}. In this case, Kadane’s algorithm will produce the result. Case 2: The elements which contribute to the maximum sum are arranged such that wrapping is there. Examples: {10, -12, 11}, {12, -5, 4, -8, 11}. In this case, we change wrapping to non-wrapping. Let us see how. Wrapping of contributing elements implies non wrapping of non contributing elements, so find out the sum of non contributing elements and subtract this sum from the total sum. To find out the sum of non contributing, invert sign of each element and then run Kadane’s algorithm. Our array is like a ring and we have to eliminate the maximum continuous negative that implies maximum continuous positive in the inverted arrays. Finally we compare the sum obtained by both cases, and return the maximum of the two sums. Thanks to ashishdey0 for suggesting this solution. Following is C implementation of the above method. 
+// Program for maximum contiguous circular sum problem
+#include<stdio.h>
+
+// Standard Kadane's algorithm to find maximum subarray sum
+int kadane (int a[], int n);
+
+// The function returns maximum circular contiguous sum in a[]
+int maxCircularSum (int a[], int n)
+{
+   // Case 1: get the maximum sum using standard kadane's algorithm
+   int max_kadane = kadane(a, n);
+
+   // Case 2: Now find the maximum sum that includes corner elements.
+   int max_wrap  =  0, i;
+   for(i=0; i<n; i++)
+   {
+        max_wrap += a[i]; // Calculate array-sum
+        a[i] = -a[i];  // invert the array (change sign)
+   }
+
+   // max sum with corner elements will be:
+   // array-sum - (-max subarray sum of inverted array)
+   max_wrap = max_wrap + kadane(a, n);
+
+   // The maximum circular sum will be maximum of two sums
+   return (max_wrap > max_kadane)? max_wrap: max_kadane;
+}
+
+// Standard Kadane's algorithm to find maximum subarray sum
+// See http://www.geeksforgeeks.org/archives/576 for details
+int kadane (int a[], int n)
+{
+    int max_so_far = 0, max_ending_here = 0;
+    int i;
+    for(i = 0; i < n; i++)
+    {
+        max_ending_here = max_ending_here + a[i];
+        if(max_ending_here < 0)
+            max_ending_here = 0;
+        if(max_so_far < max_ending_here)
+            max_so_far = max_ending_here;
+    }
+    return max_so_far;
+}
+
+/* Driver program to test maxCircularSum() */
+int main()
+{
+    int a[] =  {11, 10, -20, 5, -3, -5, 8, -13, 10};
+    int n = sizeof(a)/sizeof(a[0]);
+    printf("Maximum circular sum is %d\n", maxCircularSum(a, n));
+    return 0;
+}
+ Output: Maximum circular sum is 31 Time Complexity: O(n) where n is the number of elements in input array. Note that the above algorithm doesn’t work if all numbers are negative e.g., {-1, -2, -3}. It returns 0 in this case. This case can be handled by adding a pre-check to see if all the numbers are negative before running the above algorithm. Please write comments if you find any of the above codes/algorithms incorrect, or find other ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. Rocky Suppose there is an array A0…An A0…An-1, just run max_kadane. Java code: public static int getMaxSum(int[] a){ int n = a.length; if(n==0) return 0; if(n==1) return a[0]; int[] res = new int[2]; //res[0] is the final return and res[1] is the tmp sum in the first round getMaxSum(a, 0, n-1, res); getMaxSum(a, 0, n-2, res); return res[0]; } private static void getMaxSum(int[] a, int s, int e, int[] res){ int tmp = res[1]; for(int i=s; i<=e; i++){ tmp += a[i]; res[1] = tmp; if(tmp<0){ tmp = 0; }else{ res[0] = Math.max(res[0], tmp); } } } Amrapali I didn’t understood what do you mean by wrapping. Please explain a little Amrapali OK sorry I got it Sumit Monga Since we have to find the maximum circular sum in a contigous way, it means we have to drop that part of array which is having the most negative sum. so we have to find the maximum negative sum subarray or call it minimum sum subarray and subtract the sum of this subarray from the sum of all the elements of the array. The working code is given below(modifying the Kadane algo to find the maximum negative sum subarray): #include int max_circular_sum(int arr[],int n) { int i; int sum = 0; for(i = 0; i < n; i++) sum += arr[i]; int min_end_here,min_so_far; min_end_here = min_so_far = 0; for(i = 0; i 0) min_end_here = 0; if(min_so_far > min_end_here) min_so_far = min_end_here; } return ((min_so_far == 0)?sum:(sum – min_so_far)); } int main() { int arr[] = {-1, 40, -14, 7, 6, 5, -4, -1} ; printf(” %d “,max_circular_sum(arr,8)); } tczf1128 dosen’t work whan arr[] = {-1,-40,-14,7,-6,-5,-4,-1} Elizabeth Why not? The first round gives the max value of 7. Then consider wrapping, where the max_wrap is 0. Therefore the max sum is 7. Aindrilla The output from kadane’s algorithm fails when all of the number are negetive in this case max_so_far will remain 0 when it comes out from the loop … keep that check and return max among the negetive value which will be the answer possibly ……. another approach i have used to solve the circular array Aindrilla #include #include int kadane (int a[], int n) { int max_so_far = 0, max_ending_here = 0; int i; for(i = 0; i < 2*n-1; i++) { max_ending_here = max_ending_here + a[i%n]; if(max_ending_here < 0) max_ending_here = 0; if(max_so_far < max_ending_here) max_so_far = max_ending_here; } if(max_so_far==0) return (findMax(a,n)); else return max_so_far; } main() { int arr[7]={8,-8,9,-9,10,-11,12}; int max_sum; max_sum=kadane(arr,7); printf("max_sum= %d ",max_sum); getch(); } skulldude I think the given code will fail if all the numbers are negative. It will return 0 whereas the answer should be the maximum negative number. For eg: {-1,-2,-3,-4,-5} The output from the code would be 0 whereas the correct answer is -1. It can be corrected by running a pre-check to see if all the numbers are negative before running Kadane twice. GeeksforGeeks @skulldude: Thanks for pointing this out. We have added a note at the bottom of the post. shek8034 very nice explanation… Thanks GFG for such a nice post. vignesh m Case 1 will be covered in Case 2 , no need to compute separately for Case 1 and compare with result of Case 2. Max in Case 2 is the answer abhishek08aug sum< =0 fixed:  
+#include<stdio.h> 
+#include<stdlib.h> 
+ int maxCircularSum(int array[], int n) { int current_index; int sum=0, max_sum=0, subarray_start=-1;
+ int * repeat_elements=(int *)malloc(sizeof(int)*n*2); for(current_index=0; current_index<n; current_index++) { *(repeat_elements+current_index)=array[current_index]; *(repeat_elements+n+current_index)=array[current_index]; }
+ for(current_index=0; current_index<2*n-1;current_index++) { if(subarray_start>=0 && current_index-subarray_start+1>n) { sum=sum-repeat_elements[subarray_start]; subarray_start=subarray_start+1; if(sum>max_sum) { max_sum=sum; } while(subarray_start>=0 && repeat_elements[subarray_start]<0 && subarray_start<current_index-1) { sum=sum-repeat_elements[subarray_start]; subarray_start=subarray_start+1; if(sum>max_sum) { max_sum=sum; } } }
+ if(sum<=0) { sum=0; subarray_start=current_index; }
+ sum=sum+repeat_elements[current_index]; 
+ if(sum>max_sum) { max_sum=sum; }
+ if(subarray_start>=n) { return max_sum; } } return max_sum; }
+ int main() { int array[] = {100, -3, -4, 7, 60, 5, -4, -1}; int n = sizeof(array)/sizeof(array[0]); printf("Maximum circular sum is %d\n", maxCircularSum(array, n)); return 0; }  
+ abhishek08aug A more efficient approach. Space complexity O(n):  
+#include<stdio.h>
+#include<stdlib.h>
+
+int maxCircularSum(int array[], int n) {
+  int current_index;
+  int sum=0, max_sum=0, subarray_start=-1;
+
+  /* Create an array of double size than the given array and fill it twice with the elements as below: */
+  /* repeat_elements[i]=repeat_elements[n+i]=array[i] */ 
+  int * repeat_elements=(int *)malloc(sizeof(int)*n*2);
+  for(current_index=0; current_index<n; current_index++) {
+    *(repeat_elements+current_index)=array[current_index];
+    *(repeat_elements+n+current_index)=array[current_index];
+  }
+
+  /* subarray_start has the index of the start of subarray */
+  for(current_index=0; current_index<2*n-1;current_index++) {
+    /* If next element is taking the length of subarray more than n that means the end elements */
+    /* are repeating and so you need to move subarray_start forward and ignore the leftmost */
+    /* element in the subarray. If at any point sum becomes more than max_sum update the value */
+    /* of max_sum accordingly. Next the while loop is to remove all the negative values from the start. */ 
+    if(subarray_start>=0 && current_index-subarray_start+1>n) {
+      sum=sum-repeat_elements[subarray_start];
+      subarray_start=subarray_start+1;
+      if(sum>max_sum) {
+        max_sum=sum;
+      }
+      while(subarray_start>=0 && repeat_elements[subarray_start]<0 && subarray_start<current_index-1) {
+        sum=sum-repeat_elements[subarray_start];
+        subarray_start=subarray_start+1;
+        if(sum>max_sum) {
+          max_sum=sum;
+        }
+      }
+    }
+
+    /* If sum became zero in above step start a fresh and mark current_index as subarray_start. */
+    if(sum==0) {
+      subarray_start=current_index;
+    }
+    /* Add value at current_index in the sum. */
+    sum=sum+repeat_elements[current_index]; 
+
+    /* If sum becomes negative again start a fresh and mark current_index+1 the new subarray_start. */
+    if(sum<0) {
+      sum=0;
+      subarray_start=current_index+1;
+    }
+    /* If sum is greater than max_sum then update max_sum */
+    if(sum>max_sum) {
+      max_sum=sum;
+    }
+
+    /* If subarray_start moves beyond index n-1 that means you shall get the same results as you had in */
+    /* the first half of the array and so just return max_sum */
+    if(subarray_start>=n) {
+      return max_sum;
+    }
+  }
+  return max_sum;
+}
+
+/* Driver program to test maxCircularSum() */
+int main()
+{
+    int array[] =  {-1, 40, -14, 7, 6, 5, -4, -1};
+    int n = sizeof(array)/sizeof(array[0]);
+    printf("Maximum circular sum is %d\n", maxCircularSum(array, n));
+    return 0;
+}
+ Maximum circular sum is 52 abhishek08aug #include #include int maxCircularSum(int array[], int n) { int current_index; int sum=0, max_sum=0, subarray_start=-1; /* Create an array of double size than the given array and fill it twice with the elements as below: */ /* repeat_elements[i]=repeat_elements[n+i]=array[i] */ int * repeat_elements=(int *)malloc(sizeof(int)*n*2); for(current_index=0; current_index *(repeat_elements+current_index)=array[current_index]; *(repeat_elements+n+current_index)=array[current_index]; } /* subarray_start has the index of the start of subarray */ for(current_index=0; current_index<2*n-1;current_index++) { /* If next element is taking the length of subarray more than n that means the end elements */ /* are repeating and so you need to move subarray_start forward and ignore the leftmost */ /* element in the subarray. If at any point sum becomes more than max_sum update the value */ /* of max_sum accordingly. Next the while loop is to remove all the negative values from the start. */ if(subarray_start>=0 && current_index-subarray_start+1>n) { sum=sum-repeat_elements[subarray_start]; subarray_start=subarray_start+1; if(sum>max_sum) { max_sum=sum; } while(subarray_start>=0 && repeat_elements[subarray_start]<0 && subarray_start sum=sum-repeat_elements[subarray_start]; subarray_start=subarray_start+1; if(sum>max_sum) { max_sum=sum; } } } /* If sum became negative in above step start a fresh and mark current_index as subarray_start. */ if(sum<0) { sum=0; subarray_start=current_index; } /* Add value at current_index in the sum. */ sum=sum+repeat_elements[current_index]; /* If sum becomes negative again start a fresh and mark current_index+1 the new subarray_start. */ if(sum<0) { sum=0; subarray_start=current_index+1; } /* If sum is greater than max_sum then update max_sum */ if(sum>max_sum) { max_sum=sum; } /* If subarray_start moves beyond index n-1 that means you shall get the same results as you had in */ /* the first half of the array and so just return max_sum */ if(subarray_start>=n) { return max_sum; } } return max_sum; } /* Driver program to test maxCircularSum() */ int main() { int array[] = {-1, 40, -14, 7, 6, 5, -4, -1}; int n = sizeof(array)/sizeof(array[0]); printf(“Maximum circular sum is %d\n”, maxCircularSum(array, n)); return 0; } Tarzan This is a good approach abhishek08aug Brute Force: O(n^3)  
+#include<stdio.h>
+
+int maxCircularSum(int array[], int n) {
+  int i, j, k;
+  int sum;
+  int max_sum=0;
+  int max_sum_array_start=-1;
+  int max_sum_array_end=-1;
+
+  for(i=0; i<n; i++) {
+    for(j=0; j<n; j++) {
+      sum=0;
+      if(i==j) {
+        sum=array[i];
+      } else if(i<j) {
+        for(k=i; k<=j; k++) {
+          sum=sum+array[k];
+        }
+      } else if(i>j) {
+        for(k=i; k<n; k++) {
+          sum=sum+array[k];
+        }
+        for(k=0; k<=j; k++) {
+          sum=sum+array[k];
+        }
+      }
+      if(sum>max_sum) {
+        max_sum=sum;
+        max_sum_array_start=i;
+        max_sum_array_end=j;
+      }
+    }
+  }
+  printf("Subarray between array indexes %d and %d has the maximum sum %d\n", max_sum_array_start, max_sum_array_end, max_sum);
+  return max_sum;
+}
+
+int main()
+{
+    int array[] =  {11, 10, -20, 5, -3, -5, 8, -13, 10};
+    int n = sizeof(array)/sizeof(array[0]);
+    printf("Maximum circular sum is %d\n", maxCircularSum(array, n));
+    return 0;
+}
+ Subarray between array indexes 8 and 1 has the maximum sum 31 Maximum circular sum is 31 nikhil We can use Kadane algo to find minimum sum subarray. Now since this sum is less than or equal to zero, add this sum to the total to find the sum of the elements in the array excluding the elements in minimum sum. Aadarsh Take two arrays. rightSum[],leftSum[]. in rightSum, calculate cumulative sum from right. In leftsum, calculate cumulative sum from left. Find max value in rightSum = max1. Find max value in leftSum = max2. Ans is max1 + max2. Do tell me if this solution looks ok.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ algobard Take 10 -1 -2 14 as an example Expected Answer = 24. Acc to your solution LeftSum = 10 9 7 21 MaxL = 21 RightSum= 21 11 12 14 MaxR = 21 Answer = 42? Firstly, your solution assumes that the extreme elements will be a part of the solution. Plus, there’s a chance of including the same element again in the solution sum(duplicate)…as was the case in the example above. This my take on what I could comprehend from what you’ve written. Aadarsh Thanks algoboard for your comments on it. You are correct my solution wrong. Have come up with another solution. Just like in the actual solution posted here, i break it into 2 cases. case 1) Find max when not considering circular condition using http://www.geeksforgeeks.org/largest-sum-contiguous-subarray/ case 2) now consider circular condition max. Since we are considering circular, hence 1st and last element will always be part of the ans(very important point). a)Keep a maxL and maxR. for maxL find cumulative max from 0 to n-3 elements[we do not go till n-2 because then it would mean case 1 above ], lets its index be i,for maxR find cumulative from n-1 to i + 1; b)Repeat the above with calculating maxR from n-1 to 2, again let maxindex calculated be i, now find maxL n the same way from 0 to i-1 Return max(case 1, case2 (a), case 2(b))  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Aadarsh Correcting my above point in both case 2 a,b we return maxL + maxR considering example -1 40 -14 7 6 5 -4 -1 Case 1 returns 44 Case 2 a) maxL(cumulative max from left) = 43, index = 5) maxR = -1 maxL + maxR = 42 Case 2 b) maxR(cumulative max from right) = 13(index = 3), maxL = 39 maxL + maxR = 52 ans is max(44,42,52) Ganesh You can find java code here: /** * Given n numbers (both +ve and -ve), arranged in a circle, fnd the maximum sum of consecutive number. * Example: * Input: a[] = {-1, 40, -14, 7, 6, 5, -4, -1} * Output: 52 (7 + 6 + 5 – 4 – 1 – 1 + 40) * * @author GAPIITD * */ public class MaximumCircularSubarraySum { public static int max_kadane(int[] a, int size) { int max_sub_array = 0, sum = 0; for (int i : a) { sum += i; if (sum < 0) sum = 0; else if (max_sub_array < sum) max_sub_array = sum; } return max_sub_array; } /** * @param args */ public static void main(String[] args) { int arr[] = {-1, 40, -14, 7, 6, 5, -4, -1}; // get the maximum non wrapping sub array sum using standard kadane’s algorithm int max_kadane = max_kadane(arr, arr.length); int sum = 0; for (int i = 0; i < arr.length; i++) { sum += arr[i]; // Calculate array-sum arr[i] = -arr[i]; } // find out the sum of non contributing elements and subtract this sum from the total sum. // To find out the sum of non contributing, invert sign of each element and then run Kadane’s algorithm. // maximum wrapping sub array sum will be: // array-sum – (-max subarray sum of inverted array) sum += max_kadane(arr, arr.length); // The maximum circular sum will be maximum of two sums int max_circular_sub_array_sum = sum > max_kadane ? sum : max_kadane; System.out.println(max_circular_sub_array_sum); } } coderAce So I have the following strategy:Given an array of size N I iterate over the array a total 2*N-2 times applying the Kadane’s agorithm. The basic idea for indexing is to use index%N where index ranges from 0 to 2*N-2. That way I can circulate over the array and in a total od 2*N-2 iteratios will have the result. Please let me know if you find any bugs regarding this. Also how can it be optimised. Thanks #include <iostream> using namespace std; int Find_Max_CircularSum_Subarray(int *A, int N) { int max_so_far=0;int max_ending_here=0; for(int i=0;i<2*N-2;i++) { max_ending_here+=A[i%N]; if(max_ending_here<0) { max_ending_here=0; } if(max_so_far<max_ending_here) { max_so_far=max_ending_here; } } return max_so_far; } int main() { //int A[]={11, 10, -20, 5, -3, -5, 8, -13, 10}; int A[]={8, -8, 9, -9, 10, -11, 12}; cout << endl; cout<<Find_Max_CircularSum_Subarray(A,7)<<endl; return 0; } coderAce Ok..it will fail incase of all positive numbers, but that can be put up as a base case. Hence another O(n) pass with N-1 iterations. Total iterations=All numbers +ve check + Kadane’s =N-1 + 2*N-2=3*N-3 kartheek J Please check for input (100,-8,-40,-30,1) algobard If we make a copy of the array, append it to the original array and apply kadane’s algorithm to this newly formed array of 2n elements, wouldn’t it yield the same results? eg. array: 8, -8, 9, -9, 10, -11, 12 new array: 8, -8, 9, -9, 10, -11, 12, 8, -8, 9, -9, 10, -11, 12 answer : 12 + 8 – 8 + 9 – 9 + 10 TC- O(n) SC- O(n) Please let me know if I’m missing out on something!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ algobard Sorry. This won’t work. (This approach might consider the same element twice)  
+/* Paste your code here (You may delete these lines if not writing code) */
+ akshat215 the situtation of double counting a number can be avoided,by fixing the size of window(no. of elements) = array length algobard Oh yea! I guess so. Thanks http://friendmaybe.com pankaj just include break statement if max is again < 0 and isCircular to break while http://friendmaybe.com pankaj same Standard Kadane’s algorithm to find maximum subarray sum. keep index where sum has started adding. do following  
+/* Paste your code here (You may delete these lines if not writing code) */
+int i = 0;
+int start = 0;
+int max = 0;
+int max_so_far = 0;
+bool isCircular = false;
+while(1){
+ if(isCircular && i == start){
+  break;
+ }
+ max += A[i];
+ if(max < 0){
+  max = 0;
+  start = i+1;
+ } else if(max > max_so_far){
+   max_so_far = max;
+ }
+ i+=1;
+ if(i == n){
+  i = 0;
+  isCircular = true;
+ }
+}
+return max(max, max_so_far);
+
+}
+there may be bug as i am just writing in comment box
+
+ droy looks good to me.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ lambda For god’s sakes people, stop posting pagefull of source code. write your logic if you know the solution or post a link to github or where-ever you host your code. seeker7 // max sum with corner elements will be: // array-sum – (-max subarray sum of inverted array) max_wrap = max_wrap + kadane(a, n); For case 2 ,shouldn’t we subtract the kadane of the inverted array .. Please explain …  
+/* Paste your code here (You may delete these lines if not writing code) */
+ rajat talwar //============================================================================ // Name : Test.cpp // Author : Rajat // Version : // Copyright : Your copyright notice // Description : Hello World in C++, Ansi-style //============================================================================ #include #include “SuperClass.h” #include “Sub.h” using namespace std; int currentSum=0; int maxSum=0; int getMax(int arr[],int size); int updateCurrent(int val); int main() { int arr[]={-3,4,8,-4,-4,-4,2,1,0}; int result = getMax(arr,sizeof(arr)/sizeof(int)); cout<<"The max is "<description(); // cout << "Hello World" << endl; // prints Hello World return 0; } int getMax(int arr[],int size) { if(size<=0) return 0; int p,q,originalP; originalP=p=q=0; while(arr[p]<0) { p=(p+1)%size; if(p==originalP) return 0; } originalP=p; updateCurrent(arr[p]); cout<<"originalP is "<<originalP<=0) { cout<<"skipping ove positive p "<<p<<endl; prevP=p; p=(p+1)%size; if(p==originalP) { return maxSum; } updateCurrent(-arr[prevP]); } while(arr[p]<0) { cout<<"skipping over negative p "<<p<<endl; prevP = p; p=(p+1)%size; if(p==originalP) return maxSum; updateCurrent(-arr[prevP]); } } q=(q+1)%size; cout<<"incrementing q to "<<q<<endl; updateCurrent(arr[q]); } return maxSum; } int updateCurrent(int val) { currentSum+=val; cout<<"updating currentSum "<<currentSum<maxSum){ maxSum = currentSum; } return currentSum; } rajat talwar //corrected code #include using namespace std; int currentSum=0; int maxSum=0; int getMax(int arr[],int size); int updateCurrent(int val); int main() { //int arr[]={-3,4,8,-4,-4,-4,2,1,0}; int arr[]={1,1,1,1,1,1,1}; int result = getMax(arr,sizeof(arr)/sizeof(int)); cout<<"The max is "<description(); // cout << "Hello World" << endl; // prints Hello World return 0; } int getMax(int arr[],int size) { if(size<=0) return 0; int p,q,originalP; originalP=p=q=0; while(arr[p]<0) { p=(p+1)%size; if(p==originalP) return 0; } originalP=p; updateCurrent(arr[p]); cout<<"originalP is "<<originalP<=0) { cout<<"skipping ove positive p "<<p<<endl; prevP=p; p=(p+1)%size; if(p==originalP) { return maxSum; } updateCurrent(-arr[prevP]); } while(arr[p]<0) { cout<<"skipping over negative p "<<p<<endl; prevP = p; p=(p+1)%size; if(p==originalP) return maxSum; updateCurrent(-arr[prevP]); } } cout<<"incrementing q to "<<q<<endl; updateCurrent(arr[q]); } return maxSum; } int updateCurrent(int val) { currentSum+=val; cout<<"updating currentSum "<<currentSum<maxSum){ maxSum = currentSum; } return currentSum; } rajat talwar //corrected code #include using namespace std; int currentSum=0; int maxSum=0; int getMax(int arr[],int size); int updateCurrent(int val); int main() { //int arr[]={-3,4,8,-4,-4,-4,2,1,0}; int arr[]={1,1,1,1,1,1,1}; int result = getMax(arr,sizeof(arr)/sizeof(int)); cout<<"The max is "<<result; return 0; } int getMax(int arr[],int size) { if(size<=0) return 0; int p,q,originalP; originalP=p=q=0; while(arr[p]<0) { p=(p+1)%size; if(p==originalP) return 0; } originalP=p; updateCurrent(arr[p]); cout<<"originalP is "<<originalP<=0) { cout<<"skipping ove positive p "<<p<<endl; prevP=p; p=(p+1)%size; if(p==originalP) { return maxSum; } updateCurrent(-arr[prevP]); } while(arr[p]<0) { cout<<"skipping over negative p "<<p<<endl; prevP = p; p=(p+1)%size; if(p==originalP) return maxSum; updateCurrent(-arr[prevP]); } } cout<<"incrementing q to "<<q<<endl; updateCurrent(arr[q]); } return maxSum; } int updateCurrent(int val) { currentSum+=val; cout<<"updating currentSum "<<currentSum<maxSum){ maxSum = currentSum; } return currentSum; } rajat talwar //corrected code #include using namespace std; int currentSum=0; int maxSum=0; int getMax(int arr[],int size); int updateCurrent(int val); int main() { //int arr[]={-3,4,8,-4,-4,-4,2,1,0}; int arr[]={1,1,1,1,1,1,1}; int result = getMax(arr,sizeof(arr)/sizeof(int)); cout<<"The max is "<<result; return 0; } int getMax(int arr[],int size) { int p,q,originalP; if(size<=0) return 0; originalP=p=q=0; while(arr[p]<0) { p=(p+1)%size; if(p==originalP) return 0; } originalP=p; updateCurrent(arr[p]); cout<<"originalP value is "<<originalP<=0) { cout<<"skipping ove positive p "<<p<<endl; prevP=p; p=(p+1)%size; if(p==originalP) { return maxSum; } updateCurrent(-arr[prevP]); } while(arr[p]<0) { cout<<"skipping over negative p "<<p<<endl; prevP = p; p=(p+1)%size; if(p==originalP) return maxSum; updateCurrent(-arr[prevP]); } } cout<<"incrementing q to "<<q<<endl; updateCurrent(arr[q]); } return maxSum; } int updateCurrent(int val) { currentSum+=val; cout<<"updating currentSum "<<currentSum<maxSum){ maxSum = currentSum; } return currentSum; } anil arya  
+int maxCircularSum(int a[], int n)
+{
+    int max_so_far = a[0], max_ending_here = 0;
+    int i;
+    for(i = 0; i < 2*n; i++)
+    {
+        max_ending_here = max_ending_here + a[i%n];
+        if(max_so_far < max_ending_here)
+            max_so_far = max_ending_here;
+        if(max_ending_here < 0)
+            max_ending_here = 0;
+    }
+    return max_so_far;
+}
+ 
+/* Driver program to test maxCircularSum() */
+int main()
+{
+    int a[] =  {-11, -1, -20, -5, 3, -5, 8, -13, -10};
+    int n = sizeof(a)/sizeof(a[0]);
+    printf("Maximum circular sum is %d\n", maxCircularSum(a, n));
+     
+    return 0;
+}
+ avinash doesn’t work for all positive numbers like {1,1,1}, ans should be 3 but it provides 6 kartheek J Please check for the below input the solution will not work, {100,-8,-40,-30,1} Actual Output : 123 Expected Output :101 avinash I have one more solution that takes 4n pass ~O(n). New array is created like A0,A1,..An,A0,A1,..An & kandane algorithm is applied on whole array with two pointer end & start maintaining the difference i.e. (end-start) <= n by removing start elements. int MaxSubSumInCircularArr(int A[], int n) { int maxsum = INT_MIN; int currentsum = 0; int* B = new int[2*n]; for(int i =0; i < n; i++) { B[i] = A[i]; B[n+i] = A[i]; } int length = 0; for(int end =0; end < 2*n; end++) { if(B[end] > B[end]+currentsum) { currentsum = B[end]; length = 1; } else { currentsum = B[end]+currentsum; length++; } if(length > n) { length–; currentsum = currentsum – B[end-n]; int start = end-n+1; while(true) { if(currentsum < currentsum – B[start] && itr <= end) { currentsum = currentsum – B[start]; start++; length–; } else break; } } if(currentsum > maxsum) { maxsum = currentsum; } } return maxsum; } Please provide your inputs. avinash instead of itr above it should be start Varun Max subarray from circular array can be find only by running kadane algo once. Solution is very simple. 1. Find the index of most negative number in array lets say negIndex . ( If all number are positive then max sum is total sum of array ) 2. Find maxSubArray from negIndex+1 to negIndex-1 Eg. 10, -3, -4, 7, 6, 5, -4, -1 Here most negative index is 2 i.e -4 MaxSum ( 7 6 5 -4 -1 10 -3 ) is the answer which is 23 Proof is simple : In circular array biggest negative number will always contribute in decreasing the sum. Edge Case : Check if all number are negative then pick smallest negative number as answer. Aashish Your approach doesn’t seem to work when there are duplicated minimum elements. 10 -4 7 6 5 -3 -4 -1 Your approach is outputting: 20. This is because your approach applies Kadane starting from 7. But we should start from 10 to get maximum. VikasG I think you are thinking in the right direction but instead of just looking at negIndex, we should look at the range with the largest -ve sum and then just exclude that range from the remaining elements – this is what the solution in the article is proposing. frank For second case, i.e. for finding the sum when taking into consideration the wrapping, another way of looking at the problem can be: Find Max Contiguous between 1st to n/2th elements STARTING from 0. Let it be from 1 to i. ( 1 < i <= n/2) Also between n/2th to nth elements, STARTING from nth element. Let to be from j to n. ( n/2 < j < n) Now compare this to the one found when assumed that the array is non-circular. /* Paste your code here (You may delete these lines if not writing code) */ Psycho  
+// Program for maximum contiguous circular sum problem
+#include<stdio.h>
+
+// Standard Kadane's algorithm to find maximum subarray sum
+int kadane (int a[], int n);
+
+// The function returns maximum circular contiguous sum in a[]
+int maxCircularSum (int a[], int n) {
+   // Case 1: get the maximum sum using standard kadane's algorithm
+   int max_kadane = kadane(a, n), all_neg = 1;
+
+   // Case 2: Now find the maximum sum that includes corner elements.
+   int max_wrap  =  0, i;
+   for(i=0; i<n; i++) {
+     if ( a[i] >= 0 )
+       all_neg = 0 ;
+        max_wrap += a[i]; // Calculate array-sum
+        a[i] = -a[i];  // invert the array (change sign)
+   }
+
+   if ( all_neg )
+      return max_kadane ;
+   // max sum with corner elements will be:
+   // array-sum - (-max subarray sum of inverted array)
+   max_wrap = max_wrap + kadane(a, n);
+
+   // The maximum circular sum will be maximum of two sums
+   return (max_wrap > max_kadane)? max_wrap: max_kadane;
+}
+
+// Standard Kadane's algorithm to find maximum subarray sum
+// See http://www.geeksforgeeks.org/archives/576 for details
+int kadane (int a[], int n)
+{
+    int max_so_far = a[0], max_ending_here = 0;
+    int i;
+    for(i = 0; i < n; i++)
+    {
+        max_ending_here = max_ending_here + a[i];
+        if(max_so_far < max_ending_here)
+            max_so_far = max_ending_here;
+        if(max_ending_here < 0)
+            max_ending_here = 0;
+    }
+    return max_so_far;
+}
+
+/* Driver program to test maxCircularSum() */
+int main()
+{
+    int a[] =  {-11, -1, -20, -5, 3, -5, 8, -13, -10};
+    int n = sizeof(a)/sizeof(a[0]);
+    printf("Maximum circular sum is %d\n", maxCircularSum(a, n));
+    //printf("Maximum circular sum is %d\n", kadane(a, n));
+    return 0;
+}
+
+ Psycho This kanade cannot resolve the case when all elements are negative. Abhinav Batra Instead of running Kadane algorithm two times, Just place one more copy of the same array after the ending of the array and then apply Kadane’s algorithm. In case the maximal subarray’s sum = sum of new array return the original array sum else return the sum obtained by Kadane’s algorithm Kartik @Abhinav Batra: Thanks for sharing your thoughts. Please provide the code or pseudo code. kailash nope…it doesn’t work in…check your algorithm for the following case: {10, -3, -4, 7, 6, 5, -4, -1}  
+/* Paste your code here (You may delete these lines if not writing code) */
+ alok just do return (max_wrap >= max_kadane)? max_wrap: max_kadane; for the equality case …(overall excellent work.) rahul @alok..If both are equal den Max_kadane will be returned Its no problem becoz we have to send one…No need of equality ..its take care ..  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Prateek Kumar Verma Good problem….If u have done it for normal array then try that logic for some circular array,see what role is circular array playing here……you will come up with the logic…. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

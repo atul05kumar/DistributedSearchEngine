@@ -1,0 +1,288 @@
+Find the number of islands - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find the number of islands Given a boolean 2D matrix, find the number of islands. This is an variation of the standard problem: “Counting number of connected components in a undirected graph”. Before we go to the problem, let us understand what is a connected component. A connected component of an undirected graph is a subgraph in which every two vertices are connected to each other by a path(s), and which is connected to no other vertices outside the subgraph. For example, the graph shown below has three connected components. A graph where all vertices are connected with each other, has exactly one connected component, consisting of the whole graph. Such graph with only one connected component is called as Strongly Connected Graph. The problem can be easily solved by applying DFS() on each component. In each DFS() call, a component or a sub-graph is visited. We will call DFS on the next un-visited component. The number of calls to DFS() gives the number of connected components. BFS can also be used. What is an island? A group of connected 1s forms an island. For example, the below matrix contains 5 islands 
+	                {1, 1, 0, 0, 0},
+                        {0, 1, 0, 0, 1},
+                        {1, 0, 0, 1, 1},
+                        {0, 0, 0, 0, 0},
+                        {1, 0, 1, 0, 1}
+ A cell in 2D matrix can be connected to 8 neighbors. So, unlike standard DFS(), where we recursively call for all adjacent vertices, here we can recursive call for 8 neighbors only. We keep track of the visited 1s so that they are not visited again. 
+// Program to count islands in boolean 2D matrix
+
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+
+#define ROW 5
+#define COL 5
+
+// A function to check if a given cell (row, col) can be included in DFS
+int isSafe(int M[][COL], int row, int col, bool visited[][COL])
+{
+    return (row >= 0) && (row < ROW) &&     // row number is in range
+           (col >= 0) && (col < COL) &&     // column number is in range
+           (M[row][col] && !visited[row][col]); // value is 1 and not yet visited
+}
+
+// A utility function to do DFS for a 2D boolean matrix. It only considers
+// the 8 neighbors as adjacent vertices
+void DFS(int M[][COL], int row, int col, bool visited[][COL])
+{
+    // These arrays are used to get row and column numbers of 8 neighbors 
+    // of a given cell
+    static int rowNbr[] = {-1, -1, -1,  0, 0,  1, 1, 1};
+    static int colNbr[] = {-1,  0,  1, -1, 1, -1, 0, 1};
+
+    // Mark this cell as visited
+    visited[row][col] = true;
+
+    // Recur for all connected neighbours
+    for (int k = 0; k < 8; ++k)
+        if (isSafe(M, row + rowNbr[k], col + colNbr[k], visited) )
+            DFS(M, row + rowNbr[k], col + colNbr[k], visited);
+}
+
+// The main function that returns count of islands in a given boolean
+// 2D matrix
+int countIslands(int M[][COL])
+{
+    // Make a bool array to mark visited cells.
+    // Initially all cells are unvisited
+    bool visited[ROW][COL];
+    memset(visited, 0, sizeof(visited));
+
+    // Initialize count as 0 and travese through the all cells of
+    // given matrix
+    int count = 0;
+    for (int i = 0; i < ROW; ++i)
+        for (int j = 0; j < COL; ++j)
+            if (M[i][j] && !visited[i][j]) // If a cell with value 1 is not
+            {                              // visited yet, then new island found
+                DFS(M, i, j, visited);     // Visit all cells in this island.
+                ++count;                   // and increment island count
+            }
+
+    return count;
+}
+
+// Driver program to test above function
+int main()
+{
+    int M[][COL]= {  {1, 1, 0, 0, 0},
+        {0, 1, 0, 0, 1},
+        {1, 0, 0, 1, 1},
+        {0, 0, 0, 0, 0},
+        {1, 0, 1, 0, 1}
+    };
+
+    printf("Number of islands is: %d\n", countIslands(M));
+
+    return 0;
+}
+ Output: Number of islands is: 5 Time complexity: O(ROW x COL) Reference: http://en.wikipedia.org/wiki/Connected_component_%28graph_theory%29 Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: Graph Tweet Writing code in comment? Please use ideone.com and share the link here. Aditya Murgai // Program to count islands in boolean 2D matrix #include #include #include #define ROW 5 #define COL 5 void countRec(bool aux[][COL],int i ,int j) { printf(“i=%d j=%dn”, i,j); if((i>=ROW)||(j>=COL)||(i<0)||(j<0)||(aux[i][j]==0)) return; aux[i][j]=0; countRec(aux,i+1 ,j); countRec(aux,i ,j+1); countRec(aux,i+1 ,j+1); countRec(aux,i-1 ,j); countRec(aux,i-1 ,j+1); countRec(aux,i-1 ,j-1); countRec(aux,i+1 ,j-1); countRec(aux,i ,j-1); } int countIslands(int M[][COL]) { // Make a bool array to mark visited cells. // Initially all cells are unvisited bool visited[ROW][COL]; memset(visited, 0, sizeof(visited)); int count=0; for (int i = 0; i < ROW; ++i) for (int j = 0; j < COL; ++j) { visited[i][j]=M[i][j]; } for (int i = 0; i < ROW; ++i) for (int j = 0; j < COL; ++j) { if(visited[i][j]) { count++; countRec(visited,i ,j); } } return count; } // Driver program to test above function int main() { int M[][COL]= { {1, 1, 0, 0, 0}, {0, 1, 0, 0, 1}, {1, 0, 0, 1, 1}, {0, 0, 0, 0, 0}, {1, 0, 1, 0, 1} }; printf("Number of islands is: %dn", countIslands(M)); return 0; } cooldude i gave the same answer that is provided here in amazon written test and the idiots rejected me without asking that u can optimize the solution Vijay Apurva we can do this with out any extra space … #include #include #define ROW 5 #define COL 5 bool isSafe(int M[ROW][COL], int row, int col) { if((row >= 0) && (row = 0) && (col < COL)){ if(M[row][col]==1) return true ; return false ; } return false ; } void DFS(int M[ROW][COL], int row, int col) { int rowNbr[] = {-1, -1, -1, 0, 0, 1, 1, 1}; int colNbr[] = {-1, 0, 1, -1, 1, -1, 0, 1}; M[row][col]=2; for (int k = 0; k < 8; k++) if (isSafe(M, row + rowNbr[k], col + colNbr[k])){ DFS(M, row + rowNbr[k], col + colNbr[k]); } } int countIslands(int M[ROW][COL]) { int count = 0; for (int i = 0; i < ROW; ++i) for (int j = 0; j < COL; ++j) if (M[i][j]==1) { DFS(M, i, j); ++count; } return count; } int main() { int M[ROW][COL]= { {1, 1, 0, 0, 0}, {0, 1, 0, 0, 1}, {1, 0, 0, 1, 1}, {0, 0, 0, 0, 0}, {1, 1, 1, 1, 1} }; printf("Number of islands is: %dn", countIslands(M)); return 0; } Bhagwat Singh use of static : its donot take extra memory at each invocation it only takes once in all . Bhagwat Singh one time initialization vivek #include #include #include using namespace std; #define C 5 #define R 5 int allvisited(set&s) { int i; for( i=0;i<C&&!s.insert(i).second;i++); return (i==C); } int no_island(int a[][C]) { sets; stackS; int i; int count =0; S.push(0); while(!allvisited(s)) { while(!S.empty()) { i = S.top(); S.pop(); if(s.insert(i).second==true) { for(int j=0;j<C;j++) { if(j==i)continue; if(a[i][j]&&s.insert(j).second==true) { S.push(j); } } } } count++; } return count; } int main() { int M[][C]= { {1, 1, 0, 0, 0}, {0, 1, 0, 0, 1}, {1, 0, 0, 1, 1}, {0, 0, 0, 0, 0}, {1, 0, 1, 0, 1} }; cout<<"Number of islands is "<<no_island(M)<<endl; return 0; } Prateek Sharma python Code……  
+def recursion(a,i,j):
+    if i>=0 and i<len(a) and j>=0 and j<len(a[i]):
+        if a[i][j] ==1:
+            a[i][j] =2
+            recursion(a,i,j+1)
+            recursion(a,i,j-1)
+            recursion(a,i+1,j)
+            recursion(a,i-1,j)
+            recursion(a,i-1,j-1)
+            recursion(a,i-1,j+1)
+            recursion(a,i+1,j-1)
+            recursion(a,i+1,j+1)
+        
+            
+def findingIslands(a):
+    count =0
+    for i in range(len(a)):
+        for j in range(len(a[i])):
+            if a[i][j] ==1:
+                count = count+1
+                recursion(a,i,j)
+    print "Number of Islands:" +str(count)
+def main():
+    array =[[1,0,1],
+            [1,1,1],
+            [0,0,1]]
+    findingIslands(array)
+if __name__ == '__main__':
+    main()
+ ravi plzzzz help how to implement above code by adjency list plzzzzzzz helpppp http://myvedham.blogspot.in Karthic Check the following page for java implementation without recursion.. http://myvedham.blogspot.in/2013/03/find-number-of-islands-connected-1s-java.html?view=sidebar Tahir My program is compiling but i cannot got the accourate result because i think so there is some mistake for returning the function value,Please correct it and send back to me.  
+/* 
+
+#include
+#include
+#include
+#include
+#include
+#define ROW 10
+#define COL 10
+int markIsland(int M[][COL], int i, int j, int m, int n);
+int countIslands(int M[][COL], int m, int n);
+
+int markIsland(int M[][COL], int i, int j, int m, int n)
+{
+M[i][j] = -1;
+
+if(i-1 >= 0)
+{
+
+if(j-1 >= 0 && M[i-1][j-1] == 1)
+markIsland(M, i-1, j-1, m, n);
+
+if(M[i-1][j] == 1)
+markIsland(M, i-1, j, m, n);
+
+if(j+1 < n && M[i-1][j+1] == 1)
+markIsland(M, i-1, j+1, m, n);
+}
+
+if(i+1 = 0 && M[i+1][j-1] == 1)
+markIsland(M, i+1, j-1, m, n);
+
+if(M[i+1][j] == 1)
+markIsland(M, i+1, j, m, n);
+
+if(j+1 = 0 && M[i][j-1] == 1)
+markIsland(M, i, j-1, m, n);
+
+if(j+1 < n && M[i][j+1] == 1)
+markIsland(M, i, j+1, m, n);
+}
+
+int countIslands(int M[][COL], int m, int n)
+{
+int count = 0;
+
+for(int i=0; i<m; i++)
+for(int j=0; j<n; j++)
+if(M[i][j] == -1)
+M[i][j] = 1;
+{
+count++;
+
+}
+
+return count;
+}
+
+int main()
+{
+
+int m, i,j,n, c, d,f, matrix[10][10];
+m = ROW;
+n = COL;
+
+srand(time(NULL));
+printf("Enter the number of rows and columns of matrix\n ");
+
+for( i = 0 ; i < m ; i++ )
+{
+for( j = 0 ; j < n ; j++ )
+{
+printf("%d\t",rand() % 2);
+}
+}
+
+printf("Number of islands is: %d ", countIslands(matrix, m, n));
+getch();
+
+}
+Paste your code here (You may delete these lines if not writing code) */
+ Tahir #include #include #include #include #include Palash It can be done in O(1) space by modifying the matrix and then restoring it back. Palash Oh, but I didn’t take into account the stack/queue space. It’ll still be O(n^2). I just wanted to say that visited array can be avoided. MJ Can you plz explain the role of the below two arrays and how they are computed? static int rowNbr[] = {-1, -1, -1, 0, 0, 1, 1, 1}; static int colNbr[] = {-1, 0, 1, -1, 1, -1, 0, 1}; Also plz explain the below two lines more elaborately. I am not able to understand it “A cell in 2D matrix can be connected to 8 neighbors. So, unlike standard DFS(), where we recursively call for all adjacent vertices, here we can recursive call for 8 neighbors only”  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Aashish The two arrays are used to compute the neighbors of a cell. The values of the arrays are added to the X and Y co-ordinates of a cell to get its neighbor. A cell can be connected to another cell only through 8 ways. So, start from any cell, try to cover all connected cells which contain 1. e.g. If a cell is located at M[row][col], its neighbor can be calculated by: M[row + rowNbr[i] ][col + colNbr[i] ] Where 0 <= i < 8 Vibhu Tiwari Basically these 8 neighbors identify the 8 directions that is N,S,NW,NE,SW,SE,W,E in order to check whether the node is connected to any of these adjacent neighbors in all these directions sreeram we can optimise by reducing the visited matrix by replacing 1 by 0 when ever we are done with it ….(of course it modifies the original matrix) geek complexity is wrong  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Rahul my code.. amortized analysis gives complexity of O(Row x Col)  
+/* Paste your code here (You may delete these lines if not writing code) */
+
+#include<iostream>
+using namespace std;
+#define R 6
+#define C 6
+
+int findIsland(int M[R][C] , int Cp[R][C]);
+void explore(int M[R][C] , int Cp[R][C] , int i, int j);
+
+main()
+{
+int island = 0;
+int M[R][C] =	{
+				{1,1,0,0,1,0},
+				{1,0,0,0,1,0},
+				{1,1,0,1,1,0},
+				{0,0,1,0,0,1},
+				{0,0,1,1,0,1},
+				{1,1,0,1,1,1}
+				};
+
+int Cp[R][C] =	{
+				{0,0,0,0,0,0},
+				{0,0,0,0,0,0},
+				{0,0,0,0,0,0},
+				{0,0,0,0,0,0},
+				{0,0,0,0,0,0},
+				{0,0,0,0,0,0}	
+				};
+				
+island = findIsland(M,Cp);
+cout<<island;
+}
+
+int findIsland(int M[R][C] , int Cp[R][C])
+{
+int count = 0;
+int i, j;
+for(i=0;i<R;i++)
+	for(j=0;j<C;j++)
+		{
+		if((M[i][j]==1) && (Cp[i][j] == 0))
+			{
+			explore(M, Cp, i, j);
+			count++;
+			}
+		}
+return count;
+}
+
+void explore(int M[R][C] , int Cp[R][C] , int i, int j)
+{
+if(i>=0 && i<R && j>=0 && j<C)
+	{
+		if(M[i][j] == 0)
+			return;
+		else
+		{
+			Cp[i][j] = 1;
+			if((Cp[i+1][j] != 1) && i+1>=0 && i+1<R && j>=0 && j<C)
+			explore(M, Cp, i+1, j);
+			if((Cp[i][j+1] != 1) && i>=0 && i<R && j+1>=0 && j+1<C)
+			explore(M, Cp, i, j+1);
+			if((Cp[i-1][j] != 1) && i-1>=0 && i-1<R && j>=0 && j<C)
+			explore(M, Cp, i-1, j);
+			if((Cp[i][j-1] != 1) && i>=0 && i<R && j-1>=0 && j-1<C)
+			explore(M, Cp, i, j-1);
+		}
+	}
+}
+ sreeram i think for a particular position (i,j) (i-1,j-1),(i-1,j), (i-1,j+1) ,(i,j-1) are redundant positions because we are visiting in that order only Kartik @sreeram: Thanks for sharing your thoughts. Your point seems to be valid. I think, we can reduce the size of rowNbr[] and colNbr[] to 4. Also, the for loop now runs 4 times.  
+void DFS(int M[][COL], int row, int col, bool visited[][COL])
+{
+    static int rowNbr[] = {0,  1, 1, 1};
+    static int colNbr[] = {1, -1, 0, 1};
+    
+    visited[row][col] = true;
+    
+    for (int k = 0; k < 4; ++k)
+        if (isSafe(M, row + rowNbr[k], col + colNbr[k], visited) )
+            DFS(M, row + rowNbr[k], col + colNbr[k], visited);
+}
+ I will check it further and update the post. shek8034 @kartik : The method in the post is 100% correct. These values are not redundant. We have to check all the 8 neighbours. Verify it by this example M[][C]= { {1, 0, 0, 1, 1}, {1, 0, 1, 0, 0}, {1, 0, 0, 1, 0}, {1, 1, 1, 1, 1}, {0, 0, 0, 0, 0} }; Total islands should be 1. But if you consider only 4 neighbours, it will fail and gives 2 islands. Thanks Rahul @shreeram: its not redundant.. you can try the code.. a2 It will fail for an input like this –  
+int M[][COL]= 
+     {  {1, 1, 0, 0, 0},
+        {0, 1, 0, 1, 0},
+        {1, 0, 1, 1, 0},
+        {0, 0, 0, 0, 0},
+        {1, 0, 1, 0, 1}
+    };
+ a2 The ‘ 1 ‘ in the 2nd row and 4th column has been treated as an extra island. So the mentioned positions are necessary ! http://codes-to-problem.blogspot.in/ niraj http://codes-to-problem.blogspot.in/2012/07/given-2d-matrix-which-has-only-1s-and.html Akshay Jindal @Neeraj: thanks for the wonderful approach, the logic behind the implementation in the blog is the same as mentioned above in the post, but implementation is a lot easier and clear in the blog post. Cheers Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,515 @@
+Given a binary tree, print all root-to-leaf paths - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Given a binary tree, print all root-to-leaf paths For the below example tree, all root-to-leaf paths are: 10 –> 8 –> 3 10 –> 8 –> 5 10 –> 2 –> 2 Algorithm: Use a path array path[] to store current root to leaf path. Traverse from root to all leaves in top-down fashion. While traversing, store data of all nodes in current path in array path[]. When we reach a leaf node, print the path array. 
+#include<stdio.h>
+#include<stdlib.h>
+ 
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+   int data;
+   struct node* left;
+   struct node* right;
+};
+
+/* Prototypes for funtions needed in printPaths() */ 
+void printPathsRecur(struct node* node, int path[], int pathLen);
+void printArray(int ints[], int len);
+
+/*Given a binary tree, print out all of its root-to-leaf
+ paths, one per line. Uses a recursive helper to do the work.*/
+void printPaths(struct node* node) 
+{
+  int path[1000];
+  printPathsRecur(node, path, 0);
+}
+
+/* Recursive helper function -- given a node, and an array containing
+ the path from the root node up to but not including this node,
+ print out all the root-leaf paths.*/
+void printPathsRecur(struct node* node, int path[], int pathLen) 
+{
+  if (node==NULL) 
+    return;
+
+  /* append this node to the path array */
+  path[pathLen] = node->data;
+  pathLen++;
+
+  /* it's a leaf, so print the path that led to here  */
+  if (node->left==NULL && node->right==NULL) 
+  {
+    printArray(path, pathLen);
+  }
+  else 
+  {
+    /* otherwise try both subtrees */
+    printPathsRecur(node->left, path, pathLen);
+    printPathsRecur(node->right, path, pathLen);
+  }
+}
+
+
+/* UTILITY FUNCTIONS */
+/* Utility that prints out an array on a line. */
+void printArray(int ints[], int len) 
+{
+  int i;
+  for (i=0; i<len; i++) 
+  {
+    printf("%d ", ints[i]);
+  }
+  printf("\n");
+}    
+
+/* utility that allocates a new node with the
+   given data and NULL left and right pointers. */   
+struct node* newnode(int data)
+{
+  struct node* node = (struct node*)
+                       malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+ 
+  return(node);
+}
+ 
+/* Driver program to test above functions*/
+int main()
+{ 
+ 
+  /* Constructed binary tree is
+            10
+          /   \
+        8      2
+      /  \    /
+    3     5  2
+  */
+  struct node *root = newnode(10);
+  root->left        = newnode(8);
+  root->right       = newnode(2);
+  root->left->left  = newnode(3);
+  root->left->right = newnode(5);
+  root->right->left = newnode(2);
+ 
+  printPaths(root);
+ 
+  getchar();
+  return 0;
+}
+ Time Complexity: O(n) References: http://cslibrary.stanford.edu/110/BinaryTrees.html Please write comments if you find any bug in above codes/algorithms, or find other ways to solve the same problem.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. prashant jha use recursion and vector for path here is my code http://ideone.com/idIpnx Sabitaa Bhabhi why we are not using dynamic array void printPaths(struct node* node) { int path[]={0}; printPathsRecur(node, path, 0); } Babajj Just use a stack having a print function. -Push current node is not null -Print stack if its a leaf node -Recurse left -Recurse right -Pop stack Babajj Just use a stack having a print function. -Push current node is not null -Print stack if its a leaf node -Recurse left -Recurse right -Pop stack shravan Each of the path[] array may contain O(h) elements, where h is the height of the tree. so process these elements only the algorithm takes O(n*h) time. how we can say the algorithm runs in O(n)? Jonathan Each node is traversed only once throughout the tree. O(n*h) would occur only when nodes traversed multiple times. Vivek hi geeksforgeeks .. why waste so much space? we know that the length of any path wont be greater than the height of the tree. so we can initialize the array “path” with length = height of tree instead of predetermined value. here’s my opmtimized solution below Vivek #include #include struct node { int data; struct node *left; struct node *right; }; void root_leaf(struct node *root, int *arr, int e) { int i; if(root) { arr[e]=root->data; if(!root->right && !root->left) { for(i=0;ileft, arr, e+1); root_leaf(root->right, arr, e+1); } } int max(int a, int b) { return a>b?a:b; } int find_height(struct node *root) { if(root) { return 1+max(find_height(root->left),find_height(root->right)); } else return 0; } void print_path(struct node *root) { int h = find_height(root); int *arr = (int *)malloc(sizeof(int)*h); root_leaf(root, arr, 0); } struct node* newnode(int data) { struct node* node = (struct node*) malloc(sizeof(struct node)); node->data = data; node->left = NULL; node->right = NULL; return(node); } /* Driver program to test above functions*/ int main() { /* Constructed binary tree is 10 / 8 2 / / 3 5 2 */ struct node *root = newnode(10); root->left = newnode(8); root->right = newnode(2); root->left->left = newnode(3); root->left->right = newnode(5); root->right->left = newnode(2); print_path(root); getchar(); return 0; } kumar Same question has been asked on FB’s interview, with constraint that use iterative rather recursive. Rahul Mahale void PrintArr(int *arr,int len) { static int pathNo=0; int i; printf(“\nPath %d”,++pathNo); for(i=0;i { printf(" %d ",arr[i]); } return; } void PrintR2LPaths(BST *root,int pathArr[],int pathLen) { if(root==NULL) return; pathArr[pathLen]=root->data; pathLen++; if(root->left==NULL && root->right==NULL) { PrintArr(pathArr,pathLen); return; } else { PrintR2LPaths(root->left,pathArr,pathLen); PrintR2LPaths(root->right,pathArr,pathLen); } } Rahul Mahale  
+
+void PrintArr(int *arr,int len)
+{
+	static int pathNo=0;
+	int i;
+	
+	printf("\nPath %d",++pathNo);
+	
+	for(i=0;i<len;i++)
+	{
+		printf(" %d ",arr[i]);
+	}
+	
+	return;
+}
+
+void PrintR2LPaths(BST *root,int pathArr[],int pathLen)
+{
+	if(root==NULL)
+	  return;
+	  
+	pathArr[pathLen]=root->data;
+	pathLen++;
+	
+	if(root->left==NULL && root->right==NULL)
+	{
+		PrintArr(pathArr,pathLen);
+		return;
+	}
+	else
+	{
+		PrintR2LPaths(root->left,pathArr,pathLen);
+		PrintR2LPaths(root->right,pathArr,pathLen);
+	}
+}
+ shek8034 Simple and working code  
+/* void printPaths(node* root, int len)
+{
+  static int path[1000];
+  if(root == NULL)
+        return;
+  path[len++] = root->data;
+  if (root->left==NULL && root->right==NULL)
+  {
+    int i;
+	for(i=0;i<len;i++)
+		printf("%d ",path[i]);
+	printf("\n");
+  }
+  else
+  {
+    /* otherwise try both subtrees */
+    printPaths(root->left,len);
+    printPaths(root->right,len);
+  } 
+} */
+ Nikhil Agrawal Iterative version for printing all possible paths from root to leafs:  
+public static void printAllPathToLeafNonRecursive(Node root) 
+{
+    if (root == null) 
+    {
+        return;
+    }
+
+    Queue<Object> q = new LinkedList<Object>();
+    q.add(root);
+    q.add(root.value + "");
+
+    while(!q.isEmpty()){
+
+        Node head = (Node) q.remove();
+        String headPath = (String) q.remove();
+
+        if(head.left==null && head.right==null){
+            System.out.println(headPath);
+            continue;
+        }
+
+        if(head.left!=null){
+            String leftStr =  headPath + "->" + head.left.value;
+            q.add(head.left);
+            q.add(leftStr);
+        }
+
+        if(head.right!=null){
+            String rightStr =  headPath + "->" + head.right.value;
+            q.add(head.right);
+            q.add(rightStr);
+        }
+    }
+
+
+}
+ pavansrinivas nyc soln… yo-gi void printAllPaths(struct node* root, int *arr, int len) { if(root == NULL) return; arr[len++] = root->data; if((root->left == NULL) && (root->right==NULL)) { int i=0; for(i=0; i left, arr, len); printAllPaths(root->right, arr, len); }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ hemant Correct me if I am wrong. Assume a BST and insert 10,5,18,15,12 Now consider it to be a BT and run the logic given in the original post. I guess it will give a crash because it will try to access the right of node with data 15 which is NULL Hence a slight modification required. Guys, please share your comments int Roofleaf[6]= {0};// instead of 6 we can take height of the tree void print_array(int size) { int i; if(size == -1) return; for(i=0; idata; if((root->left == NULL) && (root->right == NULL)) { print_array(i); return; } if(root->left) printf_root_to_leaf(root->left,i+1); if(root->right) printf_root_to_leaf(root->right,i+1); } hemant I wonder why i always end up pasting the half code though i paste it completely… anyways my point was we should add conditions like if(root->left) printf_root_to_leaf(root->left,i+1) if(root->right) printf_root_to_leaf(root->right,i+1) hemant Not again……I wonder why i always end up pasting the half code though i paste it completely… anyways my point was we should add conditions like if(root->left) printf_root_to_leaf(root->left,i+1) if(root->right) printf_root_to_leaf(root->right,i+1) GeeksforGeeks @hemant: Please paste your code between sourcecode tags. Replace the following lines with your code and keep the sourcecode tags. /* Paste your code here (You may delete these lines if not writing code) */  
+/* Paste your code here (You may delete these lines if not writing code) */
+ hemant  
+void print_array(int size)
+{
+    int i;
+        for(i=0; i<=size; i++)
+     printf("%d ",Roofleaf[i]);
+
+     printf("\n");
+}
+
+void printf_root_to_leaf(struct node* root, int i)
+{
+   Roofleaf[i]= root->data;
+
+    if((root->left == NULL) && (root->right == NULL))
+    {
+      print_array(i);
+      return;
+    }
+
+
+    if(root->left)
+    printf_root_to_leaf(root->left,i+1);
+
+    if(root->right)
+    printf_root_to_leaf(root->right,i+1);
+}
+ hemant Assume a BST and insert 10,5,18,15,12 Now consider it to be a BT and run the logic given in the original post. I guess it will give a crash because it will try to access the right of node with data 15 which is NULL Hence a slight modification required. Guys, please share your comments int Roofleaf[6]= {0};// instead of 6 we can take height of the tree void print_array(int size) { int i; if(size == -1) return; for(i=0; idata; if((root->left == NULL) && (root->right == NULL)) { print_array(i); return; } if(root->left) printf_root_to_leaf(root->left,i+1); if(root->right) printf_root_to_leaf(root->right,i+1); } krishna Instead of fixing the path size to const, its better if we take height of the tree as the length of the array. FireFox  
+void printAllpaths(Node root, int[] a, int i){
+	If(node == null)
+		return;
+       A[i] = node.data;
+       printAllpaths(root.left, a,i+1);
+       printAllpaths(root.right,a,i+1);
+       printTheArray(a,i);
+}
+
+ krishna This logic wont work, because it also prints all the inter mediate paths. munna just find all the leaves of the tree, and for each leaf backtrack to the root.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ neeraj singh public static void printAllRoot2LeafPaths(Node n, int[] arr, int index) { if(null == n){ return; } arr[index] = n.value; //is leaf node if (null == n.left && n.right == null) { for(int i : arr){ if(i==0){ break; } System.out.print(i + ","); } System.out.println(); return; } printAllRoot2LeafPaths(n.left, arr, index + 1); printAllRoot2LeafPaths(n.right, arr, index + 1); } Ehsan Ahmadi this is my concept this code show all path in the tree for example : /* Constructed binary tree is 
+            10
+          /   
+        8      2
+      /      /
+    3     5  2
+  */
+ output is [10,8],[10,8,3],[10,8,5],[10,2],[10,2,2]  
+#include &lt;iostream&gt;
+#include
+#include
+using namespace std;
+
+
+int log2(int a) 
+{
+
+	return floor(  log((float)a)    /   log(2.0)  );
+
+}
+typedef struct Node 
+{
+	Node():checked(false){};
+	int data ;
+	int index; 
+	int height;
+	Node *LNode;
+	Node *RNode;
+	bool checked;
+};
+class tree
+{
+public:
+	tree():Root(NULL){};
+	int * search();
+	void add(int);
+	Node *Root;
+	void _search();
+	 
+private: 
+	void insertPath(vector currentPath , vector&lt;vector&gt; &amp;allPath); 
+	void print(vector&lt;vector&gt;);
+	Node * helpForAdd(int index,Node * , int a);
+	void findPath(vector currentPath,Node *root,vector&lt;vector&gt; &amp;allPath);
+	 
+};
+
+void tree::insertPath(vector currentPath , vector&lt;vector&gt; &amp;allPath)
+{
+	allPath.push_back(currentPath);
+}
+
+void tree::print(vector&lt;vector&gt; QQ)
+{
+
+	for(int i=0; i&lt;QQ.size(); i++)
+	{
+		cout&lt;&lt;&quot;[ &quot;;
+		for(int j=0; j&lt;QQ[i].size(); j++) 
+			 cout&lt;&lt;QQ[i][j]&lt;&lt;' ';
+		cout&lt;&lt;&quot;] &quot;;
+	}
+
+
+
+}
+
+void  tree::_search()
+{
+	vector&lt;vector&gt; QQ;
+	vector tt;
+	findPath(tt ,Root,QQ);
+	print(QQ);
+}
+
+void tree::findPath(vector currentPath,Node *root,vector&lt;vector&gt; &amp;allPath)
+{
+
+	if(root == NULL) return ; 
+	if(root-&gt;height == 1) 
+	{
+		currentPath.push_back(root-&gt;data);
+	}
+	else if(!root-&gt;checked )
+	{
+
+		root-&gt;checked = true;
+		currentPath.push_back(root-&gt;data);
+		this-&gt;insertPath(currentPath,allPath);
+
+	}
+	else if (root-&gt;checked)
+	{
+		currentPath.push_back(root-&gt;data);
+
+	}
+	if(root-&gt;LNode == NULL &amp;&amp; root-&gt;RNode == NULL) 
+	{
+
+
+		currentPath.pop_back();
+
+	}
+	else
+	{
+
+		this-&gt;findPath(currentPath,root-&gt;LNode,allPath);
+		this-&gt;findPath(currentPath,root-&gt;RNode,allPath);
+		currentPath.pop_back();
+	}
+	
+
+}
+
+
+Node * tree::helpForAdd(int index,Node *p , int a)
+{
+	if(!p)
+	{
+		p = new Node; 
+		p-&gt;data = a ; 
+		p-&gt;index=index;
+		p-&gt;LNode=NULL;
+		p-&gt;RNode=NULL;
+		p-&gt;height = log2(index)+1;
+		return p ;
+		 
+	}
+	else 
+	{
+	if(p-&gt;data &gt; a ) 
+	{
+		p-&gt;LNode = helpForAdd(2*index,p-&gt;LNode , a ) ;
+	}
+	if(p-&gt;data &lt;a&gt;RNode = helpForAdd((2*index)+1,p-&gt;RNode ,a ) ; 
+	}
+	return p ; 
+}
+
+void tree::add(int a) 
+{
+	 Root = helpForAdd(1,Root,a);
+
+}
+
+
+int main()
+{
+	
+	tree a ; 
+
+	a.add(10);
+	a.add(5);
+	a.add(4);
+	a.add(6);
+	a.add(13);
+	a.add(12);
+	a._search();	
+}
+ Shwetha Hi…can anyone help me with a program to implement insertion in a binary tree. Here I am looking for Binary tree, not Binary search tree. For BST I know to do…but want the logic on how to keep inserting nodes for binary tree. Kindly help Sandeep @Shwetha: Could you provide an input array and binary tree that you want to construct from the given input array? Shwetha @Sandeep: Say i have an array int arr[]={50,20,13,45,67,55,23} I am expecting a balanced binary tree like dis: 
+      50
+     /  \
+    20   13
+   / \   / \
+  45 67 55 23
+ For BST we check for whether the value is more or less and den put in left and right accordinly. Here just keep on putting one after another based on whichever is NULL. Would appreciate help regarding this Rehan @Shwetha: You could use the following trick. If a node is an index ‘i’ then its children can be ‘2*i+1′ and ‘2*i+2′. You can loop accordingly. Punam Hi, I have a binary tree that looks like this 
+     50
+    /  \
+   20  60
+  / \  / \
+10  30 55  80
+          /  \
+        70   100
+       /  \    \
+      65  75   120
+     /
+    62
+ Somehow when m trying the above logic for this tree, its failing. It prints till 62 and then fails. Not sure what is going wrong. Looking forward for help of any kind. Sandeep @Punam: Please post your code here. Jameel public void printPath(Node node, String str){ if(node == null){ return; } if(node.left == null && node.right == null){ System.out.println(str +" – "+ node.data); return; } str += " – "+ node.data; printPath(node.left, str); printPath(node.right, str); } ghadeer thanks for this program  
+/* Paste your code here (You may delete these lines if not writing code) */
+ manoj gupta Better and Simpler approach is  
+void printPaths(struct node* node, int len)
+{
+  static int path[1000];
+  int pathlen=len;
+ 
+  if(NULL == node)
+        return;
+ 
+  path[pathlen] = node->data;
+
+ 
+  if (node->left==NULL && node->right==NULL)
+  {
+    printArray(path, pathlen);
+  }
+  else
+  {
+    /* otherwise try both subtrees */
+    printPaths(node->left,pathlen +1 );
+    printPaths(node->right,pathlen + 1);
+  }
+ 
+}
+ Gauri  
+void printPathshimanshu(struct node* node, int len)
+{
+  static int path[1000];
+  int pathlen=len;
+ 
+  if(NULL == node)
+        return;
+ 
+  path[pathlen] = node->data;
+  pathlen++;
+ 
+  if (node->left==NULL && node->right==NULL)
+  {
+    printArray(path, pathlen);
+  }
+  else
+  {
+    /* otherwise try both subtrees */
+    printPathshimanshu(node->left,pathlen);
+    printPathshimanshu(node->right,pathlen);
+  }
+ 
+} This could solve the problem. Himanshu Aggarwal Hi, We can simplify the above function. There is no need to use a second-level recursive function printPathsRecur(). This can be done by declaring the two variables path and pathlen as ‘static’ inside printPaths. The function would then become as:  
+void printPaths(struct node* node)
+{
+  static int path[1000];
+  static int pathlen=0;
+
+  if(NULL == node) return;
+  path[pathlen] = node->data;
+  pathlen++;
+
+  if (node->left==NULL && node->right==NULL)
+  {
+    printArray(path, pathLen);
+  }
+  else
+  {
+    /* otherwise try both subtrees */
+    printPathsRecur(node->left);
+    printPathsRecur(node->right);
+  }
+
+}
+ Thanks, Himanshu Aggarwal Sandeep If we make pathlen a static variable then pathlen always gets incremented. Consider following tree for example. 
+           10
+          /   \
+        8      2
+      /  \    /
+    3     5  2
+ The output of your code for above tree is: 10 8 3 10 8 3 5 10 8 3 5 2 2 But, the desired output is: 10 8 3 10 8 5 10 2 2 Himanshu Aggarwal @Sandeep, Thanks for pointing out the mistake. I have corrected and tested it. Please find the corrected version below.  
+void printPaths(struct node* node)
+{
+  static int path[1000];
+  static int pathlen=0;
+
+  if(NULL == node) return;
+  path[pathlen] = node->data;
+  pathlen++;
+
+  if (node->left==NULL && node->right==NULL)
+  {
+    printArray(path, pathlen);
+  }
+  else
+  {
+    /* otherwise try both subtrees */
+    printPaths(node->left);
+    pathlen--;
+    printPaths(node->right);
+    pathlen--;
+  }
+
+}
+ Regards, Himanshu Aggarwal Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

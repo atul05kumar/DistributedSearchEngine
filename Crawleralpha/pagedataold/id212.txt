@@ -1,0 +1,34 @@
+Count number of binary strings without consecutive 1's - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Count number of binary strings without consecutive 1’s Given a positive integer N, count all possible distinct binary strings of length N such that there are no consecutive 1’s. Examples: 
+Input:  N = 2
+Output: 3
+// The 3 strings are 00, 01, 10
+
+Input: N = 3
+Output: 5
+// The 5 strings are 000, 001, 010, 100, 101 This problem can be solved using Dynamic Programming. Let a[i] be the number of binary strings of length i which do not contain any two consecutive 1’s and which end in 0. Similarly, let b[i] be the number of such strings which end in 1. We can append either 0 or 1 to a string ending in 0, but we can only append 0 to a string ending in 1. This yields the recurrence relation: 
+a[i] = a[i - 1] + b[i - 1]
+b[i] = a[i - 1] The base cases of above recurrence are a[1] = b[1] = 1. The total number of strings of length i is just a[i] + b[i]. Following is C++ implementation of above solution. In the following implementation, indexes start from 0. So a[i] represents the number of binary strings for input length i+1. Similarly, b[i] represents binary strings for input length i+1. 
+// C++ program to count all distinct binary strings
+// without two consecutive 1's
+#include <iostream>
+using namespace std;
+
+int countStrings(int n)
+{
+    int a[n], b[n];
+    a[0] = b[0] = 1;
+    for (int i = 1; i < n; i++)
+    {
+        a[i] = a[i-1] + b[i-1];
+        b[i] = a[i-1];
+    }
+    return a[n-1] + b[n-1];
+}
+
+
+// Driver program to test above functions
+int main()
+{
+    cout << countStrings(3) << endl;
+    return 0;
+}   Output: 5 Source: courses.csail.mit.edu/6.006/oldquizzes/solutions/q2-f2009-sol.pdf This article is contributed by Rahul Jain. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: Dynamic Programming Tweet Writing code in comment? Please use ideone.com and share the link here. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

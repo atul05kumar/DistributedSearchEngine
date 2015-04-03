@@ -1,0 +1,195 @@
+Pattern Searching | Set 8 (Suffix Tree Introduction) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Pattern Searching | Set 8 (Suffix Tree Introduction) Given a text txt[0..n-1] and a pattern pat[0..m-1], write a function search(char pat[], char txt[]) that prints all occurrences of pat[] in txt[]. You may assume that n > m. Preprocess Pattern or Preoprocess Text? We have discussed the following algorithms in the previous posts: KMP Algorithm Rabin Karp Algorithm Finite Automata based Algorithm Boyer Moore Algorithm All of the above algorithms preprocess the pattern to make the pattern searching faster. The best time complexity that we could get by preprocessing pattern is O(n) where n is length of the text. In this post, we will discuss an approach that preprocesses the text. A suffix tree is built of the text. After preprocessing text (building suffix tree of text), we can search any pattern in O(m) time where m is length of the pattern. Imagine you have stored complete work of William Shakespeare and preprocessed it. You can search any string in the complete work in time just proportional to length of the pattern. This is really a great improvement because length of pattern is generally much smaller than text. Preprocessing of text may become costly if the text changes frequently. It is good for fixed text or less frequently changing text though. A Suffix Tree for a given text is a compressed trie for all suffixes of the given text. We have discussed Standard Trie. Let us understand Compressed Trie with the following array of words. {bear, bell, bid, bull, buy, sell, stock, stop} Following is standard trie for the above input set of words. Following is the compressed trie. Compress Trie is obtained from standard trie by joining chains of single nodes. The nodes of a compressed trie can be stored by storing index ranges at the nodes. How to build a Suffix Tree for a given text? As discussed above, Suffix Tree is compressed trie of all suffixes, so following are very abstract steps to build a suffix tree from given text. 1) Generate all suffixes of given text. 2) Consider all suffixes as individual words and build a compressed trie. Let us consider an example text “banana\0″ where ‘\0′ is string termination character. Following are all suffixes of “banana\0″ banana\0
+anana\0
+nana\0
+ana\0
+na\0
+a\0
+\0 If we consider all of the above suffixes as individual words and build a trie, we get following. If we join chains of single nodes, we get the following compressed trie, which is the Suffix Tree for given text “banana\0″ Please note that above steps are just to manually create a Suffix Tree. We will be discussing actual algorithm and implementation in a separate post. How to search a pattern in the built suffix tree? We have discussed above how to build a Suffix Tree which is needed as a preprocessing step in pattern searching. Following are abstract steps to search a pattern in the built Suffix Tree. 1) Starting from the first character of the pattern and root of Suffix Tree, do following for every character. …..a) For the current character of pattern, if there is an edge from the current node of suffix tree, follow the edge. …..b) If there is no edge, print “pattern doesn’t exist in text” and return. 2) If all characters of pattern have been processed, i.e., there is a path from root for characters of the given pattern, then print “Pattern found”. Let us consider the example pattern as “nan” to see the searching process. Following diagram shows the path followed for searching “nan” or “nana”. How does this work? Every pattern that is present in text (or we can say every substring of text) must be a prefix of one of all possible suffixes. The statement seems complicated, but it is a simple statement, we just need to take an example to check validity of it. Applications of Suffix Tree Suffix tree can be used for a wide range of problems. Following are some famous problems where Suffix Trees provide optimal time complexity solution. 1) Pattern Searching 2) Finding the longest repeated substring 3) Finding the longest common substring 4) Finding the longest palindrome in a string There are many more applications. See this for more details. Ukkonen’s Suffix Tree Construction is discussed in following articles: Ukkonen’s Suffix Tree Construction – Part 1 Ukkonen’s Suffix Tree Construction – Part 2 Ukkonen’s Suffix Tree Construction – Part 3 Ukkonen’s Suffix Tree Construction – Part 4 Ukkonen’s Suffix Tree Construction – Part 5 Ukkonen’s Suffix Tree Construction – Part 6 References: http://fbim.fh-regensburg.de/~saj39122/sal/skript/progr/pr45102/Tries.pdf http://www.cs.ucf.edu/~shzhang/Combio12/lec3.pdf http://www.allisons.org/ll/AlgDS/Tree/Suffix/           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: Advance Data Structures, Advanced Data Structures, Pattern Searching Tweet Writing code in comment? Please use ideone.com and share the link here. Tanu Saxena This pattern searching in the given suffix tree takes O(m) time, where m is the length of the pattern. What about getting all the occurrences of the pattern in the text?? I’ve read that if there are k occurrences of a pattern, then time complexity of finding them all in the text is O(m+k). [Definitely , pre -processing time is O(n): n being the length of the text]. Arpit Baheti This is not complete implementation but it build trie for each suffix of a given pattern just how to compress the trie for the node having only one child is missing.please suggest or give code. #include #include #include using namespace std; typedef struct trie { char data; int eos; struct trie *child[27]; } trie; trie* makeNode(char data) { trie *node = new trie; node->data = data; node->eos =0; for(int i=0; ichild[i] = NULL; return node; } trie* insertTrie(trie *root,const char *word) //simple code to insert one suffix in to trie at a time. { if(!*word) return NULL; if(!root) { root = makeNode(*word); if(!*(word+1)) root->eos =1; else { root->child[*(word+1)-97] = insertTrie(root->child[*(word+1)-97],word+1); } } else { root->child[*(word+1)-97] = insertTrie(root->child[*(word+1)-97],word+1); } return root; } void display(trie* root,char *word,int i) // this function is to display the trie data structure. { if(!root) return; int j,k; trie *temp; for(k=0; kchild[k]) { temp =root->child[k]; word[i] = temp->data; if(temp->eos) { word[i+1]=''; cout<<word<<endl; i=0; } display(temp,word,i+1); } } } vector all_suffix(string pattern) //build suffix of pattern and store it in to vector. { vector suffix; auto iters = pattern.begin(); auto itere = pattern.end(); while(iters!=pattern.end()) { string s(iters,itere); suffix.push_back(s); iters++; } return suffix; } trie* makeTrie(vector s) { trie *root = makeNode('$'); //for first node to store string first character as child. trie *temp=NULL; string c; auto iter = s.begin(); while(iter!=s.end()) { c =*iter+"{"; //{ is used for terminate character. root->child[*(c.c_str())-97] = insertTrie(root->child[*(c.c_str())-97],c.c_str()); iter++; } c = "{"; //at the end just insert terminate character. root->child[*(c.c_str())-97] = insertTrie(root->child[*(c.c_str())-97],c.c_str()); return root; } int main() { vector s = all_suffix("banana"); //create all suffix of given word banana. trie *root = makeTrie(s); //create trie and store root node. char *word = new char[10]; display(root,word,0); //root = compressTrie(root); //just want to know how do i compress the trie.please suggest any logic or code. return 0; } minoz could you please post the implementation of suffix trees soon?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Gangadhara  
+
+#include<iostream>
+using namespace std;
+
+char* Sub(char* main,char* sub)
+{
+	int i=0,k=0,test=0,j=0;
+	while(*(main+i))
+	{	
+		if(!*(sub+j))break;
+		
+		k=i++;
+		if(*(main+(k++))==*(sub+(j++)))
+		{		
+			cout<<(main+i)<<endl;
+					
+			while(1)
+			{
+				if(*(main+k++)!=*(sub+j++))
+				{
+					test=1;j=0;
+					break;
+				}
+			}
+		}
+		if(test==1)break;
+		i=k;
+	}
+	return main+i;
+}
+int main()
+{
+	char* ret=Sub("This place is very nice","place");
+	cout<<ret;
+	return 0;
+}
+
+
+ Asap  
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+struct tree
+{
+int si;
+int ei;
+struct tree* below;
+struct tree* right;    
+};
+typedef struct tree* node;
+
+node newnode(int start,int end)
+{
+node temp=(node)malloc(sizeof(struct tree));
+temp->below=NULL; 
+temp->right=NULL; 
+temp->si=start;
+temp->ei=end;
+return temp;
+}
+
+node insert(node head,int start,int end,char *str)
+{
+    int i,j;
+    node temp=head,prev;
+    if(head==NULL)
+    {
+    temp=newnode(start,end);   
+     
+    }
+    else
+    {
+        
+        while(head)
+        {
+            if(str[start]==str[head->si])
+            break;
+            else{
+                prev=head;
+            head=head->right;
+            
+        }
+        }
+        if(head){
+            j=(head->si)+1;
+        for(i=start+1;i<=end,j<=head->ei;i++,j++)
+        {
+              if(str[i]!=str[j])
+              break;
+        }
+        prev=NULL;
+        if(head->below)
+        prev=head->below;
+        head->below=newnode(j,head->ei);
+        head->ei=j-1;
+        head->below->right=newnode(i,end);
+        
+        if(prev)
+        head->below->below=prev;
+    }
+    
+    else
+    {
+        prev->right=newnode(start,end);    
+    }
+    
+    }
+    
+    return temp;
+}
+
+
+
+void search(node head,char *str,char *str1,int i,int n)
+{
+    int j;
+if(head)
+{
+if(str1[i]==str[head->si]){
+    for(i=i+1,j=head->si+1;j<=(head->ei),i<=n;j++,i++)
+    {
+    if(str1[i]!=str[j])
+    {
+    printf("Pattern not found");
+    return ;    
+    }    
+    }
+    if(i==n+1)
+    {
+    printf("Pattern found\n"); 
+    return ;   
+    }
+    else
+    {
+        search(head->below,str,str1,i,n);    
+    }
+
+}
+else
+{
+search(head->right,str,str1,i,n);
+return;
+}
+
+}    
+else
+printf("Pattern not found");
+}
+
+
+void disp(node head)
+{
+    if(!head)
+    return;
+printf("\n  %d %d \n",head->si,head->ei);
+disp(head->below);
+disp(head->right);    
+}
+
+int main()
+{
+    char str[20]="banana$",str1[20]="nan";
+    node head=NULL;
+    int n,i=0;
+
+n=strlen(str);
+
+for(i=0;i<n;i++){
+head=insert(head,i,n-1,str);    
+
+}
+disp(head);
+//printf("Enter string to search\n");
+
+//gets(str1);
+search(head,str,str1,0,strlen(str1)-1);
+
+system("pause");
+return 0;    
+}
+
+ rahul please provide little explanation of this code.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ atul eagerly waiting implementation part  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

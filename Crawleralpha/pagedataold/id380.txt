@@ -1,0 +1,52 @@
+Compute modulus division by a power-of-2-number - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Compute modulus division by a power-of-2-number Compute n modulo d without division(/) and modulo(%) operators, where d is a power of 2 number. Let ith bit from right is set in d. For getting n modulus d, we just need to return 0 to i-1 (from right) bits of n as they are and other bits as 0. For example if n = 6 (00..110) and d = 4(00..100). Last set bit in d is at position 3 (from right side). So we need to return last two bits of n as they are and other bits as 0, i.e., 00..010. Now doing it is so easy, guess it…. Yes, you have guessing it right. See the below program. 
+#include<stdio.h>
+
+/* This function will return n % d.
+   d must be one of: 1, 2, 4, 8, 16, 32, … */
+unsigned int getModulo(unsigned int n, unsigned int d)
+{
+  return ( n & (d-1) );
+}         
+
+/* Driver program to test above function */
+int main()
+{
+  unsigned int n = 6;
+  unsigned int d = 4; /*d must be a power of 2*/
+  printf("%u moduo %u is %u", n, d, getModulo(n, d));
+
+  getchar();
+  return 0;
+}     
+ References: http://graphics.stanford.edu/~seander/bithacks.html#ModulusDivisionEasy Please write comments if you find any bug in the above program/algorithm or other ways to solve the same problem.           Related Topics: Check if binary representation of a number is palindrome Swap two nibbles in a byte How to turn off a particular bit in a number? Check if a number is multiple of 9 using bitwise operators How to swap two numbers without using a temporary variable? Divide and Conquer | Set 4 (Karatsuba algorithm for fast multiplication) Find position of the only set bit Swap all odd and even bits Tags: Bit Magic Tweet Writing code in comment? Please use ideone.com and share the link here. asunel Another solution is to use (n&(~d)) instead of (n&(d-1)). This will work because d is a power-of-2-number. https://sites.google.com/site/nishantonl9/ Nishant Kumar I was trying to find division and modulus of two positive numbers without / and % operator. Here is the code. Let me know it this doesn’t work for any ALLOWED value.  
+#include <stdio.h>
+
+int main(){
+	int x = 238; //  +ve value
+	int y = 16; // +ve value
+	
+	int rem = x; // x%y
+	int tmp = y;
+	
+	int div = 0; // x/y
+	int tmp2 = 1;
+
+	if(y==0){
+		return 0;
+	}
+	while(rem>=y && y){
+		while(tmp<<1 < rem){
+			tmp<<=1;
+			tmp2<<=1;
+		}
+		div+=tmp2;
+		rem = rem - tmp;
+		tmp = y;
+		tmp2 = 1;
+	}
+	printf("quotient=%d remainder=%d dividend=%d\n",div,rem,div*y+rem);
+	return 0;
+}
+
+
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

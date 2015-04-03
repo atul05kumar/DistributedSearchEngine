@@ -1,0 +1,353 @@
+Write C Code to Determine if Two Trees are Identical - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Write C Code to Determine if Two Trees are Identical Two trees are identical when they have same data and arrangement of data is also same. To identify if two trees are identical, we need to traverse both trees simultaneously, and while traversing we need to compare data and children of the trees. Algorithm: 
+sameTree(tree1, tree2)
+1. If both trees are empty then return 1.
+2. Else If both trees are non -empty
+     (a) Check data of the root nodes (tree1->data ==  tree2->data)
+     (b) Check left subtrees recursively  i.e., call sameTree( 
+          tree1->left_subtree, tree2->left_subtree)
+     (c) Check right subtrees recursively  i.e., call sameTree( 
+          tree1->right_subtree, tree2->right_subtree)
+     (d) If a,b and c are true then return 1.
+3  Else return 0 (one is empty and other is not)
+ 
+#include <stdio.h>
+#include <stdlib.h>
+
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+    struct node* node = (struct node*)
+                             malloc(sizeof(struct node));
+    node->data  = data;
+    node->left  = NULL;
+    node->right = NULL;
+
+    return(node);
+}
+
+/* Given two trees, return true if they are
+ structurally identical */
+int identicalTrees(struct node* a, struct node* b)
+{
+    /*1. both empty */
+    if (a==NULL && b==NULL)
+        return 1;
+
+    /* 2. both non-empty -> compare them */
+    if (a!=NULL && b!=NULL)
+    {
+        return
+        (
+            a->data == b->data &&
+            identicalTrees(a->left, b->left) &&
+            identicalTrees(a->right, b->right)
+        );
+    }
+    
+    /* 3. one empty, one not -> false */
+    return 0;
+} 
+
+/* Driver program to test identicalTrees function*/
+int main()
+{
+    struct node *root1 = newNode(1);
+    struct node *root2 = newNode(1);
+    root1->left = newNode(2);
+    root1->right = newNode(3);
+    root1->left->left  = newNode(4);
+    root1->left->right = newNode(5); 
+
+    root2->left = newNode(2);
+    root2->right = newNode(3);
+    root2->left->left = newNode(4);
+    root2->left->right = newNode(5); 
+
+    if(identicalTrees(root1, root2))
+        printf("Both tree are identical.");
+    else
+        printf("Trees are not identical.");
+
+    getchar();
+  return 0;
+}
+
+ Time Complexity: Complexity of the identicalTree() will be according to the tree with lesser number of nodes. Let number of nodes in two trees be m and n then complexity of sameTree() is O(m) where m < n.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tags: Tree Traveral, Trees Tweet Writing code in comment? Please use ideone.com and share the link here. neelabhsingh Please noted it down following condition is essential when you are comparing nonidentical trees. It will compares nodes only if they are non null. So following is required to avoid segmentation fault in C and NULL Pointer Exception in Java. If you are comparing the Identical you will not required the following conditions. /* 2. both non-empty -> compare them */ if (a!=NULL && b!=NULL) Uma Trika int identicalTrees(struct node* a, struct node* b) { if(a== NULL && b == NULL) return 1; if ((a==NULL && b!=NULL) || (a!=NULL && b==NULL)) return 0; if(a->data != b->data) return 0; identicalTrees(a->left, b->left); identicalTrees(a->right, b->right); } Marsha Donna Your code doesnt work in case the 2 trees dont have identical data because the value returned by recursive call to the left and right subtree has not been stored anywhere and not reflected in the final result Marsha Donna i think the corection to be made is int identicalTrees(struct node* a, struct node* b) { if(a== NULL && b == NULL) return 1; if ((a==NULL && b!=NULL) || (a!=NULL && b==NULL)) return 0; if(a->data != b->data) return 0; return identicalTrees(a->left, b->left)&&identicalTrees(a->right, b->right); } gaurav Won’t a level order traversal be sufficient to check the identical arrangement and data. Please correct me if I’m wrong. Kartik There can be many ways to solve a problem. You can do it using level order traversal also, but the code may turn out to be more complex than simple recursive code. Time Complexity wise, both are O(n) and both need O(n) extra space. Kartik There can be many ways to solve a problem. You can do it using level order traversal also, but the code may turn out to be more complex than simple recursive code. Time Complexity wise, both are O(n) and both need O(n) extra space. pavansrinivas Using LevelOrder Traversal in JAVA boolean areIdentical(Node r1,Node r2){ Node temp = r1; Node temp2 = r2; Queue q = new LinkedList(); Queue q2 = new LinkedList(); q.add(temp); q2.add(r2); while (!q.isEmpty()&&!q2.isEmpty()) { temp = q.remove(); temp2 = q2.remove(); if((temp==null&&temp2!=null)||(temp!=null&&temp2==null)){ return false; } if(temp!=null&&temp2!=null){ if(temp.iData!=temp2.iData){ return false; } } if(temp!=null){ q.add(temp.leftChild); q.add(temp.rightChild); } if(temp2!=null){ q2.add(temp2.leftChild); q2.add(temp2.rightChild); } } if(!q.isEmpty()||!q2.isEmpty()){ return false; }else{ return true; } } Anonymous i think , level order traversal will not work because two different trees may produce same output when traversed in Level order. For example: – below tree will process node in same order so your code wil return true saying that both trees are same.. a) 1 / 2 / 3 b) 1 2 3 please correct me if i misunderstood your approach. pavansrinivas My approach gives the correct result.I used 2 queues one for first tree and the other for second tree..I simultaneously travel the 2 trees and if I find null in one queue and not null in second or vice-verse I return false.. In your condition , first root is entered in first queue and second root in second queue, then both the left child are added..when popped,node in first queue is not null but that in the second queue is null, so it returns false…. abhishek08aug C++ code: extended from my earlier code in: http://www.geeksforgeeks.org/write-a-c-program-to-calculate-size-of-a-tree/  
+#include<iostream>
+using namespace std;
+ 
+class tree_node {
+  private:
+    int data;
+    tree_node * left;
+    tree_node * right;
+  public:
+    tree_node() {
+      left=NULL;
+      right=NULL;
+    }
+    void set_data(int data) {
+      this->data=data;
+    }
+    int get_data() {
+      return this->data;
+    }
+    void set_left(tree_node * left) {
+      this->left=left;
+    }
+    tree_node * get_left() {
+      return this->left;
+    }
+    void set_right(tree_node * right) {
+      this->right=right;
+    }
+    tree_node * get_right() {
+      return this->right;
+    }
+    tree_node ** get_left_ref() {
+      return &(this->left);
+    }
+    tree_node ** get_right_ref() {
+      return &(this->right);
+    }
+};
+ 
+class tree {
+  private:
+    tree_node * root;
+    int size;
+    void _recursive_insert(tree_node ** root_ref, int value);
+    void _print_preorder(tree_node * root);
+    void _print_inorder(tree_node * root);
+    void _print_postorder(tree_node * root);
+    int _find_size(tree_node * root);
+    int _are_identical(tree_node * tn1, tree_node * tn2);
+  public:
+    tree() {
+      root=NULL;
+      size=0;
+    }
+    void insert(int value);
+    void recursive_insert(int value);
+    void print_preorder();
+    void print_inorder();
+    void print_postorder();
+    int find_size();
+    int get_size() {
+      return this->size;
+    }
+    int are_identical(tree t);
+};
+ 
+void tree::insert(int value) {
+  if(root==NULL) {
+    root=new tree_node;
+    root->set_data(value);
+  } else {
+    tree_node * parent=NULL;
+    tree_node * current=root;
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    while(current!=NULL) {
+      if(value<=current->get_data()) {
+        parent=current;
+        current=current->get_left();
+      } else {
+        parent=current;
+        current=current->get_right();
+      }
+    }
+    if(value<=parent->get_data() && parent->get_left()==NULL) {
+      parent->set_left(new_node);
+    } else if(value>parent->get_data() && parent->get_right()==NULL) {
+      parent->set_right(new_node);
+    }
+  }
+  size++;
+}
+ 
+void tree::recursive_insert(int value) {
+  _recursive_insert(&root, value);
+  size++;
+}
+ 
+void tree::_recursive_insert(tree_node ** root_ref, int value) {
+  if(*root_ref==NULL) {
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    *root_ref=new_node;   
+  } else {
+    if(value<=(*root_ref)->get_data()) {
+      _recursive_insert((*root_ref)->get_left_ref(), value);
+    } else {
+      _recursive_insert((*root_ref)->get_right_ref(), value);
+    }
+  }
+}
+ 
+void tree::print_preorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_preorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_preorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  cout<<root->get_data()<<" ";
+  if(root->get_left()!=NULL)
+    _print_preorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_preorder(root->get_right());
+}
+ 
+void tree::print_inorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_inorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_inorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_inorder(root->get_left());
+  cout<<root->get_data()<<" ";
+  if(root->get_right()!=NULL)
+    _print_inorder(root->get_right());
+}
+ 
+void tree::print_postorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_postorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_postorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_postorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_postorder(root->get_right());
+  cout<<root->get_data()<<" ";
+}
+
+int tree::find_size() {
+  return _find_size(root);
+}
+
+int tree::_find_size(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else {
+    return 1+_find_size(root->get_left())+_find_size(root->get_right());
+  }
+}
+
+int tree::are_identical(tree t) {
+  return _are_identical(this->root, t.root);
+}
+
+int tree::_are_identical(tree_node * tn1, tree_node * tn2) {
+  if(tn1==NULL && tn2==NULL) {
+    return 1;
+  } else if((tn1==NULL && tn2!=NULL) || (tn1!=NULL && tn2==NULL) || (tn1->get_data()!=tn2->get_data())) {
+    return 0;
+  } else {
+    return _are_identical(tn1->get_left(), tn2->get_left()) && _are_identical(tn1->get_right(), tn2->get_right());
+  }
+}
+
+int main() {
+  tree t1;
+  t1.recursive_insert(5);
+  t1.recursive_insert(3);
+  t1.insert(1);
+  t1.insert(7);
+  t1.recursive_insert(50);
+  t1.recursive_insert(6);
+  cout<<"Preorder Traversal"<<endl;
+  t1.print_preorder();
+  cout<<"Inorder Traversal"<<endl;
+  t1.print_inorder();
+  cout<<"Postorder Traversal"<<endl;
+  t1.print_postorder();
+  cout<<"Size of the tree (as stored in tree object) is: "<<t1.get_size()<<endl;
+  cout<<"Size of the tree is: "<<t1.find_size()<<endl;
+  tree t2;
+  t2.recursive_insert(5);
+  t2.recursive_insert(3);
+  t2.insert(1);
+  t2.insert(7);
+  t2.recursive_insert(50);
+  t2.recursive_insert(6);
+  cout<<"Preorder Traversal"<<endl;
+  t2.print_preorder();
+  cout<<"Inorder Traversal"<<endl;
+  t2.print_inorder();
+  cout<<"Postorder Traversal"<<endl;
+  t2.print_postorder();
+  cout<<"Size of the tree (as stored in tree object) is: "<<t2.get_size()<<endl;
+  cout<<"Size of the tree is: "<<t2.find_size()<<endl;
+  if(t1.are_identical(t2)) {
+    cout<<"Trees are identical"<<endl;
+  } else {
+    cout<<"Trees are not identical"<<endl;
+  }
+  t2.recursive_insert(70);
+  cout<<"Inorder Traversal"<<endl;
+  t2.print_inorder();
+  if(t1.are_identical(t2)) {
+    cout<<"Trees are identical"<<endl;
+  } else {
+    cout<<"Trees are not identical"<<endl;
+  }
+  return 0;
+}
+ Preorder Traversal 5 3 1 7 6 50 Inorder Traversal 1 3 5 6 7 50 Postorder Traversal 1 3 6 50 7 5 Size of the tree (as stored in tree object) is: 6 Size of the tree is: 6 Preorder Traversal 5 3 1 7 6 50 Inorder Traversal 1 3 5 6 7 50 Postorder Traversal 1 3 6 50 7 5 Size of the tree (as stored in tree object) is: 6 Size of the tree is: 6 Trees are identical Inorder Traversal 1 3 5 6 7 50 70 Trees are not identical Marsha Donna u hav to go through basics of pointers to understand that Marsha Donna u hav to go through basics of pointers to understand that Nikin  
+bool areIdentical(node *sr1, node *sr2)
+{
+if(sr1 == NULL && sr2 == NULL) return true;
+if(sr1 != NULL && sr2 != NULL)
+return (sr1->data == sr2->data && 
+areIdentical(sr1->left, sr2->left) &&
+areIdentical(sr1->right, sr2->right));
+return false;
+}
+ Ankush In identicaltrees() ,can’t we break as soon as third condition happens.. Ankit Sablok A much simpler solution would be to find the inorder traversals of the trees as strings and compare the strings using a simple strcmp() function.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ annonimus No, There may be trees whose inorder are same but they are not identical. e.g: 1. a b c 2. c b a Both are having inoder same but not identical. Ramakrishna I agree with Anonimous… I think trees with the same inorder traversal string need not be identical.. That’s why you can not form the tree just with inorder string as an input. You would also need a pre-order or post-order string to form the tree.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ankit Sablok @anonnimus and @Ramakrishna : Thanks for the clarification, so one could find 2 strings per tree the inorder and the preorder strings and compare if both of them are same or not using strcmp, I think that would suffice.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Krish @Ankit : But the complexity may be more than the above code….  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Karanpreet just the inorder traversal won’t be sufficient. If inorder traversal as well as preorder or postorder traversal strings are same then we can say that the trees are identical. So inorder+preorder OR inorder+postorder  
+/* Paste your code here (You may delete these lines if not writing code) */
+ paramjeet parlokiya smart n very tricky #intelligent;) Gaurav Ramesh this might work with just in-order if you add/append a dummy value to your string for every null pointer you get .. like 0 or something.. Tushar Roy This is much sleek code for identicalTrees method.  
+int identicalTrees(Node *node1,Node *node2)
+{
+	return ((!node1 && !node2) || (node1 && node2) &&         
+        node1->data == node2->data && sameTree(node1->left,node2->left) && sameTree(node1->right,node2->right));
+}
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

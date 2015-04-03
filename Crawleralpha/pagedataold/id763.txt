@@ -1,0 +1,543 @@
+Longest prefix matching - A Trie based solution in Java - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Longest prefix matching – A Trie based solution in Java Given a dictionary of words and an input string, find the longest prefix of the string which is also a word in dictionary. Examples: 
+Let the dictionary contains the following words:
+{are, area, base, cat, cater, children, basement}
+
+Below are some input/output examples:
+--------------------------------------
+Input String            Output
+--------------------------------------
+caterer                 cater
+basemexy                base
+child                   < Empty > Solution We build a Trie of all dictionary words. Once the Trie is built, traverse through it using characters of input string. If prefix matches a dictionary word, store current length and look for a longer match. Finally, return the longest match. Following is Java implementation of the above solution based. 
+import java.util.HashMap;
+  
+// Trie Node, which stores a character and the children in a HashMap
+class TrieNode {           
+    public TrieNode(char ch)  {
+        value = ch;
+        children = new HashMap<>();
+        bIsEnd = false;
+    }    
+    public HashMap<Character,TrieNode> getChildren() {   return children;  }    
+    public char getValue()                           {   return value;     }    
+    public void setIsEnd(boolean val)                {   bIsEnd = val;     }    
+    public boolean isEnd()                           {   return bIsEnd;    }
+      
+    private char value;    
+    private HashMap<Character,TrieNode> children;
+    private boolean bIsEnd;  
+}
+  
+// Implements the actual Trie
+class Trie {        
+    // Constructor
+    public Trie()   {     root = new TrieNode((char)0);       }    
+  
+    // Method to insert a new word to Trie
+    public void insert(String word)  {
+          
+        // Find length of the given word
+        int length = word.length();        
+        TrieNode crawl = root;
+          
+        // Traverse through all characters of given word
+        for( int level = 0; level < length; level++)
+        {
+            HashMap<Character,TrieNode> child = crawl.getChildren();            
+            char ch = word.charAt(level);
+              
+            // If there is already a child for current character of given word 
+            if( child.containsKey(ch))
+                crawl = child.get(ch);
+            else   // Else create a child
+            {              
+                TrieNode temp = new TrieNode(ch);
+                child.put( ch, temp );
+                crawl = temp;
+            }
+        }
+          
+        // Set bIsEnd true for last character
+        crawl.setIsEnd(true);
+    }
+      
+    // The main method that finds out the longest string 'input'
+    public String getMatchingPrefix(String input)  {
+        String result = ""; // Initialize resultant string
+        int length = input.length();  // Find length of the input string       
+          
+        // Initialize reference to traverse through Trie
+        TrieNode crawl = root;   
+         
+        // Iterate through all characters of input string 'str' and traverse 
+        // down the Trie
+        int level, prevMatch = 0; 
+        for( level = 0 ; level < length; level++ )
+        {    
+            // Find current character of str
+            char ch = input.charAt(level);    
+             
+            // HashMap of current Trie node to traverse down
+            HashMap<Character,TrieNode> child = crawl.getChildren();                        
+            
+            // See if there is a Trie edge for the current character
+            if( child.containsKey(ch) )
+            {
+               result += ch;          //Update result
+               crawl = child.get(ch); //Update crawl to move down in Trie
+                
+               // If this is end of a word, then update prevMatch
+               if( crawl.isEnd() ) 
+                    prevMatch = level + 1;
+            }            
+            else  break;
+        }
+         
+        // If the last processed character did not match end of a word, 
+        // return the previously matching prefix
+        if( !crawl.isEnd() )
+                return result.substring(0, prevMatch);        
+        
+        else return result;
+    }
+      
+    private TrieNode root;      
+}
+  
+// Testing class
+public class Test {
+   public static void main(String[] args) {
+        Trie dict = new Trie();        
+        dict.insert("are");
+        dict.insert("area");
+        dict.insert("base");
+        dict.insert("cat");
+        dict.insert("cater");        
+        dict.insert("basement");
+        
+        String input = "caterer";
+        System.out.print(input + ":   ");
+        System.out.println(dict.getMatchingPrefix(input));              
+
+        input = "basement";
+        System.out.print(input + ":   ");
+        System.out.println(dict.getMatchingPrefix(input));                      
+        
+        input = "are";
+        System.out.print(input + ":   ");
+        System.out.println(dict.getMatchingPrefix(input));              
+
+        input = "arex";
+        System.out.print(input + ":   ");
+        System.out.println(dict.getMatchingPrefix(input));              
+
+        input = "basemexz";
+        System.out.print(input + ":   ");
+        System.out.println(dict.getMatchingPrefix(input));                      
+        
+        input = "xyz";
+        System.out.print(input + ":   ");
+        System.out.println(dict.getMatchingPrefix(input));                      
+    }
+} Output: 
+caterer:   cater
+basement:   basement
+are:   are
+arex:   are
+basemexz:   base
+xyz:   
+ Time Complexity: Time complexity of finding the longest prefix is O(n) where n is length of the input string. Refer this for time complexity of building the Trie. This article is compiled by Ravi Chandra Enaganti. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tags: Advance Data Structures, Java Tweet Writing code in comment? Please use ideone.com and share the link here. wasseypuriyan //Trie #include #include #include #include using namespace std; struct node{ char data; node *child[128]; }; class trie{ private: node *root; public: trie() { root=new_node(0); } node *new_node(int data) { node *Q = new node; Q->data = data; return Q; } void add(string S) { node *cur = root; for(int i=0; ichild[S[i]-'A']) cur->child[S[i]-'A'] = new_node(S[i]); cur = cur->child[S[i]-'A']; } } void check(node *cur, string S, int i) { if(cur) { cout<data<<" "; if(i child[S[i]-'A'],S,i+1); } else cout< 0 && S[0] > 'A') check(root->child[S[0]-'A'],S,1); else cout<<"nEmpty root n"; } }; int main() { int N = 2; trie T; string S; for(int i=0; i<N; i++) { cout<<"nEnter word for dictionary "; getline(cin,S); T.add(S); } for(int i=0; i<4; i++) { cout<<"nEnter search query "; getline(cin,S); T.checkroot(S); } cout<<endl; } illuminati #include #include using namespace std; struct node{ bool isLeaf; node* alp[26]; }*root=NULL; void trie_insert(string str) { int i,j; node *ptr; int len=str.size(); if(root==NULL) { root=new node; root->isLeaf=false; for(i=0;ialp[i]=NULL; } } ptr=root; for(i=0;ialp[str[i]-‘a’]==NULL) { node* p=new node; ptr->alp[str[i]-‘a’]=p; if(i==len-1) p->isLeaf=true; else p->isLeaf=false; for(j=0;jalp[j]=NULL; } ptr=p; } else { ptr=ptr->alp[str[i]-‘a’]; } } } int trie_search(string s) { int len=s.size(); int i; node* ptr=root; for(i=0;ialp[s[i]-‘a’]; if(ptr==NULL) return 0; if(i==len-1 && ptr->isLeaf) { return 1; } } } return 0; } int longest_prefix(string s) { int len=s.size(); int i; node* ptr=root; for(i=0;ialp[s[i]-‘a’]; if(ptr==NULL) return i-1; if(i==len-1 && ptr->isLeaf) { return i; } } return i-1; } int main() { string dict[6]={“any”,”answer”,”arc”,”hello”,”hell”,”ans”},s; for(int i=0;i>s; cout<<trie_search(s)<<endl; cout<<s.substr(0,longest_prefix(s)+1)<<endl; system("pause"); } pritybhudolia C Implementation  
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+ 
+#define ARRAY_SIZE(a) sizeof(a)/sizeof(a[0])
+#define ALPHABET_SIZE (26)
+#define CHAR_TO_INDEX(c) ((int)c - 97)
+ 
+// trie node
+typedef struct trie_node trienode;
+struct trie_node
+{
+    int value;
+    trienode *children[ALPHABET_SIZE];
+};
+ 
+// trie ADT
+typedef struct trie_t trie;
+struct trie_t
+{
+    trienode *root;
+    int count;
+};
+ 
+// Returns new trie node (initialized to NULLs)
+trienode *getnode(void)
+{
+    trienode *pnode = NULL; 
+    pnode = (trienode *)malloc(sizeof(trienode));
+     if( pnode )
+    {
+        int i;
+         pnode->value = 0;
+         for(i = 0; i < ALPHABET_SIZE; i++)
+        {
+            pnode->children[i] = NULL;
+        }
+    }
+     return pnode;
+}
+ // Initializes trie (root is dummy node)
+void initialize(trie *ptrie)
+{
+    ptrie->root = getnode();
+    ptrie->count = 0;
+}
+ 
+// If not present, inserts key into trie
+// If the key is prefix of trie node, just marks leaf node
+void insert(trie *ptrie, char key[])
+{
+    int level;
+    int length = strlen(key);
+    int index;
+    trienode *pcrawl;
+ 
+    ptrie->count++;
+    pcrawl = ptrie->root;
+ 
+    for( level = 0; level < length; level++ )
+    {
+        index = CHAR_TO_INDEX(key[level]);
+        if( !pcrawl->children[index] )
+        {
+            pcrawl->children[index] = getnode();
+        }
+ 
+        pcrawl = pcrawl->children[index];
+    }
+ 
+    // mark last node as leaf
+    pcrawl->value = ptrie->count;
+}
+ 
+// Returns -1, if prefix is not found in trie
+int search(trie *ptrie, char key[])
+{
+    int level;
+    int prefix=0;
+    int length = strlen(key);
+    int index;
+    trienode *pcrawl;
+ 
+    pcrawl = ptrie->root;
+ 
+    for( level = 0; level < length; level++ )
+    {
+        index = CHAR_TO_INDEX(key[level]);
+        if( !pcrawl->children[index] )
+        {           
+        return prefix-1;
+        }
+        pcrawl = pcrawl->children[index];        
+        if(pcrawl->value>prefix)prefix=pcrawl->value;
+    }
+ 
+    return -1;
+}
+ 
+// Driver
+int main()
+{
+    // Input keys (use only 'a' through 'z' and lower case)
+    char keys[][9] = {"are", "area", "base", "cat", "cater", "children", "basement"};
+    trie_t trie;
+    //array to search for the prefixes
+    char find[][32] = {"caterer", "basemessy","child","arey","canteen"};
+ 
+    initialize(&trie);
+ 
+    // Construct trie
+    for(int i = 0; i < ARRAY_SIZE(keys); i++)
+    {
+        insert(&trie, keys[i]);
+    }
+    //search for prefixes in trie
+    for(int i = 0; i < ARRAY_SIZE(find); i++)
+    {
+    if(search(&trie, find[i])>=0)        
+    printf("%s ----------- %s\n", find[i],keys[search(&trie, find[i])] );
+    else
+    printf("%s----------prefix not found\n",find[i]);
+   }
+   
+    getchar();
+    return 0;
+}
+
+ aman1234  
+string substr(string s)
+{
+       if(!root)
+       return "";
+       
+       static string ans="";
+       string temp="";
+       int level=s.size();
+       node * c=root;
+       
+       for(int i=0;i<level;i++)
+       {
+            c=c->point[s[i]-'a'];
+            
+            if(c==NULL)
+            return ans;
+           temp+=s[i];
+           
+            if(c->d > 0)
+            ans=temp;
+            
+            
+       }
+       
+       return ans;
+}
+ Sudipto @geeksforgeeks : What is the use of the ‘value’ field in a ‘TrieNode’?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Nitendra Kumar  
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class Test1{
+	public static void main(String[] args) {
+		List<String> list = new ArrayList<String>();
+		list.add("are");
+		list.add("area");
+		list.add("base");
+		list.add("cat");
+		list.add("cater");
+		list.add("children");
+		list.add("basement");
+		Map<Integer, String> map = new HashMap<Integer, String>();
+		
+		String input = "caterer";
+		int length = 0;
+		for (String str : list) {
+			if (input.startsWith(str)) {
+				if (str.length() > length) {
+					length = str.length();
+					map.put(str.length(), str);
+				}
+				
+			}
+		}
+		System.out.println("Input String : " + input +" OutPut String : " + map.get(length));
+	}
+}
+ abhishek08aug Intelligent Kumar Gautam Code without using HashMap.The idea is to use references as we use pointers in C and C++.  
+package Java;
+import java.io.*;
+
+class TNode{
+	final int MAXCHAR = 26;
+	private boolean bIsEnd;
+	private TNode children[];
+	
+	public TNode(){
+		bIsEnd = false;
+		children = new TNode[MAXCHAR];
+		for(int i = 0; i < MAXCHAR; i++)
+			children[i] = null;
+	}
+	
+	public void setIsEnd(boolean val){
+		bIsEnd = val;
+	}
+	
+	public boolean isEnd(){
+		return bIsEnd;
+	}
+	
+	public void setChild(int index){
+		children[index] = new TNode();
+	}
+	
+	public TNode getChild(int index){
+		return children[index];
+	}
+}
+
+class T{
+	private TNode root;
+	
+	public T(){
+		root = new TNode();
+	}
+	
+	public void insert(String word){
+		int length = word.length();
+		TNode crawl = root;
+		for(int level = 0; level < length; level++){
+			char ch = word.charAt(level);
+			int index = (int)ch - (int)'a';
+			if(crawl.getChild(index) != null)
+				crawl = crawl.getChild(index);
+			else{
+				crawl.setChild(index);
+				crawl = crawl.getChild(index);
+			}
+		}
+		crawl.setIsEnd(true);
+	}
+	
+	public String getMatchingPrefix(String input){
+		int length = input.length();
+		TNode crawl = root;
+		int prevMatch = 0;
+		String result = "";
+		for(int level = 0; level < length; level++){
+			char ch = input.charAt(level);
+			int index = (int)ch - (int)'a';
+			if(crawl.getChild(index) != null){
+				result += ch;
+				crawl = crawl.getChild(index);
+				
+				if(crawl.isEnd())
+					prevMatch = level + 1;
+			}
+			else
+				break;
+		}
+		if(!crawl.isEnd())
+			return result.substring(0, prevMatch);
+		else
+			return result;
+	}
+}
+
+public class LongestPrefixMatching {
+	public static void main(String[] args) throws IOException{
+		T dict = new T();
+		dict.insert("are");
+		dict.insert("area");
+        dict.insert("base");
+        dict.insert("cat");
+        dict.insert("cater");        
+        dict.insert("basement");
+        
+        for(int i = 0; i < 6; i++){
+	        System.out.print("Enter a string: ");
+	        String input = getString();
+	        System.out.print(input + ": ");
+	        System.out.println(dict.getMatchingPrefix(input));
+        }
+	}
+	
+	public static String getString() throws IOException{
+		InputStreamReader isr = new InputStreamReader(System.in);
+		BufferedReader br = new BufferedReader(isr);
+		String s = br.readLine();
+		return s;
+	}
+}
+
+ spicavigo Here is a solution in Python in O(n). Run the code here – http://codebunk.com/bunk#-ItYwbtf7Un77Vj2qSL2 class Node(object): def __init__(self, ch): self.ch = ch self.children = {} self.words = [] def add(self, sword, word): if not sword: self.words.append(word) return chnode = self.children.get(sword[0], Node(sword[0])) chnode.add(sword[1:], word) self.children[sword[0]] = chnode def find_prefix(root, word): prefix = [] for e in word: prefix = root.words or prefix if e in root.children.keys(): root = root.children[e] else: break prefix = root.words or prefix return prefix def load_dict(): words = [‘are’, ‘area’, ‘base’, ‘cat’, ‘cater’, ‘children’, ‘basement’] root = Node(None) for e in words:root.add(e.lower(), e) return root r = load_dict() print find_prefix(r, ‘caterer’) print find_prefix(r, ‘basement’) print find_prefix(r, ‘are’) print find_prefix(r, ‘arex’) print find_prefix(r, ‘xyz’) spicavigo A solution in O(n) in Python http://codebunk.com/bunk#-ItYwbtf7Un77Vj2qSL2 Prateek Sharma Python Code………… import numpy as np def longestPrefixString(a,string): newList =[] newListLength= [] lenOfString = len(string) liststr = list(string) for i in range(len(a)): length = len(a[i]) n =0 while(n<lenOfString and n<length): if ord(a[i][n]) == ord(liststr[n]): n +=1 continue else: break if (n == length): newList.append(a[i]) for i in newList: newListLength.append(len(i)) indexOfMaxElement = np.argmax(newListLength) print "Word is: "+newList[indexOfMaxElement] def main(): arrayOfDictionary =[‘car’,’child’,’children’,’maximum’] inputString= ‘maximumndnd’ longestPrefixString(arrayOfDictionary,inputString) if __name__ == ‘__main__': main() anishp2012 Please have a look at my code below.Have used a simple HashSet to accomplish the same. Kindly give comments if there is some problem with the code  
+/**
+ * 
+ */
+package com.abb.java.trainings;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.HashSet;
+import java.util.Set;
+
+/**
+ * @author INANPRA4
+ * @date Apr 27, 2013
+ * @time 11:20:31 PM
+ */
+public class ValidWordDictionary {
+
+    Set<String> wordsInDictionary = null;
+    
+    private final String WORD_1 = "are";
+    private final String WORD_2 = "area";
+    private final String WORD_3 = "base";
+    private final String WORD_4 = "cat";
+    private final String WORD_5 = "cater";
+    private final String WORD_6 = "children";
+    private final String WORD_7 = "basement";
+    
+    /**
+     * Default Constructor
+     */
+    public ValidWordDictionary () {
+	initDictionary();
+    }
+    
+    /**
+     * Initializes the Dictionary
+     */
+    public void initDictionary() {
+	this.wordsInDictionary = new HashSet<String>();
+	wordsInDictionary.add ( WORD_1 );
+	wordsInDictionary.add ( WORD_2 );
+	wordsInDictionary.add ( WORD_3 );
+	wordsInDictionary.add ( WORD_4 );
+	wordsInDictionary.add ( WORD_5 );
+	wordsInDictionary.add ( WORD_6 );
+	wordsInDictionary.add ( WORD_7 );
+    }
+    
+    /**
+     * Responsible for reading a value from the keyboard
+     * 
+     * @return
+     */
+    private String getStringFromKeyboard() {
+	System.out.print("\n Enter the string:");
+	try {
+	    return new BufferedReader(new InputStreamReader(System.in))
+		    .readLine();
+	} catch (IOException e) {
+	    e.printStackTrace();
+	}
+	return null;
+    }
+    
+    /**
+     * Execution starts here
+     * @param args
+     */
+    public static void main(String[] args) {
+	final String wordInDictionary = new ValidWordDictionary().getValidWordFromDictionary();
+	if (wordInDictionary == null) {
+	    System.out.println ("No word of the longest prefix of the entered string could be found in the dictionary");
+	} else {
+	    System.out.println ("The word is : " + wordInDictionary);
+	}
+    }
+
+    /**
+     * Responsible for retrieving the  longest prefix of the string which is also a word in dictionary.
+     * @return <String> word from the dictionary , null otherwise
+     */
+    private String getValidWordFromDictionary() {
+	String valueEntered = getStringFromKeyboard();
+	if (valueEntered != null && valueEntered.trim().length() > 0) {
+	    for (int i = valueEntered.length(); i >0 ; i--) {
+		String validWordInDictionary =  valueEntered.substring(0, i-1) ;
+		if (this.wordsInDictionary.contains(validWordInDictionary)) {
+		    return validWordInDictionary;
+		}
+	    }
+	}
+	return null;
+    }
+}
+
+ Output : caterer :cater basement:basement arex:are are:are basemexz :base xyx: No word of the longest prefix of the entered string could be found in the dictionary kartik @anishp2012: Thanks for suggesting another method. The code looks good and seems to be handling all cases. However, time complexity of this looks more that that of the Trie method. It seems that you generate all prefixes and them look them in hashTable. The worst case complexity of this would be O(n^2), but the method suggested above takes O(n) time. Please correct me if i am wrong. anishp2012 @kartik : Thanks for your reply.There needs to be a correction as to what you’ve understood. “The prefixes generated which you see in my code, will be compared starting from the string entered(Initial input provided by the user) and if not found in the dictionary, will keep truncating the entered string to check for the word in the dictionary again untill it is found (exactly opposite to what had been depicted in the initial code provided by Ravi.Hence,I avoid storing any string and keep checking for string matches which has a longer prefix String in the dictionary). For retrieval from the dictionary,I have used a HashSet .As you might be already aware that for a HashSet, for retrieval complexity is O(1).Hence the worst case complexity will also be O(n) and not O(n^2).” Would love to provide more documentation if you still face any problems understanding the code which I’ve provided. Kindly correct me if you feel I’m not correct Regards Anish kartik @anishp2012: To the best of my knowledge, the worst case time complexity of lookup in HashSet is O(n). You may refer following link. http://stackoverflow.com/questions/6574916/hashset-look-up-complexity anishp2012 @kartik : Its typically O(1) and even referring to the link which you have provided, we can see that “Yes, but it’s really the worst case: if all the elements in the HashSet have the same hash code (or a hash code leading to the same bucket). With a correctly written hashCode and a normally distributed key sample, a lookup is O(1).” Still,I feel we can improve by using TreeSet instead of HashSet since I would like my words in the dictionary to be in the sorted order as in a dictionary.I hope you agree to the same Thanks Anish Ravi Chandra I second kartik. No doubt, the solution provided by Anish is simpler than Trie based solution. But the worst case time complexity of this solution would be O(n^2). Also for dictionary with many words, the space complexity for Trie based solution would always be better. http://www.facebook.com/barnwal.aashish Aashish The TRIE DS will always have a win-win factor because of its nature of storing words as a prefix(thereby saving space). Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

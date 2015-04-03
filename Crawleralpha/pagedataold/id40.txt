@@ -1,0 +1,84 @@
+K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) We recommend to read following post as a prerequisite of this post. K’th Smallest/Largest Element in Unsorted Array | Set 1 Given an array and a number k where k is smaller than size of array, we need to find the k’th smallest element in the given array. It is given that ll array elements are distinct. Examples: Input: arr[] = {7, 10, 4, 3, 20, 15}
+       k = 3
+Output: 7
+
+Input: arr[] = {7, 10, 4, 3, 20, 15}
+       k = 4
+Output: 10 We have discussed three different solutions here. In this post method 4 is discussed which is mainly an extension of method 3 (QuickSelect) discussed in the previous post. The idea is to randomly pick a pivot element. To implement randomized partition, we use a random function, rand() to generate index between l and r, swap the element at randomly generated index with the last element, and finally call the standard partition process which uses last element as pivot. Following is C++ implementation of above Randomized QuickSelect. 
+// C++ implementation of randomized quickSelect
+#include<iostream>
+#include<climits>
+#include<cstdlib>
+using namespace std;
+
+int randomPartition(int arr[], int l, int r);
+
+// This function returns k'th smallest element in arr[l..r] using
+// QuickSort based method.  ASSUMPTION: ALL ELEMENTS IN ARR[] ARE DISTINCT
+int kthSmallest(int arr[], int l, int r, int k)
+{
+    // If k is smaller than number of elements in array
+    if (k > 0 && k <= r - l + 1)
+    {
+        // Partition the array around a random element and
+        // get position of pivot element in sorted array
+        int pos = randomPartition(arr, l, r);
+
+        // If position is same as k
+        if (pos-l == k-1)
+            return arr[pos];
+        if (pos-l > k-1)  // If position is more, recur for left subarray
+            return kthSmallest(arr, l, pos-1, k);
+
+        // Else recur for right subarray
+        return kthSmallest(arr, pos+1, r, k-pos+l-1);
+    }
+
+    // If k is more than number of elements in array
+    return INT_MAX;
+}
+
+void swap(int *a, int *b)
+{
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+// Standard partition process of QuickSort().  It considers the last
+// element as pivot and moves all smaller element to left of it and
+// greater elements to right. This function is used by randomPartition()
+int partition(int arr[], int l, int r)
+{
+    int x = arr[r], i = l;
+    for (int j = l; j <= r - 1; j++)
+    {
+        if (arr[j] <= x)
+        {
+            swap(&arr[i], &arr[j]);
+            i++;
+        }
+    }
+    swap(&arr[i], &arr[r]);
+    return i;
+}
+
+// Picks a random pivot element between l and r and partitions
+// arr[l..r] arount the randomly picked element using partition()
+int randomPartition(int arr[], int l, int r)
+{
+    int n = r-l+1;
+    int pivot = rand() % n;
+    swap(&arr[l + pivot], &arr[r]);
+    return partition(arr, l, r);
+}
+
+// Driver program to test above methods
+int main()
+{
+    int arr[] = {12, 3, 5, 7, 4, 19, 26};
+    int n = sizeof(arr)/sizeof(arr[0]), k = 3;
+    cout << "K'th smallest element is " << kthSmallest(arr, 0, n-1, k);
+    return 0;
+} Output: 
+K'th smallest element is 5 Time Complexity: The worst case time complexity of the above solution is still O(n2). In worst case, the randomized function may always pick a corner element. The expected time complexity of above randomized QuickSelect is Θ(n), see CLRS book or MIT video lecture for proof. The assumption in the analysis is, random number generator is equally likely to generate any number in the input range. Sources: MIT Video Lecture on Order Statistics, Median Introduction to Algorithms by Clifford Stein, Thomas H. Cormen, Charles E. Leiserson, Ronald L. This article is contributed by Shivam. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Given an n x n square matrix, find sum of all sub-squares of size k x k Tweet Writing code in comment? Please use ideone.com and share the link here. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

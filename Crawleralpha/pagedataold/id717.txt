@@ -1,0 +1,139 @@
+Sorted Array to Balanced BST - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Sorted Array to Balanced BST Given a sorted array. Write a function that creates a Balanced Binary Search Tree using array elements. Examples: 
+Input:  Array {1, 2, 3}
+Output: A Balanced BST
+     2
+   /  \
+  1    3 
+
+Input: Array {1, 2, 3, 4}
+Output: A Balanced BST
+      3
+    /  \
+   2    4
+ /
+1
+ Algorithm In the previous post, we discussed construction of BST from sorted Linked List. Constructing from sorted array in O(n) time is simpler as we can get the middle element in O(1) time. Following is a simple algorithm where we first find the middle node of list and make it root of the tree to be constructed. 
+1) Get the Middle of the array and make it root.
+2) Recursively do same for left half and right half.
+      a) Get the middle of left half and make it left child of the root
+          created in step 1.
+      b) Get the middle of right half and make it right child of the
+          root created in step 1.
+ Following is C implementation of the above algorithm. The main code which creates Balanced BST is highlighted. 
+#include<stdio.h>
+#include<stdlib.h>
+
+/* A Binary Tree node */
+struct TNode
+{
+    int data;
+    struct TNode* left;
+    struct TNode* right;
+};
+
+struct TNode* newNode(int data);
+
+/* A function that constructs Balanced Binary Search Tree from a sorted array */
+struct TNode* sortedArrayToBST(int arr[], int start, int end)
+{
+    /* Base Case */
+    if (start > end)
+      return NULL;
+
+    /* Get the middle element and make it root */
+    int mid = (start + end)/2;
+    struct TNode *root = newNode(arr[mid]);
+
+    /* Recursively construct the left subtree and make it
+       left child of root */
+    root->left =  sortedArrayToBST(arr, start, mid-1);
+
+    /* Recursively construct the right subtree and make it
+       right child of root */
+    root->right = sortedArrayToBST(arr, mid+1, end);
+
+    return root;
+}
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct TNode* newNode(int data)
+{
+    struct TNode* node = (struct TNode*)
+                         malloc(sizeof(struct TNode));
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+
+    return node;
+}
+
+/* A utility function to print preorder traversal of BST */
+void preOrder(struct TNode* node)
+{
+    if (node == NULL)
+        return;
+    printf("%d ", node->data);
+    preOrder(node->left);
+    preOrder(node->right);
+}
+
+/* Driver program to test above functions */
+int main()
+{
+    int arr[] = {1, 2, 3, 4, 5, 6, 7};
+    int n = sizeof(arr)/sizeof(arr[0]);
+
+    /* Convert List to BST */
+    struct TNode *root = sortedArrayToBST(arr, 0, n-1);
+    printf("\n PreOrder Traversal of constructed BST ");
+    preOrder(root);
+
+    return 0;
+}
+ Time Complexity: O(n) Following is the recurrance relation for sortedArrayToBST(). 
+  T(n) = 2T(n/2) + C
+  T(n) -->  Time taken for an array of size n
+   C   -->  Constant (Finding middle of array and linking root to left 
+                      and right subtrees take constant time) 
+ The above recurrence can be solved using Master Theorem as it falls in case 2. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. Par dude new node won’t work here.. struct node should be used as u haven’t used typedef…. moreover the memory is not allocated to the node which should be the case for dynamic creation each time. Check for the same in both and you might get rid of the error mccullum why is the compexity in previous post as mentioned in this qstion with same algo is o(nlogn) and here it is o(n)? pls explain mccullum shouldn’t it b O(logn) zealfire will forming an avl tree would suffice in this case http://opensourceforgeeks.blogspot.in/ Aniket Thakur Java Code with output —> http://opensourceforgeeks.blogspot.in/2014/01/converting-array-to-balanced-bstbinary.html Sriharsha g.r.v why is the compexity in previous post as mentioned in this qstion with same algo is o(nlogn) and here it is o(n)? pls explain rohit kumar my code is not working any one can help struct node* root= cons( arr[mid] ); struct node* root= atb(arr,0,u-1); getting error at these two lines rohit kumar #include #include #include using namespace std; struct node{ int data; struct node *left, *right; }; struct node *temp,*root=NULL; struct node* atb(int arr,int s,int e); struct node* cons(int ); void preOrder(struct node*p); int main() { cout < e) return NULL; int mid=(s+e)/2; struct node* root= cons( arr[mid] ); root->left= atb(arr,s,mid-1); root->right= atb(arr,mid+1,e); return root; } struct node* cons(int val) { struct node* temp =new node; temp->data=val; temp->left=NULL; temp->right=NULL; return temp; } void preOrder(struct node*p) { if(p==NULL) return; preOrder(p->left); preOrder( p->right); cout<data; } Kulbir Please replace mid = (end – start + 1)/2; Ashu The line int mid = (start + end)/2; should be changed to ceiling((start + end)/2) if we want the tree for [1, 2, 3, 4] as shown in the diagram. If we don’t have a ceiling function we can do like int sum = start + end; int floor = sum /2; int ceiling = floor + sum – floor * 2; Thanks, Ashu http://www.codeproject.com/script/Articles/MemberArticles.aspx?amid=3411232 Omar Salem another way to get the ceiling:  
+int ceiling =sum%2==0?sum/2:(sum/2)+1;
+ rahul23 @geeksforgeeks For input 1,2,3,4 It will not give balanced tree. We need to find ceil value..Plz update thnx rahul rahul23 Although it create balanced tree but we should keep nodes as left as possible to keep it a complete binary tree thnx rahul zarroc Ashu is right. Another way to use ceil function: int mid = ceil((start + end)/2.0);  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://www.groupme.in Nikin  
+void btree::makeSortedArrayTree(node **sr, int arr[], int start, int end)
+{
+	if(start <= end)
+	{
+		int mid = (start+end)/2;
+		if(!*sr)
+		{
+			node *temp = new node;
+			temp->data = arr[mid];
+			temp->left = NULL;
+			temp->right = NULL;
+			temp->next = NULL;
+			*sr = temp;
+		}
+		makeSortedArrayTree(&(*sr)->left, arr, start, mid-1);
+		makeSortedArrayTree(&(*sr)->right, arr, mid+1, end);
+	}
+}
+
+void btree::buildSortedTree(int arr[], int start, int end)
+{
+	makeSortedArrayTree(&root, arr, start, end); 
+}
+ Sudha  
+/* Paste your code here (You may delete these lines if not writing code) */
+
+Why from 0 to n-2...
+ struct TNode *root = sortedArrayToBST(arr, 0, n-2);
+it is excluding last element of the array to add it into BST.
+
+Instead following will work well...
+ struct TNode *root = sortedArrayToBST(arr, 0, n-1);
+
+
+
+ GeeksforGeeks @Sudha: Thanks for pointing this out. We have updated the post. Keep it up! Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

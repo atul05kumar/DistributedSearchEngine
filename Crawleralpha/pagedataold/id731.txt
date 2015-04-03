@@ -1,0 +1,581 @@
+Find a pair with given sum in a Balanced BST - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find a pair with given sum in a Balanced BST Given a Balanced Binary Search Tree and a target sum, write a function that returns true if there is a pair with sum equals to target sum, otherwise return false. Expected time complexity is O(n) and only O(Logn) extra space can be used. Any modification to Binary Search Tree is not allowed. Note that height of a Balanced BST is always O(Logn). This problem is mainly extension of the previous post. Here we are not allowed to modify the BST. The Brute Force Solution is to consider each pair in BST and check whether the sum equals to X. The time complexity of this solution will be O(n^2). A Better Solution is to create an auxiliary array and store Inorder traversal of BST in the array. The array will be sorted as Inorder traversal of BST always produces sorted data. Once we have the Inorder traversal, we can pair in O(n) time (See this for details). This solution works in O(n) time, but requires O(n) auxiliary space. A space optimized solution is discussed in previous post. The idea was to first in-place convert BST to Doubly Linked List (DLL), then find pair in sorted DLL in O(n) time. This solution takes O(n) time and O(Logn) extra space, but it modifies the given BST. The solution discussed below takes O(n) time, O(Logn) space and doesn’t modify BST. The idea is same as finding the pair in sorted array (See method 1 of this for details). We traverse BST in Normal Inorder and Reverse Inorder simultaneously. In reverse inorder, we start from the rightmost node which is the maximum value node. In normal inorder, we start from the left most node which is minimum value node. We add sum of current nodes in both traversals and compare this sum with given target sum. If the sum is same as target sum, we return true. If the sum is more than target sum, we move to next node in reverse inorder traversal, otherwise we move to next node in normal inorder traversal. If any of the traversals is finished without finding a pair, we return false. Following is C++ implementation of this approach. 
+/* In a balanced binary search tree isPairPresent two element which sums to
+   a given value time O(n) space O(logn) */
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX_SIZE 100
+
+// A BST node
+struct node
+{
+    int val;
+    struct node *left, *right;
+};
+
+// Stack type
+struct Stack
+{
+    int size;
+    int top;
+    struct node* *array;
+};
+
+// A utility function to create a stack of given size
+struct Stack* createStack(int size)
+{
+    struct Stack* stack =
+        (struct Stack*) malloc(sizeof(struct Stack));
+    stack->size = size;
+    stack->top = -1;
+    stack->array =
+        (struct node**) malloc(stack->size * sizeof(struct node*));
+    return stack;
+}
+
+// BASIC OPERATIONS OF STACK
+int isFull(struct Stack* stack)
+{   return stack->top - 1 == stack->size;  }
+
+int isEmpty(struct Stack* stack)
+{   return stack->top == -1;   }
+
+void push(struct Stack* stack, struct node* node)
+{
+    if (isFull(stack))
+        return;
+    stack->array[++stack->top] = node;
+}
+
+struct node* pop(struct Stack* stack)
+{
+    if (isEmpty(stack))
+        return NULL;
+    return stack->array[stack->top--];
+}
+
+// Returns true if a pair with target sum exists in BST, otherwise false
+bool isPairPresent(struct node *root, int target)
+{
+    // Create two stacks. s1 is used for normal inorder traversal
+    // and s2 is used for reverse inorder traversal
+    struct Stack* s1 = createStack(MAX_SIZE);
+    struct Stack* s2 = createStack(MAX_SIZE);
+
+    // Note the sizes of stacks is MAX_SIZE, we can find the tree size and
+    // fix stack size as O(Logn) for balanced trees like AVL and Red Black
+    // tree. We have used MAX_SIZE to keep the code simple
+
+    // done1, val1 and curr1 are used for normal inorder traversal using s1
+    // done2, val2 and curr2 are used for reverse inorder traversal using s2
+    bool done1 = false, done2 = false;
+    int val1 = 0, val2 = 0;
+    struct node *curr1 = root, *curr2 = root;
+
+    // The loop will break when we either find a pair or one of the two
+    // traversals is complete
+    while (1)
+    {
+        // Find next node in normal Inorder traversal. See following post
+        // http://www.geeksforgeeks.org/inorder-tree-traversal-without-recursion/
+        while (done1 == false)
+        {
+            if (curr1 != NULL)
+            {
+                push(s1, curr1);
+                curr1 = curr1->left;
+            }
+            else
+            {
+                if (isEmpty(s1))
+                    done1 = 1;
+                else
+                {
+                    curr1 = pop(s1);
+                    val1 = curr1->val;
+                    curr1 = curr1->right;
+                    done1 = 1;
+                }
+            }
+        }
+
+        // Find next node in REVERSE Inorder traversal. The only
+        // difference between above and below loop is, in below loop
+        // right subtree is traversed before left subtree
+        while (done2 == false)
+        {
+            if (curr2 != NULL)
+            {
+                push(s2, curr2);
+                curr2 = curr2->right;
+            }
+            else
+            {
+                if (isEmpty(s2))
+                    done2 = 1;
+                else
+                {
+                    curr2 = pop(s2);
+                    val2 = curr2->val;
+                    curr2 = curr2->left;
+                    done2 = 1;
+                }
+            }
+        }
+
+        // If we find a pair, then print the pair and return. The first
+        // condition makes sure that two same values are not added
+        if ((val1 != val2) && (val1 + val2) == target)
+        {
+            printf("\n Pair Found: %d + %d = %d\n", val1, val2, target);
+            return true;
+        }
+
+        // If sum of current values is smaller, then move to next node in
+        // normal inorder traversal
+        else if ((val1 + val2) < target)
+            done1 = false;
+
+        // If sum of current values is greater, then move to next node in
+        // reverse inorder traversal
+        else if ((val1 + val2) > target)
+            done2 = false;
+
+        // If any of the inorder traversals is over, then there is no pair
+        // so return false
+        if (val1 >= val2)
+            return false;
+    }
+}
+
+// A utility function to create BST node
+struct node * NewNode(int val)
+{
+    struct node *tmp = (struct node *)malloc(sizeof(struct node));
+    tmp->val = val;
+    tmp->right = tmp->left =NULL;
+    return tmp;
+}
+
+// Driver program to test above functions
+int main()
+{
+    /*
+                   15
+                /     \
+              10      20
+             / \     /  \
+            8  12   16  25    */
+    struct node *root =  NewNode(15);
+    root->left = NewNode(10);
+    root->right = NewNode(20);
+    root->left->left = NewNode(8);
+    root->left->right = NewNode(12);
+    root->right->left = NewNode(16);
+    root->right->right = NewNode(25);
+
+    int target = 33;
+    if (isPairPresent(root, target) == false)
+        printf("\n No such values are found\n");
+
+    getchar();
+    return 0;
+}
+ Output:  Pair Found: 8 + 25 = 33 This article is compiled by Kumar and reviewed by GeeksforGeeks team. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. sukisukimo /* * Modified version of the above algorithm, where is the pair resides on the left/right subtree from the root */ boolean findPairOfSumBestSol(BinaryNode head, int sum) { int leftVal = 0, rightVal = 0; BinaryNode left = head; BinaryNode right = head.right; boolean isLeft, isRight, still; isLeft = isRight = still = true; Stack sl = new Stack(10); Stack sr = new Stack(10); while (still) { while (isLeft) { if (left != null) { sl.pushNode(left); left = left.left; } else { if (sl.isEmpty()) { isLeft = false; left = head.right; } else { isLeft = false; left = sl.popNode(); leftVal = left.key; left = left.right; } } } while (isRight) { if (right != null) { sr.pushNode(right); right = right.right; } else { if (sr.isEmpty()) { isRight = false; right = head.left; } else { isRight = false; right = sr.popNode(); rightVal = right.key; right = right.left; } } } if (leftVal != rightVal && leftVal + rightVal == sum) { System.out.println(“Pairs are :” + leftVal + ” and ” + rightVal); still = false; return true; } else if (leftVal == rightVal) still = false; else if (leftVal + rightVal sum) isRight = true; } return false; } /* * test from main methiod */ public static void main(String[] args) { BinaryNode b30 = new BinaryNode(30); BinaryNode b20 = new BinaryNode(20); BinaryNode b40 = new BinaryNode(40); BinaryNode b15 = new BinaryNode(15); BinaryNode b25 = new BinaryNode(25); BinaryNode b35 = new BinaryNode(35); BinaryNode b45 = new BinaryNode(45); BinaryNode b13 = new BinaryNode(13); BinaryNode b17 = new BinaryNode(17); BinaryNode b18 = new BinaryNode(18); BinaryNode b19 = new BinaryNode(19); BinaryNode b43 = new BinaryNode(43); BinaryNode b46 = new BinaryNode(46); b30.left = b20; b30.right = b40; b20.left = b15; b20.right = b25; b40.left = b35; b40.right = b45; b15.left = b13; b15.right = b17; b17.right = b18; b18.right = b19; b45.left = b43; b45.right = b46; System.out.println(findPairOfSumBestSol(b30, 38)); } sukisukimo This algorithm will not work if the pair are in the left subtree(or right subtree) from the root eg sum=18, sum=20 Jayanth Can someone explain how is the space O(logn)..?? Isnt it O(n)…?? Sumit Monga height of tree is always 0(logn) as it is a balanced bst so maximum depth of stack is 0(logn) as on pushing elements we go from one level to another. hope its clear now Newgeek i think we can have a O(nlogn) solution for this without any space. Since it is a BST, for each node we can search for (k – node->data) in the tree in O(logn) time. OP Coder In today’s world, space is not a problem, but speed is. So always try to optimize it. amit This code returns only single pair value if we have multiple pair value then it will not return for that purpose we need to update the code // condition makes sure that two same values are not added if ((val1 != val2) && (val1 + val2) == target) { printf(“n Pair Found: %d + %d = %dn”, val1, val2, target); boo1= false; boo2 = false; } let me know for any more issue. hary Can someone please point if either of the stack would ever go empty before the traversals getting completed/over. I could not think of a scenario and so please help understanding the same. In case, there is no such scenario I request please update the code to avoid the confusion as it adds extra condition. Ganesh  
+package com.ganesh;
+
+import com.ganesh.Node;
+
+public class TreePair {
+	
+	// Do an inorder traversal to print a tree
+    public static void printTree(Node root) {
+        if (root==null) return;
+        printTree(root.small);
+        System.out.print(Integer.toString(root.data) + " ");
+        printTree(root.large);
+    }
+	
+	public static void findsumPair(int sum, Node root, Node curr)
+    {
+    	if(root == null && curr == null) return;
+  
+    	findsumPair(sum, (root==null)?null:root.small, (curr==null)?null:curr.large);
+    	
+    	if(root!=null && curr!= null)
+    	{
+    		if(root.data + curr.data == sum && root.data != curr.data)
+        		System.out.println("Pair for the given sum: " + sum + " exists. The values are " + root.data + " and " + curr.data);
+    	}
+    	
+    	findsumPair(sum, (root==null)?null:root.large, (curr==null)?null:curr.small);
+    }
+	
+	public static void main(String[] args) {
+	    
+        // first build the tree shown in the problem document
+        // http://cslibrary.stanford.edu/109/
+//        Node root = new Node(4);
+//        treeInsert(root, 2);
+//        treeInsert(root, 1);
+//        treeInsert(root, 3);
+//        treeInsert(root, 5);
+    	
+    	Node root =  new Node(15);
+        root.small = new Node(10);
+        root.large = new Node(20);
+        root.small.small = new Node(8);
+        root.small.large = new Node(12);
+        root.large.small = new Node(16);
+        root.large.large = new Node(25);
+        
+        System.out.println("In order traversal of tree:");
+        printTree(root);
+        
+        System.out.println();
+        Node curr = root;
+        findsumPair(33, root, curr);
+    }
+
+}
+
+ Prabhu Here is a concise solution… void pushallleft(node * n, stack & stk) { while(n) { stk.push(n); n = n->left; } } void pushallright(node * n, stack & stk) { while(n) { stk.push(n); n = n->right; } } bool isPairPresent(node * root, int target) { stack first, second; pushallleft(root, first); pushallright(root, second); while(!first.empty() && !second.empty()) { node * tmp1 = first.top(); node * tmp2 = second.top(); if(tmp1 == tmp2) return false; if((tmp1->data + tmp2->data) right, first); } else if((tmp1->data + tmp2->data) > target) { second.pop(); pushallright(tmp2->left, second); } else { printf(“\n Pair Found: %d + %d = %d\n”, tmp1->data, tmp2->data, target); return true; } } return false; } Abhay Hi, There is a bug in the code. Try on following input 
+ /*
+                   15
+                /     \
+              10      17
+             / \     /  \
+            8  12   16  25    */ struct node *root = NewNode(15); root->left = NewNode(10); root->right = NewNode(17); root->left->left = NewNode(8); root->left->right = NewNode(12); root->right->left = NewNode(16); root->right->right = NewNode(25); int target = 30; The while loop never break on above input Replace if ((curr1==NULL && isEmpty(s1)) || ((curr2==NULL) && isEmpty(s2))) with if ((curr1==NULL && isEmpty(s1)) || ((curr2==NULL) && isEmpty(s2)) || (val1>=val2) ). GeeksforGeeks @Abhay: Thanks for pointing this out. We have updated the condition. Keep it up! Abhay you can even replace if ((curr1==NULL && isEmpty(s1)) || ((curr2==NULL) && isEmpty(s2)) || (val1>=val2) ). with if(val1>=val2) return false; as before any traversal ends val1 will have to pass through val2. GeeksforGeeks Ok thanks Abhay, we have updated the condition. Amit Singh This code returns only one pair , what if there exists multiple pairs of the given target /sum. Example : target=14, pairs (9,5) & (8,6) 6 2 8 1 4 7 9 3 5 Jayanth Can someone explain how is the space O(logn)..?? Isnt it O(n)…??? Akhil A concise C++ code #include<stdio.h> #include<stdlib.h> #include<stack> using namespace std; struct tree { int info; struct tree *l; struct tree *r; }; typedef struct tree *Tree; Tree insert(int num) { Tree root = (Tree)malloc(sizeof(struct tree)); root->info = num; root->l = NULL; root->r = NULL; return root; } bool sumNums(Tree root1, int sum, int *v1, int *v2) { Tree root2 = root1; stack<Tree> s1,s2; do { while(root1) { s1.push(root1); root1 = root1->l; } while(root2) { s2.push(root2); root2 = root2->r; } int val1 = s1.top()->info; int val2 = s2.top()->info; if(s1.top()!=s2.top() && val1+val2==sum) { *v1 = val1; *v2 = val2; return true; } else if(val1+val2>sum) { root2 = s2.top(); root2 = root2->l; s2.pop(); root1 = NULL; } else { root1 = s1.top(); root1 = root1->r; s1.pop(); root2 = NULL; } }while((root1 || !s1.empty())&& (root2 || !s2.empty())); return false; } int main() { Tree root = insert(5); root->l = insert(2); root->l->l = insert(1); root->l->r = insert(3); root->r = insert(7); root->r->l = insert(6); root->r->r = insert(21); int v1,v2; if(sumNums(root,10,&v1,&v2)) { printf("%d %d",v1,v2); } else printf("Sum not found!"); return 0; } Akhil A Concise Code.  
+#include<stdio.h>
+#include<stdlib.h>
+#include<stack>
+using namespace std;
+struct tree
+{
+    int info;
+    struct tree *l;
+    struct tree *r;
+};
+typedef struct tree *Tree;
+
+Tree insert(int num)
+{
+    Tree root = (Tree)malloc(sizeof(struct tree));
+    root->info = num;
+    root->l = NULL;
+    root->r = NULL;
+    return root;
+}
+bool sumNums(Tree root1, int sum, int *v1, int *v2)
+{
+    Tree root2 = root1;
+    stack<Tree> s1,s2;
+    do
+    {
+        while(root1)
+        {
+            s1.push(root1);
+            root1 = root1->l;
+        }
+        while(root2)
+        {
+            s2.push(root2);
+            root2 = root2->r;
+        }
+        int val1 = s1.top()->info;
+        int val2 = s2.top()->info;
+        if(s1.top()!=s2.top() && val1+val2==sum)
+        {
+            *v1 = val1;
+            *v2 = val2;
+            return true;
+        }
+        else if(val1+val2>sum)
+        {
+            root2 = s2.top();
+            root2 = root2->l;
+            s2.pop();
+            root1 = NULL;
+        }
+        else
+        {
+            root1 = s1.top();
+            root1 = root1->r;
+            s1.pop();
+            root2 = NULL;
+        }
+    }while((root1 || !s1.empty())&& (root2 || !s2.empty()));
+    return false;
+}
+int main()
+{
+    Tree root = insert(5);
+    root->l = insert(2);
+    root->l->l = insert(1);
+    root->l->r = insert(3);
+    root->r = insert(7);
+    root->r->l = insert(6);
+    root->r->r = insert(21);
+    int v1,v2;
+    if(sumNums(root,10,&v1,&v2))
+    {
+        printf("%d %d",v1,v2);
+    }
+    else
+        printf("Sum not found!");
+    return 0;
+}
+
+ abhishek08aug Intelligent Vimal What would be brute force solution for this ? How do you find each pair in an BST ? Asif Eqbal Hi I think in above program since you are traversing both inorder and reverse inorder completely. It will lead to a case fail in scenario such that if target value is 50 then it will give soln as 25+25=50 although it should give output as “No Pair Present”. In general if we given value of target as double of any node value then it will give as “pair present”. Modified code: #include #include #include struct node{ int num; node *left; node *right; }; node *root; int buildtree(int); int inorder(node *); int findsum(node *,int); int main() { buildtree(5); buildtree(4); buildtree(2); buildtree(3); buildtree(7); buildtree(9); buildtree(12); buildtree(8); buildtree(10); buildtree(14); printf(“\nThe Inorder Traversal Of Tree Is\n”); inorder(root); int sum; printf(“\nEnter The Required Sum\n”); scanf(“%d”,&sum); findsum(root,sum); getch(); } int buildtree(int num) { node *temp; temp=(node *)malloc(sizeof(node)); temp->left=NULL; temp->right=NULL; temp->num=num; if(root==NULL) root=temp; else{ node *p=root; while(1){ if(temp->num>p->num){ if(p->right==NULL){ p->right=temp; break; } else p=p->right; } else{ if(p->left==NULL){ p->left=temp; break; } else p=p->left; } } } } int inorder(node *root) { if(root){ inorder(root->left); printf(“%d “,root->num); inorder(root->right); } } int findsum(node *root,int sum) { node *stack1[20],*stack2[20]; int top1=-1,top2=-1,done1=0,done2=0; node *current1=root,*current2=root,*val1,*val2; while(1){ while(!done1){ if(current1!=NULL){ stack1[++top1]=current1; current1=current1->left; } else{ if(top1==-1) done1=1; else{ current1=stack1[top1]; val1=current1; top1–; current1=current1->right; done1=1; } } } while(!done2){ if(current2!=NULL){ stack2[++top2]=current2; current2=current2->right; } else{ if(top2==-1) done2=1; else{ current2=stack2[top2]; val2=current2; top2–; done2=1; current2=current2->left; } } } if(val1==val2){ printf(“\nNo Node With Required Sum\n”); return 0; } if(val1->num+val2->num==sum){ printf(“\n%d+%d=%d”,val1->num,val2 >num,sum); return 1; } if(val1->num+val2->num>sum) done2=0; else done1=0; } } Sarvanan Boopathy Hi, I think we can solve this in Inorder Traversal way as below. Please correct me if I am wrong.  
+class FindIfSumExists{
+	public boolean ifSumExists(Tree root, Tree node, int sum){
+		if(root == null || node == null) return false;
+		boolean b = false;
+		if(node == root){
+			b = findOther(root.left,node.data - sum);
+			b = findOther(root.right,node.data -sum) | b;
+			
+			if(b) return true;
+		}
+		if(findOther(root,node.data - sum) return true;
+		return ifSumExists(root,node.left,sum) || ifSumExists(root,node.right,sum);
+	}
+	
+	public boolean findOther(Tree root, int sum){
+	if(root == null) return false;
+	Tree temp = root;
+	if(sum == root.data) return true;
+	while(temp!=null){
+	if(temp != node && temp.data == sum) return true; //assumtion is that equal values are put to the right of the tree
+	if(sum > root.data)
+		temp = temp.left;
+	else temp = temp.right;
+	}
+	return false;	
+}
+ Sarvanan Boopathy Sorry, the above code had a bug… this is the correct version package trees; class FindIfSumExists{ public boolean ifSumExists(Tree root, Tree node, int sum){ if(root == null || node == null) return false; boolean b = false; if(node == root){ b = findOther(root.left,sum – node.i,node); b = findOther(root.right,sum – node.i,node) | b; if(b) return true; } if(findOther(root,sum – node.i,node)) return true; return ifSumExists(root,node.left,sum) || ifSumExists(root,node.right,sum); } public boolean findOther(Tree root, int sum,Tree node){ if(root == null) return false; Tree temp = root; if(node != root && sum == root.i) return true; while(temp!=null){ if(temp != node && temp.i == sum) return true; //assumtion is that equal values are put to the right of the tree if(sum < temp.i) temp = temp.left; else temp = temp.right; } return false; } } Sarvanan Boopathy Hi, I think the simpler solution would be of O(n). When we traverse the tree in inorder way and check if the complement of this value exists in the tree. Below is the Java code. Please correct me if I am wrong. class FindIfSumExists{ public boolean ifSumExists(Tree root, Tree node, int sum){ if(root == null || node == null) return false; boolean b = false; if(node == root){ b = findOther(root.left,node.data – sum); b = findOther(root.right,node.data -sum) | b; if(b) return true; } if(findOther(root,node.data – sum) return true; return ifSumExists(root,node.left,sum) || ifSumExists(root,node.right,sum); } public boolean findOther(Tree root, int sum){ if(root == null) return false; Tree temp = root; if(sum == root.data) return true; while(temp!=null){ if(temp != node && temp.data == sum) return true; //assumtion is that equal values are put to the right of the tree if(sum > root.data) temp = temp.left; else temp = temp.right; } return false; } Gupt A Hashset based solution do in/pre/post/level order traversal { compliment = sum – currnode->data; if (hashset.contains(compliment)) { return true or alternatively print order; } hashset.insert(currnode->data); }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ sk But how do you solve, if given pair lies in either left side or only in right side of the tree. I think , given geeksforgeeks solution is incorrect. Correct me if i am wrong. GeeksforGeeks @sk: Could you please let us know a test case for which it didn’t work? We tried for different cases, and it seems to be working for all. See following main() function for example. The program prints 8 and 12 as pair.  
+int main()
+{
+    /*
+                   15
+                /     \
+              10      20
+             / \     /  \
+            8  12   16  25    */
+    struct node *root =  NewNode(15);
+    root->left = NewNode(10);
+    root->right = NewNode(20);
+    root->left->left = NewNode(8);
+    root->left->right = NewNode(12);
+    root->right->left = NewNode(16);
+    root->right->right = NewNode(25);
+
+    int target = 20;
+    if (isPairPresent(root, target) == false)
+        printf("\n No such values are found\n");
+
+    getchar();
+    return 0;
+}
+ Soumya Sengupta fucntion returns true for 16(8 and 8)… we should have a condition if(val1!=val2)….after which the comparison f sums should be done.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks Thanks for pointing this out. We have updated code to handle this condition. Keep it up! hunter here i didn’t get one thing….first we are going upto right==NULL,then pop()then again u are assigning cur2=cur2->left then after completion.cur2 is NULL,THEN we are again perform pop()operation still we are in same node then how program will execute GeeksforGeeks Please see following post for better understanding. http://www.geeksforgeeks.org/inorder-tree-traversal-without-recursion/ hunter thanks,i didn’t see the code properly……… Amit  
+/* Paste your code here (You may delete these lines if not writing code) */
+#include<stdio.h>
+#include<conio.h>
+int min = 0;
+int max =0;
+int count =0;
+struct node
+{
+    int val;
+    struct node *left, *right;
+};
+struct node * NewNode(int val)
+{
+    struct node *tmp = (struct node *)malloc(sizeof(struct node));
+    tmp->val = val;
+    tmp->right = tmp->left =NULL;
+    return tmp;
+}
+void isPairPresent(struct node * root1,int target,struct node * root2){
+    if(root1==NULL || root2 == NULL){
+                  return;
+    }
+    if(min+max<target){
+                             isPairPresent(root1->left,target,root2);
+                             min = root1->val;
+                             if(min + max == target){
+                                    printf("values = %d and  %d ", min,max);
+                                    return;
+                             }
+                             isPairPresent(root1->right,target,root2);
+    }
+    else if(min+max>target){
+                             isPairPresent(root1,target,root2->right);
+                             max = root2->val;
+                             if(min + max == target){
+                                   printf("values = %d and  %d ", min,max);
+                                   return;
+                             }
+                             isPairPresent(root1,target,root2->left);
+    }
+}
+int main()
+{
+    /*
+                   15
+                /     \
+              10      20
+             / \     /  \
+            8  12   16  25    */
+    struct node *root =  NewNode(15);
+    root->left = NewNode(10);
+    root->right = NewNode(20);
+    root->left->left = NewNode(8);
+    root->left->right = NewNode(12);
+    root->right->left = NewNode(16);
+    root->right->right = NewNode(25);
+    /* You can find min and max in O(n) */
+    min =8;
+    max = 25;
+    int target = 36;
+    isPairPresent(root, target,root);
+ 
+    getchar();
+    return 0;
+}
+ Amit  
+/* Paste your code here (You may delete these lines if not writing code) */
+#include<stdio.h>
+#include<conio.h>
+int min = 0;
+int max =0;
+int count =0;
+struct node
+{
+    int val;
+    struct node *left, *right;
+};
+struct node * NewNode(int val)
+{
+    struct node *tmp = (struct node *)malloc(sizeof(struct node));
+    tmp->val = val;
+    tmp->right = tmp->left =NULL;
+    return tmp;
+}
+void isPairPresent(struct node * root1,int target,struct node * root2){
+    if(root1==NULL || root2 == NULL){
+                  return;
+    }
+    if(min+max<target){
+                             isPairPresent(root1->left,target,root2);
+                             min = root1->val;
+                             isPairPresent(root1->right,target,root2);
+    }
+    if(min + max == target){
+           printf("values = %d and  %d ", min,max);
+           return;
+    }
+    if(min+max>target){
+                             isPairPresent(root1,target,root2->right);
+                             max = root2->val;
+                             isPairPresent(root1,target,root2->left);
+    }
+}
+int main()
+{
+    /*
+                   15
+                /     \
+              10      20
+             / \     /  \
+            8  12   16  25    */
+    struct node *root =  NewNode(15);
+    root->left = NewNode(10);
+    root->right = NewNode(20);
+    root->left->left = NewNode(8);
+    root->left->right = NewNode(12);
+    root->right->left = NewNode(16);
+    root->right->right = NewNode(25);
+    /* You can find min and max in O(n) */
+    min =8;
+    max = 25;
+    int target = 26;
+    isPairPresent(root, target,root);
+ 
+    getchar();
+    return 0;
+}
+ Amit  
+#include<stdio.h>
+#include<conio.h>
+int min = 0;
+int max =0;
+int flag =1;
+struct node
+{
+    int val;
+    struct node *left, *right;
+};
+struct node * NewNode(int val)
+{
+    struct node *tmp = (struct node *)malloc(sizeof(struct node));
+    tmp->val = val;
+    tmp->right = tmp->left =NULL;
+    return tmp;
+}
+void isPairPresent(struct node * root1,int target,struct node * root2){
+    if(root1==NULL || root2 == NULL){
+                  return;
+    }
+    if(min+max<target){
+                             isPairPresent(root1->left,target,root2);
+                             min = root1->val;
+                             if(min + max == target && flag){
+                                    printf("values = %d and  %d ", min,max);
+                                    flag =0;
+                                    return;
+                             }
+                             isPairPresent(root1->right,target,root2);
+    }
+    else if(min+max>target){
+                             isPairPresent(root1,target,root2->right);
+                             max = root2->val;
+                             if(min + max == target &&flag){
+                                   printf("values = %d and  %d ", min,max);
+                                   flag =0;
+                                   return;
+                             }
+                             isPairPresent(root1,target,root2->left);
+    }
+}
+int main()
+{
+    /*
+                   15
+                /     \
+              10      20
+             / \     /  \
+            8  12   16  25    */
+    struct node *root =  NewNode(15);
+    root->left = NewNode(10);
+    root->right = NewNode(20);
+    root->left->left = NewNode(8);
+    root->left->right = NewNode(12);
+    root->right->left = NewNode(16);
+    root->right->right = NewNode(25);
+    /* You can find min and max in O(n) */
+    min =8;
+    max = 25;
+    int target = 30;
+    isPairPresent(root, target,root);
+ 
+    getchar();
+    return 0;
+}
+
+ 12rad This looks like a better solution. Thanks.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ viki Can this problem be solved using recursive inorder traversal ? Ammy Can’t we somehow modify morris traversal to make it o(n)time and o(1) space? Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

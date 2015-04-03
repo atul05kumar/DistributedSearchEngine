@@ -1,0 +1,363 @@
+Dynamic Programming | Set 26 (Largest Independent Set Problem) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Dynamic Programming | Set 26 (Largest Independent Set Problem) Given a Binary Tree, find size of the Largest Independent Set(LIS) in it. A subset of all tree nodes is an independent set if there is no edge between any two nodes of the subset. For example, consider the following binary tree. The largest independent set(LIS) is {10, 40, 60, 70, 80} and size of the LIS is 5. A Dynamic Programming solution solves a given problem using solutions of subproblems in bottom up manner. Can the given problem be solved using solutions to subproblems? If yes, then what are the subproblems? Can we find largest independent set size (LISS) for a node X if we know LISS for all descendants of X? If a node is considered as part of LIS, then its children cannot be part of LIS, but its grandchildren can be. Following is optimal substructure property. 1) Optimal Substructure: Let LISS(X) indicates size of largest independent set of a tree with root X. 
+     LISS(X) = MAX { (1 + sum of LISS for all grandchildren of X),
+                     (sum of LISS for all children of X) }
+ The idea is simple, there are two possibilities for every node X, either X is a member of the set or not a member. If X is a member, then the value of LISS(X) is 1 plus LISS of all grandchildren. If X is not a member, then the value is sum of LISS of all children. 2) Overlapping Subproblems Following is recursive implementation that simply follows the recursive structure mentioned above. 
+// A naive recursive implementation of Largest Independent Set problem
+#include <stdio.h>
+#include <stdlib.h>
+
+// A utility function to find max of two integers
+int max(int x, int y) { return (x > y)? x: y; }
+
+/* A binary tree node has data, pointer to left child and a pointer to 
+   right child */
+struct node
+{
+    int data;
+    struct node *left, *right;
+};
+
+// The function returns size of the largest independent set in a given 
+// binary tree
+int LISS(struct node *root)
+{
+    if (root == NULL)
+       return 0;
+
+    // Caculate size excluding the current node
+    int size_excl = LISS(root->left) + LISS(root->right);
+
+    // Calculate size including the current node
+    int size_incl = 1;
+    if (root->left)
+       size_incl += LISS(root->left->left) + LISS(root->left->right);
+    if (root->right)
+       size_incl += LISS(root->right->left) + LISS(root->right->right);
+
+    // Return the maximum of two sizes
+    return max(size_incl, size_excl);
+}
+
+
+// A utility function to create a node
+struct node* newNode( int data )
+{
+    struct node* temp = (struct node *) malloc( sizeof(struct node) );
+    temp->data = data;
+    temp->left = temp->right = NULL;
+    return temp;
+}
+
+// Driver program to test above functions
+int main()
+{
+    // Let us construct the tree given in the above diagram
+    struct node *root         = newNode(20);
+    root->left                = newNode(8);
+    root->left->left          = newNode(4);
+    root->left->right         = newNode(12);
+    root->left->right->left   = newNode(10);
+    root->left->right->right  = newNode(14);
+    root->right               = newNode(22);
+    root->right->right        = newNode(25);
+
+    printf ("Size of the Largest Independent Set is %d ", LISS(root));
+
+    return 0;
+}
+ Output: Size of the Largest Independent Set is 5 Time complexity of the above naive recursive approach is exponential. It should be noted that the above function computes the same subproblems again and again. For example, LISS of node with value 50 is evaluated for node with values 10 and 20 as 50 is grandchild of 10 and child of 20. Since same suproblems are called again, this problem has Overlapping Subprolems property. So LISS problem has both properties (see this and this) of a dynamic programming problem. Like other typical Dynamic Programming(DP) problems, recomputations of same subproblems can be avoided by storing the solutions to subproblems and solving problems in bottom up manner. Following is C implementation of Dynamic Programming based solution. In the following solution, an additional field ‘liss’ is added to tree nodes. The initial value of ‘liss’ is set as 0 for all nodes. The recursive function LISS() calculates ‘liss’ for a node only if it is not already set. 
+/* Dynamic programming based program for Largest Independent Set problem */
+#include <stdio.h>
+#include <stdlib.h>
+
+// A utility function to find max of two integers
+int max(int x, int y) { return (x > y)? x: y; }
+
+/* A binary tree node has data, pointer to left child and a pointer to 
+   right child */
+struct node
+{
+    int data;
+    int liss;
+    struct node *left, *right;
+};
+
+// A memoization function returns size of the largest independent set in
+//  a given binary tree
+int LISS(struct node *root)
+{
+    if (root == NULL)
+        return 0;
+
+    if (root->liss)
+        return root->liss;
+
+    if (root->left == NULL && root->right == NULL)
+        return (root->liss = 1);
+
+    // Caculate size excluding the current node
+    int liss_excl = LISS(root->left) + LISS(root->right);
+
+    // Calculate size including the current node
+    int liss_incl = 1;
+    if (root->left)
+        liss_incl += LISS(root->left->left) + LISS(root->left->right);
+    if (root->right)
+        liss_incl += LISS(root->right->left) + LISS(root->right->right);
+
+    // Return the maximum of two sizes
+    root->liss = max(liss_incl, liss_excl);
+
+    return root->liss;
+}
+
+// A utility function to create a node
+struct node* newNode(int data)
+{
+    struct node* temp = (struct node *) malloc( sizeof(struct node) );
+    temp->data = data;
+    temp->left = temp->right = NULL;
+    temp->liss = 0;
+    return temp;
+}
+
+// Driver program to test above functions
+int main()
+{
+    // Let us construct the tree given in the above diagram
+    struct node *root         = newNode(20);
+    root->left                = newNode(8);
+    root->left->left          = newNode(4);
+    root->left->right         = newNode(12);
+    root->left->right->left   = newNode(10);
+    root->left->right->right  = newNode(14);
+    root->right               = newNode(22);
+    root->right->right        = newNode(25);
+
+    printf ("Size of the Largest Independent Set is %d ", LISS(root));
+
+    return 0;
+}
+ Output Size of the Largest Independent Set is 5 Time Complexity: O(n) where n is the number of nodes in given Binary tree. Following extensions to above solution can be tried as an exercise. 1) Extend the above solution for n-ary tree. 2) The above solution modifies the given tree structure by adding an additional field ‘liss’ to tree nodes. Extend the solution so that it doesn’t modify the tree structure. 3) The above solution only returns size of LIS, it doesn’t print elements of LIS. Extend the solution to print all nodes that are part of LIS. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tags: Dynamic Programming Tweet Writing code in comment? Please use ideone.com and share the link here. hj Can this problem be seen as a variant of Graph Coloring Problem? The largest number of nodes having the same color will form largest independent set. Of course the graph coloring depends on the order in which vertices are seen.. On the other hand, we can find independent subsets and use for graph coloring? aman Yes it can be done taking in consideration the notion of bipartite graph. https://eumananc.ro/ Cristian Florica What is the approach for the “Maximum Weighted Independent Set (MWIS) problem”? prashant jha #include using namespace std; struct node { node* lchild; int data; node* rchild; node(int d) { data=d; lchild=NULL; rchild=NULL; } }*root=NULL; void create(node* &root,int d) { int n; if(d==-1) return; if(root==NULL) root=new node(d); cout<<"enter the left child of "<<d<>n; create(root->lchild,n); cout<<"enter the right child of "<<d<>n; create(root->rchild,n); } int fun(node* root,int arr[],int &size) { if(root==NULL) return 1; if((!root->lchild)&&(!root->rchild)) { arr[size++]=root->data; return 0; } int k1=fun(root->lchild,arr,size); int k2=fun(root->rchild,arr,size); if((k1)&&(k2)) { arr[size++]=root->data; return 0; } else return 1; } int main() { int arr[50],size,n; cout<>n; create(root,n); int k=fun(root,arr,size); for(int i=0;i<size;i++) { cout<<arr[i]<<" "; } return 0; } Nitesh LIS will always contain leaves? is there any case in which it will not?? # if it always contains leafs then a better solution is # include # include # include int arr[100],t; struct node { int data,flag; struct node *left, *right; }; int lic(node *root) { if(root==NULL) return 0; else { int a = lic(root->left); int b = lic(root->right); int f; if(a==0&&b==0) f=0; else if(a!=0&&b!=0) f=root->left->flag||root->right->flag; else if(a==0) f=root->right->flag; else f=root->left->flag; if(f==1) { root->flag=0; return a+b; } else { root->flag=1; arr[t++]=root->data; return a+b+1; } } } struct node* newNode( int data ) { struct node* temp = (struct node *) malloc( sizeof(struct node) ); temp->data = data; temp->left = temp->right = NULL; return temp; } // Driver program to test above functions int main() { // Let us construct the tree given in the above diagram struct node *root = newNode(20); root->left = newNode(8); root->left->left = newNode(4); root->left->right = newNode(12); root->left->right->left = newNode(10); root->left->right->right = newNode(14); root->right = newNode(22); root->right->right = newNode(25); t=0; printf (“Size of the Largest Independent Set is %d n”, lic(root)); for(int i=0;i<t;++i) printf("%d ",arr[i]); return 0; } Guru Gorantla It need not contain leaves all the time. For example if a tree has a depth say “d” and dth row represent only leaves. Let this dth row contain only one leaf then your LISS need not contain Leafed row. why ? In general when we consider an example we tend to take a almost balanced binary tree, as we increase depth d, the number of nodes in that depth increases with d(if almost balanced) . So instead consider a tree with only one leaf. Preetam Dwivedi recursion code goes into infinite loop for keys 1-50 or more elements why? Guest is the solution nothing but the root and all the leaves possible for a tree…i know there would be an exception when there r two levels but else for other cases ,my conclusion is right,isnt it?? pls help hj I was thinking the same too.. but on second thought, this in fact forms the minimum independent set, apart from the case where there are two levels. Consider the case where there are 5 levels.. (assume complete tree) root + leaves + some elements from 3rd level can also be included in the largest independent set. Sreenivas Doosa Awesome logic duuude Appreciate it..! gaurav /* Paste your code here (You may delete these lines if not writing code) */ // // LongestIndSet.cpp // // // Created by Gaurav Gulzar on 08/08/13. // // #include using namespace std; typedef struct tNode { int data; struct tNode* left; struct tNode* right; } Node; struct tNode* newNode(int data) { struct tNode* tNode = (struct tNode*) malloc(sizeof(struct tNode)); tNode->data = data; tNode->left = NULL; tNode->right = NULL; return(tNode); } int _LISS(Node *root,int *count) { if(!root) return 0; if(!(_LISS(root->left,count) + _LISS(root->right,count))) { (*count)++; return 1; } return 0; } int LISS(Node *root) { int count = 0; _LISS(root,&count); return count; } int main() { Node *root = newNode(10); root->left = newNode(8); root->left->left = newNode(4); root->left->right = newNode(12); root->left->right->left = newNode(10); root->left->right->right = newNode(14); root->right = newNode(22); root->right->right = newNode(25); cout << LISS(root) << "\n"; return 0; } RAHUL23 CAN ANYONE TELL HOW TO PRINT MAXIMUM LIST SET?? IT WOULD BE OF GR8 HELP THANKS IN ADVANCE http://www.sudshekhar.blogspot.com sudhanshu Another method O(n) :- 1) Perform level order traversal and in an array(declared globally), increment the count corresponding to that level. 2) So you get a count of the number of nodes corresponding to each level in an array in O(n). 3) Now, get the max subset sum ensuring adjacent levels(cells) aren’t picked up. O(n) [simple dp]. This way we can also print them easily Takes O(n) time overall. saurabh in the given example 60 and 70 are from adjacent levels but yet they form a solution. And by your algorithm you will end up with answer 4 for the same case. Born Actor  
+#include <iostream>
+#include<string>
+#include<sstream>
+#include<iomanip>
+#include <stdio.h>
+#include <math.h>
+#include <vector>
+#include <stdlib.h>
+using namespace std;
+int count=0; //count variable counts the number of times the recursive call was made.
+class node
+{
+	public:
+	node*l;
+	node *r;
+	node *p;
+	int value;
+	int lss;
+	int find_lss();
+	int max(int a, int b);
+};
+int node:: max(int a, int b)
+{
+	if(a>b)
+		return a;
+	else return b;
+}
+int node :: find_lss()
+{
+	int a = 0;
+	int b=0;
+	int c=0;
+	int d=0;
+	int e=0;
+	int f=0;
+	int g=0;
+	if(this->lss!=-1)
+		return this->lss;
+	if(this->l==NULL && this->r==NULL)
+		return (this->lss=1);
+	count++;
+	if(this->l!=NULL)
+	{
+		c=this->l->find_lss();	
+		if(this->l->r!=NULL)
+			e=this->l->r->find_lss();
+		if(this->l->l!=NULL)
+			d=this->l->l->find_lss();
+	}
+	if(this->r!=NULL)
+	{
+		b=this->r->find_lss();
+		if(this->r->r!=NULL)
+			g=this->r->r->find_lss();
+		if(this->r->l!=NULL)
+			f=this->r->l->find_lss();
+	}
+	a=this->max((1+g+f+e+d),(b+c));
+	this->lss=a;
+	return	a;		
+}
+int n;
+int a[50][4];
+int main()
+{
+	cout<<"enter the number of nodes";
+	cin>>n;
+	int i,j,k;
+	for(i=0;i<n;i++)
+		for(j=0;j<4;j++)
+			cin>>a[i][j]; //a 2D matrix where no of columns=4, and no. of nodes= no. of rows. 1st column=parent node, 2nd=left child node, 3rd= right child ndoe, 4th=value stored in that node
+	node * nodes[n];
+	for(i=0;i<n;i++)
+
+		nodes[i]=new node();
+	for(i=0;i<n;i++)
+	{
+		if(a[i][0]>=0)
+			nodes[i]->p=nodes[a[i][0]];
+		else nodes[i]->p=NULL;
+		if(a[i][1]>=0)
+			nodes[i]->l=nodes[a[i][1]];
+		else nodes[i]->l=NULL;
+		if(a[i][2]>=0)
+			nodes[i]->r=nodes[a[i][2]];
+		else nodes[i]->r=NULL;
+		        nodes[i]->value=a[i][3];
+		nodes[i]->lss=-1;		  
+	} 
+	cout<<endl<<nodes[0]->find_lss()<<endl;
+	cout<<count<<endl;
+//input the 2d matrix for the given graph in the example - 
+/*
+-1 1 2 10
+0 3 4 20
+0 -1 5 30
+1 -1 -1 40
+1 6 7 50
+2 -1 -1 60
+4 -1 -1 70
+4 -1 -1 80
+*/
+//-1=NULL	
+}
+
+ illuminati one of the few problems solved with memoisation on GFG. abhishek08aug Intelligent Abhijeet Isn’t the size of largest independent set equal MAX(#of nodes at even depths, #of nodes at odd depths)? If yes, BFS based solution will do with the O(n) complexity. Niks  
+// A naive recursive implementation of Largest Independent Set problem
+#include <stdio.h>
+#include <stdlib.h>
+ 
+// A utility function to find max of two integers
+int max(int x, int y) { return (x > y)? x: y; }
+ 
+/* A binary tree node has data, pointer to left child and a pointer to 
+   right child */
+struct node
+{
+    int data;
+    struct node *left, *right;
+};
+
+static int index = 0;
+
+
+// A utility function to create a node
+struct node* newNode( int data )
+{
+    struct node* temp = (struct node *) malloc( sizeof(struct node) );
+    temp->data = data;
+    temp->left = temp->right = NULL;
+    return temp;
+}
+
+void inorder(node* root, node** arr)
+{
+	if(root == NULL)
+		return;
+	
+	inorder(root->left,arr);
+	arr[index] = root;
+	index++;
+	inorder(root->right,arr);
+
+	return;
+}
+
+int LISS(node* root)
+{
+	node** arr;
+	arr = (node**)malloc(sizeof(node)*50);
+
+	inorder(root,arr);
+	int arr1[50] = {0};
+	arr1[0] = 0;
+
+	for(int i=0; i<index; i++)
+	{
+		for(int j=0; j<i; j++)
+		{
+			if((arr[i]->left != arr[j]) && (arr[i]->right != arr[j]))
+			arr1[i] = max(arr1[i], 1+arr1[j]);
+		}
+	}
+		
+	int res = 0;
+	for(int i=0; i<index; i++)
+	{
+		res = max(res,arr1[i]);
+	}
+
+	return res;
+
+}
+
+// Driver program to test above functions
+int main()
+{
+    // Let us construct the tree given in the above diagram
+    struct node *root         = newNode(20);
+    root->left                = newNode(8);
+    root->left->left          = newNode(4);
+    root->left->right         = newNode(12);
+    root->left->right->left   = newNode(10);
+    root->left->right->right  = newNode(14);
+    root->right               = newNode(22);
+    root->right->right        = newNode(25);
+ 
+    printf ("Size of the Largest Independent Set is %d ", LISS(root));
+ 
+    return 0;
+}
+ apsc Can someone please tell how to extend it to print nodes of LIS, also without changing the structure of node how can we use memoization. Thanks. Santhosh Here’s my take on the problem. Simple traversal based solution. Let me know if there’s any logical error or cases I missed. This works from bottom up. I assume that all leaf nodes are part of the solution and work from there. Algo: all nodes contain a bool print. 1) Postorder traversal. If the node is root, set print=true 2) If node->left is null check if right node print value. 3) set current->print = !node->right->print. 4) If node->right is null set current->print=!node->left->print 5) If there are both left and right nodes, check if they are printed. 6) If any one of them is printed then skip current node, else print it.  
+void postorder(struct node* node)
+{
+     if (node == NULL)
+        return;
+ 
+     postorder(node->left);
+
+     postorder(node->right);
+ 
+if(node->left==NULL&&node->right==NULL)
+ {
+    Node->print= true;
+ }
+Else if(node->left==NULL&&node->right!=NULL)
+{
+Node->print = !node->right->print;
+}
+Else if (node->right==NULL&&node->left!=NULL)
+{
+Node->print =  !(node->left->print);
+}
+Else
+{
+Node->print = !(node->left->print||node->right->print);
+}
+if(Node->print)
+printf("%d ", node->data);
+}
+
+ Santhosh If this is found to be logically correct, can be easily extended to get count. If we are not allowed to change structure of node then a simple solution would be to push the bool values on to a stack and pop for the number of children of the node and compare them. Srinath I am sure pretty sure this approach is correct,a lot more intuitive and easier to implement. sreeram Without modifying original tree   [#include #include int max(int x, int y) { return (x > y)? x: y; } struct node { int data; struct node *left, *right; }; int LISSUtil(struct node *root,int *lcref,int *rcref) { if (root == NULL){ *lcref=*rcref=0; return 0;} if (root->left == NULL && root->right == NULL){ *lcref=*rcref=0; return 1; } int lcl,lcr,rcl,rcr; // Caculate size excluding the current node int lc=LISSUtil(root->left,&lcl,&lcr); int rc=LISSUtil(root->right,&rcl,&rcr); int liss_excl=lc+rc; // Calculate size including the current node int liss_incl = 1 + lcl + lcr + rcr + rcl; *lcref=lc; *rcref=rc; // Return the maximum of two sizes return max(liss_incl, liss_excl); } int LISS(struct node *root){ int lc,rc; return LISSUtil(root,&lc,&rc); } // A utility function to create a node struct node* newNode(int data) { struct node* temp = (struct node *) malloc( sizeof(struct node) ); temp->data = data; temp->left = temp->right = NULL; return temp; } // Driver program to test above functions int main() { // Let us construct the tree given in the above diagram struct node *root = newNode(20); root->left = newNode(8); root->left->left = newNode(4); root->left->right = newNode(12); root->left->right->left = newNode(10); root->left->right->right = newNode(14); root->right = newNode(22); root->right->right = newNode(25); printf (“Size of the Largest Independent Set is %d “, LISS(root)); return 0; }] op What if the max arguments happens to be same. Then in that case we will have two sets of same size. Like if we add 90 to inorder last node i.e. 60. then [40, 70, 80, 10, 60] and [40, 70, 80, 30, 90]. Your programs works fine. But at the time of printing we need to take care of this case, if it is required to display all the maximum size sets. viki There is no need to have these lines in second solution. I mean, removing these lines will suffice the solution. Cheers if (root->left == NULL && root->right == NULL) return (root->liss = 1); bond its a recent tc div2 hard problem Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

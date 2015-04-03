@@ -1,0 +1,299 @@
+Count numbers that don't contain 3  - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Count numbers that don’t contain 3 Given a number n, write a function that returns count of numbers from 1 to n that don’t contain digit 3 in their decimal representation. Examples: 
+Input: n = 10
+Output: 9 
+
+Input: n = 45
+Output: 31 
+// Numbers 3, 13, 23, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 43 contain digit 3. 
+
+Input: n = 578
+Ouput: 385
+ Solution: We can solve it recursively. Let count(n) be the function that counts such numbers. 
+'msd' --> the most significant digit in n 
+'d'   --> number of digits in n.
+
+count(n) = n if n < 3
+
+count(n) = n - 1 if 3 <= n < 10
+
+count(n) = count(msd) * count(10^(d-1) - 1) + 
+           count(msd) + 
+           count(n % (10^(d-1)))
+           if n > 10 and msd is not 3
+
+count(n) = count( msd * (10^(d-1)) - 1) 
+           if n > 10 and msd is 3
+ 
+Let us understand the solution with n = 578. 
+count(578) = 4*count(99) + 4 + count(78)
+The middle term 4 is added to include numbers 100, 200, 400 and 500.
+
+Let us take n = 35 as another example.  
+count(35) = count (3*10 - 1) = count(29)
+ 
+#include <stdio.h>
+
+/* returns count of numbers which are in range from 1 to n and don't contain 3 
+   as a digit */
+int count(int n)
+{
+    // Base cases (Assuming n is not negative)
+    if (n < 3)
+        return n;
+    if (n >= 3 && n < 10)
+       return n-1;
+
+    // Calculate 10^(d-1) (10 raise to the power d-1) where d is
+    // number of digits in n. po will be 100 for n = 578
+    int po = 1;
+    while (n/po > 9)
+        po = po*10;
+
+    // find the most significant digit (msd is 5 for 578)
+    int msd = n/po;
+
+    if (msd != 3)
+      // For 578, total will be 4*count(10^2 - 1) + 4 + count(78)
+      return count(msd)*count(po - 1) + count(msd) + count(n%po);
+    else
+      // For 35, total will be equal to count(29)
+      return count(msd*po - 1);
+}
+
+// Driver program to test above function
+int main()
+{
+    printf ("%d ", count(578));
+    return 0;
+}
+ Output: 385 Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: MathematicalAlgo Tweet Writing code in comment? Please use ideone.com and share the link here. ???? ???? now for 3rd gap 7,8,9 is not valid … cause they are more than 5(third digit of 578). i didn’t understand…where is 6..6 is also greater than 5 and what will be for number like 36?? raghson In the example mentioned above and in the comment of the code, it is mentioned that msd(578) = 4 * msd(99) + … I think it should be 5 * msd(99). However, the code is perfect but there is little mistake in explanation as well as in the comment. Rather than // For 578, total will be 4*count(10^2 – 1) + 4 + count(78) it should be // For 578, total will be 5*count(10^2 – 1) + 4(which is msd(5)) + count(78). http://www.facebook.com/barnwal.aashish Aashish Please take a closer look. Mulplicating factor 4 is fine. We need to exclude numbers from 300 to 399. In the code count(5) returns 4. So in the calculation, it should be 4 and not 5. Rishabh here is my code nothing special but yes it works fine #include<iostream> using namespace std; int lets_count(int n) { int i,N=n,d; for(i=1;i<=n;i++) { int j=i; while(j>0) { d=j%10; if(d==3) { N–; break; } j=j/10; } } return N; } int main() { int n,m; cout<<"Enter the value\n"; cin>>n; m=lets_count(n); cout<<m; return 0; } Ankit Gupta Answer is : count3(0)-1 // Have included 0 also as a num not containing 3.  
+int n;
+string num;
+
+inline int totdigits(int digit) { return (digit >= 3 ? digit : digit+1); }
+
+int count3(int pos)
+{
+    int digit = num[pos] - '0';
+
+    if (pos == n-1) {
+        return totdigits(digit);
+    }
+    return (digit != 3) * count3(pos+1) + totdigits(digit-1) * pow(9, n-pos-1);
+}
+ Ankit Gupta  
+This is O(n). And is less complex. 
+For 574 
+Possible digits at 
+one's place
+4
+ten's place
+1*4 + (7-1)*9 = 1*count3(pos+1) + (digit-1)*pow(9, n-pos-1) // pos = 1, takes 0 also for ten's place
+hundred's place
+1*1*4 + 1*(7-1)*9 + (5-1)*9*9 = 1*count3(pos+1) + (digit-1)*pow(9, n-pos-1) // pos = 0, takes 0 also for hundred's place
+and so on for others.
+This gives 382, off by 1 from 1 to n.
+ Amit @Ashish, Can you please explain how did you conclude that the below forumale gives the answer. What is the source of this ?  
+count(n) = n if n < 3
+
+count(n) = n - 1 if 3 <= n < 10
+
+count(n) = count(msd) * count(10^(d-1) - 1) + 
+           count(msd) + 
+           count(n % (10^(d-1)))
+           if n > 10 and msd is not 3
+
+count(n) = count( msd * (10^(d-1)) - 1) 
+           if n > 10 and msd is 3 Aashish I am explaining you with an example. Suppose we need to count such numbers from 1 to 574. If we know there are X such numbers from 1 to 99, then the problem can be broken down into: P*X + foo(74) + Q Where P=4 as we have to exclude 300 to 399. Q=4 to take care of 100,200,400 & 500. Now, the foo() can be called recursively to find count of such numbers between 1 & 99[same for 74]. e.g. n=574 calculate(574); ————— po=100 digit=5 rem=74 sum1=4 sum2=4*calculate(99) + calculate(74) calculate(99); ————– po=10 digit=9; rem=9; sum1=8 sum2=8*calculate(9) + calculate(9) sum2=8*8 + 8 //calculate(9) returns 8 sum2=72 calculate(99) returns sum1+sum2=72+8=80 calculate(74); ————– po=10; digit=7; rem=4; sum1=6 sum2=6*calculate(9) + calculate(4) sum2=6*8 + 3 //calculate(9) returns 8 & calculate(4) returns 3 sum2=51 calculate(74) returns sum1 + sum2= 6+51 = 57 Finally, calculate(574) returns sum1 + sum2 where sum1=4 and sum2=4*calculate(99) + calculate(74) =4*80 + 57 =377 calculate(574) returns sum1+sum2= 4 + 377= 381 Sorry, i cannot provide any reference. Its my own thought. Hope its clear.Please post again if you are still facing problems. Amit Thanks Aashish .. I understand now. good finding Aashish I am explaining you with an example. Suppose we need to count such numbers from 1 to 574. If we know there are N such numbers from 1 to 99, then the problem can be broken down into: P*N + foo(74) + Q Where P=4 as we have to exclude 300 to 399. Q=4 to take care of 100,200,400 & 500. Now, the foo() can be called recursively to find count of such numbers between 1 & 99[same for 74]. e.g. n=574 calculate(574); ————— po=100 digit=5 rem=74 sum1=4 sum2=4*calculate(99) + calculate(74) calculate(99); ————– po=10 digit=9; rem=9; sum1=8 sum2=8*calculate(9) + calculate(9) sum2=8*8 + 8 //calculate(9) returns 8 sum2=72 calculate(99) returns sum1+sum2=72+8=80 calculate(74); ————– po=10; digit=7; rem=4; sum1=6 sum2=6*calculate(9) + calculate(4) sum2=6*8 + 3 //calculate(9) returns 8 & calculate(4) returns 3 sum2=51 calculate(74) returns sum1 + sum2= 6+51 = 57 Finally, calculate(574) returns sum1 + sum2 where sum1=4 and sum2=4*calculate(99) + calculate(74) =4*80 + 57 =377 calculate(574) returns sum1+sum2= 4 + 377= 381 Sorry, i cannot provide any reference. Its my own thought. Hope its clear.Please post again if you are still facing problems. Aashish Don’t forget to handle corner cases. As mentioned in the post, consider n=38. If 3 is encountered, discard digits right to it. So, call foo(29). Abusaleh Nayeem I just convert Aditya Pn code into C++  
+#include <iostream>
+#include <math.h>
+
+using namespace std;
+
+int main()
+{
+    int c = 0;
+    int number = 50;
+    for(int i=1; i<=number; i++) {
+        bool flag = true;
+        int num = i;
+        for(int j=1; j<=i; j++) {
+            int digit = (int) (num%(int)(pow(10, (double)j)));
+            num = num/10;
+            if(digit == 3) {
+                flag = false;
+                break;
+            }
+        }
+        if(flag)
+            c++;
+    }
+    cout<<"Number doesn't have 3 :  "<<c;
+return 0;
+}
+ googolplex  
+#include <stdio.h>
+#include <math.h>
+int main()
+{
+
+	int i=0, n, t, sum=0, sub=0;
+	scanf("%d", &n);
+
+	while( n )
+	{
+		t = n%10;
+
+		if( t>3 )
+			sum+=( (t-1)*pow(9, i) );		
+		else
+		{
+			if(t==3){
+				 sum=0;
+				 sub=1;
+			}
+			sum+=(t*pow(9,i));
+		}
+
+		n/=10;
+		++i;
+	}
+	printf("\n\n%d \n\n", sum-sub);
+	return 0;
+}
+
+Time Complexity: O( d^2 ) where d=log_10 n.
+ Aashish Nice approach. If i am not mistaken, you are making use of the formula: 9^i such numbers exist from 1 to 10^i; The pow(9,i) takes O(logi) time at best. Aashish Based on the same approach, here is the simplified code.  
+int count(int num)
+{
+        int seen=0,i=0,dig,sum=0;
+        for(;num;num/=10,++i)
+        {
+                dig=num%10;
+                if(dig>3)
+                        sum+=(dig-1)*pow(9,i);
+                else
+                {
+                        sum+=dig*pow(9,i);
+                        if(3==dig)
+                                sum-=seen;
+                }
+                seen=seen*10+dig;
+        }
+        return sum;
+}
+ http://ideone.com/uaNRd googolplex sorry, but i didn’t get what is simplified in this code. rakesh  
+#include<stdio.h>
+
+
+int count(int);
+
+
+
+int main(){
+	int n, i, j=0;
+	int c=0;
+	scanf("%d", &n);
+	for(i=0;i<=n;i++){
+
+		j = j + count(i);
+	}
+	j = n - j;
+	printf("%d\n", j);		
+			
+	return 0;
+}
+
+int count(int n){
+	int i = 0;
+	while(n != 0){
+		i = n % 10;
+		n = n/10;
+		if(i == 3){
+			return 1;
+		}
+
+	}
+	return 0;
+}
+		
+ venkat  
+#include <stdio.h>
+#include <conio.h>
+ 
+main()
+{
+   
+   int  n=0, count=0, i=0 , k=0, r=0;
+   
+ 
+    printf("enter the number \n");
+   scanf("%d", &n);
+   if(n<=2){
+            
+   printf("Output =  %d \n", n  );
+   return 0; 
+   
+   }
+   if(n>2 && n<=10){
+           printf("Output  =  %d \n", n-1  );
+            
+           return 0;
+           }
+           count=n;
+   for(i = 1;i<= n;i++) {
+         
+         k=i;
+         while(k>0){
+                   
+                    r=k%10;
+                    if(r==3){
+                            k=0;
+                            count=count-1;
+                            }
+                    else{
+                        k=k/10;
+                    }
+         }   
+         }
+          printf("Output =  %d \n", count );
+         
+   
+}
+return 0;
+}
+
+ venkat #include #include main() { int n=0, count=0, i=0 , k=0, r=0; printf(“enter the number \n”); scanf(“%d”, &n); if(n2 && n<=10){ printf("Output = %d \n", n-1 ); return 0; } count=n; for(i = 1;i0){ r=k%10; if(r==3){ k=0; count=count-1; } else{ k=k/10; } } } printf(“Output = %d \n”, count ); } return 0; } http://www.pnadityalabs.com Aditya Pn  
+
+import java.util.*;
+
+public class Skip3 {
+
+	/**
+	 * Skip the numbers that have 3 in it
+	 *  
+	 */
+	
+	public static void main(String[] args) {
+		 int c = 0;
+		 int number = 50;
+		 for(int i=1;i<=number;i++){
+			 boolean flag = true;
+			 int num = i;
+			 for(int j=1;j<=i;j++){
+				 int digit = (int) (num%(Math.pow(10, j)));
+				 num = num/10;
+				 if(digit == 3){
+					 flag = false;
+					 break;
+				 }
+			 }
+			if(flag) 
+			   c++;
+		 }
+		System.out.println("Number doesn't have 3 :  "+c);
+	}
+
+}
+
+ mayank agarwal can anyone tell the time complexity of code written by aashish duke we van do it this way too!!!!!!!!!!!! #include using namespace std; void numbercount(int num) { int r; static int count=0; //count number of 3 in a number if(num<3) return; else { int temp=num; while(temp) { r=temp%10; if(r==3) { ++count; break; // cout<<count<<"\n"; } temp=temp/10; } numbercount(num-1); } cout<<"\n Count= "<<count<<"\t Number= "<<num; cout<<"\n Required Number= "<<num-count; } int main() { int number; cout<>number; numbercount(number); return 0; } lost How do I write the code for counting all numbers with 5 from 1 to 10,000? lost How do I write the code for counting all numbers with 5 from 1 to 10,000? Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

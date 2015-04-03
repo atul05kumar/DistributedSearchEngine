@@ -1,0 +1,51 @@
+Multiply a given Integer with 3.5  - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Multiply a given Integer with 3.5 Given a integer x, write a function that multiplies x with 3.5 and returns the integer result. You are not allowed to use %, /, *. Examples: Input: 2 Output: 7 Input: 5 Output: 17 (Ignore the digits after decimal point) Solution: 1. We can get x*3.5 by adding 2*x, x and x/2. To calculate 2*x, left shift x by 1 and to calculate x/2, right shift x by 2. 
+#include <stdio.h>
+
+int multiplyWith3Point5(int x)
+{
+  return (x<<1) + x + (x>>1);
+}    
+
+/* Driver program to test above functions*/
+int main()
+{
+  int x = 4; 
+  printf("%d", multiplyWith3Point5(x));
+  getchar();
+  return 0;
+}
+ 2. Another way of doing this could be (8*x – x)/2 (See below code). Thanks to ajaym for suggesting this. 
+#include <stdio.h>
+int multiplyWith3Point5(int x)
+{
+  return ((x<<3) - x)>>1;
+}    
+ Please write comments if you find the above code/algorithm incorrect, or find better ways to solve the same problem           Related Topics: Check if binary representation of a number is palindrome Swap two nibbles in a byte How to turn off a particular bit in a number? Check if a number is multiple of 9 using bitwise operators How to swap two numbers without using a temporary variable? Divide and Conquer | Set 4 (Karatsuba algorithm for fast multiplication) Find position of the only set bit Swap all odd and even bits Tweet Writing code in comment? Please use ideone.com and share the link here. Ankit Why not, (x<>1) Kirt i think, we can also use (n<>1|1) plz correct me, if i am wrong..  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kirt return n<>1)|1) anan return n<<<>>>1)|1) Kirt Sry, The shift operator are not displayed properly .. so here is d logic.. (right shift the ‘n’ by 2 bit )-(left shift the ‘n’ by 1 bit and take it OR with 1) plz correct me if i am wrong Kirt sry guys.. a lot of confusion over here.. (left shift the ‘n’ by 2 bit )-(right shift the ‘n’ by 1 bit and take it OR with 1) Anand simple we can do: return ((x<>1)); Anand (x<>1) Amit Why are we not doing this way int multi3_5(int x) { x*3.5; } hari6988 the question clearly says that u are not allowed to use * operator Nick we can do it without using + and – operator….. here’s the code  
+int add(int m, int n);
+int main()
+{
+        int n,d,e,f;
+        scanf("%d",&n);
+        d=n<>1;
+        f=add(d,e);
+        printf("%d\n",add(f,n));
+        return 0;
+}
+int add(int m,int n)
+{
+        int c;
+        while(m&n)
+        {
+                c=m&n;
+                n^=m;
+                c<<=1;
+                m=c;
+        }
+        n^=m;
+        return n;
+}
+ wav return (n>>3 -n)>>1; http://opninfo.worpress.com hariom Any way to print the output including digits after decimal point ? Venki Explore IEEE 754 floating point format. padhu can also be done by 4x-x/2 Shekhu This approach gives 18 for x = 5, but the expected output is 17 Prem Hey, look at the problem statement dude, you cant use ‘/’ Venki Hi Prem, They are not using / operator. They are trying to represent 3.5 as an expression in terms of powers of 2. So that, the expression can be implemented as shift operations. Ravi Chandra (4x-x)/2 can be implemented as follows without using * and / x= ((x<>1; Ravi Chandra Sorry!,in my previous comment shift operators did not appear properly… here is the line of code x= ((x<<2)-x)>>1; ravikant Dude common you have a year to go !! kirt n<>1)|1)  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ajaym Can also be achieved by (8x-x)/2 GeeksforGeeks @ajaym: Thanks for suggesting a new method. We have included it to the original post. Keep it up!! Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

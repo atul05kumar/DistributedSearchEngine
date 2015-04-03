@@ -1,0 +1,122 @@
+Create a matrix with alternating rectangles of O and X - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Create a matrix with alternating rectangles of O and X Write a code which inputs two numbers m and n and creates a matrix of size m x n (m rows and n columns) in which every elements is either X or 0. The Xs and 0s must be filled alternatively, the matrix should have outermost rectangle of Xs, then a rectangle of 0s, then a rectangle of Xs, and so on. Examples: 
+Input: m = 3, n = 3
+Output: Following matrix 
+X X X
+X 0 X
+X X X
+
+Input: m = 4, n = 5
+Output: Following matrix
+X X X X X
+X 0 0 0 X
+X 0 0 0 X
+X X X X X
+
+Input:  m = 5, n = 5
+Output: Following matrix
+X X X X X
+X 0 0 0 X
+X 0 X 0 X
+X 0 0 0 X
+X X X X X
+
+Input:  m = 6, n = 7
+Output: Following matrix
+X X X X X X X
+X 0 0 0 0 0 X
+X 0 X X X 0 X
+X 0 X X X 0 X
+X 0 0 0 0 0 X
+X X X X X X X We strongly recommend to minimize the browser and try this yourself first. This question was asked in campus recruitment of Shreepartners Gurgaon. I followed the following approach. 1) Use the code for Printing Matrix in Spiral form. 2) Instead of printing the array, inserted the element ‘X’ or ‘0’ alternatively in the array. Following is C implementation of the above approach. 
+#include <stdio.h>
+
+// Function to print alternating rectangles of 0 and X
+void fill0X(int m, int n)
+{
+    /*  k - starting row index
+        m - ending row index
+        l - starting column index
+        n - ending column index
+        i - iterator    */
+    int i, k = 0, l = 0;
+
+    // Store given number of rows and columns for later use
+    int r = m, c = n;
+
+    // A 2D array to store the output to be printed
+    char a[m][n];
+    char x = 'X'; // Iniitialize the character to be stoed in a[][]
+
+    // Fill characters in a[][] in spiral form. Every iteration fills
+    // one rectangle of either Xs or Os
+    while (k < m && l < n)
+    {
+        /* Fill the first row from the remaining rows */
+        for (i = l; i < n; ++i)
+            a[k][i] = x;
+        k++;
+
+        /* Fill the last column from the remaining columns */
+        for (i = k; i < m; ++i)
+            a[i][n-1] = x;
+        n--;
+
+        /* Fill the last row from the remaining rows */
+        if (k < m)
+        {
+            for (i = n-1; i >= l; --i)
+                a[m-1][i] = x;
+            m--;
+        }
+
+        /* Print the first column from the remaining columns */
+        if (l < n)
+        {
+            for (i = m-1; i >= k; --i)
+                a[i][l] = x;
+            l++;
+        }
+
+        // Flip character for next iteration
+        x = (x == '0')? 'X': '0';
+    }
+
+    // Print the filled matrix
+    for (i = 0; i < r; i++)
+    {
+        for (int j = 0; j < c; j++)
+            printf("%c ", a[i][j]);
+        printf("\n");
+    }
+}
+
+/* Driver program to test above functions */
+int main()
+{
+    puts("Output for m = 5, n = 6");
+    fill0X(5, 6);
+
+    puts("\nOutput for m = 4, n = 4");
+    fill0X(4, 4);
+
+    puts("\nOutput for m = 3, n = 4");
+    fill0X(3, 4);
+
+    return 0;
+} Output: Output for m = 5, n = 6
+X X X X X X
+X 0 0 0 0 X
+X 0 X X 0 X
+X 0 0 0 0 X
+X X X X X X
+
+Output for m = 4, n = 4
+X X X X
+X 0 0 X
+X 0 0 X
+X X X X
+
+Output for m = 3, n = 4
+X X X X
+X 0 0 X
+X X X X Time Complexity: O(mn) Auxiliary Space: O(mn) Please suggest if someone has a better solution which is more efficient in terms of space and time. This article is contributed by Deepak Bisht. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

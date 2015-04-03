@@ -1,0 +1,527 @@
+Find the minimum element in a sorted and rotated array - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find the minimum element in a sorted and rotated array A sorted array is rotated at some unknown point, find the minimum element in it. Following solution assumes that all elements are distinct. Examples 
+Input: {5, 6, 1, 2, 3, 4}
+Output: 1
+
+Input: {1, 2, 3, 4}
+Output: 1
+
+Input: {2, 1}
+Output: 1 A simple solution is to traverse the complete array and find minimum. This solution requires time. We can do it in O(Logn) using Binary Search. If we take a closer look at above examples, we can easily figure out following pattern: The minimum element is the only element whose previous element is greater than it. If there is no such element, then there is no rotation and first element is the minimum element. Therefore, we do binary search for an element which is smaller than the previous element. We strongly recommend you to try it yourself before seeing the following C implementation. 
+// C program to find minimum element in a sorted and rotated array
+#include <stdio.h>
+
+int findMin(int arr[], int low, int high)
+{
+    // This condition is needed to handle the case when array is not
+    // rotated at all
+    if (high < low)  return arr[0];
+
+    // If there is only one element left
+    if (high == low) return arr[low];
+
+    // Find mid
+    int mid = low + (high - low)/2; /*(low + high)/2;*/
+
+    // Check if element (mid+1) is minimum element. Consider
+    // the cases like {3, 4, 5, 1, 2}
+    if (mid < high && arr[mid+1] < arr[mid])
+       return arr[mid+1];
+
+    // Check if mid itself is minimum element
+    if (mid > low && arr[mid] < arr[mid - 1])
+       return arr[mid];
+
+    // Decide whether we need to go to left half or right half
+    if (arr[high] > arr[mid])
+       return findMin(arr, low, mid-1);
+    return findMin(arr, mid+1, high);
+}
+
+// Driver program to test above functions
+int main()
+{
+    int arr1[] =  {5, 6, 1, 2, 3, 4};
+    int n1 = sizeof(arr1)/sizeof(arr1[0]);
+    printf("The minimum element is %d\n", findMin(arr1, 0, n1-1));
+
+    int arr2[] =  {1, 2, 3, 4};
+    int n2 = sizeof(arr2)/sizeof(arr2[0]);
+    printf("The minimum element is %d\n", findMin(arr2, 0, n2-1));
+
+    int arr3[] =  {1};
+    int n3 = sizeof(arr3)/sizeof(arr3[0]);
+    printf("The minimum element is %d\n", findMin(arr3, 0, n3-1));
+
+    int arr4[] =  {1, 2};
+    int n4 = sizeof(arr4)/sizeof(arr4[0]);
+    printf("The minimum element is %d\n", findMin(arr4, 0, n4-1));
+
+    int arr5[] =  {2, 1};
+    int n5 = sizeof(arr5)/sizeof(arr5[0]);
+    printf("The minimum element is %d\n", findMin(arr5, 0, n5-1));
+
+    int arr6[] =  {5, 6, 7, 1, 2, 3, 4};
+    int n6 = sizeof(arr6)/sizeof(arr6[0]);
+    printf("The minimum element is %d\n", findMin(arr6, 0, n6-1));
+
+    int arr7[] =  {1, 2, 3, 4, 5, 6, 7};
+    int n7 = sizeof(arr7)/sizeof(arr7[0]);
+    printf("The minimum element is %d\n", findMin(arr7, 0, n7-1));
+
+    int arr8[] =  {2, 3, 4, 5, 6, 7, 8, 1};
+    int n8 = sizeof(arr8)/sizeof(arr8[0]);
+    printf("The minimum element is %d\n", findMin(arr8, 0, n8-1));
+
+    int arr9[] =  {3, 4, 5, 1, 2};
+    int n9 = sizeof(arr9)/sizeof(arr9[0]);
+    printf("The minimum element is %d\n", findMin(arr9, 0, n9-1));
+
+    return 0;
+}
+ Output: The minimum element is 1
+The minimum element is 1
+The minimum element is 1
+The minimum element is 1
+The minimum element is 1
+The minimum element is 1
+The minimum element is 1
+The minimum element is 1
+The minimum element is 1 How to handle duplicates? It turned out that duplicates can’t be handled in O(Logn) time in all cases. Thanks to Amit Jain for inputs. The special cases that cause problems are like {2, 2, 2, 2, 2, 2, 2, 2, 0, 1, 1, 2} and {2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2}. It doesn’t look possible to go to left half or right half by doing constant number of comparisons at the middle. Following is an implementation that handles duplicates. It may become O(n) in worst case though. 
+// C program to find minimum element in a sorted and rotated array
+#include <stdio.h>
+
+int min(int x, int y) { return (x < y)? x :y; }
+
+// The function that handles duplicates.  It can be O(n) in worst case.
+int findMin(int arr[], int low, int high)
+{
+    // This condition is needed to handle the case when array is not
+    // rotated at all
+    if (high < low)  return arr[0];
+
+    // If there is only one element left
+    if (high == low) return arr[low];
+
+    // Find mid
+    int mid = low + (high - low)/2; /*(low + high)/2;*/
+
+    // Check if element (mid+1) is minimum element. Consider
+    // the cases like {1, 1, 0, 1}
+    if (mid < high && arr[mid+1] < arr[mid])
+       return arr[mid+1];
+
+    // This case causes O(n) time
+    if (arr[low] == arr[mid] && arr[high] == arr[mid])
+        return min(findMin(arr, low, mid-1), findMin(arr, mid+1, high));
+
+    // Check if mid itself is minimum element
+    if (mid > low && arr[mid] < arr[mid - 1])
+       return arr[mid];
+
+    // Decide whether we need to go to left half or right half
+    if (arr[high] > arr[mid])
+       return findMin(arr, low, mid-1);
+    return findMin(arr, mid+1, high);
+}
+
+// Driver program to test above functions
+int main()
+{
+    int arr1[] =  {5, 6, 1, 2, 3, 4};
+    int n1 = sizeof(arr1)/sizeof(arr1[0]);
+    printf("The minimum element is %d\n", findMin(arr1, 0, n1-1));
+
+    int arr2[] =  {1, 1, 0, 1};
+    int n2 = sizeof(arr2)/sizeof(arr2[0]);
+    printf("The minimum element is %d\n", findMin(arr2, 0, n2-1));
+
+    int arr3[] =  {1, 1, 2, 2, 3};
+    int n3 = sizeof(arr3)/sizeof(arr3[0]);
+    printf("The minimum element is %d\n", findMin(arr3, 0, n3-1));
+
+    int arr4[] =  {3, 3, 3, 4, 4, 4, 4, 5, 3, 3};
+    int n4 = sizeof(arr4)/sizeof(arr4[0]);
+    printf("The minimum element is %d\n", findMin(arr4, 0, n4-1));
+
+    int arr5[] =  {2, 2, 2, 2, 2, 2, 2, 2, 0, 1, 1, 2};
+    int n5 = sizeof(arr5)/sizeof(arr5[0]);
+    printf("The minimum element is %d\n", findMin(arr5, 0, n5-1));
+
+    int arr6[] =  {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1};
+    int n6 = sizeof(arr6)/sizeof(arr6[0]);
+    printf("The minimum element is %d\n", findMin(arr6, 0, n6-1));
+
+    int arr7[] =  {2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2};
+    int n7 = sizeof(arr7)/sizeof(arr7[0]);
+    printf("The minimum element is %d\n", findMin(arr7, 0, n7-1));
+
+    return 0;
+}
+ Output: The minimum element is 1
+The minimum element is 0
+The minimum element is 1
+The minimum element is 3
+The minimum element is 0
+The minimum element is 1
+The minimum element is 0 This article is contributed by Abhay Rathi. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: Divide and Conquer Tweet Writing code in comment? Please use ideone.com and share the link here. himanshu dagar This code can not handle the elements in descending order(that is in the category of sorted ) reshma why (mid<high)..checking ..it is always true na.. tell me if i am incorrect.. himanshu dagar suppose our mid is last element at some time .So to prevent the checking of that element with the next element which doesn’t exist ,we have to check that first . Another wise Ur code can give unexpected result. We should remain in array bounds na. Brave Heart The recursive function presented is overly complicated. Here’s a simple solution I coded: http://hastebin.com/hocuranebo.m Naveed public class minimumElementInTheSortedRotatedArray { static int a[] = {8,9,10,1,1,2,2,3,7}; static boolean sorted = true; public static void main(String[] args) { for(int i=0;ia[i+1]) { System.out.println(a[i+1]); sorted = false; break; } } if(sorted) { System.out.println(a[0]); } } } vrg This Question is asked many times in the comment section but not answered // This condition is needed to handle the case when array is not rotated at //all if (high < low) return arr[0]; When will the above statement get executed? pulkit mehra In the 2nd program handling repetitive case, you should change the following line:- if (arr[high] > arr[mid]) to if (arr[high] >= arr[mid]) else it won’t work for i/p such as {3,4,1,2,2,2,2,2,2,2,2} Musa Paljoš This is the iterative solution for this problem. Please correct me If I’m wrong? Could we optimise this? public static int minInRotadedArray(int[] arr) { // Find the minimum element in a sorted and rotated array int l = 0; int r = arr.length – 1; int i; while (r >= l) { i = l + (r – l) / 2; if (arr[l] arr[i]) { return l; } else if (arr[l] > arr[i] && arr[r] arr[i] && arr[r] > arr[i]) { r = i; } else if (arr[l] < arr[i] && arr[r] arr[r] ? r : i; } } return -1; } Pankkaj Yadav why u r trying to follow a long way…. I have another idea….I am giving my logic ….please check the syntax accordingly…. function(int a[]) { static int i=0; if (a[i]>a[i+1]) { i++; function(a[]); } else printf(“%d minimum number in present in array is “, a[i]); } sijayaraman its is not working for the input {5,6,1,2,3,4} bani when the array is reverse sorted , method 1 gives wrong answer… test case where code is flawed :- arr[]={6,5,4,3,2,1} kindly look into this sijayaraman the question is for sorted and rotated array. i don’t think your input is correct. suppose let say input = { 1,2,3,4,5,6} , if you rotate the array in clock or anticlockwise 5 times then the output will be like this {2,3,4,5,6,1} and {6,1,2,3,4,5}. i dont see you input is match with clock or anticlockwise rotation. @GeeksForGeeks Could you please confirm?. Shreyas @geeksforgeeks:disqus method where duplicates are handled…. gives wrong answer for the array 9,10,1,2,2,2,2,2,2,2… kindly check…. HRISHIKESH GOYAL what about the array filled with numbers in descending order like 4 ,3 ,2,1,.. 3,2 r also there whose previous element is greater than it leonardsmith Then It is not a sorted Array which is rotated!!! Mayank Kumar What is the use of adding mid low in the two if statements? They will always be true. Please give a case where it is needed. vikram It would be good to combine these kind of problems into the section of “decrease and conquer” instead of “divide and conquer”. In divide and conquer, main problem will be divided into many small problems and the solution of small problems will be combined to obtain the solution of main problem. In decrease and conquer, main problem will be decreased to a small problem(by a constant or by a constant factor..etc) recursively to obtain the solution. For example, in this problem, when we decide search element is in left half of the array, we ignore right half. problem size is almost decreased by half every time. Spandan Pathak Gives wrong answer for int arr1[] = {9,10,1,2,2,2,2,2,2,2}; replace if (arr[high] > arr[mid]) return findMin(arr, low, mid-1); with if (arr[high] >= arr[mid]) return findMin(arr, low, mid-1); . Gagan a = [1,2,3,4] for i in range(len(a)): .. if i == len(a)-1: .. print “Array not rotated” .. print a[0] .. else: .. if a[i]a[i+1]: .. print a[i+1] .. break ATul Isnt there a typo at the last step ,, else is missing.. in the first Algo without it will be having O(n) complexity salahuddin I think this program work for ascending order arrar but will give wrong output for descending array… codoc This case will never arise when you rotate a sorted array(increasing). Rotation is always done left to right not right to left. So in that case this case won’t appear. Ameya The second code which can handle duplicates does not work in for this input int arr[] = {2, 0, 1, 1,1} Ref: http://codepad.org/tGk3APBK bismoy it has a flaw !! it wont work for this testcase….5, 6, 8, 7, 3, 4 Vijay Kumar the array should be sorted manjunathak public static int getMin(int[] a) { int min=a[0]; for(int i=1;i<=a.length-1;i++) { // Handles right most element case . if(i==a.length-1) { if(a[i] < a[i-1]) { min=a[i]; break; } } if(a[i] < a[i-1] && a[i] < a[i+1] ) { min=a[i]; break; } } return min; } Javed @GeeksforGeeks : doesnt seem to work for this case : http://ideone.com/ay1poW please correct if I am wrong. n //step 1: //fix min=arr[0] //step 2: //traverse the array, arr iteratively … //step 3: //if(arr[i]<min) //return arr[i]; //arr[i] is the answer //also works when duplicate is present nikin cool !!! i ll suggest u a new approach. step 1: fix min=arr[0] step 2: traverse the array, arr iteratively … step 3: if(arr[i]<min) return arr[i]; // this arr[i] is the required answer simple as it sounds…. the worst case complexity is O(n). It will work for duplicates also vibhash // A simple code if I am wrong then correct me. #include #include #include using namespace std; int i=0; int getmin(int *arr,int low,int high) { i++; cout<<i<=high) return arr[low]; else { if(arr[low]<=arr[middle]) { m=getmin(arr,low,middle); } else { m=getmin(arr,middle,high); } } return m; } int main() { int arr[]={5,6,1,2,3,4}; int n=sizeof (arr)/sizeof (int); // mid=(0+(n-1))/2; int minimum=getmin(arr,0,n-1); cout<<minimum; //cout<<endl<<i; } vibhash if (low==middle) return arr[high]; should also be there srinivas #include int main() { int a[]= {2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2};// it will work for any input int i,min,n; n=sizeof(a)/sizeof(int); min=a[0]; for(i=0;ia[i+1]) { min=a[i+1]; break; } printf(“min->%d”,min); return 0; } srinivas #include int main() { int a[]= {2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2}; int i,min,n; n=sizeof(a)/sizeof(int); min=a[0]; for(i=0;ia[i+1]) { min=a[i+1]; break; } printf(“min->%d”,min); return 0; } Alien Iterative and simpler program with same algorithm: // C program to find minimum element in a sorted and rotated array #include int findMin(int arr[], int low, int high) { int mid; while(low<=high) { mid = (low+high)/2; // if element found if(arr[mid] < arr[mid-1]) { return arr[mid]; } // if first half is sorted, go to right else if(arr[low]<=arr[mid]) { low = mid+1; } // if second half is sorted, go to left else { high = mid -1; } } } int main() { int arr1[] = {2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2}; int n1 = sizeof(arr1)/sizeof(arr1[0]); printf("The minimum element is %dn", findMin(arr1, 0, n1-1)); return 0; } http://www.facebook.com/ashishism10 Ashish Ranjan The above solution will work for only those test case when every element is distinct. But it may fail if there is the repetition of the some elements. e.g – for array {2, 1, 2, 2, 2, 2} output will be 2 rather 1. So, modify last 3 lines of solution as: /* if (arr[high] > arr[mid]) return findMin(arr, low, mid-1); else if(arr[high] == arr[mid]) return min(findMin(arr, low, mid-1), findMin(arr, mid+1, high)); else return findMin(arr, mid+1, high); */ Note- After modifying worst case complexity will we N^2 while avarage case complexity will be log(N); Geek The time complexity is O(n) only. The recurrence for time complexity in worst case would be T(n) <= 2T(n/2) + c. Solution of this recurrence is O(n). KIston Bhai tum v Nisha ma’am se padhe ho kya???? mera v pahle wahi O(n) aaya tha,, jab mai khud se padha to log n aa gya. T(n) <= 2T(n/2) + c Ka solution logn hoga. Prashanth T(n) <= 2T(n/2) + c , solution is O(n) = 2^(log2 n ) * T(1) + k = O(n) kiston yes u r right,, 1st case of master’s theorem, It’s O(n) raghvendra  
+#include<stdio.h>
+#include<iostream>
+using namespace std;
+int A[100];
+int binary(int low,int high)
+{
+    int mid;
+
+    while(low<=high)
+    {
+      mid=low+(high-low)/2;
+      if(low==high)return A[mid];
+      else if(low==high-1)
+      {
+          if(A[high]>=A[low])return A[low];
+          else return A[high];
+      }
+      else
+      {
+          if(A[mid]<=A[mid+1]&&A[mid]<=A[mid-1])
+            return A[mid];
+          else if(A[mid]>=A[high])
+            low=mid+1;
+          else
+            high=mid-1;
+      }
+    }
+    return -1;
+}
+int main()
+{
+    int n;
+    cin>>n;
+    for(int i=0;i<n;i++)
+    {
+        cin>>A[i];
+    }
+    cout<<binary(0,n-1);
+    return 0;
+}
+
+ http://thylavatory.wordpress.com Manik Only for no duplicates, How is it better -> O(1) space int search(int a[], int n) { int store; if( a[n-1] > a[0] ) return 0; else store = a[n-1]; int start = 0; int end = n; int mid; while(1) { mid = (start + end)/2; if(mid == start) // single element return mid; if(a[mid] > store) { // minimum lies on right side if(mid<end-1) if(a[mid+1] < a[mid]) return mid+1; start = mid+1; //mid = (start+end)/2; continue; } else { //minimum lies on left or mid is itself the minimum if(mid>start) if(a[mid-1] > a[mid]) return mid; end = mid; //mid = (start + end)/2; continue; } } } http://atiqwhiz.blogspot.in/ atiq good point @3ec67a04e1fb2b49f8aebd41ee80988a:disqus +1… i also spent hours to find such techniques. jamalahmedmaaz  
+public class FindMinOrPointOfIncursion {
+
+  public static void find(int a[], int l, int h) {
+    if (l < h) {
+      if (a[l] < a[h]) {
+        System.out.println("min ele " + a[l]);
+        return;
+      }
+      int m = (l + h) / 2;
+      if (((h - m) == 1) && a[h] < a[m]) {
+        System.out.println("min ele " + a[h]);
+        return;
+      }
+      if (((m - l) == 1) && a[l] > a[m]) {
+        System.out.println("min ele " + a[m]);
+        return;
+      }
+      boolean goleft = a[m] < a[l];
+      boolean goright = a[m] > a[h];
+      if (goleft) {
+        if (a[l] < a[l + 1]) {
+          l = l + 1;
+        } else if (a[m] > a[m - 1]) {
+          m = m - 1;
+        }
+        FindMinOrPointOfIncursion.find(a, l, m);
+      }
+      if (goright) {
+        if (a[m] < a[m + 1]) {
+          m = m + 1;
+        } else if (a[h] > a[h - 1]) {
+          h = h - 1;
+        }
+        FindMinOrPointOfIncursion.find(a, m, h);
+      }
+    }
+  }
+
+  public static void main(String[] args) {
+    // TODO Auto-generated method stub
+    int a[] = {6, 7, 8, 8, 8, 8, 8, 9, 10, 11, 12, 12, 12, 12, 1, 1, 1, 1, 1, 2, 3, 4, 5, 5, 5, 5,
+        5};
+    FindMinOrPointOfIncursion.find(a, 0, a.length - 1);
+  }
+}
+
+ Pavan  
+#include <stdio.h>
+int findPivot(int arr[], int low, int high)
+{
+   // base cases
+   if (high < low)  return -1;
+   if (high == low) return low;
+ 
+   int mid = (low + high)/2;   /*low + (high - low)/2;*/
+   if (mid < high && arr[mid] > arr[mid + 1])
+     return mid;
+   if (mid > low && arr[mid] < arr[mid - 1])
+     return (mid-1);
+   if (arr[low] >= arr[mid])
+     return findPivot(arr, low, mid-1);
+   else
+     return findPivot(arr, mid + 1, high);
+}
+int findMin(int arr[], int low, int high)
+{  
+   if(low==high)
+   return arr[0];
+   int pivot = findPivot(arr, low, high); 
+   if(pivot==-1)
+   return arr[0];
+   else
+   return arr[pivot+1];
+}
+ 
+int main()
+{
+    int arr1[] =  {5, 6, 1, 2, 3, 4};
+    int n1 = sizeof(arr1)/sizeof(arr1[0]);
+    printf("The minimum element is %d\n", findMin(arr1, 0, n1-1));
+ 
+    int arr2[] =  {1, 2, 3, 4};
+    int n2 = sizeof(arr2)/sizeof(arr2[0]);
+    printf("The minimum element is %d\n", findMin(arr2, 0, n2-1));
+ 
+    int arr3[] =  {1};
+    int n3 = sizeof(arr3)/sizeof(arr3[0]);
+    printf("The minimum element is %d\n", findMin(arr3, 0, n3-1));
+ 
+    int arr4[] =  {1, 2};
+    int n4 = sizeof(arr4)/sizeof(arr4[0]);
+    printf("The minimum element is %d\n", findMin(arr4, 0, n4-1));
+ 
+    int arr5[] =  {2, 1};
+    int n5 = sizeof(arr5)/sizeof(arr5[0]);
+    printf("The minimum element is %d\n", findMin(arr5, 0, n5-1));
+ 
+    int arr6[] =  {5, 6, 7, 1, 2, 3, 4};
+    int n6 = sizeof(arr6)/sizeof(arr6[0]);
+    printf("The minimum element is %d\n", findMin(arr6, 0, n6-1));
+ 
+    int arr7[] =  {1, 2, 3, 4, 5, 6, 7};
+    int n7 = sizeof(arr7)/sizeof(arr7[0]);
+    printf("The minimum element is %d\n", findMin(arr7, 0, n7-1));
+ 
+    int arr8[] =  {2, 3, 4, 5, 6, 7, 8, 1};
+    int n8 = sizeof(arr8)/sizeof(arr8[0]);
+    printf("The minimum element is %d\n", findMin(arr8, 0, n8-1));
+ 
+    int arr9[] =  {3, 4, 5, 1, 2};
+    int n9 = sizeof(arr9)/sizeof(arr9[0]);
+    printf("The minimum element is %d\n", findMin(arr9, 0, n9-1));
+ 
+    return 0;
+}
+ Masters   /* Paste your code here (You may delete these lines if not writing code) */ #include int min(int x, int y) { return (x < y)? x :y; } // The function that handles duplicates. It can be O(n) in worst case. int findMin(int arr[], int low, int high) { // This condition is needed to handle the case when array is not // rotated at all if (high < low) return arr[0]; // If there is only one element left if (high == low) return arr[low]; // Find mid int mid = low + (high - low)/2; /*(low + high)/2;*/ // Check if element (mid+1) is minimum element. Consider // the cases like {1, 1, 0, 1} if (mid < high && arr[mid+1] < arr[mid]) return arr[mid+1]; // This case causes O(n) time if (arr[low] >= arr[mid] && arr[high] >= arr[mid]) return min(findMin(arr, low, mid-1), findMin(arr, mid+1, high)); // Check if mid itself is minimum element if (mid > low && arr[mid] < arr[mid - 1]) return arr[mid]; // Decide whether we need to go to left half or right half if (arr[high] > arr[mid]) return findMin(arr, low, mid-1); return findMin(arr, mid+1, high); } // Driver program to test above functions int main() { int arr1[] = {5, 6, 1, 2, 3, 4}; int n1 = sizeof(arr1)/sizeof(arr1[0]); printf(“The minimum element is %d\n”, findMin(arr1, 0, n1-1)); int arr2[] = {1, 1, 0, 1}; int n2 = sizeof(arr2)/sizeof(arr2[0]); printf(“The minimum element is %d\n”, findMin(arr2, 0, n2-1)); int arr3[] = {1, 1, 2, 2, 3}; int n3 = sizeof(arr3)/sizeof(arr3[0]); printf(“The minimum element is %d\n”, findMin(arr3, 0, n3-1)); int arr4[] = {3, 3, 3, 4, 4, 4, 4, 5, 3, 3}; int n4 = sizeof(arr4)/sizeof(arr4[0]); printf(“The minimum element is %d\n”, findMin(arr4, 0, n4-1)); int arr5[] = {2, 2, 2, 2, 2, 2, 2, 2, 0, 1, 1, 2}; int n5 = sizeof(arr5)/sizeof(arr5[0]); printf(“The minimum element is %d\n”, findMin(arr5, 0, n5-1)); int arr6[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1}; int n6 = sizeof(arr6)/sizeof(arr6[0]); printf(“The minimum element is %d\n”, findMin(arr6, 0, n6-1)); int arr7[] = {3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4,5,1,2}; int n7 = sizeof(arr7)/sizeof(arr7[0]); printf(“The minimum element is %d\n”, findMin(arr7, 0, n7-1)); int arr8[] = {2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2}; int n8 = sizeof(arr8)/sizeof(arr8[0]); printf(“The minimum element is %d\n”, findMin(arr8, 0, n8-1)); return 0; } geekcomp what is the need of very first line if (high < low) return arr[0]; I mean How can we get high Rebel   /* Paste your code here (You may delete these lines if not writing code) */ #include int min(int x, int y) { return (x < y)? x :y; } // The function that handles duplicates. It can be O(n) in worst case. int findMin(int arr[], int low, int high) { // This condition is needed to handle the case when array is not // rotated at all if (high < low) return arr[0]; // If there is only one element left if (high == low) return arr[low]; // Find mid int mid = low + (high – low)/2; /*(low + high)/2;*/ // Check if element (mid+1) is minimum element. Consider // the cases like {1, 1, 0, 1} if (mid < high && arr[mid+1] = arr[mid] && arr[high] >= arr[mid]) return min(findMin(arr, low, mid-1), findMin(arr, mid+1, high)); // Check if mid itself is minimum element if (mid > low && arr[mid] arr[mid]) return findMin(arr, low, mid-1); return findMin(arr, mid+1, high); } // Driver program to test above functions int main() { int arr1[] = {5, 6, 1, 2, 3, 4}; int n1 = sizeof(arr1)/sizeof(arr1[0]); printf(“The minimum element is %d\n”, findMin(arr1, 0, n1-1)); int arr2[] = {1, 1, 0, 1}; int n2 = sizeof(arr2)/sizeof(arr2[0]); printf(“The minimum element is %d\n”, findMin(arr2, 0, n2-1)); int arr3[] = {1, 1, 2, 2, 3}; int n3 = sizeof(arr3)/sizeof(arr3[0]); printf(“The minimum element is %d\n”, findMin(arr3, 0, n3-1)); int arr4[] = {3, 3, 3, 4, 4, 4, 4, 5, 3, 3}; int n4 = sizeof(arr4)/sizeof(arr4[0]); printf(“The minimum element is %d\n”, findMin(arr4, 0, n4-1)); int arr5[] = {2, 2, 2, 2, 2, 2, 2, 2, 0, 1, 1, 2}; int n5 = sizeof(arr5)/sizeof(arr5[0]); printf(“The minimum element is %d\n”, findMin(arr5, 0, n5-1)); int arr6[] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1}; int n6 = sizeof(arr6)/sizeof(arr6[0]); printf(“The minimum element is %d\n”, findMin(arr6, 0, n6-1)); int arr7[] = {3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4,5,1,2}; int n7 = sizeof(arr7)/sizeof(arr7[0]); printf(“The minimum element is %d\n”, findMin(arr7, 0, n7-1)); int arr8[] = {2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2}; int n8 = sizeof(arr8)/sizeof(arr8[0]); printf(“The minimum element is %d\n”, findMin(arr8, 0, n8-1)); return 0; } prakash will the code work if i give an input set “222622222222” the statement to handle the duplicate input, is min(findMin(arr, low, mid-1), findMin(arr, mid+1, high)); will always return minimum number.. plz help me clarifying this… prashi its my solution, i think it works on array having duplicate elements, if anything wrong with this please comment.  
+/* 
+int minfind(int a[], int low, int high)
+ {
+   int mid, l,r;
+  if(low>=high)
+    return a[0];
+ 
+  mid=(low+high)/2 +1;
+ if(a[mid]<a[mid -1])
+  return a[m];
+
+ l=minfind(a,low,mid-1);
+ r=minfind(a,mid+1,high);
+ 
+  if(l<r)
+   return l;
+return r;
+}
+ */
+ itsyash What is the use of following condition ?? We can have the code working without this condition also, right ?  
+/* Paste your code here (You may delete these lines if not writing code) */
+// Check if element (mid+1) is minimum element. Consider
+    // the cases like {3, 4, 5, 1, 2}
+    if (mid < high && arr[mid+1] < arr[mid])
+       return arr[mid+1];
+ Prashanth This condition is required because it checks if the array is rotated at “mid + 1 ” position. bateesh @Geekforgeek The code for handling duplicates fails for the following case 4,5,1,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3 it give 3 as o/p. If arr[high]and arr[mid] are same and mid is not the minimum element then it is clear that from mid to high no min will be there as arr[mid] and arr[high] are equal.Instead of going to right we will go to left.Kindly update it as follow // Decide whether we need to go to left half or right half if (arr[high] >= arr[mid]) return findMin(arr, low, mid-1); return findMin(arr, mid+1, high); Sudhansu sekhar jena  
+public  static int findMin(int arr[],int low,int high){
+		int mid=(low+high)/2;
+		if(arr[low]<arr[high]){
+			return arr[low];
+		}
+		if(low==high)
+			return arr[low];
+		if(arr[mid-1]>arr[mid])
+			return arr[mid];
+		else if(arr[mid-1]<arr[mid] && arr[low]<arr[mid]){
+			low=mid+1;
+		}
+		else if(arr[mid-1]<arr[mid] && arr[low]>arr[mid]){
+			high=mid+1;
+		}
+			
+		
+		return  findMin(arr,low,high);
+	}
+ Sudhansu Sekhar Jena Hey this is my solution… public static int findMin(int arr[],int low,int high){ int mid=(low+high)/2; if(arr[low]arr[mid]) return arr[mid]; else if(arr[mid-1]<arr[mid] && arr[low]<arr[mid]){ low=mid+1; } else if(arr[mid-1]arr[mid]){ high=mid+1; } return findMin(arr,low,high); } Ankit Chaudhary First solution seems to be incorrect is array is reverse sorted i.e. 5 4 3 2 1 Above code will return 2 because if(mid<high && arr[mid+1]<a[mid]) return a[mid+1]; will be true and return 2. Correct me If I am Wrong /* Paste your code here (You may delete these lines if not writing code) Check out this code if any error then please reply me. int func(int *a,int left,int right) { if(left==right) return a[left]; if(right==left+1) return a[left]<a[right]?a[left]:a[right]; int mid=(left+right)/2; if(a[mid]>a[left] && a[mid]<a[right]) // if array is sorted return a[left]; if(a[mid]<a[left] && a[mid]>a[right])// if array is reverse sorted return a[right]; if(a[mid]<a[left] && a[mid]<a[mid-1]) // 20 25 5 10 15 return a[mid]; if(a[mid]<a[left]) // 25 5 10 15 20 return func(a,left,mid); if(a[mid]>a[right] && a[mid+1]<a[mid]) // 15 20 25 5 10 return a[mid+1]; return func(a,mid,right); // 10 15 20 25 5 } */ kartik @Ankit: The array {5, 4, 3, 2, 1} doesn’t seem to be a valid input. I think the post is about counterclockwise rotations. kartik Apologies. I meant clockwise. Neo_T Should it not be < < return findMin(arr, mid+2, high); >> in the last line of solution because we have already checked for mid and mid+1. Neo_T Also < < if(high> statement can be checked in the main() by comparing first and last elements of array. Correct me if I am wrong. abhishek how the line if(high<low) represent it is not rotated Nishant // This condition is needed to handle the case when array is not // rotated at all if (high < low) return arr[0]; Above line is compiled only when there are 2 elements in an array like {1, 2} but for other cases like {1, 2, 3} or {1, 2, 3, 4, 5} , program is not returning from here. I think we can check above case in main() function itself just before calling findMin() function. We can write something like if (arr[0] < arr[n-1]) printf(“%d\n”,arr[0]); else findmin(…); Please correct me if I’m wrong. coder if (arr[low] == arr[mid] && arr[high] == arr[mid]) return min(findMin(arr, low, mid-1), findMin(arr, mid+1, high)); Please explain that how this code segment is responsible for O(n) time…according to me findMin(arr,low,mid-1) will take O(logn) and findMin(arr,mid+1,high) will take O(logn)then how it is O(n). I know it may be very silly question but i don;t know i;m not getting it right… Thanx in advance… GeeksforGeeks Following is recurrence in worst case. Time Complexity T(n) = 2T(n/2) + C where C is a constant Solution of above recurrence is O(n). We can apply Master Theorem to solve the recurrence. Neo_T It can also be understood by a simple method. Let us say that when such situation arises, we have to check both sides of MID to find the minimum element and while doing so, in the worst case, we end up checking whole array for the minimum element. Hence, O(n) Whereas in 1st solution where no duplicates are allowed, we reject one side of MID, thereby reducing the array size. Hence, O(log n) ananam private int findMin(int[] arr,int low, int high) { if(high == low) return arr[low]; // only element in array; int mid = (low+high)/2; return (Math.min(findMin(arr,low,mid),findMin(arr,mid+1,high))); } pranav  
+int min_array(int* a,int p,int r)
+{
+	if(p==r)
+		return *(a+p);
+	if(r-p==1)
+		return min(*(a+p),*(a+r));
+	if(*(a+p)<*(a+r))
+		return *(a+p);
+	int q=(p+r)/2;
+	if(*(a+p)<*(a+q))
+		return min_array(a,q+1,r);
+	return min_array(a,p+1,q);
+}
+i think this works fine except in the case of duplicates
+ http://crazyforcode.com hemant  
+int maxRepeating(int *a, int s,int n)
+{
+    int mid;
+    mid = (s+n)/2;
+     if(mid <= s)
+        return a[s]<a[n]?a[s]:a[n];
+    printf("%d",mid);
+    if(a[mid] > a[n])
+        maxRepeating(a,mid,n);
+    else if (a[s] > a[mid])
+        maxRepeating(a,s,mid);
+    
+}
+ Arjun Try this with your code : 87654123 kartik {8,7,6,5,4,1,2,3} doesn’t seem to be a valid sorted and rotated array. It should be 4, 5, 6, 7, 8, 1, 2, 3, 4 http://www.crazyforcode.com hemant I dont understand the first condition?? How is if (high < low) return arr[0]; /* Paste your code here (You may delete these lines if not writing code) */ https://plus.google.com/u/0/100854281690352241497?prsrc=4 Viky  
+#include<stdio.h>
+int min(int a[], int x,int y)
+{
+    return a[x]>a[y]?y:x;
+}
+int binary_search(int a[],int low,int high)
+{
+    int mid = low + (high-low)/2;
+    if(low==high) return low;
+    if(a[low] < a[high])        // normal situation as sorting data is there
+    {
+        return low;
+    }
+    else
+    {
+        if(low==mid) return min(a,low,high);
+        if(a[low] == a[mid])
+        {
+            return min(a,binary_search(a,low,mid-1),binary_search(a,mid+1,high));
+        }
+        else
+        if(a[low] > a[mid])
+        {
+            return binary_search(a,low,mid);
+        }
+        else
+        {
+            return binary_search(a,mid+1,high);
+        }
+    }
+}
+int find_min(int a[],int n)
+{
+    return binary_search(a,0,n-1);
+}
+int main()
+{
+    int a[]= {5, 6, 1, 2, 3, 4};
+    int n = sizeof(a)/sizeof(a[0]);
+    int min= find_min(a,n);
+    printf("integer %d is at index: %d\nn== %d\n",a[min],min,n);
+}
+
+ Asap I dont think we need to check mid>low condition.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Asap Ok got it My func was this int min(int a[],int i,int n){ int mid=i+(n-i)/2; if((i+1)==n) return a[n]; if(i==n) return a[i]; if(a[mid-1]>a[mid]) return a[mid]; if(a[mid]<a[n]) return min(a,i,mid-1); return min(a,mid,n); } So i didnt need it /* Paste your code here (You may delete these lines if not writing code) */ rahul is something wrong with last if statement ?? if (arr[low] >= arr[mid] && arr[high] > arr[mid]) AMIT @geeksforgeeks– I still believe o(logn) worst case algorithm is not possible if allow duplicates The above program won’t work for arr[]={2,2,2,0,2,2,2,2,2,2,2}.It returns 2 I replied in my above fb comment,but its not showing there GeeksforGeeks Your point seems valid. It doesn’t look possible to find minimum in O(Logn) in all cases. We have updated the post. Keep it up! Abdullah_Adel My solution:  
+int findMin(int arr[], int low, int high)
+{
+	if (high < low)
+		return arr[0];
+
+	if (high == low)
+		return arr[low];
+
+	int mid = (high + low)/2;
+
+	if (arr[mid] >= arr[low])
+		return std::min(arr[low], findMin(arr, mid+1, high));
+	return std::min(arr[low], findMin(arr, low, mid));
+}
+ http://nims11.wordpress.com nims O(lgn) won’t work on arrays having duplicate elements. A better explanation of O(lgn) which works with distinct elements: If a sorted rotated array V of size N exists such that V[x%N]>V[(x+1)%N] (i.e. V[x%N] is max and V[(x+1)%N] is min), then all the subarrays W of V containing V[x%N] and V[(x+1)%N] will also be a rooted sorted array. All rooted sorted array will hold the following property: W[0]>W[size_W-1]. For each y, we define subarrays V[0..y] and V[y+1..N-1], we know y = x when both V[0..y] and V[y+1..N-1] fails the test for sorted rooted array. Perform a binary search on y to get the value. Abdullah_Adel I want to know, what is your point in using: int mid = low + (high – low)/2; instead of commented one? thanks! bakwasscoder to prevent integer overflow as (low+high) could be a very big number for large arrays. Nishtha Sorry! for 9,8,7,6,5,4,11,10 it will return 4 correctly. But for the input 9,8,7,6,5,4,3,10 a[mid]=5. The following condition // Check if element (mid+1) is minimum element. Consider // the cases like {1, 1, 0, 1} if (mid < high && arr[mid+1] < arr[mid])//4<8 && arr[5]<arr[4] is true return arr[mid+1]; So arr[5] will be returned. But the minimum element is 3. Correct me if I am wrong! Thanks And cant we use two pointers to solve this problem? Nishtha What if the input is 9,8,7,6,5,4,11,10? This is also sorted and rotated array but in clockwise direction. During the first call a[mid]=5, a[low]=9 and a[high]=10 a[low]>=a[mid] is true and a[high]>a[amid] is also true. So again findMin(arr, low, mid-1) will be called. Now from 9,8,7,6 the lowest element, 6, will be searched and returned; which is not the correct answer.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Bala Sravan My logic is that in a rotated sorted array if we take mid element either or both of the halfs will be sorted and this property continues for both the halfs Hence finding minl,minr minimum in left half and minimum in right half is easy task whichever half has got minimum recursively do this procedure for that half here is the c language implementation  
+#include<stdio.h>
+void min(int* a,int i,int j,int* mini);
+void main()
+{
+FILE* fp=fopen("input.txt","r");
+int n;
+fscanf(fp,"%d",&n);
+int i=0,a[n];
+while(i!=n)
+{
+fscanf(fp,"%d",&a[i]);
+i++;
+}
+i=0;
+/*while(i!=n)
+{
+printf("%d ",a[i]);
+i++;
+}*/
+int mini=619;
+min(a,0,n-1,&mini);
+printf("%d ",mini);
+}
+void min(int* a,int i,int j,int* mini)
+{
+if(i>j)
+return;
+if(i==j&&*(a+i)<*mini)
+{
+*mini=*(a+i);
+return;
+}
+if(j==i+1)
+{
+if(*mini>*(a+i))
+*mini=*(a+i);
+if(*(mini)>*(a+j))
+*mini=*(a+j);
+return;
+}
+int mid=(i+j)/2,minl,minr;
+if(*mini>*(a+mid))
+*mini=*(a+mid);
+if(*(a+i)<=*(a+mid-1))
+minl=*(a+i);
+else
+minl=*(a+mid-1);
+if(*(a+mid+1)<=*(a+j))
+minr=*(a+mid+1);
+else
+minr=*(a+j);
+if(minl==minr)
+{
+min(a,i,mid-1,mini);
+min(a,mid+1,j,mini);
+return;
+}
+if(minl<minr)
+min(a,i,mid-1,mini);
+else
+min(a,mid+1,j,mini);
+}
+ Lakshman Is this methode correct ? We can find the pivot in O(logn) And , then we have two sorted arrays , one on the left side of the pivot and another on the right side of the pivot. Now we can find the min in these sorted arrays O(1). and display the min value of the two min values  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ronny @Lakshman This is very much similar to finding the pivot only. If you observe the code carefully, it is just finding the element next to pivot i.e. a[mid] And this is O(log n) only. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

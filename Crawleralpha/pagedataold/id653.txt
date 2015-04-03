@@ -1,0 +1,128 @@
+Construct a special tree from given preorder traversal - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Construct a special tree from given preorder traversal Given an array ‘pre[]’ that represents Preorder traversal of a spacial binary tree where every node has either 0 or 2 children. One more array ‘preLN[]’ is given which has only two possible values ‘L’ and ‘N’. The value ‘L’ in ‘preLN[]’ indicates that the corresponding node in Binary Tree is a leaf node and value ‘N’ indicates that the corresponding node is non-leaf node. Write a function to construct the tree from the given two arrays. Source: Amazon Interview Question Example: 
+Input:  pre[] = {10, 30, 20, 5, 15},  preLN[] = {'N', 'N', 'L', 'L', 'L'}
+Output: Root of following tree
+          10
+         /  \
+        30   15
+       /  \
+      20   5
+ The first element in pre[] will always be root. So we can easily figure out root. If left subtree is empty, the right subtree must also be empty and preLN[] entry for root must be ‘L’. We can simply create a node and return it. If left and right subtrees are not empty, then recursively call for left and right subtrees and link the returned nodes to root. 
+/* A program to construct Binary Tree from preorder traversal */
+#include<stdio.h>
+
+/* A binary tree node structure */
+struct node
+{
+    int data;
+    struct node *left;
+    struct node *right;
+};
+
+/* Utility function to create a new Binary Tree node */
+struct node* newNode (int data)
+{
+    struct node *temp = new struct node;
+    temp->data = data;
+    temp->left = NULL;
+    temp->right = NULL;
+    return temp;
+}
+
+/* A recursive function to create a Binary Tree from given pre[]
+   preLN[] arrays. The function returns root of tree. index_ptr is used
+   to update index values in recursive calls. index must be initially
+   passed as 0 */
+struct node *constructTreeUtil(int pre[], char preLN[], int *index_ptr, int n)
+{
+    int index = *index_ptr; // store the current value of index in pre[]
+
+    // Base Case: All nodes are constructed
+    if (index == n)
+        return NULL;
+
+    // Allocate memory for this node and increment index for
+    // subsequent recursive calls
+    struct node *temp = newNode ( pre[index] );
+    (*index_ptr)++;
+
+    // If this is an internal node, construct left and right subtrees and link the subtrees
+    if (preLN[index] == 'N')
+    {
+      temp->left  = constructTreeUtil(pre, preLN, index_ptr, n);
+      temp->right = constructTreeUtil(pre, preLN, index_ptr, n);
+    }
+
+    return temp;
+}
+
+// A wrapper over constructTreeUtil()
+struct node *constructTree(int pre[], char preLN[], int n)
+{
+    // Initialize index as 0. Value of index is used in recursion to maintain
+    // the current index in pre[] and preLN[] arrays.
+    int index = 0;
+
+    return constructTreeUtil (pre, preLN, &index, n);
+}
+
+
+/* This function is used only for testing */
+void printInorder (struct node* node)
+{
+    if (node == NULL)
+        return;
+
+    /* first recur on left child */
+    printInorder (node->left);
+
+    /* then print the data of node */
+    printf("%d ", node->data);
+
+    /* now recur on right child */
+    printInorder (node->right);
+}
+
+/* Driver function to test above functions */
+int main()
+{
+    struct node *root = NULL;
+
+    /* Constructing tree given in the above figure
+          10
+         /  \
+        30   15
+       /  \
+      20   5 */
+    int pre[] = {10, 30, 20, 5, 15};
+    char preLN[] = {'N', 'N', 'L', 'L', 'L'};
+    int n = sizeof(pre)/sizeof(pre[0]);
+
+    // construct the above tree
+    root = constructTree (pre, preLN, n);
+
+    // Test the constructed tree
+    printf("Following is Inorder Traversal of the Constructed Binary Tree: \n");
+    printInorder (root);
+
+    return 0;
+}
+ Output: Following is Inorder Traversal of the Constructed Binary Tree:
+20 30 5 10 15
+ Time Complexity: O(n) Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. prakash “If left subtree is empty, the right subtree must also be empty and preLN[] entry for root must be ‘L’.” Why? This is not mentioned in the question. Am I missing something rahul Do we really need to index_ptr as pointer to maintain the index? Just passing by value should suffice right? Amit Bgl wow code eric wu No need to use n, the recursion will exit by itself when it reaches all the leaves. eric wu No need to use n, the recursion will exit by itself when it reaches all the leaves.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ abhishek08aug Intelligent xiaoc10  
+    if (index == n)
+        return NULL;
+ Why the above two lines are necessary? eric wu No need to use n, the recursion will exit after it reaches all the leaves. L  
+It shud be 
+    if (preLN[index] == 'N')
+    {
+      temp->left  = constructTreeUtil(pre, preLN, index_ptr, n);
+      temp->right = constructTreeUtil(pre, preLN, index_ptr, n);
+    } else {
+      temp->left = NULL;
+      temp->right = NULL;
+    }
+ Sreenivas Doosa @L: You don`t need to add the else condition to set left and right child to NULL. Because it has already been set to NULL when you create a New Node.. Gopika I dont under stand where is ‘n’ coming from. Can you please explain. Ankit Gupta If you are talking about the ‘n’ in the order O(n). It is from the running time of the recursive call constructTreeUtil(). @var index_ptr takes values in the range [0, n). Hence the order. wakeup123 n is the size of the array pre[], as well as preLN[]. it is being passed to the function constructTree(), while calling the function in the main. As you can see below…… int n = sizeof(pre)/sizeof(pre[0]); // construct the above tree root = constructTree (pre, preLN, n); Priyank Why is this true: “If left subtree is empty, the right subtree must also be empty” ? kartik As per the problem statement, every node has either 0 or 2 children. Gopika I am not clear about where is ‘n’ coming from. Can you please explain. Thanks.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik n is size of input arrays and size of tree. ritesh Thats because every node has 2 or 0 children as per question.So it must be a complete binary tree.Therefore as per its preorder style of traversal,if the left subtree is empty then its not possible to get a right subtree.There has to have a leftsubtree at first. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,276 @@
+Flattening a Linked List - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Flattening a Linked List Given a linked list where every node represents a linked list and contains two pointers of its type: (i) Pointer to next node in the main list (we call it ‘right’ pointer in below code) (ii) Pointer to a linked list where this node is head (we call it ‘down’ pointer in below code). All linked lists are sorted. See the following example 
+       5 -> 10 -> 19 -> 28
+       |    |     |     |
+       V    V     V     V
+       7    20    22    35
+       |          |     |
+       V          V     V
+       8          50    40
+       |                |
+       V                V
+       30               45
+ Write a function flatten() to flatten the lists into a single linked list. The flattened linked list should also be sorted. For example, for the above input list, output list should be 5->7->8->10->19->20->22->28->30->35->40->45->50. The idea is to use Merge() process of merge sort for linked lists. We use merge() to merge lists one by one. We recursively merge() the current list with already flattened list. The down pointer is used to link nodes of the flattened list. Following is C implementation. 
+#include <stdio.h>
+#include <stdlib.h>
+
+// A Linked List Node
+typedef struct Node
+{
+    int data;
+    struct Node *right;
+    struct Node *down;
+} Node;
+
+/* A utility function to insert a new node at the begining
+   of linked list */
+void push (Node** head_ref, int new_data)
+{
+    /* allocate node */
+    Node* new_node = (Node *) malloc(sizeof(Node));
+    new_node->right = NULL;
+
+    /* put in the data  */
+    new_node->data  = new_data;
+
+    /* link the old list off the new node */
+    new_node->down = (*head_ref);
+
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+/* Function to print nodes in the flattened linked list */
+void printList(Node *node)
+{
+    while(node != NULL)
+    {
+        printf("%d ", node->data);
+        node = node->down;
+    }
+}
+
+// A utility function to merge two sorted linked lists
+Node* merge( Node* a, Node* b )
+{
+    // If first list is empty, the second list is result
+    if (a == NULL)
+        return b;
+
+    // If second list is empty, the second list is result
+    if (b == NULL)
+        return a;
+
+    // Compare the data members of head nodes of both lists
+    // and put the smaller one in result
+    Node* result;
+    if( a->data < b->data )
+    {
+        result = a;
+        result->down = merge( a->down, b );
+    }
+    else
+    {
+        result = b;
+        result->down = merge( a, b->down );
+    }
+
+    return result;
+}
+
+// The main function that flattens a given linked list
+Node* flatten (Node* root)
+{
+    // Base cases
+    if ( root == NULL || root->right == NULL )
+        return root;
+
+    // Merge this list with the list on right side
+    return merge( root, flatten(root->right) );
+}
+
+// Driver program to test above functions
+int main()
+{
+    Node* root = NULL;
+
+    /* Let us create the following linked list
+       5 -> 10 -> 19 -> 28
+       |    |     |     |
+       V    V     V     V
+       7    20    22    35
+       |          |     |
+       V          V     V
+       8          50    40
+       |                |
+       V                V
+       30               45
+    */
+    push( &root, 30 );
+    push( &root, 8 );
+    push( &root, 7 );
+    push( &root, 5 );
+
+    push( &( root->right ), 20 );
+    push( &( root->right ), 10 );
+
+    push( &( root->right->right ), 50 );
+    push( &( root->right->right ), 22 );
+    push( &( root->right->right ), 19 );
+
+    push( &( root->right->right->right ), 45 );
+    push( &( root->right->right->right ), 40 );
+    push( &( root->right->right->right ), 35 );
+    push( &( root->right->right->right ), 20 );
+
+    // Let us flatten the list
+    root = flatten(root);
+
+    // Let us print the flatened linked list
+    printList(root);
+
+    return 0;
+}
+ Output: 5 7 8 10 19 20 20 22 30 35 40 45 50 Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. xxmajia why not use priorityqueue? 1) put the head into the PQ 2) put the next, child point into PQ repeat 1, 2 till the PQ is empty Guest Is follwing statement is correct????i think dat should be result->right = merge(a->down,b) if( a->data data ) { result = a; result->down = merge( a->down, b ); } else { result = b; result->down = merge( a, b->down ); } mdev nice implementation..  
+/* Paste your code here (You may delete these lines if not writing code) */
+ xxmajia yep, and its a priority queue, it works for the node with up, down, left, right pointer as well Niraj It will take extra space as well more time complexity . abhishek08aug Intelligent anantkaushik89 Hi geeks, Can the nodes linked by the down pointer themselves have some linked list starting from them? I mean, can there be right pointers for nodes present in the down lists? In that case I think the heap based solution would be needed. Thanks GeeksFollower Hey geeksforgeeks.. just simple correction to be made.. in ur example.. at d very beginning.. u hv written: o/p should be: 5->7->8->10->19->20->20->22->30->35->40->45->50. well u hv written 20 twice and missed 28 to show as output.. GeeksforGeeks Thanks for pointing this out. We have corrected the example. Pradeep I have written this itterative code for merge in this can some one verify if it is right or not ?? thank you #include<iostream> #include<stdio.h> #include<cstdlib> using namespace std; int i=0,check=0; struct node { int data; struct node *right; struct node *down; }; void insert(struct node *root,int p); void push(struct node **root,int data); void printList(struct node *node); struct node* merge( struct node* a, struct node* b ); struct node* flatten (struct node* root); struct node* remove(struct node *del); int main() { struct node *root=NULL; push( &root, 30 ); push( &root, 8 ); push( &root, 7 ); push( &root, 5 ); push( &( root->right ), 20 ); push( &( root->right ), 10 ); push( &( root->right->right ), 50 ); push( &( root->right->right ), 22 ); push( &( root->right->right ), 19 ); push( &( root->right->right->right ), 45 ); push( &( root->right->right->right ), 40 ); push( &( root->right->right->right ), 35 ); push( &( root->right->right->right ), 20 ); root=flatten(root); printList(root); cout<<endl; return 0; } void push(struct node **root,int data) { struct node *cur=new node; cur->data=data; cur->right=NULL; cur->down=*root; *root=cur; } void insert(struct node *node, int p) { struct node *ins=new struct node; struct node *temp; ins->data=p; ins->right=NULL; temp=node->down; node->down=ins; ins->down=temp; } void printList(struct node *node) { while(node != NULL) { printf("%d ", node->data); node = node->down; } } struct node* flatten (struct node* root) { if ( root == NULL || root->right == NULL ) return root; return merge( root, flatten(root->right) ); } struct node* merge( struct node* a, struct node* b ) { int flag=0; node *temp,*val; if (a == NULL) { return b; } if (b == NULL) { return a; } struct node* result; if(a->data < b->data) { result=a; while(b!=NULL) { while(a->data < b->data) { if(a->down!=NULL) { val=a; a=a->down; } else { flag=1; break; } } if(a->down==NULL && flag==1) { a->down=b; return result; } else { int p=b->data; b=remove(b); insert(val,p); a=val->down; if(b==NULL) return result; } } return result; } else { result=b; while(b!=NULL) { while(((a!=NULL)&&b->data<a->data)) { if(b->down!=NULL) { val=b; b=b->down; } else { flag=1; break; } } if(b->down==NULL && flag==1) { b->down=a; return result; } else { int p=a->data; a=remove(a); insert(val,p); b=val->down; if(a==NULL) return result; } } return result; } } struct node* remove(struct node *del) { struct node *rem; rem=del; if(del->down!=NULL) { del=del->down; delete rem; return del; } else { delete rem; return NULL; } } GeeksforGeeks @Lakshmanan & @Georgi Kalchev: Thanks for sharing your thoughts. The Heap based method looks better. We will add it to the original post. Manoj when will u add heap based method with O(m*n*log(n)) complexity Suman public class FlattenLinkedList { private static Node merge(Node a, Node b) { Node head = new Node(); Node temp = head; while(a!= null && b != null){ if (a.data < b.data){ temp.down = a; temp = temp.down; a = a.down; } else if (b.data < a.data) { temp.down = b; temp = temp.down; b = b.down; } } temp.down = (a == null)?b:a; return head.down; } static class Node{ int data; Node right; Node down; public Node(int data){ this.data = data; } public Node(){ } } public static Node nonRecursiveFlatten(Node root){ Node temp = root; Node result = null; while(temp != null){ result = merge(temp, result); temp = temp.right; } return result; } public static void print(Node start){ while(start != null){ System.out.println(start.data); start = start.down; } } public static void main(String[] args){ Node start = new Node(5); start.right = new Node(10); start.right.right = new Node(19); start.right.right.right = new Node(28); start.down = new Node(7); start.down.down = new Node(8); start.down.down.down = new Node(30); start.right.down = new Node(20); start.right.right.down = new Node(22); start.right.right.down.down = new Node(50); start.right.right.right.down = new Node(35); start.right.right.right.down.down = new Node(40); start.right.right.right.down.down.down = new Node(45); //Node result = flatten(start); Node result = nonRecursiveFlatten(start); print(result); } } Georgi Kalchev Actually the complexity here can go to O(m*(n^2)) if we have all the nodes down with len=m and list len to the right is n. This will happen if the nodes down are ordered such that: 1-st(column) has the smallest values, after that 2nd, 3th etc. So we will have: m + 2m + 3m + …. (n – 1)m = m*(n^2). There are better solutions: 1.) Use a min heap of size n containing the first nodes of each column. This will use O((m + n)logn) time and O(n) space 2.) Simply keep the sorted order by : 2.1 adding the down numbers while next number is greater by the current 2.2. search the right place of the down number in the linked list and add it. 2.3. move to the next node and start again from 1 This will be O(n*m) time and O(1) space. And probably others I cannot think of right now. Thanks, Georgi Georgi Kalchev Here is a sample java code for the 2nd solution.  
+public void flatten(ListNode node) {
+ while (node != null) {
+  if(node.down != null) {
+   if (node.next != null && node.next.data < node.down.data)
+    moveDownOnRight(node);
+   else {
+    node.down.next = node.next;
+    node.next = node.down;
+    node.down = node.down.down;
+   }
+  } else
+   node = node.next;
+ }
+}
+
+private void moveDownOnRight(ListNode node) {
+ ListNode next = node.next;
+ ListNode parent = node;
+
+ while (next != null && next.data < node.down.data) {
+  parent = next;
+  next = next.next;
+ }
+ 
+ parent.next = node.down;
+ node.down.next = next;
+ node.down = null;
+}
+ Palash For the heap based method, I think the time complexity is O(m.n.log(n)).  
+/* Paste your code here (You may delete these lines if not writing code) */
+ bunty @Geeks: If I am not missing anything, it seems there is a missing link between nodes right pointer in the horizontal line. Either function push or some other routine need to do that. Seems, push() insert nodes in individual lists but does not link heads of these list via right pointers. Aashish Observe the code where push() is being called. We are passing the address of right pointers while pushing. So, no issues. bunty Yes. Agreed. Arvind B R i think this will work better in average case  # include<iostream>
+# include<stdio.h>
+# include<stdlib.h>
+# include<vector>
+using namespace std;	
+
+typedef struct Node
+{
+    int data;
+    struct Node *right;
+    struct Node *down;
+} Node;
+ 
+void push (Node** head_ref, int new_data)
+{
+
+    Node* new_node = (Node *) malloc(sizeof(Node));
+    new_node->right = NULL;
+ 
+
+    new_node->data  = new_data;
+ 
+
+    new_node->down = (*head_ref);
+ 
+
+    (*head_ref)    = new_node;
+}
+ 
+
+void printList(Node *node)
+{
+    while(node != NULL)
+    {
+        printf("%d ", node->data);
+        node = node->down;
+    }
+}
+
+
+Node *flatten( Node *root)
+{
+  if(root == NULL || (root->down == NULL && root->right == NULL)) return root;
+vector<Node *> v;
+Node *result= root,*temp;
+
+if(root->right)
+v.push_back(root->right);
+if(root->down)
+v.push_back(root->down);
+
+result->right = result->down = NULL;
+temp = result;
+while(v.size()>0)
+{
+int min = 0;
+	for(int i = 1;i<v.size();i++)
+	{
+		if(v[min]->data > v[i]->data)
+		{
+			min =i;
+		}
+	}
+	temp->down = v[min];
+	temp = temp->down;
+	if(v[min]->right)
+	v.push_back(v[min]->right);	
+	
+	if(v[min]->down)
+	v.push_back(v[min]->down);
+	v.erase(v.begin()+min);
+	temp ->down = NULL;
+	temp->right = NULL;
+}
+temp->down = NULL;
+return result;
+}
+int main()
+{
+    Node* root = NULL;
+    push( &root, 30 );
+    push( &root, 8 );
+    push( &root, 7 );
+    push( &root, 5 );
+
+ 
+    push( &( root->right ), 20 );
+    push( &( root->right ), 10 );
+ 
+    push( &( root->right->right ), 50 );
+    push( &( root->right->right ), 22 );
+    push( &( root->right->right ), 19 );
+ 
+    push( &( root->right->right->right ), 45 );
+    push( &( root->right->right->right ), 40 );
+    push( &( root->right->right->right ), 35 );
+    push( &( root->right->right->right ), 20 );
+ 
+    // Let us flatten the list
+    root = flatten(root);
+ 
+    // Let us print the flatened linked list
+    printList(root);
+ 
+    return 0;
+}
+ janani great dude…  
+/* Paste your code here (You may delete these lines if not writing code) */
+ mdev something…  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Lakshmanan We can reduce the complexity by making use of heaps tournament tree (winner tree / looser tree => basically heaps). The complexity will be reduced to m log(n). Where n is the total elements in the main list and m is the total elements in all the lists. Aashish The idea looks similar to the below post. http://www.geeksforgeeks.org/archives/24463 The same idea can be used, where each vertical linked list can be thought to be stored in different machine. This will be having a better complexity. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

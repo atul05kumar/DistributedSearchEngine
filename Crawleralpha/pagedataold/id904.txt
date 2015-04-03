@@ -1,0 +1,58 @@
+Find if there is a subarray with 0 sum - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find if there is a subarray with 0 sum Given an array of positive and negative numbers, find if there is a subarray with 0 sum. Examples: 
+Input: {4, 2, -3, 1, 6}
+Output: true 
+There is a subarray with zero sum from index 1 to 3.
+
+Input: {4, 2, 0, 1, 6}
+Output: true 
+There is a subarray with zero sum from index 2 to 2.
+
+Input: {-3, 2, 3, 1, 6}
+Output: false
+There is no subarray with zero sum.
+ We strongly recommend to minimize the browser and try this yourself first. A simple solution is to consider all subarrays one by one and check the sum of every subarray. We can run two loops: the outer loop picks a starting point i and the inner loop tries all subarrays starting from i (See this for implementation). Time complexity of this method is O(n2). We can also use hashing. The idea is to iterate through the array and for every element arr[i], calculate sum of elements form 0 to i (this can simply be done as sum += arr[i]). If the current sum has been seen before, then there is a zero sum array. Hashing is used to store the sum values, so that we can quickly store sum and find out whether the current sum is seen before or not. Following is Java implementation of the above approach. 
+// A Java program to find if there is a zero sum subarray
+import java.util.HashMap;
+ 
+class ZeroSumSubarray {
+    
+    // Returns true if arr[] has a subarray with sero sum
+    static Boolean printZeroSumSubarray(int arr[])
+    {
+        // Creates an empty hashMap hM
+        HashMap<Integer, Integer> hM = new HashMap<Integer, Integer>();
+        
+        // Initialize sum of elements
+        int sum = 0;        
+        
+        // Traverse through the given array
+        for (int i = 0; i < arr.length; i++)
+        {   
+            // Add current element to sum
+            sum += arr[i];
+            
+            // Return true in following cases
+            // a) Current element is 0
+            // b) sum of elements from 0 to i is 0
+            // c) sum is already present in hash map
+            if (arr[i] == 0 || sum == 0 || hM.get(sum) != null)                            
+               return true;
+            
+            // Add sum to hash map
+            hM.put(sum, i);
+        }    
+        
+        // We reach here only when there is no subarray with 0 sum
+        return false;
+    }        
+    
+    public static void main(String arg[])
+    {
+        int arr[] = {4, 2, -3, 1, 6};
+        if (printZeroSumSubarray(arr))
+            System.out.println("Found a subarray with 0 sum");
+        else
+            System.out.println("No Subarray with 0 sum");            
+    }            
+}
+ Output: Found a subarray with 0 sum Time Complexity of this solution can be considered as O(n) under the assumption that we have good hashing function that allows insertion and retrieval operations in O(1) time. Exercise: Extend the above program to print starting and ending indexes of all subarrays with 0 sum. This article is contributed by Chirag Gupta. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: Hashing Tweet Writing code in comment? Please use ideone.com and share the link here. YoYoHoneySingh I think the logic is simply explained like this: Keep storing sum till index “i”. for any index “j” >”i” if the sum is same as that of “i”, this means all the elements between “i” index and “j” index add up to 0 hence the sum at “i” equal sum at “j”. Sidharth Hi, How does the third condition proves that there might be a zero sum subarray ? Guest Could anyone please describe how do we come up with the below logic ? If the current sum has been seen before, then there is a zero sum array. Shall we apply the same logic to find the given sum(x) subarray in an array ? Srinivas I don’t think this solution will work. and the brute force approach time complexity is not quadratic it’s exponential. AlienOnEarth can you please provide reason Venu Gopal It is clear that there is subset {-4, -2, 6} for arr[] = {-4, -2, -3, 1, 6}, but this code gives wrong o/p.. http://ideone.com/FcUWve check this. otherwise if the above code works only for contiguous subarray then it should be mentioned in the problem statement… correct me if I am wrong Kartik Please take a closer look at the problem statement. It is subarray, not subset. alien Hi Geeksforgeeks, I have another O(n) time and space solution for this problem. int sumZero(int arr[], int n) { int i =0; int start =0; int sum = 0; while(i0 && start<i) { sum = sum – arr[start]; start++; } if(sum == 0) { printf("start: %d, i: %d",start,i); return; } printf("nsum: %d", sum); i++; } printf("no match found"); } I request you to go through it and include it in the solution. GeeksforGeeks alie, could you please post your code on ideone.com and share the link here. vrg how is negative index handled? for ex: If Input: {-3, 2, 3, 1, 6} During 1st iteration when i=0 sum=-3 and how/where is -3 stored in hashtable? hM.put(sum, i); hm.put(-3,0) where is this stored? Ankur gupta Hash map method doesn’t work for example1 also. Kartik It seems to be working fine. See http://ideone.com/pKPxnU Rajat Sadh http://ideone.com/FswPty Ravi Doesn’t work for many cases, ex {3, -2, -1, -3, 6}. There is a subarray, but your code doesn’t find it. zzer it checks if sum==0, so the code will find it http://www.phoenixuser.blogspot.com GOPI GOPINATH is the hashmap package existing ?? or we need to write our own hashmap and include it ??? Thanks in advance. Ravi it is part of standard java http://www.phoenixuser.blogspot.com GOPI GOPINATH forgot about the case of the letter ‘h’ in hashmap…got it ! Babu Any specific reason why we are starting from i=1 . int i = 1 not i=0 GeeksforGeeks Babu, that seemed to be typo. Thanks for pointing this out. We have corrected it now GeeksforGeeks Babu, that seemed to be typo. Thanks for pointing this out. We have corrected it now Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,58 @@
+ShellSort - GeeksQuiz GeeksQuiz Computer science mock tests for geeks Home Latest Questions Articles C/C++ Programs Contribute Books Subscribe ShellSort June 16, 2014 ShellSort is mainly a variation of Insertion Sort. In insertion sort, we move elements only one position ahead. When an element has to be moved far ahead, many movements are involved. The idea of shellSort is to allow exchange of far items. In shellSort, we make the array h-sorted for a large value of h. We keep reducing the value of h until it becomes 1. An array is said to be h-sorted if all sublists of every h’th element is sorted. Following is C++ implementation of ShellSort. 
+#include  <iostream>
+using namespace std;
+
+/* function to sort arr using shellSort */
+int shellSort(int arr[], int n)
+{
+    // Start with a big gap, then reduce the gap
+    for (int gap = n/2; gap > 0; gap /= 2)
+    {
+        // Do a gapped insertion sort for this gap size.
+        // The first gap elements a[0..gap-1] are already in gapped order
+        // keep adding one more element until the entire array is
+        // gap sorted 
+        for (int i = gap; i < n; i += 1)
+        {
+            // add a[i] to the elements that have been gap sorted
+            // save a[i] in temp and make a hole at position i
+            int temp = arr[i];
+
+            // shift earlier gap-sorted elements up until the correct 
+            // location for a[i] is found
+            int j;            
+            for (j = i; j >= gap && arr[j - gap] > temp; j -= gap)
+                arr[j] = arr[j - gap];
+            
+            //  put temp (the original a[i]) in its correct location
+            arr[j] = temp;
+        }
+    }
+    return 0;
+}
+
+void printArray(int arr[], int n)
+{
+    for (int i=0; i<n; i++)
+        cout << arr[i] << " ";
+}
+
+int main()
+{
+    int arr[] = {12, 34, 54, 2, 3}, i;
+    int n = sizeof(arr)/sizeof(arr[0]);
+
+    cout << "Array before sorting: \n";
+    printArray(arr, n);
+
+    shellSort(arr, n);
+
+    cout << "\nArray after sorting: \n";
+    printArray(arr, n);
+
+    return 0;
+}
+ Output: Array before sorting:
+12 34 54 2 3
+Array after sorting:
+2 3 12 34 54 Time Complexity: Time complexity of above implementation of shellsort is O(n2). In the above implementation gap is reduce by half in every iteration. There are many other ways to reduce gap which lead to better time complexity. See this for more details. References: https://www.youtube.com/watch?v=pGhazjsFW28 http://en.wikipedia.org/wiki/Shellsort Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above Related Questions: Binary Insertion Sort Sorting Terminology Bubble Sort Selection Sort Binary Search QuickSort Heap Sort Merge Sort Tweet       Categories Articles (105) Algorithms (21) C (13) C++ (16) Data Structures (29) DBMS (1) Interview Experiences (6) Java (2) Operating Systems (1) Searching and Sorting (10) Programs (35) Quizzes (1,744) Aptitude (1) Computer Science Quizzes (1,742) Algorithms (147) C (207) C++ (129) Data Structures (132) DBMS (2) GATE (1,046) Java (51) Operating Systems (28) Web technologies (1) Recent Discussions Valid XHTML Strict 1.0 Powered by WordPress & MooTools | MiniMoo 1.3.4

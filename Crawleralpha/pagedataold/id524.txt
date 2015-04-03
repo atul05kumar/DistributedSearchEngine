@@ -1,0 +1,757 @@
+Function to check if a singly linked list is palindrome - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Function to check if a singly linked list is palindrome Given a singly linked list of characters, write a function that returns true if the given list is palindrome, else false. METHOD 1 (Use a Stack) A simple solution is to use a stack of list nodes. This mainly involves three steps. 1) Traverse the given list from head to tail and push every visited node to stack. 2) Traverse the list again. For every visited node, pop a node from stack and compare data of popped node with currently visited node. 3) If all nodes matched, then return true, else false. Time complexity of above method is O(n), but it requires O(n) extra space. Following methods solve this with constant extra space. METHOD 2 (By reversing the list) This method takes O(n) time and O(1) extra space. 1) Get the middle of the linked list. 2) Reverse the second half of the linked list. 3) Check if the first half and second half are identical. 4) Construct the original linked list by reversing the second half again and attaching it back to the first half To divide the list in two halves, method 2 of this post is used. When number of nodes are even, the first and second half contain exactly half nodes. The challenging thing in this method is to handle the case when number of nodes are odd. We don’t want the middle node as part of any of the lists as we are going to compare them for equality. For odd case, we use a separate variable ‘midnode’. 
+/* Program to check if a linked list is palindrome */
+#include<stdio.h>
+#include<stdlib.h>
+#include<stdbool.h>
+
+/* Link list node */
+struct node
+{
+    char data;
+    struct node* next;
+};
+
+void reverse(struct node**);
+bool compareLists(struct node*, struct node *);
+
+/* Function to check if given linked list is
+  palindrome or not */
+bool isPalindrome(struct node *head)
+{
+    struct node *slow_ptr = head, *fast_ptr = head;
+    struct node *second_half, *prev_of_slow_ptr = head;
+    struct node *midnode = NULL;  // To handle odd size list
+    bool res = true; // initialize result
+
+    if (head!=NULL && head->next!=NULL)
+    {
+        /* Get the middle of the list. Move slow_ptr by 1
+          and fast_ptrr by 2, slow_ptr will have the middle
+          node */
+        while (fast_ptr != NULL && fast_ptr->next != NULL)
+        {
+            fast_ptr = fast_ptr->next->next;
+
+            /*We need previous of the slow_ptr for
+             linked lists  with odd elements */
+            prev_of_slow_ptr = slow_ptr;
+            slow_ptr = slow_ptr->next;
+        }
+
+
+        /* fast_ptr would become NULL when there are even elements in list. 
+           And not NULL for odd elements. We need to skip the middle node 
+           for odd case and store it somewhere so that we can restore the
+           original list*/
+        if (fast_ptr != NULL)
+        {
+            midnode = slow_ptr;
+            slow_ptr = slow_ptr->next;
+        }
+
+        // Now reverse the second half and compare it with first half
+        second_half = slow_ptr;
+        prev_of_slow_ptr->next = NULL; // NULL terminate first half
+        reverse(&second_half);  // Reverse the second half
+        res = compareLists(head, second_half); // compare
+
+        /* Construct the original list back */
+         reverse(&second_half); // Reverse the second half again
+         if (midnode != NULL)  // If there was a mid node (odd size case) which                                                         
+                               // was not part of either first half or second half.
+         {
+            prev_of_slow_ptr->next = midnode;
+            midnode->next = second_half;
+         }
+         else  prev_of_slow_ptr->next = second_half;
+    }
+    return res;
+}
+
+/* Function to reverse the linked list  Note that this
+    function may change the head */
+void reverse(struct node** head_ref)
+{
+    struct node* prev   = NULL;
+    struct node* current = *head_ref;
+    struct node* next;
+    while (current != NULL)
+    {
+        next  = current->next;
+        current->next = prev;
+        prev = current;
+        current = next;
+    }
+    *head_ref = prev;
+}
+
+/* Function to check if two input lists have same data*/
+bool compareLists(struct node* head1, struct node *head2)
+{
+    struct node* temp1 = head1;
+    struct node* temp2 = head2;
+
+    while (temp1 && temp2)
+    {
+        if (temp1->data == temp2->data)
+        {
+            temp1 = temp1->next;
+            temp2 = temp2->next;
+        }
+        else return 0;
+    }
+
+    /* Both are empty reurn 1*/
+    if (temp1 == NULL && temp2 == NULL)
+        return 1;
+
+    /* Will reach here when one is NULL
+      and other is not */
+    return 0;
+}
+
+/* Push a node to linked list. Note that this function
+  changes the head */
+void push(struct node** head_ref, char new_data)
+{
+    /* allocate node */
+    struct node* new_node =
+        (struct node*) malloc(sizeof(struct node));
+
+    /* put in the data  */
+    new_node->data  = new_data;
+
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);
+
+    /* move the head to pochar to the new node */
+    (*head_ref)    = new_node;
+}
+
+// A utility function to print a given linked list
+void printList(struct node *ptr)
+{
+    while (ptr != NULL)
+    {
+        printf("%c->", ptr->data);
+        ptr = ptr->next;
+    }
+    printf("NULL\n");
+}
+
+
+/* Drier program to test above function*/
+int main()
+{
+    /* Start with the empty list */
+    struct node* head = NULL;
+    char str[] = "abacaba";
+    int i;
+
+    for (i = 0; str[i] != '\0'; i++)
+    {
+       push(&head, str[i]);
+       printList(head);
+       isPalindrome(head)? printf("Is Palindrome\n\n"):
+                           printf("Not Palindrome\n\n");
+    }
+
+    return 0;
+}
+ Output: a->NULL
+Palindrome
+
+b->a->NULL
+Not Palindrome
+
+a->b->a->NULL
+Is Palindrome
+
+c->a->b->a->NULL
+Not Palindrome
+
+a->c->a->b->a->NULL
+Not Palindrome
+
+b->a->c->a->b->a->NULL
+Not Palindrome
+
+a->b->a->c->a->b->a->NULL
+Is Palindrome Time Complexity O(n) Auxiliary Space: O(1) METHOD 3 (Using Recursion) Use two pointers left and right. Move right and left using recursion and check for following in each recursive call. 1) Sub-list is palindrome. 2) Value at current left and right are matching. If both above conditions are true then return true. The idea is to use function call stack as container. Recursively traverse till the end of list. When we return from last NULL, we will be at last node. The last node to be compared with first node of list. In order to access first node of list, we need list head to be available in the last call of recursion. Hence we pass head also to the recursive function. If they both match we need to compare (2, n-2) nodes. Again when recursion falls back to (n-2)nd node, we need reference to 2nd node from head. We advance the head pointer in previous call, to refer to next node in the list. However, the trick in identifying double pointer. Passing single pointer is as good as pass-by-value, and we will pass the same pointer again and again. We need to pass the address of head pointer for reflecting the changes in parent recursive calls. Thanks to Sharad Chandra for suggesting this approach. 
+// Recursive program to check if a given linked list is palindrome
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+/* Link list node */
+struct node
+{
+    char data;
+    struct node* next;
+};
+
+// Initial parameters to this function are &head and head
+bool isPalindromeUtil(struct node **left, struct  node *right)
+{
+   /* stop recursion when right becomes NULL */
+   if (right == NULL)
+      return true;
+
+   /* If sub-list is not palindrome then no need to
+       check for current left and right, return false */
+   bool isp = isPalindromeUtil(left, right->next);
+   if (isp == false)
+      return false;
+
+   /* Check values at current left and right */
+   bool isp1 = (right->data == (*left)->data);
+
+   /* Move left to next node */
+   *left = (*left)->next;
+
+   return isp1;
+}
+
+// A wrapper over isPalindromeUtil()
+bool isPalindrome(struct node *head)
+{
+   isPalindromeUtil(&head, head);
+}
+
+/* Push a node to linked list. Note that this function
+  changes the head */
+void push(struct node** head_ref, char new_data)
+{
+    /* allocate node */
+    struct node* new_node =
+            (struct node*) malloc(sizeof(struct node));
+
+    /* put in the data  */
+    new_node->data  = new_data;
+
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);
+
+    /* move the head to pochar to the new node */
+    (*head_ref)    = new_node;
+}
+
+// A utility function to print a given linked list
+void printList(struct node *ptr)
+{
+    while (ptr != NULL)
+    {
+        printf("%c->", ptr->data);
+        ptr = ptr->next;
+    }
+    printf("NULL\n");
+}
+
+/* Drier program to test above function*/
+int main()
+{
+    /* Start with the empty list */
+    struct node* head = NULL;
+    char str[] = "abacaba";
+    int i;
+
+    for (i = 0; str[i] != '\0'; i++)
+    {
+       push(&head, str[i]);
+       printList(head);
+       isPalindrome(head)? printf("Is Palindrome\n\n"):
+                           printf("Not Palindrome\n\n");
+    }
+
+    return 0;
+}
+ Output: a->NULL
+Not Palindrome
+
+b->a->NULL
+Not Palindrome
+
+a->b->a->NULL
+Is Palindrome
+
+c->a->b->a->NULL
+Not Palindrome
+
+a->c->a->b->a->NULL
+Not Palindrome
+
+b->a->c->a->b->a->NULL
+Not Palindrome
+
+a->b->a->c->a->b->a->NULL
+Is Palindrome Time Complexity: O(n) Auxiliary Space: O(n) if Function Call Stack size is considered, otherwise O(1). Please comment if you find any bug in the programs/algorithms or a better way to do the same.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. cruser11232 A crude method below: list * Compare( list * head, list * head1,int *i) { list * p =head; if(head->next) { ++(*i); head1= Compare(head->next,head1,i); } if(head1 && (p->a==head1->a)) { head1= head1->next; (*i)–; return head1; } else return NULL; } both head and head1 points to head node. if i is 0 its a palindrome.. Himanshu Dagar but there is no need no taking extra variable ispl Himanshu Dagar Very High Concept is required in understanding even the parameters of recursive function thanks for providing this i learnt a lot frm this zealfire just need verification whether checking for palindrome in case of strings will work in this way: //link http://ideone.com/bfTpf4 SudhanshuAanand Another way could be(This is a method using only single iteration): 1. Add to the top of stack till the mid of the linked list is reached(using fast and slow). 2. If fast.next is null then: a) Until the stack is empty do: i) pop from stack check against slow ii) slow = slow.next 3. else a) slow = pop() b) Until the stack is empty do: i) pop from the stack check against slow ii) slow = slow.next Narendra Solution 3 seems to change the head of the list .. Plz have a look at the below int checkListIsPallendrome(SList *node) { static int i=1; if(!node) return i=i&1; checkListIsPallendrome(node->next); static SList *node1 = NULL; if(node1 == NULL) node1=*getSlistRoot(); if(node->data != node1->data) return i=i&0; node1=node1->next; return i=i&1; } Pawan Kumar Gupta HI, I need comments or suggestion for this approach. Thanks. head=first; boolean isPalindrome(Node node) { if (node == null) return; ispalindrome(node.next); if (head.data != node.data) return false; else head = head.next; if(head==node ) return true; } Max How about going to the middle of the list and then starting the recursive call till the end, and then trace back? Will need half stack space, and reduce redundant comparisons. niks Hi Max, Could you elaborate on the method that you are talking about? jeevan How about this? private static boolean isPalindrome(Node<String> n) { if(n==null) return true; Node<String> prev = n; Node<String> curr = n; while(curr.next != null){ prev = curr; curr = curr.next; } if(prev == null) return true; if(n.key.equals(curr.key)){ prev.next = null; return isPalindrome(n.next); }else{ return false; } } hemanthreddy  
+struct node * is_palindrome(struct node *front,struct node *back)
+{
+	if(back->link)
+	{
+		if( (front = is_palindrome(front,back->link)) && front && (front->data == back->data) )
+			return (front->link) ? (front->link) : (front);
+		else
+			return 0;
+	}
+	return (front->data == back->data) ? ( (front->link) ? (front->link) : (front) ) : 0;
+}
+ GeeksforGeeks @All: We have made following changes to this post …Added stack based method as method 1. …Fixed bugs in reverse() based method and simplified it. This method is now Method 2. …Added more explanation to recursive method and added a wrapper function so that the original list doesn’t change. This method is now method 3. We sincerely appreciate your comments and inputs. Sunil We can pass the left pointer by value instead of reference and assign left pointer to a static data member. This way we needn’t have to modify the head of the linked list all the time. /* bool isPalindrome(struct node *left, struct node *right) { /* stop recursion here */ static node *l=left; if (!right) return true; /* If sub-list is not palindrome then no need to check for current left and right, return false */ bool isp = isPalindrome(l, right->next); if (isp == false) return false; /* Check values at current left and right */ bool isp1 = (right->data == l->data); /* Move left to next node */ l = l->next; /* save next pointer */ return isp1; } */ darkpassenger @geeksforgeeks your method returns not palindrome when list contains single element. plz correct it……… GeeksforGeeks @darkpassenger: Thanks for pointing this out. We have updated the code. It seems to handle all cases now. Keep it up! Vibhu Tiwari @GeeksforGeeks: Actually i think in the first method if the result is 0 then we do not need to again reverse and add the second half to the first part of the linked list.From there only we shoud return 0 and say that it is a not a palindrome. I know we need to preserve the original linked list but here it will not matter as we are not using recursion or iteration where we might be wanting the original linked list. pardeep garg  
+/* #include<iostream>
+using namespace std;
+
+struct node{
+    int data;
+    node *next;
+}*p=NULL,*m=NULL;
+int flag=1;
+void insert(node *&t,int data){
+    if(t==NULL){
+        t=new node;
+        t->data=data;
+        t->next=NULL;
+    }
+    else{
+        node *tmp=t;
+        while(tmp->next!=NULL){
+            tmp=tmp->next;
+        }
+        tmp->next=new node;
+        tmp=tmp->next;
+        tmp->data=data;
+        tmp->next=NULL;
+    }
+}
+
+void print(node *t){
+    while(t!=NULL){
+        cout<<t->data<<"  ";
+        t=t->next;
+    }
+    cout<<endl;
+}
+
+void checkpalin(node *t){
+    if(t->next!=NULL)
+    checkpalin(t->next);
+    if(m->data!=t->data)
+    flag=0;
+    m=m->next;
+}
+int main(){
+     insert(p,3);
+     insert(p,1);
+     insert(p,0);
+     insert(p,0);
+     insert(p,1);
+     insert(p,3);
+     print(p);
+     m=p;
+     checkpalin(p);
+     if(flag==0)
+     cout<<"not palin\n";
+     else
+     cout<<"palin\n";
+
+     return 0;
+}
+ */
+ pardeep garg // it takes time=O(n) auxillary space= 0; // take a global pointer which increment as recursive solution // goes back #include using namespace std; struct node{ int data; node *next; }*p=NULL,*m=NULL; int flag=1; void insert(node *&t,int data){ if(t==NULL){ t=new node; t->data=data; t->next=NULL; } else{ node *tmp=t; while(tmp->next!=NULL){ tmp=tmp->next; } tmp->next=new node; tmp=tmp->next; tmp->data=data; tmp->next=NULL; } } void print(node *t){ while(t!=NULL){ cout<data<next; } cout<next!=NULL) checkpalin(t->next); if(m->data!=t->data) flag=0; m=m->next; } int main(){ insert(p,3); insert(p,1); insert(p,0); insert(p,0); insert(p,1); insert(p,3); print(p); m=p; checkpalin(p); if(flag==0) cout<<"not palin\n"; else cout<<"palin\n"; return 0; } /* Paste your code here (You may delete these lines if not writing code) */ pardeep garg // it takes time=O(n) auxillary space= 0; // take a global pointer which increment as recursive solution goes back #include using namespace std; struct node{ int data; node *next; }*p=NULL,*m=NULL; int flag=1; void insert(node *&t,int data){ if(t==NULL){ t=new node; t->data=data; t->next=NULL; } else{ node *tmp=t; while(tmp->next!=NULL){ tmp=tmp->next; } tmp->next=new node; tmp=tmp->next; tmp->data=data; tmp->next=NULL; } } void print(node *t){ while(t!=NULL){ cout<data<next; } cout<next!=NULL) checkpalin(t->next); if(m->data!=t->data) flag=0; m=m->next; } int main(){ insert(p,3); insert(p,1); insert(p,0); insert(p,0); insert(p,1); insert(p,3); print(p); m=p; checkpalin(p); if(flag==0) cout<<"not palin\n"; else cout<<"palin\n"; return 0; } /* Paste your code here (You may delete these lines if not writing code) */ abhishek08aug Better make use of stack  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Vijay Muvva Second method in java.. left is an array list whose first element is the head of the list, right is the head of the list. public static boolean polindromeCheck(ArrayList<ListNode<String>> left, ListNode<String> right) { if (right == null) { return true; } boolean isPolindrome = polindromeCheck(left, right.next); if (!isPolindrome) { return false; } boolean temp = (left.get(0).data == right.data); left.add(0, left.get(0).next); return temp; } Ankit Malhotra @GeeksForGeeks : Method 1 can be simplified, as there is no need to check odd/even count. Once we find the mid element and split and reverse the lists, we need to check only till end of the first half. In case of odd count of elements the middle element will be at the end of the second half on reversal and will not be considered in comparison when end of first is reached. My code for the solution is included.  
+typedef enum{false, true} bool;
+typedef struct node node;
+typedef node * nodeptr;
+typedef nodeptr * npref;
+
+npref listmid (npref start) {
+  npref ptr = start, mid = ptr;
+  while (*ptr && (*ptr)->next) {
+    mid = &((*mid)->next);
+    ptr = &((*ptr)->next->next);
+  }
+  return mid;
+}
+
+void reverse (npref ptr) {
+  nodeptr reversed = NULL, temp = NULL;
+  while (*ptr) {
+    temp = (*ptr)->next;
+    (*ptr)->next = reversed;
+    reversed = *ptr;
+    *ptr = temp;
+  }
+  *ptr = reversed;
+}
+
+bool palindrome (nodeptr start) {
+  counter n;
+  npref temp = &start, mid = listmid(&start);
+  nodeptr midstart, ptr1, ptr2;
+// Break the list from middle
+  midstart = *mid;
+  *mid = NULL;
+// Reverse the second half
+  reverse (&midstart);
+// Check for equality
+  for (ptr1 = start, ptr2 = midstart; 
+       ptr1 && ptr1->data == ptr2->data; 
+       ptr1 = ptr1->next, ptr2 = ptr2->next);
+
+// Restore second half to order
+  reverse (&midstart);
+// Rejoin the list
+  push (temp, midstart);
+// Return true if matched till end, false otherwise.
+  return (!ptr1);
+}
+ Ankit Malhotra Including utility functions. For convenience data compared is int instead of char.  
+struct node{
+  int data;
+  nodeptr next;
+};
+
+nodeptr nodeCreator (element data, nodeptr next) {
+  nodeptr temp = (node *) malloc(sizeof(node));
+  temp->data = data;
+  temp->next = next;
+  return temp;
+}
+
+void push (npref start, const nodeptr item) {
+  nodeptr ptr = *start;
+  if (! *start)
+    *start = item;
+  else {
+    while (ptr->next) ptr = ptr->next;
+    ptr->next = item;
+    item->prev = ptr;
+  }
+}
+
+int main () {
+  nodeptr s = NULL;
+  push (&s, nodeCreator(1, NULL));
+  push (&s, nodeCreator(2, NULL));
+  push (&s, nodeCreator(3, NULL));
+  push (&s, nodeCreator(2, NULL));
+  push (&s, nodeCreator(1, NULL));
+  printf (palindrome (s) ? "Yes" : "No");
+  printf ("\n");
+  return 0;
+}
+
+ Rahul I think the second method is not possible in Java. Since Java is pass by value, the reference will not change inside the method, i.e. the head node will not move next.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ aygul @geeksforgeeks Second method can be improved by the half of the recursion stack. Similar to the first method find mid point of the list by using slow and fast pointers then call isPalindrome(&head, second_half); Also suggested second method changes the head pointer when it is returned in main. A util function isPalindrome(struct node *head) that traverses to find the half and calls isPalindrome(&head, second_half); would be a better solution. Kartik @sharad Chandra .. thanks for this awesome solution… nearly unthought of. Rajdeep Method making use of two node pointers and one stack: One method is to move two pointers, slow and fast that will scan the link list such that: 1) slow will move one step at one time and fast will move twice as slow do. 2) While scanning push nodes pointed by slow in the stack. 2) In this case, the time fast reaches the end of list, slow would be pointing the middle of the list and stack will have the nodes of the list, till middle, in the reverse position. 4) Now repeatedly pop stack and move slow pointers, and compare both the nodes. This will if the list is palindrome or not.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Soumya Sengupta gud code  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://www.nikoo28.blogspot.com nikoo28 we can also push all the elements in a stack…then pop elements one by one and compare it with the start pointer…with each pop increment the start pointer..if the value does not match at any point, then we can return false…please point me if i am wrong…? jasleen Ur method is correct but it requires extra space O(n). nidhi can we do this method? 1. store the output of linklist in some string or stack. 2. reverse the complete linklist. 3. now store the output of new linklist. 4. compare both. rakesh mahadasa inefficient  
+/* Paste your code here (You may delete these lines if not writing code) */
+ rakesh mahadasa it uses extra space and time inefficient  
+/* Paste your code here (You may delete these lines if not writing code) */
+ trial gidraharsh.wordpress.com/2012/04/24/linkedlist-palindrome/ http://manjunath.j.tripod.com/ Manjunath Janardhan My method: 1) Find the mid 2) Keep pushing the elements into stack until you reach mid 3) Start popping and compare with the reaming elements in the list. jagur why do you need stack? Jaldeep Can anyone plz suggest a solution with – an O(n) (only 1 traversal) code with o(1) memory space and without changing link list structure..?? http://NoWebsite Barun Kumar Singh  
+bool checkListPalindrom(LList * head, LList* temp)
+{
+	static bool isPalin = true;
+	static LList* head2 = head;
+	if(temp->next != NULL)
+		checkListPalindrom(head,temp->next);
+	if(head2->data != temp->data)
+		isPalin = false;
+	head2 = head2->next;
+	return isPalin;
+}
+
+/* this function should be called from main function like..
+if(checkListPalindrom(head,head))
+ printf("\nPalindrom.");
+else
+printf ("\nNot Palindrom.");
+ Avinash 2nd method is not so good. Recursion breaks when we have wasted checking for same string as palindrome twice. In first recursive traversal count N nodes in list and use this extra info [ n/2 ] to break out of recursion early. pphanireddy  
+    public boolean isPalindrome() {
+	boolean isPalindrome = true;
+	Node middle = getMiddle();
+	if(middle == null) return isPalindrome;
+	Node firstHead = head;
+	Node secondHead = reverseList(middle);
+	Node saveSecondHead = secondHead;
+	while(firstHead != middle) {
+	    if(!firstHead.val.equals(secondHead.val)) {
+		isPalindrome = false;
+		break;
+	    }
+	    firstHead = firstHead.next;
+	    secondHead = secondHead.next;
+	}
+	secondHead = reverseList(saveSecondHead);
+	return isPalindrome;
+    }
+
+ Bharath Why are we passing a pointer to a pointer for the left node? http://www.linkedin.com/in/ramanawithu Venki I think quite a few comments on why the second method working fine. I am trying to put few comments. The idea is to use compiler function call stack as container. Recursively traverse till the end of list. When we return from last NULL, we will be at last node. The last node to be compared with first node of list. In order to access first node of list we need list head to be available in the last call of recursion. Hence we pass head also the recursive function. If they both match we need to compare (2, n-2) nodes. Again when recursion falls back to (n-2)nd node, we need reference to 2 nd node from head. We advance the head pointer in previous call, to refer to next node in the list. However, the trick in identifying dual reference. Passing single reference is as good as pass-by-value, and we will pass the same pointer again and again without dual reference. We need to pass the address of head pointer for referring next elements. Nice work by @Sharad using the power of recursion. Keep it up. Kartik But that does mean that it is making multiple passes to the same list , in right pointer ,, doesnt it?? I am confused in this …  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Rajneesh My suggestion has Stack idea with complexity of O(n): Declare two pointers and initialize both of them to the start of the list. Move one pointer, one node forward in every step and keep pushing the data pointed by it on a stack. Other pointer moves two nodes forward in every step. Repeat until second pointer reaches the end of the loop. Now start popping the data from the stack and move the first pointer one step every time and compare the element pointed by this pointer with the element popped from the stack. If a mismatch is found the its not palindrome. If stack is empty and so we have reached the end of the list, that means its a palindrome. Pseudo Code: 1. Make two pointers: fastpointer, slowpointer 2. fastpointer = HeadOfTheList, slowpointer = HeadOfTheList 3. Do until fastpointer OR fastpointer->next is not NULL i) push(slowpointer->data) on stack ii) slowpointer = slowpointer->next iii) fastpointer = fastepointer->next->next 4. Do until stack is empty i) slowpointer = slowpointer->next ii) temp = popTheStack() iii) if ((slowpointer->data) != temp) return false 5. return true Above pseudo code might need little check in between depending upon whether the number of elements in the list is even or odd. Do the check yourself. Correct me if I am wrong. Anushree really good solution! Anushree really nice solution! Pradip I think the stack can be avoided by using another pointer to start at beginning… Otherwise a nice soln. Anuj Bansal 1. I think you can push the whole list to a stack and then start popping the stack and compare it with the list elements by traversing it from the beginning. 2. Another solution could be to read the linked list forward once and backward once and then just compare them. This would avoid maintaining a custom stack although your code would use one while traversing the list backwards recursively.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ yeskay This is My version, Check it out!!!  typedef struct node{
+        char ch;
+        struct node *link;
+}NODE;
+
+void printList(NODE *node){
+        while(node){
+                printf("| %c |->",node->ch);
+                node = node->link;
+        }
+}
+
+int isPalindrome(NODE *head){
+        static char str[LEN];
+        static int i=0;
+        if(head==NULL)
+                return;
+        str[i++] = head->ch;
+        isPalindrome(head->link);
+        i=i%LEN;
+//      printf("\ni = %d | str[%d] = %c | head->ch = %c",i,i,str[i],head->ch);
+        if(str[i] == head->ch)
+                i++;
+return i;
+}
+
+int main(){
+        NODE list[LEN],*head;
+        list[0].ch = 'r';
+        list[1].ch = 'a';
+        list[2].ch = 'a';
+        list[3].ch = 'r';
+        head = list;
+
+        list[0].link = &list[1];
+        list[1].link = &list[2];
+        list[2].link = &list[3];
+        list[3].link = NULL;
+//      list[4].link = NULL;
+        printf("Original List :\n");
+        printList(head);
+        printf("\n");
+
+        if(isPalindrome(head) == LEN)
+                printf("\nIt is a Palindrome!!!\n");
+        else
+                printf("\nIt is Not Palindrome?!?#@@#\n");
+return 0;
+}
+ quadmaniac The recursive method is brilliant, thanks! abcd but in the second method, we are modifying the given list. i think it is not desirable. please comment. Vidya Yes, the link is modified. So keep a copy and allow it to modify. Rimu The following code does the exact thing as mentioned above in 2nd case, but using return type as int instead of bool, a small optimisation is done i.e. exit out of the function when we reach the mid of the linked list:  
+<code>int checkPalindrome(Node *N)
+{
+    static Node *first=NULL;
+    
+    int rv;
+
+    if(!first)
+    {
+           if(!N)
+                 return 1;
+           first=N;
+    }
+    
+    if(N->next)
+    {
+               rv=checkPalindrome(N->next);
+               if(rv!=-1)
+                   return rv;
+    }
+    
+    //printf("\nfirst->data=%d, N->data=%d",first->data,N->data);
+    
+    if(first->data==N->data)
+       if((first==N)||(first->next==N)) //Exit Criteria: When we reach the mid of the Linked List
+          rv=1;
+       else
+          rv=-1;
+    else if(first->data!=N->data)
+       rv=0;
+    
+    first=first->next;
+        
+    return rv;
+    
+}
+ Also, the function needs only one pointer as a parameter, the substitute for the other is a static pointer. bala In the recursive method , why do we need to pass pointer-pointer for left ? The program works but I think it will still work with pointer to left because the structure of the list remains the same ! http://www.wgpshashank.co.cc wgpshashank i think we can do this using by push pop & get-reminder operation… so say we wants to take 121 so via get reminder method we get single digit starting from left & push it into stack as 1,2,1 no we just popped this 1 by 1 & check that get-reminder is giving same digit at the same index or not if yes its palindrome else it is noe palindrome….you check it for 123 1st we get 3 (using get-reminder method) push it into stack & then we get 2 push again into stack & the push 1 into stack so stack looks like as head–>1->2->3 & now pop & as it ouccrs in reverse so first 1 will be popped from stack & compare every single digit with digit got from get-reminder method as first 1 will be popped from stack & get-reminder will gives 3 as first digit it become false similarly for remaining digit..please write comments if you finds the logic is wrong….. http://www.wgpshashank.co.cc wgpshashank Please Write Comment If You Fine Above Concept Is Wrong ..??? Shashank Mani Narayan Can sumbody plz xplain me whats happining in the 2nd code using recusion @ the top…thanks in advance..how control is transferred & why dis stmt is made like ” if(!right) ” reply asap… Rajeev I think in iterative solution one line is missing.. in the second case else { second_half = slow_ptr->next; prev_of_slow_ptr->next = NULL; reverse(&second_half); res = compareLists(head, second_half); /*construct the original list back*/ reverse(&second_half); prev_of_slow_ptr->next = slow_ptr; slow_ptr->next = second_half; } there should be a line of code slow_ptr->next = NULL; Tushar Roy Just a shorter code for method2. Same logic.  
+bool isPalindrome(Node **left,Node *right)
+{
+   if(!right)
+   {
+   	return true;
+   }
+   bool isPali =  isPalindrome(left,right->next) &&         ((*left)->data == right->data);
+   *left = (*left)->next;
+   return isPali;
+}
+ root.node @tushar Dude you method works perfectly. It’s clear and concise !! Pranshu Gaur  
+#include<stdio.h>
+#include<stdlib.h> 
+
+typedef struct list{
+        int data;
+        struct list * next;
+}* PTR; 
+PTR list;
+int main() {
+    
+    int i,j,num, getinp(void);
+    void printlist(PTR);
+    void addnode(PTR *,PTR *, int );
+    int palcheck(PTR);
+    PTR lnode, q = lnode = (PTR)0;
+    
+    while((num = getinp())!= 0) {
+          addnode(&lnode,&q,num);
+    }
+    list = lnode;
+    printlist(lnode);
+    
+    if(palcheck(lnode)) 
+      printf("Hell yaaaa !");
+    else
+     printf("False Alarm !");
+    
+    fflush(stdin);
+    getchar();
+           
+    return 0;
+}
+int palcheck(PTR p) {
+    
+    if ( p == NULL )
+      return 0;
+    if( p->next != NULL ) {
+          if(!palcheck(p->next)) 
+            return 0;
+    }
+    
+    if(p->data == list->data) {
+       list = list->next;
+       return 1;
+    }
+    return 0;
+}
+
+int getinp(void) {
+    
+    int c;
+    while ( ! scanf("%d",&c) ) {
+          printf("Invalid Input, try again \n");
+          fflush(stdin);
+    }
+    return c;
+}
+
+void addnode ( PTR* node, PTR* tail, int num) {
+     
+     
+     PTR temp;
+     PTR root = *tail;
+     temp = (PTR )malloc((int)sizeof(struct list));
+     temp -> data = num;
+     temp -> next = NULL;
+     
+     if ( *node == NULL) {
+          *node = temp;
+          *tail = temp;
+     }
+     
+     else {
+          root -> next = temp;
+          *tail = temp;
+     }
+     
+}
+
+void printlist(PTR node) {
+     
+     while (node != NULL ) {
+           printf("%d ",node->data);
+           node = node->next;
+     }
+     printf("\n"); 
+}
+ Sandeep @Pranshu Gaur: Thanks for sharing your code. Your approach looks similar to Method 2 in above post. shri Sharad Chandra’s code works fine. Just wanted to suggest an optimization to it… We can compare the data only if the right pointer has just crossed the left pointer reducing the comparisons to n/2 else simply propagate the previous result. Just the modified function is as follows:  
+   bool isp = isPalindrome(left, right->next);
+   if (isp == false)
+      return false;
+ 
+   /* Check values at current left and right */
+       if(right < *left)
+       {
+           bool isp1 = (right->data == (*left)->data);
+
+           /* Move left to next node */
+           *left = (*left)->next; /* save next pointer */
+         
+           return isp1;
+       }
+       else
+       {
+           return isp;    
+       }
+}
+ Thanks. Shriram shri sorry! corrected the error in pasting the entire function isPalindrome.  
+bool isPalindrome(struct node **left, struct  node *right)
+{
+   /* stop recursion here */
+   if (!right)
+      return true;
+ 
+   /* If sub-list is not palindrome then no need to
+       check for current left and right, return false */
+   bool isp = isPalindrome(left, right->next);
+   if (isp == false)
+      return false;
+ 
+   /* Check values at current left and right */
+       if(right < *left) //optimization
+       {
+           bool isp1 = (right->data == (*left)->data);
+
+           /* Move left to next node */
+           *left = (*left)->next; /* save next pointer */
+         
+           return isp1;
+       }
+       else
+       {
+           return isp; //simply forward the previous  
+                      //result
+       }
+}
+ vipulkv Hi Shri, there is one issue in your code. Two ways you can fix it in: 1. reverse the condition i.e.  if(right > *left) 2. Put the statement  *left = (*left)->next; /* save next pointer */
+ outside of if block. janani @shri – I think this optimization will not hold.Because,you cannot assume that nodes in a linked list are assigned memory in increasing order.So the statement if(right > *left) will not give desired results. priya for checking if its a palindrome i ve tried reversing the linked list and comparing it with the original list..will that an efficient algorithm? vipulkv No problem as such. But time complexity will become O(2n) which is eventually O(n). But showing recursive method to ur interviewer would always be impressive. Sharad Chandra A recursive version.. reach to the end of List with recursive call and while returning, compare with respective node to check in list.  
+bool checkPalindrom (struct node1d **left, struct node1d *right) {
+  if (! right) { /* stop recursion here */
+    return true;
+  }
+
+  bool isp = checkPalindrom(left, right->next);
+  if (isp == false)
+    return false;
+
+  bool isp1 = (right->data == (*left)->data);
+  *left = (*left)->next; /* save next pointer */
+
+  return isp1;
+}
+
+int main () {
+  struct node1d *root;
+  struct node1d **rootp;
+
+  root = makePalindromList(5); /* returns a list */
+  rootp = &root;
+  printMe<struct node1d >(root, NULL); /* print the list */
+
+  bool isp = checkPalindrom (rootp, root);
+  cout << (isp ? "Yes" : "No") << endl;
+}
+ But recursion is not good for space complexity. Sandeep @Sharad Chandra: Looks like checkPalindrom() returns true for all linked lists. In the code, root is passed as right. In each recursive call right is moved to next. Finally right becomes NULL and checkPalindrom() returns true if right is NULL. Correct me if I am wrong. Sharad Chandra Hi Sandeep, Not for all linked list but only for palindrome list. ‘True’ is returned when right reached to NULL, is not the final return to main. Variable isp will not play any role if its value is true as isp1 will be returned then. Note comparison to check palindrome is taking place when it starts returning. Regards, Sharad Chandra Sandeep @Sharad Chandra: I missed to notice the isp part. Yes, it works. Thanks for the explanation! GeeksforGeeks @Sharad Chandra: Thanks for suggesting a new method. We have included it to the original post. Keep it up!! Cracker @geeksfrogeeks,Sandeep,Shrad Chandar..Can You Through some more light on 2nd method using recursion how its working please help me to understand it.. waiting for your explaination Thanks Ankur Jain I think it will fail in the following case: 1->2->3->4->4->1->5->6 The code will return false for 6 , 5 ,1 but it will send true for last i.e 4. Hence the ultimate value will be true but the linked list is not a palindrome. Correct me if i am wrong. Siva. Push all the nodes into Stack , Pop the node and compare with original list. This is o(2n). geeksforgeeks @Hari Prasad Perabattula: Thanks for pointing this out. We have corrected the if condition. Hari Prasad Perabattula Hi, I think, it always prints “Linked list is Palindrome”. This is because, 1). we return either ‘-1′ or ‘1’ from ‘compareLists’. 2). The return value is assigned to ‘res’ which in turn returned to the ‘main’ function. 3). The condition ‘if(isPalindrome(head))’ is always true for any input. Returning ‘0’ may solve the problem. Regards, Hari. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,64 @@
+MooTools Your resources for every-day JavaScripting Core More Blog Forge Contribute MooTools is a collection of JavaScript utilities designed for the intermediate to advanced JavaScript developer. It allows you to write powerful and flexible code with its elegant, well documented, and coherent APIs. MooTools code is extensively documented and easy to read, enabling you to extend the functionality to match your requirements. Open Source License MooTools libraries are released under the Open Source MIT license which gives you the possibility to use them and modify them in every circumstance. How to use? MooTools Selectors Selectors for DOM Elements // get elements by class
+$$('.foo'); // or even: document.getElements('.foo');
+
+// selector with different elements
+$$('div.foo, div.bar, div.bar a');
+
+// get a single element
+document.getElement('div.foo'); Ajax! MooTools uses a Class called Request. // create a new Class instance
+var myRequest = new Request({
+    url: 'getMyText.php',
+    method: 'get',
+    onRequest: function(){
+        myElement.set('text', 'loading...');
+    },
+    onSuccess: function(responseText){
+        myElement.set('text', responseText);
+    },
+    onFailure: function(){
+        myElement.set('text', 'Sorry, your request failed :(');
+    }
+});
+
+// and to send it:
+myRequest.send(data); To send a form it can be even more simple! myForm.send();
+// optionally you can add/change the form properties
+myForm.set('send', {url: 'contact.php', method: 'get'}); How to create new DOM elements A simple MooTools Element example. // the short way
+new Element('div#bar.foo');
+
+// using the element constructor
+new Element('div', {
+    'class': 'foo',
+    id: 'bar'
+}); Event handlers Attach events to be updated on what's happening! // attach a click event o a element
+myElement.addEvent('click', function(){
+    alert('clicked!');
+});
+
+// attach several events at a time
+myElement.addEvents({
+    mouseover: function(){
+        alert('mouseover');
+    },
+    click: function(){
+        alert('click');
+    }
+}); You can also remove, fire or clone events! // remove a event
+myElement.removeEvent(type, fn); MooTools Class A simple MooTools Class example. var Animal = new Class({
+    initialize: function(age){
+        this.age = age;
+    }
+});
+
+var Cat = new Class({
+    Extends: Animal,
+    initialize: function(name, age){
+        // calls initalize method of Animal class
+        this.parent(age);
+        this.name = name;
+    }
+});
+
+var myCat = new Cat('Micia', 20);
+alert(myCat.name); // alerts 'Micia'.
+alert(myCat.age); // alerts 20. Blog Entries 1.5.1 is out! Today we release MooTools Core and More versions 1.5.1. This continues our improvement work for both Core and More and introduces also some features that were in the queue for being added. This release fixes also a regression related to ... GitHub Activity lorenzos: opened pull request mootools-core#2681 andreynering: opened issue mootools-core#2680 newbie78: opened pull request mootools-more#1292 oallouch: opened issue mootools-core#2679 SergioCrisostomo: closed issue website#170 Latest Tweets We just released MooTools Core and More 1.5.1. http://t.co/rRxXjmfdPr @MIWebGuy If you want to build the library without the compatibility layer, see the README in the repo: https://t.co/jMGasJLyiC MooTools. One. Point. Five. http://t.co/w2ywDyFg65 Projects About Blog Books Developers Merchandising Support IRC Channel User Group The MooTorial Stack Overflow Connect with us GitHub Twitter Facebook Google+ Documentation MooTools Core MooTools More Copyright © 2006-2014 Valerio Proietti & MooTools Developers Web Hosting by Media Temple

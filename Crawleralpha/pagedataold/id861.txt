@@ -1,0 +1,578 @@
+Largest subarray with equal number of 0s and 1s - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Largest subarray with equal number of 0s and 1s Given an array containing only 0s and 1s, find the largest subarray which contain equal no of 0s and 1s. Expected time complexity is O(n). Examples: 
+Input: arr[] = {1, 0, 1, 1, 1, 0, 0}
+Output: 1 to 6 (Starting and Ending indexes of output subarray)
+
+Input: arr[] = {1, 1, 1, 1}
+Output: No such subarray
+
+Input: arr[] = {0, 0, 1, 1, 0}
+Output: 0 to 3 Or 1 to 4
+ Source: Largest subarray with equal number of 0s and 1s Method 1 (Simple) A simple method is to use two nested loops. The outer loop picks a starting point i. The inner loop considers all subarrays starting from i. If size of a subarray is greater than maximum size so far, then update the maximum size. In the below code, 0s are considered as -1 and sum of all values from i to j is calculated. If sum becomes 0, then size of this subarray is compared with largest size so far. 
+// A simple program to find the largest subarray with equal number of 0s and 1s
+#include <stdio.h>
+
+// This function Prints the starting and ending indexes of the largest subarray 
+// with equal number of 0s and 1s. Also returns the size of such subarray.
+int findSubArray(int arr[], int n)
+{
+    int sum = 0;
+    int maxsize = -1, startindex;
+
+    // Pick a starting point as i
+    for (int i = 0; i < n-1; i++)
+    {
+        sum = (arr[i] == 0)? -1 : 1;
+
+        // Consider all subarrays starting from i
+        for (int j = i+1; j < n; j++)
+        {
+            (arr[j] == 0)? sum += -1: sum += 1;
+
+            // If this is a 0 sum subarray, then compare it with
+            // maximum size subarray calculated so far
+            if(sum == 0 && maxsize < j-i+1)
+            {
+                maxsize = j - i + 1;
+                startindex = i;
+            }
+        }
+    }
+    if ( maxsize == -1 )
+        printf("No such subarray");
+    else
+        printf("%d to %d", startindex, startindex+maxsize-1);
+
+    return maxsize;
+}
+
+/* Driver program to test above functions*/
+int main()
+{
+    int arr[] =  {1, 0, 0, 1, 0, 1, 1};
+    int size = sizeof(arr)/sizeof(arr[0]);
+
+    findSubArray(arr, size);
+    return 0;
+}
+ Output:  0 to 5
+ Time Complexity: O(n^2) Auxiliary Space: O(1) Method 2 (Tricky) Following is a solution that uses O(n) extra space and solves the problem in O(n) time complexity. Let input array be arr[] of size n and maxsize be the size of output subarray. 1) Consider all 0 values as -1. The problem now reduces to find out the maximum length subarray with sum = 0. 2) Create a temporary array sumleft[] of size n. Store the sum of all elements from arr[0] to arr[i] in sumleft[i]. This can be done in O(n) time. 3) There are two cases, the output subarray may start from 0th index or may start from some other index. We will return the max of the values obtained by two cases. 4) To find the maximum length subarray starting from 0th index, scan the sumleft[] and find the maximum i where sumleft[i] = 0. 5) Now, we need to find the subarray where subarray sum is 0 and start index is not 0. This problem is equivalent to finding two indexes i & j in sumleft[] such that sumleft[i] = sumleft[j] and j-i is maximum. To solve this, we can create a hash table with size = max-min+1 where min is the minimum value in the sumleft[] and max is the maximum value in the sumleft[]. The idea is to hash the leftmost occurrences of all different values in sumleft[]. The size of hash is chosen as max-min+1 because there can be these many different possible values in sumleft[]. Initialize all values in hash as -1 6) To fill and use hash[], traverse sumleft[] from 0 to n-1. If a value is not present in hash[], then store its index in hash. If the value is present, then calculate the difference of current index of sumleft[] and previously stored value in hash[]. If this difference is more than maxsize, then update the maxsize. 7) To handle corner cases (all 1s and all 0s), we initialize maxsize as -1. If the maxsize remains -1, then print there is no such subarray. 
+// A O(n) program to find the largest subarray with equal number of 0s and 1s
+#include <stdio.h>
+#include <stdlib.h>
+ 
+// A utility function to get maximum of two integers
+int max(int a, int b) { return a>b? a: b; }
+ 
+// This function Prints the starting and ending indexes of the largest subarray 
+// with equal number of 0s and 1s. Also returns the size of such subarray.
+int findSubArray(int arr[], int n)
+{
+    int maxsize = -1, startindex;  // variables to store result values
+ 
+    // Create an auxiliary array sunmleft[]. sumleft[i] will be sum of array 
+    // elements from arr[0] to arr[i]
+    int sumleft[n];
+    int min, max; // For min and max values in sumleft[]
+    int i;
+ 
+    // Fill sumleft array and get min and max values in it. 
+    // Consider 0 values in arr[] as -1
+    sumleft[0] = ((arr[0] == 0)? -1: 1);
+    min = arr[0]; max = arr[0];
+    for (i=1; i<n; i++)
+    {      
+        sumleft[i] = sumleft[i-1] + ((arr[i] == 0)? -1: 1);
+        if (sumleft[i] < min)
+            min = sumleft[i];
+        if (sumleft[i] > max)
+            max = sumleft[i];
+    }
+ 
+    // Now calculate the max value of j - i such that sumleft[i] = sumleft[j].   
+    // The idea is to create a hash table to store indexes of all visited values.   
+    // If you see a value again, that it is a case of sumleft[i] = sumleft[j]. Check 
+    // if this j-i is more than maxsize. 
+    // The optimum size of hash will be max-min+1 as these many different values 
+    // of sumleft[i] are possible. Since we use optimum size, we need to shift
+    // all values in sumleft[] by min before using them as an index in hash[].
+    int hash[max-min+1];
+ 
+    // Initialize hash table
+    for (i=0; i<max-min+1; i++)
+        hash[i] = -1;
+ 
+    for (i=0; i<n; i++)
+    {
+        // Case 1: when the subarray starts from index 0
+        if (sumleft[i] == 0)
+        {
+           maxsize = i+1;
+           startindex = 0;
+        }
+ 
+        // Case 2: fill hash table value. If already filled, then use it
+        if (hash[sumleft[i]-min] == -1)
+            hash[sumleft[i]-min] = i;
+        else
+        {
+            if ( (i - hash[sumleft[i]-min]) > maxsize )
+            {
+                maxsize = i - hash[sumleft[i]-min];
+                startindex = hash[sumleft[i]-min] + 1;
+            }
+        }
+    }
+    if ( maxsize == -1 )
+        printf("No such subarray");
+    else
+        printf("%d to %d", startindex, startindex+maxsize-1);
+ 
+    return maxsize;
+}
+ 
+/* Driver program to test above functions */
+int main()
+{
+    int arr[] =  {1, 0, 0, 1, 0, 1, 1};
+    int size = sizeof(arr)/sizeof(arr[0]);
+ 
+    findSubArray(arr, size);
+    return 0;
+}
+ Output:  0 to 5
+ Time Complexity: O(n) Auxiliary Space: O(n) Thanks to Aashish Barnwal for suggesting this solution. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. SunilVA Another solution a. If no .of 0s equals no. of 1s then it is the entire array. b. if no. of 0s is lesser than no. of 1s then choose start and ending positions to include those many no. of 0s and 1s(whichever is lesser). c. If either of them is 0, then no sub-array. Tarzan You dont explain how to solve point b. when the entire question is about solving that Thanh Nguyen {{{ // This solution does 1 and only 1 pass through the array. So, it is a true O(n). // Basically, it compares the count of 0’s and 1’s up to the current indx. // 0’s is count as -1 and 1’s is count as +1 (ie. the different of count 0’s and // count 1’s // ex: if A[indx] = -3, it means that up to this point there are 3 more 0’s than // 1′ // So, as we traverse down the array, we look back (use hash table) // to see if at one // point before we also has the same count as the current point // (ie. A[indx]) then // it must be true that we have the same number of 0’s and 1’s from the // last time (prev+1) until now (indx). // So, we just find the max between indexes everytime we encounter this // condition. void LargestSubArray(int A[], int len){ Hash sumTbl; int maxSum, sum, i, j, prev, indx; maxSum = sum = j = i = 0; for (indx=0; indx 0 ? sum+=1:sum+=-1; if (sumTbl.get(sum, prev) == false) { sumTbl.put(sum, prev); }else { if (indx – (prev+1) > max){ max = indx – (prev+1); i = prev+1; j = indx; } }//else }// for return; } }}} Thanh Nguyen at the end right before the “return”, do: cout << "max: "<<max<<"from i="<<i<<" to j="<<j<<endl; dazzling420 /*Correct me if any of the test cases fail*/ /*————————————————*/ /*—-Programming Language — C——–*/ /*—–TIME COMPLEXITY — O(n)——–*/ /*——SPACE COMPLEXITY–O(1)——-*/ /*—-Coder Saurabh Sharma————–*/ /*–Mail me at dazzling420@gmail.com–*/ /*————————————————*/ #include #include #include #include int main() { int count1=0,count0=0,i,st=-1,end=-1,l,flag; char *str; str = (char*)malloc(sizeof(char)*200); scanf(“%s”,str); printf(“n%s”,str); l=strlen(str); printf(“n%d”,l); for(i=0;i<l;i++) { if((st == -1) && (end == -1)) { if((str[i] == '0') && ((i+1)<l) && (str[i+1] == '1')) { st = i; i++; end = i; } else if((str[i] == '1') && ((i+1)=0) && (str[st-1] == ‘1’) && ((end+1)==i)) { count1++; st = st – 1; } } else if(str[i] == ‘1’) { count1++; if(((st-1)>=0) && (str[st-1] == ‘0’) && ((end+1)==i)) { count0++; st = st – 1; } } if(abs(count0-count1) == 0) { end = i; } } } printf(“n”); for(i=st;i<(end+1);i++) printf("%c",str[i]); return 0; } dazzling420 the answer to the above problem for the array 1001011 could be 0 to 5 or 1 to 6… correct me if i am wrong spmahale //Little different approach see if anything is wrong #include using namespace std; int maxSubArray(int *a, int size){ int ones = 0; int zeros = 0; //Keep a count of one’s and zero’s for(int i=0; i= zeros){ maxLength = 2*zeros; minElement = 0; } else maxLength = 2*ones; //Minimum Element is 1 implicitly //Now based on the count of minimum element search the low and high index if(maxLength == 0) return 0; else { int countOfMinElement = 0; int countOfMaxElement = 0; for(int i=0; i= maxLength/2){ lowIndex = i – maxLength + 1; highIndex = i; } else{ lowIndex = i-maxLength/2+1-countOfMaxElement; highIndex = i+countOfMaxElement-1; } cout<<lowIndex<<" "<<highIndex<<endl; break; } } } return maxLength; } int main(int argc, char **argv) { int a[] = {1, 1, 1, 1}; //{1, 0, 1, 1, 1, 0, 0}; //{0, 0, 1, 1, 0}; //{1, 1, 1, 1}; // int size = sizeof(a)/sizeof(a[0]); cout<<maxSubArray(a, size)<<endl; return 1; } spmahale //Little different approach see if anything is wrong #include using namespace std; int maxSubArray(int *a, int size){ int ones = 0; int zeros = 0; //Keep a count of one’s and zero’s for(int i=0; i= zeros){ maxLength = 2*zeros; minElement = 0; } else maxLength = 2*ones; //Minimum Element is 1 implicitly //Now based on the count of minimum element search the low and high index if(maxLength == 0) return 0; else { int countOfMinElement = 0; int countOfMaxElement = 0; for(int i=0; i= maxLength/2){ lowIndex = i – maxLength + 1; highIndex = i; } else{ lowIndex = i-maxLength/2+1-countOfMaxElement; highIndex = i+countOfMaxElement-1; } cout<<lowIndex<<" "<<highIndex<<endl; break; } } } return maxLength; } int main(int argc, char **argv) { int a[] = {1, 1, 1, 1}; //{1, 0, 1, 1, 1, 0, 0}; //{0, 0, 1, 1, 0}; //{1, 1, 1, 1}; // int size = sizeof(a)/sizeof(a[0]); cout<<maxSubArray(a, size)<<endl; return 1; } http://www.geeksforgeeks.org/largest-subarray-with-equal-number-of-0s-and-1s/#comment-22732 B.Srikanth #include “stdafx.h” #include #include #include void find(int *a,int *l,int *h) { int n=0,i=0,c=0,d=0; for(i=0;i<=*h;i++) { if(a[i]==0) c++; else d++; } while(c!=d && *ld) { if(a[*l]==0 || a[*h]==0) { if(a[*l]==0) *l=*l+1; else *h=*h-1; c–; } else { d–; *l=*l+1; } } else { if(a[*l]==1 || a[*h]==1) { if(a[*l]==1) *l=*l+1; else *h=*h-1; d–; } else { c–; *l=*l+1; } } } } void main() { int *a,i,n,c; printf(“enter length:”); scanf(“%d”,&n); a=(int*)malloc(n*sizeof(int)); printf(“enter array:”); for(i=0;i<n;i++) scanf("%d",&a[i]); i=0;n=n-1; find(a,&i,&n); for(int j=i;j<=n;j++) printf("%d",a[j]); } Gandeevan why do we shift by min?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ abeyaarfarziyaap Suppose we get the min & max value as -2 & 2 respectively, then we build hast table ‘H’ of size { 2-(-2) +1} ie. 5. Now we store the index value for each sumleft[index] values as following: If sumleft[index] = 2 the we store index value in H[4] If sumleft[index] = 1 the we store index value in H[3] If sumleft[index] = 0 the we store index value in H[2] If sumleft[index] = -1 the we store index value in H[1] If sumleft[index] = -2 the we store index value in H[0] So in order to store index value for negative sumleft_values we have to shift hash_index value by “min”. http://arpittak.com arpit tak public class Sol { public static void main(String[] args) { int[] a= {1, 0, 0, 1, 0, 1, 1,0}; int sum =0 ,in =0, out =0; int prevdiff =0, diff; int i,j; for(i=0; i<a.length ;i++) { in = 0; out = 0 ; for(j=i; j<a.length ;j++) { if(a[j] == 0 ) in++; else out++; } if(in == out) { diff = j – i; if(diff >= prevdiff) { prevdiff = diff; System.out.print(i+" to "+prevdiff); } } } } } alveko quadratic Rax It is clear why this code has been added: if (!check) { oneszeros[arr[i]]–; i++; } Sanjay Agarwal I am not able to reach to the conclusion that there can be “max-min+1″ different possible values in sumleft[]. Please explain. rakitic min is the minimum sum in sum_left and max is the maximum sum in sum_left . Our main concern is to check while traversing in sum_left that the current value has appeared before or not , if it has appeared before that means in between those indices -1 and 1 have cancelled each other and are equal . So , basically hash should contain all the possible values of sum_left , so size of hash is max-min+1 . shek8034 A variant of this problem with very nice explanation in the first comment of this link http://stackoverflow.com/questions/5534063/zero-sum-subarray Aditya Ambashtha bravo sire! you brought something better! Thanks alveko the solution explained there requires O(n) extra memory and does not use the fact that there are only 0 and 1. Anupam #include #include #include #include #include using namespace std; #define FOR(i,a,b) for(i=a;i=0;i–) { s+=arr[i]; sum[i]=s; } int n1,n0,end=n-1, start=0; while(end>start) { //TO count the number of 1s from start index to end index n1=sum[start]-sum[end]; if(arr[end]==1) { n1++; } //It will count the number of 0s n0=(end-start+1)-n1; //cout<<start<<" "<<end<<" "<<n1<<" "<<n0<n0) { if(sum[start+1]==sum[start]+1) { start++; } else if(sum[end-1]+1==sum[end]) { end–; } } //If n0 is gretaer than number of 1 we try to derease the number of 0 //by incrementing start or by decrementing end such that else if(n1<n0) { if(sum[start]==sum[start+1]) { start++; } else if(sum[end-1]==sum[end]) { end–; } } } cout<<start<<" "<<end<<endl; //start will have the start pos of the contiguous sub array //end will have the end pos of contiguous sub array //cout<<start<<" "<<end<>n; FOR(i,0,n) cin>>arr[i]; maxsub01(arr,n)<<endl; } shine O(n) time and O(1) space complexity #include #include #include #define M 7 int f(int,int *); int g(int,int *); void main() {clrscr();int arr[]={1,0,0,1,0,1,1}; int a=0,b=0,min,m; for(int i=0;i<M;++i) { if(arr[i]==0) a++; else b++; } if(a==b) printf("length=%d",a+b); else if((a==0)||(b==0)) printf("length=0"); else if(a<b) printf("length=%d",f(a,arr)); else printf("length=%d",g(b,arr)); getch(); } int g(int min,int *arr) //min one {int len=0,i=0,s=0,one=0,zero=0; while(imin){ while(arr[s]==1){s++;len–;} s++;zero–; }} else {one++; len++; if(one==min)return len*2; } i++; } } int f(int min,int *arr) //min zero {int len,i,s; i=len=s=0; int zero=0,one=0; while(imin){ while(arr[s]==0){s++;len–;} s++;one–; }} else {zero++; len++; if(zero==min)return len*2; } i++; } } Ananth Can be done in O(n) time and O(1) space. Algo is as follows. 1. Count 0s and 1s in one pass. 2. Keep two pointers at i=1 and j=n 3. If one of these contain the max element (as in if 0s > 1s, then 0 is max), increment(if i) or decrement(if j) the pointer accordingly and subtract the respective count. 4. If neither contain the max, increment i, subtract the count. 5. Repeat till either i>=j or 0s == 1s. Let me know if there is a goof-up.  
+int[] subarrayEqual(int[] arr) {
+		int[] oneszeros = new int[2];
+		oneszeros[0] = oneszeros[1] = 0;
+		int[] pos = new int[2];
+		for (int i = 0; i < arr.length; i++) {
+			oneszeros[arr[i]]++;
+		}
+		int i = 0;
+		int j = arr.length - 1;
+		while (i < j) {
+			if (oneszeros[0] == oneszeros[1])
+				break;
+			boolean check = false;
+			if (oneszeros[0] > oneszeros[1]) {
+				if (arr[i] == 0) {
+					check = true;
+					i++;
+					oneszeros[0]--;
+				} else if (arr[j] == 0) {
+					check = true;
+					j--;
+					oneszeros[0]--;
+				}
+			} else {
+				if (arr[i] == 1) {
+					i++;
+					check = true;
+					oneszeros[1]--;
+				} else if (arr[j] == 1) {
+					j--;
+					check = true;
+					oneszeros[1]--;
+				}
+			}
+			if (!check) {
+				i++;
+				oneszeros[arr[i]]--;
+			}
+		}
+		if (i >= j)
+			pos[0] = pos[1] = -1;
+		else {
+			pos[0] = i;
+			pos[1] = j;
+		}
+		return pos;
+	}
+ Ananth Corrected code due to a bug.  
+int[] subarrayEqual(int[] arr) {
+        int[] oneszeros = new int[2];
+        oneszeros[0] = oneszeros[1] = 0;
+        int[] pos = new int[2];
+        for (int i = 0; i < arr.length; i++) {
+            oneszeros[arr[i]]++;
+        }
+        int i = 0;
+        int j = arr.length - 1;
+        while (i < j) {
+            if (oneszeros[0] == oneszeros[1])
+                break;
+            boolean check = false;
+            if (oneszeros[0] > oneszeros[1]) {
+                if (arr[i] == 0) {
+                    check = true;
+                    i++;
+                    oneszeros[0]--;
+                } else if (arr[j] == 0) {
+                    check = true;
+                    j--;
+                    oneszeros[0]--;
+                }
+            } else {
+                if (arr[i] == 1) {
+                    i++;
+                    check = true;
+                    oneszeros[1]--;
+                } else if (arr[j] == 1) {
+                    j--;
+                    check = true;
+                    oneszeros[1]--;
+                }
+            }
+            if (!check) {
+               oneszeros[arr[i]]--;
+               i++;                
+            }
+        }
+        if (i >= j)
+            pos[0] = pos[1] = -1;
+        else {
+            pos[0] = i;
+            pos[1] = j;
+        }
+        return pos;
+    }
+ prity good one alveko Nice idea, but I’m afraid it does not work for the cases like this one: 1111000000000000000011 Amroz  
+#include <stdio.h>
+#include <stdlib.h>
+
+struct ordinates{
+	int y;	
+	int minx;
+	int maxx;
+	struct ordinates *next;
+}*ordinate = NULL;
+
+int length = 0;
+int from,to;
+
+void add_update(int y, int x){
+
+struct ordinates *temp;
+
+for(temp = ordinate;temp != NULL; temp = temp->next)
+	if(temp->y == y){
+		temp->maxx = x;
+		if(length < (temp->maxx - temp->minx)){
+			length = temp->maxx - temp->minx;
+			from = temp->minx+1;
+			to = temp->maxx;
+		}
+			
+		return;
+	}
+
+temp = (struct ordinates*)malloc(sizeof(struct ordinates));
+
+		temp->y = y;
+		temp->minx = x;
+		temp->next = ordinate;
+		ordinate = temp;
+}
+
+		
+	
+
+int main(){
+
+int input[] = { 1, 0 ,0 , 1, 0 , 0, 0 ,0 ,0 , 1, 1, 0 ,1 ,1 ,1 , 0 };
+
+	int size = sizeof(input)/sizeof(input[0]);
+	int x,y;
+
+
+	add_update(0,-1);
+
+	for(x=0;x<size;x++){
+		y = (input[x] == 1)? y + 1 : y - 1;
+		add_update(y,x);
+	}
+	
+printf("\nmax length : %d\tfrom : %d\tto : %d\n",length,from,to);
+
+	return 0;
+
+}
+ abhishek08aug Intelligent  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Amit it can be solved using two stacks, using the original array as a stack and other stack to use store the indexes, start from first index on first stack and push the index in other stack and just collapse the stack whenever 0 meets 1 or viceversa and remove the indexes as well, so in the end you will be left with indices which were not collapsed and the max difference netween any indices gives you the maximum subarray with equal 0s and 1s  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Rahul Singh Can you elaborate your approach a little more with an example or provide a working code? Aaman seems good approach  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Aadarsh Firstly since we have only two elements here, Either the first element or the last element will always be part of the ans. Now traverse the array two times. In first traversal ,consider first element to be part of ans. Now keep on calculating count of 0’s and count of 1’s. Do this  
+ if(arr[i]) count1++;
+ else count0++;
+ if(count1 == count0) 
+ {
+     if(count1>max1)
+         max1 = count1;
+     length = 2*max1;
+ }
+/* Paste your code here (You may delete these lines if not writing code) */
+ Now do the same thing for the array in reverse direction,considering arr[size-1] to be part of ans. Which returns largest length is the ans. If length = 0 . no such array exists Please tell me if this solution seems ok. Aadarsh Correction Typo – Whichever returns largest length is the ans. If length = 0 . no such array exists. so basically i am talking about this void largetSubArray(int *arr,int size) { int count0 = 0,count1 = 0,i,lower,higher,max1=0,max2=0,length=0; lower = 0; for(i=lower;imax1) max1 = count1; length = 2*max1; } } count0 = 0,count1=0,higher = size-1; for(i=higher;i>=0;i–) { if(arr[i]) count1++; else count0++; if(count1 == count0) { if(count1>max2) max2 = count1; length = 2*max2; } } if(!length) cout << "No array" < max1) cout << "lower index " << higher-length+1 << " higher is " << higher << endl; else cout << "lower index " << lower << " higher is " << lower + length -1 << endl; } Aadarsh Putting it nicely void largetSubArray(int *arr,int size) { int count0 = 0,count1 = 0,i,lower,higher,max1=0,max2=0,length=0; lower = 0; for(i=lower;imax1) max1 = count1; length = 2*max1; } } count0 = 0,count1=0,higher = size-1; for(i=higher;i>=0;i–) { if(arr[i]) count1++; else count0++; if(count1 == count0) { if(count1>max2) max2 = count1; length = 2*max2; } } if(!length) cout << "No array" < max1) cout << "lower index " << higher-length+1 << " higher is " << higher << endl; else cout << "lower index " << lower << " higher is " << lower + length -1 << endl; } koolkeshaw let’s consider an array {0,0,0,0,1,1,0,0,0} Here neither first nor last element of array will be part of the solution http://www.geeksforgeeks.org/largest-subarray-with-equal-number-of-0s-and-1s/ Hara Shankar Nayak This problem can be solved without using extra space and O(n) time complexity. Take two variables say Count0 and Count1 which keeps track of total number of 0’s and 1’s visited till now. Start and End variables contain the starting and ending point of the window. Max_Start and Max_End contains the actual window starting and ending point. max variable contains the maximum length of subarray that contains equal number of 0’s and 1’s. Let N be the size of array. Logic:- Repeat Steps 1 to 3 upto last element. 1.>Increment the variable Count0 if the element is 0 or Count1 if the element is 1. 2.>If the absolute value of difference of Count0 and Count1 is greater than the remaining number of elements(which are not scaned)then then decrement the Count0 or Count1 if arr[Start] is 0 or 1 respectively and Increment the Start. Keep repeating Step 2 till the condition fail. 3.>If Count0=Count1 then update the max,Max_Start,Max_End. 4.>If Max_Start=-1 then print no subarray found otherwise print the index.  
+void print_largest_subarray(int arr[],int size)
+{
+  int count0=0,count1=0,start=0,end=0,max=0,max_start=-1,max_end=-1,i;
+for(i=0; i<size; i++)
+{
+  if(arr[i]==0)
+    count0++;
+  else
+    count1++;
+  while(abs(count0-count1)>(size-i-1))
+  {
+    if(arr[start]==0)
+      count0--;
+    else
+      count1--;
+    start++;
+  }
+  if(count0==count1 && (end-start+1)>max)
+  {
+    max=end-start+1;
+    max_start=start;
+    max_end=end;
+  }
+  end++;
+}
+if(max_start==-1)
+  printf("No subarray found");
+else
+  printf("Subarray found from index %d to %d",max_start,max_end);
+}
+ Please make me correct if I m wrong.:) http://www.geeksforgeeks.org/largest-subarray-with-equal-number-of-0s-and-1s/ Hara Shankar Nayak One thing is missing in the algorithm part. While repeating steps 1 to 3 for each element,increment end++ after step 3. In the code everything is correct only forgotten to write in the logic part. Thanks Bharart for input {1,1,1,1,0,1,1}.. u’r code is giving “no subarray found”. actual subarray is {1,0} length=2.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Cheekooooo This problem can be solved in O(n) by using Moore voting algorithm. For array of size n, cancel each occurance of 0 with 1. If no more cancellation is allowed to done, then traverse all the CONTINUOUS cancelled element which will be the solution. coderAce Can you elaborate a little? Arpit #include #include using namespace std; struct lowhigh { int a; int b; }; typedef struct lowhigh lh; int main() { int arr1[]={1,0,1,0,1,1,1}; int size=7; for(int i=0;i<size;i++) { if(arr1[i]==0) arr1[i]=-1; } int arr2[size+1]; arr2[0]=0; for(int i=1;i<size+1;i++) { arr2[i]=arr2[i-1]+arr1[i-1]; } for(int i=0;i<size+1;i++) { cout<<" "<<arr2[i]; } cout<<endl; lh arr3[2*size+2]; for(int i=0;i<2*size+2;i++) { arr3[i].a=-1; arr3[i].b=-1; } for(int i=0;i<size+1;i++) { int t=arr2[i]; t=t+size; if(arr3[t].a==-1) arr3[t].a=i; else arr3[t].b=i; } for(int i=0;i<2*size+1;i++) { cout<<" a :"<<arr3[i].a; cout<<" b :"<<arr3[i].b; cout<<endl; } lh max; int m=INT_MIN; for(int i=0;i<2*size+2;i++) { if(m < arr3[i].b – arr3[i].a) { m=arr3[i].b – arr3[i].a; max.a=arr3[i].a; max.b=arr3[i].b; } } cout<<"m: "<<m<<endl; cout<<"m.a: "<<max.a<<endl; cout<<"m.b: "<<max.b<<endl; for(int i=max.a;i<max.b;i++) cout<<" "<<arr1[i]; return 0; } Arpit /* Paste your code here (You may delete these lines if not writing code) */ #include<iostream> #include<limits.h> using namespace std; struct lowhigh { int a; int b; }; typedef struct lowhigh lh; int main() { int arr1[]={1,0,1,0,1,1,1}; int size=7; for(int i=0;i<size;i++) { if(arr1[i]==0) arr1[i]=-1; } int arr2[size+1]; arr2[0]=0; for(int i=1;i<size+1;i++) { arr2[i]=arr2[i-1]+arr1[i-1]; } for(int i=0;i<size+1;i++) { cout<<" "<<arr2[i]; } cout<<endl; lh arr3[2*size+2]; for(int i=0;i<2*size+2;i++) { arr3[i].a=-1; arr3[i].b=-1; } for(int i=0;i<size+1;i++) { int t=arr2[i]; t=t+size; if(arr3[t].a==-1) arr3[t].a=i; else arr3[t].b=i; } for(int i=0;i<2*size+1;i++) { cout<<" a :"<<arr3[i].a; cout<<" b :"<<arr3[i].b; cout<<endl; } lh max; int m=INT_MIN; for(int i=0;i<2*size+2;i++) { if(m < arr3[i].b – arr3[i].a) { m=arr3[i].b – arr3[i].a; max.a=arr3[i].a; max.b=arr3[i].b; } } cout<<"m: "<<m<<endl; cout<<"m.a: "<<max.a<<endl; cout<<"m.b: "<<max.b<<endl; for(int i=max.a;i<max.b;i++) cout<<" "<<arr1[i]; return 0; } sreeram This is taken from stackoverflow and did few edits … pls check it #include #define M 15 using namespace std; void getSum(int arr[],int prefixsum[],int size) { int i; prefixsum[0]=arr[0]=0; prefixsum[1]=arr[1]; for (i=2;i<=size;i++) { prefixsum[i]=prefixsum[i-1]+arr[i]; } } void find(int a[],int &start,int &end,int arr[]) { while(start < end) { cout <<"in loop "<< start <<" "<<end < 2 * (a[end] – a[start-1])) { if(arr[start]==0 && arr[end]==1) start++; else end–; } else { if(arr[start]==1 && arr[end]==0) start++; else end–; } } } int main() { int size,arr[M],ps[M],start=1,end,width; size=7; arr[0]=0; end=size; arr[1]=1; arr[2]=0; arr[3]=1; arr[4]=1; arr[5]=1; arr[6]=0; arr[7]=0; getSum(arr,ps,size); find(ps,start,end,arr); if(start!=end) cout<<start<<" "<<end<<endl; else cout<<"No soln\n"; return 0; } we can reduce the space usage to O(1) by calculting the sum array in the original array itself and to calculate a particular element at i we can use like ps[i+1]-ps[i]; pls correct me if i am wrong …. sreeram sry…to calculate element at particular position i we can use ps[i+1]-ps[i-1] http://www.cnblogs.com/icanth ICANTH may useful.~  
+pair<int ,int> max_equal(const int arr[], const int N)
+{
+	int *c =  new int[N];
+	// initialize c arr.
+	c[0] = arr[0];
+	for(int i = 1; i < N; ++i)
+		c[i] = arr[i] + c[i-1];
+	// try to move the first or second to make more "balance".
+	int i = 0, j = N - 1;
+	while(i < j)
+	{
+		if (2 * (c[j] - c[i] + arr[i]) ==  j - i + 1)
+		{ // if '1' num is equal than '0's num.
+			return make_pair<int, int>(i, j);
+		}
+		else
+		{
+			// if 1' num is greater than 0's num, then more_num is 1.
+			int more_num = (2*(c[j]-c[i]+arr[i]) > j-i+1) ? 1 : 0;
+			if(more_num == arr[i])
+				++i;
+			else if(more_num == arr[j]) 
+				--j;
+			else
+			{	// remove less num.
+				int k = 1;
+				while(i < j && arr[i+k] != more_num 
+					&& arr[i-k] != more_num)
+					--k;
+				if(arr[i+k] == more_num)
+					i += k;
+				else
+					j -= k;
+			}
+		} // else
+	} // while
+
+	return (i < j ? make_pair(i, j) : make_pair(-1, -1));
+} // max_equal
+ rohit http://ideone.com/HKa6K rohit what about this code  
+/* #include<stdio.h>
+#include<conio.h>
+main()
+{
+      int arr[8]={1,0,1,1,0,0,1,1};
+      int i,max=0,count0=0,count1=0,index;
+      for(i=0;i<8;i++)
+      {
+      if(arr[i]==0)
+      count0++;
+      else
+      count1++;
+      if(count1==count0)
+      {
+      max=2*count0;
+      index=i;
+      }
+      }
+      printf("length=%d,starting %d,end %d",max,max-(index+1),index);
+      getch();
+      }
+*/
+ rohit i got it ,this is wrong Dipanjan  
+public static String getSubset(int[] a, int n) {
+		int startIndex = 0, endIndex = 0;
+		int zeroCounts = 0, oneCounts = 0;
+		int sum = 0;
+		StringBuffer result = new StringBuffer();
+		// Convert all 0's to -1 and count the number of zeros and 1's
+		for (int i = 0; i < n; i++) {
+			if (a[i] == 0) {
+				a[i] = -1;
+				zeroCounts++;
+			} else {
+				oneCounts++;
+			}
+		}
+		if (zeroCounts == 0 || oneCounts == 0 || a.length == 0) {
+			return "no subset possible";
+		}
+		if (zeroCounts > oneCounts) {
+			endIndex = (oneCounts << 1) - 1;
+		} else {
+			endIndex = (zeroCounts << 1) - 1;
+		}
+		int i = 0;
+		while (endIndex < a.length) {
+			if (i <= endIndex) {
+				sum += a[i];
+				i++;
+			} else {
+				if (sum == 0) {
+					result.append("[" + startIndex + "To" + endIndex + "]\n");
+					// Sum for elements from startindex to endindex is already
+					// calculated so as the startindex and endindex will
+					// increment by 1 index so we will subtract the previous
+					// startindex element from the current sum and add the
+					// current endIndex element to the sum.
+					// sum - prevStartIndex + currentEndIndex
+					sum = sum - a[startIndex];
+					startIndex += 1;
+					endIndex = endIndex + 1;
+					// sum= sum + a[endIndex];
+
+				} else {
+					endIndex++;
+				}
+			}
+
+		}
+		return result.toString();
+	}
+
+ Dipanjan It take O(n) time with no extra space Terry try array {1,0,1,1,0,1,0,1,1,1}, you will find your code does not work  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Dipanjan  
+public static String getSubset(int[] a, int n) {
+		int startIndex = 0, endIndex = 0;
+		int zeroCounts = 0, oneCounts = 0;
+		int sum = 0;
+		StringBuffer result = new StringBuffer();
+		// Convert all 0's to -1 and count the number of zeros and 1's
+		for (int i = 0; i < n; i++) {
+			if (a[i] == 0) {
+				a[i] = -1;
+				zeroCounts++;
+			} else {
+				oneCounts++;
+			}
+		}
+		if (zeroCounts == 0 || oneCounts == 0 || a.length == 0) {
+			return "no subset possible";
+		}
+		if (zeroCounts > oneCounts) {
+			endIndex = (oneCounts << 1) - 1;
+		} else {
+			endIndex = (zeroCounts << 1) - 1;
+		}
+		int i = 0;
+		while (endIndex < a.length) {
+			if (i <= endIndex) {
+				sum += a[i];
+				i++;
+			} else {
+				if (sum == 0) {
+					result.append("[" + startIndex + "To" + endIndex + "]\n");
+					// Sum for elements from startindex to endindex is already
+					// calculated so as the startindex and endindex will
+					// increment by 1 index so we will subtract the previous
+					// startindex element from the current sum and add the
+					// current endIndex element to the sum.
+					// sum - prevStartIndex + currentEndIndex
+					sum = sum - a[startIndex];
+					startIndex += 1;
+					endIndex = endIndex + 1;
+					// sum= sum + a[endIndex];
+
+				} else {
+					endIndex++;
+				}
+			}
+
+		}
+		return result.toString();
+	}
+
+ Anju #include using namespace std; int equal(int a[], int i, int j ) { int zero = 0, one = 0; for(int k = i; k <= j; k++ ) { if ( a[k] == 0 ) zero++; else one++; } if ( zero == one ) return 1; else return 0; } int main() { int count = 0; int a[] = {1, 0, 1, 1, 1, 0, 0}; int n = sizeof(a)/sizeof(a[0]); for( int i = 0; i < n; i++ ) { if ( a[i] == 1 ) count++; } if(count == n ) cout<<"no such array\n"; int max = 0, s, m; for( int i = 0; i < n-1; i++ ) { for( int j = i+1; j max ) { max = m; s = i; } } } } for( int y = s; y <= s+max-1; y++ ) cout<<a[y]<<endl; return 0; } lomash goyal we can tak two arrays->>count0 and count1 count0 will store number of zeroes occured while traversing from right.i.ecount[i] will show the number of zeroes present in main array from the index i to n similarly we can other array which is count1. now we will traverse the arrays count0 and count1 and will find the maximum matching value for any index i.let it be x. now the subset will be the elemnts in array from index i to index i+2×-1; let the input is 1,0,1,1,1,0,0 now count0[]=3,3,2,2,2,2,1 count1[]=4,3,3,2,1,0,0 now maximum matching value is at index 1. so subset will be at 1 to index 6. please tell me is this approach correct.. it is taking O(n) time and O(n) space complexity suraj frnd,,, the concept was awesome,, but it failed at this example 0000110011010001… correct me if i m wrong… test I think it will work for : 0000110011010001 this too. Count0 : 9876555544433210 Count1: 5555554443221111 Answer is from : 4th index till n-1 index Please correct me if I am wrong  
+/* Paste your code here (You may delete these lines if not writing code) */
+ mukul_gupta I was thinking about this algorithm and came up with a solution in which instead of using hashing we can create a sumright[] array where each element will store the cumulative sum from right of array. So,finally we will have two arrays,one sumleft[] containing the cumulative sum of array from left and other,sumright[] containing the cumulative sum of array from right. Now just choose the maximum index of entry containing 0 in sumleft[] which will give max sub array containing equal number of 0 and 1.suppose you get i as the max index then it means arr[0…i] contains equal number of 1 and 0. Now choose the minimum index of entry containing 0 in sumright[] which will give max sub array containing equal number of 0 and 1.suppose you get j as the min index then it means arr[j…n-1] contains equal number of 1 and 0. Maximum size interval of these two will give the required answer. Is my approach correct ? Aashish No, this approach will find the sub-array with equal number of 0’s & 1’s which either start from the leftmost position or start from the rightmost-most position. It will not work when sub-array lies in the middle. e.g. 1,1,0,0,1,1 shen but the above code wont work for those array where more than one interval exists… for eg arr[]={0,0,1,1,0} for this ans will be 0 3 and 1 4 but will the above code print both…..  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik The given code prints will one of the possible solutions. You can easily modify it to print all solutions. http://mitcsess10.comeze.com arvind 1) count the number of 1’s and 0’s in the array let it be count1 and count0 2) ans = min(count1,count0) * 2 ofcourse with this you can find only the length and not the index of the array pls lemme kno if it doesnt works !!!! Derek Try the following input: {0, 1, 1, 1, 0} camster I would use two stacks,For example std::stack where struct Entry is defined as struct Entry{ int arrayindex, int arrayvalue} Step 1. Make an 0(N) tour of the array and push all the 0 array values and corresponding array indices on stack 1. Similarly, push all the 1 array values and corresponding array indices on stack 2. Step 2. Pop Stack 1 Entry and Pop Stack 2 Entry . Compare the array indices of the Popped Stack 1 Entry and Stack 2 Popped Stack Entry. Compare the array indices of the Popped Stack 1 Entry and peek at top of Stack Stack 1 Entry. Compare the array indices of the Popped Stack 2 Entry and peek at top of Stack Stack 2 Entry. if all 3 abs(arrayindex1 – arrayindex2) > 1, set auxiliary key-value pair(counter,arrayindex) counter to 1 and save the previous value of the auxiliary key-value pair in another auxiliary key-value pair. If either abs(Stack 1 Entry.arrayindex – Stack 2 Entry.arrayindex) – Entry.arrayi Entry.arrayindex) == 1 OR abs(Pop Stack 1 Entry.arrayindex – Peek Top of Stack Stack 1) Entry.arrayindex) == 1 OR abs(Pop Stack 2 Entry.arrayindex – Peek Top of Stack Stack 2 Entry.arrayindex) == 1, then increment the first auxiliary key value pair counter by 1 Step 3 . Repeat Step 2 until either Stack 1 or Stack 2 is empty. Step 4. MAX(Auxiliary Key Value Counter, Auxiliary Key Value Previous Counter) = the size of the largest subarray containing an equal number of 0’s and 1’s .To find the start and end of the largest subarray containing equal number of 0’s and 1’s,we extract the auxiliary Key Value array index corresponding to the maximum Key Value Counter value. Then do a little arithmetic to find the start and end of the largest subarray containing equal number of 0’s and 1’s Time complexity O(N) Space Complexity O(N). THank you camster.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ constant Here is an another solution in O(n) time complexity and O(n) space complexity.  
+
+#include <stdio.h>
+
+int main()
+{
+	int arr[] = {0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0};
+	int size = sizeof(arr)/sizeof(int);
+        
+        int i=0;
+    	int hash[2*size+1];
+	int sum_total=0;
+	int max = 0;
+	int startIndex=0, endIndex=0;
+
+//initializing hash
+	for(i=0;i<2*size+1;i++)
+		hash[i]=2*size+1;
+
+	hash[size]=-1;  
+	
+	for(i=0; i<size; i++)
+	{
+		if(arr[i] == 0)
+			sum_total-=1;
+		else
+			sum_total+=1;	
+						
+		int index = sum_total+size;
+	
+          //mapping to hash 
+ 
+		if(hash[index] == 2*size+1) 
+			hash[index]=i;
+
+		else if(max <  i- hash[index] ){
+			max = i-hash[index];
+			startIndex = hash[index]+1;
+			endIndex = i;
+		}
+	}
+
+	if(max > 0){
+		printf("the max subarray is \n ");	
+		printf("%d %d %d\n ", max, startIndex, endIndex);
+	}
+	else
+		printf("No sequence found \n");
+return 0;
+	
+}
+
+ Logic 1.consider all zeros as -1. 2.starting from 0th index,whenever we encounter a ‘1’ we add 1 to the sum_total and for ‘0’ -1 is being added. and this sum_total stored in hash. 3.possible values of sum_total ranges from -size to +size, means we need a hash of length (2*size+1).Index of a value(sum_total) is calculated by the formula index = value + size. 4. whenever the same sum is encountered again, we update the startIndex, endIndex and max.i.e. starting and ending position of the longest desired sequence encountered till now. 4.finally, startIndex and endIndex contains the position of final sequence. ravi This method is almost same as the method by Diksha. Isn’t it? http://shashank7s.blogspot.com Shashank @constant yes it will work  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

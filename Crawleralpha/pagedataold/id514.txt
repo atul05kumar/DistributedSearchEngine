@@ -1,0 +1,194 @@
+Write a function to get Nth node in a Linked List - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Write a function to get Nth node in a Linked List Write a GetNth() function that takes a linked list and an integer index and returns the data value stored in the node at that index position. Algorithm: 
+1. Initialize count = 0
+2. Loop through the link list
+     a. if count is equal to the passed index then return current
+         node
+     b. Increment count
+     c. change current to point to next of the current.
+ Implementation: 
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+
+/* Link list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+
+/* Given a reference (pointer to pointer) to the head
+    of a list and an int, push a new node on the front
+    of the list. */
+void push(struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node =
+            (struct node*) malloc(sizeof(struct node));
+
+    /* put in the data  */
+    new_node->data  = new_data;
+  
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);
+  
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+/* Takes head pointer of the linked list and index
+    as arguments and return data at index*/
+int GetNth(struct node* head, int index)
+{
+    struct node* current = head;
+    int count = 0; /* the index of the node we're currently
+                  looking at */
+    while (current != NULL)
+    {
+       if (count == index)
+          return(current->data);
+       count++;
+       current = current->next;
+    }
+  
+    /* if we get to this line, the caller was asking
+       for a non-existent element so we assert fail */
+    assert(0);              
+}
+
+/* Drier program to test above function*/
+int main()
+{
+    /* Start with the empty list */
+    struct node* head = NULL;
+  
+    /* Use push() to construct below list
+     1->12->1->4->1  */
+    push(&head, 1);
+    push(&head, 4);
+    push(&head, 1);
+    push(&head, 12);
+    push(&head, 1);  
+  
+    /* Check the count function */
+    printf("Element at index 3 is %d", GetNth(head, 3));  
+    getchar();
+} Time Complexity: O(n)           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tags: GetNth, Linked Lists Tweet Writing code in comment? Please use ideone.com and share the link here. Himanshu Dagar http://ideone.com/U646FI can refer to this code Himanshu Dagar (y) Himanshu Dagar liked great job!!! kuldeep tripathi #include #include #include using namespace std; struct node { int info; struct node *link; }; class LinkedList { public: struct node *start; LinkedList() { start=NULL; } void Push(int item) { struct node *temp=new node(); temp->info=item; temp->link=start; start=temp; } int GetNthnode(int loc) { struct node *p=start; int count=0; while(p!=NULL) { if(count++==loc) return(p->info); p=p->link; } return(0); } }; int main() { LinkedList L1; L1.Push(10); L1.Push(20); L1.Push(30); L1.Push(40); L1.Push(50); L1.Push(60); cout<<"Element at index 3 is"<<L1.GetNthnode(3)<<endl; system("pause"); return(0); Rishi It is actually a wrong implementation of linked list as it should insert nodes in end instead of begining. Kartik A node can either be inserted at the beginning or end. The main question here is to find the Nth node. sandeep #include #include typedef struct binarynode { int data; struct binarynode * next; }; binarynode * create(int value) { binarynode * root = (binarynode *)malloc(sizeof(binarynode)); root->data=value; root->next=NULL; return root; } void printlist(binarynode * root ) { // binarynode *root=root1; while(root!=NULL){ printf(“%d”,root->data); printf(“–>”); root=root->next; } } void getnode(binarynode *root , int n) { // binarynode *root1=root; for(int i=2;inext; } printf(“\n %d”,root->data); } int main() { int n,value,i; binarynode * root ,* curr; root=NULL; curr=NULL; printf(“enter number of nodes”); scanf(“%d”,&n); printf(“enter 1 node value”); scanf(“%d”,&value); root=create(value); //root->next=NULL; curr=root; for(i=2;inext=create(value); // (curr->next)->next=NULL; curr=curr->next; } printlist(root); getnode(root,5); return 0; }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Piyush Gandhi @GeeksForGeeks ….explain me one thing please: The code you wrote here creates a stack here and not a linked list so wont it be incorrect , consider the example Pushing 1,4,1,12,1 into linked list and finding 2nd node data must give ans as 4 but according to your method gives answer as 12..? morth My version, continue to iterate over linked list from last position, if possible. Returns node or NULL if out of bounds or head is NULL  
+node_ref getn(const node_ref head, const int n)
+{
+  static int p = 0;
+  static node_ref node = NULL;
+
+  if (p > n)
+  {
+    p = 0;
+    node = head;
+  }
+
+  while(n != p && node != NULL)
+  {
+    node = node->next;
+    p++;
+  }
+
+  return node;
+}
+ Ankit Malhotra Keep it simple The below method will do just what is needed and return NULL if nth node does not exist. To ensure fuzzing around n is unsigned so that negative values cant be passed. For n = 0, ptr is returned directly.  
+node * nthnode (node * ptr, unsigned n) {
+  if (!n) return ptr;
+  while (--n && ptr) ptr = ptr->next;
+  return ptr;
+}
+ Animesh Pratap Singh Sikarwar  
+void Nth(struct node* head, int n)
+{
+    struct node* mover=head;
+    while(mover->next!=NULL&&n!=1)
+    {
+        mover=mover->next;
+        n--;
+    }
+    if(n==1)
+    {
+        printf("%d",mover->info);
+    }
+    else
+    printf("limit exceeded");
+
+}
+ http://www.groupme.in Nikin Kumar Jain Was asked to give a perfect answer at Amazon. This function will handle all the cases.  
+node* getNth(node *sr, int n)
+{
+	if(sr == NULL)
+		return NULL;
+	while(--n)
+	{
+		if(sr->next)
+			sr = sr->next;
+		else
+			return NULL;
+	}
+	return sr;
+}
+
+ Ankit Malhotra How about  
+node* getNth(node *sr, int n)
+{
+    while(sr && --n) sr = sr->next;
+    return sr;
+}
+
+ Ramesh.Mxian Will it work if n is given 0 or <0 nikinjain Thanks for pointing out case nikinjain I think this should be a good solution. void getNth(node *head, int num) { if(!head || num < 0) std::cout<<"Invalid Data"; if(num == 0) std::cout<data; while(–num) { head = head->next; if(!head) std::cout<<"Invalid Number Value"; } std::cout<data; } VR  
+
+struct node* getNthNode(struct node *head, int index)
+{
+       int count = 2;
+       
+      if(index==0)
+          return head;
+       else
+       {
+           curr = head ->next;
+           i = index;
+           if(index is even)
+           {
+           	if(i==count) 
+           		return curr;
+           	if(curr->next->next!=null)
+           	{
+           	  //i think i dont even need to make this check.. do u think this check is necessary?
+           	  curr = curr->next->next;
+           	  count = count +2;
+           	  
+           	}
+           }
+           else //index is odd
+           {
+           
+           		struct node *val = getNthNode(index-1);
+           		return val->next;
+           
+           }
+        }
+} 
+ aimless  
+/* Takes head pointer of the linked list and index
+    as arguments and return data at index*/
+int GetNth(struct node* head, int index)
+{
+    while (index - 1 > 0 && head)
+    {
+       head = head->next;
+       index--;
+    }
+ 
+    if(index-1==0 && head)
+       return head->data;
+
+    /* if we get to this line, the caller was asking
+       for a non-existent element so we assert fail */
+    assert(0);
+}
+ Manish_Dawar Thanks.. ram This code will give incorrect answer if I pass a circular linked list or a linked list with a loop. For eg: a linked list with only 1 node and self looped. GeeksforGeeks @ram: Yes, the code won’t work for circular linked list. It assumes that linked list has no loop. We should write different functions for singly and circular linked lists in general. Murat M Ozturk It is possible to reduce the number of node access to O(logn) if we use binary tree represented linked lists… foobar your other option is skiplist. http://www.google.com KattyBlackyard Hi, gr8 post thanks for posting. Information is useful! Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,523 @@
+Maximum Product Subarray - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Maximum Product Subarray Given an array that contains both positive and negative integers, find the product of the maximum product subarray. Expected Time complexity is O(n) and only O(1) extra space can be used. Examples: 
+Input: arr[] = {6, -3, -10, 0, 2}
+Output:   180  // The subarray is {6, -3, -10}
+
+Input: arr[] = {-1, -3, -10, 0, 60}
+Output:   60  // The subarray is {60}
+
+Input: arr[] = {-2, -3, 0, -2, -40}
+Output:   80  // The subarray is {-2, -40}
+ The following solution assumes that the given input array always has a positive ouput. The solution works for all cases mentioned above. It doesn’t work for arrays like {0, 0, -20, 0}, {0, 0, 0}.. etc. The solution can be easily modified to handle this case. It is similar to Largest Sum Contiguous Subarray problem. The only thing to note here is, maximum product can also be obtained by minimum (negative) product ending with the previous element multiplied by this element. For example, in array {12, 2, -3, -5, -6, -2}, when we are at element -2, the maximum product is multiplication of, minimum product ending with -6 and -2. 
+#include <stdio.h>
+
+// Utility functions to get minimum of two integers
+int min (int x, int y) {return x < y? x : y; }
+
+// Utility functions to get maximum of two integers
+int max (int x, int y) {return x > y? x : y; }
+
+/* Returns the product of max product subarray.  Assumes that the
+   given array always has a subarray with product more than 1 */
+int maxSubarrayProduct(int arr[], int n)
+{
+    // max positive product ending at the current position
+    int max_ending_here = 1;
+
+    // min negative product ending at the current position
+    int min_ending_here = 1;
+
+    // Initialize overall max product
+    int max_so_far = 1;
+
+    /* Traverse throught the array. Following values are maintained after the ith iteration:
+       max_ending_here is always 1 or some positive product ending with arr[i]
+       min_ending_here is always 1 or some negative product ending with arr[i] */
+    for (int i = 0; i < n; i++)
+    {
+        /* If this element is positive, update max_ending_here. Update
+           min_ending_here only if min_ending_here is negative */
+        if (arr[i] > 0)
+        {
+            max_ending_here = max_ending_here*arr[i];
+            min_ending_here = min (min_ending_here * arr[i], 1);
+        }
+
+        /* If this element is 0, then the maximum product cannot
+           end here, make both max_ending_here and min_ending_here 0
+           Assumption: Output is alway greater than or equal to 1. */
+        else if (arr[i] == 0)
+        {
+            max_ending_here = 1;
+            min_ending_here = 1;
+        }
+
+        /* If element is negative. This is tricky
+           max_ending_here can either be 1 or positive. min_ending_here can either be 1 
+           or negative.
+           next min_ending_here will always be prev. max_ending_here * arr[i]
+           next max_ending_here will be 1 if prev min_ending_here is 1, otherwise 
+           next max_ending_here will be prev min_ending_here * arr[i] */
+        else
+        {
+            int temp = max_ending_here;
+            max_ending_here = max (min_ending_here * arr[i], 1);
+            min_ending_here = temp * arr[i];
+        }
+
+        // update max_so_far, if needed
+        if (max_so_far <  max_ending_here)
+          max_so_far  =  max_ending_here;
+    }
+
+    return max_so_far;
+}
+
+// Driver Program to test above function
+int main()
+{
+    int arr[] = {1, -2, -3, 0, 7, -8, -2};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    printf("Maximum Sub array product is %d", maxSubarrayProduct(arr, n));
+    return 0;
+}
+ Output: Maximum Sub array product is 112 Time Complexity: O(n) Auxiliary Space: O(1) This article is compiled by Dheeraj Jain and reviewed by GeeksforGeeks team. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. Name public static void LargestProductSubArray(int[] arr) { //array of running sum int[] runningSumArr = new int[arr.Length]; int currRunningSum = 1; for (int i = 0; i < arr.Length; i++) { if (currRunningSum == 0) { runningSumArr[i] = arr[i]; currRunningSum = arr[i]; } else { runningSumArr[i] = currRunningSum * arr[i]; currRunningSum = runningSumArr[i]; } } int lnIdx = runningSumArr[0] < 0 ? 0 : -1; int start = 0; int end = 0; int tempStart = 0; int tempEnd = 0; int max = runningSumArr[0]; for (int i = 1; i < runningSumArr.Length; i++) { int intermediateProd = runningSumArr[i]; if (runningSumArr[i – 1] == 0) { tempStart = i; lnIdx = runningSumArr[i] < 0 ? i : -1; } else if (runningSumArr[i] < 0) { if (lnIdx == -1) { lnIdx = i; } else { tempStart = lnIdx + 1; intermediateProd = runningSumArr[i] / runningSumArr[lnIdx]; if (runningSumArr[i] runningSumArr[lnIdx]) { lnIdx = i; } } } tempEnd = i; if (intermediateProd > max) { start = tempStart; end = tempEnd; } } for (int i = start; i <= end; i++) { Console.WriteLine(arr[i]); } } SunilVA Does not work for cases like {-2,0} or {0,0,0} Chen Pang All of those cases can be generalized: int maxSubarrayProduct(int arr[], int n) { int max_ending_at = arr[0]; int min_ending_at = arr[0]; int max_product = arr[0]; for (int i = 1; i < n; i++) { int product_with_max = arr[i] * max_ending_at; int product_with_min = arr[i] * min_ending_at; max_ending_at = max(arr[i], product_with_max, product_with_min); min_ending_at = min(arr[i], product_with_max, product_with_min); max_product = max(max_ending_at, max_product); } return max_product; } tczf1128 good Meenal Zero case is also handled in this code.. good one Shreyas For this array {-2, -3, 0, -2, -40} ur code shows 6 as an answer.. where the expected output is 80 Ayush import java.io.*; public class Maxproduct { static int arr[]={-5, -2, 2, -30}; public static void main(String[] args) { System.out.println(maxprod()); } static long maxprod(){ long result=1,tempres=1; int st=0; if(arr.length==0){ return 0; } if(arr.length==1){ return arr[0]; } for(int i=0;i<arr.length;i++){ if(arr[i]==0){ if(tempres<0){ int j = st; int k = i-1; int tmpfrnt=1; int tmplast=1; //find the -ve from the beg while(j<i){ tmpfrnt = tmpfrnt * arr[j]; if(arr[j]=j){ tmplast = tmplast * arr[k]; if(arr[k]<0) break; k–; } //divide the relevant if(tmpfrnt<tmplast){ tempres=tempres/tmplast; }else{ tempres=tempres/tmpfrnt; } //assign if larger if(result<tempres){ result=tempres; } }else{ if(resultresult){ result=tempres; } if(tempres<0){ int j = st; int k = arr.length-1; int tmpfrnt=1; int tmplast=1; //find the -ve from the beg while(j<arr.length-1){ tmpfrnt = tmpfrnt * arr[j]; if(arr[j]=j){ tmplast = tmplast * arr[k]; if(arr[k]<0) break; k–; } //divide the relevant if(tmpfrnt<tmplast){ tempres=tempres/tmplast; }else{ tempres=tempres/tmpfrnt; } //assign if larger if(result<tempres){ result=tempres; } }else{ if(result<tempres){ result=tempres; } } return result; } } Guest #include #include #include using namespace std; int maxprod(int *A, int N) { int maxnow = A[0], maxsofar = A[0], minnow = A[0]; for(int i=1; i<N; i++) { int prev_max = maxnow, prev_min = minnow; maxnow = max(A[i], max(A[i]*prev_max, A[i]*prev_min)); minnow = min(A[i], min(A[i]*prev_max, A[i]*prev_min)); maxsofar = max(maxsofar,maxnow); } return maxsofar; } int main() { srand(time(NULL)); int N = 5; int *A = new int[N]; for(int i=0; i<N; i++) { A[i] = -10 + rand()%20; cout<<A[i]<<" "; } cout<<"nMaximum product "<<maxprod(A,N)<<endl; } Hard_liner The below code works for all cases (including all 0’s ). #include int max(int a,int b,int c) { int d=((a>b)?a:b); return ((c>d)?c:d); } int min(int a,int b,int c) { int d=((a<b)?a:b); return ((c<d)?c:d); } int maxproduct(int *a,int n) { int i; int max_product=a[0]; int min_product=a[0]; int max_product_end=0,min_product_end=0,max_product_so_far=0; for(i=1;imax_product_so_far) max_product_so_far=max_product_end; } return max_product_so_far; } int main() { int a[]={1, -2, -3, 0, 7, -8, -2}; printf(“nMaximum product of subarray is %dn”,maxproduct(a,7)); } disastrous It fails the test case when all elements are 0. Anmon assumption is least prod of input array is atleast 1 Somesh E what about for the case -5 -3 -6 6 ? we get 15 as the output (-5*-3) whereas isn’t the correct output -3*-6*6 = 108? it is not necessary that i should start my subarray from the beginning right? it can start from any element and just has to be contiguous right? KSC max_ending_here min_ending_here max_so_far iter1 1 -5 1 iter2 15 -3 15 iter3 18 -90 18 iter4 108 -540 108 product of maximum product subarray = 108 ?? Prity Bhudolia int maxSubarrayProduct(int a[], int n) { int curprod=1,maxprod=1,prevprod=1; for (int i = 0; i a[i]?(curprod*a[i]):a[i]; maxprod=maxprod>curprod?maxprod:curprod; maxprod=maxprod>prevprod?maxprod:prevprod; } } return maxprod; } arjun {1, -2, 3, -4,-3, -4, -3} your code not working for it Bhuvan Kumar Hi guys Correct me if I am wrong but this looks good for me and even it handle the case having all entries as Zero. int maxProdSubArray(int a[],int n) { int i,prod=1,maxProd=INT_MIN;int fl=1;for(i=0;imaxProd)maxProd=prod;}}if(fl)maxProd=0; return maxProd; } rakitic Similar to max contiguous sum subarray…. end_product = 1; max_product = 1; for(int i-0;i<n;i++){ end_product = end_product * a[i]; if(end_product = 0){ end_product = 1; } if(max_product < end_product){ max_product = end_product; } return max_product; i want opinions about it , please be kind to provide one rakitic this is shit algo..got it shashi kumar {1, -2, 3, -4,-3, -4, -3} above algo fails for this input case,the answer should be 432, but the algo gives 288. abhishek08aug Intelligent bhavneet {6, -3, -10, -10, -10} algo fails at above test case Sreenivas Doosa It does not fail duuude. For your example {6, -3, -10, -10, -10} the maximum product is product of all the elements which is 18000 The algo is giving the correct output Gautam The trick here is to go through the array in both forward and backward direction  
+int MaxProduct(int * arr2, int arrLen2)
+{
+	int prev_max = 1;
+	int curr_max = 1;
+	int max_from_front = 1;
+	int max_from_back = 1;
+
+	// Start from front once
+	for(int i = 0; i < arrLen2; i++)
+	{
+		int temp = curr_max * arr2[i];
+
+		if(temp > prev_max)
+			prev_max = temp;		
+
+		if(0 != temp)
+		{
+			curr_max = temp;
+		}
+		else
+		{
+			// Before resetting curr_max, check if curr_max is greater than prev_max and if so update the prev_max
+			if(curr_max > prev_max)
+				prev_max = curr_max;
+			curr_max = 1;
+		}
+	}
+
+	max_from_front = prev_max > curr_max ? prev_max : curr_max;
+
+	// Start from back once
+	prev_max = 1;
+	curr_max = 1;
+	for(int i = arrLen2-1; i >= 0; i--)
+	{
+		int temp = curr_max * arr2[i];
+
+		if(temp > prev_max)
+			prev_max = temp;		
+
+		if(0 != temp)
+		{
+			curr_max = temp;
+		}
+		else
+		{
+			// Before resetting curr_max, check if curr_max is greater than prev_max and if so update the prev_max
+			if(curr_max > prev_max)
+				prev_max = curr_max;
+			curr_max = 1;
+		}
+	}
+
+	max_from_back = prev_max > curr_max ? prev_max : curr_max;
+
+	return max_from_front > max_from_back ? max_from_front : max_from_back;
+}
+
+ This code works for me… input : {-6, -3, -10, 0, 2}; output: 30 input : {-2, -3, -10, 0, -2, -40, -10}; output: 400 Kartheek J Logic: 1)The Maximum Product of Always Consisting of either first/last index. Means MaxPrduct Sub Array Always Prefix/Suffix. 2)Below i am finding which prefix/suffix having maximum product. maxProductOfArray Method: To Eliminate Zeros. nonZeroMaxProduct Method: To Find Max Product Prefix/Suffix.  
+/* Paste your code here (You may delete these lines if not writing code) */
+int nonZeroMaxProduct(int array[],int start,int end)
+{
+	if (start > end)
+	{
+		return -INT_MAX;
+	}	
+	int max = 1;int maxSofar = array[0];
+	for (int i=start; i <= end; i++)
+	{
+		max= max*array[i];
+		if (max > maxSofar) 
+		{
+			maxSofar = max;
+		}
+	}
+	
+	for (int i=start; i <= end; i++)
+	{
+		max= max/array[i];
+		if (max > maxSofar) 
+		{
+			maxSofar = max;
+		}
+	}
+	return maxSofar;
+}
+
+int maxProductOfArray(int array[],int start,int end)
+{
+	if (start > end)
+	{
+		return -INT_MAX;
+	}
+	int nextZeroLocation = start;
+	while (nextZeroLocation <= end && array[nextZeroLocation] != 0)
+	{
+		nextZeroLocation++;
+	}
+	
+return nonZeroMaxProduct(array, start, nextZeroLocation-1) >              maxProductOfArray(array, nextZeroLocation+1, end) ? nonZeroMaxProduct(array, start, nextZeroLocation-1) : maxProductOfArray(array, nextZeroLocation+1, end);
+}
+ saurabhkher Can anyone please help me with the approach on this problem : Given a 2D binary array(2D array of 0’s and 1’s) with m rows and n columns,give an efficient algorithm to find area of largest sub-array(rectangle) consisting entirely of 1’s.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ coderAce Can anyone tell me why we need min_ending_here? Can’t it be solved with simple Kadane’s algorithm itself? Please let me know if you find any case where this might fail, except of course the base cases like {0,0} or {0.0.-20} which can be solved with a simple modification.  int MaxPdtSubAr(int *A,int N)
+{
+    int phere=1;int pmax=-32767;
+
+    for(int i=0;i<N;i++)
+    {
+        if(A[i]!=0)
+        {
+            phere=phere*A[i];
+            if(pmax<phere)
+            {
+                pmax=phere;
+            }
+        }
+        else
+        {
+            phere=1;
+            continue;
+        }
+    }
+
+    return pmax;
+}
+
+int main()
+{
+    int A[] = {1, -2, -3, 0, 7, -8, -2};
+    cout<<MaxPdtSubAr(A,sizeof(A)/sizeof(A[0]))<<endl;
+    return 0;
+}
+
+ http://kaidul.web44.net Kaidul try this {-5, -2, 2, -30} case. Output should be 120, but it gives 20 dayanand  
+#include <stdio.h>
+
+int max(int a , int b)
+{
+    return a>b ? a : b;
+}
+
+
+void maxSubArr(int *arr,int l)
+{
+    int maxlocal = 1;
+    int maxoverall = 1;
+//    int startIndex=0;int endIndex = 0;
+//    int tempStartindex =0 ;
+    for (int i =0 ; i<l; i++)
+    {
+        if (i==0) {
+            maxlocal = maxoverall = arr[i];
+        }else{
+            if (arr[i]==0) {
+                maxlocal = 0;
+            }else{
+                maxlocal = max(arr[i]*arr[i-1], maxlocal*arr[i]);
+                if (maxlocal>maxoverall) {
+                    maxoverall = maxlocal;
+                }
+            }
+        }
+    }
+    printf("%d",maxoverall);
+}
+
+int main()
+{
+    int arr[] = {1,4, -110,-120,-1,12,1,-5,4};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    maxSubArr(arr, n);
+    getchar();
+    return 0;
+}
+Please correct my code if anything is missing.
+/* Paste your code here (You may delete these lines if not writing code) */
+ dayanand  
+int max(int a , int b)
+{
+    return a>b ? a : b;
+}
+
+
+void maxSubArr(int *arr,int l)
+{
+    int maxlocal = 1;
+    int maxoverall = 1;
+    int product = 1;
+//    int startIndex=0;int endIndex = 0;
+//    int tempStartindex =0 ;
+    for (int i =0 ; i<l; i++)
+    {
+        product = product * arr[i];
+        if (i==0) {
+            maxlocal = maxoverall = arr[i];
+        }else{
+            if (arr[i]==0) {
+                maxlocal = 1;
+            }else{
+                maxlocal = max(arr[i]*arr[i-1], maxlocal*arr[i]);
+                maxlocal = max(maxlocal,product);
+                if (maxlocal>maxoverall) {
+                    maxoverall = maxlocal;
+                }
+            }
+        }
+    }
+    if (maxoverall != 0) {
+        printf("%d",maxoverall);
+    }else{
+        printf("%d",0);
+    }
+}
+
+int main()
+{
+//    int arr[] = {10,-2,3,6,-3,7,-1,9,2};
+//    int arr[] = {-2, -3, 0, -2, -40};
+    int arr[] = {0, 0, 0, 0, -10};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    maxSubArr(arr, n);
+    getchar();
+    return 0;
+}
+/* with modifications */
+ Paul caso {0,9,-100,-1} =900 you code 100 Himanshu Can anyone give me a counter example for my claim.. the claim is : given any array of integers assuming w/o 0’s the maximum sum subarray contains atleast one of the ends of the array. i.e given A[9]={1,-2,3,6,-3,7,-1,9,2} it will either contain A[0] or A[8]. in our case it contains A[0]. indirectly it can never be a subarray somewhere in the middle. We can prove this : say givn array has even number of -ve nos..then we are done. say its odd: then array looks like this {pnppnppnnppnpnnpp}where p:+ve , n: -ve in this case we will always see that the maximum subarray will be either {pn[ppnppnnppnpnnpp]} or {[pnppnppnnppnpn]npp} So the problem reduces to only finding which -ve number to drop. if i am not clear please comment. thanks.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ coderAce I think your logic is correct. But as you mentioned, only if 0 is not there in the array. Kartk I can think of a very simple way. Am I missing anything?  
+int max_product(int A[], int n)
+{
+    product_curr = 1;
+    product_sofar = 1;
+
+    for (i = 0; i < n; i++)
+    {
+        product_curr = Product_curr * A[i];
+        
+        if (product_curr == 0)
+        {
+            product_curr = 1;
+        }
+        
+        if (product_curr > product_sofar)
+        {
+            product_sofar = product_curr;
+        }
+    }
+    
+    if (product_sofar == 1)
+    {
+        printf("array entries are less than 1");
+    } else {
+        printf("\n Product so far is",product_sofar);   
+    }
+
+}
+
+ ms96 almost same as 1D kadane  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ms96 1 D kadane  
+/* Paste your code here (You may delete these lines if not writing code) */
+ mith this code is wrong….  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Kartk I think this case is not covered here, For eg: -6 -3 -9 0 2 5 This will give 18 where as the solution is 27. 9 * 3. I think we need a recursive sol.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Dhaval I think still it gives 27. pr6989 The above solution is giving wrong answer for this array: {2, -3, 0, -2, -40, -10}. The output should be 400 but it’s giving 80. anonymous i think your code will fail here {-2,6,-8,-10} answer should be 480 but your prog will give 96.. ak when we hit a 0 or end of array, and if the product is negative, start removing elements from beginning until product becomes positive and then check for max product again public static void MaxProductSubArray() { int[] arr = { 1, -2, -3, 0, -10, 5, 4, 2, -11, -9 }; int len = arr.Length; int i = 0; int prod = 1; int maxProd = 0; int start = 0; int end = 0; int maxstart = -1; int maxend = -1; while (i < len) { if (arr[i] == 0) { while (prod < 0 && start <= end) { prod /= arr[start]; start++; } if (prod > maxProd) { maxProd = prod; maxstart = start; maxend = end; } prod = 1; start = end = i + 1; } else { prod *= arr[i]; end = i; if (prod > maxProd) { maxProd = prod; maxstart = start; maxend = end; } } i++; } while (prod < 0 && start < len) { prod /= arr[start]; start++; } if (prod > maxProd) { maxProd = prod; maxstart = start; maxend = end; } for (int k = maxstart; k <= maxend; k++) { Console.Write(arr[k] + " "); Console.WriteLine("max product " + maxProd); } } aman a code checking all the conditions i.e. for all zeroes ,only 1 negative number,and the case solved in above geeksforgeeks solution. #include<iostream> using namespace std; int max(int a,int b) { return(a>=b?a:b); } int max_product(int a[],int n) { if(n==1) return(a[0]);//if only 1 element int s=1; int maxp=1; int maxn=1; int zeroes=0;int flag=0;// zeroes = no.of zeroes,flag is check for 1 negative for(int i=0;i<=n-1;i++) { if(a[i]==0) { maxp=1; maxn=1; zeroes++; } if(a[i]>0) { maxn*=a[i]; maxp*=a[i]; } else if(a[i]<0) { maxp=maxn*a[i]; maxn=maxn*a[i]; flag=1; } if(s<max(maxp,maxn)) { s=max(maxp,maxn); } } if(zeroes==n)//if all zeroes { return(0); } else if(zeroes==n-1&&flag==1)//if 1 -ve only { return(0); } else// the above case return(s); } int main() { int arr[100], n; cout<<"enter the number of elements"; cin>>n; cout<<"enter the elements"; for(int i=0;i<=n-1;i++) { cin>>arr[i]; } cout<<"Ans is "<<max_product(arr, n); return 0; } vishnu #include “stdafx.h” int mul=1; int maxSub(int arr[],int n) { for(int i=0;i<n;i++) { if(mul!=0) { if(mul<0&&arr[i]arr[i]) mul*=arr[i]; else mul=arr[i]; } } else mul=arr[i]; } return mul; } int _tmain(int argc, _TCHAR* argv[]) { int arr[] = {-2,-3,0,-2,-40}; int n = sizeof(arr)/sizeof(arr[0]); printf(“Maximum Sub array product is %d”, maxSub(arr, n)); return 0; return 0; } vishnu in main func neglect that second return 0. it was by mistake shailendra verma \\ A product will decrease only when the no. of negative numbers are odd or there is a zero in the subarry #include #include int maxpro(int a[],int size) { int i,maxpro_so_far=1,current_max_pro=1; for(i=0;i<size;i++) { if(a[i]!=0) { current_max_pro=current_max_pro*a[i]; if(maxpro_so_far<current_max_pro) maxpro_so_far=current_max_pro; } else { current_max_pro=1; } printf("\n%d",maxpro_so_far); } return maxpro_so_far; } int main() { int arr[]={6,-3,-10,0,2}; int max=maxpro(arr, sizeof(arr)/sizeof(arr[0])); printf("%d",max); return 0; } dazer hi!!!.. i think this checks for this kind of conditions… if i am wrong …jus correct me : {0,0,0,0,0} ,{0,0,-1,0,0}  
+/* Paste your code here (You may delete these lines if not writing code) */
+#include<stdio.h>
+#include<conio.h>
+ 
+int max_product(int a[],int n){
+int max_far=0,max_curr=1;
+int i;
+        for(i=0;i<n;i++){
+            max_curr*=a[i];
+            if(max_curr==0) max_curr=1;
+            if(max_curr>max_far) max_far=max_curr;
+        }
+        return max_far;
+}
+int funcheck(int a[],int n)
+{
+     int i,temp,k=0,count=0;
+     for(i=0;i<n;i++)
+      {
+       if(a[i]==0)
+           {
+           printf("\n the cout:%d",count);
+           count++;
+           }
+       else 
+          {
+          temp=i;
+          k++;
+          }
+          }
+          
+      if(count==n)
+         return 0;
+       else  if(count+1==n)
+             {
+                  if(k==1)
+                   {
+                    if(a[temp]>0)
+                    {
+                    return a[temp];
+                    }
+                    else
+                    return 0;
+                  }
+                  }
+               else 
+                return 1;
+                } 
+                
+
+
+int main(){
+int a[]= {0,0,0,-2,0,0,0};
+//printf("\n sizeof:%d",sizeof(a));
+int n=sizeof(a)/sizeof(a[0]);
+int h=funcheck(a,n);
+ if(h>0)
+   {
+         printf("%d",max_product(a,n));}
+  else if(h<=0)
+     {
+     printf("the value:%d",h);
+     }
+  getch();
+  
+    return 0;
+
+}
+ Ankush  
+#include<stdio.h>
+
+int max_product(int a[],int n){
+int max_far=0,max_curr=1;
+int i;
+		for(i=0;i<n;i++){
+			max_curr*=a[i];
+			if(max_curr==0) max_curr=1;
+			if(max_curr>max_far) max_far=max_curr;
+		}
+		return max_far;
+}
+
+int main(){
+int a[]={2, -3, 0, -2, -40};
+int n=sizeof(a)/sizeof(a[0]);
+	printf("%d",max_product(a,n));
+	return 0;
+}
+ Camphor I don’t think ur approach is correct.Check if it works for {2, -3, -2, -40}.I think it should return 80,but ur code returns 12.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Camphor correct me if i am wrong. atul Hi, my code will return 80 not 12. executed and checked.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ atul replied on wrong thread…IGNORE above comment.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ flexme Check {2, -3, 0, -2, -40, -10}, it should be 400. But your code returns 80. Ryder Can you please explain what logic you have applied ? Jason How can you keep track of the start and end indices?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Venki Good to see more contributions. Hope a curious reader would comment on the variation of similar problem, “In an array, find longest length sub array with maximum average”. It is relatively simple, I am looking for more comments. atul007 Here is the recursive way of finding max-product. but time complexity will be O(n^2);  
+
+int getMaxProduct(int arr[],int start,int end)
+
+{
+
+int right,left,prod,m;
+
+if(start==end)
+
+	return arr[start];
+
+
+
+right=getMaxProduct(arr,start+1,end);
+
+
+left=getMaxProduct(arr,start,end-1);
+
+prod=getProd(arr,start,end);
+
+m=max(arr[start],arr[end],prod,right,left);
+
+
+
+return m;
+
+
+}
+
+
+ atul007 call : getMaxProduct(arr,0,len-1); atul007 call : getMaxProduct(arr,0,len-1);  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Unknown how can we check for all zero’s and single negative? kartik Before doing any processing, run a preprocessing loop that will check for this particular case and if this case is true, will return 0. Overall time complexity will still be O(n) as c1n + c2n is O(n) dayanand  
+#include <stdio.h>
+
+int max(int a , int b)
+{
+    return a>b ? a : b;
+}
+
+
+void maxSubArr(int *arr,int l)
+{
+    int maxlocal = 1;
+    int maxoverall = 1;
+//    int startIndex=0;int endIndex = 0;
+//    int tempStartindex =0 ;
+    for (int i =0 ; i<l; i++)
+    {
+        if (i==0) {
+            maxlocal = maxoverall = arr[i];
+        }else{
+            if (arr[i]==0) {
+                maxlocal = 0;
+            }else{
+                maxlocal = max(arr[i]*arr[i-1], maxlocal*arr[i]);
+                if (maxlocal>maxoverall) {
+                    maxoverall = maxlocal;
+                }
+            }
+        }
+    }
+    printf("%d",maxoverall);
+}
+
+int main()
+{
+    int arr[] = {1,4, -110,-120,-1,12,1,-5,4};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    maxSubArr(arr, n);
+    getchar();
+    return 0;
+}
+
+please correct my code, if anything is wrong
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

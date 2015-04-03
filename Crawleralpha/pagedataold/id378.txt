@@ -1,0 +1,340 @@
+Find whether a given number is a power of 4 or not - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find whether a given number is a power of 4 or not Asked by Ajay 1. A simple method is to take log of the given number on base 4, and if we get an integer then number is power of 4. 2. Another solution is to keep dividing the number by 4, i.e, do n = n/4 iteratively. In any iteration, if n%4 becomes non-zero and n is not 1 then n is not a power of 4, otherwise n is a power of 4. 
+#include<stdio.h>
+#define bool int
+
+/* Function to check if x is power of 4*/
+bool isPowerOfFour(int n)
+{
+  if(n == 0)
+    return 0;
+  while(n != 1)
+  {    
+   if(n%4 != 0)
+      return 0;
+    n = n/4;      
+  }
+  return 1;
+} 
+
+/*Driver program to test above function*/
+int main()
+{
+  int test_no = 64;
+  if(isPowerOfFour(test_no))
+    printf("%d is a power of 4", test_no);
+  else
+    printf("%d is not a power of 4", test_no);
+  getchar();
+}
+ 3. A number n is a power of 4 if following conditions are met. a) There is only one bit set in the binary representation of n (or n is a power of 2) b) The count of zero bits before the (only) set bit is even. For example: 16 (10000) is power of 4 because there is only one bit set and count of 0s before the set bit is 4 which is even. Thanks to Geek4u for suggesting the approach and providing the code. 
+#include<stdio.h>
+#define bool int
+
+bool isPowerOfFour(unsigned int n)
+{
+  int count = 0;
+
+  /*Check if there is only one bit set in n*/
+  if ( n && !(n&(n-1)) )
+  {
+     /* count 0 bits before set bit */
+     while(n > 1)
+     {
+       n  >>= 1;
+       count += 1;
+     }      
+
+    /*If count is even then return true else false*/
+    return (count%2 == 0)? 1 :0;
+  }
+
+  /* If there are more than 1 bit set
+    then n is not a power of 4*/
+  return 0;
+}    
+
+/*Driver program to test above function*/
+int main()
+{
+   int test_no = 64;
+   if(isPowerOfFour(test_no))
+     printf("%d is a power of 4", test_no);
+   else
+     printf("%d is not a power of 4", test_no);
+   getchar();
+}
+ Please write comments if you find any of the above codes/algorithms incorrect, or find other ways to solve the same problem.           Related Topics: Check if binary representation of a number is palindrome Swap two nibbles in a byte How to turn off a particular bit in a number? Check if a number is multiple of 9 using bitwise operators How to swap two numbers without using a temporary variable? Divide and Conquer | Set 4 (Karatsuba algorithm for fast multiplication) Find position of the only set bit Swap all odd and even bits Tweet Writing code in comment? Please use ideone.com and share the link here. Anon When a number is a power of 4 , there wouldn’t be any bit in odd position, for example: 4^0 = 000 … 00001 , one at position 0 4^1 = 000 … 00100 , one at position 2 4^2 = 000 … 10000 , one at position 4 and so on. So we just check if only one 1 bit in the number and also that bit shouldn’t be in odd position. To check if it has only 1 bit set in the number, we can do : (n&(n-1)) == 0 To check no bit should be in odd position : (n&0xAAAAAAAA)==0 So solution is : bool check(unsigned int n){ return (n&(n-1)) == 0 && (n&0xAAAAAAAA) == 0; } Suryabhan Singh another solution- int fun(int n) { if(!n) return 0; else if(n==1) return 1; else if(n==2) return 0; else if(n&(n-1)) return 0; else return 1; } asunel Another short efficient solution : #include #include #define bool int bool isPowerOfFour(unsigned int n) { return n &(n-1)|(int)log2(n&(-n))&1; } /*Driver program to test above function*/ int main() { int test_no = 16; if(!isPowerOfFour(test_no)) printf("%d is a power of 4", test_no); else printf("%d is not a power of 4", test_no); getchar(); } sumit5113 we don’t even need to count the number of even number of zeros for number to be exact power of four.  
+boolean isPowerOfFour(int num){
+
+	if(!num && (num&(num-1))==0){
+		//this mean it is exact power of 2
+		//now for power of four we must check if num>>2 is anywhere becomes zero
+		while(num>1){
+			//if num = 4*(number is multiple of 4) -> then it will remain multiple of 4 after this step
+			num=num>>2;
+			if(num==0){
+			//num=8,32,128...
+				return false;
+			}
+		}
+		
+		return true;
+	}
+
+	return false;
+}
+ crazy In method 3 instead of counting number of zeros in the right side 1)First find the rightmost set bit 2)Then if it is greater than 1 and it is odd then it is a power of 4..  
+bool isPowerOfFour(unsigned int n)
+{ 
+  /*Check if there is only one bit set in n*/
+  if ( n && !(n&(n-1)) )
+  {
+   /*find the rightmost set bit if it is odd and greater than 1 return 1*/ 
+   return (n&~(n-1)>1)&&((n&~(n-1))%2);
+  }
+ 
+  /* If there are more than 1 bit set
+    then n is not a power of 4*/
+  return 0;
+}    
+ correct me if i am wrong… crazy oops i am sory it will not work correct the return statement into return ((log2(n)+1)>1)&&((log2(n)+1)%2)  
+/* Paste your code here (You may delete these lines if not writing code) */
+ adrain the method 3 has so many fallacies No .1 > not multiples of 4 will have only one bit set that is true for multiple of 2 only . example 24 (6×4) = 11000 (two bits are set although number is multiple of four) no2.>> The idea of even number of zeros is useless example 8 (4×2) = 1000 (it has only 3 zeros before set bit) In fact if the number has a single bit set and has 00 before it it will always be a multiple of 4 . please correct method 3. Thanks GeeksforGeeks Please take a closer look. The question is about power of 4, not multiple of 4. Niraj Method 3 can be solved by this way . Time = O(1) space= O(1) int power_of_four(int n) { int first_set_bit =1; if(n&& !(n&(n-1))) { /* find first set bit */ first_set_bit=n&(-n); } if(first_set_bit-1)%2==0) return TRUE; else return FALSE; }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ ashish dey  
+/* Paste your code here (You may delete these lines if not writing code) */
+ #include int main() { int n; printf(“enter the value of n”); scanf(“%d”,&n); if(!(n & (n-1)) && ((n-1)%3 == 0)) printf(“power of 4″); else printf(“not a power of 4″); } gaurav just check it is power of 2 .. if yes count bit position using shift operator. void is_power_of_four(int num) { int count = 0; int m= num; int x = num&(num-1); if(!x )// checks it is power of 2 { while(m != 0) { m = m>>1; count++; } if(count%2 != 0) { printf(“power of 4″); } else { printf(“not power of 4″); } } else { printf(“not power of 4″); } } vasu I do not understand this : /*Check if there is only one bit set in n*/ if ( n && !(n&(n-1)) ) Can someone help me? If n = 1100 then , this will give true .is it not wrong? Vibhu Tiwari No this would not give a true result as it is not a bit-wise and but it is a conditional one where the two conditions are checked.Here as you said that n=1100 then n-1=1011 then performing a bitwise and would result in 1000 i.e. 8 of which the not operator when applied the result is 0 and then when conditional and applied checks that as one condition is wrong so the overall result is also false.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ vasu Got it!! That made it very clear.Thanks ! Vibhu Tiwari The power of 4 can just be checked by right shifting the number by 2 bits and checking the remainder by dividing the number. #include #include unsigned int powof4(unsigned int n){ if((n%(n>>2))==0) return 1; else return 1; } int main() { int b=powof4(16); if(b==1) printf(“is a power of 4″); else if(b==0) printf(“is not a power of 4″); return 0; } Vibhu Tiwari Sorry here in else part return 0 instead of 1. pr6989  
+#include<stdio.h>
+long count_bits(unsigned int);
+int main()
+{
+unsigned int n;
+printf("Enter a number : ");
+scanf("%u",&n);
+int set_bit_no=log2(n&-n)+1;
+long x=count_bits(n);
+if((x==1)&&(set_bit_no%2==1))
+printf("%u is a power of 4\n",n);
+else
+printf("%u is not a power of 4\n",n);
+
+return 0;
+}
+
+long count_bits(unsigned int x)
+{
+  unsigned int c; // c accumulates the total bits set in x
+  for(c=0;x;c++)
+    x&=x-1; // clear the least significant bit set
+  return c;
+}
+
+ pr6989 Rather than finding the count of zero bits before the (only) set bit and testing if it is even or not,we can simply check whether the single set bit is at an odd position or not.For eg: 4^0=1=0001 (set bit is at position 1) 4^1=4=0100 (set bit is at position 3) 4^2=16=10000 (set bit is at position 5) …and so on anji.swe Is power of 2? (n&(-n)) = n (n&(1+~n)) = n (n & (~(n & (n – 1)))) =n (n & (n – 1))=0 ~(n & (n – 1))=-1 !(n & (n – 1)) =1 0, 1 are treated as powers of 2, if don`t want put a condition So… use any one of them in if condition and evaluate n… Is power of 4? (~ (n & (n-1)) & (n & 0x555 555 54)) == n // anlyze the bits of powers of 4 , will get the 0x555 555 54 number. Is power of 8? (~ (n & (n-1)) & (n & 0x2 924 924 8)) == n Is power of 16? (~ (n & (n-1)) & (n & 0x111 111 10)) == n Is multiple of 2? n&1 ==0 or n%2==0 Is multiple of4? n&3 ==0 or n%4==0 Is multiple of 8? n&7 ==0 or n%8==0 Is multiple of 16? n&15 ==0 or n%2==0 Padam // this function return 1 if n is a power of 4 int isPowerOfFour(int n) { if(n == 0) return 0; while(n%4 == 0) { n = n/4; } if( n == 1) return 1; else return 0; } Ankur Its written ( n && !(n&(n-1))) Shouldt it be only !(n&(n-1)) as if its power of 2 say 1000 then n&n-1 is 0 so !(n&n-1) will be 1 and n& (n &!(n-1)) will be 0 so wudnt go into if PsychoCoder It is because 0 is not the power of 4 asd Here is the O(1) Solution. bool isPowerOfFour(int n) { if (n && !(n & (n-1))) { int x = log2(n&-n); if(x == ((x >> 1) << 1)) return true; } return false; } sudeep bool isPowerOfFour(unsigned int n) { int count = 0; /*Check if there is only one bit set in n*/ if ( n && !(n&(n-1)) & ( (((~0)/3)& n)!=0 ) ) return true; return false; } Nitin you’r code is wrong sarath here is the one line  
+if(n&&!(n&(n-1))&&!(n<=2))
+printf("it is the power of 4.."); Manna this is a code for checking whether the number is of power of 2 or not!! rajx chek this out:  
+void is Pow_of_four( int i )
+{
+    if( !(i & (i-1)) && i & 0x55555554 )
+        printf("yes");
+    else
+        printf("No");
+}
+ jagannath good one Nitin nice code …. I do not thing This is good  
+/* Paste your code here (You may delete these lines if not writing code) */
+ anji.swe hi can any one explain this logic ? Raja Sriram 101010101010101010101010100 is the binary representation of 0x5555554 and when it is AND operated with any power of 2(but not power of 4 like 8,32) answer is 0 and if with any power of 4 the answer is itself.. coz here all the alternate bits are set . . Tulley  
+int isPowerOf4 (int num)
+{
+    int num1 = num >> 2;
+    if ((num1 << 2) == num))
+    {
+        return 1; /*TRUE*/
+    }
+    return 0; /*FALSE*/
+}
+ kartik Looks like a program to check for multiple of 4, not power of 4. For example, it would return 1 for 8 which is not a power of 4. Vikas Given a number say n, find next power of 4. e.g., input = 7 output = 16 input = 16 output = 64 http://math-puzzles-computing.blogspot.com/ Venki @Vikas, a simple approach, initialize an unsigned integer with 1 and shift it by two bits left iteratively when the resultant shift is less than n. Suresh  
+//Check if a number is a Power of 4
+#include<stdio.h>
+char PowerOf4(int x)
+{    	
+	while(x>1)
+	{
+                //check if x is power of 2
+		if(x&(x-1)!=0)
+			return 'Y';
+		x>>=2;
+                //right shifting will eventually result in x=4
+		if(x==4)
+			return 'N';
+	}
+    	return 0;
+}
+ Suresh Paldia Moderator.. The program above has a small mistake. “Y” AND “N” are interchanged. below is the correct code that I actually posted. Please correct it.  
+#include<stdio.h>  
+char PowerOf4(int x)  
+{  
+    while(x>1)  
+    {  
+        //if x is not power of 2, return N
+        if(x&(x-1)!=0)  
+            return 'N';  
+        x>>=2;  
+        //right shift by 2 eachtime eventually results in x=4 
+        if(x==4)
+            return 'Y'; 
+    }  
+    return N;
+} 
+ ajit check with 18, 66, 72 , it gives ‘Y’ Nitin dude @suresh : you are checking only power of 2 ….then wt about x = 2 which is not power of 4 Saket One simple thing which i can think of is : Steps:- 1) Find out if the number is power of 2 or not. that is num = 2 ^ n; code :-  
+   //check for a non zero number to be 2 ^ n
+   if ((num != 0) &&(num & (num - 1))== 0)
+   {  
+      //finding the value of power
+      for (i=1;i++)
+      {
+       num = num >> 1;
+       if (num == 0)
+       break; 
+      }   
+   }
+   2) If the given number is power of 2, then just find out if the value of “n” obtained in the step 1 is odd or even. If “n” is even, the number “num” is a power of 4. example :- 2^2 = 4 = 4 ^ 1 2^4 = 16 = 4 ^2….. like that. Code :- adding to the logic in step 1  
+   if((i/2)> 0) 
+   printf ("power of 4");
+   else
+   printf ("not a power of 4")
+   Pranshu  #include <stdio.h>
+// Returns the number of set bits in x
+int pop(unsigned x) {
+   x = x - ((x >> 1) & 0x55555555); 
+   x = (x & 0x33333333) + ((x >> 2) & 0x33333333); 
+   x = (x + (x >> 4)) & 0x0F0F0F0F; 
+   x = x + (x >> 8); 
+   x = x + (x >> 16); 
+   return x & 0x0000003F; 
+}
+
+int main() {
+    
+    unsigned n,c_zeros;
+    scanf("%u",&n);
+    
+    // sets all the bits after the rightmost set bit, and resets the rest
+    c_zeros = -n & ( n -1 ); 
+    c_zeros = pop(c_zeros);
+    if( ( n && !( n & n-1) ) && !(c_zeros%2) ) 
+        printf("The number is a power of 4 !");
+    else
+      printf("The number is not a power of 4 !");
+      
+    fflush(stdin);
+    getchar();
+    
+    return 0;
+}
+ kartik Looks like the program doesn’t work for 8, 32, 128, …. It prints them as powers of 4. Aishwarya Singh it is not working for 81 3 power 4 = 81 Aishwarya Singh also for 625 etc Kunal The program is to check whether given number is “POWER OF 4″…i.e. 1,4,16,64,256,etc..and not whether a number is 4th power of some base.. Ashirs 4 = 100 8 = 1000 12 = 1100 the last two digits of binary representation should be zero. So efficient solution would be bool IsPowerOfFour_V1(int number) { return ( number & 3 == 0); } Ashirs Sorry, I mistaken it as amultiple of four chao  
+bool isPowerOfFour(int i)
+{
+	while((i>>2)<<2==i && i>4){
+		i = i>>2;
+	}
+
+	if(i==4) return true;
+	else return false;
+
+}
+int _tmain(int argc, _TCHAR* argv[])
+{
+	int test_no = 128;
+	if(isPowerOfFour(test_no))
+		printf("%d is a power of 4\n", test_no);
+	else
+		printf("%d is not a power of 4\n", test_no);
+	
+	return 0;
+}
+ Shekhu @chao The code looks correct to me and it works. Could you please explain the logic? http://math-puzzles-computing.blogspot.com/ Venki  
+bool isPowerOfFour(int i)
+{
+    // 4 ^ 1 = 4    = 100
+    // 4 ^ 2 = 10   = 10000
+    // 4 ^ 3 = 64   = 1000000
+    // 4 ^ 4 = 256  = 100000000
+
+    // Step 1
+    // If we discard last 2 bits it will not alter if it is power of 4
+    // If number is not power of 4,
+    // discarding last two bits will not satisfy (i >> 2) << 2) == i
+    
+    // Step 2
+    // Discard last two bits and goto setp 1 till i > 4
+    while( (((i >> 2) << 2) == i) && (i > 4) )
+    {
+        i = i >> 2;
+    }
+
+    // If i is 4 it is power of 4
+    return ( i == 4 );
+}
+ Hope the comments makes the logic clear. There are even efficient algorithms to determine whether the number is power of 2 (and its sub powers). ajaym The best solution would be to check whether the number n is a power of 2 and n-1 is divisible by 3. These 2 conditions make sure its a power of 4. TCP IP Ajaym, is it possible for you to prove the second proposition? i.e. n-1 is divisible by 3 — thanks Shekhu It can be proved by induction. 4^0-1 and 4^1 -1 are multiples of 3. Let 4^k be multiple of 3. Now let us prove that 4^(k+1) is also multiple of 3. 4^(k+1) = 3^4^k + 4^k If 4^k is muliplte of 3 then above expression is also multiple of 3. I am more interested in code/pseudo-code for the approach suggested by @ajaym justGautam The implementation of the approach suggested by ajaym can be found on this portal itself. U need to dig out a little bit. I can describe here. First check for the power of two using construct n&(n-1). Once it’s verified whether n is power of 2 then only check for n-1 being divisible by 3. Notice that in our case, n-1 will have all the ones. So you can do one of the followings: 1. Either check for number of ones in n-1 (this would be equivalent to Method 3 given in this post). It should be even number. 2. Or look post “Write an Efficient Method to Check if a Number is Multiple of 3″. Thanks. TCP IP Thanks Shekhu for suggesting induction. I guess there’re some typos. 1. You said “Let 4^k be multiple of 3″. I guess what u meant is “Let 4^k – 1 be multiple of 3″ 2. In that case, u need to prove “4^(k+1) – 1″ is multiple of 3. This is equivalent to 4.4^k – 1 = (3+1).4^k – 1 = 3.4^k + (4^k – 1). And this is multiple of 3. -thanks Shekhu Right right, thanks for corrections. Bhanu Pratap Singh  
+#include<iostream>
+using namespace std;
+int main()
+{
+    int input;
+    scanf("%d", &input);
+    printf("%d", !(input & 0x00000003));
+    return 0;
+}  
+ I think this will solve much efficiently but the machine architecture would have to be known. kartik @Bhanu Pratap Singh Could you elaborate the approach used in the given code, please? GeeksforGeeks @Bhanu Pratap Singh: The code given by you checks for multiple of 4, not power of 4. Sandeep @kshitij: The program doesn’t work for all numbers. For example, it doesn’t work for 5, 6, 7, 65, 66… etc. See below code.  
+#include<stdio.h>
+#define bool int
+#define true 1
+#define false 0
+
+bool isPowerOfFour(unsigned int n)
+{
+   /* as right shifting fills zero at the left,the
+     number will become zero at last.*/     
+   while(n!=0)
+   {
+
+    /*right shift number by 2 positions*/               
+    n >>= 2;
+    
+    /*If it is a power of 4, just before shifting the only 
+     bit out,the number will have the value as one. it means 
+     the number is a power of 4. Return true.*/   
+    if(n==1)
+      return true;
+   }
+   
+   /*The number became zero, means it was not a power 
+    of four.*/
+   return false;
+}
+
+/*Driver program to test above function*/
+int main()
+{
+   int test_no = 65;
+   if(isPowerOfFour(test_no))
+     printf("%d is a power of 4", test_no);
+   else
+     printf("%d is not a power of 4", test_no);
+   getchar();
+}
+ http://www.campus2corp.com kshitij The third approach is the best one, and there is even a better solution to this approach. Consider this:  
+bool func(int n){
+while(n!=0){ 
+/* as right shifting fills zero at the left,the nuber will become zero at last.*/
+n >>= 2;
+/*right shift number by 2 positions*/
+if(n==1)
+    /*If it is a power of 4, just before shifting the only bit out, the number will have the value as one. it means the number is a power of 4. Return true.*/
+    return true;
+}
+/*The number became zero, means it was not a power of four.*/
+return false;
+}
+ sure @kshitij : I think it does not work for input 30. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

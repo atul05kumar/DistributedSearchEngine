@@ -1,0 +1,253 @@
+Count the number of occurrences in a sorted array - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Count the number of occurrences in a sorted array Given a sorted array arr[] and a number x, write a function that counts the occurrences of x in arr[]. Expected time complexity is O(Logn) Examples:   Input: arr[] = {1, 1, 2, 2, 2, 2, 3,},   x = 2
+  Output: 4 // x (or 2) occurs 4 times in arr[]
+
+  Input: arr[] = {1, 1, 2, 2, 2, 2, 3,},   x = 3
+  Output: 1 
+
+  Input: arr[] = {1, 1, 2, 2, 2, 2, 3,},   x = 1
+  Output: 2 
+
+  Input: arr[] = {1, 1, 2, 2, 2, 2, 3,},   x = 4
+  Output: -1 // 4 doesn't occur in arr[] Method 1 (Linear Search) Linearly search for x, count the occurrences of x and return the count. Time Complexity: O(n) Method 2 (Use Binary Search) 1) Use Binary search to get index of the first occurrence of x in arr[]. Let the index of the first occurrence be i. 2) Use Binary search to get index of the last occurrence of x in arr[]. Let the index of the last occurrence be j. 3) Return (j – i + 1); 
+/* if x is present in arr[] then returns the count of occurrences of x, 
+   otherwise returns -1. */
+int count(int arr[], int x, int n)
+{
+  int i; // index of first occurrence of x in arr[0..n-1]
+  int j; // index of last occurrence of x in arr[0..n-1]
+    
+  /* get the index of first occurrence of x */
+  i = first(arr, 0, n-1, x, n);
+
+  /* If x doesn't exist in arr[] then return -1 */
+  if(i == -1)
+    return i;
+   
+  /* Else get the index of last occurrence of x. Note that we 
+      are only looking in the subarray after first occurrence */   
+  j = last(arr, i, n-1, x, n);     
+   
+  /* return count */
+  return j-i+1;
+}
+
+/* if x is present in arr[] then returns the index of FIRST occurrence 
+   of x in arr[0..n-1], otherwise returns -1 */
+int first(int arr[], int low, int high, int x, int n)
+{
+  if(high >= low)
+  {
+    int mid = (low + high)/2;  /*low + (high - low)/2;*/
+    if( ( mid == 0 || x > arr[mid-1]) && arr[mid] == x)
+      return mid;
+    else if(x > arr[mid])
+      return first(arr, (mid + 1), high, x, n);
+    else
+      return first(arr, low, (mid -1), x, n);
+  }
+  return -1;
+}
+
+
+/* if x is present in arr[] then returns the index of LAST occurrence 
+   of x in arr[0..n-1], otherwise returns -1 */ 
+int last(int arr[], int low, int high, int x, int n)
+{
+  if(high >= low)
+  {
+    int mid = (low + high)/2;  /*low + (high - low)/2;*/
+    if( ( mid == n-1 || x < arr[mid+1]) && arr[mid] == x )
+      return mid;
+    else if(x < arr[mid])
+      return last(arr, low, (mid -1), x, n);
+    else
+      return last(arr, (mid + 1), high, x, n);      
+  }
+  return -1;
+}
+
+/* driver program to test above functions */
+int main()
+{
+  int arr[] = {1, 2, 2, 3, 3, 3, 3};
+  int x =  3;  // Element to be counted in arr[]
+  int n = sizeof(arr)/sizeof(arr[0]);
+  int c = count(arr, x, n);
+  printf(" %d occurs %d times ", x, c);
+  getchar();
+  return 0;
+}
+ Time Complexity: O(Logn) Programming Paradigm: Divide & Conquer Please write comments if you find the above codes/algorithms incorrect, or find other ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: Divide and Conquer Tweet Writing code in comment? Please use ideone.com and share the link here. Bhuvan Find_Key(int arr[], int size, int key){ int begin = 0; int end = size – 1; int mid = end / 2; int res = INT_MIN; while (begin != mid) { if (arr[mid] < key) begin = mid; else { end = mid; if(arr[mid] == key) res = mid; } mid = (end + begin )/2; } return res; } Assuming the array of ints is in ascending sorted order; Returns the index of the first index of key occurrence or INT_MIN. Runs in O(lg n). Sat mid = (low + high)/2 will cause overflow if low and high are high. Java binary search had that issue. It should be written this way -> mid = low + (high – low)/2; But this change alone isn’t sufficient. Once you calculated mid this way, the loop invariant low <= high should be changed to low < high. Once's that changed, you will have to make other changes when low < high. Overall this post has many hidden issues. prastut #include int count(int a[],int start,int end,int num) { int mid=(start+end)/2,lcount=0,rcount=0; while(start<=end) { lcount=count(a,start,mid-1,num); rcount=count(a,mid+1,end,num); if(a[mid]==num) { if(lcount==-1) lcount=0; if(rcount==-1) rcount=0; return 1+lcount+rcount; } else { if(lcount==-1 && rcount== -1) return -1; else { if(lcount==-1) lcount=0; if(rcount==-1) rcount=0; return lcount+rcount; } } } return -1; } int count_occurence(int a[],int len,int num) { return count(a,0,len-1,num); } int main() { int arr[] = {1, 1, 1, 2, 2, 2, 2, 3}; int len=7,num=2; printf("Count of %d is %d",num,count_occurence(arr,len,num)); return 0; } din code in java validate me… int count(){ int c = 0; int[] a = {1, 1, 2, 2, 2, 2, 3}; int l = 0; int key = 1; int r = a.length-1; while(l<=r){ int mid = (l+r)/2; if(a[mid]==key){ c++; int n=1; int k =-1; while(mid+n=0 &&a[mid+k]==key){ k--; c++; } return c; } else if(key>a[mid]){ l=mid+1; } else{ r = mid-1; } } return -1; } vinay #include #include void main() { int arr[]={1,1,2,2,2,2,3}; int num,i,count=0; clrscr(); printf(“no please”); scanf(“%d”,&num) ; for(i=0;i<7;i++) { if(arr[i]!=num) { } else if(arr[i]==num) { count++; } } printf("no of times %d",count); getch(); } Abhishek In above solution, there is some duplicacy in the logic. We can modify the binary search as given below to give the number of count of the specific element in one go. Working code is as follows : //this function returns the number of occurrences of element x in array a. //the main function call will be – binary(0,a.length-1,a,x); public static int binary(int low, int high, int[] a, int x) { int mid = -1; if ( high = x) count +=binary(low,mid-1,a,x); //this signifies that we can have element x on the right side if ( a[mid] <= x) count+=binary(mid+1,high,a,x); return count; } Ankit Malhotra Recursion leads to stack calls. Here is code across 2 functions with each function complexity logn thus combined of 2logn. Also returns reference position of first occurrence or position to be inserted at if not found.  
+#include <iostream>
+#define MAXCOUNT 99999
+using namespace::std;
+typedef unsigned counter;
+typedef long element;
+
+// first insert position in sorted order
+// returns false with left = count for item > last
+// Check boundaries before use
+bool firstsortloc (element terms[], counter n, element item, counter & left)
+{
+  counter right = n, mid;
+  left = 0;
+  while (left != right && terms[left] != item) {
+    mid = left + (right - left)/2;
+    if (terms[mid] < item)
+      left = mid + 1;
+    else right = mid;
+  }
+  return (left == n ? false : terms[left] == item);
+}
+
+// Count occurrence of item in sorted terms
+// position = count for item > last
+counter sortcount(element terms[], counter n, element item, counter & startindex)
+{
+  counter left, right = n - 1, mid;
+  if (!firstsortloc(terms, n, item, startindex)) return 0;
+  left = startindex;
+  while (left != right && terms[right] != item) {
+    --right; // We know it's not item
+    mid = left + (right - left)/2;
+    if (terms[mid] > item)
+      right = mid - 1;
+    else left = mid;
+  }
+  return (right + 1 - startindex);
+}
+int main ()
+{
+  counter n, i, count, startindex;
+  element terms[MAXCOUNT] = {0}, item;
+  cout << "Enter count of terms followed by sorted terms." << endl;
+  for (cin >> n, i =0; i < n; ++i) cin >> terms[i];
+  cout << "Enter element to find count : ";
+  cin >> item;
+  if (count = sortcount(terms, n, item, startindex))
+    cout << item << " found " << count << " times from index " 
+    << startindex << endl;
+  else
+    cout << item << " not found."<< endl;
+  return 0;
+}
+
+ Ankit Malhotra Optimize firstsortloc by adding a left increment as the first statement to the while loop as follows  
+  while (left != right && terms[left] != item) {
+    ++left; // We know it's not item
+ Ankit Malhotra Ignore this optimization as it is a bug. The original code is correct.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ankit Malhotra Ignore the update for ++left. Original code is correct. rahul sundar The fourth argument n is never used in function first and last. We can get rid of that!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ bunty Optimization: Method2: ————————— Function last() can be optimized by removing the recursive call with parameters (a, mid+1, hi, x). -As the original call of last() was with low=i, which is the first occurrence of X, so – In last(), if X does not lie between i and new mid, then it is 100% sure that X won’t lie in another range from mid+1 to high (which is higher than first range) So just recursively call last(a, lo, mid-1, x) will either find the last occurrence of X or return -1.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ bunty In other words, – As we have found the first index of X, which is i, – then the last index will be grater than or equal to i without any gap/hole. So keep searching in the left part will solve the purpose. – If in some case, where left part doesn’t have X, then we have already encountered X’s last index in earlier call. Anuj Bansal Here is a code that also works in O(lgN).  
+#include<stdio.h>
+#include<math.h>
+#define MAX 12
+
+int number(int a[MAX], int low, int high, int x) {
+        if(low <= high) {
+                int mid,i,j;
+                mid = (low+high)/2;
+                if(a[mid] == x) { 
+                        i = number(a,low,mid-1,x);
+                        j = number(a,mid+1,high,x);
+                        if(i != -1 && j != -1) 
+                                return i+j+1;
+                        else if(i == -1 && j != -1)
+                                return j+1;
+                        else if(j== -1 && i != -1)
+                                return i+1;
+                        else  
+                                return 1;
+                }       
+                else if(a[mid] > x) 
+                        return number(a,low,mid-1,x);
+                else 
+                        return number(a,mid+1,high,x);
+        }
+        else
+                return -1;
+}
+
+
+int main() {
+        int a[MAX]={1,1,3,3,3,3,7,7,7,11,11,12};
+        printf("%d\n",number(a,0,MAX-1,7));
+        return 0;
+}
+ Ankur If mid==0 or mid==n-1 then the function returns mid Now if the element is not present then the result will be wrong Here i think we should put a check before return mid statement that if(mid==0){ if(x!=a[mid]) return -1 } similarly for Last func LoneShadow The function first doesnt seem to work for the following input. For example, array is 0,1,1,2,3, and I am looking for the first occurrence of 1. Start with low=0, high= 4, x=1. 1. Mid = 2, and since arr[mid-1] is not less than x(arr[mid-1] is arr[1], which is 1), it will end up calling the function again with parameters 0, 1 2. With 0,1 as low and high mid will be (0+1)/2, which is 0. The first conditional wil fail,( mid == 0, but the && part is not true, a[mid] is a[0], which is NOT equal to 1). So the function will be called again with low, mid-1, which is 0,0. 3. This will eventually return -1, which is wrong. Also, not really sure why n is being passed into first/last. Not being used as far as I can see. LoneShadow One fix I can think off the top of my head is to call the function again with low, mid instead of low, mid-1, since you want to include the value of mid itself (its equal, not less or more to be excluded). LoneShadow Sorry, my bad. Worked it out. skulldude Well, can someone tell me why in the second method is the condition (m==0) included while checking if the middle element is the required element?   if( ( mid == 0 || x > arr[mid-1]) && arr[mid] == x) hari6988 if mid was 0 , arr[mid-1] will reference arr[-1] and it will cause the error .same case with mid==n-1||x<arr[mid+1] Jatin Sanghvi shouldn’t work. take arr = [1,3] and search for 2. GeeksforGeeks @Jatin Sanghvi: The given code works fine for your example. It returns -1 when the given number is not present. foobar  
+        public static void CountNumberOfOccurences()
+        {
+
+            /*
+             * Count the number of occurrences in a sorted array
+             * Given a sorted array arr[] and a number x, write a function that counts the occurrences of x in arr[]. Expected time complexity is O(Logn) 
+             * */
+            int[] arr = {1, 1, 2, 2, 2, 2, 3,};
+            int n = 2;
+
+            int res = Array.BinarySearch(arr, 2);
+
+            int found = res;
+
+            int count = 0;
+
+            if(res > 0)
+            {
+                count++;
+            }
+
+            
+            while(arr[--res] == 2)
+            {
+                count++;
+            }
+
+            res = found;
+
+            while(arr[++res] ==2)
+            {
+                count++;
+            }
+
+            Console.WriteLine(res);
+
+        }
+ saji while invoking the method last , will using the args last(arr, i, n-1, x, n) instead of last(arr, 0, n-1, x, n) cause any issues? GeeksforGeeks @saji: Thanks for suggesting the optimization. It doesn’t cause any problem. We have updated the code with the suggested changes. nandini Isn’t the complexity of the algorithm in Method2 O(n) in the worst case? eg: {2,2,2,2,2} program will start from mid-index and then will shift one-by-one towards left to find ‘first’ and then one-by-one right to find ‘last’ in each loop. Sandeep @nandini: Please take a closer look at the program, it recursively divide the array into two halves. Time complexity is: T(n) = T(n/2) + C which is O(Logn) thechamp you have chosen an example where number of elements are so less that it appears a sequential search but it is a binary search only http://ashutosh7s.blogspot.com/ WgpShashank Hi Sandeep It Can be done more simply using Modified Binary Search Algorithm calculate mid=low+high/2; if(a[mid]>num) search in right side & set low=mid+1 & return ; else if(a[mid] search in left side of mid set high=mid-1 & return ; else //its important instead of just of printing the num or incrementing the counter //i tried if you will do like this then it will be O(n) not O(logn) , si i will add 1 to recursively call for left side + recursively call for right side so every time this line executes we are incrementing the counter & return 1+left_binsearch()+right_binsearch thus it will be in O(logn) Here is the Code  
+#include<stdio.h>
+int Count(int a[], int value, int low, int high)
+{
+    int mid;
+    if (high < low)
+        return 0;
+    mid = low + (high - low)/2;
+    if (a[mid] > value)
+        return Count(a, value, low, mid - 1);
+    else if (a[mid] < value)
+        return Count(a, value, mid + 1, high);
+    else
+        return 1 + Count(a, value, low, mid - 1) +
+          Count(a, value, mid + 1, high);
+}
+
+int main()
+{
+    int a[] = {1, 2, 2, 3, 3, 3, 3};
+    int value = 3;
+    printf("%d\n", Count(a, value, 0, sizeof(a)/sizeof(int)-1));
+    return 0;
+}
+ its running for may test cases Correct me if Anything Wrong Run Here https://ideone.com/g7koI run Here Sandeep @WgpShashank: Thanks for suggesting a new method. The approach looks fine, but the time complexity in worst case is O(n). Consider the case when all elements are same.  
+    int a[] = {3, 3, 3, 3, 3, 3, 3};
+    int value = 3;  In this case, the time complexity can be written as T(n) = 2*T(n/2) + C which is O(n) http://shashank7s.blogspot.com/ WgpShashank @sandeep Thanks For Pointing out ..yes it will O(n) in this scenario Yogesh i think that is the only case which is making its time complexity O(n)… that can be covered by adding line  
+if (a[high] == value && a[low] == value) return (high-low)+1
+ at the beginning of the count function Correct me if i am wrong somewhere. saurabh i think Time compl. will be O(logn)  
+            T(n)
+          /      \
+     T(n/2)       T(n/2)
+    /    \        /      \
+  T(n/4) T(n/4)  T(n/4)  T(n/4)
+ ...............................
+ Worst case will be longest height of above recursion tree…. let k will be max height…..and also we see terms at each level forms a G.P(1,1/2,1/4,…) and through calculas stuff we know this will be a convergence series….and sum of node at each level is n(n/2+n/2)….n(1/2)^k< =1 k>=log2(n)..nearly….hence time compl will b O(logn) Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

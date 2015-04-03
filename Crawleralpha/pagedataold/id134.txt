@@ -1,0 +1,377 @@
+QuickSort on Singly Linked List - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph QuickSort on Singly Linked List QuickSort on Doubly Linked List is discussed here. QuickSort on Singly linked list was given as an exercise. Following is C++ implementation for same. The important things about implementation are, it changes pointers rather swapping data and time complexity is same as the implementation for Doubly Linked List. In partition(), we consider last element as pivot. We traverse through the current list and if a node has value greater than pivot, we move it after tail. If the node has smaller value, we keep it at its current position. In QuickSortRecur(), we first call partition() which places pivot at correct position and returns pivot. After pivot is placed at correct position, we find tail node of left side (list before pivot) and recur for left list. Finally, we recur for right list. 
+// C++ program for Quick Sort on Singly Linled List
+#include <iostream>
+#include <cstdio>
+using namespace std;
+
+/* a node of the singly linked list */
+struct node
+{
+    int data;
+    struct node *next;
+};
+
+/* A utility function to insert a node at the beginning of linked list */
+void push(struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node = new node;
+
+    /* put in the data  */
+    new_node->data  = new_data;
+
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);
+
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+/* A utility function to print linked list */
+void printList(struct node *node)
+{
+    while (node != NULL)
+    {
+        printf("%d  ", node->data);
+        node = node->next;
+    }
+    printf("\n");
+}
+
+// Returns the last node of the list
+struct node *getTail(struct node *cur)
+{
+    while (cur != NULL && cur->next != NULL)
+        cur = cur->next;
+    return cur;
+}
+
+// Partitions the list taking the last element as the pivot
+struct node *partition(struct node *head, struct node *end,
+                       struct node **newHead, struct node **newEnd)
+{
+    struct node *pivot = end;
+    struct node *prev = NULL, *cur = head, *tail = pivot;
+
+    // During partition, both the head and end of the list might change
+    // which is updated in the newHead and newEnd variables
+    while (cur != pivot)
+    {
+        if (cur->data < pivot->data)
+        {
+            // First node that has a value less than the pivot - becomes
+            // the new head
+            if ((*newHead) == NULL)
+                (*newHead) = cur;
+
+            prev = cur;  
+            cur = cur->next;
+        }
+        else // If cur node is greater than pivot
+        {
+            // Move cur node to next of tail, and change tail
+            if (prev)
+                prev->next = cur->next;
+            struct node *tmp = cur->next;
+            cur->next = NULL;
+            tail->next = cur;
+            tail = cur;
+            cur = tmp;
+        }
+    }
+
+    // If the pivot data is the smallest element in the current list,
+    // pivot becomes the head
+    if ((*newHead) == NULL)
+        (*newHead) = pivot;
+
+    // Update newEnd to the current last node
+    (*newEnd) = tail;
+
+    // Return the pivot node
+    return pivot;
+}
+
+
+//here the sorting happens exclusive of the end node
+struct node *quickSortRecur(struct node *head, struct node *end)
+{
+    // base condition
+    if (!head || head == end)
+        return head;
+
+    node *newHead = NULL, *newEnd = NULL;
+
+    // Partition the list, newHead and newEnd will be updated
+    // by the partition function
+    struct node *pivot = partition(head, end, &newHead, &newEnd);
+
+    // If pivot is the smallest element - no need to recur for
+    // the left part.
+    if (newHead != pivot)
+    {
+        // Set the node before the pivot node as NULL
+        struct node *tmp = newHead;
+        while (tmp->next != pivot)
+            tmp = tmp->next;
+        tmp->next = NULL;
+
+        // Recur for the list before pivot
+        newHead = quickSortRecur(newHead, tmp);
+
+        // Change next of last node of the left half to pivot
+        tmp = getTail(newHead);
+        tmp->next =  pivot;
+    }
+
+    // Recur for the list after the pivot element
+    pivot->next = quickSortRecur(pivot->next, newEnd);
+
+    return newHead;
+}
+
+// The main function for quick sort. This is a wrapper over recursive
+// function quickSortRecur()
+void quickSort(struct node **headRef)
+{
+    (*headRef) = quickSortRecur(*headRef, getTail(*headRef));
+    return;
+}
+
+// Driver program to test above functions
+int main()
+{
+    struct node *a = NULL;
+    push(&a, 5);
+    push(&a, 20);
+    push(&a, 4);
+    push(&a, 3);
+    push(&a, 30);
+
+    cout << "Linked List before sorting \n";
+    printList(a);
+
+    quickSort(&a);
+
+    cout << "Linked List after sorting \n";
+    printList(a);
+
+    return 0;
+} Output: Linked List before sorting
+30  3  4  20  5
+Linked List after sorting
+3  4  5  20  30 This article is contributed by Balasubramanian.N . Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List QuickSort on Doubly Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. rupali their is an error: in quickSortRecur function, before calling it recursively for right part,we need to check if (pivot->next !=NULL) or if(pivot->next !=newEnd) so it will be if(pivot!=newEnd) pivot->next = quickSortRecur(pivot->next, newEnd); otherwise it may give segmentation error,if such a condition is encountered. Zheng Luo Very Good source code, thanks for sharing. Indra Kumar Gurjar You can see a very sort programme for it… http://ideone.com/T72pBP Indra Kumar Gurjar #include #define null (node*)(-1) typedef struct node node; struct node { node *next; int value; }; node* new_node(int value,node* next) { node* newn; newn=(node*)malloc(sizeof(node)); newn->value=value; newn->next=next; return newn; } // function for quick_sort of linked list// void sort(node** start,node* end) { if(*start==end) return; //chosen first item as pivot// node *pivot=(*start); node *temp=(*start),*temp1; while(temp->next!=end) { if(temp->next->value value) { temp1=(*start); *start=temp->next; temp->next=temp->next->next; (*start)->next=temp1; } else temp=temp->next; } sort(start,pivot); sort(&(pivot->next),end); } // mainfunction for test// int main() { node *head; node *a[11]; a[5]=new_node(2,null); a[4]=new_node(3,a[5]); a[3]=new_node(1,a[4]); a[2]=new_node(5,a[3]); a[1]=new_node(4,a[2]); head=a[1]; sort(&head,null); while(head!=null) { printf(“%d “,head->value); head=head->next; } } Prasanna why not exchange the data instead of changing the pointers? it would be more easy confused Hi, I am kind of confused with the base case, shouldn’t it just be if ( head == end) return head; Thanks. Gopi The other condition checks for NULL which looks correct. Confused You mean when the list is empty? confused Hi, I am kind of confused with the base case, shouldn’t it just be if ( head == end) return head; Thanks. atiqwhiz  
+/* Paste your code here (You may delete these lines if not writing code) */
+//Quicksort using singly linked list.
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+typedef struct LinkList 
+{
+    int data;
+    struct LinkList *next;
+}List;
+void Insert(List **Head,int value)
+{
+    List *ptr=*Head;
+    List *newnode;
+    newnode=(List*)malloc(sizeof(List));
+    newnode->data=value;
+    newnode->next=NULL;
+    if(ptr==NULL)
+    *Head=newnode;
+    else
+    {
+        while(ptr->next!=NULL)
+        ptr=ptr->next;
+        ptr->next=newnode;
+    }
+    
+}
+void Quicksort(List *Head,List *end)
+{  if(Head==end)return;
+    int count=0,count1=0,count2=0,temp=0;
+    List *front=Head,*back=end,pf,bf,*ptr=Head,*pivot=Head;
+    while(ptr!=end)
+    {
+        count++;
+        ptr=ptr->next;    
+    }
+
+    while(count>=0&&front->next!=back)
+    {
+        while(front->next&&front->next->data<pivot->data)
+          front=front->next;
+        while(count>0&&front->next!=back)
+        {
+            back=Head;
+            count1=--count;
+            while(count1)
+            {
+                back=back->next;
+                count1--;
+            }
+            if(back->data<pivot->data)
+            {
+               temp=front->next->data;
+               front->next->data=back->data;
+               back->data=temp;
+               front=front->next;
+               count;
+               break;
+            }
+        }
+   
+   }
+    temp=front->data;
+    front->data=pivot->data;
+    pivot->data=temp;
+    Display(Head);
+    Quicksort(Head,front);
+   Quicksort(front->next,end);
+}
+void Display(List *Head)
+{
+    if(!Head)return ;
+    printf("%d  ",Head->data);
+    Display(Head->next);
+}
+int main(void)
+{
+List *Head=NULL;
+int i,value;
+for(i=0;i<10;i++) 
+{
+    scanf("%d",&value);
+    Insert(&Head,value);
+}
+    Display(Head);printf("\n");
+    Quicksort(Head,NULL);
+    printf("\n");
+   Display(Head);
+return 0;    
+}
+
+ LinuxWorld ///the quick sort #include #include #include struct Node { int data ; struct Node * next ; }; typedef struct Node Node ; void partition(Node **head1 , Node ** tail1 , Node ** head2 , Node **tail2 , Node **key1) { Node *head = *head1 ; Node *tail = *tail2 ; // tail like null Node *newhead = head ; if(head == tail) /// i thiink there should be some adjustment // i will see it after completion return ; else if(head->next == tail) return ; Node *pre , *key ; key = head ; pre = head ; head = head->next ; while(head != tail) { if(key->data >= head->data) { pre->next = head->next ; head->next = newhead ; newhead = head; head = pre->next ; } else { pre = head ; head = head->next ; } } *head1 = newhead ; *tail1 = key ; *head2 = key->next ; *tail2 = head ; *key1 = key ; } void Quick_sort(Node **head1 , Node **tail2) { Node *key = NULL; Node *tail1 = NULL , *head2 = NULL; if(*head1 == *tail2) return ; else if((*head1)->next == *tail2 ) return ; partition( head1 , &tail1 , &head2 , tail2 , &key) ; Quick_sort(head1 , &tail1) ; Quick_sort(&head2 , tail2) ; key->next = head2 ; } Node *insert(Node *head , int val) { Node *temp = malloc(sizeof(Node)) ; temp->data = val ; temp->next = NULL ; if(!head) return temp ; temp->next = head ; return temp ; } bool validate(Node *head) { int count = 1 ; while(head->next) { if(head->data > head->next->data) return false ; head = head->next ; count++ ; } printf(“\n\n %d “,count) ; return true ; } void DeleteIter(Node *head) { Node *temp ; while(head) { temp = head->next ; free(head) ; head = temp; } } void display(Node *head) { while(head) { printf(” %d “,head->data) ; head = head->next ; } } int main() { int data[1000] = {388, 837, 726, 74, 963, 398, 406, 733, 264, 775, 657, 434, 944, 157, 13, 351, 551, 764, 139, 827, 365, 109, 114, 10, 55, 699, 562, 818, 248, 455, 584, 22, 274, 546, 633, 287, 395, 790, 916, 63, 657, 771, 353, 359, 427, 352, 88, 779, 334, 923, 523, 999, 564, 277, 825, 898, 647, 506, 71, 338, 767, 485, 271, 936, 573, 766, 937, 988, 782, 966, 169, 951, 238, 614, 627, 56, 438, 667, 633, 622, 871, 168, 275, 691, 963, 733, 36, 933, 422, 442, 124, 181, 232, 984, 656, 462, 359, 299, 504, 380, 798, 43, 852, 172, 60, 934, 271, 910, 282, 550, 369, 320, 94, 82, 82, 654, 752, 384, 781, 260, 892, 527, 349, 467, 278, 171, 227, 437, 81, 476, 70, 680, 507, 571, 525, 798, 707, 231, 276, 54, 861, 423, 719, 531, 366, 119, 492, 781, 82, 107, 901, 561, 13, 233, 28, 848, 354, 627, 152, 789, 120, 708, 135, 480, 482, 343, 589, 508, 953, 584, 126, 643, 258, 108, 906, 54, 356, 688, 69, 378, 55, 198, 77, 98, 929, 54, 900, 603, 501, 479, 402, 730, 162, 659, 938, 146, 93, 614, 416, 651, 616, 708, 313, 419, 555, 813, 687, 79, 574, 66, 314, 492, 203, 454, 915, 770, 112, 752, 321, 50, 870, 137, 543, 859, 449, 553, 220, 24, 17, 225, 620, 268, 472, 209, 617, 886, 10, 910, 912, 642, 62, 306, 481, 310, 53, 242, 301, 627, 50, 847, 446, 591, 872, 771, 336, 363, 95, 422, 255, 692, 687, 76, 847, 713, 363, 742, 858, 314, 962, 547, 368, 48, 229, 457, 91, 256, 246, 668, 630, 448, 624, 410, 941, 191, 324, 819, 580, 218, 249, 759, 366, 226, 10, 101, 401, 137, 850, 720, 988, 534, 409, 178, 584, 722, 117, 968, 620, 847, 595, 441, 530, 628, 134, 290, 209, 430, 782, 255, 522, 362, 89, 975, 377, 173, 725, 496, 537, 734, 734, 911, 739, 964, 879, 939, 904, 381, 895, 422, 103, 208, 82, 665, 93, 708, 254, 647, 303, 475, 580, 238, 696, 402, 842, 790, 941, 681, 123, 290, 726, 983, 1000, 862, 32, 351, 107, 220, 389, 524, 928, 828, 598, 557, 544, 813, 760, 415, 95, 808, 955, 36, 754, 455, 567, 495, 989, 466, 497, 944, 987, 123, 591, 53, 345, 538, 264, 458, 180, 638, 472, 368, 611, 708, 981, 915, 454, 484, 459, 612, 771, 325, 488, 433, 547, 372, 548, 163, 379, 257, 557, 245, 831, 982, 891, 134, 981, 214, 848, 107, 750, 69, 541, 154, 830, 785, 449, 262, 230, 952, 633, 663, 864, 126, 60, 439, 105, 938, 278, 563, 911, 764, 861, 825, 669, 830, 577, 612, 600, 286, 877, 328, 594, 822, 684, 190, 654, 385, 431, 912, 561, 53, 775, 34, 507, 56, 433, 393, 313, 289, 98, 205, 436, 821, 200, 765, 32, 262, 707, 281, 641, 608, 388, 590, 22, 223, 111, 189, 599, 739, 679, 355, 585, 215, 325, 927, 626, 799, 695, 253, 50, 15, 639, 678, 926, 509, 388, 513, 251, 908, 676, 623, 884, 296, 981, 204, 148, 814, 566, 81, 930, 915, 30, 47, 773, 248, 143, 830, 756, 997, 291, 384, 196, 402, 82, 52, 470, 849, 581, 571, 675, 649, 867, 834, 959, 901, 733, 661, 531, 67, 472, 347, 582, 1000, 305, 611, 427, 903, 751, 552, 504, 291, 93, 698, 859, 294, 936, 707, 68, 395, 418, 369, 426, 317, 169, 865, 693, 971, 641, 17, 76, 789, 127, 736, 301, 208, 387, 264, 795, 229, 186, 967, 528, 17, 562, 968, 182, 53, 106, 965, 613, 865, 879, 526, 582, 633, 248, 372, 884, 228, 28, 322, 246, 99, 915, 465, 35, 801, 921, 201, 365, 329, 436, 849, 241, 876, 593, 294, 507, 410, 918, 201, 358, 943, 899, 219, 127, 738, 328, 581, 387, 639, 515, 742, 727, 324, 231, 687, 439, 167, 343, 297, 7, 237, 7, 185, 4, 884, 161, 297, 590, 924, 392, 317, 536, 3, 898, 395, 980, 400, 185, 765, 166, 971, 648, 293, 57, 665, 505, 669, 448, 672, 705, 539, 183, 858, 450, 778, 104, 198, 666, 443, 289, 670, 976, 975, 196, 395, 854, 322, 664, 77, 531, 689, 635, 997, 155, 663, 407, 679, 314, 60, 441, 510, 264, 826, 322, 402, 82, 555, 650, 539, 202, 665, 793, 678, 464, 337, 45, 849, 397, 499, 290, 429, 279, 537, 568, 46, 957, 665, 729, 14, 664, 532, 272, 946, 707, 446, 986, 218, 108, 1, 687, 632, 50, 764, 164, 682, 611, 799, 373, 437, 794, 797, 807, 749, 895, 810, 300, 860, 679, 74, 922, 853, 554, 621, 30, 357, 461, 898, 896, 286, 259, 904, 752, 393, 572, 536, 311, 266, 402, 813, 471, 44, 774, 560, 300, 444, 950, 623, 368, 61, 425, 957, 939, 969, 291, 764, 272, 468, 616, 693, 455, 953, 498, 25, 227, 827, 167, 359, 353, 94, 537, 937, 709, 879, 920, 136, 338, 473, 157, 739, 805, 130, 842, 856, 536, 731, 131, 518, 590, 125, 293, 617, 824, 814, 192, 650, 332, 311, 177, 908, 547, 592, 196, 701, 856, 694, 209, 627, 795, 5, 318, 652, 379, 330, 683, 228, 28, 122, 209, 406, 879, 965, 750, 33, 284, 61, 450, 309, 622, 630, 422, 661, 261, 597, 849, 625, 312, 216, 201, 264, 221, 692, 651, 485, 181, 900, 684, 192, 537, 823, 411, 24, 372, 780, 578, 746, 413, 923, 759, 397, 353, 903, 637, 79, 680, 441, 858, 643, 646, 223, 579, 254, 985, 909, 835, 435, 420, 685, 877, 899, 529, 126, 860, 948, 465, 189, 14, 848, 208, 328, 302, 60, 741, 392, 951, 304, 653, 213, 503, 725, 836, 421, 164, 209, 561, 292, 663, 174, 353, 979, 753, 49, 296, 458, 215, 938, 598, 249, 636, 118, 895, 419, 828, 427, 77, 6, 411, 490, 248, 160, 865, 249, 46, 225, 239, 882, 277, 82, 51, 7} ; Node *head = NULL , *tail =NULL; int i ; for(i = 0 ; i < 1000 ; i++) head = insert(head , data[i]) ; // display(head) ; Quick_sort(&head , &tail) ; printf("\n\n\n\n") ; display(head) ; putchar('\n') ; printf(" validate :%d\n",validate(head)) ; DeleteIter(head) ; return 0 ; } Anukul My version of quicksort with LinkList as Data Structure  
+/* Paste your code here (You may delete these lines if not writing code) */
+#include<stdio.h>
+#include<conio.h>
+
+struct node
+{
+int data;
+struct node* next;
+};
+
+void add_ll(struct node **,int);  //adds nodez to LinkList
+void quick_ll(struct node*,struct node*);
+struct node *part(struct node*,struct node*);
+struct node* search(struct node*,struct node *);  //for searching mid-1
+void print(struct node*);//prints LinkList
+
+void main()         //Implementing Quick sort using LinkList
+{
+struct node*p=NULL,*q,*temp;
+clrscr();
+add_ll(&p,-10);
+add_ll(&p,0);
+add_ll(&p,3000);
+add_ll(&p,-56);
+add_ll(&p,0);
+
+printf("Original LinkList is \n->");
+print(p);
+	//while(q->next!=NULL)
+q=search(p,NULL);
+quick_ll(p,q);
+printf("\nLinkList after sorting is \n->");
+print(p);
+getch();
+}
+
+void quick_ll(struct node*p,struct node*q)
+{
+struct node *mid,*mid1;
+
+	if(p==q)
+	return;
+	else
+	{
+	mid=part(p,q);
+	mid1=search(p,mid); //getting mid-1
+		if(p!=mid1)    //if lhs boundary reached
+		  quick_ll(p,mid1);
+		if(mid1->next!=q)//blocking from rhs boundary
+		  quick_ll(mid->next,q);
+	}
+
+}
+
+struct node *part(struct node*p,struct node*q)
+{
+struct node *pivot=p,*i,*j;
+int temp;
+i=p;
+j=i->next;
+
+	while(j!=q->next)
+	{
+		if(j->data<=pivot->data)
+		{
+		i=i->next;
+		temp=i->data;
+		i->data=j->data;
+		j->data=temp;
+		}
+	j=j->next;
+	}
+temp=pivot->data;
+pivot->data=i->data;
+i->data=temp;
+return i;
+}
+
+struct node* search(struct node*p,struct node *mid)
+{
+	if(p==mid)
+	return p;
+	while(p->next!=mid)
+	p=p->next;
+return p;
+}
+
+void add_ll(struct node**p,int data)
+{
+struct node *q,*temp;
+q=*p;
+
+	if(q==NULL)
+	{
+	q=(struct node*)malloc(sizeof(struct node));
+	q->data=data;
+	q->next=NULL;
+	*p=q;
+	return;
+	}
+
+	while(q->next!=NULL)
+	    q=q->next;
+
+	temp=(struct node *)malloc(sizeof(struct node));
+	temp->data=data;
+	temp->next=NULL;
+	q->next=temp;
+
+}
+
+void print(struct node*start)
+{
+	while(start)
+	{
+	printf("%d,",start->data);
+	start=start->next;
+	}
+}
+ raghson Can you please tell me that what is the need of ‘prev’ pointer in the partition function ? skulldude This is just the same as removing a node from a list. When you need to remove a node from a singly linked list, you need to make the previous node point to the node to which the node-to-be-deleted is pointing to. Eg: 1->2->3->4->5 Let’s say we are moving 3 to the end. Then, we need to make 2 point to 4, otherwise, the list becomes inconsistent. After moving 3 to the end, the list should look like this: 1->2->4->5->3 That is why we are using prev. Hope it helps. -Balasubramanian.N raghson Thanks a lot. I got it. venkat_iitg In pivot() if the current’s data is smaller than pivots data why are u making current to new head..?? venkat_iitg sorry in partition() skulldude Well, a partition function on an array works this way: 1) All the elements less than the pivot go before the pivot. 2) Those greater than the pivot come after pivot. So, if the same has to be carried forward to a list, all the nodes smaller than the pivot must come before pivot and those larger than pivot must come after it. Here, instead of moving the smaller elements before the pivot, we move the larger elements after the pivot, which has the same effect. Thus, if there is a smaller element than the pivot in the list, then that will be the first node in the list after partition.So, we update the newHead to the first element smaller than the pivot that we encounter. Hope this helps. -Balasubramanian  
+/* Paste your code here (You may delete these lines if not writing code) */
+ venkat_iitg thanks dude. I got it. rohit There’s another way i found of doing this. I’m using an array of pointers. let the name of array of pointers be node* G[30]; where node is a structure data type. The linked list is placed on the array starting from G[0]. and you can now quicksort it normally as you now have the indices of all the nodes! Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,455 @@
+Write a function to reverse a linked list - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Write a function to reverse a linked list Iterative Method Iterate trough the linked list. In loop, change next to prev, prev to current and current to next. Implementation of Iterative Method 
+#include<stdio.h>
+#include<stdlib.h>
+
+/* Link list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+
+/* Function to reverse the linked list */
+static void reverse(struct node** head_ref)
+{
+    struct node* prev   = NULL;
+    struct node* current = *head_ref;
+    struct node* next;
+    while (current != NULL)
+    {
+        next  = current->next;  
+        current->next = prev;   
+        prev = current;
+        current = next;
+    }
+    *head_ref = prev;
+}
+
+/* Function to push a node */
+void push(struct node** head_ref, int new_data)
+{
+    /* allocate node */
+    struct node* new_node =
+            (struct node*) malloc(sizeof(struct node));
+           
+    /* put in the data  */
+    new_node->data  = new_data;
+               
+    /* link the old list off the new node */
+    new_node->next = (*head_ref);    
+       
+    /* move the head to point to the new node */
+    (*head_ref)    = new_node;
+}
+
+/* Function to print linked list */
+void printList(struct node *head)
+{
+    struct node *temp = head;
+    while(temp != NULL)
+    {
+        printf("%d  ", temp->data);    
+        temp = temp->next;  
+    }
+}    
+
+/* Drier program to test above function*/
+int main()
+{
+    /* Start with the empty list */
+    struct node* head = NULL;
+  
+     push(&head, 20);
+     push(&head, 4);
+     push(&head, 15); 
+     push(&head, 85);      
+    
+     printList(head);    
+     reverse(&head);                      
+     printf("\n Reversed Linked list \n");
+     printList(head);    
+     getchar();
+}
+ Time Complexity: O(n) Space Complexity: O(1) Recursive Method: 
+   1) Divide the list in two parts - first node and rest of the linked list.
+   2) Call reverse for the rest of the linked list.
+   3) Link rest to first.
+   4) Fix head pointer
+ 
+void recursiveReverse(struct node** head_ref)
+{
+    struct node* first;
+    struct node* rest;
+     
+    /* empty list */
+    if (*head_ref == NULL)
+       return;   
+
+    /* suppose first = {1, 2, 3}, rest = {2, 3} */
+    first = *head_ref;  
+    rest  = first->next;
+
+    /* List has only one node */
+    if (rest == NULL)
+       return;   
+
+    /* reverse the rest list and put the first element at the end */
+    recursiveReverse(&rest);
+    first->next->next  = first;  
+    
+    /* tricky step -- see the diagram */
+    first->next  = NULL;          
+
+    /* fix the head pointer */
+    *head_ref = rest;              
+}
+ Time Complexity: O(n) Space Complexity: O(1) References: http://cslibrary.stanford.edu/105/LinkedListProblems.pdf           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. https://www.facebook.com/?q=#/jambotkar?ref=tn_tnmn AMIT JAMBOTKAR For Java lovers public class LinkedList implements Cloneable{ Node head = null; public class Node { T value; Node nextReference; private Node(T value) { this.value = value; this.nextReference = null; } public Node(T value, Node ref) { this.value = value; this.nextReference = ref; } public Node() { // TODO Auto-generated constructor stub } public T getValue() { return value; } public void setValue(T value) { this.value = value; } public Node getNextReference() { return nextReference; } public void setNextReference(Node nextReference) { this.nextReference = nextReference; } } public void add(E value) { Node nodeToBeAdded = head; if (head==null) { head = new Node(value); return; } while (nodeToBeAdded.getNextReference() != null) { nodeToBeAdded = nodeToBeAdded.getNextReference(); } Node node = new Node(value); nodeToBeAdded.setNextReference(node); } void printAll() { Node node = head; while (node != null) { System.out.println(node.getValue()); node = node.getNextReference(); } } void reversingLinkedList(){ Node prev = null; Node current = head; Node next=null; while (current != null) { next = current.getNextReference(); current.setNextReference(prev) ; prev = current; current = next; } head = prev; } public static void main(String[] args) { LinkedList linkedList = new LinkedList(); linkedList.add(“1″); linkedList.add(“2″); linkedList.add(“3″); linkedList.reversingLinkedList(); linkedList.printAll(); } } Saket Pandey @geeks: pl comment if its wrong Link oldFirstNode = lnkList.head; lnkList.reverseList(lnkList.head); oldFirstNode.setNext(null); System.out.println(lnkList); . . . public void reverseList(Link curr){ if(curr.getNext() == null){ head = curr; return; } reverseList(curr.getNext()); Link tmp = curr.getNext(); tmp.setNext(curr); } aishlnch what is the need of declaring the reverse function static here?? Guest how in diagram 2 when rest reaches null ,next poiner of all node except first is reversed ? Var public class ReverseALinkedList{ public static void main(String[] args) { Node a=new Node(1); Node b=new Node(2); Node c=new Node(3); Node d=new Node(4); Node e=new Node(5); Node f=new Node(6); Node g=new Node(7); Node h=new Node(8); a.next=b; b.next=c; c.next=d; d.next=e; e.next=f; f.next=g; g.next=h; a.printLinkedList(); Node head=reverseLinkedList(a); head.printLinkedList(); } /* Method to reverse the Singly linked list! */ private static Node reverseLinkedList(Node first){ Node current; Node temp; current = null; while(first!=null){ temp = first.next; first.next = current; current = first; first = temp; } return current; } static class Node{ public Node next; public int value; public Node(int value) { this.value = value; } public void printLinkedList() { Node head=this; while (head.next != null) { System.out.print(head.value + “->”); head = head.next; } System.out.print(head.value + “->null”); System.out.println(); } } } Var public class ReverseALinkedList{ public static void main(String[] args) { Node a=new Node(1); Node b=new Node(2); Node c=new Node(3); Node d=new Node(4); Node e=new Node(5); Node f=new Node(6); Node g=new Node(7); Node h=new Node(8); a.next=b; b.next=c; c.next=d; d.next=e; e.next=f; f.next=g; g.next=h; a.printLinkedList(); Node head=reverseLinkedList(a); head.printLinkedList(); } /* Method to reverse the Singly linked list! */ private static Node reverseLinkedList(Node first){ Node current; Node temp; current = null; while(first!=null){ temp = first.next; first.next = current; current = first; first = temp; } return current; } static class Node{ public Node next; public int value; public Node(int value) { this.value = value; } public void printLinkedList() { Node head=this; while (head.next != null) { System.out.print(head.value + “->”); head = head.next; } System.out.print(head.value + “->null”); System.out.println(); } } } armgeek Simple Solution would be this :: Consider the LL as below :: struct node { int d; struct node *next; }*q,*start; void reverse() { struct node *p1; struct node *p2; p1=p2=NULL; while(q!=NULL) { p1=p2; p2=q; q=q->next; p2->next=p1; } display() { q=start; while(q!=NULL) { printf(“%d—>%d”,q->data,q->next); q=q->next; } armgeek sorry i might have missed the braces. please excuse me. padma *head_ref = rest; what does it do??? Amit node* reverse(node* head, node* pre){ if(head->next == NULL){ head->next = pre; return head; } //temp is always the head of the reversed linked list node* temp = reverse(head->next, head); head->next = pre; // cout<key; return temp; } Kunal Arora Can anyone explain me what this line is doing…Thanks first->next->next=first ; Pankaj Kushwaha Its basically for reversing the links. Suppose that you have a link list with two node , and first node is pointing to second node, then after putting first->next->next=first, second node will start point to first node. Kunal Arora Thanks a lot dude….. Ignite can it be like that..? rest->next= first; Kunal Arora I have implemented the reverse function in yet another recursive way….. @admin please comment if it is wrong or i left some case void reverse(struct node *head) { struct node *p=head,*q=head; if(p==NULL) return; reverse(p->next); p->data=q->data; printf(“%d”,q->data); q=q->next; } Himanshu Dagar very good method for reversing in recursive way (y) Pankaj @admin, in recursion method, if we divide the list into two equal parts and proceed like if we had a1a2a3a4 as a linked list, we would obtain the output a4a3a2a1 by first reversing first half a2a1a3a4, then second half a2a1a4a3, and then complete, a4a3a2a1(second block followed by first block). is it correct?? Vivek recursive implementation. pls go through this sol. struct node * reverse(struct node *head) { static struct node *first=NULL; struct node *second; if(!head) return first; second=head->next; head->next=first; first=head; return reverse(second); } n00b struct node *rreverse(struct node *current, struct node **prev) { struct node *next; if (!current) return *prev; next = current->next; current->next = *prev; *prev = current; return rreverse(next, prev); ... struct node *prev = NULL; head = rreverse(head, &prev); Short and sweet Chandu static struct node *ptr; // global variable struct node *RecReverse(struct node *head) { if(head == NULL) return NULL; else if(head->next == NULL) { ptr = head; return head; } struct node *temp; temp = RecReverse(head->next); temp->next = head; temp = temp->next; temp->next = NULL; return temp; } // Print ptr after this step… hemadrigon for recursive reverse algo. I am trying to understand how the fixing head pointer works. I ran the code in gdb env and the rest ptr always correctly points to the address of value 4 after all the calls for recursiveReverse are successful and the code below recurse func is being executed. But as per my (incorrect) understanding the rest ptr should point to address of value 2 in the end.  
+/* fix the head pointer */
+    *head_ref = rest;
+ can anyone please put more light on this Vijay Daultani Yes the code is correct and its working just fine.. Because… If you read the code properly you would note that in the recursive call its not the &head is passed each time but actually it is &rest. I am tracking down the series of call which will result the understanding of the above code. Assume linked list is 1 -> 2 -> 3-> 4 main() { reverse(&head) // head_ref -> head -> 1 {It means head_ref is pointing to // head and head is pointing to 1 // or I can say *head_ref = head and *head = 1 } ***************************stack = 1*************************************** reverse(**head_ref) // *head_ref = head and *head = 1 { first1 ->1 rest1 -> 2 reverse(&rest1) // address of rest is passed } ***************************stack = 2*************************************** reverse(head_ref ->rest1-> 2) // It means head_ref is pointing to rest and // which is pointing to 2 { first2 -> 2 rest2 -> 3 reverse(&rest2) // address of rest is passed } ***************************stack = 3*************************************** reverse(head_ref -> rest2 -> 3) // head_ref is pointing to rest and rest is // pointing to 3 { first3 -> 3 rest3 -> 4 reverse(&rest3) // address of rest is passed } ***************************stack = 4*************************************** reverse(head_ref -> rest3 -> 4) // head_ref is pointing to rest and rest is // pointing to 4 { first4 -> 4 rest4 -> NULL since rest is pointing to null makes it to return trick is here due to simple return rest is not updated here and also in stack = 3 } ***************************stack = 3*************************************** reverse(head_ref -> rest2 -> 3) { first3 -> 3 rest3 -> 4 head_ref -> rest3 -> 4 // i.e head_ref = rest3 makes *rest2=*rest3 = 4 } ***************************stack = 2*************************************** reverse(head_ref -> rest1-> 4) // Logic here is now rest was passed over // here as pass by address { first2 -> 2 rest2 -> 4 hed_ref -> rest2 -> 4 // i.e head_ref = rest2 makes *rest1= *rest2=4 } ***************************stack = 1*************************************** reverse (**head_ref) // This is the updating the original head { first -> 1 rest -> 4 head_ref -> rest1 -> 4 //i.e finally head is updated to 4 } Main concept you can think of this is that you are passing the value of the local pointer rest by address to the next recursive call in the form of head_ref which is update in each recursive call to rest of the next recursive call which is nothing but in our case 2,3, 4 But when we return back each rest is updated to 4 one by one Before recursive call rest in each recursive call points to 2, 3, 4 but after recursive call it always points to 4 because in recursive call you passed its address and updated it in next recursive call to point to 4. hemadrigon I am not able to understand how fixing the head pointer works .. /* fix the head pointer */ *head_ref = rest; I ran the code in gdb environment to print addresses and the rest ptr always points to the address of value 4 which is correct. Can anyone explain .. I thought the rest ptr would get updated and point to address of value 2 at the end. thanks for help.. ram good work pranjalgupta We can also reverse the linked list without taking head’s reference which leads to the confusing statement *headref=rest. Below is the function to do that: list* recrev( list *head ) { if(head==NULL) return NULL; if(head->next==NULL) return head; list* second = head->next; head->next = NULL; list* newhead = recrev(second); second->next = head; return newhead; } /* the value of newhead is calculated once and returned to every impending recursive call on stack */ shivi  
+Node* Reverse(Node *head,Node *prev)
+{
+	
+	if(head==NULL)
+		return prev;
+	else
+	{
+		Node *temp=head->next;
+		head->next=prev;
+		prev=head;
+		return Reverse(temp,prev);
+	}
+}
+ this seems much better and simpler?!!! shivi call this function with (head,NULL) will return new head! abhishek08aug Intelligent  
+/* Paste your code here (You may delete these lines if not writing code) */
+ sd  
+NODE reverse_list_recursive(NODE head)
+{
+        NODE curr_node;
+        curr_node = head;
+        if (curr_node->next == NULL) {
+                return curr_node;
+        }
+        else {
+                reverse_list_recursive(curr_node->next)->next =     curr_node;
+                curr_node->next = NULL;
+                return curr_node;
+        }
+}
+ Nishant Kumar Two more recursive method. First method directly change the first node reference while second method return the reference of starting node of reversed linkList.  
+struct link{
+    int data;
+    struct link* next;
+};
+typedef struct link node;
+
+node* reverse1(node* local,node** start){
+	if(local->next==NULL){
+		*start=local;
+		return local;
+	}
+	node* top=*start;
+	node* tmp=reverse1(local->next,start);
+	tmp->next=local;
+	if(local==top)
+		local->next=NULL;
+	return local;
+}
+
+node* reverse2(node** start){
+	if(*start==NULL)
+		return NULL;
+	if((*start)->next==NULL)
+		return *start;
+	node* next=(*start)->next;
+	(*start)->next = NULL;
+	node* head = reverse2(&next);
+	next->next = (*start);
+	return head;
+}
+ Nishant Kumar modified method 1  
+node* reverse1(node* local,node** start){
+	if(local->next==NULL){
+		*start=local;
+		return local;
+	}
+	node* tmp=reverse1(local->next,start);
+	local->next=NULL;
+	tmp->next=local;
+	return local;
+}
+ Soumya Sengupta @geeksforgeeks…… awesum recursive code……….. seemed so easy..  
+/* Paste your code here (You may delete these lines if not writing code) */
+ rahulcynosure struct Node * recrev(struct Node * curr,struct Node * prev) { if(!curr){ return prev; } struct Node * newH = recrev(curr->next,curr); curr->next=prev; return newH; } from main call this function as : struct Node * newH = recrev(head,NULL); Bit_65  
+/*Node*/
+struct node
+{ int data;
+  struct *nxt;
+};
+typedef node *NODE;
+
+/*Recursive Code*/
+NODE rec_rev(NODE list, NODE tmp)
+{ if (list == NULL) 
+      return tmp;
+  NODE next = list->nxt;
+  list->next = tmp;
+
+  return rec_rev(next, list);
+}   
+ http://www.amitmaimt.webs.com Mr. Amit Kumar Kapoor  
+/*Reversing a linked with the help of  pointers*/
+/*By the Great
+Mr. Amit Kumar
+Lecturer, MCA Deptt.
+MAIMT, Haryana, India.
+E-mail ID: - akbrightfuture@gmail.com
+Cell No. - +91-99924-71946
+*/
+#include<stdio.h>
+#include<conio.h>
+#include<stdlib.h>
+struct node
+{
+int data;
+struct node *link;
+};
+struct node *first=NULL,*last=NULL,*next,*pre,*cur,*temp;
+void create()
+{
+cur=(struct node*) malloc(sizeof(struct node));
+printf("enter first data to insert");
+scanf("%d",&cur->data);
+first=last=cur;
+first->link=NULL;
+}
+void insert()
+{
+int pos,c;
+cur=(struct node*) malloc(sizeof(struct node));
+printf("enter data to insert and also its position");
+scanf("%d%d",&cur->data,&pos);
+if(pos==1)
+{
+cur->link=first;
+first=cur;
+}
+else
+{
+c=1;
+	next=first;
+	while(c<pos)
+	{
+		pre=next;
+		next=next->link;
+		c++;
+	}
+		if(pre==NULL)
+		{
+			printf("Invalid position");
+		}
+		else
+		{
+		cur->link=pre->link;
+		pre->link=cur;
+		}
+}
+}
+void display()
+{
+cur=first;
+while(cur!=NULL)
+{
+printf("data= %d\t address= %u\n",cur->data,cur);
+cur=cur->link;
+}
+printf("\n");
+}
+void rev()
+{
+pre=NULL;
+cur=first;
+while(cur!=NULL)
+{
+next=cur->link;
+cur->link=pre;
+pre=cur;
+cur=next;
+}
+first=pre;
+}
+void main()
+{
+int choice;
+clrscr();
+do
+{
+printf("Options are: -\n1:Create\n2:Insert\n3:Display\n4:Reverse\n0:Exit\n");
+printf("Enter your choice: - ");
+scanf("%d",&choice);
+switch(choice)
+{
+case 1:
+create();
+break;
+case 2:
+insert();
+break;
+case 3:
+display();
+break;
+case 4:
+rev();
+break;
+case 0:
+exit(0);
+default:
+printf("wrong choice");
+}
+}
+while(1);
+}
+ The Great Amit Kumar The Great Amit Kumar, your code seems to fail. Aditya Hi Venky, Sorry about pointing mistake but I still believe your code points to the last node as the head of the list after reversing it. 1–>2—>3—>4 1 is the head 1<–2<–3>>>>>>>> returns first (top) reverse(3) reverse(2) reverse(1) >>>>>>>>>>> returns last  
+/* Paste your code here (You may delete these lines if not writing code) */
+ seeker7 Which is the efficient soln of the two ? – iterative – recursive  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ankit Malhotra Iterative solutions are generally better as they avoid unnecessary stack calls. Naveen Tavade Guys there is a easy way to impliment it…… typedef node* Node; Node Reverse_linkedlist(Node first) { Node cur, temp; cur = NULL; while(first != NULL) { temp = first; first = first->link; temp=link = cur; cur = temp; } } this is very good and easy program to understand….  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Rajdeep Recursive: Easier to understand  
+/* Recursive: Reverse a link list */
+struct node* recursiveReverseLL(struct node* list)
+{
+    struct node* revHead;
+ 
+    if( list == NULL || list->next == NULL )
+    {
+        return list;
+    }
+ 
+    revHead = recursiveReverse(list->next);
+    list->next->next = list;
+    list->next = NULL; /* This make sure that the new last element have NULL */
+ 
+    return revHead;
+}
+
+ Ramchand I cudn’t understand ur algo for reversing the linked list recursively.. its working fine! can u explain it to me a little more deeply?? Ronny How is the head pointing to the last element of the original list. According to this prog it should point to the second element of the original list. Please enlighten me on this issue. void recursiveReverse(struct node** ptr) { struct node* first; struct node* rest; if (*head_ref == NULL) { head = ptr; return; } first = *ptr; rest = first->next; /* List has only one node */ if (rest == NULL) return; /* reverse the rest list and put the first element at the end */ recursiveReverse(&rest); first->next->next = first; /* tricky step — see the diagram */ first->next = NULL; /* fix the head pointer */ // *head_ref = rest; } jas as node is passed by address so it maintain last value. Avinash Kumar This it the best solution and easiest one also . void revByRecursion(Link **start) { static Link *tmp = NULL ; static Link *tmpStart = NULL ; static int x = 0 ; if(*start == NULL) return ; x++ ; revByRec(&((*start)->nxt)); x–; if(tmp == NULL){ tmp = *start; tmpStart = *start ; } else { tmp->nxt = *start; tmp = tmp->nxt ; } if(x==0){ tmp->nxt = NULL ; *start = tmpStart ; } }void revByRec(Link **start) { static Link *tmp = NULL ; static Link *tmpStart = NULL ; static int x = 0 ; if(*start == NULL) return ; x++ ; revByRec(&((*start)->nxt)); x–; if(tmp == NULL){ tmp = *start; tmpStart = *start ; } else { tmp->nxt = *start; tmp = tmp->nxt ; } if(x==0){ tmp->nxt = NULL ; *start = tmpStart ; } } Avinash Kumar Sorry above was wrong paste : Below is correct one void revByRec(Link **start) { static Link *tmp = NULL ; static Link *tmpStart = NULL ; static int x = 0 ; if(*start == NULL) return ; x++ ; revByRec(&((*start)->nxt)); x–; if(tmp == NULL){ tmp = *start; tmpStart = *start ; } else { tmp->nxt = *start; tmp = tmp->nxt ; } if(x==0){ tmp->nxt = NULL ; *start = tmpStart ; } } pragatheswaran //this code work for all possibilities and use only one (extra)pointer like in question list* deletenode(list *head,int d) { list *t=head; if(head==NULL) return head; if(head->next==NULL) { if(head->val==d) { head=NULL; return head; } } else if(head->val==d) { head=head->next; return head; } while(t->next!=NULL && t->next->val!=d) t=t->next; if(t->next==NULL) return head; if(t->next->val==d) t->next=t->next->next; return head; } robind plz tell in recursive method hw the head wil able to point to first node….coz rest has diff everytym and in last rest will point to 2nd node(new second last node) …but still head point to new first…hw? kalaiarasan since we pass addr of rest to next recursive call ,change in *headref of next recursive call will result in change in value of rest pointer in prev recursive call..thus *headref contain last node address till end of recursion.. rahul plz tell in recursive method hw the head wil able to point to first node….coz rest has diff everytym and in last rest will point to 2nd node(new second last node) …but still head point to new first…hw? Swapna A simpler Solution While ( Start != End of Linked list) { Delete from First Insert at First } http://www.linkedin.com/in/ramanawithu Venki Recursive and Iterative procedures:  
+struct node* recursiveReverse(struct node* list)
+{
+    struct node* retHead;
+
+    if( list == NULL || list->next == NULL )
+    {
+        return list;
+    }
+
+    retHead = recursiveReverse(list->next);
+    list->next->next = list;
+    list->next = NULL;
+
+    return retHead;
+}
+
+struct node* reverse(struct node* head)
+{
+    struct node* rHead   = NULL;
+    struct node* current = head;
+    
+    while( current )
+    {
+        head  = head->next;
+        current->next = rHead;
+        rHead = current;
+        current = head;
+    }
+
+    return rHead;
+}
+ http://www.crazylearner.com/ student sir correct me if i am wrong but i think in the above recursive procedure we will have the address of last node of reversed linked list as a final return value. For example 1 2 3 4 5 5 4 3 2 1 we will have the address of node 1 which is at the last Since the links are now reversed and we only have the address of last node it would become impossible to traverse the list in future i think we should modify that recursive procedure to incorporate the necessary change  
+struct node *reverse(struct node **head,struct node *t){
+       
+       if(t->link)
+       reverse(head,t->link)->link=t;
+       
+       else
+       *head=t;  //  when base condition is  reached
+       
+       t->link=NULL;
+       return t;
+       }
+ http://geeksforgeeks.org/?page_id=2 Venki Please stop mentioning “Sir”. I don’t see any issue with my code. Recursion is powerful and complex technique. We should not prefer it unless the algorithm demands it. I would recommend to draw a linked list on paper (try all corner cases of 0, 1, 2 and 3 length), and analyze recursive code step by step. Rearrange the links as you go through the code. It will make the logic clear. Dual reference (pointer to pointer) makes code little error prone, if not now, in future. It would be good to add encapsulation over core data structure to avoid multiple level pointers. Sunil I don’t think doing list->next = NULL necessary. Am I right? prince goyal It’s necessary for the equation list->next->next… if list->next checking is not there, then it becomes NULL->next Vikrant @Sunil: What Prince Goyal said is correct but there is one more reason why “list->next == NULL” is necessary in base case, because in base case it returns list pointer which the pointer to the last node and get assigned to retHead. if it is not there then retHead would be NULL which is not desired. pankaj kuswaha following implementation is also working. void reversell(struct node **p) { struct node *first; struct node *second; struct node *third=NULL; int count=1; first = second = *p; if(*p == NULL) printf(“ll is empty n”); while ( first ) { first=first->link; second->link=third; third=second; second=first; } *p=third; } anmoldhuria @venki you are doing great work by helping us. salute to u.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ bunty Recursive procedure can be as follows;  
+/* Function to reverse the linked list */
+struct node* reverse(struct node* head_ref)
+{
+    struct node* current = head_ref;
+    // Defined only once.
+    static struct node* prev = NULL;
+    static struct node* next;
+
+    if (current != NULL)
+    {
+        next  = current->next;
+        current->next = prev;
+        prev = current;
+        current = next;
+        // no need of saving the return value in any pointer.
+        reverse(current);
+    }
+    else
+      return;
+
+    // By the virtue of being static variable, pre will
+    // retain the last value, not the one, which is local
+    // to the function. 
+    return pre;
+    
+}
+
+
+main()
+{
+  struct node *head;
+ // Code for making the list, pointed by head struc pointer.
+
+ head = reverse(head); 
+}
+
+/*
+There is one issue with the code. Here the value of pre will be returned times equal to number of nodes minus one, however used only last time. Mind you, all the time, the same values has been returned, the address of the last node (which will then be assigned to the list pointer), since pre is an static pointer. 
+*/
+ http://knkhadanga.blogspot.com/ knkhadanga This also works:  
+Node p1 = head;
+Node p2 = p1->next;
+Node temp = null;
+
+while(p1!=null)
+{
+	p1->next = temp;
+	temp = p1;
+	p1 = p2;
+
+	if(p2!=null)
+	{
+		p2=p2->next;
+	}
+}
+
+head = temp;
+ sachin gupta MNNIT reverse a linklist using one extra pointer  
+struct node * reverse_ll( struct node * head)
+{
+  struct node * temp = NULL;
+
+  if ( head == NULL)
+      return NULL;
+   if ( head->next == NULL )
+      return head;
+
+   temp = reverse_ll ( head->next );
+   head->next -> next = head;
+   head->next = NULL;
+   return temp;
+}
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

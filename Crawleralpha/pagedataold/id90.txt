@@ -1,0 +1,1112 @@
+A program to check if a binary tree is BST or not - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph A program to check if a binary tree is BST or not A binary search tree (BST) is a node based binary tree data structure which has the following properties. • The left subtree of a node contains only nodes with keys less than the node’s key. • The right subtree of a node contains only nodes with keys greater than the node’s key. • Both the left and right subtrees must also be binary search trees. From the above properties it naturally follows that: • Each node (item in the tree) has a distinct key. METHOD 1 (Simple but Wrong) Following is a simple program. For each node, check if left node of it is smaller than the node and right node of it is greater than the node. 
+int isBST(struct node* node) 
+{ 
+  if (node == NULL) 
+    return 1; 
+    
+  /* false if left is > than node */
+  if (node->left != NULL && node->left->data > node->data) 
+    return 0; 
+    
+  /* false if right is < than node */
+  if (node->right != NULL && node->right->data < node->data) 
+    return 0; 
+  
+  /* false if, recursively, the left or right is not a BST */
+  if (!isBST(node->left) || !isBST(node->right)) 
+    return 0; 
+    
+  /* passing all that, it's a BST */
+  return 1; 
+}
+ This approach is wrong as this will return true for below binary tree (and below tree is not a BST because 4 is in left subtree of 3) METHOD 2 (Correct but not efficient) For each node, check if max value in left subtree is smaller than the node and min value in right subtree greater than the node. 
+/* Returns true if a binary tree is a binary search tree */ 
+int isBST(struct node* node) 
+{ 
+  if (node == NULL) 
+    return(true); 
+    
+  /* false if the max of the left is > than us */
+  if (node->left!=NULL && maxValue(node->left) > node->data) 
+    return(false); 
+    
+  /* false if the min of the right is <= than us */
+  if (node->right!=NULL && minValue(node->right) < node->data) 
+    return(false); 
+  
+  /* false if, recursively, the left or right is not a BST */
+  if (!isBST(node->left) || !isBST(node->right)) 
+    return(false); 
+    
+  /* passing all that, it's a BST */
+  return(true); 
+} 
+ It is assumed that you have helper functions minValue() and maxValue() that return the min or max int value from a non-empty tree METHOD 3 (Correct and Efficient) Method 2 above runs slowly since it traverses over some parts of the tree many times. A better solution looks at each node only once. The trick is to write a utility helper function isBSTUtil(struct node* node, int min, int max) that traverses down the tree keeping track of the narrowing min and max allowed values as it goes, looking at each node only once. The initial values for min and max should be INT_MIN and INT_MAX — they narrow from there. 
+/* Returns true if the given tree is a binary search tree 
+ (efficient version). */ 
+int isBST(struct node* node) 
+{ 
+  return(isBSTUtil(node, INT_MIN, INT_MAX)); 
+} 
+
+/* Returns true if the given tree is a BST and its 
+ values are >= min and <= max. */ 
+int isBSTUtil(struct node* node, int min, int max) 
+ Implementation: 
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+int isBSTUtil(struct node* node, int min, int max);
+
+/* Returns true if the given tree is a binary search tree 
+ (efficient version). */ 
+int isBST(struct node* node) 
+{ 
+  return(isBSTUtil(node, INT_MIN, INT_MAX)); 
+} 
+
+/* Returns true if the given tree is a BST and its 
+   values are >= min and <= max. */ 
+int isBSTUtil(struct node* node, int min, int max) 
+{ 
+
+  /* an empty tree is BST */
+  if (node==NULL) 
+     return 1;
+      
+  /* false if this node violates the min/max constraint */  
+  if (node->data < min || node->data > max) 
+     return 0; 
+
+  /* otherwise check the subtrees recursively, 
+   tightening the min or max constraint */
+  return 
+    isBSTUtil(node->left, min, node->data-1) &&  // Allow only distinct values
+    isBSTUtil(node->right, node->data+1, max);  // Allow only distinct values
+} 
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+  struct node* node = (struct node*)
+                       malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+
+  return(node);
+}
+
+/* Driver program to test above functions*/
+int main()
+{
+  struct node *root = newNode(4);
+  root->left        = newNode(2);
+  root->right       = newNode(5);
+  root->left->left  = newNode(1);
+  root->left->right = newNode(3); 
+
+  if(isBST(root))
+    printf("Is BST");
+  else
+    printf("Not a BST");
+    
+  getchar();
+  return 0;
+}  
+ Time Complexity: O(n) Auxiliary Space : O(1) if Function Call Stack size is not considered, otherwise O(n) METHOD 4(Using In-Order Traversal) Thanks to LJW489 for suggesting this method. 1) Do In-Order Traversal of the given tree and store the result in a temp array. 3) Check if the temp array is sorted in ascending order, if it is, then the tree is BST. Time Complexity: O(n) We can avoid the use of Auxiliary Array. While doing In-Order traversal, we can keep track of previously visited node. If the value of the currently visited node is less than the previous value, then tree is not BST. Thanks to ygos for this space optimization. 
+bool isBST(struct node* root)
+{
+    static struct node *prev = NULL;
+    
+    // traverse the tree in inorder fashion and keep track of prev node
+    if (root)
+    {
+        if (!isBST(root->left))
+          return false;
+
+        // Allows only distinct valued nodes 
+        if (prev != NULL && root->data <= prev->data)
+          return false;
+
+        prev = root;
+
+        return isBST(root->right);
+    }
+
+    return true;
+}
+ The use of static variable can also be avoided by using reference to prev node as a parameter (Similar to this post). Sources: http://en.wikipedia.org/wiki/Binary_search_tree http://cslibrary.stanford.edu/110/BinaryTrees.html Please write comments if you find any bug in the above programs/algorithms or other ways to solve the same problem.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. Anjaneya Alluri I believe we can do either of the Traversals for this problem i.e Inorder, Preorder or Postorder. And while we are traversing and adding nodes to the stack , we can make comparisons to the key values and return false if any of which breaks it. Eg: , please find the below using Pre Order traversal. public boolean BST_check(Node root){ //check for null if(root == null){ System.out.println(“sent null , please recheck the BST”); return false; } Node cur = root; //check for right and left sub trees boolean done = false; Stack<Node> stk = new Stack<Node>(); stk.push(cur); while(!stk.isEmpty()){ cur = stk.pop(); if(cur.right != null){ if(compare(cur.data,cur.right.data) > 0)return false; stk.push(cur.right); } if(cur.left != null){ if(compare(cur.data,cur.left.data) < 0)return false; stk.push(cur.left); } } return true; } Varun should it not be root->data > prev->data instead of root->data data in method 4 ? varun my bad !! it is correct only… Guest Could someone please point out the mistake in this code(if any): assumption: null tree is not bst bool is_bst(tree* tree 1) { if(tree1==NULL) return false; if(tree1->left && tree1-> right) return((tree1->left->valuevalue) && (tree1->right->value>tree1->value) && is_bst(tree1->left) && is_bst(tree1->right)); else if(tree1->right) return((tree1->right->value>tree1->value) && is_bst(tree1->right)); else if(tree1->left) return((tree1->left->valuevalue) && is_bst(tree1->left)); return true; } dmr A doubt in method 4, if someone can explain. Why can’t I replace below lines: if (!isBST(root->left)) return false; WITH: return isBST(root->left) I get wrong answer if I does so. But per my understanding, they are same..NO ? gourav pathak No they are different When you write “if(!isBST(root->left) return false” it means if left subtree is not a bst then return false(if left subtree is a bst then it returns nothing,it checks further if right subtree is also a bst) But when you write return isBST(root->left) it returns true if left subtree is a bst….which is wrong as we have to further check whether right subtree is a bst or not dmr ok….i get your point. But when then we write “return isBST(root->right);” for the right subtree case. Shouldn’t it be handled like left subtree case ? like: if(!isBST(root->right)) {return;} gourav pathak No it need not be….. We will reach there only if the left subtree is a BST(otherwise the function would return false)…..Now since we know that left subtree is a bst ……we only need to check whether right subtree is a BST or not….if(isBST(root->right)) is true then root is also a BST 123 Won’t the method 3 fail when one of the nodes have value either INT_MIN or INT_MAX ? please correct me if I am wrong Nikhil Agrawal In Method 3: There is no need to subtract and add 1 from root.data because in comparison we are not using equal sign which itself will differentiate values resulting in unique values. Correct me if I am wrong Mukesh Method-4 is not good for above example. just replace 6 with 1. If last leave node is greater than the parent then not working. RASHMIBS can anybody tell me here how to check for negative condition??? say suppose it should print it is not a BST Zeest Common man isnt that really a trivial thing.. isNotBst(sturct node* root){ return 1^(isBst(root)) } RASHMIBS ok thanks Zeest ,will check once in my code shruthi While implementing method 3 Shouldn’t it be isBSTUtil(node->left, min, node->data) and not node->data -1 because it is a BST if left is lesser than or equal to the node and not just lesser. Joao Brunet No. A binary search tree does not contains duplicate elements. The left must be less than root, while the right must be greater than root. João Brunet *does not contain. Victor That’s actually not true. All nodes in the left subtree must less than or EQUAL to the root and the root is less than all nodes in the right subtree Victor must be* Mahendra I think here is a simple logic/solution to the given problem: int isBST(struct node* root){ if(root){ if((root->left==NULL || root->left->datadata)&&(root->right==NULL || root->right->data>root->data)){ if((root->left==0 || root->left->right==0 || root->left->right->datadata) && (root->right==0 || root->right->left==0 || root->right->left->data>root->data)) return isBST(root->left)&&isBST(root->right); else return 0; } else return 0; } return 1; } GuestPost using in order traversal is good.. a little more optimization is possible 1) no need to have a temp array. 2) have two variables previous and present 3) each time check previous < present. Else break + stop in order traversal will be a little more space and time optimized. Sameer http://codingrecipies.blogspot.in/2013/10/tree-operations.html Very well explained binary search tree pavansrinivas Code in Java using InOrder Traversal boolean isBst(){ Stack s = new Stack(); Node temp = root; boolean isFirst = true; int cur=root.i,prev=-1; while(true){ while(temp!=null){ s.push(temp); temp = temp.left; } if(s.isEmpty()){ break; } temp = s.pop(); if(isFirst){ cur = temp.i; isFirst = false; } else{ prev = cur; cur = temp.i; } if(prev>cur){ return false; } temp = temp.right; } return true; } Kuldeep Kumar #include #include using namespace std; int flag=1; //int prev=INT_MIN; int current=INT_MIN; void checkBst(node *t){ if(t){ checkBst(t->left); if(t->data data; checkBst(t->right); } } int main(){ node *t=NULL,*root; root = (node*)malloc(sizeof(node)); root->data=8; t = (node*)malloc(sizeof(node)); t->left=NULL; t->right=NULL; t->data=4; root->left=t; t = (node*)malloc(sizeof(node)); t->left=NULL; t->right=NULL; t->data=14; root->right=t; t = (node*)malloc(sizeof(node)); t->left=NULL; t->right=NULL; t->data=2; root->left->left=t; t = (node*)malloc(sizeof(node)); t->left=NULL; t->right=NULL; t->data=10; root->right->left=t; preorder(root); checkBst(root); if(flag) cout<<"nIs a BST:n"; else cout<<"nNot a BST:n"; return 0; } praveen kumar in method if given tree has root 100 and right child of root is also 100 then it not return false …,but the tree is not a binary tree …its not a good method in that case…..am i correct?? kp which one method..?? praveen method 4…using in-order traversal praveen kumar yaah i also agree with yamini..its not a good method in that case bakwasscoder Method is correct…..it’s returning false: http://ideone.com/UDKcW9 viki //Will this solution work ?? int isBST(node *root) { if(!root)return 1; if(root->left && root->data left->data)return 0; if(root->right && root->data > root->right->data)return 0; if(root->left &&root->left->right && root->data left->right->data)return 0; if(root->right &&root->right->left && root->data >root->right->left->data)return 0; if(isBST(root->left)&&isBST(root->right))return 1; return 0; } Shiwakant Bharti The trick looks good to me at least on below test case. Is it inspired from AVL Tree rotation? 50 / 40 60 / 30 70 / 35 65 What about this? Looks like this logic also works on min and max bounding, what say? 280 410 / 290 400 / 300 350 / 310 Shiwakant Bharti @7665663779954a93b5fdbdf8e4f33dd7:disqus I checked on my machine and it returns false. Can you please recheck? rohit What will be the time complexity of method 2.Will it be O(NlogN)?? Shiwakant Bharti Only if the tree is balanced. Or else either of the minValue() or maxValue may take O(N) resulting in O(N^2) worst case. Shiwakant Bharti Is it even possible do so in worst case without even visiting all nodes O(N)? innosam http://innosamcodes.wordpress.com/2013/06/16/is-the-tree-a-bst/ Check out this simple program, just introduced bool for checking if max/min exist or not. abhishek08aug C++ code:  
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+ 
+class tree_node {
+  private:
+    int data;
+    tree_node * left;
+    tree_node * right;
+  public:
+    tree_node() {
+      left=NULL;
+      right=NULL;
+    }
+    void set_data(int data) {
+      this->data=data;
+    }
+    int get_data() {
+      return this->data;
+    }
+    void set_left(tree_node * left) {
+      this->left=left;
+    }
+    tree_node * get_left() {
+      return this->left;
+    }
+    void set_right(tree_node * right) {
+      this->right=right;
+    }
+    tree_node * get_right() {
+      return this->right;
+    }
+    tree_node ** get_left_ref() {
+      return &(this->left);
+    }
+    tree_node ** get_right_ref() {
+      return &(this->right);
+    }
+};
+ 
+class tree {
+  private:
+    tree_node * root;
+    int size;
+    void _recursive_insert(tree_node ** root_ref, int value);
+    void _print_preorder(tree_node * root);
+    void _print_inorder(tree_node * root);
+    void _print_postorder(tree_node * root);
+    int _find_size(tree_node * root);
+    int _are_identical(tree_node * tn1, tree_node * tn2);
+    int _find_height(tree_node * root);
+    void _delete_tree(tree_node ** root);
+    void _mirror(tree_node * root);
+    void _print_paths(tree_node * root, int * path_nodes, int next_vacant_position);
+    void _print_array(int * array, int len);
+    tree_node * _lowest_common_ancestor(tree_node * parent, tree_node * root, int a, int b);
+    tree_node * _find_node(tree_node * root, int value);
+    tree_node * _min_node(tree_node * root);
+    void _print_level_order(tree_node * root);
+    int _count_leaf_nodes(tree_node * root);
+    int _is_bst(tree_node * root);
+  public:
+    tree() {
+      root=NULL;
+      size=0;
+    }
+    void insert(int value);
+    void recursive_insert(int value);
+    void print_preorder();
+    void print_inorder();
+    void print_postorder();
+    int find_size();
+    int get_size() {
+      return this->size;
+    }
+    int are_identical(tree t);
+    int find_height();
+    void delete_tree();
+    void mirror();
+    void print_paths();
+    tree_node * lowest_common_ancestor(int a, int b);
+    tree_node * find_node(int value);
+    tree_node * min_node();
+    void print_level_order();
+    int count_leaf_nodes();
+    int is_bst();
+};
+ 
+void tree::insert(int value) {
+  if(root==NULL) {
+    root=new tree_node;
+    root->set_data(value);
+  } else {
+    tree_node * parent=NULL;
+    tree_node * current=root;
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    while(current!=NULL) {
+      if(value<=current->get_data()) {
+        parent=current;
+        current=current->get_left();
+      } else {
+        parent=current;
+        current=current->get_right();
+      }
+    }
+    if(value<=parent->get_data() && parent->get_left()==NULL) {
+      parent->set_left(new_node);
+    } else if(value>parent->get_data() && parent->get_right()==NULL) {
+      parent->set_right(new_node);
+    }
+  }
+  size++;
+}
+ 
+void tree::recursive_insert(int value) {
+  _recursive_insert(&root, value);
+  size++;
+}
+ 
+void tree::_recursive_insert(tree_node ** root_ref, int value) {
+  if(*root_ref==NULL) {
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    *root_ref=new_node;   
+  } else {
+    if(value<=(*root_ref)->get_data()) {
+      _recursive_insert((*root_ref)->get_left_ref(), value);
+    } else {
+      _recursive_insert((*root_ref)->get_right_ref(), value);
+    }
+  }
+}
+ 
+void tree::print_preorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_preorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_preorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  cout<<root->get_data()<<" ";
+  if(root->get_left()!=NULL)
+    _print_preorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_preorder(root->get_right());
+}
+ 
+void tree::print_inorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_inorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_inorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_inorder(root->get_left());
+  cout<<root->get_data()<<" ";
+  if(root->get_right()!=NULL)
+    _print_inorder(root->get_right());
+}
+ 
+void tree::print_postorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_postorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_postorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_postorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_postorder(root->get_right());
+  cout<<root->get_data()<<" ";
+}
+
+int tree::find_size() {
+  return _find_size(root);
+}
+
+int tree::_find_size(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else {
+    return 1+_find_size(root->get_left())+_find_size(root->get_right());
+  }
+}
+
+int tree::are_identical(tree t) {
+  return _are_identical(this->root, t.root);
+}
+
+int tree::_are_identical(tree_node * tn1, tree_node * tn2) {
+  if(tn1==NULL && tn2==NULL) {
+    return 1;
+  } else if((tn1==NULL && tn2!=NULL) || (tn1!=NULL && tn2==NULL) || (tn1->get_data()!=tn2->get_data())) {
+    return 0;
+  } else {
+    return _are_identical(tn1->get_left(), tn2->get_left()) && _are_identical(tn1->get_right(), tn2->get_right());
+  }
+}
+
+int tree::find_height() {
+  return _find_height(root);
+}
+
+int tree::_find_height(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  }
+  else {
+    return 1+max(_find_height(root->get_left()), _find_height(root->get_right()));
+  }
+}
+
+void tree::delete_tree() {
+  _delete_tree(&root);
+  size=0;
+}
+
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      _delete_tree((*root)->get_left_ref());
+    }
+    if((*root)->get_right()!=NULL) {
+      _delete_tree((*root)->get_right_ref());
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+
+/* alternate _delete_tree */
+/*
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      tree_node * left_ref=(*root)->get_left();
+      _delete_tree(&left_ref);
+    }
+    if((*root)->get_right()!=NULL) {
+      tree_node * right_ref=(*root)->get_right();
+      _delete_tree(&right_ref);
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+*/
+
+void tree::mirror() {
+  _mirror(root);
+}
+
+void tree::_mirror(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+
+  tree_node * temp=root->get_left();
+  root->set_left(root->get_right());
+  root->set_right(temp);
+  _mirror(root->get_left());
+  _mirror(root->get_right());
+}
+
+void tree::print_paths(){
+   int max_path_length=find_height();
+   int * path_nodes=(int *)calloc(sizeof(int), max_path_length);
+  _print_paths(root, path_nodes, 0);
+}
+
+void tree::_print_paths(tree_node * root, int * path_nodes, int next_vacant_position){
+  if(root==NULL) {
+    return;
+  } else if(root->get_left()==NULL && root->get_right()==NULL) {
+    *(path_nodes+next_vacant_position)=root->get_data();
+    _print_array(path_nodes, next_vacant_position);
+  } else {
+    *(path_nodes+next_vacant_position)=root->get_data();
+    _print_paths(root->get_left(), path_nodes, next_vacant_position+1);
+    _print_paths(root->get_right(), path_nodes, next_vacant_position+1);
+  }
+}
+
+void tree::_print_array(int * array, int len) {
+  int i;
+  for(i=0; i<=len; i++) {
+    cout<<*(array+i)<<" ";
+  }
+  cout<<endl;
+}
+
+tree_node * tree::find_node(int value) {
+  return _find_node(root, value);
+}
+
+tree_node * tree::_find_node(tree_node * root, int value) {
+  if(root==NULL || root->get_data()==value) {
+    return root;
+  } else if(value<=root->get_data()) {
+    return _find_node(root->get_left(), value);
+  } else {
+    return _find_node(root->get_right(), value);
+  }
+}
+
+tree_node * tree::lowest_common_ancestor(int a, int b) {
+  return _lowest_common_ancestor(NULL, root, a, b);
+}
+
+tree_node * tree::_lowest_common_ancestor(tree_node * parent, tree_node * root, int a, int b) {
+  if(root==NULL) {
+    return root;
+  } else if((root->get_data()==a && (root->get_left()->get_data()==b || root->get_right()->get_data()==b))
+             || (root->get_data()==b && (root->get_left()->get_data()==a || root->get_right()->get_data()==a))) {
+    return parent;
+  } else if((_find_node(root->get_left(), a)!=NULL && _find_node(root->get_right(), b)!=NULL)
+        || (_find_node(root->get_left(), b)!=NULL && _find_node(root->get_right(), a)!=NULL)) {
+    return root; 
+  } else if(_find_node(root->get_left(), a)!=NULL && _find_node(root->get_left(), b)!=NULL) {
+    return _lowest_common_ancestor(root, root->get_left(), a, b);
+  } else if(_find_node(root->get_right(), a)!=NULL && _find_node(root->get_right(), b)!=NULL) {
+    return _lowest_common_ancestor(root, root->get_right(), a, b);
+  } else {
+    return NULL;
+  }
+}
+
+tree_node * tree::min_node() {
+  return _min_node(root);
+}
+
+tree_node * tree::_min_node(tree_node * root) {
+  if(root==NULL || root->get_left()==NULL) {
+    return root;
+  } else {
+    return _min_node(root->get_left());
+  }
+}
+
+int tree::count_leaf_nodes() {
+  return _count_leaf_nodes(root);
+}
+
+int tree::_count_leaf_nodes(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else if(root->get_left()==NULL && root->get_right()==NULL) {
+    return 1;
+  } else {
+    return _count_leaf_nodes(root->get_left())+_count_leaf_nodes(root->get_right());
+  }
+}
+
+
+int tree::is_bst() {
+  return _is_bst(root);
+}
+
+int tree::_is_bst(tree_node * root) {
+  static tree_node * previous=NULL;
+  if(root==NULL) {
+    return 1;
+  } else {
+    if(!_is_bst(root->get_left())) {
+      return 0;
+    }
+    if(previous!=NULL && (previous->get_data())>(root->get_data())) {
+      return 0;
+    }
+    previous=root;
+    if(!_is_bst(root->get_right())) {
+      return 0;
+    }    
+  }
+}
+
+int main() {
+  tree t1;
+
+  t1.recursive_insert(5);
+  t1.recursive_insert(3);
+  t1.insert(10);
+  t1.insert(7);
+  t1.recursive_insert(50);
+  t1.recursive_insert(6);
+  t1.recursive_insert(1);
+  t1.recursive_insert(45);
+  t1.recursive_insert(55);
+  t1.recursive_insert(4);
+
+  if(t1.is_bst()) {
+    cout<<"Tree is a BST"<<endl;
+  }
+
+  return 0;
+}
+ Tree is a BST aman1234 intelligent prity Geek Rudra Great  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Pradeep Another solution (in C#) using Inorder using a stack /* public bool IsBstInorder() { if (root == null) return true; Stack<BinaryTreeNode<T>> stack = new Stack<BinaryTreeNode<T>>(); BinaryTreeNode<T> temp = root; while (true) { for (; temp != null; temp = temp.Left) { if ((stack.IsEmpty()) ||((!stack.IsEmpty())&& (temp.item.CompareTo(stack.Top().item) < 0)))//Since we are traversing in inorder, item going to push stack.Push(temp);//should be greater than all the processed items else return false; } if (stack.IsEmpty()) return true; BinaryTreeNode<T> node = stack.Pop(); temp = node.Right; } }*/ Anish P  
+public class Node {
+ private Node leftChild;
+ private int data;
+ private Node rightChild;
+}
+private boolean isBST(Node node){ //Here node is the root when //this function is invoked for the first time
+ if (node != null) {
+  isBST(node.lefChild);
+  if (previous != null && previous.data >= node.data) {
+   return false;
+  }
+  return isBST(node.rightChild); 
+ } 
+ return true;
+}
+ Hi All, Please let me know if the above solution works.Have used the same method as in method-4. Thanks Anish P Shiwakant Bharti The contribution of the bst checking of the left child is missing in the final answer which will result in wrong answer(s). adsf void CheckBST(struct node* root) { int flag=1,min=-32768; if(root==null) { printf(“Empty Tree”); return; } IsBst(root,&min,&flag); if(flag==1) printf(“Binary Search Tree”); else printf(“Not a Binary Search Tree”); } void IsBst(struct node* node,int *min,int *flag) { if(node!=null) { IsBst(node->left,min,flag); if(node->data data; IsBst(node->right,min,flag); } } simple and efficient Correct me if i am wrong AdityaSraf Lots of typing errors in my last comment. Here it is again: Traverse all nodes starting from the root. For any current node, temporarily store the value of its parent also(obviously except for root), then 2 cases exist: Case1: current node < parent 2 checks: 1)left child current node && right child parent 2 checks: 1) left child parent 2) right child>current node AdityaSraf Method 4 is cool but isnt the best if there is a non-bst arrangement near the root, and the tree is big. Then we might try this:Traverse all nodes starting from the root. For any current node, temporarily store the value of its parent also(obviously except for root), then 2 cases exist: Case1: CN(current node) < parent 2 checks: 1) left node 2) right node>current node && right node> parent 2 checks: 1) left node parent 2) right node>>current node AdityaSraf  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Gupt method 4 is just awesome  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Nikin  
+
+bool isBST(node *sr)
+{
+   static node *prev = NULL;
+
+if(sr)
+{
+if(!isBST(sr->left))
+return false;
+
+if(prev!=NULL && prev->data > sr->data)
+return false;
+
+return isBST(sr->right);
+
+}
+return true;
+
+}
+
+ rameshdasari hi can i have display function for binary tree that looks like 1 / \ / \ 2 3 / \ / \ 5 6 7 8 http://www.geeksforgeeks.org/archives/3042 deep i think how we will deal wid BST containing similar elements depends on biasing. wiki is using right biasing. while StandFord is using left biasing. (for each node, all elements in its left subtree are less-or-equal to the node (). ) use the code will depends on wich alignment we are using. dan if we are given a random BST wid equal elements dan how we will detect. is dere any standard convention ? http://www.geeksforgeeks.org/archives/3042 deep i think dealing with equal vales in BST is totally convention(left biasing or right biasing) dependent. becoz on wiki right biasing is used (The right subtree of a node contains only nodes with keys greater than or equal to the node’s key.) while on StandFord Page left biasing is used (for each node, all elements in its left subtree are less-or-equal to the node ().) i think the result of whether a BT containing equal elements is BST or not totally depends on wich biasing we used in our code. dan when we hav given a random BST, how will predict it correctly? it will vary from program to program. Is dere any standard convention? Praveen kumar Meena //this travesal is using thread in_order. this is work easily the case of same right node of a tree and it return false. if any default then tell me?? bool is_Bst(node* root) { if(root==NULL) return true; else { node *p,*p1; p=root; int min=0; while(p) { if(p->left==NULL) { //check for left value of root is less then root if(p->val>=min) { //this part is handle equal root and right chaild problem. if(p->right!=NULL && p->value==(p->right)->val) { return false ; } min=p->val; p=p->right; } } else { p1=p->left; //find right most node while(p1->right!=NULL && p1->right!=p) { p1=p1->right; } if(p1->right==NULL) { p1->right=p; //makes thread with its inorder pre_node. p=p->left; } else if (p1->right==p) { p1->right=NULL; //again makes the tree unthreaded…… if(p->val>=min) { if(p->right!=NULL && p->value==(p->right)->val) { return false; } min=p->val; p=p->right; } } } } return true; } suresh  
+/* Paste your code here (You may delete these lines if not writing code) */
+Auxiliary Space : O(1) if Function Call Stack size is not considered, otherwise O(n)
+can u explain this?
+ http://vfdvd !(geek) i think this will work….correck me if iam wrong… int check(struct node* root) { if(root==NULL) return 1; if(root->leftright) return 1; else return 0; return check(root->left)||check(root->right); } durgesh  
+/* I think this version will work. Please correct if anything goes wrong */
+
+bool isBST(struct	Node*	start)
+{
+	bool	ltree	=	true;
+	bool	rtree	=	true;
+	if(start	==	NULL)
+		return	true;
+	else	if(start->left	==	NULL	&&	start->right	==	NULL)
+		return	true;
+	else	if(start->left	!=	NULL)
+	{
+		isBST(start->left);
+		ltree	=	(start->left->value	<	start->value);		
+	}
+	else	if(start->right	!=	NULL)
+	{
+		isBST(start->right);
+		rtree	=	(start->right->value	>=	start->value);		
+	}
+	return	ltree	&&	rtree;
+}
+
+Call the above function with root node of the tree and if it return true then the tree is bst else not.
+
+ http://siddhantsharma91.blogspot.in siddhant will not work for 
+     5
+    / \
+   4   8
+  / \ / \
+ 3  6 10 9 sachin In method 3 it is not testing tree with a single child, however BST should have either 0 or 1 child. Updated tested code is below for this – #include #include #include struct node { int data; struct node *left; struct node *right; }; struct node * newNode(int data) { struct node *temp=(struct node *)malloc(sizeof(struct node)); temp->data=data; temp->left=NULL; temp->right=NULL; return temp; } bool isBSTutil(struct node *node,int min,int max) { if(node==NULL) return true; if((node->left!=NULL && node->right==NULL) || (node->left==NULL && node->right!=NULL)) return false; if(node->data data > max) return false; return (isBSTutil(node->left,min,node->data-1) && isBSTutil(node->right,node->data+1,max)); } bool isBST(struct node *root) { return isBSTutil(root,INT_MIN,INT_MAX); } int main() { struct node *root; root = newNode(10); root->left=newNode(5); root->right=newNode(17); (root->left)->left=newNode(3); (root->left)->right=newNode(8); (root->right)->left=newNode(13); bool status = isBST(root); if(status) printf(” TREE is BST “); else printf(” TREE is not a BST “); return 0; } laddoo In method 4: rather than If the value of the currently visited node is greater than the previous value then tree is not BST. it should be: If the value of the currently visited node is lesser than the previous value then tree is not BST. Am I Right? GeeksforGeeks @laddoo: Thanks for pointing this out. We have updated the post. laddoo Guyz, in Method 4 : Rather than “If the value of the currently visited node is greater than the previous value then tree is not BST.” I think,it should be written as : “If the value of the currently visited node is lesser than the previous value then tree is not BST.” Am i right? saibharath YEAH DUDE U R RIGHT  
+/* Paste your code here (You may delete these lines if not writing code) */
+ PsychoCoder If the 3rd method, If we do this at the last step it will be better, return (isBSTUtil(node->left, min, (node->data-1)) && isBSTUtil(node->right, node->data+1, max)); In the sense that in BST all nodes are distinct. So it is better to do this. Otherwise it may conclude a given BST as true where a root’s left node has same value as the root node. GeeksforGeeks @PsychoCoder: Thanks for pointing this out. We have modified all the methods so that trees with same keys are not considered as BST (as given in the problem statement). Keep it up! Lakshmanan How about this ? Over all idea: Perform Recursive in-oder traversal Store the in-order predecessor and check if the predecessor is greater than the current element #define NEG_INFINITY 1<left) == NO) return NO; if (prev > p->data) { return NO; } else prev = p->data; if (isBST(p->right) == NO) return NO; return YES; } Complexity : Time – O(n) – Complexity of inorder traversal. Space O(1), 1 static/ global variable to store the in-order predecessor. Lakshmanan The code is messed up due to html decoding. #define YES 0 #define NO 1 int isBST(struct node *p) { static int prev = NEG_INFINITY; if (p == NULL) return YES; if (isBST(p->left) == NO) return NO; if (prev > p->data) { return NO; } else prev = p->data; if (isBST(p->right) == NO) return NO; return YES; } GeeksforGeeks @Lakshmanan: To retain formatting and for syntax highlighting, please paste your code between sourcecode tags Ahmad Mansoor I’ve solved this problem with two functions.. the first one to check the root.. the second to check the rest of the tree.. the code below is a little bit hideous (stupid variable names).. but it will do the job  
+bool isBST()
+    {
+        Node *ptr=root;
+        bool L=false;
+        bool R=false;
+        int left, right;
+
+        if(ptr->left!=NULL){left=ptr->left->data; L=true;}
+        if(ptr->right!=NULL){right = ptr->right->data; R=true;}
+
+        if(!L && !R)return true;
+
+        if(L && ptr->data<left)return false;
+        if(R && ptr->data>=right)return false;
+
+        bool LL=true, RR=true;
+        if(L)LL=isBST(ptr->left, ptr->data, true);
+        if(R)RR=isBST(ptr->right, ptr->data, false);
+
+        return LL&&RR;
+    }
+
+    bool isBST(Node* ptr, int parent, bool status)
+    {
+        bool L=false;
+        bool R=false;
+        int left, right;
+
+        if(ptr->left!=NULL){left=ptr->left->data; L=true;}
+        if(ptr->right!=NULL){right = ptr->right->data; R=true;}
+
+        if(!L && !R)return true;
+
+        if(status)
+        {
+            if(L && ptr->data<left)return false;
+            if(R && (ptr->data>=right || right>parent))return false;
+        }
+
+        else
+        {
+            if(L && (ptr->data<left || left<=parent))return false;
+            if(R && ptr->data>=right)return false;
+        }
+
+        bool LL=true, RR=true;
+        if(L)LL=isBST(ptr->left, ptr->data, true);
+        if(R)RR=isBST(ptr->right, ptr->data, false);
+
+        return LL&&RR;
+    }
+ The main idea here is to check (Is the parent the left child of the grandparent or the right one?) Abhimanyu Vohra I am not able to get why +1 is added in the below line of method 3, can you please specify the logic behind this, thanks. isBSTUtil(node->right, node->data+1, max); Abhinav Hi Please check this method….I have used an approach similar to the optimized version of the diameter and the isBalancedTree Questions. Here I am recursively able to keep track of the minimum and the maximum element of each subtree. Using this I check whether the value at root is greater than the Max of the left subtree and is less than the Min of the Right SUbtree..  
+
+int isBST(struct node *root, int *min,int *max)
+{
+    int lmin=0,lmax=0,rmin=0,rmax=0,l=0,r=0;
+
+/*lmin and lmax keep track of min and max of left subtree */    
+/*rmin and rmax  keep track of min and max of right tree */
+
+    if(root==NULL)
+    {
+                  *min=-12345678; /* Used to indicate Null*/ 
+                  *max=12345678;
+                  return 1;
+                  }
+    
+    if(root->left==NULL && root->right==NULL)
+    {
+                        *min=*max=root->data;
+                        return 1;
+                        }
+    l=isBST(root->left,&lmin,&lmax);
+    r=isBST(root->right,&rmin,&rmax);
+
+    *min=(lmin==-12345678)?root->data:lmin;
+    *max=(rmax==12345678)?root->data:rmax;
+    lmax=(lmax==12345678)?-lmax:lmax;
+    rmin=(rmin==-12345678)?-rmin:rmin;
+    return (l && r && root->data>=lmax && root->data<=rmin);
+    }
+ ygos Method 4: Inorder Traversal It can be done with O(1) auxiliary storage. No need to store the entire tree in array. Just need to store previous node to compare with the current node. kartik @ygos: Agree with you. The post will be updated accordingly. ar Not yet updated GeeksforGeeks @ar: This has been updated now. FlawLess can you please give a sample of implementation for your suggested method? that would be much appraised! https://www.facebook.com/profile.php?id=100000362926576 levis we can use the following method keeping track of the inorder predecessor int num=-99999999; void isBstutility(struct node *root) { int true=1; true =isBst(root,&num); if(true) printf(“it is a binary search tree”); else printf(“not a binary search tree”); } int num=-99999999; int isBst(struct node *root,int *pred) { if(root==NULL) return 1 ; if(root->left!=NULL) { isBst(root->left,red); } if(root->data>*pred) *pred=root->data; else{return 0;} isBst(root->right,pred); } someUser //Initially predecessor = NULL int isBst(tree* root, tree** predecessor){ if(!root) return 1; if(!root-> left && !root -> right){ if(*predecessor){ if((*predecessor) -> data > root -> data) return 0; } *predecessor = root; return 1; } if(isBst(root ->left, predecessor)){ if(*predecessor){ if ((*predecessor) -> data > root -> data){ return 0;} } *predecessor = root; return isBst(root -> right, predecessor); } return 0; } someUser This works in all cases. varun sharma This is how I did it without using a stack or an array or INT_MIN & INT_MAX bool flag=1; int previous=”; bool Detect_BST(struct node* node) { if (node == NULL) return flag; flag = Detect_BST(node->left); if(previous==”) previous = node->data-1; if(node->data data; printf(“%d\n”, node->data); flag = Detect_BST(node->right); return flag; } It works.. Agniswar @Varun: I did not get your algorithm..could you please explain me your algo ?? http://www.jugadengg.com Tushar in method 3 if we have a tree like: 5 / \ / \ 4 5 / \ \ 3 4 6 Then, the answer will be false as from node containing the first 4 we will send a value of min to right tree as 4+1,i.e.,5 on checking in the right child of this node, 4<5 – the min value, we return 0. This means we are strictly saying that right subtree cannot have a value equal to a node. I think that equal values are allowed in both right as well as left subtrees There can be another clash in the two 5's but we won't get to that place as we get a false before that is evaluated. kartik @Tushar: Take a close look at the definition of the BST given at the begining of the post (Also see http://en.wikipedia.org/wiki/Binary_search_tree). The definition says greater than or less than, not “greater than equal to” or “less than equal to”. So your tree is not a valid BST. http://www.jugadengg.com Tushar I am sorry for missing out on the explanation at the top. But, then in left subtree, there will be a problem. Since the value of max sent wil be node->data, if we have a node on left contaning the same value, it will have node->data==max and not node->data>max, so we will not return 0 for that case. However, according to above explanation this case should not be allowed as well. we should call:  isBSTUtil(node->left, min, node->data-1) http://www.geeksforgeeks.org/archives/3042 deep @kartik from above provided links, http://en.wikipedia.org/wiki/Binary_search_tree is using right biasing according to wiki “The left subtree of a node contains only nodes with keys less than the node’s key. The right subtree of a node contains only nodes with keys greater than or equal to the node’s key.” while Stanford University is using left biasing nd according to them “for each node, all elements in its left subtree are less-or-equal to the node ().” i think implementation is totally biasing dependent if we have given a random tree dan how will we detect whether it is BST or not?? correct me….  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kapil The Maxvalue() and Minvalue() methods can return wrong value as if a tree is not a BST the leftmost node and rightmost node will not give correct min and max value. kartik We can wrtie a MinValue function that does Inorder traversal of a Binary Tree and returns Minimum Value. Sourav Stack st;  
+boolean InOrder( node * t) 
+{
+  InOrder(t->left);
+  //Use stack instead of temp array
+   if( st.empty())
+     push(t->data);
+   else if( st.getTop()> t->data )
+     return false;
+   else
+    {
+      st.pop();
+      st.push(t->data);
+    }
+     // Any time only 1 element in Stack
+  InOrder(t->right);
+}
+ Time: O(n) Space: O(1)..as only 1 element in stack.. hoe i made my point! maverick can anyone please explain why the value of the MIN is incremented by 1 in method-3 each time a call is made to right sub-tree?? i think the program works fine without incrementing min by 1 in each recursive call. Dreamer isBSTUtil(node->right, node->data+1, max) should be isBSTUtil(node->right, node->data, max) guest123 Hi all, Here is one solution let me know if its correct or not: I am not writing exact code its a kind of pseudo code:  
+checkBST(node *root)
+{
+
+ if(root==NULL)
+  {
+   return 0;
+  }
+else
+ if(root->left!=NULL && root->left->data data)
+  {
+   node *l=root->left;
+   node *ll=l->left, *rr=l->right;
+   if( (ll!=NULL && ll->data > l->data )|| (rr!=NULL &&           (rr->datadata || rr->data > root->data)) )
+   return "NOT A BST"
+ else if (root->left !=NULL) checkBst(root->left)
+
+//similarly for right node
+
+if(root->right!=NULL && root->right->data > root->data)
+  {
+   node *r=root->right;
+   node *ll=r->left, *rr=r->right;
+   if( (rr!=NULL && rr->data data )|| (ll!=NULL &&           (ll->data > r->data || ll->data data)) )
+   return "NOT A BST"
+ else if (root->right !=NULL) checkBst(root->right)
+ Please let me know if any mistake. Thanks. guest123 there is mistake in the above code I am writing corrected code: if(root->left!=NULL && root->left->data data) SG .. If I am not wrong then third method is not logically correct  
+    Tree *node = newNode(40);
+    node->left        = newNode(20);
+    node->right       = newNode(60);
+    node->left->left  = newNode(10);
+    node->left->right = newNode(30); 
+    node->right->left = newNode(35);
+ this one is not bst but it returns 1 Sandeep @SG .. It worked fine for me. Try following program, it prints “Not a BST”.  #include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+ 
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+ 
+int isBSTUtil(struct node* node, int min, int max);
+ 
+/* Returns true if the given tree is a binary search tree
+ (efficient version). */
+int isBST(struct node* node)
+{
+  return(isBSTUtil(node, INT_MIN, INT_MAX));
+} 
+ 
+/* Returns true if the given tree is a BST and its
+   values are >= min and <= max. */
+int isBSTUtil(struct node* node, int min, int max)
+{ 
+ 
+  /* an empty tree is BST */
+  if (node==NULL)
+     return 1;
+ 
+  /* false if this node violates the min/max constraint */
+  if (node->data < min || node->data > max)
+     return 0; 
+ 
+  /* otherwise check the subtrees recursively,
+   tightening the min or max constraint */
+  return
+    isBSTUtil(node->left, min, node->data) &&
+    isBSTUtil(node->right, node->data+1, max);
+} 
+ 
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+  struct node* node = (struct node*)
+                       malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+ 
+  return(node);
+}
+ 
+/* Driver program to test above functions*/
+int main()
+{
+  struct node *node = newNode(40);
+  node->left        = newNode(20);
+  node->right       = newNode(60);
+  node->left->left  = newNode(10);
+  node->left->right = newNode(30);
+  node->right->left = newNode(35);
+ 
+  if(isBST(node))
+    printf("Is BST");
+  else
+    printf("Not a BST");
+ 
+  getchar();
+  return 0;
+}
+ SG .. ohk .. i guess i made some blunder … yup its working fine for me … unique72 Method 4 doesn’t require an array (see Vicas post above). Here’s an OOP version. final class BSTChecker<T extends Comparable<? super T>> { private T last = null; public static <T extends Comparable<? super T>> boolean check(Node<T> root) { return new BSTChecker<T>().isSorted(root); } private boolean isSorted(Node<T> root) { if(null == root) { return true; } if(isSorted(root.getLeft()) && (null == last || 0 > last.compareTo(root.getData()))) { last = root.getData(); return isSorted(root.getRight()); } return false; } } Maulish S Soni What if Tree contains data other then INT then INT_MIN and INT_MAX will not work. So what is the generic solution for any type of BST? Harshit  
+Method 4 can be corrected by :
+
+bool flag=true;
+int previous=INT_MIN;
+void inorder(node *nd,bool fromleft){
+  if(flag==false)return;
+  if(nd){
+     inorder(nd->left, true);
+     if(node->data > previous & fromleft){
+           previous=node->data;
+     }
+     else if(node->data >= previous & !fromleft){
+           previous=node->data;
+     }
+     else flag=false;
+     if(flag)
+     inorder(nd->right, false);
+     else return;
+   }
+}
+ call : inorder(root, left) ravikant Awesome is an understatement for this site !!!!! AD For the Inorder traversal you don’t have to save all the values. You can just save the last value in a static variable or pass in an int by value and then compare with the last value: E.g:  
+Function Call = check_BST(root, INT_MIN, true)
+
+void check_BST(node* root, int& last_data, bool& status)
+{
+	if(node != NULL)
+	{
+		check_BST(node->rchild, last_data, status);
+
+		if(node->data data;
+		
+		check_BST(node->lchild, last_data, status);
+
+	}
+}
+
+OR
+Function Call = check_BST(root, true)
+
+void check_BST(node* root, bool& last_data)
+{
+        static int last_data = INT_MIN;
+	if(node != NULL)
+	{
+		check_BST(node->rchild, status);
+
+		if(node->data data;
+		
+		check_BST(node->lchild, status);
+	}
+}
+ Anish The above method given in forum will fail for the following: …..100 …../..\ ….50…120 ../…\ .60… 82 ./.\ 45 81 Shekhu which method? Anish Mehod Two.. GeeksforGeeks @Anish: Thanks for reporting the issue. There was a typo in below line (there was false instead of true)  if (node == NULL)  
+return(false);  We have corrected it. It works now.  
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+#define true 1
+#define false 0
+#define bool int 
+ 
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+int minValue(struct node* node) {
+  struct node* current = node;
+ 
+  /* loop down to find the leftmost leaf */
+  while (current->left != NULL) {
+    current = current->left;
+  }
+  return(current->data);
+}
+
+int maxValue(struct node* node) {
+  struct node* current = node;
+ 
+  /* loop down to find the leftmost leaf */
+  while (current->right != NULL) {
+    current = current->right;
+  }
+  return(current->data);
+}
+
+/* Returns true if a binary tree is a binary search tree */
+int isBST(struct node* node)
+{
+  if (node == NULL)
+    return(true); 
+
+  /* false if the max of the left is > than us */
+  if (node->left!=NULL && maxValue(node->left) > node->data)
+    return(false); 
+
+  /* false if the min of the right is <= than us */
+  if (node->right!=NULL && minValue(node->right) <= node->data)
+    return(false); 
+
+  /* false if, recursively, the left or right is not a BST */
+  if (!isBST(node->left) || !isBST(node->right))
+    return(false); 
+
+  /* passing all that, it's a BST */
+  return(true);
+}
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+  struct node* node = (struct node*)
+                       malloc(sizeof(struct node));
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+ 
+  return(node);
+}
+ 
+/* Driver program to test above functions*/
+int main()
+{
+  struct node *root = newNode(100);
+  root->left        = newNode(50);
+  root->right       = newNode(120);
+  root->left->left  = newNode(60);
+  root->left->right = newNode(82);
+  root->left->left->left  = newNode(45);
+  root->left->left->right = newNode(81);  
+ 
+  if(isBST(root))
+    printf("Is BST");
+  else
+    printf("Not a BST");
+ 
+  getchar();
+  return 0;
+}
+ Anish ok but still I think the problem persists. I don’t know I may be wrong. Here is what I think: In reference to above problem.. first node 100, its left tree!= Null. and min function gives u 45. and max function gives u 82. for this iteration this function is not going to return 0. Next 50 is passed. min gives 45 and max will give 81. for this iteration this function is not going to return 0. Next 60 is passed. No issues with that also, … Similarly I think this function will return u true. that this is BST. But it is not.. Correct me If i m wrong.. Sandeep @Ashish: I think you are considering min and max of left only, but the code compares max of left and min of right. Try running the above code, it prints “Not a BST” Anish ya i understood.. Thanks.:-) Vikas In method 4, I think we can do it with O(1) space complexity. ,ie, we don’t need array. initialize ‘previous’ with say INT_MIN  
+bool flag=true;
+int previous=INT_MIN;
+void inorder(node *nd){
+  if(flag==false)return;
+  if(nd){
+     inorder(nd->left); 
+     if(node->data > previous){
+           previous=node->data;
+     }
+     else flag=false;
+     if(flag)
+     inorder(nd->right);
+     else return;
+   }
+} // check if flag=false,then not BST, else BST Vikas in check condition we can have equality also if not strictly ascending. geek4u This doesn’t look like O(1) space complexity solution as you have recursion in the function. Abhirup Ghosh I think the solution is fine. @geek4u even if recursion space is considered, number of recursive call can not exceed number of nodes in the tree. @Vikas In a BST there can not be duplicate elements. Its by definition of BST. It is is a ordered set. And set can not have duplicate element. So equality is unnecessary. GeeksforGeeks @LJW489: Thanks for suggesting a new method. We have added it to the original post. Keep it up! foobar Method4 will not work if the BST has duplicate elements. As per definition of a BST left < root and root<=right So duplicate elements should be present only in the right subtree and not in the left subtree. If we perform an inorder traversal we can never find this out. So method 4 is flawed. LJW489 can i just traverse the tree in in-order, and store the values in an array. after which i check that the array is in ascending order. if it is, then the tree is a BST. Terminal I think this method will have issue for a this tree: 20 / \ 20 20 This is an invalid binary tree but above method will fail. If the method will result in an invalid tree it will also have wrong result for 20 / \ 19 20. Sandeep @nesamani1822: Your approach suffers from the same problem as method 1(simple but wrong) in the post. It will not work for trees like below: 
+        3
+      /   \
+    /       \
+   2        5
+  / \
+/     \
+1      4
+ Let me know if I have missed something. Mansoor True nesamani1822 Please find the code with typo correction.  
+bool isBinarySearchTree = false;
+ 
+bool isBST(struct *node, int data)
+{
+if(node!=null && node->left !=null && node ->right !=null)
+{
+    if(node->left->element right->element > data)
+    {
+        isBinarySearchTree = true;
+        isBST(node->left, node->left->element);
+        isBST(node->right, node->right->element);
+    }
+    else
+    {
+        isBinarySearchTree = false;
+        return;
+    }
+ 
+}
+else if(node!=null && (node->left!=null || node->right!=null))
+{
+    if(node->left!=null && node->left->element right,node->right->element);
+        }
+    else if (node->right!=null && node->right->element > data)
+        {
+            isBinarySearchTree = true;
+            isBST(node->right,node->right->element);
+        }
+    else
+        {
+            isBinarySearchTree =false;
+            return;
+        }
+}
+else
+{
+isBinarySearchTree = true;
+return;
+}
+ 
+return isBinarySearchTree;
+}
+ Call : isBST(head, head->data) Explanation: 1) Traverse the tree in preorder and check for each node whether its left & right child statisfies the BST rule( left->element element > data) 2) This code handles for all the scenario like only child (left / right) and both child(left & right) 3) It is recursive function and if it reaches the leaf node then that subtree statisfies the BST rule and it returns after setting the boolean variable to true. GeeksforGeeks @nesamani1822: Thanks for sharing the code. There are some typos in below lines.  
+  if(node->left->element right->element > data)
+  if(node->left!=null && node->left->element left,node->left->element);
+ Also, could you please add few words about the approach? nesamani1822 I think the following code will also work  
+bool isBinarySearchTree = false;
+
+bool isBST(struct *node, int data)
+{
+if(node!=null && node->left !=null && node ->right !=null)
+{
+	if(node->left->element right->element > data)
+	{
+		isBinarySearchTree = true;
+		isBST(node->left, node->left->element);
+		isBST(node->right, node->right->element);
+	}
+	else
+	{
+		isBinarySearchTree = false;
+		return;
+	}
+
+}
+else if(node!=null && (node->left!=null || node->right!=null))
+{
+	if(node->left!=null && node->left->element left,node->left->element);
+		}
+	else if (node->right!=null && node->right->element > data)
+		{
+			isBinarySearchTree = true;
+			isBST(node->right,node->right->element);
+		}
+	else
+		{
+			isBinarySearchTree =false;
+			return;
+		}
+}
+else
+{
+isBinarySearchTree = true;
+return;
+}
+
+return isBinarySearchTree;
+}
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

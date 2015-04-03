@@ -1,0 +1,181 @@
+Breadth First Traversal for a Graph - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Breadth First Traversal for a Graph Breadth First Traversal (or Search) for a graph is similar to Breadth First Traversal of a tree (See mthod 2 of this post). The only catch here is, unlike trees, graphs may contain cycles, so we may come to the same node again. To avoid processing a node more than once, we use a boolean visited array. For simplicity, it is assumed that all vertices are reachable from the starting vertex. For example, in the following graph, we start traversal from vertex 2. When we come to vertex 0, we look for all adjacent vertices of it. 2 is also an adjacent vertex of 0. If we don’t mark visited vertices, then 2 will be processed again and it will become a non-terminating process. Breadth First Traversal of the following graph is 2, 0, 3, 1. Following is C++ implementation of simple Breadth First Traversal from a given source. The implementation uses adjacency list representation of graphs. STL‘s list container is used to store lists of adjacent nodes and queue of nodes needed for BFS traversal. 
+// Program to print BFS traversal from a given source vertex. BFS(int s) 
+// traverses vertices reachable from s.
+#include<iostream>
+#include <list>
+
+using namespace std;
+
+// This class represents a directed graph using adjacency list representation
+class Graph
+{
+    int V;    // No. of vertices
+    list<int> *adj;    // Pointer to an array containing adjacency lists
+public:
+    Graph(int V);  // Constructor
+    void addEdge(int v, int w); // function to add an edge to graph
+    void BFS(int s);  // prints BFS traversal from a given source s
+};
+
+Graph::Graph(int V)
+{
+    this->V = V;
+    adj = new list<int>[V];
+}
+
+void Graph::addEdge(int v, int w)
+{
+    adj[v].push_back(w); // Add w to v’s list.
+}
+
+void Graph::BFS(int s)
+{
+    // Mark all the vertices as not visited
+    bool *visited = new bool[V];
+    for(int i = 0; i < V; i++)
+        visited[i] = false;
+
+    // Create a queue for BFS
+    list<int> queue;
+
+    // Mark the current node as visited and enqueue it
+    visited[s] = true;
+    queue.push_back(s);
+
+    // 'i' will be used to get all adjacent vertices of a vertex
+    list<int>::iterator i;
+
+    while(!queue.empty())
+    {
+        // Dequeue a vertex from queue and print it
+        s = queue.front();
+        cout << s << " ";
+        queue.pop_front();
+
+        // Get all adjacent vertices of the dequeued vertex s
+        // If a adjacent has not been visited, then mark it visited
+        // and enqueue it
+        for(i = adj[s].begin(); i != adj[s].end(); ++i)
+        {
+            if(!visited[*i])
+            {
+                visited[*i] = true;
+                queue.push_back(*i);
+            }
+        }
+    }
+}
+
+// Driver program to test methods of graph class
+int main()
+{
+    // Create a graph given in the above diagram
+    Graph g(4);
+    g.addEdge(0, 1);
+    g.addEdge(0, 2);
+    g.addEdge(1, 2);
+    g.addEdge(2, 0);
+    g.addEdge(2, 3);
+    g.addEdge(3, 3);
+
+    cout << "Following is Breadth First Traversal (starting from vertex 2) \n";
+    g.BFS(2);
+
+    return 0;
+}
+ Output: 
+Following is Breadth First Traversal (starting from vertex 2)
+2 0 3 1
+ Note that the above code traverses only the vertices reachable from a given source vertex. All the vertices may not be reachable from a given vertex (example Disconnected graph). To print all the vertices, we can modify the BFS function to do traversal starting from all nodes one by one (Like the DFS modified version) . Time Complexity: O(V+E) where V is number of vertices in the graph and E is number of edges in the graph. Also see Depth First Traversal Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Vertex Cover Problem | Set 1 (Introduction and Approximate Algorithm) Snake and Ladder Problem Tarjan’s Algorithm to find Strongly Connected Components Shortest path with exactly k edges in a directed and weighted graph Count all possible walks from a source to a destination with exactly k edges Euler Circuit in a Directed Graph Given an array of strings, find if the strings can be chained to form a circle Given a sorted dictionary of an alien language, find order of characters Tags: Graph Tweet Writing code in comment? Please use ideone.com and share the link here. Simrat How The running time is O(V+E) for BFS..? champ what are application of BFT?? Sherif Yosri Breadth-first search can be used to solve many problems in graph theory, for example: Finding all nodes within one connected component Copying Collection, Cheney’s algorithm Finding the shortest path between two nodes u and v Testing a graph for bipartiteness (Reverse) Cuthill–McKee mesh numbering Ford–Fulkerson method for computing the maximum flow in a flow network Serialization/Deserialization of a binary tree vs serialization in sorted order, allows the tree to be re-constructed in an efficient manner. Source: https://www.princeton.edu/~achaney/tmve/wiki100k/docs/Breadth-first_search.html Md Arquam getting error :- bfs.cpp:83:1: error: stray ‘240’ in program bfs.cpp:83:1: error: stray ‘302’ in program sky the best useful stuff. thank u guys! helped a lot cooldude Above code can be wrong suppose if we start from vertex 3 then other nodes are unreachable.Minor adjustment is required.I am using adjacency matrix as input. I have implemented queue interface in java using class Queue. public void BFSutil(boolean[][] mat,int start) { boolean[] visited=new boolean[mat.length]; visited=BFS(mat,start,visited); while(true) { boolean check=false; for(int i=0;i<mat.length;i++) { if(visited[i]==false) { check=true; visited=BFS(mat,i,visited); } } if(check==false) break; } } public boolean[] BFS(boolean[][] mat,int start,boolean[] visited) { QueuesImpl fifo=new QueuesImpl(); fifo.queue=new Integer[mat.length]; fifo.offer(start); visited[start]=true; while(!fifo.isEmpty()) { Integer temp=(Integer)fifo.poll(); System.out.println(temp); for(int i=0;i<mat[0].length;i++) { if(mat[temp][i]==true && visited[i]==false) { fifo.offer(i); visited[i]=true; } } } return visited; } public static void main(String[] input) { Graph graph=new Graph(); boolean[][] sampleGraph=new boolean[5][5]; sampleGraph[0][1]=true; sampleGraph[1][2]=true; sampleGraph[2][3]=true; sampleGraph[2][0]=true; sampleGraph[3][3]=true; sampleGraph[4][3]=true; sampleGraph[4][1]=true; graph.BFSutil(sampleGraph, 4); GeeksforGeeks Please see the following note. Note that the above code traverses only the vertices reachable from a given source vertex. All the vertices may not be reachable from a given vertex (example Disconnected graph). To print all the vertices, we can modify the BFS function to do traversal starting from all nodes one by one (Like the DFS modified version) honey Applications f bfs, pls !  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Crystal why use list for implementing queue when we can use std::queue instead deep this code has errors. check. kavya gupta yup dude…u r saying ri8… khamms yeah yu also ryt :P:D khamms yeah yu also ryt :P:D Kartik It worked for me, could someone specify the errors? sujit  
+/* /*An adjacency list written in the input1 file is provided for execution. The program can be tested by varying the contents of this input1 file. */
+
+
+#include<stdio.h>
+#include<stdlib.h>
+#define c 100 
+
+//initializing the variables to be used.
+int a;       
+int i,x,y,z,r,inp,l,flag;
+
+int main()
+{
+	FILE* fp;
+	fp = fopen("ip.txt","r"); //opening the input1 file which contains the adjacency list.
+	FILE* fp1;
+	fp1 = fopen("op.txt","w"); //creating the output file which will contain the result of whether it is a diagraph or not
+
+	while(!feof(fp))
+	{
+/*
+This loop will basically read the input file till the fle pointer poits to NULL. The do loop nested inside this will create an array with each element of the form (a,b) which means an edge is created from directed from a to b. The elements of the array will be displayed to the user. 
+*/
+		fscanf(fp,"%d", &x);  
+
+		do	
+		{
+		fscanf(fp,"%d", &inp);
+		
+		if (inp < 0)
+		break;
+		a[i][0]=x;
+		a[i][1]=inp;
+		printf("(%d,%d)\n",a[i][0],a[i][1]); 
+		i++;
+		} while(inp!=-1);
+	}	
+	r = i;  // here r is the upper limit of the loop to be used below.
+
+
+/*
+The for loop will compare the head of one edge with the tail of the other edge and vice-versa. If the two match, then it will break the loop  
+and print NOT A DIAGRAPH in the output. Say if there exists (1,2) and (2,1). since 1 == 1 and 2==2 , NOT A DIAGRAPH. Else it will print DIGRAPH!!!. In case its a self loop, the user will know of it on execution. 
+*/
+
+for (i=0; i<r; i++)
+{
+
+	z = a[i][0];
+	y = a[i][1];
+
+	
+	for (l=i+1;l<r;l++)
+	{
+
+		if ( a[l][0] == a[l][1] )
+			printf("it is a self looping graph \n");
+
+		if ( a[l][0] == y && a[l][1] == z )
+		{
+			printf("%d",a[l][0]);
+			printf("%d", a[l][1]);
+			flag =1;
+			break;
+		}
+		else
+			continue;
+	
+	}
+	 
+	
+	if (flag ==1)
+	{
+		fprintf(fp1,"NOT A DIGRAPH\n");
+		fclose(fp);
+		fclose(fp1);
+		return 0;
+	}
+	else
+		continue;
+}
+
+fprintf(fp1,"DIGRAPH!!!\n");
+fclose(fp1);
+fclose(fp);
+	
+	return 0;
+}
+ */
+ krishna http://en.wikipedia.org/wiki/Breadth-first_search#Applications shiv What are the applications of BFS? Please write like your DFS application article. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

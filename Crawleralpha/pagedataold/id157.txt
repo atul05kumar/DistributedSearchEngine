@@ -1,0 +1,133 @@
+Dijsktra's algorithm GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Greedy Algorithms | Set 7 (Dijkstra’s shortest path algorithm) Given a graph and a source vertex in graph, find shortest paths from source to all vertices in the given graph. Dijkstra’s algorithm is very similar to Prim’s algorithm for minimum spanning tree. Like Prim’s MST, we generate a SPT (shortest path tree) with given source as root. We maintain two sets, one set contains vertices included in shortest path tree, other set includes vertices not yet included in shortest path tree. At every step of the algorithm, we find a vertex which is in the other set (set of not yet included) and has minimum distance from source. Below are the detailed steps used in Dijkstra’s algorithm to find the shortest path from a single source vertex to all other vertices in the given graph. Algorithm 1) Create a set sptSet (shortest path tree set) that keeps track of vertices included in shortest path tree, i.e., whose minimum distance from source is calculated and finalized. Initially, this set is empty. 2) Assign a distance value to all vertices in the input graph. Initialize all distance values as INFINITE. Assign distance value as 0 for the source vertex so that it is picked first. 3) While sptSet doesn’t include all vertices ….a) Pick a vertex u which is not there in sptSetand has minimum distance value. ….b) Include u to sptSet. ….c) Update distance value of all adjacent vertices of u. To update the distance values, iterate through all adjacent vertices. For every adjacent vertex v, if sum of distance value of u (from source) and weight of edge u-v, is less than the distance value of v, then update the distance value of v. Let us understand with the following example: The set sptSetis initially empty and distances assigned to vertices are {0, INF, INF, INF, INF, INF, INF, INF} where INF indicates infinite. Now pick the vertex with minimum distance value. The vertex 0 is picked, include it in sptSet. So sptSet becomes {0}. After including 0 to sptSet, update distance values of its adjacent vertices. Adjacent vertices of 0 are 1 and 7. The distance values of 1 and 7 are updated as 4 and 8. Following subgraph shows vertices and their distance values, only the vertices with finite distance values are shown. The vertices included in SPT are shown in green color. Pick the vertex with minimum distance value and not already included in SPT (not in sptSET). The vertex 1 is picked and added to sptSet. So sptSet now becomes {0, 1}. Update the distance values of adjacent vertices of 1. The distance value of vertex 2 becomes 12. Pick the vertex with minimum distance value and not already included in SPT (not in sptSET). Vertex 7 is picked. So sptSet now becomes {0, 1, 7}. Update the distance values of adjacent vertices of 7. The distance value of vertex 6 and 8 becomes finite (15 and 9 respectively). Pick the vertex with minimum distance value and not already included in SPT (not in sptSET). Vertex 6 is picked. So sptSet now becomes {0, 1, 7, 6}. Update the distance values of adjacent vertices of 6. The distance value of vertex 5 and 8 are updated. We repeat the above steps until sptSet doesn’t include all vertices of given graph. Finally, we get the following Shortest Path Tree (SPT). How to implement the above algorithm? We use a boolean array sptSet[] to represent the set of vertices included in SPT. If a value sptSet[v] is true, then vertex v is included in SPT, otherwise not. Array dist[] is used to store shortest distance values of all vertices. 
+// A C / C++ program for Dijkstra's single source shortest path algorithm.
+// The program is for adjacency matrix representation of the graph
+
+#include <stdio.h>
+#include <limits.h>
+
+// Number of vertices in the graph
+#define V 9
+
+// A utility function to find the vertex with minimum distance value, from
+// the set of vertices not yet included in shortest path tree
+int minDistance(int dist[], bool sptSet[])
+{
+   // Initialize min value
+   int min = INT_MAX, min_index;
+
+   for (int v = 0; v < V; v++)
+     if (sptSet[v] == false && dist[v] <= min)
+         min = dist[v], min_index = v;
+
+   return min_index;
+}
+
+// A utility function to print the constructed distance array
+int printSolution(int dist[], int n)
+{
+   printf("Vertex   Distance from Source\n");
+   for (int i = 0; i < V; i++)
+      printf("%d \t\t %d\n", i, dist[i]);
+}
+
+// Funtion that implements Dijkstra's single source shortest path algorithm
+// for a graph represented using adjacency matrix representation
+void dijkstra(int graph[V][V], int src)
+{
+     int dist[V];     // The output array.  dist[i] will hold the shortest
+                      // distance from src to i
+
+     bool sptSet[V]; // sptSet[i] will true if vertex i is included in shortest
+                     // path tree or shortest distance from src to i is finalized
+
+     // Initialize all distances as INFINITE and stpSet[] as false
+     for (int i = 0; i < V; i++)
+        dist[i] = INT_MAX, sptSet[i] = false;
+
+     // Distance of source vertex from itself is always 0
+     dist[src] = 0;
+
+     // Find shortest path for all vertices
+     for (int count = 0; count < V-1; count++)
+     {
+       // Pick the minimum distance vertex from the set of vertices not
+       // yet processed. u is always equal to src in first iteration.
+       int u = minDistance(dist, sptSet);
+
+       // Mark the picked vertex as processed
+       sptSet[u] = true;
+
+       // Update dist value of the adjacent vertices of the picked vertex.
+       for (int v = 0; v < V; v++)
+
+         // Update dist[v] only if is not in sptSet, there is an edge from 
+         // u to v, and total weight of path from src to  v through u is 
+         // smaller than current value of dist[v]
+         if (!sptSet[v] && graph[u][v] && dist[u] != INT_MAX 
+                                       && dist[u]+graph[u][v] < dist[v])
+            dist[v] = dist[u] + graph[u][v];
+     }
+
+     // print the constructed distance array
+     printSolution(dist, V);
+}
+
+// driver program to test above function
+int main()
+{
+   /* Let us create the example graph discussed above */
+   int graph[V][V] = {{0, 4, 0, 0, 0, 0, 0, 8, 0},
+                      {4, 0, 8, 0, 0, 0, 0, 11, 0},
+                      {0, 8, 0, 7, 0, 4, 0, 0, 2},
+                      {0, 0, 7, 0, 9, 14, 0, 0, 0},
+                      {0, 0, 0, 9, 0, 10, 0, 0, 0},
+                      {0, 0, 4, 0, 10, 0, 2, 0, 0},
+                      {0, 0, 0, 14, 0, 2, 0, 1, 6},
+                      {8, 11, 0, 0, 0, 0, 1, 0, 7},
+                      {0, 0, 2, 0, 0, 0, 6, 7, 0}
+                     };
+
+    dijkstra(graph, 0);
+
+    return 0;
+}
+ Output: Vertex   Distance from Source
+0                0
+1                4
+2                12
+3                19
+4                21
+5                11
+6                9
+7                8
+8                14 Notes: 1) The code calculates shortest distance, but doesn’t calculate the path information. We can create a parent array, update the parent array when distance is updated (like prim’s implementation) and use it show the shortest path from source to different vertices. 2) The code is for undirected graph, same dijekstra function can be used for directed graphs also. 3) The code finds shortest distances from source to all vertices. If we are interested only in shortest distance from source to a single target, we can break the for loop when the picked minimum distance vertex is equal to target (Step 3.a of algorithm). 4) Time Complexity of the implementation is O(V^2). If the input graph is represented using adjacency list, it can be reduced to O(E log V) with the help of binary heap. We will soon be discussing O(E Log V) algorithm as a separate post. 5) Dijkstra’s algorithm doesn’t work for graphs with negative weight edges. For graphs with negative weight edges, Bellman–Ford algorithm can be used, we will soon be discussing it as a separate post. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Vertex Cover Problem | Set 1 (Introduction and Approximate Algorithm) Snake and Ladder Problem Tarjan’s Algorithm to find Strongly Connected Components Shortest path with exactly k edges in a directed and weighted graph Count all possible walks from a source to a destination with exactly k edges Euler Circuit in a Directed Graph Given an array of strings, find if the strings can be chained to form a circle Given a sorted dictionary of an alien language, find order of characters Tags: Dijkstra, Graph, Greedy Algorithm Tweet Writing code in comment? Please use ideone.com and share the link here. James Sutton Can anyone convert this for use with Arduino? My attempts have failed so far. I think maybe because I haven’t quite grasped what each part of the code is doing and therefore can’t define them in the arduino sketch as such. Any help would be much appreciated! zak I am trying to compile the code by MVS 2012 but it does not work tan can it work for directed graph? yossi hy i want to have the detail about the path if you can help me Tomislav N 0 1 2 3 4 5 6 7 8 0 {{0, 4, 0, 0, 0, 0, 0, 8, 0}, 1 {4, 0, 8, 0, 0, 0, 0, 11, 0}, 2 {0, 8, 0, 7, 0, 4, 0, 0, 2}, 3 {0, 0, 7, 0, 9, 14, 0, 0, 0}, 4 {0, 0, 0, 9, 0, 10, 0, 0, 0}, 5 {0, 0, 4, 14 instead of 0, 10, 0, 2, 0, 0}, 6 {0, 0, 0, 14, 0, 2, 0, 1, 6}, 7 {8, 11, 0, 0, 0, 0, 1, 0, 7}, 8 {0, 0, 2, 0, 0, 0, 6, 7, 0} }; If 3 is connected with 5 with weight of 14, 5 is therefore connected with 3 with weight of 14 instead of 0. Mate 0 {{0, 4, 0, 0, 0, 0, 0, 8, 0}, 1 {4, 0, 8, 0, 0, 0, 0, 11, 0}, 2 {0, 8, 0, 7, 0, 4, 0, 0, 2}, 3 {0, 0, 7, 0, 9, 14, 0, 0, 0}, 4 {0, 0, 0, 9, 0, 10, 0, 0, 0}, 5 {0, 0, 4, 14 instead of 0, 10, 0, 2, 0, 0}, 6 {0, 0, 0, 14 (here is not 14), 0, 2, 0, 1, 6}, 7 {8, 11, 0, 0, 0, 0, 1, 0, 7}, 8 {0, 0, 2, 0, 0, 0, 6, 7, 0} }; Because 6 is not connected with 3 Tomislav N 0 1 2 3 4 5 6 7 8 0 {{0, 4, 0, 0, 0, 0, 0, 8, 0}, 1 {4, 0, 8, 0, 0, 0, 0, 11, 0}, 2 {0, 8, 0, 7, 0, 4, 0, 0, 2}, 3 {0, 0, 7, 0, 9, 14, 0, 0, 0}, 4 {0, 0, 0, 9, 0, 10, 0, 0, 0}, 5 {0, 0, 4, 0, 10, 0, 2, 0, 0}, 6 {0, 0, 0, 14, 0, 2, 0, 1, 6}, 7 {8, 11, 0, 0, 0, 0, 1, 0, 7}, 8 {0, 0, 2, 0, 0, 0, 6, 7, 0} }; Ankur dist[u]!=INF is a redundant check since dist[u]==INF will only be true if it was an isolated node , but than again all values of graph[u][v] will be 0 for this node and the condition if (!sptSet[v] && graph[u][v] && dist[u] != INT_MAX && dist[u]+graph[u][v] < dist[v]) will never be true. But since this situation is tackled by checking graph[u][v] , so why bothering checking dist[u]!=INF ? Nikhil Choudhary Problem Statement:- Consider a data communication network that must route data packets (email or MP3 files, for example). Such a network consists of routers connected by physical cables or links. A router can act as a source, a destination, or a forwarder of data packets. We can model a network as a graph with each router corresponding to a vertex and the link or physical connection between two routers corresponding to a pair of directed edges between the vertices. A network that follows the OSPF (Open Shortest Path First) protocol routes packets using Dijkstra’s shortest path algorithm. The criteria used to compute the weight corresponding to a link can include the time taken for data transmission, reliability of the link, transmission cost, and available bandwidth. Typically each router has a complete representation of thenetwork graph and associated information available to it. For the purposes of this project, each link has associated with it the transmission time taken for data to get from the vertex at one end to the vertex at the other end. You will compute the best path using the criterion of minimizing the total time taken for data to reach the destination. The shortest time path minimizes the sum of the transmission times of the links along the path. The network topology can change dynamically based on the state of the links and the routers. For example, a link may go down when the corresponding cable is cut, and a vertexmay go down when the corresponding router crashes. In addition to thesetransient changes, changes to a network occur when a link is added or removed. Example :- Consider a very simplified example of a network at RPI, with vertices at Amos Eaton, Lally, DCC, Troy, Sage, and Folsom. See Figure 1 for an illustration. For this example, the shortest time (or fastest) path from Amos Eaton to DCC is: Amos Eaton–Troy–DCC with a total transmissiontime of 0.9 milliseconds PLZ GIVE YOUR SOLUTIONS FOR THE ABOVE PROBLEM>>>> Nikhil Choudhary can anyone plz upload the code for dijstraks and bellman algorithm in a single program of c++(so that we can easily have positive and negative weight edges) javaDude could you fix the formatting T_T javaDude The article was very helpful, thank you. I changed the code so that it is clearer to me (some parts left out): int minDistance(int dist[], bool sptSet[]) { int min = INT_MAX, min_index = -1; for (int v = 0; v < V; v++) if (sptSet[v] == false && dist[v] < min) min = dist[v], min_index = v; return min_index; } void dijkstra(int graph[V][V], int src) { //init code for (int count = 0; count < V-1; count++) { int u = minDistance(dist, sptSet); if (u == -1) break; sptSet[u] = true; for (int v = 0; v < V; v++) if (!sptSet[v] && graph[u][v] != 0 && dist[u] + graph[u][v] < dist[v]) dist[v] = dist[u] + graph[u][v]; } //print code } The code does not look at unreachable nodes (dist[u] == INT_MAX) more than necessary. The last two comments address this issue. viki I think “&& dist[u] != INT_MAX” is redundant check. Ashish Tilokani Its used because the next condition is that of dist[u]+graph[u][v] < dist[v] which can cause overflow as Int type cannot store more than INT_MAX and the LHS can be INT_MAX + any positive integer Kailash Gupta Should not we break the outer for loop when dist[u] == INT_MAX ?Because that means no node has left which can be reached from source node atul Below code may return garbage value i.e min_index. test case : suppose a node is an isolated node in a graph and does not have any neighbour in that case min_index value will not get updated.  
+int minDistance(int dist[], bool sptSet[])
+{
+   // Initialize min value
+   int min = INT_MAX, min_index;
+ 
+   for (int v = 0; v < V; v++)
+     if (sptSet[v] == false && dist[v] < min)
+         min = dist[v], min_index = v;
+ 
+   return min_index;
+}
+ GeeksforGeeks Thanks for pointing this out. Replacing ‘smaller than’ sign with ‘smaller than or equal to’ should fix the issue for all cases. We will update the post soon.  
+int minDistance(int dist[], bool sptSet[])
+{
+   // Initialize min value
+   int min = INT_MAX, min_index;
+  
+   for (int v = 0; v < V; v++)
+     if (sptSet[v] == false && dist[v] <= min)
+         min = dist[v], min_index = v;
+  
+   return min_index;
+}
+ Ankit Please explain the presence of condition (!sptSet[v]) in  
+if (!sptSet[v] && graph[u][v] && dist[u] + graph[u][v] < dist[v])
+            dist[v] = dist[u] + graph[u][v];
+     }
+ According to Cormen, we are supposed to relax all the edges leaving v and is logical too. But if putting this extra condition doesn’t affect the result, please explain how ? Ankur This condition only ensures that the neighbour’s that you are going to access are not already in SPTset , because if they already are in SPtset than shortest path to them have already been computed , and there’s no need for them to go through the condition : dist[u] + graph[u][v] < dist[v] , as it will never be true. Dinesh awesome was really helpful in understanding dijkstra algorithm…thanks a lot for this nice post….geek for geek rocks  
+/* Paste your code here (You may delete these lines if not writing code) */
+ yossi hy i want to have the detail about the path if you can help me Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

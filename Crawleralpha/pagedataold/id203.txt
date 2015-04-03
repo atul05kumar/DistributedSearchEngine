@@ -1,0 +1,248 @@
+Longest Palindromic Substring | Set 1 - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Longest Palindromic Substring | Set 1 Given a string, find the longest substring which is palindrome. For example, if the given string is “forgeeksskeegfor”, the output should be “geeksskeeg”. Method 1 ( Brute Force ) The simple approach is to check each substring whether the substring is a palindrome or not. We can run three loops, the outer two loops pick all substrings one by one by fixing the corner characters, the inner loop checks whether the picked substring is palindrome or not. Time complexity: O ( n^3 ) Auxiliary complexity: O ( 1 ) Method 2 ( Dynamic Programming ) The time complexity can be reduced by storing results of subproblems. The idea is similar to this post. We maintain a boolean table[n][n] that is filled in bottom up manner. The value of table[i][j] is true, if the substring is palindrome, otherwise false. To calculate table[i][j], we first check the value of table[i+1][j-1], if the value is true and str[i] is same as str[j], then we make table[i][j] true. Otherwise, the value of table[i][j] is made false. 
+// A dynamic programming solution for longest palindr.
+// This code is adopted from following link
+// http://www.leetcode.com/2011/11/longest-palindromic-substring-part-i.html
+
+#include <stdio.h>
+#include <string.h>
+
+// A utility function to print a substring str[low..high]
+void printSubStr( char* str, int low, int high )
+{
+    for( int i = low; i <= high; ++i )
+        printf("%c", str[i]);
+}
+
+// This function prints the longest palindrome substring of str[].
+// It also returns the length of the longest palindrome
+int longestPalSubstr( char *str )
+{
+    int n = strlen( str ); // get length of input string
+
+    // table[i][j] will be false if substring str[i..j] is not palindrome.
+    // Else table[i][j] will be true
+    bool table[n][n];
+    memset( table, 0, sizeof( table ) );
+
+    // All substrings of length 1 are palindromes
+    int maxLength = 1;
+    for( int i = 0; i < n; ++i )
+        table[i][i] = true;
+
+    // check for sub-string of length 2.
+    int start = 0;
+    for( int i = 0; i < n-1; ++i )
+    {
+        if( str[i] == str[i+1] )
+        {
+            table[i][i+1] = true;
+            start = i;
+            maxLength = 2;
+        }
+    }
+
+    // Check for lengths greater than 2. k is length of substring
+    for( int k = 3; k <= n; ++k )
+    {
+        // Fix the starting index
+        for( int i = 0; i < n - k + 1 ; ++i )
+        {
+            // Get the ending index of substring from starting index i and length k
+            int j = i + k - 1;
+
+            // checking for sub-string from ith index to jth index iff str[i+1]
+            // to str[j-1] is a palindrome
+            if( table[i+1][j-1] && str[i] == str[j] )
+            {
+                table[i][j] = true;
+
+                if( k > maxLength )
+                {
+                    start = i;
+                    maxLength = k;
+                }
+            }
+        }
+    }
+
+    printf("Longest palindrome substring is: ");
+    printSubStr( str, start, start + maxLength - 1 );
+
+    return maxLength; // return length of LPS
+}
+
+// Driver program to test above functions
+int main()
+{
+    char str[] = "forgeeksskeegfor";
+    printf("\nLength is: %d\n", longestPalSubstr( str ) );
+    return 0;
+}
+ Output: Longest palindrome substring is: geeksskeeg
+Length is: 10 Time complexity: O ( n^2 ) Auxiliary Space: O ( n^2 ) We will soon be adding more optimized methods as separate posts. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Suffix Tree Application 5 – Longest Common Substring Generalized Suffix Tree 1 Suffix Tree Application 4 – Build Linear Time Suffix Array Suffix Tree Application 3 – Longest Repeated Substring Suffix Tree Application 2 – Searching All Patterns Suffix Tree Application 1 – Substring Check Ukkonen’s Suffix Tree Construction – Part 6 Ukkonen’s Suffix Tree Construction – Part 5 Tags: Dynamic Programming Tweet Writing code in comment? Please use ideone.com and share the link here. sukisukimo /* * Program to find the longest palindrome * The algo time complexity is O(n^2) and space complexity is O(1) */ static String getBigPalindrome(String str) { int i = 0, j = 0, tempi = 0; int maxLen = 0, currentLen = 0; String maxpalin = null; String currentpalin = null; char[] carr = str.toCharArray(); for (i = 0; i i; j–) { if (carr[i] == carr[j]) { /* * if checks — whenever we encounter the same char, check the common mid char j – i == 1(for palindrome * like “geeksskeeg”) * or 2 common mid chars j – i == 2(for palindrome like “civic”) * else increase the value of i */ if (j – i == 1 || j – i == 2) { currentpalin = str.substring(tempi, i + (i – (tempi – 1)) + j – i); currentLen = currentpalin.length(); /* * check if the previous palindrome have longer length */ if (maxLen < currentLen) { maxpalin = currentpalin; maxLen = currentLen; } } i++; } /* * else the next char is not the same, the restore the value of i */ else { i = tempi; } } } return maxpalin; } neelabh Very Important CHECK this condition for( int k = 3; k <= n; ++k ) { // Fix the starting index for( int i = 0; i maxLength ) { start = i; maxLength = k; } } } suppose string is “fff” now we have to find the longest palindrome. table have table[0][1]=1, table[1][2]=1 and other like table[1][1]=0 , table[2][2]=0 for k=2 now for k=3. we have to check i=0 and j=2. table[i+1][j-1]=table[1][1]=0 so we can’t proceed so above code will not work on this condition. If am wrong plez correct me………… baba table[i][i] have all been set to true. Sumit Monga To find whether a substring starting at index ‘i’ and ending at index ‘j’ is a palindrome or not, we need information regarding ‘i+1′ and ‘j-1′. So the solution to the problem is building the table starting from the end of the string and not from the first index in the string .The below code finds the length as well as prints the longest palindromic substring in the given string: #include #include int lps(char * str) { int n = strlen(str); int i,j,start_ind,end_ind; int max = 0; bool max_pal[n][n]; memset(max_pal,0,sizeof(max_pal)); for(i = n-1; i >= 0; i–) { for(j = i; j max) { max = j-i+1; start_ind = i; end_ind = j; } } } for(i = start_ind; i <= end_ind; i++) printf(" %c",str[i]); printf("nThe longest palindromic substring length is : "); return max; } int main() { char * str = "forgeeksskeegfor"; printf(" %d ",lps(str)); } Divya Is the following code correct? Can somebody please authenticate? int main() { char *input = “abforgeeksskeegforba”; char outputarr[100] = {NULL}; //printf(“strlen is %dn”, strlen(input)); int i = 0; int j = strlen(input) – 1; int k = 0; bool isPal = false; while (i <= j) { if (input[i] == input[j]) { isPal = true; outputarr[k] = input[i]; i++; j–; k++; } else { isPal = false; for (int x = 0; x 0) { int pos = strlen(outputarr); for (int y = strlen(outputarr)-1; y >=0; y–) { outputarr[pos] = outputarr[y]; pos++; } printf(“%sn”,outputarr); } else { printf(“no palindrom string”); } getch(); return 0; } jayasurya j i guess its wrong prity It seems O(n) solution is available. Refer this http://codeinterview.blogspot.in/2012/05/linear-time-algorithm-for-finding.html Shweta The solution given at the link is not O(n). Purushotham I agree the above solution is using DP. However this problem has a better solution with O(n) time & O(n) space. Below is the code using Greedy approach. public static int Lps(String s){ char[] c = s.toCharArray(); int[] lps = new int[s.length()]; int tmp, max_len = 1; lps[0] = 1; for(int i = 1; i 0 && c[i] == c[tmp]) lps[i] = lps[i-1] + 2; else if(c[i] == c[i-1]) lps[i] = 2; else lps[i] = 1; if(lps[i] > max_len) max_len = lps[i]; } return max_len; }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Debashish Ghosh i have trouble understanding your code. Please remove some errors from it. pritybhudolia @GeeksforGeeks Can we use this approach as it works in O(n) I think? Longest palindromic sub string can also be obtained by reducing the problem to finding the longest common sub-sequence between the given string and it’s reverse. For example: Given string is STR = {ABBAGEEKSSKEEG}; reverse string is REV = {GEEKSSKEEGABBA}; reverse string is OUTPUT = {GEEKSSKEEGABBA}; INDEX[] = {10,11,12,13,0,1,2,3,4,5,6,7,8,9}; we maintain an another array INDEX[] which searches for the occurence of each character of STR[] in REV[],and stores its index in INDEX[], as soon as a character’s first occurence in REV[] is found, the element is changed so that when it searches for the repeated element it doesn’t store same index. Find the longest increasing subsequence for INDEX{0,1,2,3,4,5,6,7,8,9}; Index this value in the OUTPUT[]. Finally we get “GEEKSSKEEG” which is longest SUBSTRING of the given array.  
+/* #include<stdio.h>
+#include<conio.h>
+int main()
+{    
+  int i,j,k=0,upper=0,lower=0,max=0,up=0,down=0;
+  char str[100] = "ABBAGEEKSSKEEG";
+  char rev[100],output[100];
+  int index[100];
+  for(i=(strlen(str)-1),j=0;i>=0;i--)
+  {
+                          rev[j]=str[i];
+                          output[j]=str[i];
+                          j++;
+  }
+  for(i=0;i<strlen(str);i++)
+  {
+                            for(j=0;j<strlen(rev);j++)
+                            {
+                                                      if(str[i]==rev[j])
+                                                      {
+                                                                        index[k++]=j;
+                                                                        rev[j]=6;
+                                                                        break;
+                                                      }
+                            }
+  }
+  index[k]=-1;
+  down=up=index[0];
+  
+  for(i=0;i<=k;i++)
+  {
+                  
+                  if(index[i]>index[i+1])
+                  {
+                  
+                                       down=up;
+                                       up=index[i];
+                                       
+                                       if((up-down>max))
+                                       {
+                                                           max=upper-lower;
+                                                           upper=up;
+                                                           lower=down;
+                                                           up=index[i+1];
+                                       }
+                  }
+  }
+  for(i=lower;i<=upper;i++)printf("%c",output[i]);
+getch();
+return 0;
+}
+ */
+ http://www.facebook.com/barnwal.aashish Aashish This method finds the Longest Palindrome Subsequence. Please consider the input string: ABBCA Its reverse would be: ACBBA Index[] would be: 0, 3, 1, 2, 4 Longest Increasing Subsequence is 0, 1, 2, 4. The corresponding string is ABBA which is a subsequence. Also, finding LIS takes NlogN time at its best. pritybhudolia @Aashish No, it works as finding longest continuously increasing subsequence and hence works fine. pritybhudolia @Ashish I got your point. I think, I have fixed those errors, you can try now.  
+#include<stdio.h>
+#include<conio.h>
+int main()
+{    
+int i,j,k=0;
+int upper=0,lower=0,max=0,up=0,down=0;
+  char str[100] = "ABBAGEEKSSKEEG";
+  char rev[100],output[100];
+  int index[100];
+  for(i=(strlen(str)-1),j=0;i>=0;i--)
+  {
+         rev[j]=str[i];
+         output[j]=str[i];
+         j++;
+  }
+  for(i=0;i<strlen(str);i++)
+  {
+         for(j=0;j<strlen(rev);j++)
+         {
+                  if(str[i]==rev[j])
+                  {
+                            index[k++]=j;
+                            rev[j]=6;
+                            break;
+                  }
+         }
+  }
+  index[k]=-1;
+  down=up=index[0];
+  
+  for(i=0;i<=k+1;i++)
+  {
+          if(index[i]==(index[i+1]-1))
+          {
+                  up=index[i+1];                                    
+           }
+           else
+           {
+                  if(index[i-1]==(index[i]-1))
+                  { 
+                           if((up-down>max))
+                           {
+                                max=up-down;
+                                upper=up;
+                                lower=down;
+                                down=index[i+1];                                                           
+                           }
+                  }
+                  else  down=index[i+1];                                       
+           }
+   }
+for(i=lower;i<=upper;i++)printf("%c",output[i]);
+getch();
+return 0;
+}
+ http://www.facebook.com/barnwal.aashish Aashish Prity, your approach doesn’t seem to be working for few cases. Try with input string “STUCTS”. See here: http://ideone.com/oezBPM In fact, the approach wont work for set of strings where a palindromic subsequence exists and part of its length is greater than the longest substring in the string.In the above example, it outputs the part of a longest palindromic subsequence, ST. prity bhudolia yeah , i realized that earlier, but there is no option to delete it. Anyways, thanks for this Suchandrim ‘Sucho’ Sarkar This solution isn’t working!!!! pritybhudolia Longest palindromic sub string can also be obtained by reducing the problem to finding the longest common sub-sequence between the given string and it’s reverse. For example: Given string is STR = {ABBAGEEKSSKEEG}; reverse string is REV = {GEEKSSKEEGABBA}; reverse string is OUTPUT = {GEEKSSKEEGABBA}; INDEX[] = {10,11,12,13,0,1,2,3,4,5,6,7,8,9}; we maintain an another array INDEX[] which searches for the occurence of each character of STR[] in REV[],and stores its index in INDEX[],as soon as a character’s first occurence in REV[] is found, the element is changed so that when it searches for the repeated element it doesn’t store same index. Find the longest increasing subsequence for INDEX{0,1,2,3,4,5,6,7,8,9}; Index this value in the OUTPUT[]. Finally we get “GEEKSSKEEG” which is longest SUBSTRING of the given array. #include #include int main() { int i,j,k=0,upper=0,lower=0,max=0,up=0,down=0; char str[100] = “abbageeksskeeg”; char rev[100],output[100]; int index[100]; for(i=(strlen(str)-1),j=0;i>=0;i–) { rev[j]=str[i]; output[j]=str[i]; j++; } for(i=0;i { for(j=0;j { if(str[i]==rev[j]) { index[k++]=j; rev[j]=6; break; } } } printf(“\n”); index[k]=-1; down=up=index[0]; for(i=0;iindex[i+1]) { down=up; up=index[i]; if((up-down>max)) { max=upper-lower; upper=up; lower=down; up=index[i+1]; } } } printf(“\n”); for(i=lower;i<=upper;i++)printf("%c",output[i]); getch(); return 0; } abhishek08aug Intelligent javanetbeans As suggested by Nikhil, Suffix Tree yields the solution in O(n) instead of going for DP in O(n ^2). For suffix tree building in O(n) , please see this resource http://www.cs.ucf.edu/~shzhang/Combio12/lec3.pdf Nikhil Instead of dynamic programming we can go with the string matching 1) Lets us assume given string is str 2) Reverse the string and store it in str2 3) Now find the common substring using the suffix tree. Time Complexity : O(n)  
+/* Paste your code here (You may delete these lines if not writing code) */
+ abhishek  
+/* A O(n) iterative program for construction of BST from preorder traversal */
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+//enum bool {true, false}boolean;
+int LPS(char *str, int beg, int end, int token);
+int max(int a, int b);
+
+int LPS(char *str, int beg, int end, int token){
+    if(beg > end)
+        return 0;
+    if(beg == end)
+        return 1;
+    if(str[beg] == str[end]) {
+        return max(2+LPS(str, beg+1, end-1, 1), max(LPS(str, beg+1, end, 0),LPS(str, beg, end-1, 0)));
+    }
+    else {
+        if(str[beg-1]!= NULL && str[end+1] != NULL) {
+
+        if(str[beg-1] == str[end+1]) {
+            if(token == 1) {
+            printf("%d %d --\n", beg-1, end+1);
+            return -2;
+        }}
+        }
+        return max(LPS(str, beg+1, end, 0),LPS(str, beg, end-1, 0));
+    }
+
+}
+int max(int a, int b){
+    if(a>=b)
+        return a;
+    else
+        return b;
+}
+int main ()
+{
+    char *str="forgeekskeegfor";
+    int size = 0;
+    char *temp = str;
+    while(*temp!='\0')
+        temp++;
+    size = temp-str;
+    printf("%d\n", size);
+    printf("Size of max palindrome is : %d\n", LPS(str, 0, size-1, 0));
+    return 0;
+}
+
+ i think we can first calculate the length of maximum sized palindrome, and using that length, we can use start = 0 and end = start+length, and increment start till end-length to find maximum sized palindrome. I have implemented a recursive solution for calculating the length of maximum palindrome without any memoization technique, i think it will be easy to implement that one also. Thanks suman public class LongestPalidromString { static int leftIndex = 0; static int rightIndex = 0; public static void calculatePalidromLength(int left, int right, String str){ int length = 0; while(left >=0 && right < str.length()){ if (str.charAt(left) == str.charAt(right)){ length++; leftIndex = left; rightIndex = right; left–; right++; }else{ break; } } } public static String getMaxPalidromSubString(String input){ int maxLengthSoFar = Integer.MIN_VALUE; String result= null; for(int i = 1 ; i < input.length()-1; i++){ if (input.charAt(i-1) == input.charAt(i+1)){ calculatePalidromLength(i-1, i+1, input); if ((rightIndex – leftIndex)+1 > maxLengthSoFar){ maxLengthSoFar = (rightIndex – leftIndex)+1; result = input.substring(leftIndex, rightIndex); } }else if (input.charAt(i)== input.charAt(i+1)){ calculatePalidromLength(i, i+1, input); if ((rightIndex – leftIndex)+1 > maxLengthSoFar){ maxLengthSoFar = (rightIndex – leftIndex)+1; result = input.substring(leftIndex, rightIndex+1); } } } return result; } public static void main(String[] args){ String result = getMaxPalidromSubString("forgeeksskeegfor"); System.out.println(result); } } Sharad Garg Time complexity is still O( n^2 ) sourabh jain #include #include using namespace std; string fun(string s,int i) { int l1=0,l2=1,j,k; string str=””; if(i>0 && s[i]==s[i-1]) { j=i-2,k=i+1; while(j>=0 && k<s.length() && s[j]==s[k]) { j–; k++; } l1=k-j-1; } int p=i-1,q=i+1; //cout<<p<=0 && ql2) { for(int t=j+1;t<k;t++) str+=s[t]; } else { //cout<<"p="<<p<<" q="<<q<<endl; for(int t=p+1;t<q;t++) { str+=s[t]; } } // cout<<"str="<<str<>str; int m=0; for(int i=0;i<str.length();i++) { s=fun(str,i); //cout<<s< m) { m=s.length(); ans=s; } } cout<<ans<<endl; getch(); } Time Complexity: O(n2) Space Complexity: O(1) is there is any error in my solution ? Duke Dude, there are many silly mistakes in your code, first correct them .  
+/* Paste your code here (You may delete these lines if not writing code) */
+ sourabh jain can u plz tell me case for which it is giving wrong answer  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,156 @@
+Write you own Power without using multiplication(*) and division(/) operators - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Write you own Power without using multiplication(*) and division(/) operators Method 1 (Using Nested Loops) We can calculate power by using repeated addition. For example to calculate 5^6. 1) First 5 times add 5, we get 25. (5^2) 2) Then 5 times add 25, we get 125. (5^3) 3) Then 5 time add 125, we get 625 (5^4) 4) Then 5 times add 625, we get 3125 (5^5) 5) Then 5 times add 3125, we get 15625 (5^6) 
+
+/* Works only if a >= 0 and b >= 0  */
+int pow(int a, int b)
+{
+  if (b == 0)
+    return 1;
+  int answer = a;
+  int increment = a;
+  int i, j;
+  for(i = 1; i < b; i++)
+  {
+     for(j = 1; j < a; j++)
+     {
+        answer += increment;
+     }
+     increment = answer;
+  }
+  return answer;
+}
+
+/* driver program to test above function */
+int main()
+{
+  printf("\n %d", pow(5, 3));
+  getchar();
+  return 0;
+}
+ Method 2 (Using Recursion) Recursively add a to get the multiplication of two numbers. And recursively multiply to get a raise to the power b. 
+#include<stdio.h>
+/* A recursive function to get a^b
+  Works only if a >= 0 and b >= 0  */
+int pow(int a, int b)
+{
+   if(b)
+     return multiply(a, pow(a, b-1));
+   else
+    return 1;
+}    
+
+/* A recursive function to get x*y */
+int multiply(int x, int y)
+{
+   if(y)
+     return (x + multiply(x, y-1));
+   else
+     return 0;
+}
+
+/* driver program to test above functions */
+int main()
+{
+  printf("\n %d", pow(5, 3));
+  getchar();
+  return 0;
+}
+ Please write comments if you find any bug in above code/algorithm, or find other ways to solve the same problem.           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: MathematicalAlgo Tweet Writing code in comment? Please use ideone.com and share the link here. Anon can make reduce time complexity by using a divide and conquer approach like a^n = a*n/2 * a*n/2; Ankur Jain // #include #include #include int multiply(int x,int y) { int ans=0; for (int i = 0; i >1; } int pow(int a,int b) { if (b==0) { return 1; } else if (b==1) { return a; } int a1=pow(a,divideby2(b)); int a2=multiply(a1,a1); if (b&1) { a2=multiply(a2,a); } return a2; } int main() { printf(“n %d”, pow(15, 7)); getchar(); return 0; } abhishek08aug  
+#include<stdio.h>
+
+int power(int a, int b) {
+  if(a==0) {
+    return a;
+  }
+
+  if(a==1) {
+    return a;
+  }
+
+  if(b==0) {
+    return 1;
+  }
+
+  if(b==1) {
+    return a;
+  }
+
+  int sum=a;
+  int increment=a;
+  int i, j;
+
+  for(i=1; i<b; i++) {
+    for(j=1; j<a; j++) {
+      sum=sum+increment;
+    }
+    increment=sum;
+  }
+  return sum;
+}
+
+int main() {
+  printf("%d\n", power(3, 4));
+  return 0;
+}
+ 81 Balasubramanian The following snippet works for negative numbers as well. I tested it with a few random cases and it works fine. If you find any mistake,please comment.  
+double myPow(int m,int n){
+	if(n==0)
+		return 1;
+	bool isNeg=( n<0 )? true : false;
+	n=abs(n);
+	double ans=m;
+	for(int i=2;i<=n;++i)
+		ans=multiply(ans,m);
+	if(isNeg)
+		return 1/ans;
+	return ans;
+}
+
+int multiply(int x,int y){
+	if(y==0)
+		return 0;
+	if(y>0)
+		return x+multiply(x,y-1);
+	return -multiply(x,-y);
+}
+ Thanks, help what is the complexity of the recursion solution and how to calculate it? anji.swe I think for the first method time complexity is O(n^2) as it is using 2 for loops… correct me if iam wrong !! arjun1296 IMHO, Recursion should be avoided as far as possible. Recursion is just a beauty of solving the problem. Languages design in computers make recursion costly. Time and Space for the creation for “activation records” makes inefficient and unpredictable use of system stack. But still i love to see recursive solutions. Nishant  
+#include<stdio.h>
+int multi(int a,int b)
+{
+	int c=0;
+	while(b)
+	{
+		if((b&1)!=0)
+		c=c+a;
+		a <>= 1;
+	}
+	return c;
+}
+int power(int a,int n)
+{
+	int i,j=1;
+	for(i=1;i<=n;i++)
+	j=multi(j,a);
+	return j;
+}
+int main()
+{
+	printf("%d\n",power(2,10));
+	return 0;
+}
+ http://effprog.blogspot.com Sambasiva Recursion could be write like below  
+int power(int a, int b)
+{
+    if(b == 0)
+        return 1;
+
+    int inc = pow(a, b - 1);
+
+    int ret = 0;
+
+    int i = 0;
+    for(; i < a; ++i)
+        ret += inc;
+
+    return ret;
+}
+ http://ahmetalpbalkan.com Ahmet Alp Balkan Recursion is the better and elegant solution imho. Is there a way to handle <0 cases with similar methods, just wondering. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

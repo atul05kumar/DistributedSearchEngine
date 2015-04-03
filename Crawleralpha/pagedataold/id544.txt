@@ -1,0 +1,1258 @@
+Delete nodes which have a greater value on right side - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Delete nodes which have a greater value on right side Given a singly linked list, remove all the nodes which have a greater value on right side. Examples: a) The list 12->15->10->11->5->6->2->3->NULL should be changed to 15->11->6->3->NULL. Note that 12, 10, 5 and 2 have been deleted because there is a greater value on the right side. When we examine 12, we see that after 12 there is one node with value greater than 12 (i.e. 15), so we delete 12. When we examine 15, we find no node after 15 that has value greater than 15 so we keep this node. When we go like this, we get 15->6->3 b) The list 10->20->30->40->50->60->NULL should be changed to 60->NULL. Note that 10, 20, 30, 40 and 50 have been deleted because they all have a greater value on the right side. c) The list 60->50->40->30->20->10->NULL should not be changed. Method 1 (Simple) Use two loops. In the outer loop, pick nodes of the linked list one by one. In the inner loop, check if there exist a node whose value is greater than the picked node. If there exists a node whose value is greater, then delete the picked node. Time Complexity: O(n^2) Method 2 (Use Reverse) Thanks to Paras for providing the below algorithm. 1. Reverse the list. 2. Traverse the reversed list. Keep max till now. If next node < max, then delete the next node, otherwise max = next node. 3. Reverse the list again to retain the original order. Time Complexity: O(n) Thanks to R.Srinivasan for providing below code. 
+#include <stdio.h>
+#include <stdlib.h>
+
+/* structure of a linked list node */
+struct node
+{
+     int data;
+     struct node *next;
+};
+
+/* prototype for utility functions */
+void reverseList(struct node **headref);
+void _delLesserNodes(struct node *head);
+
+/* Deletes nodes which have a node with greater value node
+  on left side */
+void delLesserNodes(struct node **head_ref)
+{
+    /* 1) Reverse the linked list */
+    reverseList(head_ref);
+
+    /* 2) In the reversed list, delete nodes which have a node
+       with greater value node on left side. Note that head
+       node is never deleted because it is the leftmost node.*/
+    _delLesserNodes(*head_ref);
+
+    /* 3) Reverse the linked list again to retain the
+       original order */
+    reverseList(head_ref);
+}
+
+/* Deletes nodes which have greater value node(s) on left side */
+void _delLesserNodes(struct node *head)
+{
+     struct node *current = head;
+
+     /* Initialize max */
+     struct node *maxnode = head;
+     struct node *temp;
+
+     while (current != NULL && current->next != NULL)
+     {
+         /* If current is smaller than max, then delete current */
+         if(current->next->data < maxnode->data)
+         {
+             temp = current->next;
+             current->next = temp->next;
+             free(temp);
+         }
+
+         /* If current is greater than max, then update max and
+            move current */
+         else
+         {
+             current = current->next;
+             maxnode = current;
+         }
+
+     }
+}
+
+/* Utility function to insert a node at the begining */
+void push(struct node **head_ref, int new_data)
+{
+     struct node *new_node =
+              (struct node *)malloc(sizeof(struct node));
+     new_node->data = new_data;
+     new_node->next = *head_ref;
+     *head_ref = new_node;
+}
+
+/* Utility function to reverse a linked list */
+void reverseList(struct node **headref)
+{
+     struct node *current = *headref;
+     struct node *prev = NULL;
+     struct node *next;
+     while(current != NULL)
+     {
+          next = current->next;
+          current->next = prev;
+          prev = current;
+          current = next;
+     }
+     *headref = prev;
+}
+
+/* Utility function to print a linked list */
+void printList(struct node *head)
+{
+     while(head!=NULL)
+     {
+        printf("%d ",head->data);
+        head=head->next;
+     }
+     printf("\n");
+}
+
+/* Driver program to test above functions */
+int main()
+{
+    struct node *head = NULL;
+
+    /* Create following linked list
+      12->15->10->11->5->6->2->3 */
+    push(&head,3);
+    push(&head,2);
+    push(&head,6);
+    push(&head,5);
+    push(&head,11);
+    push(&head,10);
+    push(&head,15);
+    push(&head,12);
+
+    printf("Given Linked List: ");
+    printList(head);
+
+    delLesserNodes(&head);
+
+    printf("\nModified Linked List: ");
+    printList(head);
+
+    getchar();
+    return 0;
+} Output: 
+Given Linked List: 12 15 10 11 5 6 2 3
+Modified Linked List: 15 11 6 3 Source: http://geeksforgeeks.org/forum/topic/amazon-interview-question-for-software-engineerdeveloper-about-linked-lists-6 Please write comments if you find the above code/algorithm incorrect, or find other ways to solve the same problem.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. Guest method 2 is giving wrong answer for list 2 1 4 3 6 9 7 8 9 10, ans is coming as 10 rather than 2 4 9 10 Samar Method 2 is correct & there is no bug in this method. Check again, you must have miss something. hxgxs1 Working code using Recursion.. Enjoy : ) Idea: recurse till the end, whlie the recursions pop out keep a max value till the elements found so far. since we are now moving right to left, if a node’s value is less than the max value delete it else change the max value and return it. #include #include #include using namespace std; typedef struct node { int info; struct node *next; }node; node *getnode(int elem) { node *p; p=(node *)malloc(sizeof(node)); p->info=elem; p->next=NULL; return p; } node **append(node **head,int elem) { if((*head)==NULL) { (*head)=getnode(elem); return (head); } else { (*head)->next=getnode(elem); return(&((*head)->next)); } } void display(node *head) { while(head) { printf(” %d “,head->info); head=head->next; } } int deleteIfRightGreater(node **head,node *prev) { if(!(*head)) return 0; int max=0; max=deleteIfRightGreater(&((*head)->next),*head); if((*head)->info>max) { max=(*head)->info; } else { if(prev) { prev->next=(*head)->next; } else // we need to change the head { (*head)=(*head)->next; } } return max; } int main() { int n,elem; node *head=NULL,**curr; cin>>n; curr=&head; for(int i=0;i<n;i++) { scanf("%d",&elem); curr=append(curr,elem); } display(head); deleteIfRightGreater(&head,NULL); cout<<endl; display(head); return 0; } bhopu c implementation of recursion #include struct node { int data; struct node *next; }; /* function to create linked list */ insert(struct node **head,int item){ struct node *ptr; ptr=(struct node *)malloc(sizeof(struct node)); if(ptr==NULL){ printf(“n underflow!!”); exit(1); }else{ ptr->data=item; ptr->next=*head; *head=ptr; } } /* display modified list */ display(struct node *q){ while(q!=NULL){ printf(” %d->”,q->data); q=q->next; } } /* function delLESSNoDe() to delete the node which have greater value on right side in recursive manner */ delLESSNoDe(struct node *head, struct node *prv){ int max=0; if(head==NULL) return 0; max=delLESSNoDe(head->next,head); if(head->data>max) max=head->data; else{ if(prv!=NULL) prv->next=head->next; } return max; } main(){ struct node *head=NULL; insert(&head,7); insert(&head,3); insert(&head,6); insert(&head,7); insert(&head,8); insert(&head,3); insert(&head,12); insert(&head,17); int max=delLESSNoDe(head,NULL); if(head->datanext; display(head); return 0; } bhopu we can also use recursion … Himanshu Dagar we can do this question in O(n) time even without reverse the linked list For the code go to below link http://ideone.com/IEf4ZD Gaurav pruthi Solved it with recursion Just writing the pseudo-code: //global variable int max = 0; void correctList(node *ptr){ if(node->next == NULL){ max = node->element; return; } correctList(ptr->next); if(node->element element = node->next->element; tmp = node->next; node->next = tmp->next; delete tmp; } else max = node->element; } Mudit Tanwar i have done using a single pointer ………… plzzzz do comment if any doubt about my code void rightdel(struct node *head) { struct node *temp; temp=head; while(temp->next!=NULL) { if(temp->data next->data) { temp->data=temp->next->data; temp->next=temp->next->next; } else { temp=temp->next; } } } Ravi rocksss #include #include struct list{ int data; struct list*next; }; void insert_end(struct list**head,int num) { struct list*temp=*head; struct list*temp1; temp1=(struct list*)malloc(sizeof(struct list)); temp1->data=num; temp1->next=NULL; if(temp==NULL) { temp=temp1; *head=temp; } else { while(temp->next!=NULL) { temp=temp->next; } temp->next=temp1; } } void display(struct list*head) { struct list*temp; temp=head; while(temp!=NULL) { printf(“%dn”,temp->data); temp=temp->next; } printf(“n”); } struct list* delet_right_gretor(struct list**head) { struct list*temp=*head; struct list*temp2=temp->next; struct list*temp4=NULL; struct list*temp3; if(temp==NULL) return (NULL); if(temp->next==NULL) return (temp); else if(temp2->data>temp->data) { temp3=temp->next; *head=temp3; } delet_right_gretor(&(temp->next)); } int main() { struct list*temp2=NULL; struct list*temp3=NULL; insert_end(&temp2,2); insert_end(&temp2,1); insert_end(&temp2,0); insert_end(&temp2,11); insert_end(&temp2,59); insert_end(&temp2,6); display(temp2); delet_right_gretor(&temp2); display(temp2); return 0; } Praveen I had them with two pointers at O(n). Comments welcome #include typedef struct node { int data; node * next; }mynode; class linkedList { private: mynode *head; public: linkedList(); void addNode(int data); mynode* deleteNode(mynode *toDel); mynode* deleteNode(mynode *curr, mynode *prev); void displayList(); void remNodeWithGrRightVal(); }; linkedList::linkedList() { head = NULL; } void linkedList::addNode(int dataToadd) { //Create new node and add the data node *newNode = (mynode *)malloc(sizeof(mynode)); newNode->data = dataToadd; newNode->next = NULL; //add to the tail of the linked list O(n) mynode *curr = head; if(curr != NULL) { while(curr->next != 0) { curr = curr->next; } curr->next = newNode; } else { head = newNode; } } /** * Returns new prev node * we need reference to continue after deletion to give the prev node */ mynode* linkedList::deleteNode(mynode *curr, mynode *prev) { if(prev != NULL) { prev->next = curr->next; } else // case when head is delNode { if(curr != NULL) { head = curr->next; prev = NULL; free(curr); } else { head = NULL; prev = NULL; } } return prev; } mynode* linkedList::deleteNode(mynode *toDel) { mynode *prevNode; if(toDel !=0 ) { mynode *curr = head; //parse through the list and delete the node O(n) while( curr->next != NULL ) { if(curr->next == toDel) { prevNode = this->deleteNode(curr->next, curr); } curr = curr->next; } } else { std::cout<<"Nothing to delete. passed node is NULL"<<std::endl; } return prevNode; } void linkedList::displayList() { mynode *curr = head; std::cout<<std::endl; while(curr != NULL ) { std::cout<< " [" <data<next; } std::cout<next!=NULL) { if(curr->data next->data) { //After delting node we need to continue so we have to get the new //reference to prev and curr nodes prev = this->deleteNode(curr, prev); } else { prev = curr; } if(head != NULL) { //Case when head was deleated and new head is formed //when new head is formed, then prev=NULL and curr should become head again if(prev != NULL) curr = prev->next; else curr = head; } else { prev = curr = NULL; } } } void example1() { std::cout<<"nnn ************* Example 1************ "<addNode(12); ll->addNode(15); ll->addNode(10); ll->addNode(11); ll->addNode(5); ll->addNode(6); ll->addNode(2); ll->addNode(3); std::cout << "nnnDisplay linked list" <displayList(); ll->remNodeWithGrRightVal(); std::cout << "nnnDisplay again after deleting nodes with greater value on right" <displayList(); } void example2() { std::cout<<"nnn ************* Example 2************ "<addNode(10); ll->addNode(20); ll->addNode(30); ll->addNode(40); ll->addNode(50); ll->addNode(60); std::cout << "nnnDisplay linked list" <displayList(); ll->remNodeWithGrRightVal(); std::cout << "nnnDisplay again after deleting nodes with greater value on right" <displayList(); } void example3() { std::cout<<"nnn ************* Example 3************ "<addNode(60); ll->addNode(60); ll->addNode(40); ll->addNode(40); ll->addNode(30); ll->addNode(20); ll->addNode(10); std::cout << "nnnDisplay linked list" <displayList(); ll->remNodeWithGrRightVal(); std::cout << "nnnDisplay again after deleting nodes with greater value on right" <displayList(); } int main() { example1(); example2(); example3(); return 0; } Sumit Monga Can also be done easily using extra space O(n) by storing the max value on the right hand side of a node into an array in reverse order and then transversing and changing the list from the head end .Requires two transversals so time complexity is O(n). here is some code……… #include #include struct node { int data; struct node * next; }; void push(struct node ** headRef,int data) { struct node * temp = (struct node *) malloc(sizeof(struct node)); temp->data = data; temp->next = *headRef; *headRef = temp; } void find_max(struct node * head, int * arr,int n ) { static int i = n-1; if(head == NULL) return; find_max(head->next,arr,n); static int max = head->data; if(head->data > max) max = head->data; arr[i–] = max; } void modify_list(struct node ** headRef, int * arr) { int i = 0; struct node * temp = NULL; while((*headRef)->next != NULL) { if((*headRef)->data next; free(temp); i++; } else break; } i++; struct node * current = *headRef; while(current->next != NULL) { if(current->next->data next; current->next = temp->next; free(temp); } else current = current->next; i++; } } int main() { struct node * head = NULL; push(&head,3); push(&head,2); push(&head,6); push(&head,5); push(&head,11); push(&head,10); push(&head,15); push(&head,12); struct node * current = head; while(current!= NULL) { printf(” %d “,current->data); current = current->next; } int * arr = (int *)calloc(sizeof(int),7); find_max(head,arr,7); modify_list(&head,arr); current = head; printf(“n New list is :”); while(current!=NULL) { printf(” %d “,current->data); current = current->next; } } Dark_Knight we can use stack , here’s its logic -> 1.> Traverse list from start 2.> Keep popping from stack till stack.top() is less than cur element , than push cur element 3.> After the traversal , stack has only elements which don’t have any greater value on its side stack stk; cur=head; while(cur) { while(!stk.empty() && stk.top()->data data) { temp=stk.top(); stk.pop(); free(temp); } stk.push(cur); cur=cur->next; } //Re-formation of linked list head=NULL; while(!stk.empty()) { push(&head,stk.top()->data); stk.pop(); } printList(head); Ayush Walia The program for solution of above specified problem… further editing needed to handle all cases  
+#include<stdio.h>
+#include <stdlib.h>
+struct node{
+	int item;
+	struct node*next;
+}*START=NULL,*NODE;
+
+void insert(int item){
+	NODE=(struct node *)malloc(sizeof(struct node));
+	if(START==NULL){
+		START=NODE;
+		NODE->next=NULL;
+	}else{
+		NODE->next=START;
+		START=NODE;
+	}
+	NODE->item=item;
+}
+
+
+void traverse(){
+	printf("\ntraversing\n");
+	struct node *temp=START;
+	while(temp!=NULL){
+		printf("%d\n",temp->item);
+		temp=temp->next;
+	}
+}
+
+
+void reverse(){
+	struct node *ncur,*nncur;
+	ncur=START;
+	nncur=START->next;
+	
+	while(nncur!=NULL){
+		if(ncur->item<nncur->item){
+			ncur->item=nncur->item;
+			ncur->next=nncur->next;
+			if(nncur->next!=NULL)
+			nncur=nncur->next;
+		}else{
+			nncur=nncur->next;
+			ncur=ncur->next;
+		}
+	}
+}
+
+
+int main(){
+	//12->15->10->11->5->6->2->3
+	insert(3);
+	insert(2);
+	insert(6);
+	insert(5);
+	insert(11);
+	insert(10);
+	insert(15);
+	insert(12);
+	traverse();
+	reverse();
+	traverse();
+	return 0;
+}
+ Ayush Walia  
+#include<stdio.h>
+#include <stdlib.h>
+struct node{
+	int item;
+	struct node*next;
+}*START=NULL,*NODE;
+
+
+void insert(int item){
+	NODE=(struct node *)malloc(sizeof(struct node));
+	if(START==NULL){
+		START=NODE;
+		NODE->next=NULL;
+	}else{
+		NODE->next=START;
+		START=NODE;
+	}
+	NODE->item=item;
+}
+
+
+void traverse(){
+	printf("\ntraversing\n");
+	struct node *temp=START;
+	while(temp!=NULL){
+		printf("%d\n",temp->item);
+		temp=temp->next;
+	}
+}
+
+
+void reverse(){
+	struct node *ncur,*nncur;
+	ncur=START;
+	nncur=START->next;
+	
+	while(nncur->next!=NULL){
+		while(ncur->item<nncur->item){
+			ncur->item=nncur->item;
+			ncur->next=nncur->next;
+			nncur=nncur->next;
+		}
+		ncur=ncur->next;
+		nncur=nncur->next;
+	}
+	
+	ncur->item=nncur->item;
+	ncur->next=nncur->next;
+	
+}
+
+
+int main(){
+	//12->15->10->11->5->6->2->3
+	insert(3);
+	insert(2);
+	insert(6);
+	insert(5);
+	insert(11);
+	insert(10);
+	insert(15);
+	insert(12);
+	traverse();
+	reverse();
+	traverse();
+	return 0;
+}
+ Law kumar  
+#include<stdio.h>
+#include<conio.h>
+#include<stdlib.h>
+struct node
+{
+    int data;
+    struct node* link;
+};
+
+void del(struct node* ptr,struct node* pre,int* max)
+{
+    if(ptr==NULL)
+    return;
+    del(ptr->link,pre->link,max);
+    if(ptr->data<(*max))
+    {
+     
+     pre->link=ptr->link; 
+     free(ptr);
+    }
+else
+{
+    *max=ptr->data;
+}
+
+}
+
+void addbeg(struct node** start,int num1)
+{
+   struct node* temp=(struct node*)malloc(sizeof(struct node));
+   temp->data=num1;
+   temp->link=(*start);
+   *start=temp;
+}
+
+void display(struct node* start)
+{
+    while(start!=NULL)
+    {
+     printf("%d\n",start->data);
+     start=start->link;
+    }
+    
+ return;
+}    
+
+int main()
+{
+    struct node *start=NULL,*pre=NULL,*ptr=NULL;
+    int no,i,num,max=-99;
+    printf("Enter no of elements\n");
+    scanf("%d",&no);
+    for(i=0;i<no;i++)
+    {
+    scanf("%d",&num);   
+    addbeg(&start,num);
+  }
+display(start);
+pre=start;
+ptr=start->link;
+del(ptr,pre,&max);
+if(max>start->data)
+{
+start=start->link;
+free(pre);
+}   
+display(start);
+getch();
+return 0;
+}         
+
+ Law kumar  
+#include<stdio.h>
+#include<conio.h>
+#include<stdlib.h>
+struct node
+{
+    int data;
+    struct node* link;
+};
+
+void del(struct node* ptr,struct node* pre,int* max)
+{
+    if(ptr==NULL)
+    return;
+    del(ptr->link,pre->link,max);
+    if(ptr->data<(*max))
+    {
+     
+     pre->link=ptr->link; 
+     free(ptr);
+    }
+else
+{
+    *max=ptr->data;
+}
+
+}
+
+void addbeg(struct node** start,int num1)
+{
+   struct node* temp=(struct node*)malloc(sizeof(struct node));
+   temp->data=num1;
+   temp->link=(*start);
+   *start=temp;
+}
+
+void display(struct node* start)
+{
+    while(start!=NULL)
+    {
+     printf("%d\n",start->data);
+     start=start->link;
+    }
+    
+ return;
+}    
+
+int main()
+{
+    struct node *start=NULL,*pre=NULL,*ptr=NULL;
+    int no,i,num,max=-99;
+    printf("Enter no of elements\n");
+    scanf("%d",&no);
+    for(i=0;i<no;i++)
+    {
+    scanf("%d",&num);   
+    addbeg(&start,num);
+  }
+display(start);
+pre=start;
+ptr=start->link;
+del(ptr,pre,&max);
+if(max>start->data)
+{
+start=start->link;
+free(pre);
+}   
+display(start);
+getch();
+return 0;
+}         
+
+ hariprasaadssalem Call this function like this… head=del(head);  
+struct node* del(struct node *list)
+{
+       if(list==NULL || list->next==NULL)
+                     return list;
+       list->next=del(list->next);
+       struct node* t=list->next;
+       if(list->data<t->data)
+       {
+                             free(list);
+                             return t;
+       }
+       return list;
+}
+ sonali gupta  
+/* Paste your code here (You may delete these lines if not writing code) */
+ #include #include #include #include typedef struct NODE {int info; struct NODE *next; }node; node *temp; node *getnode() {return((node *)malloc(sizeof(node))); } void traverse(node *head) { node *s; s=head; while(s!=NULL) {printf(“%d “,s->info); s=s->next; } } node *reversal(node *head,int k) { node* current = head; node* next; node* prev = NULL; int count = 0; while (current != NULL && count < k) { next = current->next; current->next = prev; prev = current; current = next; count++; } return prev; } int main() { node *head,*p,*ptr,*q; int x,max; char ch=’y'; printf(“enter info part\n”); scanf(“%d”,&x); temp=getnode(); temp->info=x; temp->next=NULL; head=temp; p=head; while(ch==’y’) {printf(“enter the info part\n”); scanf(“%d”,&x); temp=getnode(); temp->info=x; p->next=temp; temp->next=NULL; p=temp; printf(“do u want to enter more?\n”); fflush(stdin); scanf(“%c”,&ch); } head=reversal(head,8); max=head->info; q=head; ptr=head->next; while(ptr!=NULL) {if(max>ptr->info) q->next=ptr->next; else max=ptr->info; q=ptr; ptr=ptr->next; } head=reversal(head,4); traverse(head); getch(); return 0; } Aditya Ambashtha Here is a recursive function to do the same task!  
+void recursiveMission(node **head)
+{
+    node *start=*head,*temp;        /*temp will contain the node to be deleted*/
+    static node *max;
+
+    if (!start->next)               /*this function stores the last node as max's first value*/
+    {
+        max=start;
+        return;
+    }
+    else
+        recursiveMission(&(start->next));       /*keep calling until last node touched(max defined)*/
+
+    if (start->next->val<max->val)              /*if the next node < max node, delete it*/
+    {
+        temp=start->next;
+        start->next=max;
+        free(temp);
+    }
+
+    if (start->val>max->val)                /*if the head node for this call > max, make it max*/
+    {
+        max=start;
+    }
+
+    *head=max;                              /*this ensures that head points to 15 in case of a list like 12->15->10 ...*/
+
+}
+ Ronak greater than 15 so we keep this node. When we go like this, we get 15->6->3 Should be greater than 15 so we keep this node. When we go like this, we get 15->11->6->3 Gaurav Patel Recursive method for above code:Do comment if you find any mistake or any other suggestion void deleteMax(struct node** head_ref) { struct node* save,*prev; struct node* current=*head_ref; if(*head_ref==NULL||(*head_ref)->next==NULL) return; else if((*head_ref)->datanext->data) { save=(*head_ref)->next; free(*head_ref); *head_ref=save; deleteMax(&(*head_ref)); } deleteMax(&(*head_ref)->next); } pradheep Algo: 1. Use rec and traverse end; 2. Make it(last node data) as max; 3. Return it; 4. Check cur(last pre) data if it is less than max delete it 5. Else 6. Make it as max and return it; 7. Loop from step 4 till u reach the first node;  
+int DeleteMaxRight(struct node** hr)
+{
+    struct node *cur=*hr;
+    if(!cur)
+        return 0;
+    if(!(cur->next))
+        return cur->data;
+    int maxi;
+    maxi=DeleteMaxRight(&(cur->next));
+    if(cur->data<maxi)
+    {
+        *hr=cur->next;
+        free(cur);
+    }
+    else{
+        maxi=cur->data;
+    }
+    return maxi;
+}
+ me.abhinav Here’s my code. It requires just one pass. No reversing required.  
+void deleteWithLargerRight(node **head){
+	node *cur, *temp;
+	node *dummy = (node *)malloc(sizeof(node));
+	dummy->next = *head;
+	cur = dummy;
+
+	while(cur->next->next != NULL){
+		if(cur->next->data < cur->next->next->data){
+			temp = cur->next;
+			cur->next = cur->next->next;
+			free(temp);
+		}else{
+			cur = cur->next;
+		}
+	}
+	*head = dummy->next;
+	free(dummy);
+}
+ Priyanka K  
+void deleteWithLargeRight(Node **head){
+     Node *h=*head,*last=NULL,*t;
+     while(h->next){
+                    if(h->data<h->next->data){
+                                              t=h->next;
+                                              if(last)
+                                                      last->next=t;
+                                              else
+                                                      *head=t;
+                                              free(h);
+                                              h=t;
+                    }
+                    else{
+                         last=h;
+                         h=h->next;
+                    }
+     }
+}
+ koolkeshaw No need to reverse the linked list .. Here is a recursive solution with time complexity= O(n) using List Iteratorimport java.util.*; public class delRightNode2 { static int maxNum=0; public static void main(String []args) { LinkedList lList=new LinkedList(); lList.add(12); lList.add(15); lList.add(10); lList.add(11); lList.add(5); lList.add(6); lList.add(2); lList.add(3); delRightNode2 node= new delRightNode2(); System.out.println(“The given linked list is…..”); System.out.println(” “+ lList); ListIterator itr= lList.listIterator(); try { System.out.println(“The required linked list is…..”); node.remove(itr); } catch(Exception exp) { System.out.println(” “+ lList); return; } } void remove(ListIterator itr) { int num; if(itr.hasNext()) { itr.next(); remove(itr); } else { delRightNode2.maxNum=(Integer)itr.previous(); itr.previous(); return ; } num=(Integer)itr.next(); if(num < delRightNode2.maxNum) { itr.remove(); } if(num > delRightNode2.maxNum) { delRightNode2.maxNum=num; itr.previous(); } int num2=(Integer)itr.previous(); } } < \sourcecode> koolkeshaw for output:- http://ideone.com/F1DB7Q abhishek08aug Intelligent Hanish Bansal Here is a very short and compact working recursive code : void delLesserNodes(struct node **head_ref) { struct node *current = *head_ref; if(current==NULL || current->next == NULL) return; delLesserNodes(&current->next); if( current->data next->data ) *head_ref = current->next ; } lotus I have a recursive solution : void Del(node **head, node *p, node *prev, int &max) {if(p==NULL) return; Del(head, p->next, p, max); node *q; if (p->data>max) max=p->data; if(p->data < max) { q=p; if(prev) {prev->next=p->next; free(q);} else *head=p->next; } } Pass prev=NULL and max=MIN where MIN is a very low number pranav we can simply use recursion /*class LinkedList { int max=0;//global max class Node { int data; Node next; Node(int data,Node next) { this.data=data; this.next=next; } } public Node deleteMinNodes(Node head,Node prev) { Node cur=head; if(cur.next!=null) deleteMinNodes(cur.next,cur); if(cur.data>=max) max=cur.data; else { if(prev!=null) prev.next=cur.next; else head=cur.next; } return head; } public static void main(String[] input) { LinkedList list=new LinkedList(); head=list.deleteMinNodes(head, null);//head contains head of linked list } } */ Mack  
+struct node* deletegt(struct node **head)
+{
+    struct node *temp = NULL, *prev = NULL;
+    temp = *head;
+    if((*head)->next != NULL) {
+        if((*head)->data < (*head)->next->data) {
+            prev = *head;
+            *head = (*head)->next;
+            free(prev);
+            *head = deletegt(head);
+        }
+        else {
+            prev = temp;
+            temp = temp->next;
+        }
+    }
+    while(temp->next != NULL) {
+        if(temp->data < (temp->next)->data) {
+            prev->next = temp->next;
+            free(temp);
+            temp = prev->next;
+        }
+        else {
+            prev = prev->next;
+            temp = temp->next;
+        }
+    }
+//    *head = temp;
+    return *head;
+}
+
+ Mack Above code delete nodes which have a greater value on right side without reversing the linked list in O(n) time. Siddhesh Simplest one O(n) with single pointer  
+/* Paste your code here (You may delete these lines if not writing code) */
+void DeleteGreaterRight()
+{
+	node *ptr = _phead;
+        while(ptr->pnext)
+	{
+        	node* pnext = ptr->pnext;
+	        if(pnext && (ptr->_data < pnext->_data))
+	        {
+	          ptr->_data = pnext->_data;
+		  ptr->pnext = pnext->pnext;
+		  delete pnext;
+	        }
+	        else
+		  ptr = ptr->pnext;
+	}
+}
+ Rajneesh  
+/* Paste your code here (You may delete these lines if not writing code) */
+void Delete(node** head,int* max){
+node* curr=*head;
+if(!curr ){
+return ;
+}
+Delete(&curr->next,max);
+if(curr->data <*max){
+node* Next= curr->next;
+delete curr;
+*head=Next;
+return;
+}
+if(*max< curr->data)
+*max=curr->data;
+
+return;
+}
+
+ Panther2  
+public static void delIfRightGreater(LinkedList l1)
+		{LinkedList temp=l1;
+		while(temp!=null && temp.next!=null)
+			{if(temp.next.data>temp.data)
+				{temp.data=temp.next.data;
+				temp.next=temp.next.next;			
+				}
+			temp=temp.next;
+			}
+		LinkedList.printLinkedList(l1);
+		}
+ Shen This code is nice one…..Recursive Solution…  
+node *deleteNode(node *st, long long *max)
+{
+    if(st==NULL)
+    {
+        *max=-1*INF;
+        return NULL;
+    }
+    node *t=deleteNode(st->link,max);
+    if(st->info>*max)
+    {
+        *max=st->info;
+        st->link=t;
+        return st;
+    }
+    else
+    {
+        delete(st);
+        return t;
+    }
+} Ashish 12->15->10->11->5->6->2->3->NULL should be changed to 15->11->6->3->NULL instead of this if the list is 12->15->10->11->5->6->2->30->NULL what should be output  
+/* Paste your code here (You may delete these lines if not writing code) */
+ BidhanPal 1. Use recursion to traverse link list right to left 2. the last node always added to retune list 3. if the current node is less than right link list then delete it and return right link list. 4. otherwise add current node at beginning of right link list and return current node  
+#include<stdio.h>
+#include<stdlib.h>
+
+/* structure of a linked list node */
+struct node
+{
+     int data;
+     struct node *next;
+};
+typedef struct node Node;
+ 
+/* prototype for utility functions */
+
+
+/* Deletes nodes which have a node with greater value node
+  on left side */
+
+Node * deleteNodeSmallerThanRight(Node* root)
+{
+    Node* right;
+    //if root is NULL then retun null;
+    if(root == NULL)
+        return NULL;
+    //right most element always present in list
+    if(root->next == NULL)
+    {
+        return root;
+    }
+    
+    //Hold the right list
+    right = deleteNodeSmallerThanRight(root->next);
+    
+    /*
+     * Check if current node data is maximum than first right nodes
+     * If not that means it has bigger node in right side
+     */
+    if(right->data > root->data)
+    {
+        free(root);
+        return right;
+    }
+    /* Current node is bigger than all right nodes */
+    else
+    {
+        // root is added to the front and it has highest data in right side
+        root->next= right;
+        return root;
+    }
+}
+
+ 
+/* Utility function to insert a node at the begining */
+void push(struct node **head_ref, int new_data)
+{
+     struct node *new_node =
+              (struct node *)malloc(sizeof(struct node));
+     new_node->data = new_data;
+     new_node->next = *head_ref;
+     *head_ref = new_node;
+}
+
+ 
+/* Utility function to print a linked list */
+void printList(struct node *head)
+{
+     while(head!=NULL)
+     {
+        printf("%d ",head->data);
+        head=head->next;
+     }
+     printf("\n");
+}
+ 
+/* Driver program to test above functions */
+int main()
+{
+    struct node *head = NULL;
+    /* Create following linked list
+      12->15->10->11->5->6->2->3 */
+    push(&head,3);
+    push(&head,2);
+    push(&head,6);
+    push(&head,5);
+    push(&head,11);
+    push(&head,10);
+    push(&head,15);
+    push(&head,12);
+ 
+    printf("Given Linked List: ");
+    printList(head);
+ 
+    head = deleteNodeSmallerThanRight(head);
+ 
+    printf("\nModified Linked List: ");
+    printList(head);
+    
+    return 0;
+}
+
+ Aravind No recursion, but still o(n) 1. basically keep 3 pointers: prev, cur, forward 2. loop until forward != NULL if data in current next to forward fi move the 3 pointers position ahead loop done  
+void deleteNode(sll **h)
+{
+  sll *prev = NULL;
+  sll *cur = *h ;
+  sll *forward = cur->next ;
+  sll *f ;
+
+  while( forward != NULL)
+  {
+      if ( cur->num < forward->num )
+      {
+          if ( cur == *h )
+           {
+
+               *h = cur->next ;
+           }
+          else
+           {
+               prev->next = forward ;
+           }
+           prev = cur ;
+           f = cur ;
+           cur = cur->next;
+           forward = forward->next ;
+           free(f);
+           continue;
+      }
+      prev = cur ;
+      cur = cur->next ;
+      forward = forward->next ;
+  }
+
+}
+
+ jalajb2k7 we are modifying the structure of linked list in second method , we can do this without doing it using recursion. a very simple approach , just traverse the list till end using recursion, and then when you come back , keep rack of maximum and do the same you do in method 2, if any1 wants code of this method i can provide jalajb2k7  
+int max = -9999;
+node *todeletenode = NULL;
+// pass double pointer instead of simple pointer
+void delete(node *head){
+   if (!head)
+       return;
+   delete(head->next);
+   if(todeletenode){
+      head=head->next->next;
+      free(todeletenode);
+      todeletenode = NULL;
+   }
+   if(max > head->data) todeletenode = head;
+   else if(head->data > max) max = head->data;
+  
+}
+
+  
+/* Paste your code here (You may delete these lines if not writing code) */
+ jalajb2k7 a typo in a line do it if(todeletenode){ head->next=head->next->next;  
+/* Paste your code here (You may delete these lines if not writing code) */
+ suriya Hello All, Here’s the O(n) code without using reverse. All you need to do is the traverse from the end of the list where the function will return the maximum of the so found element until the traversal from end, update the previous node or maximum value accordingly. Time Complexity:O(n), Space Complexity: Constance space.  
+node* delMinRight(node* root)
+{
+      int max, delforMinRight(node*, node*);
+      if(root->next==NULL) return root;
+      max=delforMinRight(root, root->next);
+      if(max > root->data) return root->next; 
+      return root;
+}
+int delforMinRight(node* prev, node *cur)
+{
+    if(cur->next==NULL) return (cur->data); //Returns the last node value
+    int max  = delforMinRight(cur, cur->next); //Calls recursively to reach the end of the list
+    if(max < cur->data) return(cur->data); //If my current value is maximum than the value returned(max from the end), return it as maximum
+    prev->next=cur->next; //Else reset the pointer to delete
+    return(max);          //and return existing max value
+}
+ tuhin@jucse #include #include typedef struct nodetag { int data; struct nodetag * next; } nodetype; nodetype *cur, *prev, *next, *target; nodetype * createnode(int item) { nodetype *head = NULL; head = (nodetype *)malloc(sizeof (nodetype)); if(head==NULL) printf(“\nmalloc eror”); else {head->data= item; head->next = NULL;} return head; } nodetype* init_l() { return NULL; } int empty_l(nodetype *head) { return (head == NULL); } int atend_l(nodetype *cur) { if (cur == NULL) return 0; else return (cur->next == NULL); } void insert_after (nodetype *target, nodetype *prev) { nodetype *cur; cur = prev -> next; target -> next = cur; prev -> next = target; } void display(nodetype **phead) { nodetype *temp=*phead; while(temp!=NULL) { printf(“%d–>”,temp->data); temp=temp->next; } } void deleteright(nodetype **head) { nodetype *temp,*temp1; nodetype *prev=NULL; while((*head)->next!=NULL) { if((*head)->data next->data) {temp = *head; temp1 = (*head)->next; *head= temp1; free(temp); } else break; } temp = *head; while(temp->next!=NULL) { if(temp->data>temp->next->data) { prev=temp; temp=temp->next; } else { temp1=temp->next; prev->next=temp1; free(temp); temp=temp1; } } } main() { int n,choice; printf(“\nCREATING A LINKED LIST IN THE ORDER THEY ARE READ:”);//printing in correct order nodetype *phead=init_l(); printf(“\nenter the first element of the list:”); scanf(“%d”,&n); phead=createnode(n); prev=phead; while(1) { printf(“\nif you want to add another node press 1,else 2:”); scanf(“%d”,&choice); if(choice==1) { printf(“\nenter the value:”); scanf(“%d”,&n); target=createnode(n); insert_after(target,prev); prev=target; } else break; } display(&phead); printf(“NULL”); printf(“\n”); deleteright(&phead); display(&phead); printf(“NULL”); } tuhin@jucse my code is O(n) moreover using reverse twice is quite a cost effective method . we can simply use pointer manipulation . i mean while traversing keeping prev n temp pointers n go on checking if node on right is greater if then remove till we encounter NULL. GeeksforGeeks @tuhin@jucse: Thanks for your contribution to geeksforgeeks. Could you please post the code within sourcecode tags (as a new comment). Also, please add few lines about your approach. haha @alll can any one explain why we r reversing the linked list ?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ divyam goel no need to reverse just use recursion would essentially do the same thing  
+/* Paste your code here (You may delete these lines if not writing code) */
+ pegasus struct node* remove_right(struct node* head, int *max) { if(head==NULL) return NULL; else if(head->next==NULL) { *max=head->data; return head; } else { head->next=remove_right(head->next,max); if((*max)>(head->data)) { struct node* temp=head; head=head->next; free(temp); } else (*max)=head->data; } return head; } Ankur Simplest of all  
+/* Paste your code here (You may delete these lines if not writing code) */
+
+void delsmallbig()
+{
+     struct list *p=ptr,*q=NULL,*r=NULL;
+     while(p->next!=NULL)
+     {
+                         printf("Current Node %d\n",p->value);
+                        
+                         q=p->next;
+                         if(p->value<q->value)
+                         {
+                                              if(p==ptr)
+                                              {
+                                                   ptr=q;;
+                                                        
+                                              }
+                                              if(r!=NULL)
+                                              r->next=q;
+                                              
+                         }
+                        r=p;
+                         p=q;
+                         
+                         
+                         
+     }
+     
+     
+}
+
+ kartik @Ankur: Thanks for sharing the code. Can you please tell us about the approach used. Ankit Chaudhary Your approach is wrong. This code will never work except for two types of test cases. check it out for : 4 3 2 1 5 9  
+/* Paste your code here (You may delete these lines if not writing code) */
+ harjitmeister A simple solution could be. 1) compare consecutive elements of list using one pointer. 2) if (next->data >current->data) copy next node->data to current. delete next node. ~Harjit Saurya Fails for the test case 10->9->15->12 should give 15->12 your algo will give 10->15->12 Harshendra Avabratha struct node* delGreater(struct node *h) { struct node dummy; struct node *cur,*prev; dummy.next=h; prev=&dummy; cur=h; while(cur && cur->next) { if(cur->info next->info) { prev->next=cur->next; cur=cur->next; } else { prev=prev->next; cur=cur->next; } } return dummy.next; } radhe Please clarify one thing. Is it that node should not have greater value to the ‘immediate right’ or right as a whole. eg: input – 10 11 6 12 4 7 should ’11’ be deleted or not? kartik It is right as a whole. So 11 should be deleted. mrn reversing the list:  void reverse(struct node *nd)
+{
+	struct node *h=nd,*t,*t1;
+	while(nd->n!=NULL)
+		nd=nd->n;
+	t=nd;
+	while(h!=t)
+	{
+		struct node *p=h;
+		h=h->n;
+		if(t->n==NULL)
+		{
+			t->n=p;
+			p->n=NULL;
+	
+		}
+		else
+		{
+		p->n=t->n;
+		t->n=p;
+		}
+	}
+return ;
+} Botem  
+struct LinkedListNode
+{
+	int Value;
+	LinkedListNode * Next;
+	//
+	LinkedListNode(int value)
+	{
+		Value = value;
+		Next = 0;
+	}
+};
+
+typedef LinkedListNode * LinkedList;
+
+LinkedList LinkedListCreate()
+{
+	LinkedListNode * temp = new LinkedListNode(12);
+	LinkedList llist = temp;
+
+	temp->Next = new LinkedListNode(15);
+	temp = temp->Next;
+	temp->Next = new LinkedListNode(10);
+	temp = temp->Next;
+	temp->Next = new LinkedListNode(11);
+	temp = temp->Next;
+	temp->Next = new LinkedListNode(5);
+	temp = temp->Next;
+	temp->Next = new LinkedListNode(6);
+	temp = temp->Next;
+	temp->Next = new LinkedListNode(2);
+	temp = temp->Next;
+	temp->Next = new LinkedListNode(3);
+
+	return llist;
+}
+
+LinkedList LinkedListRemove(LinkedList llist)
+{
+	LinkedListNode * p = llist, * prev = 0;
+	while(p && p->Next)
+	{
+		if (p->Value Next->Value) // delete p
+		{
+			if (prev) // 
+			{
+				prev->Next = p->Next; // remove current node
+				p = prev; // force to compare prev and new next
+			}
+			else // invalid prev
+			{
+				p = p->Next; // head
+				llist = p;
+			}
+		}
+		else // move forward
+		{
+			prev = p;
+			p = p->Next;
+		}
+	}
+	//
+	return llist;
+}
+ Raja_Varma Would this solve the problem?  
+node Del( node *head, int *max){
+ if( head == null ) { max = INT_MIN; return head; }
+ if( head->next == null ) { max = head->data; return head;}
+
+  head->next = Del(head->next,&max);
+  if( head->data data = head->next->data;
+     node *temp = head->next;
+     head->next = head->next->next;
+     free(temp);
+  }
+  else if ( maxdata)   max = head->data;
+
+  return head;
+}
+ JustAnotherGeek How about the following code? static Node delGreateronRight(Node n){ Node prev = n; Node head = n; while(n.next!=null){ if(n.data < n.next.data){ if(n==head){ n = n.next;head=n; } else{ prev.next = n.next; n = n.next; } } else{ prev=n; n=n.next; } } return head; } Raja What would be the output if the input is 10 20 15 40 35 50? a) 20 40 50 b) 50 ska Recursive solution that returns the linked list –  
+node* deleteGreaterRight(node* previous, node* current)
+{
+        if(current == NULL || current->next == NULL)
+                return current;
+        node* temp = deleteGreaterRight(current,current->next);
+        if( current->data data)
+        {
+                if(previous)
+                        previous->next = temp;
+                free(current);
+                return temp;
+        }
+        current->next = temp;
+        return current;
+}
+ While calling the function I call it with previous=NULL; and current = list; Karthikeyan hi. no need to reverse the linked list..just traverse it and delete it.my algorithm is O(n).. here is ma code  
+class list
+{
+    public:
+        int data;
+        list *next;
+        
+        
+        
+        list(int num)
+        {
+            data=num;
+            next=NULL;
+            
+        }
+
+};
+
+class test
+{
+    public:
+    list *head;
+    
+    test()
+    {
+        
+        head=NULL;
+        
+    }
+    
+    void insert(int num)
+    {
+        
+        insert(head,num);
+    }
+    
+    
+    void insert(list *&head,int num)
+    {
+        
+        
+        list *temp=new list(num);
+        list *tempe=head;
+        if(head==NULL)
+        {
+           
+            
+            head=temp;
+            
+        }
+        else
+        {
+            
+            while(tempe->next!=NULL)
+                tempe=tempe->next;
+            tempe->next=temp;
+        }
+        
+    }
+    
+    
+    void display()
+    {
+        display(head);
+        
+    }
+    
+    void solve()
+    {
+        solve(head);
+        
+    }
+    
+    
+    void solve(list *&head)
+    {
+        
+        list *temp=head;
+        list *work=head;
+        //cout<<"COMIN"<<endl;
+        int first=head->data;
+        while(work->next!=NULL)
+        {
+            
+       // cout<<"COMIN1"<<endl;
+            if(work->data < work->next->data)
+            {
+                
+                    work->data=work->next->data;
+                    work->next=work->next->next;
+                
+                
+                
+            }
+            
+            else
+            {
+                work=work->next;
+            }
+            
+            
+            
+            
+        }
+        
+        
+    }
+    
+    void display(list *head)
+    {
+        list *temp=head;
+        while(temp)
+        {
+            
+            cout<<temp->data<<endl;
+            temp=temp->next;
+        }
+        
+    }
+    
+};  
+
+
+main()
+{
+    test head;
+    head.insert(12);
+    head.insert(15);
+    head.insert(10);
+    head.insert(11);
+    head.insert(5);
+    head.insert(6);
+    head.insert(2);
+    head.insert(3);
+    head.solve();
+    head.display();
+    system("PAUSE");
+    
+    
+    
+}
+ Raja @Karthikeyan: your code is not deleting the nodes… TheMonk O(n), there is no need to reverse the LL  
+void rem_if_next_gt(LL *n)
+{
+    LL *head = n, *prev = NULL;
+    while(n != NULL)
+    {
+        if(n->next == NULL)
+        {
+            break;
+        }
+         if(n->data < n->next->data)
+        {
+            if(head == n)
+            {
+                head = n->next;
+            }
+            if(prev != NULL)
+            {
+                prev->next = n->next;
+            }
+        }
+        else
+        {
+            prev = n;
+        }
+        n = n->next;
+    }
+}
+ Sandeep @TheMonk: It doesn’t seem to work for the Linked list sorted in increasing order. When I run following code, I get the output as Given Linked List: 1 2 3 4 5 6 Modified Linked List: 1 2 3 4 5 6 But the correct output is Given Linked List: 1 2 3 4 5 6 Modified Linked List: 6  
+#include <stdio.h>
+#include <stdlib.h>
+ 
+/* structure of a linked list node */
+struct node
+{
+     int data;
+     struct node *next;
+};
+
+
+
+void rem_if_next_gt(struct node *n)
+{
+    struct node *head = n, *prev = NULL;
+    while(n != NULL)
+    {
+        if(n->next == NULL)
+        {
+            break;
+        }
+         if(n->data < n->next->data)
+        {
+            if(head == n)
+            {
+                head = n->next;
+            }
+            if(prev != NULL)
+            {
+                prev->next = n->next;
+            }
+        }
+        else
+        {
+            prev = n;
+        }
+        n = n->next;
+    }
+}
+
+/* Utility function to insert a node at the begining */
+void push(struct node **head_ref, int new_data)
+{
+     struct node *new_node =
+              (struct node *)malloc(sizeof(struct node));
+     new_node->data = new_data;
+     new_node->next = *head_ref;
+     *head_ref = new_node;
+}
+ 
+/* Utility function to reverse a linked list */
+void reverseList(struct node **headref)
+{
+     struct node *current = *headref;
+     struct node *prev = NULL;
+     struct node *next;
+     while(current != NULL)
+     {
+          next = current->next;
+          current->next = prev;
+          prev = current;
+          current = next;
+     }
+     *headref = prev;
+}
+ 
+/* Utility function to print a linked list */
+void printList(struct node *head)
+{
+     while(head!=NULL)
+     {
+        printf("%d ",head->data);
+        head=head->next;
+     }
+     printf("\n");
+}
+ 
+/* Driver program to test above functions */
+int main()
+{
+    struct node *head = NULL;
+ 
+    /* Create following linked list
+      12->15->10->11->5->6->2->3 */
+    push(&head,6);
+    push(&head,5);
+    push(&head,4);
+    push(&head,3);
+    push(&head,2);
+    push(&head,1);
+
+ 
+    printf("Given Linked List: ");
+    printList(head);
+ 
+    rem_if_next_gt(head);
+ 
+    printf("\nModified Linked List: ");
+    printList(head);
+ 
+    getchar();
+    return 0;
+}
+ Pleas let me know if I missed something. xhp There’s a bunch of bugs in the code here. – As Sandeep pointed out below, this doesn’t work with a list that’s always increasing. Since prev will never get set. – It only looks 1 step ahead, and only process on the left–>right way. The reason we need recursion (or the list reversal) is because we need to process the list from left <– right. For any given node, you never know if it can be deleted unless you check until the end of the list. With input of [3 2 1 4] Your code will produce [3 2 x 4] x = deleted node. But the correct answer is [4]. When n is at [1], your prev is at[2], and nothing has been deleted so far. You will correctly delete this [1], but the first [3 2] won't be touched again. Shreyansh Your code is not deleting the nodes.. xhp why can’t we just use recursion and return the max node value from that point of the recursion till the end (i.e. what’s the need for reverse / doing 2 passes)? something like:  
+int Foo(Node current)
+{
+   if (current.Next == null) return current.Value;
+   else
+   {  
+      int maxAhead = Foo(current.Next);      
+      int newMax = Math.Max(current.Value, maxAhead);
+      if (maxAhead > current.Value)
+          Delete(current); // we all know how to do this...
+      return newMax;
+   }     
+}
+ xhp of course delete any given node in the list is just 2 lines of code… Delete(Node n) { n.Data = n.Next.Data; n.Data = n.Next.Next; // n.Next will get GC later… if this is C/C++ with no GC then just save Node tmp = n.Next in the beginning and call free(tmp) at the end.. } …and we all know that this method doesn’t work for deleting the last node in the list, but again, with this problem we never delete the last node anyways. Aditya Awesome logic. Really interesting question. Algoseekar @geeksfoegeeks whats the pup pose of Maz Node i m missing sumthing here..?? Algoseekar @sandeep plz reply asap.i have tested it without maxnode variable .click here https://ideone.com/6PlAS the why you have used max-node variable Reply ASAP Thanks Algoseekar Sandeep @Algoseekar: The code changes seem to be valid. We will test for some more test cases and update the post. http://androidshashank.blogspot.com wgpshashank @algoseekar ..Yes I also tested the some tes case but it working so i dont think we need the maxnode..lets c what Sandeep says.. Mack struct node* deletegt(struct node **head) { struct node *temp = NULL, *prev = NULL; temp = *head; if((*head)->next != NULL) { if((*head)->data next->data) { prev = *head; *head = (*head)->next; free(prev); *head = deletegt(head); } else { prev = temp; temp = temp->next; } } while(temp->next != NULL) { if(temp->data next)->data) { prev->next = temp->next; free(temp); temp = prev->next; } else { prev = prev->next; temp = temp->next; } } return *head; }  
+/* Paste your code here (You may delete these lines if not writing code) */
+
+ Algoseekar i think we can do it in O(n) without reversing the linked list still m not getting what is need ot making program complex kartik @Algoseekar: Please provide your O(n) algorithm that delete nodes without reversing. SGul here is java code, this algo doesnt reverse the linked list.  
+public static Node deleteLesserNode(Node curr){
+
+	Node max;
+
+	if(curr.getLink() != null){
+
+		max = deleteLesserNode(curr.getLink());
+		
+		if(((Integer)temp.getItem()).intValue() <((Integer) curr.getItem
+
+()).intValue()){
+			curr.setLink(max);
+			max = curr;
+		
+		}
+		else
+			curr = null;
+
+	}
+
+	else
+		max = curr;
+
+	return max;
+
+}
+ pegasus struct node* remove_right_big(struct node* head, int *max) { if(head==NULL) return NULL; else if(head->next==NULL) { *max=head->data; return head; } else { head->next=remove_right(head->next,max); if((*max)>(head->data)) { struct node* temp=head; head=head->next; free(temp); } else (*max)=head->data; } return head; } Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,1134 @@
+Write a C program to print all permutations of a given string - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Write a C program to print all permutations of a given string A permutation, also called an “arrangement number” or “order,” is a rearrangement of the elements of an ordered list S into a one-to-one correspondence with S itself. A string of length n has n! permutation. Source: Mathword(http://mathworld.wolfram.com/Permutation.html) Below are the permutations of string ABC. ABC, ACB, BAC, BCA, CAB, CBA Here is a solution using backtracking. 
+# include <stdio.h>
+
+/* Function to swap values at two pointers */
+void swap (char *x, char *y)
+{
+    char temp;
+    temp = *x;
+    *x = *y;
+    *y = temp;
+}
+ 
+/* Function to print permutations of string
+   This function takes three parameters:
+   1. String
+   2. Starting index of the string
+   3. Ending index of the string. */
+void permute(char *a, int i, int n) 
+{
+   int j; 
+   if (i == n)
+     printf("%s\n", a);
+   else
+   {
+        for (j = i; j <= n; j++)
+       {
+          swap((a+i), (a+j));
+          permute(a, i+1, n);
+          swap((a+i), (a+j)); //backtrack
+       }
+   }
+} 
+
+/* Driver program to test above functions */
+int main()
+{
+   char a[] = "ABC";  
+   permute(a, 0, 2);
+   getchar();
+   return 0;
+}
+ Output: ABC
+ACB
+BAC
+BCA
+CBA
+CAB Algorithm Paradigm: Backtracking Time Complexity: O(n*n!) Please write comments if you find the above codes/algorithms incorrect, or find other ways to solve the same problem.           Related Topics: Suffix Tree Application 5 – Longest Common Substring Generalized Suffix Tree 1 Suffix Tree Application 4 – Build Linear Time Suffix Array Suffix Tree Application 3 – Longest Repeated Substring Suffix Tree Application 2 – Searching All Patterns Suffix Tree Application 1 – Substring Check Ukkonen’s Suffix Tree Construction – Part 6 Ukkonen’s Suffix Tree Construction – Part 5 Tags: Backtracking, MathematicalAlgo Tweet Writing code in comment? Please use ideone.com and share the link here. Ankit Jain #include #include void permutation(char str[],char a[],int j,int flag[]) { int i; if(j==strlen(str)) { a[j]=0; printf(“%sn”,a); } else { for(i=0;i<strlen(str);i++) { if(!flag[str[i]-65]) { a[j]=str[i]; flag[str[i]-65]=1; permutation(str,a,j+1,flag); flag[str[i]-65]=0; } } } } main() { char str[]="ABCD",a[50]; int flag[50],i; for(i=0;i<50;i++) flag[i]=0; permutation(str,a,0,flag); return 0; } Sab int ncpoints = 10; int Npoints = (pow(2,ncpoints))-2; for(int i=0; i<Npoints; i++) { int series[10]={0,1,2,3,4,5,6,7,8,9}; for(int j=0; j<ncpoints; j++) { int val = (int)pow(2.0,j); if(i & (val)) { t = series[j]; if(j+1 < ncpoints) { series[j] = series[j+1]; series[j+1] = t; } else { series[j] = series[0]; series[0] = t; } } } for(int i=0;i<Npoints;i++) { for(int k=0;k<ncpoints;k++) { printf("%d",series[k]); } printf("n"); } Tokala http://ideone.com/nyAHFT is O(n!) solution we cannot do better than this because we have n! permutations of string of length n duskoKoscica Permutations, permutations, permutations! Nice stuff for sure, but there is at last five ways to achieve this thing> recursion, sorting parst of array, throu vectors and next permut, some data structures, and yesterday I got one more way, you have permutations of 2 then you bild it up to 3, … etc. There are manny way one could achieve this task, but one very important fact is there is N! of them. You could even solve some problems with it but it would be to slow for real time applications. The better way could be sometime accieved thorou some other technikes, but sometimes you have the ways to dissmiss some paths as not possible so there is a chance for applicatons of this one. Or it could be used in scientific sitautions where you need to solve something but you don’t care how long it takes! Mutlythreading is the way to go this years in my oppinion! duskoKoscica Permutations, permutations, permutations! Nice stuff for sure, but there is at last five ways to achieve this thing> recursion, sorting parst of array, throu vectors and next permut, some data structures, and yesterday I got one more way, you have permutations of 2 then you bild it up to 3, … etc. There are manny way one could achieve this task, but one very important fact is there is N! of them. You could even solve some problems with it but it would be to slow for real time applications. The better way could be sometime accieved thorou some other technikes, but sometimes you have the ways to dissmiss some paths as not possible so there is a chance for applicatons of this one. Or it could be used in scientific sitautions where you need to solve something but you don’t care how long it takes! Mutlythreading is the way to go this years in my oppinion! rohan DFS can be used to generate all permutations of a string. Code: http://ideone.com/cKgy3m ar what is the way of passing very huge numbers in c a normal double array is not working ,is there a way to intialize a array with say 10000000000 digits,i.e each digit for one array space or some what of that type ……?or c doesnt handle such huge numbers ? SN Using std::string and member-functions for the below c++ solution: /* Generate permutations of a string */ #include #include #include using namespace std; vector GenPrmutations(std::string str) { vector strList; if (str.empty()) { return vector(); } if (str.length() == 1) { strList.push_back(str); } else { char c = str.at(0); string rest = str.substr(1, str.length()-1); vector restList = GenPrmutations(rest); for (vector::iterator itr = restList.begin(); itr != restList.end(); itr++) { unsigned int len = (*itr).length(); for (unsigned int pos=0; pos <= len; ++pos) { string tmp = (*itr); tmp.insert(pos, 1, c); strList.push_back(tmp); } } } return strList; } int main () { vector strList = GenPrmutations(“abc”); for (vector::iterator itr = strList.begin(); itr != strList.end(); itr++) { cout << (*itr) << endl; } return 0; } Kai The solution doesn’t work if the string contains duplicate charaters like ‘AAB’ , obviously this case should be handled by the permutation algo. Pratham I wrote the code for variable length string but the program gives segmentation fault. #include void swap(char *i,char *j) { char t; t=*i; *i=*j; *j=t; } void perm(char *str,int i,int n) { int j; if(i==n) { printf(“%s”,str); } else { for(j=i;j<=n;j++) { swap(str+i,str+j); perm(str,i+1,n); swap(str+i,str+j); } } } int main() { char *string; int n; printf("Enter the string"); scanf("%s",string); n=strlen(string); perm(string,0,n); return 0; } please tell me where i went wrong Javed in the main() funcion you need to pass 1 less than strlen(string) i.e the maximum actual index in the string i.e. n-1 to the function perm(). Pratham I tried it javed but still it is giving me the same segmentation fault . I am using dev C++ ide SHANTANU AGRAWAL http://ideone.com/WPCW48 Ankit Can someone tell me that when I use char *temp in the swap function why doesn’t my program work? sonu When length of string is unknown ,i.e. Char array can be of any size , Pass by reference is used . Vignesh A The code works fine with out Back Tracking.. Please explain the logic void permute(char *a, int i, int n) { int j; if (i == n) printf(“%sn”, a); else { for (j = i; j <= n; j++) { swap((a+i), (a+j)); permute(a, i+1, n); // swap((a+i), (a+j)); //backtrack } } } Sudheer Reddy Jakkam with out backtracking ,The string order will not be changed for every iteration. try with string “ABCD”.you will find repeated patterns with B. Once you swap the elements in the every iteration,it is better to swap the elements back to the original order . see this link http://ideone.com/Cd4WUq Andria Hello everyone!I have to create a similar algorithm that records all possible rearrangements of the characters at a string with five different characters.My program has to be general (the user types the string). Can someone help me? Thank’s! saurabh In this algorithm, if we avoid the second swap function, the program still works. Can someone please explain this? Charles no, it won’t work , try ‘abcd’, you can see though you still got 24 strings, some of them are duplicated , the reason for the 2nd swap is to restore the original permutation so that you won’t have a false positive result. Gaurav Ramesh you could change the condition for swap to make it work for repeated characters, where the number of permutations reduce.. for(..){ if(a+i == a+j && i != j) continue; // rest of the code as given } mragrid What if i want the algorithm to stop if it reaches a limit ? for example if we have 3628800 (10!) permutations and i want it to stop when we have generated 1000 permutations ? and what time complexity we will have that way ? Jingguo Yao Lexicographic permutation generation algorithm handles duplicated characters. See page 319 of The Art of Computer Programming, Volume 4A, Chapter 7.2.1.2. import sys MIN_INT = -sys.maxint - 1 def lexicographic_order_generation(A): A[0:0] = [MIN_INT] A.sort() n = len(A) - 1 while True: print("".join([str(x) for x in A[1:]])) j = n - 1 while A[j] >= A[j + 1]: j -= 1 if j == 0: return l = n while A[j] >= A[l]: l -= 1 A[j], A[l] = A[l], A[j] suffix = A[j+1:] suffix.reverse() A = A[:(j + 1)] + suffix A = [1, 2, 3] lexicographic_order_generation(A) A = list("AABAAC") lexicographic_order_generation(A) mathsmaths thanks DevilGeek Just like a tower of Hanoi. http://atiqwhiz.blogspot.in/ atiq //Repeatation will not harm my code…. #include #include using namespace std; void Swap(char Str[],int m,int n) { char temp=Str[m]; Str[m]=Str[n]; Str[n]=temp; } bool Match(char Str[],int i,int j) { if(i == j) return false; else for(;i=n){cout<<Str<<endl;return;} for(int i=m;i<=n;i++) { if(!Match(Str,m,i)) { Swap(Str,i,m); Permute(Str,m+1,n); Swap(Str,i,m); } } } int main() { char Str[]="AAB"; Permute(Str,0,strlen(Str)-1); return 0; } //Happy coding Sriharsha g.r.v well done and thanq Sriharsha g.r.v it will not work for repeated character strings i.e “abaaa” it prints many repeated strings Gaurav Ramesh you can change the swap condition .. to only swap when character at i and j are not same.. so your condition inside for will look like: for(..){ if(a+i == a+j && i != j) continue; // rest of the code as given.. } Guest should be if((*(char *)(a+i) == *(char *)(a+j)) && (i != j)) continue; derek not correct, for example ‘aabb’ Gaurav Ramesh Hey Derek, I don’t see why this shouldn’t work for your input ! when i and j are both pointing to a or b, they shouldn’t be swapped and just continue.. akshita will you help me in understanding this code plz Gaurav Ramesh Hi Akshita, If you’ve understood the main code, the change I’ve suggested is just to prevent swapping of the letters when both letters at i and j are same ! thus avoiding the repeated permutations.. Sameer http://codingrecipies.blogspot.in/2013/10/permutation-of-string.html DarkProtocol Without recursion is greatly appreciated!!! Thanks in advance. GuestPost //check this //http://www.cplusplus.com/reference/algorithm/next_permutation/ Puzzled Can someone explain the time complexity Neha Garg i am unable to understand this code ..plz explain it step wise Bharath G M http://www.youtube.com/watch?v=MQcwxQK2DPA Good one.. Guy the idea is that for every N length string we can calculate the permutation of that string by first calculating all the strings which start at the first letter of the original string + all the permutations of the rest of the string and then the permutations of the string starts with the second letter + all the permutations of the rest of the string and so on until we reach the strings which starts with the last letter of the string + all the permutations of the rest of the string . following that logic the recursion tree grows. the swap simply moves to the start the letter we wanted to start with and is used to make all the changes “in place” thus not to waste extra space. (if space is not a problem then this could also be done by creating an array of strings and concatenating the first letter to the already generated string each time instead of the swap). all izz well iam not able to understand this program …. can anyone trace and explian it plz ………. Bharath G M http://www.youtube.com/watch?v=MQcwxQK2DPA.. Good one Nhan Time Complexity is O(n!), not O(n*n!) First for-loop is n times, second for-loop in the first recursive call is (n-1) times and so on. Hence O(n!), or more tightly _Theta_(n!) as both lower and upper bounds are (n!) Silent what is the need of backtrack step here?? answer is still correct without this step.. Pranjal Its correct for the ABC case — Try it with 4 characters and you will see the importance of backtracking !!! Marsha Donna the need 4 backtracking is to always work with the original string..in the second iteration after a and b are swapped the string becomes bac..when the function is recurively called..the permutation of bac keepin b fixed are Bac and Bca…if we leave the string as bca..in the next iteration when we have to swap a and c(in original string abc) to form cba it would not be possible correctly unless we revert Bca back to bac…then it would go back change bac to the original string abc after which a and c are swapped to cba for the next iteration…see the figure above Subrahmanyan Sankaran // TreeToDLL.cpp : Defines the entry point for the console application. #include "stdafx.h" #include using namespace std; struct Node { int data; Node *left; Node *right; }; class Tree { static int l; static int flip; static int leafdepth; static Node * prev; static Node * previous; static int count; public: Node *head; int maxdepth; Tree() { head = NULL; maxdepth = 0; } void Inorder(Node *node) { if(node) { Inorder(node->left); std::cout<<" [ "<data <right); } } void TreetoDLL(Node *node) { if(node) { TreetoDLL(node->left); if(previous) { previous->right = node; node->left = previous; } if(count == 0) { head = node; count = count + 1; } previous = node; TreetoDLL(node->right); } } void PrintDLL() { Node *tmp = head; while(tmp) { std::cout<data; tmp = tmp->right; } } void InsertNode(Node *node,int data) { Node * tmp = node; if(head == NULL) { head = new Node; head->data = data; head->left = NULL; head->right = NULL; return; } else if(tmp) { prev = tmp; if(data > tmp->data) { l=0; tmp = tmp -> right; InsertNode(tmp,data); } else { l=1; InsertNode(tmp->left,data); } } if(l == 1) { prev->left = new Node; prev->left->data = data; prev->left->left = NULL; prev->left->right = NULL; l = -1; return; } else if(l == 0) { prev->right = new Node; prev->right->data = data; prev->right->left = NULL; prev->right->right = NULL; l = -1; return; } } }; int Tree::l =0; int Tree::flip =0; int Tree::leafdepth =-1; int Tree::count = 0; Node * Tree::prev = NULL; Node * Tree::previous = NULL; int main(int argc, char* argv[]) { Tree t; t.InsertNode(t.head,10); t.InsertNode(t.head,7); t.InsertNode(t.head,13); t.InsertNode(t.head,5); t.InsertNode(t.head,9); t.InsertNode(t.head,12); t.InsertNode(t.head,15); t.InsertNode(t.head,3); t.InsertNode(t.head,6); t.InsertNode(t.head,8); t.InsertNode(t.head,11); t.InsertNode(t.head,1); t.InsertNode(t.head,4); t.InsertNode(t.head,2); t.TreetoDLL(t.head); t.PrintDLL(); return 0; } raghvendra  
+#include <iostream>
+#include<stdlib.h>
+#include<cstring>
+using namespace std;
+char str[100];
+void permutation(int n)
+{
+    char x;
+    if(n<=0)
+    {
+        cout<<str<<endl;
+        return;
+    }
+    for(int i=0;i<n;i++)
+    {
+        x=str[i];
+        str[i]=str[n-1];
+        str[n-1]=x;
+        permutation(n-1);
+        x=str[i];
+        str[i]=str[n-1];
+        str[n-1]=x;
+    }
+}
+int main()
+{
+    cin>>str;
+    cout<<"the permutations are:\n"
+    permutation(strlen(str));
+}
+
+ EDGE The output size is too large (infinite loop or larger text output). nomank public class StringPermutation { public static void main(String[] args) { stringPermutation("TESTPERMUTATION"); } public static void stringPermutation(String str) { if (str == null ) return; doPermutation("", str); } public static void doPermutation(String prefix, String str) { if (str.length() == 1) { System.out.println(prefix + str); return; } for (int i = 0; i < str.length(); i++) { doPermutation(prefix + str.charAt(i), removeCharAt(str,i)); } } public static String removeCharAt(String str, int index) { StringBuilder sb = new StringBuilder(str); sb.deleteCharAt(index); return sb.toString(); } } http://www.retrify.com irfanali  
+public class permute {
+
+    static void permute(int level, String permuted,
+                    boolean used[], String original) {
+        int length = original.length();
+        if (level == length) {
+            System.out.println(permuted);
+        } else {
+            for (int i = 0; i < length; i++) {
+                if (!used[i]) {
+                    used[i] = true;
+                    permute(level + 1, permuted + original.charAt(i),
+                       used, original);
+                    used[i] = false;
+                }
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        String s = "hello";
+        boolean used[] = {false, false, false, false, false};
+        permute(0, "", used, s);
+    }
+}
+ Raj Kishor //permutation of a string #include<iostream> #include<string> using namespace std; void permute(string ,string , int); int main() { string str="",dats; cout<<"String: "; cin>>dats; cout<<"The Permutations of \’"<<dats<<"\’ are…"<<endl; permute(str,dats,0); } void permute(string str,string dats, int j) { int l,i; if(j==dats.length()) { cout<<str<<endl; return; } l=str.length(); string temp,p; temp=str; for(i=0;i<=l;i++) { p=dats[j]; str.insert(l-i,p); permute(str,dats,j+1); str=temp; } } vishal //In C#…. public static void permutation(string strPrefix, string str) { int n = str.Length; if(n == 1) Console.WriteLine(strPrefix + str); for (int i = 0; i < str.Length; i++) { string prefix = strPrefix + str.Substring(i, 1); permutation(prefix, str.Substring(0,i) + str.Substring(i+1,n-i-1)); } } rajashekar007 What if there are duplicates in the string? https://sites.google.com/site/nishantonl9/ Nishant Kumar Modification in above code to print non duplicate string in lexicographic or dictionary order. Please note that this is not the best method. A n*n! solution is already available on this site. This is to just extend the concept of this problem.  
+#include <stdio.h>
+#include <string.h>
+
+int count = 0;
+
+int string_length(char str[])
+{
+   int i;
+   for(i=0; i<80; i++)
+   {
+     if(str[i]=='\0')
+	 {
+	    return(i);
+	 }
+   }
+}
+
+void string_sort(char s[])
+{
+  char tmp;
+  int i, j, length;
+  length=string_length(s);
+  for(i=0; i<length-1; i++)
+  {
+    for (j=i+1; j<length; j++)
+	{
+	   if (s[i] > s[j])
+	   {
+		 tmp=s[i];
+		 s[i]=s[j];
+		 s[j]=tmp;
+	   }
+	}
+  }
+}
+
+void swap(char* str,int i,int j){
+    char c = str[i];
+    str[i] = str[j];
+    str[j] = c;
+}
+
+int match(char* str,int i,int j){
+    if(i==j)
+    return 0;
+    int k = i;
+    for(k=i;k<j;k++){
+        if(str[k]==str[j])
+        return 1;
+    }
+    return 0;
+}
+
+void foo(char* str,int i,int n){
+    if(i==n){
+        printf("%s\n",str);
+        count++;
+    }else{
+        int j = 0;
+        string_sort(str+i);
+        for(j=i;j<=n;j++){
+            if(!match(str,i,j)){
+                swap(str,i,j);
+                foo(str,i+1,n);
+                swap(str,j,i);
+                string_sort(str+i);
+            }
+        }
+    }
+}
+
+main()
+{
+   char str[] = "AGRA";
+   int size = sizeof(str)/sizeof(str[0]);
+   foo(str,0,size-2);
+  //string_sort(str+1);
+   printf("Total String printed = %d",count);
+   return 0;
+}
+
+ https://sites.google.com/site/nishantonl9/ Nishant Kumar last swap() in for loop is not required. coder! its required man! https://sites.google.com/site/nishantonl9/ Nishant Kumar @coder! –  
+swap(str,j,i);
+string_sort(str+i);
+ Swap() is swapping ith and jth char.In next line string_sort() is sorting the string after ith position (inclusive) and j will be always >= i. so the swap() is having no significance in this case. Can you provide some test cases when without swap() it gives wrong output. Sumit Gera It is required. Compare the outputs for input string “ABCD” with both the versions – one with and one without second swap(). https://sites.google.com/site/nishantonl9/ Nishant Kumar @sumitgera:disqus my comment is in context with my code posted above. can you check it again? It works fine for “ABCD”. lk Could you please explain “match” method? https://sites.google.com/site/nishantonl9/ Nishant Kumar @lk match() method ensure that we don’t process same character again in current sub string (in foo() method for loop) which will lead to duplicate result. Suppose if we are processing “AGRA” and in the very first recursion call we call the A + foo(“GRA”) here ‘A’ is first character and suppose if we will call foo() gain with last ‘A’ it will produce same result as with first character ‘A’ . So to avoid this situation match() method loop through that sub string (string[i…n]) and match currently processing character. It it matches with previously processed character it will not process it further to avoid duplicate result. if ‘i’ and ‘j’ are same (in match method) that means we have just entered in that loop and has not processed any character yet so it will return 0.If you will expand the recursion call it will help you to understand it better. https://sites.google.com/site/nishantonl9/ Nishant Kumar Small modification in given code to handle duplicate characters.  
+#include <stdio.h>
+#include <string.h>
+
+int count = 0;
+
+void swap(char* str,int i,int j){
+    char c = str[i];
+    str[i] = str[j];
+    str[j] = c;
+}
+
+int match(char* str,int i,int j){
+    if(i==j)
+    return 0;
+    int k = i;
+    for(k=i;k<j;k++){
+        if(str[k]==str[j])
+        return 1;
+    }
+    return 0;
+}
+
+void foo(char* str,int i,int n){
+    if(i==n){
+        printf("%s\n",str);
+        count++;
+    }else{
+        int j = 0;
+        for(j=i;j<=n;j++){
+            if(!match(str,i,j)){
+                swap(str,i,j);
+                foo(str,i+1,n);
+                swap(str,j,i);
+            }
+        }
+    }
+}
+
+main()
+{
+   char str[] = "AGARA";
+   int size = sizeof(str)/sizeof(str[0]);
+   foo(str,0,size-2);
+   printf("Total String printed = %d",count);
+   return 0;
+}
+
+ https://sites.google.com/site/nishantonl9/ Nishant Kumar A hash table can be used instead of for loop in match function to reduce lookup time. munish singla what the complexity of this programe..???  
+/* Paste your code here (You may delete these lines if not writing code) */
+ https://sites.google.com/site/nishantonl9/ Nishant Kumar It should be (n^2)*n! akshita how here size has been calculated plz tell me https://sites.google.com/site/nishantonl9/ Nishant Kumar char str[] = “AGARA”; int size = sizeof(str)/sizeof(str[0]); Here, sizeof(str) will give you size of array ‘str’ in the memory at compile time which is 6 ((5 characters + one null character at the end ) * size of every element of array which is 1 in this case) and sizeof(str[0]) is nothing but size of first element (character) of the array ‘str’ which is 1 because array is character array and it’s element are of type char. Now if we divide total size of array with size of one element of array we will get number of elements in array i.e. length of array. mahesh To get better understand of the code and map it to pictorial representation. Leaf nodes of the tree should also show ABC(because in the first case A is fixed and B is permuted with B itself and the B is permuted with C). This will be helpful in understanding the check. If(i == n) printf(“”);  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks @mahesh: Thanks for your inputs. We have updated the diagram for recursion tree. abhishek08aug Important abhishek08aug Intelligent http://code.scottshipp.com Scott Shipp Please see my series on this for a solution in Java, plus generating sub-permutations (for string “abcd” – all permutations of abcd, all permutations of bcd, all permutations of cd, etc), plus solving when duplicate characters are part of the string as in the examples, “aabc,” “dddd,” etc. http://code.scottshipp.com/2013/04/12/permutations-generator-part-1/ http://code.scottshipp.com/2013/04/16/permutation-generator-part-2/ http://code.scottshipp.com/2013/04/21/permutation-generator-part-3/ http://code.scottshipp.com/2013/04/29/permutation-generator-part-4/ Sreenivas Doosa Excellent Post duude radhika How to print all possible permutations of strings? eg. for ABC, we have AAA AAB AAC ABA ACA …. CCC i am kind of stuck into it !! Hammond  
+#include<iostream.h>
+#include<conio.h>
+#include<string.h>
+
+void permute(int);
+    
+char s[50], temp[50];
+
+int main()
+{
+    cout<<"\nEnter String: ";
+    cin>>s;
+    cout<<"\n==========PERMUTATIONS==========\n";
+    permute(0);
+    getch();
+    return(0);
+} 
+
+void permute(int n)
+{
+    for(int i=0; i<strlen(s); i++)
+        if(i == strchr(s, s[i]) - s)
+        {
+            temp[n] = s[i];
+            if(n == strlen(s) - 1)
+                cout<<temp<<"\n";
+            else
+                permute(n+1);
+        }
+    temp[n] = NULL;    
+}
+ AlgoCoder What is the need of if(i == strchr(s, s[i]) – s) condition. Can somebody please explain.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Mridul this code works, but can you give me a code which will take input all the 26 characters (A-Z) and give me output size of 10 each time ? Sanjay Agarwal @Mridul you can go through the following code (written in C++)to get the output of desired size. In your case, pass k = 10.  
+#include<iostream>
+#include<conio.h>
+using namespace std;
+
+void find_subset(char *set, char *subset,int n, int k, int j);
+
+int main()
+{
+    int n,k,i;
+    char set[100]={0}, subset[100]={0};
+    cout<<"Enter length of the set:";
+    cin>>n;
+    
+    cout<<"Enter the set:";
+    for(i = 0; i < n; i++)
+        cin>>set[i];
+    
+    cout<<"Enter the value of k(size of subset):";
+    cin>>k;
+    
+    find_subset(set, subset, n, k, 0);
+    
+    getch();
+    return 0;
+}
+
+void find_subset(char *set, char *subset,int n, int k, int j)
+{
+    if (k == 0){
+        subset[j]= '\0';
+        cout<<subset<<endl;
+        return;
+    }
+    for(int i = 0; i < n; i++){
+        subset[j] = set[i];
+        find_subset(set, subset, n, k-1, j+1);
+    }
+}
+ Tunnu Can any one explain in detail how the complexity of the published program is n*n!?? Deepesh A simple iterative function in java  
+	public static void permute(String s) {
+		char[] ca = s.toCharArray();
+		int l = ca.length;
+		if(l == 1) {
+			System.out.println(s);
+			return;
+		}
+		int i = 0;
+		int start = 0;
+		while(start < l) {
+			for(int j=i+1; j<l-1 && j+1 != l; j++) {
+				swap(ca, j, j+1);
+				System.out.println(new String(ca));
+				
+			}
+			swap(ca, i, l-1);
+			System.out.println(new String(ca));
+			start++;
+		}
+	}
+	
+	public static void swap(char[] arr, int a, int b) {
+		char t = arr[a];
+		arr[a] = arr[b];
+		arr[b] = t;
+	}
+ Deepesh realized it will not work for length>3 Shiv #include #include void swap(char *n,int x,int y){ char temp; temp = *(n+x); *(n+x) = *(n+y); *(n+y) = temp; } int main () { char b[] = “abcd”; int size = strlen(b); for(int k=0;k<size;k++){ char *a = b; swap(a,0,k); for(int j=0;j1;i–){ swap(a,i-1,i); printf(“%s \n”,a); } } } return 0; } Shiv int main () { char b[] = “abcd”; int size = strlen(b); for(int k=0;k<size;k++){ char *a = b; swap(a,0,k); for(int j=0;j1;i–){ swap(a,i-1,i); printf(“%s \n”,a); } } } Shiv i have 2 time commented but another for-loop for increment i is not showing in the program GeeksforGeeks @Shiv: Apologies for the inconvenience. Please try posing your comment between sourcecode tags. Without sourcecode tags, the comment is processed as normal html content and comparison operators may be considered as beginning of a html tag. sid_das Permutation Without Repetition  
+# include <stdio.h>
+#include <string.h>
+#include <assert.h>
+
+/* Function to swap values at two pointers */
+void swap (char *x, char *y)
+{
+char temp;
+temp = *x;
+*x = *y;
+*y = temp;
+}
+
+/* Function to print permutations of string
+This function takes three parameters:
+1. String
+2. Starting index of the string
+3. Ending index of the string. */
+void permute(char *a, int i, int n) 
+{
+int j; 
+if (i == n)
+printf("%s\n", a);
+else
+{
+for (j = i; j <= n; j++)
+{
+swap((a+i), (a+j));
+permute(a, i+1, n);
+swap((a+i), (a+j)); //backtrack
+}
+}
+} 
+
+/* Driver program to test above functions */
+int main( )
+{
+char a[] = "AAABBBCCC";
+int i,j;
+int size,cnt=0;
+int s = strlen(a)-1;
+size=s;
+for(i=0;i<=s;i++)
+{
+	for(j=i+1;j<=s;j++){
+		if(a[i]==a[j]) // AB_B
+		{
+		a[j]='-';
+		//remove a[j] and slide other element there
+		}
+	}
+}
+j=s;
+
+for(i=0 ;i<s;i++)
+{
+	if(a[i]=='-')
+	{
+		while(a[j]=='-'){
+				a[j]=' ';
+				j--; size--;
+		}
+		if(i<j){
+		a[i]=a[j];
+		a[j]='-';
+		}
+	}
+	
+}
+printf("\nA is :");
+puts(a);
+permute(a, 0, size);
+// getchar();
+return 0;
+}
+
+ volodk Piece of code that collects all permutations into collection. Beware of long strings. It goes out of memory.  
+void permutate(String st, Queue<String> q) {
+    if (st.length() > 1) {
+      char el = st.charAt(0);
+      st = st.substring(1);
+
+      permutate(st, q);
+
+      while (!q.isEmpty() && q.peek().length() == st.length()) {
+        String _st = q.poll();
+        for (int i = 0; i <= _st.length(); i++) {
+          StringBuilder sb = new StringBuilder(_st);
+          sb.insert(i, el);
+          q.offer(sb.toString());
+        }
+      }
+    } else {
+      q.add(st);
+    }
+  }
+ http://www.groupme.in Nikin  
+// printChars.cpp : Defines the entry point for the console application.
+//
+
+#include "stdafx.h"
+#include <iostream>
+using namespace std;
+
+void printChars(char *str, int len, int i, char *data, bool zeroFlag)
+{
+
+	if(*(str+i) == '*' && zeroFlag)
+	{
+		*(data+i) = '0';
+		i++;
+	}
+
+	if(*(str+i) == '*' && !zeroFlag)
+	{
+		*(data+i) = '1';
+		i++;
+	}
+
+	
+	while(*(str+i) != '*' && *(str+i) != '\0')
+	{
+		*(data+i) = *(str+i);
+		i++;
+	}
+
+	if(*(str+i) == '*' && *(str+i) != '\0')
+	{
+		for(int j = i; j<len; j++)
+		{
+			printChars(str, len, j, data, zeroFlag);
+			printChars(str, len, j, data, !zeroFlag);
+			break;
+		}
+	}
+
+	if(i >= len)
+	{
+		*(data+i) = '\0';
+		cout<<data<<endl;
+		return;
+	}
+}
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	char *str = "a*b*c*d*";
+	char *data  = (char*)malloc(sizeof(char) * strlen(str));
+	printChars(str, strlen(str), 0, data, true);
+	getchar();
+	return 0;
+}
+ Hammond #include #include #include void permute(int); int count(char[], char); char s[50], temp[50]; int perms = 0; int main() { cout<>s; cout<<"\n==========PERMUTATIONS==========\n"; permute(0); cout<<"\nFREQUENCY = "<<perms; getch(); return(0); } void permute(int n) { for(int i=0; i count(temp, s[i]))) { temp[n] = s[i]; if(n == strlen(s) – 1) { cout<<temp<<"\n"; perms++; } else permute(n+1); } } temp[n] = NULL; } int count(char x[], char c) { int cnt = 0; char *ptr = strchr(x, c); while(ptr != NULL) { cnt++; ptr = strchr(ptr+1, c); } return(cnt); } Hammond permute(0); cout<<"\nFREQUENCY = "<<perms; void permute(int n) { for(int i=0; i count(temp, s[i]))) { temp[n] = s[i]; if(n == strlen(s) – 1) { cout<<temp<<"\n"; perms++; } else permute(n+1); } } temp[n] = NULL; } int count(char x[], char c) { int cnt = 0; char *ptr = strchr(x, c); while(ptr != NULL) { cnt++; ptr = strchr(ptr+1, c); } return(cnt); } Hammond /* Following is the for loop that didn’t get printed */ for(int i=0; i count(temp, s[i]))) { /* works for all strings */ Hammond  
+#include<iostream.h>
+#include<conio.h>
+#include<string.h>
+
+void permute(int);
+int count(char[], char);
+    
+char s[50], temp[50];
+int perms = 0;
+
+int main()
+{
+    cout<<"\nEnter String: ";
+    cin>>s;
+    cout<<"\n==========PERMUTATIONS==========\n";
+    permute(0);
+    cout<<"\nFREQUENCY = "<<perms;
+    getch();
+    return(0);
+} 
+
+void permute(int n)
+{
+    for(int i=0; i<strlen(s); i++)
+    {
+        if(strchr(temp, s[i]) == NULL || (i == strchr(s, s[i]) - s && count(s, s[i]) > count(temp, s[i])))
+        {
+            temp[n] = s[i];
+            if(n == strlen(s) - 1)
+            {
+                cout<<temp<<"\n";
+                perms++;
+            }
+            else
+                permute(n+1);
+        }
+    }
+    temp[n] = NULL;    
+}        
+
+int count(char x[], char c)
+{
+    int cnt = 0;
+    char *ptr = strchr(x, c);
+    while(ptr != NULL)
+    {
+        cnt++;
+        ptr = strchr(ptr+1, c);
+    }    
+    return(cnt);   
+}
+ Hammond  
+/* Hey fellas, please try my code. It works for all strings. Let me know if otherwise. */
+ googlybhai optimized code given by Venki  
+# include <stdio.h>
+ 
+/* Function to swap values at two pointers */
+void swap (char *x, char *y)
+{
+    char temp;
+    temp = *x;
+    *x = *y;
+    *y = temp;
+}
+  
+/* Function to print permutations of string
+   This function takes three parameters:
+   1. String
+   2. Starting index of the string
+   3. Ending index of the string. */
+void permute(char *a, int i, int n) 
+{
+   int j; 
+   if (i == n)
+     printf("%s\n", a);
+   else
+   {
+        for (j = i; j <= n; j++)
+       {
+          if (i != j)    
+             swap((a+i), (a+j));
+          permute(a, i+1, n);
+          if (i != j)    
+             swap((a+i), (a+j)); //backtrack
+       }
+   }
+} 
+ 
+/* Driver program to test above functions */
+int main()
+{
+   char a[] = "ABC";  
+   permute(a, 0, 2);
+   getchar();
+   return 0;
+}
+ bharatJ You can use Lexicographic ordering to find all permutations : import java.util.ArrayList; import java.util.Iterator; public class LexicographicPermutations { private static String token = “abc”; private static int indexI = 0; private static int indexJ = 0; public static String Reverse(String substring,int lowIndex,int highIndex){ String subs = “”; for(int i = highIndex -1 ;i>lowIndex;i–){ subs = subs + substring.charAt(i); } return subs; } public static String swap(int L, int H, String subs){ char var = subs.charAt(L); subs = subs.substring(0, L) + subs.charAt(H) + subs.substring(L+1); subs = subs.substring(0, H) + var + subs.substring(H+1); return subs; } public static void main(String args[]){ String perms = “”; String swapString = “”; String revString = “”; ArrayList permsArray = new ArrayList(); permsArray.add(token); while(true){ for(int i=0;i<token.length()-1;i++){ if(token.charAt(i) < token.charAt(i+1)){ indexI = i; } } for(int i=0;i<token.length();i++){ if(token.charAt(indexI) < token.charAt(i)){ indexJ = i; } } if(indexI == indexJ){ break; } swapString = swap(indexI,indexJ,token); revString = Reverse(swapString,indexI,token.length()); perms = swapString.substring(0,indexI + 1) + revString; permsArray.add(perms); indexI = 0; indexJ = 0; token = perms; } Iterator itr = permsArray.iterator(); while(itr.hasNext()){ System.out.print(itr.next() + " , "); } } } Dharmendra Singh /** * * @author Dharmendra Singh */ public class PermutationOfStringCharsPassed { private void getPermutationOfStringCharsPassed(char[] keys){ int size = (int) Math.pow(2, keys.length); for(int i = 0 ; i < size ; i++){ for(int k = 0; k > k) & 1) == 1){ System.out.print(keys[k]); } } System.out.println(); } } public static void main(String[] args) { char[] keys = {‘a’,’b’,’c’,’d’}; PermutationOfStringCharsPassed p = new PermutationOfStringCharsPassed(); p.getPermutationOfStringCharsPassed(keys); } } Dharmendra Singh //Dont know how my program got changed after posting for(int i = 0 ; i < size ; i++){ for(int k = 0; k > k) & 1) == 1){ System.out.print(keys[k]); } } System.out.println(); } Dharmendra Singh /* Paste your code here (You may delete these lines if not writing code) */ /** * * @author Dharmendra Singh */ public class PermutationOfStringCharsPassed { private void getPermutationOfStringCharsPassed(char[] keys){ int size = (int) Math.pow(2, keys.length); for(int i = 0 ; i < size ; i++){ for(int k = 0; k > k) & 1) == 1){ System.out.print(keys[k]); } } System.out.println(); } } public static void main(String[] args) { char[] keys = {‘a’,’b’,’c’,’d’}; PermutationOfStringCharsPassed p = new PermutationOfStringCharsPassed(); p.getPermutationOfStringCharsPassed(keys); } } rahul732 A program will such a bad complexity is never useful to learn. Just see the complexity. n*n! . Isn’it ? There should be better thing available or if not then its not useful to use such an algorithm. geek jab permutations hi n! hain to, think before you comment. Vikash exactly….. Vikash tell me one thing…. will your code work for input ‘AABBCC’?? Chirag #include #include #include #include main() { char ch[10],temp; int i,k=1,b,f; clrscr(); printf(“enter the string”); gets(ch); for(i=1;i<=strlen(ch);i++) { k=k*i; } for(i=0;i<k;i++) { b=((i%(strlen(ch))-1)); printf("%d",b); temp = ch[b+1]; ch[b+1]=ch[b]; ch[b]=temp; printf("%s\n",ch); } getch(); } Chirag without any function calling…very simple.. Chirag little bit changes ————————— #include #include #include #include main() { char ch[10],temp; int i,k=1,b,f; clrscr(); printf(“enter the string”); gets(ch); for(i=1;i<=strlen(ch);i++) { k=k*i; } f=strlen(ch); for(i=0;i<k;i++) { b=i%(f-1); temp = ch[b+1]; ch[b+1]=ch[b]; ch[b]=temp; printf("%s\n",ch); } getch(); } now it will work Chirag it will work ——————- #include #include #include #include main() { char ch[10],temp; int i,k=1,b,f; clrscr(); printf(“enter the string”); gets(ch); for(i=1;i<=strlen(ch);i++) { k=k*i; } for(i=0;i<k;i++) { b=((i%(strlen(ch))-1)); printf("%d",b); temp = ch[b+1]; ch[b+1]=ch[b]; ch[b]=temp; printf("%s\n",ch); } getch(); } sreeram simple check to avoid duplicates   /* Paste your code here (You may delete these lines if not writing code) */ [# include /* Function to swap values at two pointers */ void swap (char *x, char *y) { char temp; temp = *x; *x = *y; *y = temp; } int check(char *arr,int i,int j) { if(i==j) return 1; for(;i< j;i++) if(arr[i]==arr[j]) return 0; return 1; } /* Function to print permutations of string This function takes three parameters: 1. String 2. Starting index of the string 3. Ending index of the string. */ void permute(char *a, int i, int n) { int j; if (i == n) printf("%s\n", a); else { for (j = i; j <= n; j++) { if(check(a,i,j)){ swap((a+i), (a+j)); permute(a, i+1, n); swap((a+i), (a+j)); } //backtrack} } } } /* Driver program to test above functions */ int main() { char a[] = "APPLE"; permute(a, 0, 4); getchar(); return 0; }] ChangingNameEveryTime The code is working awesome. Very good! Keep it up!  
+
+ Chirag little bit changes ————————— #include #include #include #include main() { char ch[10],temp; int i,k=1,b,f; clrscr(); printf(“enter the string”); gets(ch); for(i=1;i<=strlen(ch);i++) { k=k*i; } f=strlen(ch); for(i=0;i<k;i++) { b=i%(f-1); temp = ch[b+1]; ch[b+1]=ch[b]; ch[b]=temp; printf("%s\n",ch); } getch(); } now it will work aaryan  
+
+A better code.....generate all permutation of given string ...takes care of duplicacy....nd presents permutations in lexicographic order...
+
+ 
+#include <stdio.h>
+#include<time.h>
+#include <string.h>
+#include<conio.h>
+void swap (char* pArray, int i, int j)
+{
+	char temp = pArray[i];
+	pArray[i] = pArray[j];
+	pArray[j] = temp;
+}
+void perm (char* pArray, int size, int index)
+{
+	int i,j,k;
+	if(index==size)
+	{
+	      printf("%s\n", pArray);
+	}
+	else
+	{
+		for(i = index; i < size; i++)
+		{                                         // for duplicacy
+			if(pArray[i] == pArray[i+1])
+					{
+				continue;
+			}
+
+			swap(pArray,i,index);
+		       for(j=index+1;j<=i;j++)
+			{
+				if(pArray[j]>pArray[i])             // for lexicographic
+				{
+					swap(pArray,j,i);
+				}
+			}
+			perm(pArray,size,index+1);
+		   for(j=i;j>=index+1;j--)
+			{
+				if(pArray[j]<pArray[i])
+				{
+					swap(pArray,j,i);
+				}
+			}
+			swap(pArray,i,index);
+		}
+	}
+}
+void main ()
+{
+	char array[100];
+	clock_t start,end;
+	clrscr();
+	gets(array);
+	printf("Permutations:\n");
+	start=clock();
+	perm(array,strlen(array),0);
+	end=clock();
+	printf("%f",(end-start)/CLK_TCK);
+	getch();
+}
+
+ Satyarth U r assuming that char array is alphabetically sorted. BTW Nice Code! sumit saha this code can permutate strings of any length and is written only for strings without any repeatation. how do i improve so as to incorporate the strings with repeatation…… /* Paste your code here (You may delete these lines if not writing code) */ //***************anagrams**************// //************************************** this code works only when there are no repeatations in the original string*************// #include<iostream> using namespace std; int counter=0; void print(char empty[],int size) { for(int i=0;i<size;i++) { cout<<empty[i]; } cout<<endl; } void makecombination(char original[],char empty[],char comb[],int k,int& nc,int size) { nc=0; int flag=0; for(int i=0;i<size;i++) { flag=0; // { for(int j=0;j<k;j++) { if(empty[j]==original[i]) // remove this code fragment { // to print permutations with repeatation flag=1; break; } } if(flag==0) // } { comb[nc++]=original[i]; } } // cout<<"checks "; // print(comb,nc); } void recurse(char original[],char empty[],int k,int size) { char *comb=new char[size]; int nc; if(k==size) { counter++; print(empty,size); } else { makecombination(original,empty,comb,k,nc,size); k=k+1; for(int i=0;i<nc;i++) { empty[k-1]=comb[i]; //cout<<"checks "; //print(empty,size); recurse(original,empty,k,size); } } } int main() { const int size=4; int k=0; char original[]="ABCD"; char empty[size]; for(int f=0;f<size;f++) empty[f]=’*'; recurse(original,empty,k,size); cout<<endl<<counter<<endl; return 0; } gaya code doesn’t work  
+/* Paste your code here (You may delete these lines if not writing code) */
+ andrew missing case: string with repeat characters. such as: abcdmabc  
+void swap(char str[], int i, int j){
+ char c;
+ c = str[i];
+ str[i] = str[j];
+ str[j] = c;
+}
+
+void printStr(char str[], int k, int m){
+ if(k == m){
+  cout<<str<<endl;
+ }else{
+  for(int i=k; i<=m; i++){
+   for(int j=k;j<i;j++) // remove the repeat characters
+	   if(str[j]==str[i]) goto nextloop;
+   swap(str, i, k);
+   printStr(str, k+1, m);
+   swap(str, k, i);
+   nextloop:;
+  }
+ }
+}
+ arya   /* Paste your code here (You may delete these lines if not writing code) */ [/code to print all puarmutation of integer array?] user123 how is this O(n*n!)? Guddu sharma Please help me in finding the time complexity of this approach.  
+void Anagram(int depth,char *Orig,int *track,char *Permut)
+{
+	int i,j;
+	if(depth==SIZE)
+	{
+		for(j=0;j<SIZE;j++)
+			printf("%c",Permut[j]);
+		printf("\n");
+	}
+	else
+	{
+		for(i=0;i<SIZE;i++)
+		{
+			count++;
+			if(!track[i])
+			{
+				track[i]=1;		//to indicate that ith character has been taken
+				Permut[depth]=Orig[i];
+				Anagram(depth+1,Orig,track,Permut);
+				track[i]=0;
+			}
+		}
+	}
+}
+
+Please let me know if this is a better approach.
+ charanjeet What is the need to call swap once again after the permute function. I tried removing it and it still generates all the permutations except that order differs! With 2nd Swap -> ABC ACB BAC BCA CBA CAB Without 2nd Swap -> ABC ACB CAB CBA ABC ACB Venki @charanjeet, check your output (ABC repeated twice). It is backtracking step which restores the state once returned from previous explored node. Vinayaka Bhat Without the second swap, there are no strings that are generated with B charanjeet Whats the need for calling swap after calling permute function? I tried removing that, and its still generating all the permutations, only the order differs! Please explain. hARRY Not only order differs check carefully for input:abcd or inputs whose length greater than 3 there will be duplicates!! kumar plz give the program using loop in c and without any pointers or dynamic allocations… plz help  
+/* Paste your code here (You may delete these lines if not writing code) */
+ xushi  
+Let's say given 9 cities. How should I permute them and split it into 3 vehicles, so that each vehicles take 3 cities?
+
+ xushi Let’s say given 9 cities. How should I permute them and split it into 3 vehicles, so that each vehicles take 3 cities? Sourodeep Roy This programme works only for three letters, if I am using more than 3 then whats the option??? jalajb2k7 then just pass the length-1 instead of 2 in permute  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Avinash  
+permute(int input[])
+{
+	int n=size(input[]);
+	int out[]=malloc(sizeof(input[]));
+	int used[]=malloc(sizeof(input[]));
+	for(int i=0;i<size(used[]);i++)
+	{
+		used[i]=0;
+	}	
+	dopermute(input,0,n,out,used);
+} 
+
+void dopermute(int input[],int level, int size, int out[],int used[])
+{
+	If(level>=size)
+	{
+		for(int i=0;i<size(out);i++)
+		{
+			printf("%c",out[i]);
+		}
+		return;
+	}
+	
+	for(j=0;j<size;j++)
+	{
+		If used[i] continue;
+		used[j]=1
+		out[level]=arr[j];
+		dopermute(input,level+1,size,out,used);
+		used[j]=0;
+	}
+}
+ niak number is {1,2,3,4,5,6}it will print as by rotating 1 place it will look likjs 6,1,2,3,4,5 guru  
+ArrayList<String> permutationsOf(String s) {
+    ArrayList<String> result = new ArrayList<String>();
+
+    if (s.length() == 1) { 
+       
+        result.add(s);
+        return result;
+     }
+else {
+       
+        char first = s.charAt(0);
+        String rest = s.substring(1);
+
+              ArrayList<String> simpler = permutationsOf(rest);  
+       
+        for (String permutation : simpler) { 
+            
+            ArrayList additions = insertAtAllPositions(first, permutation);
+            
+            result.addAll(additions);
+        }
+        return result;
+    }
+}
+ ckernel Hi Geeksforgeeks, Neat Code. I just want to learn how you devised the backtracking algorithm for this problem? //I mean I wanted to know the explanation of the tree given above. -ckernel omair hassan hi can any one suggest me good tutorial on c programming, i m new in programming , these days i m reading oop in c++ by lafore , please suggest me something that really helps me .. from the skretch …. addy You can use use thinking in c++ Vol 1 By Bruce Eckel http://www.digilife.be/quickreferences/books/thinking%20in%20c++,%20volume%201,%202nd%20edition.pdf omair hassan hi\ i copy the code in my complier but its not working its prompt the following errors 1. 29 line , canno convert ‘char * ‘, to ‘char’ 2. 29 line. type mismatch in parameter ‘a’ in call to ‘ permute( char, int 3, 32 line , ‘a’ is assigned a value that is never used please help me i m new in programming GeeksforGeeks @omair hassan: The program has been tested with more than compilers and it works fine. See this for a sample run that works. Could you let us know the compiler you used and the exact code that you tried? omair hassan i am using turbo c ++ omair hassan thank you so much for the reply . the codes runs finally at char swap (*x, *y) i was using char swap (a,b) can u tell me what was the mistake , although i didn’t understand the code please help me …. geek4u Following tutorial on pointers and function may help. http://www.cs.cf.ac.uk/Dave/C/node10.html omair hassan that’s so helpful thanks alot dude http://geeksforgeeks.org/forum/profile/sandeep/ Sandeep The C book (http://publications.gbdirect.co.uk/c_book/) seems to be a good resource for C. omair hassan @sandeep thank u so much dude http://blackbox-iphone.com Jailbreak and unlock your iPhone <?php function sort_string($str){ $arr = NULL; $len = strlen($str); for($i=0; $i<$len; $i++){ $arr[] = $str[$i]; } sort($arr); $str = ""; for($i=0; $i<$len; $i++){ $str = $str . $arr[$i]; } return $str; } function permute($str){ //base cases if ($str == NULL){ return ""; } $len = strlen($str); if ($len == 1){ return $str; } else if ($len == 2){ return $str ."," . $str[1] . $str[0]; } // the recursion else { $ans = ""; for($i=0; $i<$len; $i++){ // currenct char $char = $str[$i]; // the string without the selected char $str_b = substr($str,0,($i-1 < 0 ? 0 : $i)) . substr($str,$i+1, $len-$i-1); //build all the sub-permutations without char $sub_perm = permute($str_b); //now add char $ans = $ans . add_first_char($sub_perm, $char); } return $ans; } } function add_first_char($str, $char){ $ans = ""; $items = explode (‘,’,$str); $len = sizeof($items); for($i=0; $i<$len; $i++){ $ans = $ans . "," . $char . $items[$i]; } // remove the first "," return $ans;// } $filename = $argv[1]; $handle = fopen($filename, "rb"); $line = ""; while (!feof($handle)) { $line = fgets($handle, 8192); $line = trim($line); if ($line != NULL) { $line = sort_string($line); $ans = permute($line); //remove first "," from the final response $ans = substr($ans,1,strlen($ans)-1); echo trim($ans) . "\n"; } } fclose($handle); return 0; ?> Venkatesh http://www.programmerinterview.com/index.php/recursion/permutations-of-a-string/ amit http://n1b-algo.blogspot.com/2009/01/string-permutations.html pratik Please explain how the time complexity is O(n!)??  
+/* Paste your code here (You may delete these lines if not writing code) */
+ PRATEEK see the for loop inside the func..permute where permute is called again and again 1 less than current n times ie, n*n-1*n-2*……*1=O(n!) or basically we could understand like this eg ankit, we have find all possible permutations of the name ankit as length of ankit is 5 thereforeforloop is called 5 times and then4 3 2 1 and so on as maximum permutations of agiven word of length n is n! therefore we can simply say the complexity is O(n!)…… faizan It is O(n* n!) and not O(n!) Say the function for generating permutation takes T(n) time. Next, you call n T(n-1) sub-functions. you can see for printing whole string at the end we need T(0) time. Therefore, T(0)= n . So, we have T(n)=n x T(n-1). and T(0)= n. Therefore time complexity= O(n*n!). innosam What about swapping? (there are swaps at each level) T(n) = n x T(n-1) + O(n) I considered T(0) = 1; T(n) = O(n! + n! + (n-1)! + … + n) T(n) = O(n!) If we consider printing for each end, then T(n) = O(n*n!)  
+/* Paste your code here (You may delete these lines if not writing code) */
+ innosam What about swapping? (there are swaps at each level) T(n) = n x T(n-1) + O(n) I considered T(0) = 1; T(n) = O(n! + n! + (n-1)! + … + n) T(n) = O(n!) If we consider printing for each end, then T(n) = O(n*n!) navyasree hii.. i want a program to print the first letter of given sentence of each word and at the end the last word of given sentence also printed.. for ex: the given string is: hii hello how are you output:hhhayyou like this… pls anybody tel me the code… coder 1.Read the line. 2.Tokenize the string. 3.For every token take the char at 0th position and store it in a another string or concatenate to your result string. 4.Repeat step 3 till tokens are there. Arpit Gupta  
+#include<stdio.h>
+#include<string.h>
+void print(char *s)
+{	int i,word_start_index=0;
+	printf("%c",s[0]);
+	for(i=0;s[i]!='\0';i++)
+	{	if(s[i]==32)	
+		{	printf("%c",s[i+1]);
+			word_start_index=i+1;
+		}
+	}
+	printf("%s\n",s+word_start_index);
+}
+int main()
+{	char *s="hii hello how are you";
+	print(s);
+	return 0;
+}
+ pinku & plzz give a flow chart also pinku plzz reply sharp……….write a program in c to print all posible permutations of abcde  
+/* Paste your code here (You may delete these lines if not writing code) */
+ sandy880  
+#include <stdio.h>
+#define SIZE 3
+int main(char *argv[],int argc)
+{
+char list[3]={'a','b','c'};
+int i,j,k;
+for(i=0;i<SIZE;i++)
+for(j=0;j<SIZE;j++)
+for(k=0;k<SIZE;k++)
+if(i!=j && j!=k && i!=k)
+printf("%c%c%c\n",list[i],list[j],list[k]);
+return(0);
+}
+
+ Shaha lol sandy your code is so naive, you see it will work for three chars only, no less, no more. its got no flexibility mahendhar rao Awesome website!!! shantanu bhawre All are correct but i want the otput like if the string is “abcd” then the combinatio will bcda cdab dabc abcd like that can u tell me sura public static void main(String[] args) { char[] input = "abcd".toCharArray(); int j=0; for(int i=0;i<input.length;i++) { int count=0; j=i; while(count<input.length) { count++; System.out.print(input[j]); j=(j+1)%input.length; } System.out.println(); } } pps nice ravi really good site…for every question there is explanation ror but how about if a want a permutation list of something like 1238596? Amitabh plz get me a program for this output 1 121 12321 121 12121 Ravinder Bishnoi & Yugarsi Ghosh Guys,here is a very simple solution…. #include #include #include using namespace std; char a[10]; void func(char *a,int j=0) { if(j==strlen(a)) { printf(“%s\n”,a); } char ch=”; for(int i=j;i<strlen(a);i++) { char t; if(ch==a[i]) continue; else { ch=a[j]; t=a[i]; a[i]=a[j]; a[j]=t; func(a,j+1); } } } int main() { char a[10]; printf("Enter a String\n"); scanf("%s",&a); printf("Permutations of string\n"); func(a); getch(); return 0; } Ravinder Bishnoi & Yugarsi Ghosh above program was not posted correctly… use the new one… it works when all elements of string are distinct otherwise some permutations will be repeated. headers are iostream,string and conio.h. #include #include #include using namespace std; char a[10]; void func(char *a,int j=0) { if(j==strlen(a)) { printf(“%sn”,a); } for(int i=j;i<strlen(a);i++) { char t; t=a[i]; a[i]=a[j]; a[j]=t; func(a,j+1); } } int main() { char a[10]; printf("Enter a Stringn"); scanf("%s",&a); printf("Permutations of stringn"); func(a); getch(); return 0; } http://geeksforgeeks.org/?page_id=2 Venki @Ravinder & @Yugarsi, Here is your logic. How is it better, could you explain your view?  
+#include <iostream>
+using namespace std;
+
+void permute(char *a, int j = 0)
+{
+    int len = strlen(a);
+
+    if(j == len)
+    {
+        cout << a << endl;
+    }
+
+    for(int i = j; i < len; i++)
+    {
+        char t = a[i];
+        a[i] = a[j];
+        a[j] = t;
+
+        permute(a, j+1);
+    }
+}
+
+int main()
+{
+    char a[] = "ABCD";
+    permute(a);
+    return 0;
+}
+ This kind of programs runs like O(f(n) * n!) or O(f() * 2^n) where is f(n) is polynomial in n. Any algorithm must generate all possible permutations. Shaha actually your code/logic is the almost the same as the one posted by admin, you only replaced the swap fuction call by actual function, which could have been done automatically if swipe function was inline. btw your program shows all permutations but the admins does not, or perhaps i made some glitch while copying. amit khoth @geeksforgeeks correct this code.for same type of word it is not working. GeeksforGeeks @amit khoth: Could you please provide a sample string for which it didn’t work? amit khoth when two character are similar in a word.like aatif,aaaj etc, Christian Well, what do you think it should do? It’s probably undefined for input like that. Shaha actually it does not give all the permutations, for 3 chars there should be 3! = 6, right? Btw Venki has given a correct code, And for those who want it to not show repeating ones, put a condition before swaping, if the chars to be swapped are same continue ( i mean skip the statement continue; instruction and go for next. Hey admin would you like my page on fb?? Its about coding too, ive made some awesome codes wanted someone who could critique or provide suggestions, thank you Page is ‘C programming’ facebook.com/CkCoders Anand http://anandtechblog.blogspot.com/2011/05/arra-y-problem.html Sam Great post! Nice solution here as well: http://www.programmerinterview.com/index.php/recursion/permutations-of-a-string/ rimu.nitrkl The code mentioned above doesnt work correctly, if there are any repeated characters in the string, it would unncessarily print some strings multiple times … Working code for the same, which takes care of repeated chars as well:  
+# include <stdio.h>
+# include <conio.h>
+
+int printPermutations(char *str,int size, int pos)
+{
+     int i;
+     int total=0;
+      
+     if(pos==(size-1))
+     {
+                      puts(str);
+                      return 1;
+     }
+     
+     total+=printPermutations(str,size,pos+1);
+     for(i=pos+1;i<size;i++)
+     {
+                          int j;  
+                          for(j=pos;j<i;j++)
+                                            if(*(str+j)==*(str+i))
+                                                                  break;
+                          
+                          if(j==i)
+                          {
+                                        char tmp=*(str+pos);
+                                        *(str+pos)=*(str+i);
+                                        *(str+i)=tmp;
+                          
+                                        total+=printPermutations(str,size,pos+1);
+                          
+                                        tmp=*(str+pos);
+                                        *(str+pos)=*(str+i);
+                                        *(str+i)=tmp;
+                          }
+     }
+     
+     return total;
+}
+
+int main()
+{
+    char str[100];
+    int size,total;
+    
+    printf("Enter the string: ");
+    gets(str);
+    
+    size=strlen(str);
+    
+    printf("\n\nAll permutations of the input string are:\n");
+    total=printPermutations(str,size,0);
+    
+    printf("\n\nThe total number of permutations of the given string is %d",total);
+    
+    getch();
+    return 0;
+}
+ ricky @rimu.nitrkl…Could You Please Through Some More Light ..I mean Can you write down the algorithm..step by step..its really nice way to programming that you have done..also..i think you TC is O(n^2)..isn’t it..?? Waiting for your Explanation..??? Reply ASAP crash i want a all combos of 7 letters should i hav to use char Ahul How the control again reaches to permute fn evenafter the i becomes 2 Matrix the first program gives repeated permutation in case of 122 how to correct it plz help ?? in case of 122,it gives 122 212 221 212 //repeated 221 //repeated world is round Another way to do this : http://layerinside.blogspot.com/2011/02/permutation-of-string.html Shashank Mani Narayan Hey guys..I know Most of You Stuck with this Question..The 1st Backtracking approach..seems to typical..for understanding [points of view…..here i am posting a excellent so0lution fro problem hope this will help you ..lot.. Explanation Let’s assume a given string S represented by the letters A1, A2, A3, …, An To permute set S, we can select the first character, A1, permute the remainder of the string to get a new list. Then, with that new list, we can “push” A1 into each possible position. For example, if our string is “abc”, we would do the following: 1. Let first = “a” and let remainder = “bc” 2. Let list = permute(bc) = {“bc”, “cd”} 3. Push “a” into each location of “bc” (–> “abc”, “bac”, “bca”) and “cb” (–> “acb”, “cab”, “cba”) 4. Return our new list  
+
+import java.util.*;
+class Permutation
+{   
+public static ArrayList getPerms(String s) 
+{
+ 
+ ArrayList permutations = new ArrayList();
+
+ if (s == null) 
+ { // error case
+   return null;
+ } 
+ else if (s.length() == 0) 
+ { // base case
+ permutations.add("");
+ return permutations;
+ }
+
+ char first = s.charAt(0); // get the first character
+ String remainder = s.substring(1); // remove the first character
+ ArrayList words = getPerms(remainder);
+
+ for (String word : words) 
+ {
+ 
+    for (int j = 0; j <= word.length(); j++) 
+    {
+      permutations.add(insertCharAt(word, first, j));
+    }
+ 
+  }
+       return permutations;
+ 
+
+  }
+ 
+
+  public static String insertCharAt(String word, char c, int i) 
+  {
+    String start = word.substring(0, i);
+    String end = word.substring(i);
+
+     System.out.println("start=" + start  + "\t c=" + c + "\t end=" + end );
+    return start + c + end;
+  }
+
+  public static void main(String a[])
+
+  {
+     ArrayList perm = new ArrayList();
+     
+     perm=getPerms("abc");
+
+    //for(String ele:perm)
+          //System.out.println(ele);
+  }
+}
+ Compile: javac Permutation.java Run: java Permutation /*output analysis start= c=c end= start= c=b end=c start=c c=b end= start= c=a end=bc start=b c=a end=c start=bc c=a end= start= c=a end=cb start=c c=a end=b start=cb c=a end= */ rahul @Shashank .. This is awesome solution , i was not aware of this , thanks for sharing  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Sai Ganesh My solution:  #include<stdio.h>
+void printer(int *a,int n){
+	int i;
+	for(i=0;i<n;i++)printf("%d",a[i]);printf("\n");
+}
+/*recursive permute function 
+Semantics:
+	a - array which holds the present permutation of size n
+	
+	k - present slot in the array a. we have a permutation when k==n
+	if k < n , we are still building our permutation.
+	
+	We can think of the permutation result as 
+	a row of n slots, holding a number between 1 and n 
+	
+	(if we want permutations from another array b, we can think of 
+	it as holding b[1] to b[n] ..the logic is the same)
+	
+	if we don't want them to repeat, we need to maintain 
+	state of our computations in the array called 'selected'.
+
+ */
+void permute(int *a,int n,int k,int *selected){
+	if(k==n){
+		printer(a,n);
+		return;
+	}
+	int i;
+	for(i=0;i<n;i++){
+		if(!selected[i]){
+			a[k]=i+1; //alternately, a[k]=f(i) , here f(i)=i+1.
+			//essentially, the i'th value from a list.
+			selected[i]=1;
+			permute(a,n,k+1,selected); //fill up from the next index
+			selected[i]=0; //backtrack
+		}
+	}
+}
+int main(void){
+	int a[10]={0};
+	int i;
+	int selected[10]={0};
+	permute(a,5,0,selected);
+	return 0;
+} Advantages: 1. code is clear and the printer() function can be replaced by a process() function which is ‘streamed’ one permutation at a time 2. It can also be used to permute values from a function. we are just storing the indices. 3. Can be extended to print permutations with repetition: make the if condition always evaluate to true like (if(1 || !selected[i] ) ) … Emran this is a really clean implementation, and i like that it lists in lexicographic order. question: what if i had an application where i could reduce run time by avoiding some permutations… like if i wanted to enumerate every other permutation, or only the first (n!)/2 permutations? in particular, ive reached a case in a problem im solving where 1,2,3,4 is the effective equivalent of 4,3,2,1… so i want to remove those from being evaluated; but im not sure how to group out such subsets… seeker7 This code is plagiarised from Programming interview exposed I do not intend to Offend you ,but you should have mentioned the source of your code . Phani Deepak Just another improvement. The function prototype can be just permute(char *a, int size); Modification would be: instead of swapping every element in loop with first element, we can swap it with last element and call permute(a, size-1); what do you say? cod3r Hey, how would do it for strings with repeated string cod3r Hey, how would do it for strings with repeated char http://www.divye.in Divye See this post to understand the logic behind printing all permutations without duplicates (even when duplicate characters are present in the input). http://www.divye.in/2011/06/printing-all-permutations-of-string.html Anshul I think this will work. I ran this and its working:  
+private void swap(ref char a, ref char b)
+        {
+            if (a == b) return;
+            a ^= b;
+            b ^= a;
+            a ^= b;
+        }
+
+        private void go(char[] list, int k, int m)
+        {
+            int i;
+            if (k == m)
+            {
+                Console.Write(list);
+                Console.WriteLine(" ");
+            }
+            else
+                for (i = k; i <= m; i++)
+                {
+                    if (list[k] == list[i] && k != i) continue;
+                    swap(ref list[k], ref list[i]);
+                    go(list, k + 1, m);
+                    swap(ref list[k], ref list[i]);
+                }
+        }
+ Only difference is in Swap function, So swap is also checking if swapping characters are equivalent. stackoverflow copied well from stack overflow ……. nice!! Anshul For the main code given on this page, I think for string = “aaa” it will print “aaa” several times instead of just once. To remove this error, do the following modification:  
+       for (j = i; j <= n; j++)
+       {
+           if (A[i] == A[j] && i != j) 
+                continue;
+           swap((a+i), (a+j));
+           permute(a, i+1, n);
+           swap((a+i), (a+j)); //backtrack
+       }
+ The highlighted line is not preventing print of same "AAA". I think we need to check for same string and should not execute in case of same string. Ankul For the main code given on this page, I think for string = “aaa” it will print “aaa” several times instead of just once. To remove this error, do the following modification:  
+for (j = i; j <= n; j++)
+       {
+         if (A[i] == A[j] && i != j) continue;
+          swap((a+i), (a+j));
+          permute(a, i+1, n);
+          swap((a+i), (a+j)); //backtrack
+       }
+ http://algods-cracker.blogspot.com/ Cracker not working for string “agra” http://algods-cracker.blogspot.com/ Cracker output is — agra agar arga arag aarg aagr gara gaar graa rgaa raga raag raag raga faizan above code is not valid for repeating characters. Use hashing for recursive functions seeker7 hw abt this: rotate the given array n-1 times then reverse the intial array and again rotate it n-1 times! woud’nt it be better than using recursion? Ravinder It doesn’t provide all solutions!!? instead of n! permutations, it just gives 2n correct me in case of misinterpretation Anshu Bansal Would this work for ‘N’ number of characters in String? rscrbv here is my code, if anybody likes  
+#include<stdio.h>
+#include<string.h>
+
+void ror(char str1[],int a,int b)
+{
+	char temp=str1[a];
+	int j;
+	for(j=a;j<b;j++)
+	{
+		 str1[j]=str1[j+1];
+	}
+	str1[b]=temp;
+}
+
+void perm(char str[],int f,int l)
+{
+	 int i;
+	 char str1[5];
+	 strcpy(str1,str);
+	 if(f==l)
+	 {
+		printf("%s\t",str1);
+		return;
+	 }
+	 for(i=f;i<=l;i++)
+	 {
+		perm(str1,f+1,l);
+		ror(str1,f,l);
+	 }
+}
+
+int main()
+{
+      perm("vikas",0,4);
+      getchar();
+}
+ shashank @rscrbv @geeksforgeek ..could plz tell me how ur code is working..plz help le out that how the control is tranferring..take string abc & plz show ur flow control at for every combination…i really need help in dis..program…reply asap. http://www.wgpshashank.co.cc wgpshashank @rscrbv @geeksforgeek ..could plz tell me how ur code is working..take string abc & plz show ur flow control at for every combination…i really need help in dis..program…reply asap. seeker7 why does not any one explain this well-loved code thanks! vivek singh well done remo what will done when call Function permute(a, i+1, n);  
+ for (j = i; j &lt;= n; j++)  
+
+       {  
+
+          swap((a+i), (a+j));  
+
+          permute(a, i+1, n);  
+
+          swap((a+i), (a+j)); //backtrack  
+
+       }
+ http://voxels.blogspot.com Sven Forstmann Simple and non-recursive, lexically correct output.  std::string default = "Hallo";
+
+int perm=1, digits=default.size();
+for (int i=1;i<=digits;perm*=i++);
+for (int a=0;a<perm;a++)
+{
+	std::string avail=default;
+
+	for (int b=digits,div=perm;b>0; b--) 
+	{
+		div/=b;
+		int index = (a/div)%b;
+		printf("%c", avail[index] );
+		avail.erase(index,1) ;
+	}
+	printf("\n");
+}
+printf("permutations:%d\n",perm);
+ (c) Sven Forstmann kartik @Sven Forstmann: Can you please write algorithm for the above code? bala This code does not work for non-unique set of characters. But works for unique set of characters. anom You are assuming the string contains no dup chars. However, your sample string has two ‘l’s. Your own sample doesn’t work. Sandeep @amit: The diagram shows recursive execution of permute(). For i = 0 and j = 0 A is fixed at first place using below line    swap((a+i), (a+j)) /*A is swapped with A*/  Then all the permutations of BC (sub-string after A) are printed    permute(a, i+1, n);  /*Call permute for BC  with i = 1  */  Finally swap the characters back    swap((a+i), (a+j)) /*A is swapped with A*/  For i = 0 and j = 1 B is fixed at first place using below line    swap((a+i), (a+j)) /*A is swapped with B*/  Then all the permutations of BC (sub-string after A) are printed    permute(a, i+1, n);  /*Call permute for AC  with i = 1 */  Finally, swap the characters back    swap((a+i), (a+j)) /*B is swapped with A*/  For i = 0 and j = 2 C is fixed at first place using below line    swap((a+i), (a+j)) /*A is swapped with C*/  Then all the permutations of BC (sub-string after A) are printed    permute(a, i+1, n);  /*Call permute for BA with i = 1 */  Finally, swap the characters back    swap((a+i), (a+j)) /*C is swapped with A*/  For i = 1, second character is swapped one by one with the other characters (after second character). Same way is continued for i = 2, 3.. amit @geeksforgeeks can u explan how this code works. Ved The complete code is at : http://techpuzzl.wordpress.com/2010/01/11/string-permutation/ http://srini156.blogspot.com Srinivas Iyengar Ok. We can call this function like perm(“”,s) where s is the string which has to be permuted. I am not sure how to highlight the code in the Comment Section. I hope the code is readable enough. geeksforgeeks @Srinivas Iyengar: Could you add more colors to the code given below, please? What should be prefix and suffix for the first call of permute() in main()? http://srini156.blogspot.com Srinivas Iyengar  
+/*Similar Recursive Code for Permutation of a String keeping track of 
+   prefix and suffix*/
+void permute(string prefix,string suffix)
+{
+   /* We can print prefix here for generating power set and simply 
+       write return in the following if case.*/
+  if(suffix.size()==0)
+    printf("%s \n", prefix);
+  else
+   for(int i=0;i < suffix.size();i++)
+      permute(
+               prefix+suffix[i],
+               suffix.substr(0,i)+suffix.
+               substr(i+1, suffix.size())
+              );
+}
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

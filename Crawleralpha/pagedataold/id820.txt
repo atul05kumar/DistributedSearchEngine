@@ -1,0 +1,467 @@
+Floor and Ceiling in a sorted array - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Floor and Ceiling in a sorted array Given a sorted array and a value x, the ceiling of x is the smallest element in array greater than or equal to x, and the floor is the greatest element smaller than or equal to x. Assume than the array is sorted in non-decreasing order. Write efficient functions to find floor and ceiling of x. 
+For example, let the input array be {1, 2, 8, 10, 10, 12, 19}
+For x = 0:    floor doesn't exist in array,  ceil  = 1
+For x = 1:    floor  = 1,  ceil  = 1
+For x = 5:    floor  = 2,  ceil  = 8
+For x = 20:   floor  = 19,  ceil doesn't exist in array
+ In below methods, we have implemented only ceiling search functions. Floor search can be implemented in the same way. Method 1 (Linear Search) Algorithm to search ceiling of x: 1) If x is smaller than or equal to the first element in array then return 0(index of first element) 2) Else Linearly search for an index i such that x lies between arr[i] and arr[i+1]. 3) If we do not find an index i in step 2, then return -1 
+#include<stdio.h>
+
+/* Function to get index of ceiling of x in arr[low..high] */
+int ceilSearch(int arr[], int low, int high, int x)
+{
+  int i;    
+
+  /* If x is smaller than or equal to first element,
+    then return the first element */
+  if(x <= arr[low])
+    return low;  
+
+  /* Otherwise, linearly search for ceil value */
+  for(i = low; i < high; i++)
+  {
+    if(arr[i] == x)
+      return i;
+
+    /* if x lies between arr[i] and arr[i+1] including
+       arr[i+1], then return arr[i+1] */
+    if(arr[i] < x && arr[i+1] >= x)
+       return i+1;
+  }         
+
+  /* If we reach here then x is greater than the last element 
+    of the array,  return -1 in this case */
+  return -1;
+}
+
+
+/* Driver program to check above functions */
+int main()
+{
+   int arr[] = {1, 2, 8, 10, 10, 12, 19};
+   int n = sizeof(arr)/sizeof(arr[0]);
+   int x = 3;
+   int index = ceilSearch(arr, 0, n-1, x);
+   if(index == -1)
+     printf("Ceiling of %d doesn't exist in array ", x);
+   else
+     printf("ceiling of %d is %d", x, arr[index]);
+   getchar();
+   return 0;
+}
+ Time Complexity: O(n) Method 2 (Binary Search) Instead of using linear search, binary search is used here to find out the index. Binary search reduces time complexity to O(Logn). 
+#include<stdio.h>
+
+/* Function to get index of ceiling of x in arr[low..high]*/
+int ceilSearch(int arr[], int low, int high, int x)
+{
+  int mid;    
+
+  /* If x is smaller than or equal to the first element,
+    then return the first element */
+  if(x <= arr[low])
+    return low; 
+
+  /* If x is greater than the last element, then return -1 */
+  if(x > arr[high])
+    return -1;  
+
+  /* get the index of middle element of arr[low..high]*/
+  mid = (low + high)/2;  /* low + (high - low)/2 */
+
+  /* If x is same as middle element, then return mid */
+  if(arr[mid] == x)
+    return mid;
+    
+  /* If x is greater than arr[mid], then either arr[mid + 1]
+    is ceiling of x or ceiling lies in arr[mid+1...high] */  
+  else if(arr[mid] < x)
+  {
+    if(mid + 1 <= high && x <= arr[mid+1])
+      return mid + 1;
+    else 
+      return ceilSearch(arr, mid+1, high, x);
+  }
+
+  /* If x is smaller than arr[mid], then either arr[mid] 
+     is ceiling of x or ceiling lies in arr[mid-1...high] */    
+  else
+  {
+    if(mid - 1 >= low && x > arr[mid-1])
+      return mid;
+    else     
+      return ceilSearch(arr, low, mid - 1, x);
+  }
+}
+
+/* Driver program to check above functions */
+int main()
+{
+   int arr[] = {1, 2, 8, 10, 10, 12, 19};
+   int n = sizeof(arr)/sizeof(arr[0]);
+   int x = 20;
+   int index = ceilSearch(arr, 0, n-1, x);
+   if(index == -1)
+     printf("Ceiling of %d doesn't exist in array ", x);
+   else  
+     printf("ceiling of %d is %d", x, arr[index]);
+   getchar();
+   return 0;
+}
+ Time Complexity: O(Logn) Please write comments if you find any of the above codes/algorithms incorrect, or find better ways to solve the same problem, or want to share code for floor implementation.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. vky well nothing new… but you can replace all those condition statements in the binary search algorithm with just 2 statements.  
+
+#include<stdio.h>
+
+int ceilSearch(int *arr, int beg, int end, int x)
+{
+    int mid;
+    if(x < arr[beg]) return beg;
+    if(x > arr[end-1]) return -1;
+    
+    do{
+        mid = beg + (end - beg)/2;
+        if(x < arr[mid]) end = mid;
+        else beg = mid;
+    } while(beg +1 < end);
+    
+    if(arr[beg] == x) return beg;
+    return end;
+}
+
+/* Driver program to check above functions */
+int main()
+{
+   int arr[] = {1, 2, 8, 10, 10, 12, 19};
+   int n = sizeof(arr)/sizeof(arr[0]);
+   int x = 3;
+   int index = ceilSearch(arr, 0, n-1, x);
+   if(index == -1)
+     printf("Ceiling of %d doesn't exist in array ", x);
+   else
+     printf("ceiling of %d is %d", x, arr[index]);
+   printf("\n");
+   getchar();
+   return 0;
+}
+
+ srb i have notice one thing that when we do normal binary search…arr[low] will point to ceil and arr[high] will point to floor….i have check it in many test cases it is giving correct result….plz correct me if i am wrong …reply asap  
+ 
+#include<stdio.h>
+ 
+int ceilSearch(int arr[], int low, int high, int x)
+{
+  int mid;    
+ 
+ while(low<=high)
+ {
+  mid = (low + high)/2;  /* low + (high - low)/2 */
+   if(arr[mid] == x)
+    return mid;
+    if(arr[mid]<x)
+    low=mid+1;
+    else
+    high=mid-1;
+ }
+ return low;
+}
+ 
+/* Driver program to check above functions */
+int main()
+{
+   int arr[] = {1, 2, 8, 10,10, 12, 19};
+   int n = sizeof(arr)/sizeof(arr[0]);
+   int x = 11;
+   if(x <= arr[0])
+     printf("ceiling of %d is %d", x, arr[0]);
+   else if(x > arr[n-1])
+   printf("Ceiling of %d doesn't exist in array ", x);
+   else
+   {
+   int index = ceilSearch(arr, 0, n-1, x);
+   if(index == -1)
+     printf("Ceiling of %d doesn't exist in array ", x);
+   else 
+     printf("ceiling of %d is %d", x, arr[index]);
+   }
+   getchar();
+   return 0;
+}
+
+
+ a good point. i think u are right. i verified it with two questions on leetcode. the normal is easier to understand. Pushkar You are right..Nice observation.. Vinodhini Hi, You mentioned arr[high] would be the floor. But it fails for the given example when x=5 {1, 2, 8, 10,10, 12, 19} floor is the greatest element that is smaller than 5 which is 2 (at index 1) according your algorithm, floor would be 8. low=0 high=6 mid=3 52 low=2 high=2 mid=2 5>8 return a[high] which is 8 Correct me if I am wrong. And please let me know if there could be an easier O(log n) solution for finding floor of x. Vinodhini Also please check the code for ceil of 18 in {1,2,8,10,10,12,19,20,21} ceil -> smallest element larger than 18 would be 19. your code gives 12.. Please correct me if I am wrong. joker Strange Definitions ?? “the ceiling of x is the smallest element in array greater than or equal to x ” so what will be output if say i have. a: 1 4 4 4 5. a: 1 2 4 4 4 5. a: 4 4 4 1 5. search for 4 is a success in all cases but index will be different so if a range of a value is present then we may end up getting an index anywhere in it. std::upper_bound has a more robust definition. it will always end at first value greater then “x” searched value. [p.s.: solution is correct but this function in current form is no more useful then basic binary search .] The King #include void _print(int a[], int m) { for(int i=0;i<m;i++) printf("\t %d",a[i]); } void ceilfloor(int a[], int n, int x) { int c=-1,f=-1,f1=0,i; for(i=0;i= x && f1==0) { c = a[i]; f1=1; } if( a[i] > x ) continue; else f=a[i]; } if(c==-1) printf(“\n Not exist”); else printf(“\n The value of the ceil is=%d”,c); if(f==-1) printf(“\n Not exist”); else printf(“\n The value of the floor is=%d”,f); } void main() { int a[] = {1,2,8,10,10,12,19},m=0,x=0; m = sizeof(a)/sizeof(a[0]); printf(“\n The first array is:-“); _print(a,m); printf(“\n Enter the value of x”); scanf(“%d”, &x); ceilfloor(a,m,x); } rahul Code in java using binary search  
+
+public class FloorCeilingArray {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		int array[]={1, 2, 8, 10, 10, 12, 19};
+		findFloorCeiling(array,5,0,array.length-1);
+		findFloorCeiling(array,-1,0,array.length-1);
+		findFloorCeiling(array,25,0,array.length-1);
+		findFloorCeiling(array,2,0,array.length-1);
+	}
+
+	private static void findFloorCeiling(int[] array, int value, int low, int high) {
+		// TODO Auto-generated method stub
+		if(low>high){
+			return;
+		}
+		int mid=(low+high)/2;
+		if(array[mid]==value){
+			System.out.println("Low: "+array[mid]+", High: "+array[mid]);
+		}
+		else if(array[mid]<value){
+			if(mid<high && array[mid+1]>value){
+				System.out.println("Low: "+array[mid]+", High: "+array[mid+1]);
+			}
+			else if(mid==high && array[mid]<value){
+				System.out.println("Low: "+array[mid]+", High: doesn't exist");
+			}
+			else{
+				findFloorCeiling(array, value, mid+1, high);
+			}
+				
+		}
+		else{
+			if(mid>low && array[mid-1]<value){
+				System.out.println("Low: "+array[mid-1]+", High: "+array[mid]);
+			}
+			else if(mid==low && array[mid]>value){
+				System.out.println("Low: doesn't exist"+", High: "+array[mid]);
+			}
+			else{
+				findFloorCeiling(array, value, low, mid-1);
+			}
+				
+		}
+	}
+
+}
+
+ rahul My query is regarding this else if(arr[mid] < x) { if(mid + 1 <= high && x <= arr[mid+1]) return mid + 1; else return ceilSearch(arr, mid+1, high, x); } In return instead of mid+1 cant we use mid+2? as mid+1 is smaller than x so how it can be part of next subarray?cant we put mid+2? /* Paste your code here (You may delete these lines if not writing code) */ Ganesh You can find java code here: /** * Given a sorted array and a value x, the ceiling of x is the smallest element in array greater than or equal to x, * and the floor is the greatest element smaller than or equal to x. Assume than the array is sorted in non-decreasing order. * Write efficient functions to find floor and ceiling of x. * For example, * let the input array be {1, 2, 8, 10, 10, 12, 19} * For x = 0: floor doesn’t exist in array, ceil = 1 * For x = 1: floor = 1, ceil = 1 * For x = 5: floor = 2, ceil = 8 * For x = 20: floor = 19, ceil doesn’t exist in array * @author GAPIITD * */ public class FloorAndCeilingInSortedArray { public static void main(String[] args) { int arr[] = {1, 2, 8, 10, 10, 12, 19}; int x = 120; findFloorAndCeilingInSortedArray(arr, x); } private static void findFloorAndCeilingInSortedArray(int[] arr, int x) { int start = 0, end = arr.length – 1, ceil = -1, floor = -1; while (start <= end) { int mid = (start + end)/2; if (x <= arr[mid]) { if (mid == 0) { ceil = arr[mid]; break; } if (x >= arr[mid-1]) { ceil = arr[mid]; floor = arr[mid – 1]; break; } else { end = mid; } } else { if (mid == arr.length – 1) floor = arr[mid]; start = mid + 1; } } System.out.println("Ceil: " + ceil + ", Floor: " + floor); } } aygul One single method in c# to find both together. Iterative binary search. O(logN)  
+public static void FindFloorAndCeil(int[] arr, int k, out int floor, out int ceil)
+{
+    //set out parameters in case they are not found.
+    floor = int.MinValue;
+    ceil = int.MinValue;
+
+    if (arr.Length == 0) return;
+
+    int s = 0;
+    int e = arr.Length - 1;
+    int m;
+           
+    while (s <= e)//binary search
+    {
+        m = (s + e) / 2;
+        if (arr[m] == k)
+        {//value found
+            ceil = floor = k;
+            return;
+        }
+        if (arr[m] > k)//search in lower side
+            e = m - 1;
+        else//search in upper side
+            s = m + 1;
+    }
+
+    if (e == -1)//value is less than the first element
+    {
+        ceil = arr[0];
+        return;
+    }
+
+    if (s == arr.Length)//value is grater than the last element
+    {
+        floor = arr[arr.Length - 1];
+        return;
+    }
+
+    //here s>e, they are the last search place and inside the array
+    floor = arr[e];
+    ceil = arr[s];
+}
+
+ And here are some test cases:  
+int[] arr = new int[]{5, 8, 10, 12, 14, 18, 33, 37};
+int ceil, floor;
+
+Search.FindFloorAndCeil(arr,7, out floor, out ceil);
+Console.WriteLine("7 f:{0} c:{1}", floor, ceil);
+            
+Search.FindFloorAndCeil(arr, 9, out floor, out ceil);
+Console.WriteLine("9 f:{0} c:{1}", floor, ceil); 
+            
+Search.FindFloorAndCeil(arr, 4, out floor, out ceil);
+Console.WriteLine("4 f:{0} c:{1}", floor, ceil);
+
+Search.FindFloorAndCeil(arr, 35, out floor, out ceil);
+Console.WriteLine("35 f:{0} c:{1}", floor, ceil);
+
+Search.FindFloorAndCeil(arr, 18, out floor, out ceil);
+Console.WriteLine("18 f:{0} c:{1}", floor, ceil);
+
+Search.FindFloorAndCeil(arr, 20, out floor, out ceil);
+Console.WriteLine("20 f:{0} c:{1}", floor, ceil);
+
+Search.FindFloorAndCeil(arr, 38, out floor, out ceil);
+Console.WriteLine("38 f:{0} c:{1}", floor, ceil);
+
+ Any comments? Ankit @geeksforgeeks in this block else { if(mid – 1 >= low && x > arr[mid-1]) return mid; else return ceilSearch(arr, low, mid – 1, x); } you should return (mid-1) instead of mid. Karik Could you please provide a sample input for which the original code doesn’t work. Ankit My mistake..It is correct..it should return mid only..thanx for pointing… huha i don’t understand whats the need of these lines in the above given method 2.kindly sb explain  
+ else if(arr[mid] < x)
+  {
+    
+//-------------this if-----------------------why its //required-----------?
+  if(mid + 1 <= high && x <= arr[mid+1])
+      return mid + 1;
+    else
+      return ceilSearch(arr, mid+1, high, x);
+  }
+
+  /* If x is smaller than arr[mid], then either arr[mid]
+     is ceiling of x or ceiling lies in arr[mid-1...high] */
+  else
+  {
+//----------------------this if ?-------------
+    if(mid - 1 >= low && x > arr[mid-1])
+      return mid;
+    else
+      return ceilSearch(arr, low, mid - 1, x);
+  }
+
+ huha @geeksforgeeks this ques is for u. plz reply at the earliest sda making question a bit more interesting. lets change the def of ceil and floor to greater than and less than respectively from the given element thn the above code does not work in case of repeated elements in array. kartik @sda: The given solution works fine in case of duplicates also. Could u please provide an example for which the given solutin didn’t work. sda The given code does not work in case of repeated data e.g. for x = 10 and arry {1,2,10, 10, 10, 10, 10, 12, 19} floor = 2 and ceiling = 12 which is not what we get from code. Shashank no for your case too floor=10 and ceiling=10 Algoseekar  
+ 
+/* Function to get index of Floor  of x in arr[low..high] */
+int FloorSearch(int arr[], int low, int high, int x)
+{
+  int i;    
+ 
+  /* If x is smaller than or equal to first element,
+    then return the first element */
+  if(arr[low]>=x)
+    return low;  
+ 
+  /* Otherwise, linearly search for ceil value */
+  for(i = low; i < high; i++)
+  {
+    if(arr[i] == x)
+      return i;
+ 
+    /* if x lies between arr[i] and arr[i+1] including
+       arr[i+1], then return arr[i+1] */
+    if(arr[i]<x && x<=arr[i+1])
+       return i;
+  }         
+ 
+  /* If we reach here then x is greater than the last element
+    of the array,  return -1 in this case */
+  return -1;
+}
+ 
+/* Driver program to check above functions */
+int main()
+{
+   int arr[] = {1, 2,8,10, 12, 19};
+   int n = sizeof(arr)/sizeof(arr[0]);
+   int x = 10;
+   int index = FloorSearch(arr, 0, n-1, x);
+   if(index == -1)
+     printf("Floor of %d doesn't exist in array ", x);
+   else
+     printf("Floor of %d is %d", x, arr[index]);
+   getchar();
+   return 0;
+}
+ http://cyrelnicolas.blogspot.com SEO Freelance Whoa! Thanks for this information. Keep posting. bunty  
+#include<tsdio.h>
+ 
+/* Function to get index of ceiling of x in arr[low..high] */
+int ceilSearch(int arr[], int low, int high, int x)
+{
+  int mid;   
+ 
+  /* If x is smaller than or equal to the first element,
+    then return the first element */
+  if(x  arr[high])
+    return -1;
+ 
+ /* repeat while a[mid]!=x or low!=(high-1) */
+ while(low!=high-1)
+ {
+  mid = (low+high)/2;
+  if (x==a[mid])
+    printf("%d is ceiling and floor of %d", a[mid], x);
+
+  if (x < a[mid])
+    return ceilSearch(arr[], low, mid-1, x);
+  else
+    return ceilSearch(arr[], (mid+1), high, x);
+  } // End of While
+
+  /* Now low is equal to (high-1)
+  return (high-1);
+
+}
+ 
+/* Driver program to check above functions */
+int main()
+{
+   int arr[] = {1, 2, 8, 10, 10, 12, 19};
+   int n = sizeof(arr)/sizeof(arr[0]);
+   int x = 20;
+   int index = ceilSearch(arr, 0, n-1, x);
+   if(index == -1)
+     printf("Ceiling of %d doesn't exist in array ", x);
+   else
+     printf("ceiling of %d is %d", x, arr[index]);
+   getchar();
+   return 0;
+}
+ bunty a typo mistake return high; instead of return (high-1) kp101090 your code seems to be correct excluding typo..but the code provided by GeeksforGeeks is more efficient as it is doing a check for immediate next elt after finding either elt arr[mid]… Ankul Just a slight addition, in starting,  
+if (A[0] > x)
+{
+    printf("Floor = %d and Ceiling = %d\n",-1,A[0]);
+    return;
+}
+ Ankul  
+
+#include <stdio.h>
+
+// finding floor and ceiling of a number x in a sorted include
+
+main ()
+{
+	int A[] = {1, 2, 8, 8,8, 10, 10, 12, 19};
+	int n = sizeof(A)/sizeof(A[0]);
+	int x;
+	scanf ("%d",&x);
+	if (A[n-1] < x) 
+	{
+		printf("Floor = %d and Ceiling = %d\n",A[n-1],-1);
+		return;
+	}
+	int lo = 0, hi = n-1;
+	int found = -1;
+	while (lo < hi)
+	{
+		int mid = (lo+hi)/2;
+		if (A[mid] == x)
+		{
+			printf("Floor = %d and Ceiling = %d\n",A[mid],A[mid]);
+			found = 1;
+			break;
+		}
+		else if (A[mid] > x)
+		{
+			hi = mid;
+		} else 
+		{
+			lo = mid+1;
+		}
+	}
+	if (found == -1) printf("Floor = %d and Ceiling = %d\n",A[lo-1],A[hi]);
+}
+ How about this code? It works fine and is non-recursive, and less complex. If x is not found in sorted array, then hi will always point to ceiling of x and lo will also be same as hi. Thus, lo-1 will be floor of x. nikhil wat abt d floor if x=0 tyro Why don’t we incorporate this code? looks great except that we need to put 1 more check in the start saying: if(x<A[lo]) {floor=-1,ceil=lo;} sunny If x is smaller than arr[mid],then no need to check in arr[0..mid-1] Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

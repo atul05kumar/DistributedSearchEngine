@@ -1,0 +1,406 @@
+Union and Intersection of two sorted arrays - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Union and Intersection of two sorted arrays For example, if the input arrays are: arr1[] = {1, 3, 4, 5, 7} arr2[] = {2, 3, 5, 6} Then your program should print Union as {1, 2, 3, 4, 5, 6, 7} and Intersection as {3, 5}. Algorithm Union(arr1[], arr2[]): For union of two arrays, follow the following merge procedure. 1) Use two index variables i and j, initial values i = 0, j = 0 2) If arr1[i] is smaller than arr2[j] then print arr1[i] and increment i. 3) If arr1[i] is greater than arr2[j] then print arr2[j] and increment j. 4) If both are same then print any of them and increment both i and j. 5) Print remaining elements of the larger array. 
+#include<stdio.h>
+
+/* Function prints union of arr1[] and arr2[]
+   m is the number of elements in arr1[]
+   n is the number of elements in arr2[] */
+int printUnion(int arr1[], int arr2[], int m, int n)
+{
+  int i = 0, j = 0;
+  while(i < m && j < n)
+  {
+    if(arr1[i] < arr2[j])
+      printf(" %d ", arr1[i++]);
+    else if(arr2[j] < arr1[i])
+      printf(" %d ", arr2[j++]);
+    else
+    {
+      printf(" %d ", arr2[j++]);
+      i++;
+    }
+  }
+
+  /* Print remaining elements of the larger array */
+  while(i < m)
+   printf(" %d ", arr1[i++]);
+  while(j < n)
+   printf(" %d ", arr2[j++]);
+}
+
+/* Driver program to test above function */
+int main()
+{
+  int arr1[] = {1, 2, 4, 5, 6};
+  int arr2[] = {2, 3, 5, 7};
+  int m = sizeof(arr1)/sizeof(arr1[0]);
+  int n = sizeof(arr2)/sizeof(arr2[0]);
+  printUnion(arr1, arr2, m, n);
+  getchar();
+  return 0;
+}
+ Time Complexity: O(m+n) Algorithm Intersection(arr1[], arr2[]): For Intersection of two arrays, print the element only if the element is present in both arrays. 1) Use two index variables i and j, initial values i = 0, j = 0 2) If arr1[i] is smaller than arr2[j] then increment i. 3) If arr1[i] is greater than arr2[j] then increment j. 4) If both are same then print any of them and increment both i and j. 
+#include<stdio.h>
+
+/* Function prints Intersection of arr1[] and arr2[]
+   m is the number of elements in arr1[]
+   n is the number of elements in arr2[] */
+int printIntersection(int arr1[], int arr2[], int m, int n)
+{
+  int i = 0, j = 0;
+  while(i < m && j < n)
+  {
+    if(arr1[i] < arr2[j])
+      i++;
+    else if(arr2[j] < arr1[i])
+      j++;
+    else /* if arr1[i] == arr2[j] */
+    {
+      printf(" %d ", arr2[j++]);
+      i++;
+    }
+  }
+}
+
+/* Driver program to test above function */
+int main()
+{
+  int arr1[] = {1, 2, 4, 5, 6};
+  int arr2[] = {2, 3, 5, 7};
+  int m = sizeof(arr1)/sizeof(arr1[0]);
+  int n = sizeof(arr2)/sizeof(arr2[0]);
+  printIntersection(arr1, arr2, m, n);
+  getchar();
+  return 0;
+}
+ Time Complexity: O(m+n) Please write comments if you find any bug in above codes/algorithms, or find other ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. prince this code not work if sorted arrays have repeated number……. what should be algo in that case? Uma This code will not work for repeated numbers. Jamie Schnaitter If it’s a set, there should be no repeated numbers. prince but the array may have repeated elements Bharath G M This can be done easily by using a Hash Table with O(n OR m) OP Coder You are wrong. It will still be O(m+n). Because you have to traverse the complete array[m] to make hash of it and then check every element of array[n] with it. Bharath G M Yep. It will be still O(n+m). Sorry about that. Marsha Donna can’t we use || instead of && in the while loop of both the above programs i?? Pushkar No.. Because && is used to get out of loop when any one of the array is traversed fully because then there would be nothing to compare so rest of the elements of the another “Not fully traversed” Array is printed as it is by using while loop used at last part. akki Method given in the solution I guess will not produce correct output for following input arr1 = 5 6 9 arr2 = 10 9 1 2 Output for union will be 5 6 9 10 9 1 2 here 9 is repeated… Correct me if i am wrong akki Given solution works fine if both arrays are sorted in increasing order. akki OOPS my mistake didnt saw the word sorted in problem statement Ayush Gupta  
+/* 
+#include<stdio.h>
+#include<string.h>
+int main()
+{
+	int A[10],B[10],c[10],d[10];
+	int n,i,j,k=0,l,count=0,set_flag=0;
+	puts("enter the number of values to be entered<10");
+	scanf("%d",&n);
+	if(n>10) return -1;
+	puts("Enter the elements of A");
+	for(i=0;i<n;i++)
+	{
+		scanf("%d",A+i);
+	}
+	puts("Enter the elements of B");
+	for(i=0;i<n;i++)
+	{
+		scanf("%d",B+i);
+	}
+	for(i=0;i<n;i++)
+	{
+		c[i]=A[i];
+		count++;
+	}
+	printf("count=%d\n",count);
+	l=count;
+	for(i=0;i<n;i++)
+	{
+		for(j=0;j<count;j++)
+		{
+			if(B[i]==c[j])
+			{
+				set_flag=1;
+				break;
+			}
+			set_flag=0;
+		}
+		if(set_flag==0)
+		{
+			c[l]=B[i];
+			l++;
+		}
+	}
+	puts("A union B is:");
+	for(i=0;i<l;i++)
+	{
+		printf("%d\n",c[i]);
+	}
+	for(i=0;i<n;i++)
+	{
+		for(j=0;j<count;j++)
+		{
+			if(A[i]==B[j])
+			{
+				d[k]=A[i];
+				k++;
+				break;
+			}
+		}
+	}
+	puts("A intersection B is:");
+	for(i=0;i<k;i++)
+	{
+		printf("%d\n",d[i]);
+	}
+	return 0;
+} 
+
+*/
+ gaurav singh in the case of union when we have a case of common elements in one array are repeated (as this might be the case), then there will be repetition in printing the union.. e.g. A[]={1,2,2,3,4} B[]={0,2,3,4} this can be eliminated using a variable last_print_value which will take count of the value last printed… mahmudul hasan #include #include int main() { int a[20],b[20],i,j,k,n,m,v=0; printf(“Enter set 1: \n\t How many elements:”); scanf(“%d”,&n); for(i=0; i<n; i++) { scanf("%d",&a[i]); } k = n; /////////////////////////////////// printf("Enter set 1: \n\t How many elements:"); scanf("%d",&m); for(i=0; i<m; i++) { scanf("%d",&b[i]); } /////////////////////////////////// for(i=0; i<m; i++) { for(j=0; j<n; j++) { if(b[i] == a[j]) v = 1; else { a[k] = b[i]; k++; } v =0; } } printf("\nUnion is:\n\n"); for(i=0; i<k; i++) printf("%d ",a[i]); return 0; } vrock #include #include void main() { clrscr(); int x[5],y[5],z[10],i,i1,i2,count=0,j; clrscr(); cout<<"\nenter 1st array\n"; for(i=0;i>x[i]; cout<<"\nenter 2nd array\n"; for(i=0;i>y[i]; cout<<"\nthe union of 2 arrays is\n"; for(i1=0;i1<5;i1++) z[i1]=x[i1]; for(i2=0;i2<5;i2++) { for(j=0;j<5;j++) { if(z[j]==y[i2]); count++; if(count==0) { z[i1]=y[i2]; i1++; } } count=0; } for(j=0;j<i1;j++) cout<<endl<<z[j]; } vrock I don’t what’s the problem with program but it does not work correctly. Can you help me out? http://webcomsolution.blogspot.com SSS #include int main() { int a[]={1,3,4,5,7},i=0,cnt=0,size=0,j,t; int b[]={2,3,5,6}; int c[10]; for(i=0;i<5;i++) c[i]=a[i]; size=5; for(i=0;i<4;i++) { cnt=0; for(j=0;j<5;j++) { if(b[i]==a[j]) cnt++; } if(cnt==0) { c[size]=b[i]; size++; } } for(i=0;i<size;i++) { for(j=0;jc[j+1]) { t=c[j]; c[j]=c[j+1]; c[j+1]=t; } } } for(i=0;i<size;i++) printf("%2d",c[i]); return 0; } Rakesh Sharma /* Paste your code here (You may delete these lines if not writing code) */ /*java solution*/ int[] intersect(int[] a, int[] b) { Set&lt;Integer&gt; s = new HashSet&lt;Integer&gt;(); Set&lt;Integer&gt; tmpS = new HashSet&lt;Integer&gt;(); // Put all integers in first array into hashset. Insertion is O(1) for (int i = 0; i &lt; a.length; i++) { s.add(new Integer(a[i])); } // Now check if integer in second array is contained in first. Retrieval is O(1) for (int j = 0; j &lt; b.length; j++) { if (s.contains(b[j]) &amp;&amp; !tmpS.contains(b[j])) tmpS.add(b[j]); } } int counter = 0; int[] result = new int[tmpS.size()]; Iterator iter = tmpS.iterator(); while(iter.hasNext()) { Integer i = iter.next(); result[counter++] = i.intValue(); } return arr; } LadyGeek How would you find the union of two string arrays of names and have it output the names from the two array? Rakesh Sharma /*java code. Intersection of 2 string array O(n + m) */ String[] intersect(String[] a, String[] b) { Set&lt;String&gt; s = new HashSet&lt;String&gt;(); Set&lt;String&gt; tmpS = new HashSet&lt;String&gt;(); // Put all Strings in first array into hashset. Insertion is O(1) for (int i = 0; i &lt; a.length; i++) { s.add(a[i]); } // Now check if String in second array is contained in first. Retrieval is O(1) for (int j = 0; j &lt; b.length; j++) { if (s.contains(b[j]) &amp;&amp; !tmpS.contains(b[j])) tmpS.add(b[j]); } } int counter = 0; String[] result = new String[tmpS.size()]; Iterator iter = tmpS.iterator(); while(iter.hasNext()) { String i = iter.next(); result[counter++] = i.intValue(); } return result; } AG  
+
+#include <stdio.h>
+
+void my_union(int a[],int b[],int na,int nb)
+{
+    int i=0,j=0;
+    while (i<na && j<nb)
+    {
+        if (a[i]<b[j])
+        {
+            int tmp=a[i];
+            printf("%d ",a[i]);
+            while (i<na && a[i]==tmp)
+            {
+                i++;
+            }
+        }
+        else if (a[i]>b[j])
+        {
+            int tmp=b[j];
+            printf("%d ",b[j]);
+            while (j<nb && b[j]==tmp)
+            {
+                j++;
+            }
+        }
+        else if (a[i]==b[j])
+        {
+            int tmp=a[i];
+            printf("%d ",a[i]);
+            while (j<nb && b[j]==tmp)
+            {
+                j++;
+            }
+            while (i<na && a[i]==tmp)
+            {
+                i++;
+            }
+        }
+    }
+
+    if (i<na)
+    {
+        while (i != na)
+        {
+            if (a[i]!=a[i-1])
+            {
+                printf("%d ",a[i]);
+            }
+            i++;
+        }
+    }
+    if (j<nb)
+    {
+
+        while (j != nb)
+        {
+            if (b[j]!=b[j-1])
+            {
+                printf("%d ",b[j]);
+            }
+            j++;
+        }
+    }
+}
+
+int main()
+{
+    int a[]={4,4,4,4};
+    int b[] = {4,4,4,4};
+
+    int na=4,nb=4;
+
+    my_union(a,b,na,nb);
+
+    return 0;
+}
+
+ This code works for duplicate elements too, for example: a[]={4,4,4,4} b[]={2,3,4,4} union = {2,3,4} do tell me if i have missed something or something is wrong cheers !!! http://www.geeksforgeeks.org/archives/6873 SA If you see according to mathematical definition of union then this code is Wrong. eg. A={3,3,3,3} then A U A={3} =B say According 2 ur program , But according to Mathematical definition A must be contained in (or eqaul to ) B . This does,t follow here . AG ya got u.. thanks .. sudipta The code for intersection printing is plain wrong It thinks intersection of the following i/p arrays int[] a = { 3, 4, 5, 8, 11 }; int[] b = { 5, 6, 7, 8, 9, 12 }; is 8,9 which is wrong. it is 5,8 kartik @sudipta: The code given in post works fine for your example.  /* Driver program to test above function */
+int main()
+{
+  int arr1[] = { 3, 4, 5, 8, 11 };
+  int arr2[] = { 5, 6, 7, 8, 9, 12 };
+  int m = sizeof(arr1)/sizeof(arr1[0]);
+  int n = sizeof(arr2)/sizeof(arr2[0]);
+  printIntersection(arr1, arr2, m, n);
+  getchar();
+  return 0;
+} Vikas Kumar This is giving correct output for UNION of twa arrays…Try or this…If any mistake is here please mail me as I would love to know mine mistake.  
+#include<stdio.h>
+int main()
+{
+	int a[10],b[10],c[20],d[20];
+	int i,j,k,flag=0;
+	printf("ENTER THE ELEMENTS OF THE FIRST ARRAY  :  ");
+	for(i=0;i<10;i++)
+	{
+		scanf("%d",&a[i]);
+	}
+	printf("ENTER THE ELEMENTS OF THE SECOND ARRAY  :  ");
+	for(i=0;i<10;i++)
+	{
+		scanf("%d",&b[i]);
+	}
+
+
+	for(i=0;i<10;i++)
+                printf("\t%d",a[i]);
+	printf("\n");
+	for(i=0;i<10;i++)
+                printf("\t%d",b[i]);
+
+	printf("\nTHE UNION IS IN PROGRESS......\n");
+	
+	for(i=0;i<10;i++)
+	{
+		c[i]=a[i];
+	}
+	k=10;
+	for(i=0;i<10;i++)
+	{
+		for(j=0;j<k;j++)
+		{
+			if(b[i]==c[j])
+			{
+				flag=1;
+			}
+		}
+		if(flag!=1)
+			c[k++]=b[i];
+		flag=0;
+	}
+
+k=0;
+     for(i=0;i<20;i++)
+        {
+                for(j=0;j<20;j++)
+                {
+                        if(c[i]==d[j])
+                        {
+                                flag=1;
+                        }
+                }
+                if(flag!=1)
+                        d[k++]=c[i];
+                flag=0;
+        }
+
+
+
+//	for(i=0;c[i]!='';i++)
+//		printf("\t%d\n",c[i]);
+
+	for(i=0;d[i]!='';i++)
+                printf("\t%d\n",d[i]);
+        return 0;
+}
+ Brad  
+//Hopefully this time with indentation
+int Union(int a[], int b[], int m, int n)
+{
+    int i=0,j=0,temp=0;
+    while(i<m && j<n) {
+       if (temp!=a[i] && temp!=b[j]) {
+            if(a[i]<b>b[j])  {
+                   print b[j];
+                   j++; 
+                   temp=b[j];
+            }
+            if(a[i]==b[j])  {
+                   print a[i];
+		   i++; j++; 
+                   temp=a[i];
+            }
+        }
+        else
+        {
+            if (temp==a[i]) i++;
+            if (temp==b[j]) j++;
+         }
+}
+	
+    while(i<m) {
+        print a[i]; i++
+    }
+    while(j<n) {
+         print b[j]; j++;
+     }
+}
+ sandy this is set for already set integers what if we want to build a program in order to take user defined values and values need not to be in any order and they cud be repeated as many times that to same number in both the arrays i have made one such type but its having problem tht repetition is overcome only if one time its repeated in an array and if the same number is given in the other array it would nullify it once only and i also i want to ask what’s the technique for deletion of array i am giving a copy of my program execute it once and see the errors  
+main()
+{
+  int a[10],b[10],c[10],k=0,i,j,m,n,l;
+  clrscr();
+  printf("enter the number of elements in set a\n");
+  scanf("%d",&m);
+  printf("enter the elements of set a\n");
+  for(i=0;i<m;i++)
+  {
+    scanf("%d",&a[i]);
+    c[k++]=a[i];
+  }
+  printf("enter the number of elements in set b\n");
+  scanf("%d",&n);
+  printf("enter the elements of set b\n");
+  for(i=0;i<n;i++)
+  {
+     scanf("%d",&b[i]);
+     c[k++]=b[i];
+  } 
+  for(i=0;i<k-1;i++)
+  {
+    for(j=i+1;j<k;j++)
+    {
+      if(c[i]==c[j])
+     {for(l=j;l<k;l++)
+      {
+        c[l]=c[l+1];
+      }
+   }
+  }
+}
+printf("union of set a nad b is.....\n");
+for(i=0;i<k;i++)
+{
+printf("%d\n",c[i]);
+}
+getch();
+}
+ Asit  
+else /* if arr1[i] == arr2[j] */
+    {
+      printf(" %d ", arr2[j++]);
+      i++;
+    }
+
+ This is wrong…it should be  
+else /* if arr1[i] == arr2[j] */
+    {
+      printf(" %d ", arr2[j++]);
+      printf(" %d ", arr1[i++]);
+    }
+
+ Asit My Mistake…didn’t notice that duplicate elements get printed only once Agent Smith Code wont work for input where the arr2[] is having elements greater than each of the elements of arr1[],For instance: arr1[]={4,2,3,6} arr2[]={7,6,5,4} kartik Your input arrays are not sorted!! could be the cause of problem that you are faced. Agent Smith The program given above doesnt do any sort on the arrays provided…n the ques doesnt explicitly state for sorted arrays…the solution is grossly inadequate Agent Smith Sorry didnt see the sorted array part….then its a pretty simple ques azp the soln is only for sorted arrays. Rajendra Harder problem: Pring union and intersection of two UNSORTED arrays in O(m+n) time. kartik Hashing can be used for this. amit Yep. This would only work for sorted data sets. IMO, how about sorting these data sets together and then eliminating duplicates for union and the removed duplicates shall be the intersection. So apply quicksort with over the dataset {Combine both of them}. In this sorting implementation, we would place duplicates if encountered side by side with their counterparts. The average case time complexity would then be O(nlogn). As a result we would have a sorted dataset. Then in O(n) time, traversing the array copying over the duplicates to temp another array and then deleting from the sorted array. This way after duplicate elimination from the sorted dataset, we would have a union of the two original datasets and the temp array would present the intersection. In all it would be done in O(nlogn)+O(n) time Even a better solution would be during the sorting itself, if we discover a duplicate element move it over to a temp array. This would take O(nlogn) time amit please advise. Forgot to mention in the previous post k53 The logic sounds good. But consider this test case  
+arr1[]={1,2,2};
+arr2[]={3,4};
+ Here the intersection must be {} But as we combine and perform sort we may not know whether the duplicates are from the same array or not..Please correct me if i’m wrong Sam I mean If the inputs int arr1[] = {1, 2, 2, 2, 6, 6}; int arr2[] = {2, 2, 3, 6, 6}; The output should be {1,2,3,6} kartik This can be addressed in two ways: 1)Store the union and intersection results in an array and add an extra step to remove duplicates from the union and intersection results. Another way is 2) Keep track of last item printed or stored in result. If the current item is same as previous item then ignore the current item. kranthi class MyArray7 { public static void printUnion(int arr1[], int arr2[], int m, int n) { int i = 0, j = 0; while(i < m && j < n) { if(arr1[i] < arr2[j]) System.out.print(arr1[i++]); // 1 , 2 else if(arr2[j] < arr1[i]) System.out.print( arr2[j++]); else { System.out.print( arr2[j++]); // 3 i++; } } /* Print remaining elements of the larger array */ while(i < m) System.out.print( arr1[i++]); while(j < n) System.out.print(arr2[j++]); // 4 , 5 } /* Driver program to test above function */ public static void main(String args[]) { int arr1[] = {1, 2, 3}; int arr2[] = {3,4,5}; int m = arr1.length; int n = arr2.length; printUnion(arr1, arr2, m, n); } } Sam BTW, Union solution works only when all items in both arrays are distinct. kartik I think it works fine for duplicate items also. I tried below main program and got the output as Union 1 2 2 2 3 6 6 and Intersection 2 2 6 6.  
+int main()
+{
+  int arr1[] = {1, 2, 2, 2, 6, 6};
+  int arr2[] = {2, 2, 3, 6, 6};
+  int m = sizeof(arr1)/sizeof(arr1[0]);
+  int n = sizeof(arr2)/sizeof(arr2[0]);
+  printUnion(arr1, arr2, m, n);
+  printf("\n");
+  printIntersection(arr1, arr2, m, n);
+  getchar();
+  return 0;
+}
+ It works because the Union code won’t print 2s from arr2[] until it reaches first 2 in arr1[]. Once it reaches first 2 of arr1[], it prints common 2s in arr1[] and arr2[], and finally extra 2s of arr1[]. I am not sure of the scenario where we need Union of Intersection of arrays with duplicates though common While finding the frequent item sets in the network data, this type of union will be used….. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

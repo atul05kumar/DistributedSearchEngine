@@ -1,0 +1,406 @@
+Find whether an array is subset of another array | Added Method 3 - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find whether an array is subset of another array | Added Method 3 Given two arrays: arr1[0..m-1] and arr2[0..n-1]. Find whether arr2[] is a subset of arr1[] or not. Both the arrays are not in sorted order. Examples: Input: arr1[] = {11, 1, 13, 21, 3, 7}, arr2[] = {11, 3, 7, 1} Output: arr2[] is a subset of arr1[] Input: arr1[] = {1, 2, 3, 4, 5, 6}, arr2[] = {1, 2, 4} Output: arr2[] is a subset of arr1[] Input: arr1[] = {10, 5, 2, 23, 19}, arr2[] = {19, 5, 3} Output: arr2[] is not a subset of arr1[] Method 1 (Simple) Use two loops: The outer loop picks all the elements of arr2[] one by one. The inner loop linearly searches for the element picked by outer loop. If all elements are found then return 1, else return 0. 
+#include<stdio.h>
+
+/* Return 1 if arr2[] is a subset of arr1[] */
+bool isSubset(int arr1[], int arr2[], int m, int n)
+{
+    int i = 0;
+    int j = 0;
+    for (i=0; i<n; i++)
+    {
+        for (j = 0; j<m; j++)
+        {
+           if(arr2[i] == arr1[j])
+              break;
+        }
+        
+        /* If the above inner loop was not broken at all then
+           arr2[i] is not present in arr1[] */
+        if (j == m)
+           return 0;
+    }
+    
+    /* If we reach here then all elements of arr2[] 
+      are present in arr1[] */
+    return 1;
+}
+ 
+int main()
+{
+    int arr1[] = {11, 1, 13, 21, 3, 7};
+    int arr2[] = {11, 3, 7, 1};
+  
+    int m = sizeof(arr1)/sizeof(arr1[0]);
+    int n = sizeof(arr2)/sizeof(arr2[0]);
+
+    if(isSubset(arr1, arr2, m, n))
+      printf("arr2[] is subset of arr1[] ");
+    else
+      printf("arr2[] is not a subset of arr1[]");      
+
+    getchar();
+    return 0;
+} Time Complexity: O(m*n) Method 2 (Use Sorting and Binary Search) 
+1) Sort arr1[] O(mLogm)
+2) For each element of arr2[], do binary search for it in sorted arr1[].
+         a) If the element is not found then return 0.
+3) If all elements are present then return 1.
+ 
+#include<stdio.h>
+
+/* Fucntion prototypes */
+void quickSort(int *arr, int si, int ei);
+int binarySearch(int arr[], int low, int high, int x);
+
+/* Return 1 if arr2[] is a subset of arr1[] */
+bool isSubset(int arr1[], int arr2[], int m, int n)
+{
+    int i = 0;
+  
+    quickSort(arr1, 0, m-1);
+    for (i=0; i<n; i++)
+    {
+        if (binarySearch(arr1, 0, m-1, arr2[i]) == -1)
+           return 0;
+    }
+    
+    /* If we reach here then all elements of arr2[] 
+      are present in arr1[] */
+    return 1;
+}
+ 
+/* FOLLOWING FUNCTIONS ARE ONLY FOR SEARCHING AND SORTING PURPOSE */
+/* Standard Binary Search function*/
+int binarySearch(int arr[], int low, int high, int x)
+{
+  if(high >= low)
+  {
+    int mid = (low + high)/2;  /*low + (high - low)/2;*/
+ 
+    /* Check if arr[mid] is the first occurrence of x.
+        arr[mid] is first occurrence if x is one of the following
+        is true:
+        (i)  mid == 0 and arr[mid] == x
+        (ii) arr[mid-1] < x and arr[mid] == x
+     */
+    if(( mid == 0 || x > arr[mid-1]) && (arr[mid] == x))
+      return mid;
+    else if(x > arr[mid])
+      return binarySearch(arr, (mid + 1), high, x);
+    else
+      return binarySearch(arr, low, (mid -1), x);
+  }
+ return -1;
+}  
+
+void exchange(int *a, int *b)
+{
+    int temp;
+    temp = *a;
+    *a   = *b;
+    *b   = temp;
+}
+ 
+int partition(int A[], int si, int ei)
+{
+    int x = A[ei];
+    int i = (si - 1);
+    int j;
+ 
+    for (j = si; j <= ei - 1; j++)
+    {
+        if(A[j] <= x)
+        {
+            i++;
+            exchange(&A[i], &A[j]);
+        }
+    }
+    exchange (&A[i + 1], &A[ei]);
+    return (i + 1);
+}
+ 
+/* Implementation of Quick Sort
+A[] --> Array to be sorted
+si  --> Starting index
+ei  --> Ending index
+*/
+void quickSort(int A[], int si, int ei)
+{
+    int pi;    /* Partitioning index */
+    if(si < ei)
+    {
+        pi = partition(A, si, ei);
+        quickSort(A, si, pi - 1);
+        quickSort(A, pi + 1, ei);
+    }
+}
+ 
+/*Driver program to test above functions */
+int main()
+{
+    int arr1[] = {11, 1, 13, 21, 3, 7};
+    int arr2[] = {11, 3, 7, 1};
+  
+    int m = sizeof(arr1)/sizeof(arr1[0]);
+    int n = sizeof(arr2)/sizeof(arr2[0]);
+
+    if(isSubset(arr1, arr2, m, n))
+      printf("arr2[] is subset of arr1[] ");
+    else
+      printf("arr2[] is not a subset of arr1[] ");      
+
+    getchar();
+    return 0;
+} Time Complexity: O(mLogm + nLogm). Please note that this will be the complexity if an mLogm algorithm is used for sorting which is not the case in above code. In above code Quick Sort is sued and worst case time complexity of Quick Sort is O(m^2) Method 3 (Use Sorting and Merging ) 1) Sort both arrays: arr1[] and arr2[] O(mLogm + nLogn) 2) Use Merge type of process to see if all elements of sorted arr2[] are present in sorted arr1[]. Thanks to Parthsarthi for suggesting this method. 
+/* Return 1 if arr2[] is a subset of arr1[] */ 
+bool isSubset(int arr1[], int arr2[], int m, int n)
+{
+    int i = 0, j = 0;
+    
+    if(m < n)
+       return 0;
+
+    quickSort(arr1, 0, m-1);
+    quickSort(arr2, 0, n-1);
+    while( i < n && j < m )
+    {
+        if( arr1[j] <arr2[i] )
+            j++;
+        else if( arr1[j] == arr2[i] )
+        {
+            j++;
+            i++;
+        }
+        else if( arr1[j] > arr2[i] )
+            return 0;
+    }
+ 
+    if( i < n )
+        return 0;
+    else
+        return 1;
+} 
+ Time Complexity: O(mLogm + nLogn) which is better than method 2. Please note that this will be the complexity if an nLogn algorithm is used for sorting both arrays which is not the case in above code. In above code Quick Sort is sued and worst case time complexity of Quick Sort is O(n^2) Method 4 (Use Hashing) 1) Create a Hash Table for all the elements of arr1[]. 2) Traverse arr2[] and search for each element of arr2[] in the Hash Table. If element is not found then return 0. 3) If all elements are found then return 1. Note that method 1, method 2 and method 4 don’t handle the cases when we have duplicates in arr2[]. For example, {1, 4, 4, 2} is not a subset of {1, 4, 2}, but these methods will print it as a subset. Source: http://geeksforgeeks.org/forum/topic/if-an-array-is-subset-of-another Please write comments if you find the above codes/algorithms incorrect, or find other ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. Guest @geeksforgeeks:disqus Kindly have a look at this. Thanks. int isSubset(int a[],int b[],int sizeA,int sizeB) { int j=0; int i; int count = 0; if(sizeA >=sizeB) { for(i=0;i<sizeA;i++) { if(b[j]==a[i]) { count++; j++; i=0; } if(j==sizeB) break; } if(count == sizeB) printf("b[] is subset of a[]n"); else printf("b[] is not a subset of a[]n"); } Guest @geeksforgeeks:disqus Kindly have a look at this. Thanks. int isSubset(int a[],int b[],int sizeA,int sizeB) { int j=0; int i; int count = 0; if(sizeA >=sizeB) { for(i=0;i<sizeA;i++) { if(b[j]==a[i]) { count++; j++; i=0; } if(j==sizeB) break; } if(count == sizeB) printf("b[] is subset of a[]n"); else printf("b[] is not a subset of a[]n"); } Guest @geeksforgeeks:disqus Kindly have a look at this. Thanks. int isSubset(int a[],int b[],int sizeA,int sizeB) { int j=0; int i; int count = 0; if(sizeA >=sizeB) { for(i=0;i<sizeA;i++) { if(b[j]==a[i]) { count++; j++; i=0; } if(j==sizeB) break; } if(count == sizeB) printf("b[] is subset of a[]n"); else printf("b[] is not a subset of a[]n"); } wasseypuriyan Method 3 falis when we have repeated elements in arr1[]. Correct me if I’m wrong Guest GeeksforGeeks ,Creating hash table for integral values ,i don’t think it is beneficialeasy ,its always problematic to create hash for integral if items has large gape between them . Sudarshan Singh @d4868dd64c637016efc578852ad7cd68:disqus ,Creating hash table for integral values ,i don’t think it is beneficialeasy ,its always problematic to create hash for integral if items has large gape between them . Sudarshan Singh @GeeksForGeeks Dear ,the statement “{1, 4, 4, 2} is not a subset of {1, 4, 2}, but these methods will print it as a subset” ,is itself not appropriate as {1,4.4,2} is not a set as per mathematical definition. wgpshashank In Java it can be done in single line int isSubArray(int array[] , int subArray[]) { return Collections.indexOfSubList(Arrays.asList(array), Arrays.asList(subArray)); } PS: of-course do some checking before you process , don’t rely for it on java method aswathy dont you know what is subset?its just number checking Ronny Source code for the same using method 4 and it handles the duplicate case as well. So kindly update the post. Method 4(hashing) can very well handle the case of duplicates  
+
+#include<stdio.h>
+
+#define RANGE 100
+
+int hash[RANGE];
+
+int check(int arr1[],int arr2[],int m,int n)
+{
+    int i;
+    for(i=0;i<m;i++)
+      hash[arr1[i]]++;
+
+    for(i=0;i<n;i++)
+     {
+         if(hash[arr2[i]]>0)
+           hash[arr2[i]]--;
+         else
+           return 0;
+     }
+     return 1;
+}
+
+int main()
+{
+    int arr1[]={1, 4, 2, 7, 9, 5};
+    int arr2[]={1, 4, 4, 2};
+
+    int m=sizeof(arr1)/sizeof(arr1[0]);
+    int n=sizeof(arr2)/sizeof(arr2[0]);
+
+    if(check(arr1,arr2,m,n))
+      printf("Subset\n");
+    else
+      printf("Not a Subset\n");
+
+    return 0;
+}
+
+ Ronny @geeksforgeeks @kartik @venki Method 4 can handle duplicate case also, if we store in the hash table the count of occurances of element of array 1. And whenever we search for an element in array 2, if hash[arr2[i]]>0, then we’ll decrement the count of hash and if hash[arr2[1]]==0 then we can return zero. This method has O(m+n) time complexity ( O(m) for creating hash and O(n) for searching the elements.) and space complexity is O(R) where R is the range of elements Ronny @geeksforgeeks Kindly have a look at this. Thanks. Muthukumar Suresh Can we use bitwise XOR for this . let X=XOR(array arr1) and Y=XOR(aray arr2) Z= ( (X XOR Y) XOR (X) ) XOR Y if Z is 0 it is subarray otherwise not. (X XOR Y) gives the elements in ARR1 not in ARR2 this being XORd with X will give the elements present in Y which finally being XORd with Y gives 0 if there is some element not present the XOR sum will be 0 http://piyush.co.nf hmm if ar1= {1} and ar2 ={2} then it will not work 4m7u1 in method three.. if( i < n ) return 0; else return 1; does this handles all the test cases? I mean, what if i>n but jn, ie else case and becomes true and returns 1.. can anyone explain me this.. 4m7u1 I mean, what if i>n but j 4m7u1 i greater than n but j less than m GeeksforGeeks @4m7u1: Please write code between sourcecode tags. rajee hey method 3 would fail if array 1 has repeated elements !!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks Could you provide more details or a sample test case for which it failed? Sumit  
+/* Paste your code here (You may delete these lines if not writing code) */
+ If the numbers are prime we can just check whether the product of bigger array is divisible by the product of smaller one bunty @geeks: In method 3, 2) After sorting two arrays, we can actually find the intersection of two sorted arrays, which should be array2, if array2 is sub-array of array1. bunty - Issue would be intersection need a little complex code. Better would be merge, I suppose. Steve void main() { int a[] = {11, 1, 13, 21, 3, 7}; int b[] = {11, 3, 7, 4}; max=maximum(a,6); int sub=subset(a,b,6,4,max); if(sub) printf(“B is a subset of A”); else printf(“B is not a subset of A”); } int maximum(int a[],n) { max=-1; for(i=0;i<n;i++) { if(max<a[i]) max=a[i]; } } int subset(int a[],int b[],int n,int max) { int c[max],i; for(i=0;i<n;i++) { c[a[i]]+=1; } for(i=0;i<m;i++) { if(c[b[i]]) return 0; else c[b[i]]-=1; } return 1; } Space Complexity:O(max element of A) Time Complexity:O(array B) Mustafa THANKYOU!!!!!!!!!!!!!! v3nom can’t we just read the main array in a map and then store its size…now insert the sub array in the same map…if size remains same then it is a sub-array otherwise not. kartik Your approach looks similar to method 4. If we compare it with method 4, then we can see that method 4 will be doing less number of comparisons in general. Let me know your thoughts. Shailesh 1) We can use BitSet instead of HashMap to keep track of elements. ( Space complexity is reduced, why to store element again) 2) Algorithm would look like this a) Traverse array1 and set the bit for each element in BitSet b) Traverse array2 and for each element check if BitSet is set to true if not array2 is not a subset return. If you find all the elements of array2 being set in BitSet so array2 is subset of array1. To handle duplicates following algo can be used 1) Traverse array1 for each element put the (key,value) = (number,count ) count being the number of times that number exist in array1 2) Traverse array2 for each element check if it exist in HashMap and count value is greater than or equal to 1. If found reduce the count by 1 if not then array2 is not subset of array1. For both the above approach complexity is O(m+n) http://www.tanmayonrun.blogspot.com Tanmay Chakrabarty I think, If we have sorted the arrays, then we can make a simple comparision like,  
+a=1,2,4,7;
+b=1,4,4;
+
+    j=0;
+    for(i=0;i<3;i++)
+    {
+          x=0;
+          for(j=j;j<4;j++)
+             {
+                  if(b[i]==a[j])
+                      {
+                         x=1;
+                         j++;
+                         break;
+                      }
+             }
+          if(x==0)
+             {
+             cout<<"Not subarray";
+             break;
+             }
+                    
+    }
+ Look, this is not a linear search on the the array ‘a’. Because of these lines,  
+
+for(j=j;j<4;j++)
+             {
+                  if(b[i]==a[j])
+                      {
+                         x=1;
+                         j++;
+                         break;
+                      }
+             }
+ Kshitij For method 2, this was quoted -> “Time Complexity: O(mLogm + nLogm) If an mLogm algorithm is used for sorting which is not the case in above code. In above code Quick Sort is sued and worst case time complexity of Quick Sort is O(m^2)” In Method 3 also, however, quicksort is used again and hence the above logic should still be applicable and hence the time complexity will not remain O(mLogm + nLogn). Also a slight typo, Time Complexity: O(mLogm + nLogn) which is better than method 3 instead should be method 2. Thanks, Kshitij GeeksforGeeks @Kshitij: Thanks for the comments. We have updated the post. Keep it up!! ktanay “Note that method 1, method 2 and method 4 don’t handle the cases when we have duplicates in arr2[]. For example, {1, 4, 4, 2} is not a subset of {1, 4, 2}, but these methods will print it as a subset.” Hashing can still be used in the case of duplicates. All we need to do is to keep a count when hashing arr1 here {1,4,2}. 1 -> 1 4 -> 1 2 -> 1 And using arr2 and hashing the elements similarly decrement this count in case of a match else we already know the answer. For the case in consideration. 1 -> 0 4 -> -1 2 -> 0 So when we encounter a count less than zero (0) we know that arr2 is not a sub-array of arr1. Please point out if am mistaken. My 2 cents. Thanks, Kshitij Ankit Mehta Hi, This can be done using the Set data structure also. Create an instance of set and add all the elements of the larger array into it. Then add the elements of the smaller array and check if the size of the set has increased. If it has increased that means it is not the subset, if size is same that would mean it is the subset. For implementation we can use HashSet class in Java. Is this approach correct? rajcools yes it is….. but this is a kind of hashing and included in method 4…. but yes your approach is correct rajcools code for method 3 a simple code for hashing…. here i have used index as the key value..  
+#include<stdio.h>
+#include<stdlib.h>
+
+#define TABLESIZE 100
+typedef int KEYTYPE;
+typedef int VALUETYPE;
+
+//for hashtable i am using key as index only
+struct record
+{
+// KEYTYPE k; //we can easily use complex hash function and
+// then use ey correspondingly
+    VALUETYPE r; //this is the value
+} table[TABLESIZE];
+
+void CreateHashTable(int *arr,int size)
+{
+    int i;
+    for( i =0; i<size; i++)
+    {
+        table[arr[i]].r =1;
+    }
+}
+void SearchHashTable(int num)
+{
+    if((table[num].r)== 1)
+        printf("Number is present n");
+    else
+    {
+        printf("Number is not present n");
+    }
+}
+void IsaSubset(int *arr,int size)
+{
+    int i;
+    for( i =0; i<size; i++)
+    {
+        if((table[arr[i]].r)==1)
+            continue;
+        else
+            break;
+    }
+    if(i == size)
+        printf("Is a subset n");
+    else
+    {
+        printf("Not a subsetn");
+    }
+}
+int main()
+{
+    int arr1[] = {11, 1, 13, 21, 3, 7};
+    int arr2[] = {11, 3, 7, 4};
+
+    int m = sizeof(arr1)/sizeof(arr1[0]);
+    int n = sizeof(arr2)/sizeof(arr2[0]);
+
+    CreateHashTable(arr1,m);
+    IsaSubset(arr2,n);
+    getchar();
+}
+ Nitish Nice solution There is one more problem, It will be using a lot of space that is dependent on largest value in the array. Can we use hash function to resolve this problem. Parthsarthi Why do binary search after sorting?? Since both arrays will be available in sorted form, we can just use two pointers as follows:-  
+bool isSubset(int arr1[], int arr2[], int m, int n)
+{
+    int i = 0, j = 0;
+
+    quickSort(arr1, 0, m-1);
+    quickSort(arr2, 0, n-1);
+    while( i < n && j < m )
+    {
+        if( arr1[j] <arr2[i] )
+            j++;
+        else if( arr1[j] == arr2[i] )
+        {
+            j++;
+            i++;
+        }
+        else if( arr1[j] > arr2[i] )
+            return 0;
+    }
+
+    if( i < n )
+        return 0;
+    else
+        return 1;
+}
+ The complexity involved here in O( mlogm + nlogn ) which is better. kartik @Parthsarthi: It doesn’t work for following example.  /*Driver program to test above functions */
+int main()
+{
+    int arr1[] = {1, 2, 4};
+    int arr2[] = {1, 2, 3, 4, 5};
+
+    int m = sizeof(arr1)/sizeof(arr1[0]);
+    int n = sizeof(arr2)/sizeof(arr2[0]);
+
+    if(isSubset(arr1, arr2, m, n))
+      printf("arr2[] is subset of arr1[] ");
+    else
+      printf("arr2[] is not a subset of arr1[] ");
+
+    getchar();
+    return 0;
+} Parthsarthi it prints “arr2[] is not a subset of arr1[]” on my machine..which is correct http://www.facebook.com/arunkumar.sreenivasan Arun In both the cases your arrays dont contain duplicates. Consider the inputs to be int arr1[]={1,1,1,2,3,3} int arr2[]={1,1,2,2,3,3} http://www.tanmayonrun.blogspot.com Tanmay Chakrabarty Would you plz notice this,  /*
+Find whether an array is subset of another array
+Link: http://geeksforgeeks.org/?p=12926
+*/
+
+#include<iostream.h>
+
+int main()
+{
+    int a[6],b[6],i,j,x;
+    
+    a[0]=1;    a[1]=1;    a[2]=1;          
+    a[3]=2;    a[4]=3;    a[5]=3;
+    
+    b[0]=1;    b[1]=1;    b[2]=2;    
+    b[3]=2;    b[4]=3;    b[5]=3;
+    
+    j=0;
+    for(i=0;i<6;i++)
+    {
+          x=0;
+          for(j=j;j<6;j++)
+             {
+                  if(b[i]==a[j])
+                      {
+                         x=1;
+                         j++;
+                         break;
+                      }
+             }
+          if(x==0)
+             {
+             cout<<"Not subarray\n\n";
+             break;
+             }
+                    
+    }
+    if(x==1)
+         cout<<"Subarray Found\n\n";
+    system("pause");
+    return 0;
+    } Its when the arrays has been sorted and we are not searching linearly as j=j in the inner loop. I am new, please dont say anything rough. rajcools @kartik where is the problem works just fine…one more thing at start of function isSubset() there should be a check if(m<n) return FALSE; kartik @Parthsarthi: There was some confusion from my side. Yes, it seems to be working fine for all cases. GeeksforGeeks @Parthsarthi: Thanks for suggesting a new method. We have added it to the original post. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

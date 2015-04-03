@@ -1,0 +1,71 @@
+Queue Data Structure - GeeksQuiz GeeksQuiz Computer science mock tests for geeks Home Latest Questions Articles C/C++ Programs Contribute Books Subscribe Queue Please wait while the activity loads. If this activity does not load, try refreshing your browser. Also, this page requires javascript. Please visit using a browser with javascript enabled. If loading fails, click here to try again Question 1 Following is C like pseudo code of a function that takes a Queue as an argument, and uses a stack S to do processing. 
+void fun(Queue *Q)
+{
+    Stack S;  // Say it creates an empty stack S
+
+    // Run while Q is not empty
+    while (!isEmpty(Q))
+    {
+        // deQueue an item from Q and push the dequeued item to S
+        push(&S, deQueue(Q));
+    }
+
+    // Run while Stack S is not empty
+    while (!isEmpty(&S))
+    {
+      // Pop an item from S and enqueue the poppped item to Q
+      enQueue(Q, pop(&S));
+    }
+}
+ What does the above function do in general? A Removes the last from Q B Keeps the Q same as it was before the call C Makes Q empty D Reverses the Q Discuss it Question 1 Explanation:  The function takes a queue Q as an argument. It dequeues all items of Q and pushes them to a stack S. Then pops all items of S and enqueues the items back to Q. Since stack is LIFO order, all items of queue are reversed. Question 2 Which one of the following is an application of Queue Data Structure? A When a resource is shared among multiple consumers. B When data is transferred asynchronously (data not necessarily received at same rate as sent) between two processes C Load Balancing D All of the above Discuss it Question 2 Explanation:  See http://www.geeksforgeeks.org/applications-of-queue-data-structure/ for details. Question 3 How many stacks are needed to implement a queue. Consider the situation where no other data structure like arrays, linked list is available to you. A 1 B 2 C 3 D 4 Discuss it Question 3 Explanation:  A queue can be implemented using two stacks. See following for implementation. http://www.geeksforgeeks.org/queue-using-stacks/ Question 4 How many queues are needed to implement a stack. Consider the situation where no other data structure like arrays, linked list is available to you. A 1 B 2 C 3 D 4 Discuss it Question 4 Explanation:  A stack can be implemented using two queues. Please see following for details. http://www.geeksforgeeks.org/implement-stack-using-queue/ Question 5 A priority queue can efficiently implemented using which of the following data structures? Assume that the number of insert and peek (operation to see the current highest priority item) and extraction (remove the highest priority item) operations are almost same. A Array B Linked List C Heap Data Structures like Binary Heap, Fibonacci Heap D None of the above Discuss it Question 5 Explanation:  See http://en.wikipedia.org/wiki/Priority_queue Question 6 Which of the following is true about linked list implementation of queue? A In push operation, if new nodes are inserted at the beginning of linked list, then in pop operation, nodes must be removed from end. B In push operation, if new nodes are inserted at the end, then in pop operation, nodes must be removed from the beginning. C Both of the above D None of the above Discuss it Question 6 Explanation:  To keep the First In First Out order, a queue can be implemented using linked list in any of the given two ways. Question 7 Suppose a circular queue of capacity (n – 1) elements is implemented with an array of n elements. Assume that the insertion and deletion operation are carried out using REAR and FRONT as array index variables, respectively. Initially, REAR = FRONT = 0. The conditions to detect queue full and queue empty are A Full: (REAR+1) mod n == FRONT, empty: REAR == FRONT B Full: (REAR+1) mod n == FRONT, empty: (FRONT+1) mod n == REAR C Full: REAR == FRONT, empty: (REAR+1) mod n == FRONT D Full: (FRONT+1) mod n == REAR, empty: REAR == FRONT Discuss it Question 7 Explanation:  See this for details. Question 8 A Priority-Queue is implemented as a Max-Heap. Initially, it has 5 elements. The level-order traversal of the heap is given below: 10, 8, 5, 3, 2 Two new elements ”1‘ and ”7‘ are inserted in the heap in that order. The level-order traversal of the heap after the insertion of the elements is: A 10, 8, 7, 5, 3, 2, 1 B 10, 8, 7, 2, 3, 1, 5 C 10, 8, 7, 1, 2, 3, 5 D 10, 8, 7, 3, 2, 1, 5 Discuss it Question 8 Explanation:  See question 4 of http://www.geeksforgeeks.org/data-structures-and-algorithms-set-22/ Question 9 An implementation of a queue Q, using two stacks S1 and S2, is given below: 
+void insert(Q, x) {
+   push (S1, x);
+}
+ 
+void delete(Q){
+   if(stack-empty(S2)) then 
+      if(stack-empty(S1)) then {
+          print(“Q is empty”);
+          return;
+      }
+      else while (!(stack-empty(S1))){
+          x=pop(S1);
+          push(S2,x);
+      }
+   x=pop(S2);
+}
+ Let n insert and m (<=n) delete operations be performed in an arbitrary order on an empty queue Q. Let x and y be the number of push and pop operations performed respectively in the process. Which one of the following is true for all m and n? A n+m <= x < 2n and 2m <= y <= n+m B n+m <= x < 2n and 2m<= y <= 2n C 2m <= x < 2n and 2m <= y <= n+m D 2m <= x <2n and 2m <= y <= 2n Discuss it Question 9 Explanation:  The order in which insert and delete operations are performed matters here. The best case: Insert and delete operations are performed alternatively. In every delete operation, 2 pop and 1 push operations are performed. So, total m+ n push (n push for insert() and m push for delete()) operations and 2m pop operations are performed. The worst case: First n elements are inserted and then m elements are deleted. In first delete operation, n + 1 pop operations and n push operation are performed. Other than first, in all delete operations, 1 pop operation is performed. So, total m + n pop operations and 2n push operations are performed (n push for insert() and m push for delete()) Question 10 Consider the following operation along with Enqueue and Dequeue operations on queues, where k is a global parameter. 
+MultiDequeue(Q){
+   m = k
+   while (Q is not empty and m  > 0) {
+      Dequeue(Q)
+      m = m - 1
+   }
+} What is the worst case time complexity of a sequence of n MultiDequeue() operations on an initially empty queue? (GATE CS 2013) (A) (B) (C) (D) A A B B C C D D Discuss it Question 10 Explanation:  Since the queue is empty initially, the condition of while loop never becomes true. So the time complexity is [Tex]\Theta(n)[/Tex]. Question 11 Consider the following pseudo code. Assume that IntQueue is an integer queue. What does the function fun do? 
+void fun(int n)
+{
+    IntQueue q = new IntQueue();
+    q.enqueue(0);
+    q.enqueue(1);
+    for (int i = 0; i < n; i++)
+    {
+        int a = q.dequeue();
+        int b = q.dequeue();
+        q.enqueue(b);
+        q.enqueue(a + b);
+        ptint(a);
+    }
+}
+ A Prints numbers from 0 to n-1 B Prints numbers from n-1 to 0 C Prints first n Fibonacci numbers D Prints first n Fibonacci numbers in reverse order. Discuss it Question 11 Explanation:  The function prints first n Fibonacci Numbers. Note that 0 and 1 are initially there in q. In every iteration of loop sum of the two queue items is enqueued and the front item is dequeued. Question 12 Consider the following operation along with Enqueue and Dequeue operations on queues, where k is a global parameter. 
+MultiDequeue(Q){
+   m = k
+   while (Q is not empty and m  > 0) {
+      Dequeue(Q)
+      m = m - 1
+   }
+} What is the worst case time complexity of a sequence of n MultiDequeue() operations on an initially empty queue? (GATE CS 2013) 
+(A) 
+(B) 
+(C) 
+(D) 
+ A A B B C C D D Discuss it Question 12 Explanation:  See http://geeksquiz.com/data-structures-queue-question-10-2/ Question 13 Suppose implementation supports an instruction REVERSE, which reverses the order of elements on the stack, in addition to the PUSH and POP instructions. Which one of the following statements is TRUE with respect to this modified stack? A A queue cannot be implemented using this stack. B A queue can be implemented where ENQUEUE takes a single instruction and DEQUEUE takes a sequence of two instructions. C A queue can be implemented where ENQUEUE takes a sequence of three instructions and DEQUEUE takes a single instruction. D A queue can be implemented where both ENQUEUE and DEQUEUE take a single instruction each. Discuss it Question 13 Explanation:  To DEQUEUE an item, simply POP. To ENQUEUE an item, we can do following 3 operations 1) REVERSE 2) PUSH 3) REVERSE There are 13 questions to complete. You have completed questions question Your score is Correct Wrong Partial-Credit You have not finished your quiz. If you leave this page, your progress will be lost. Correct Answer You Selected Not Attempted Final Score on Quiz Attempted Questions Correct Attempted Questions Wrong Questions Not Attempted Total Questions on Quiz Question Details Results Date Score Hint Time allowed minutes seconds Time used Answer Choice(s) Selected Question Text Need more practice! Keep trying! Not bad! Good work! Perfect!      Tweet Categories Articles (105) Algorithms (21) C (13) C++ (16) Data Structures (29) DBMS (1) Interview Experiences (6) Java (2) Operating Systems (1) Searching and Sorting (10) Programs (35) Quizzes (1,744) Aptitude (1) Computer Science Quizzes (1,742) Algorithms (147) C (207) C++ (129) Data Structures (132) DBMS (2) GATE (1,046) Java (51) Operating Systems (28) Web technologies (1) Recent Discussions Valid XHTML Strict 1.0 Powered by WordPress & MooTools | MiniMoo 1.3.4

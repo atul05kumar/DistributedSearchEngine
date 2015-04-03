@@ -1,0 +1,202 @@
+Detect Cycle in a Directed Graph - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Detect Cycle in a Directed Graph Given a directed graph, check whether the graph contains a cycle or not. Your function should return true if the given graph contains at least one cycle, else return false. For example, the following graph contains three cycles 0->2->0, 0->1->2->0 and 3->3, so your function must return true. Solution Depth First Traversal can be used to detect cycle in a Graph. DFS for a connected graph produces a tree. There is a cycle in a graph only if there is a back edge present in the graph. A back edge is an edge that is from a node to itself (selfloop) or one of its ancestor in the tree produced by DFS. In the following graph, there are 3 back edges, marked with cross sign. We can observe that these 3 back edges indicate 3 cycles present in the graph. For a disconnected graph, we get the DFS forrest as output. To detect cycle, we can check for cycle in individual trees by checking back edges. To detect a back edge, we can keep track of vertices currently in recursion stack of function for DFS traversal. If we reach a vertex that is already in the recursion stack, then there is a cycle in the tree. The edge that connects current vertex to the vertex in the recursion stack is back edge. We have used recStack[] array to keep track of vertices in the recursion stack. 
+// A C++ Program to detect cycle in a graph
+#include<iostream>
+#include <list>
+#include <limits.h>
+
+using namespace std;
+
+class Graph
+{
+    int V;    // No. of vertices
+    list<int> *adj;    // Pointer to an array containing adjacency lists
+    bool isCyclicUtil(int v, bool visited[], bool *rs);  // used by isCyclic()
+public:
+    Graph(int V);   // Constructor
+    void addEdge(int v, int w);   // to add an edge to graph
+    bool isCyclic();    // returns true if there is a cycle in this graph
+};
+
+Graph::Graph(int V)
+{
+    this->V = V;
+    adj = new list<int>[V];
+}
+
+void Graph::addEdge(int v, int w)
+{
+    adj[v].push_back(w); // Add w to v’s list.
+}
+
+// This function is a variation of DFSUytil() in http://www.geeksforgeeks.org/archives/18212
+bool Graph::isCyclicUtil(int v, bool visited[], bool *recStack)
+{
+    if(visited[v] == false)
+    {
+        // Mark the current node as visited and part of recursion stack
+        visited[v] = true;
+        recStack[v] = true;
+
+        // Recur for all the vertices adjacent to this vertex
+        list<int>::iterator i;
+        for(i = adj[v].begin(); i != adj[v].end(); ++i)
+        {
+            if ( !visited[*i] && isCyclicUtil(*i, visited, recStack) )
+                return true;
+            else if (recStack[*i])
+                return true;
+        }
+
+    }
+    recStack[v] = false;  // remove the vertex from recursion stack
+    return false;
+}
+
+// Returns true if the graph contains a cycle, else false.
+// This function is a variation of DFS() in http://www.geeksforgeeks.org/archives/18212
+bool Graph::isCyclic()
+{
+    // Mark all the vertices as not visited and not part of recursion
+    // stack
+    bool *visited = new bool[V];
+    bool *recStack = new bool[V];
+    for(int i = 0; i < V; i++)
+    {
+        visited[i] = false;
+        recStack[i] = false;
+    }
+
+    // Call the recursive helper function to detect cycle in different
+    // DFS trees
+    for(int i = 0; i < V; i++)
+        if (isCyclicUtil(i, visited, recStack))
+            return true;
+
+    return false;
+}
+
+int main()
+{
+    // Create a graph given in the above diagram
+    Graph g(4);
+    g.addEdge(0, 1);
+    g.addEdge(0, 2);
+    g.addEdge(1, 2);
+    g.addEdge(2, 0);
+    g.addEdge(2, 3);
+    g.addEdge(3, 3);
+
+    if(g.isCyclic())
+        cout << "Graph contains cycle";
+    else
+        cout << "Graph doesn't contain cycle";
+    return 0;
+}
+ Output: 
+Graph contains cycle
+ Time Complexity of this method is same as time complexity of DFS traversal which is O(V+E). Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Vertex Cover Problem | Set 1 (Introduction and Approximate Algorithm) Snake and Ladder Problem Tarjan’s Algorithm to find Strongly Connected Components Shortest path with exactly k edges in a directed and weighted graph Count all possible walks from a source to a destination with exactly k edges Euler Circuit in a Directed Graph Given an array of strings, find if the strings can be chained to form a circle Given a sorted dictionary of an alien language, find order of characters Tags: Graph Tweet Writing code in comment? Please use ideone.com and share the link here. hh4hooch You could perform this recursively with much less overhead. Providing you have a structure(since were using graphs let’s just assume you do), you can mark the nodes with two variables for visited and alive. As you cycle through you mark each node’s alive as true until the last recursive call comes back and has no child nodes left, then set it back to false. What this will do is negate the need to have a list keeping track of nodes as well as the need to search the data structure for membership. You can simply run the algorithm and if you never enter a node where alive has already be set to true then there are no cycles. If you do enter a node where alive is already true, every node currently marked as true is in the cycle. Wellwisher Detect cycle of length 3 or check if the graph is traingle free http://onestopinterviewprep.blogspot.com/2014/03/triangle-free-graph.html shubham19may why cant we simply perform a DFS and check if any vertex points to an already visited vertex??? what is a need to take stack??? hh4hooch Well, if you used that as the condition it would only work if there was a single loop in the entire graph. Think about two different vertices(A, B) that point to another vertex(C). If you return after visiting C from A and A has a a second child B and we travel to B. B would try to travel to C and C is marked as visited. This would say there is a cycle when there is no cycle because a points to C and B but B only points to C. pulkit mehra why do we need to keep track of back edges?? Why can’t a normal dfs work as in case of undirected graphs?? We just keep track of visited vertices if an adjacent vertex is visited we should return true?? swebdev Let’s say we have three vertices, and following edges: 0->1 0->2 1->2 Normal dfs algorithm would detect a cycle in this graph, although there is not. (use paper/pen for clarification). zealfire i too want to comment on time complexity of this question:how can iie be same as complexity of dfs when it is performing dfs on all nodes Abhimanyu Can BFS be used for the same. If yes, How? Nemil Timbadia Isn’t this question performing DFS on all the nodes. How is the time complexity the same as the DFS… nopey12 It checks each node only for once. So after first dfs it will not perform dfs from the ones on the first dfs traversal. 22Dush22 The code doesn’t seem to work for the following configuration… Graph g(4); g.addEdge(3, 1); g.addEdge(3, 4); g.addEdge(1, 2); Kartik When the number of vertices is 4, the vertices should be numbered as 0, 1, 2, and 3. Please try the program with following. Graph g(4); g.addEdge(2, 0); g.addEdge(2, 3); g.addEdge(0, 1); Serena How can I modify your algorithm to find just the cycles of specific length? That means to chech for example if there (in the graph) exists a cycle of length 7. How could I implement that in your algorithm? OJ Just modify the recStack to the length of desired length of cycle (i.e. in your case 7) and return false, if the 8th vertex in DFS doesn’t equal to the first vertex in Stack (i.e. with index 0). You have to be as well passing integer specifying the length of cycle. Hopefully it’s understandable, I’m not really good in explaining stuff Ankit Chaudhary Create two arrays: 1. visitTime[V]={0} 2. departure[V]={0} Create a global variable int time=0; DFS(u) 1.When a vertex is visited, visitTime[u]=++time. 2.visit all adjacents v of u if notvisited do DFS(v) 3. departure[v]=time++ Modify DFS as In second step, check if (visitTime[v]>visitTime[u] && departure[u]==0) then there is back edge from v to u return true. Algo: 1. visit[V]={0} 2. departure[V]={0} 3. int time=0; DFS(int u) 1. visit[u]=++time; 2. for all adjacent v of u if(!visit[v]) { Bhavik I think the condition should be for each v adjacent to u: visit[v] < visit[u] && departure[v]==0. learningCode What about using BFS like below: bool Graph::isCyclic() { bool *visited = new bool[mNumVertices]; for(int i = 0; i < mNumVertices; i++) visited[i] = false; for(int u = 0; u < mNumVertices; u++) { if(!visited[u] && isCyclicUtil(u, visited)) return true; } return false; } bool Graph::isCyclicUtil(int u, bool *visited) { visited[u] = true; list::iterator iter = mAdj[u].begin(); for(;iter != mAdj[u].end(); iter++) { if(visited[*iter] == true) return true; } return false; } I confirmed that it works fine. Ankit Chaudhary E={1->2, 1->3, 2->3} V={1,2,3} Check for this input viki I checked and it’s working fine…doesn’t contain cycle. Sanjay Agarwal #include #include #include int mat[20][20]; int no_of_vertex; bool depth_first_search(int v) { int i, top = -1; int stack[20] = {0}, visited[20] = {0}; do { for(i = 1; i = 0); return false; //otherwise return false. } int main() { int i, j; printf("n Enter the number of vertices:"); scanf("%d",&no_of_vertex); printf("n Enter graph data in adjacency matrix form:n"); for(i = 1; i <= no_of_vertex; i++) for(j = 1; j <= no_of_vertex; j++) scanf("%d",&mat[i][j]); for(i = 1; i <= no_of_vertex; i++) { if (depth_first_search(i)) //if cycle is found, break break; } if (i <= no_of_vertex) printf("Graph has cyclen"); else printf("Graph has no cyclesn"); getch(); return 0; } Please feel free to comment in case you find any mistake in the implementation. Thanks in advance Arpit can’t we simply use the property that if number of edges is greater than “n-1″,where n is number of nodes… the graph will have a cycle… Sanjay Agarwal No, this logic will not work in all cases. e.g. consider a directed graph as: 1—>2 1—>4 2—>3 3—>4 Here, no. of nodes (n) = 4 No. of edges = 4 > n-1 But, this graph does not contain any cycle. mayank Apply a modified BFS for given graph. According to new BFS we process a node when it’s parent is already processed . If at the end of BFS, total number of visited nodes is not equal to total number of nodes then there a loop in graph, as We will not be able to process the node from where loop starts. I.e. 1->2 2->3 3->4 4->1. Here When We try to apply BFS on 1, we could not enter in loop and output will not have 1. same as 1 2,3,4. so output is empty and we can say loop in graph Durga Prasana Shouldn’t the isCyclic be something like: // Call the recursive helper function to detect cycle in different // DFS trees for(int i = 0; i < V; i++){ //Reset the visited & recStack before starting with current node 'i' for(int i = 0; i < V; i++){ visited[i] = false; recStack[i] = false; } if (isCyclicUtil(i, visited, recStack)) return true; return false; } Infinity1 nope this is recursion, so automatically would recurse back and have nothing in either. hary @geeksforgeeks correct me If I am wrong  
+for(int i = 0; i < V; i++)
+        if (isCyclicUtil(i, visited, recStack))
+            return true;
+I think the call to isCyclicUtil should be made only when visited[i] == false; o.w. we are iterating the already visted vertices again in search of a cycle.
+ S Praveen Hello, If i am not wrong can we say like at last in the isCyclicUtil function when we make reStack[v]=false we are actually conforming that node v is not a part of any circle present in the graph. Nikunj Banka I don’t think that the algorithm works in worst case O(V + E). Rather it takes O(V^2) time in the following case : The graph is a tree that has just one vertex in the right branch and has all other vertices in the left branch placed sequentially.Every vertex in the left branch has an edge that links to the right branch vertex. Now, on running the above algorithm, we will examine the stack everytime we examine a vertex in the left branch.(to check if the stack contains the vertex that is in the right branch). So we will examine the stack a sum total of O(V^2) times, as 1 + 2 + 3 + 4 + 5 + …… = O(V^2) This way, the algo has a running time of quadratic and not linear. Please correct me if I am wrong. PS. I have not read the code as I don’t know C++. thanks. Harendra Yes running time complexity seems much higher. It is order of O(V^2). viki No, running time is O(E+V) only. Observe carefully. suyash I doubt, whether code given in solution is working properly, I took simple example like we have edges (0,1) , (1,2) , (0,2) But as we are making flag false while exiting from function isCyclicUtil . So while visiting 2 from vertex 0, we are not able to find recStack[2] as true.Every time isCyclicUtil returns false.Please correct if my analysis is wrong Kartik Take a closer look at the problem statement. The given code is for directed graphs. So a graph with edges in set {(0,1) , (1,2) , (0,2)} doesn’t contain cycle. suyash yes , got your point ….thanks suyash I think, we just need to do DFS and keep on marking vertices as visited ,and if we encounter any vertex while traversing that is already visited then there is cycle … suyash I guess this approach is valid in case of undirected graph,but not correct for direct graph. http://www.jagadishvenkat.webs.com jagadish Hi venki, Sachin Will this approach work?  
+/*  */
+void dfs(Vertex v){
+visited[v]=true;
+for each adjacent vertex 'u' of v,
+          if(visited[u]==true) {
+          printf("cycle!"); // since this is a back edge 
+          }
+          else {
+          dfs(u);
+          }
+}
+ venkat Shopping You have just moved into a new apartment and have a long list of items you need to buy. Unfortunately, to buy this many items requires going to many different stores. You would like to minimize the amount of driving necessary to buy all the items you need. Your city is organized as a set of intersections connected by roads. Your house and every store is located at some intersection. Your task is to find the shortest route that begins at your house, visits all the stores that you need to shop at, and returns to your house. Input Format: Each test case begins with a line containing two integers N and M, the number of intersections and roads in the city, respectively. Each of these integers is between 1 and 100000, inclusive. The intersections are numbered from 0 to N-1. Your house is at the intersection numbered 0. M lines follow, each containing three integers X, Y, and D, indicating that the intersections X and Y are connected by a bidirectional road of length D. The following line contains a single integer S, the number of stores you need to visit, which is between 1 and ten, inclusive. The subsequent S lines each contain one integer indicating the intersection at which each store is located. It is possible to reach all of the stores from your house. Output Format: Output a line containing a single integer, the length of the shortest possible shopping trip from your house, visiting all the stores, and returning to your house. Constraints: Sample Input: 4 6 0 1 1 1 2 1 2 3 1 3 0 1 0 2 5 1 3 5 3 1 2 3 Sample Output: 4 Explanation: Another Test Case: Sample Input 2: 5 10 1 3 875 2 0 866 2 1 131 0 1 274 4 3 38 4 2 605 1 3 263 4 3 380 4 3 196 1 0 67 3 2 1 4 Sample Output 2: 998 venkat can any one suggest good algorithm for this problem….. for a given graph……we need to visit…..some selected nodes….with minimum distance….and return to the starting point.. say starting node is 0…… kartik @venkat: Please post your question to forum using Ask a Question page. It will be visible to more geeks on forum. Sreenivas Doosa Please see the below code. Please let me know if anything goes wrong  
+
+bool Graph::isCyclic() {
+
+	/*
+	 * If there exists atleast one cycle return true
+	 */
+	bool* visited = new bool[V];
+
+	for(int i = 0; i < V; i++) {
+
+		for(int j = 0; j < V; j++) {
+			visited[j] = false;
+		}
+
+		if(isCyclicUtil(i, i, visited)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
+bool Graph::isCyclicUtil(int node, int origin, bool visited[]) {
+
+	if(!visited[node]) {
+
+		visited[node] = true;
+
+		list<int>::iterator itr;
+		for(itr = adj[node].begin(); itr != adj[node].end(); ++itr) {
+
+			if(isCyclicUtil(*itr, origin, visited)) {
+				return true;
+			}
+		}
+
+	} else {
+		// already visited
+		if(node == origin) {
+			return true;
+		}
+	}
+	return false;
+}
+ aygul I guess this can detect only one level of back edge. You are not checking the other parents. Unknown What is the benefit of using “isCyclicUtil(*i, visited, recStack)” in the below lines? Can’t we simply check using visited and recStack for the cycle.  
+if ( !visited[*i] && isCyclicUtil(*i, visited, recStack) )
+                return true;
+            else if (recStack[*i])
+                return true;
+ Mark Can you please also write the code to ” List the vertices that constitute the Cycle??” Thanks in Advance..  
+/* Paste your code here (You may delete these lines if not writing code) */
+ sachin venki, your solution is fine.i just wanted to know,if it can be done or not with only visited array.  
+dfs(int v)
+ {
+  if(visited[v])
+   return cycle;
+   else visited[v] =1;
+  for(i in adj[v])
+{    if(!visited[i])
+     dfs(i);
+     visited[i]=0    
+}
+
+
+
+ Venki @Sachin, in your code the entry node v could be anyone of the adjacent nodes (i) while exploring the source vertex. The backtracking procedure will come to same adjacent node to explore any remaining node. Such node need not be the source node where we initiate the initial call. Try your code with dense graph, you will get an idea. Venki @Sandeep, I don’t think we need an explicit recursion stack. We can keep track of DFS origin node in the function call. See pseudo code below ( not tested ),  
+// in - exploring node, pr it's parent
+cycleDetect(int in, int pr)
+{
+    visited[in] = Yes;
+    
+    for each v in G.ADJ(in)
+        if( !visited[v] )
+            cycleDetect(v, in)
+        else
+            if ( v == pr )
+                found cycle
+}
+
+The function can be called as following,
+
+for each v in G.V
+    if( visited[origin] )
+        cycleDetect(origin, origin)
+
+ sachin i dont get it,why pr is needed .if we find out visited true then there should be cycle?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Venki visited will be set for all those adjacent explored vertices. We may come back to one of these vertices but we need to check whether we have reached the origin node. sachin Bu if we can reset visited flag after backtrack to previos branch. http://www.geeksforgeeks.org Venki @Sachin, above pseudo code is written to detect cycle from a vertex to itself (point-to-point). Or it checks the source vertex is on cycle path. If we unmark the visited (DFS marker) flag during backtracking I am not sure, how can we able to check whether we have reached source vertex. Please note that I haven’t used any explicit recursion stack. The explicit stack method given in the post will detect the loop even if we start at an arbitrary vertex and if it touches a loop vertex. If the current exploring vertex is found on the recursion stack, cycle is detected. If not, we restore recursion stack state (similar to what you said in the reply) during trace back (backtracking). Let me know if I am missing anything. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

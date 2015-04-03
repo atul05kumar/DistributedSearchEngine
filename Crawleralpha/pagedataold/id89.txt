@@ -1,0 +1,1134 @@
+Lowest Common Ancestor in a Binary Search Tree. - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Lowest Common Ancestor in a Binary Search Tree. Given values of two nodes in a Binary Search Tree, write a c program to find the Lowest Common Ancestor (LCA). You may assume that both the values exist in the tree. The function prototype should be as follows: 
+ struct node *lca(node* root, int n1, int n2)
+ n1 and n2 are two given values in the tree with given root.
+ For example, consider the BST in diagram, LCA of 10 and 14 is 12 and LCA of 8 and 14 is 8. Following is definition of LCA from Wikipedia: Let T be a rooted tree. The lowest common ancestor between two nodes n1 and n2 is defined as the lowest node in T that has both n1 and n2 as descendants (where we allow a node to be a descendant of itself). The LCA of n1 and n2 in T is the shared ancestor of n1 and n2 that is located farthest from the root. Computation of lowest common ancestors may be useful, for instance, as part of a procedure for determining the distance between pairs of nodes in a tree: the distance from n1 to n2 can be computed as the distance from the root to n1, plus the distance from the root to n2, minus twice the distance from the root to their lowest common ancestor. (Source Wiki) Solutions: If we are given a BST where every node has parent pointer, then LCA can be easily determined by traversing up using parent pointer and printing the first intersecting node. We can solve this problem using BST properties. We can recursively traverse the BST from root. The main idea of the solution is, while traversing from top to bottom, the first node n we encounter with value between n1 and n2, i.e., n1 < n < n2 or same as one of the n1 or n2, is LCA of n1 and n2 (assuming that n1 < n2). So just recursively traverse the BST in, if node's value is greater than both n1 and n2 then our LCA lies in left side of the node, if it's is smaller than both n1 and n2, then LCA lies on right side. Otherwise root is LCA (assuming that both n1 and n2 are present in BST) 
+// A recursive C program to find LCA of two nodes n1 and n2.
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node
+{
+    int data;
+    struct node* left, *right;
+};
+
+/* Function to find LCA of n1 and n2. The function assumes that both
+   n1 and n2 are present in BST */
+struct node *lca(struct node* root, int n1, int n2)
+{
+    if (root == NULL) return NULL;
+
+    // If both n1 and n2 are smaller than root, then LCA lies in left
+    if (root->data > n1 && root->data > n2)
+        return lca(root->left, n1, n2);
+
+    // If both n1 and n2 are greater than root, then LCA lies in right
+    if (root->data < n1 && root->data < n2)
+        return lca(root->right, n1, n2);
+
+    return root;
+}
+
+/* Helper function that allocates a new node with the given data.*/
+struct node* newNode(int data)
+{
+    struct node* node = (struct node*)malloc(sizeof(struct node));
+    node->data  = data;
+    node->left  = node->right = NULL;
+    return(node);
+}
+
+/* Driver program to test mirror() */
+int main()
+{
+    // Let us construct the BST shown in the above figure
+    struct node *root        = newNode(20);
+    root->left               = newNode(8);
+    root->right              = newNode(22);
+    root->left->left         = newNode(4);
+    root->left->right        = newNode(12);
+    root->left->right->left  = newNode(10);
+    root->left->right->right = newNode(14);
+
+    int n1 = 10, n2 = 14;
+    struct node *t = lca(root, n1, n2);
+    printf("LCA of %d and %d is %d \n", n1, n2, t->data);
+
+    n1 = 14, n2 = 8;
+    t = lca(root, n1, n2);
+    printf("LCA of %d and %d is %d \n", n1, n2, t->data);
+
+    n1 = 10, n2 = 22;
+    t = lca(root, n1, n2);
+    printf("LCA of %d and %d is %d \n", n1, n2, t->data);
+
+    getchar();
+    return 0;
+}
+ Output: 
+LCA of 10 and 14 is 12
+LCA of 14 and 8 is 8
+LCA of 10 and 22 is 20
+ Time complexity of above solution is O(h) where h is height of tree. Also, the above solution requires O(h) extra space in function call stack for recursive function calls. We can avoid extra space using iterative solution. 
+/* Function to find LCA of n1 and n2. The function assumes that both
+   n1 and n2 are present in BST */
+struct node *lca(struct node* root, int n1, int n2)
+{
+    while (root != NULL)
+    {
+         // If both n1 and n2 are smaller than root, then LCA lies in left
+        if (root->data > n1 && root->data > n2)
+           root = root->left;
+
+        // If both n1 and n2 are greater than root, then LCA lies in right
+        else if (root->data < n1 && root->data < n2)
+           root = root->right;
+
+        else break;
+    }
+    return root;
+}
+ See this for complete program. You may like to see Lowest Common Ancestor in a Binary Tree also. Exercise The above functions assume that n1 and n2 both are in BST. If n1 and n2 are not present, then they may return incorrect result. Extend the above solutions to return NULL if n1 or n2 or both not present in BST. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tweet Writing code in comment? Please use ideone.com and share the link here. http://opensourceforgeeks.blogspot.in/ Aniket Thakur Java Code for LCA –> http://opensourceforgeeks.blogspot.in/2014/02/lowest-common-ancestor-in-binary-search.html sijayaraman struct node* lca(struct node* root,struct node* n1,struct node* n2) { if ( root == NULL) return NULL; if(root->data == n1->data || root->data == n2->data) { return root; } else if((root->right != NULL) && (root->right->data == n1->data || root->right->data == n2->data)) { return root; } else if((root->left != NULL) && (root->left->data == n1->data || root->left->data == n2->data)) { return root; } else if( root->data > n1->data && root->data >n2->data) { return lca(root->left,n1,n2); } else if ( root->data data && root->data data) { return lca(root->right,n1,n2); } return root; } neelabhsingh @geeksforgeeks:disqus // If both n1 and n2 are greater than root, then LCA lies in left if (root->data > n1 && root->data > n2) root = root->left; // If both n1 and n2 are smaller than root, then LCA lies in right else if (root->data data right; Please correct the sequence of comment. Comments are place in the wrong position. GeeksforGeeks Thanks for pointing this out. We have corrected the comments. muhamad iqbal Hi, My first post here, I have tree, is generic tree. Every parent has maximum 5 child. And i need to find the last common ancestor in two nodes. How can i do that..?. I store the information of every child of parent with ArrayList. Please help me. Best Regards Pooja Very simple and nice explaination. Thanks. anonymous iterative solution in if condition it will check weather root is smaller than or larger than both the element then it will go right of root or left of root respectively. But if root is lie between the given data or root is equals to one of the data then return root…….. vaibhav this probaly wont work if n1 and n2 occur more then once too try using pointers sorry if im wrong Anupam @g4g Please correct the comments in: // If both n1 and n2 are greater than root, then LCA lies in left if (root->data > n1 && root->data > n2) return lca(root->left, n1, n2); // If both n1 and n2 are smaller than root, then LCA lies in right if (root->data data right, n1, n2); GeeksforGeeks Thanks for pointing this out. We have updated the comments. GeeksforGeeks @All: Thanks for your inputs and suggestions. We have updated the post. We have made following changed. 1) Changed definition of LCA to match with Wikipedia. 2) Simplified the recursive code, the code is much simpler now and doesn’t assume that n1 < n2. 3) Added an iterative version. Kid of Kop In your example, what is the lca of 12 and 14. Is it 12 or 8 ? Please clarify.. If it’s 8 will this program work ? Jake is this correct? int leastCommonAncestor(tNode* n, int key1, int key2) { if( n == NULL) return 0; if(n->data == key1 || n->data == key2) return 100; if( printAncestor(n->left, key1, key2) && printAncestor(n->right, key1, key2)) { printf(“%d n”,n->data); return 0; } } Soumajyoti The above code is incomplete. If the input is 4 and 6, the output should be -1.But the above program gives an output 2 since it satisfies the condition that the right child of 2 is 4 which is necessary but insufficient. SudhanshuAnand  
+int LCA(struct node* root, int num1, int num2){
+	if(root == NULL)return -1;
+	struct node* temp = root;
+	if(num1>num2)swap(num1, num2);
+	while(true){
+		if(temp == NULL || temp->data == num1 || temp->data == num2)return -1;
+		if(temp->data > num1 && temp->data <num2){
+			return temp->data;
+		}
+		if(num1 > temp->data && num2 > temp->data){
+			temp = temp->right;
+		}else{
+			temp = temp->left;
+		}
+	}
+}
+ faizan you have left out the case when only one of the element is in the tree and other is not. it must return -1, rather its returning a node value. consider the tree made by inputs 2,3,1 if we search for commom ancestor of 1 -1 it will return 2. Law kumar In the very 2nd line of question, it is mentioned that both node values should be present in BST Aditya Ambashtha I don’t see any point in postorder traversal…The following function should do..  
+node* findClosestAncestor(node *root, int low,int hig)
+{
+    if (root==NULL)
+        return NULL;
+
+    if (root->data>=low&&root->data<=hig)
+        return root;
+    else if (root->data<low&&root->data<hig)
+        return findClosestAncestor(root->right,low,hig);
+    else
+        return findClosestAncestor(root->left,low,hig);
+
+}
+ neo @geeksforgeeks since we have assumed n1 less than n2 if(root->data > n1 && root->data > n2) is it necessary ?? cant it be only if ( root->data > n1 ) , please correct me if iam wrong.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Manish Kumar  
+3
+4
+5
+6
+7
+8
+Node *LCA(Node *root, Node *p, Node *q) {
+  if (!root) return NULL;
+  if (root == p || root == q) return root;
+  Node *L = LCA(root->left, p, q);
+  Node *R = LCA(root->right, p, q);
+  if (L && R) return root;  // if p and q are on both sides
+  return L ? L : R;  // either one of p,q is on one side OR p,q is not in L&R subtrees
+}
+ kush  
+it is written here that 
+"If root->data is equal to any of the inputs then input is 
+     not valid. For example 20, 22 in the given figure "
+but according to wikipedia node its self can b a ancestor in LCA.
+
+ Aniket Salunkhe I have written following code with same logic & complexity as explained in answer but with consideration of few addition cases. Those cases are as follows, #) if either of or both values (n1, n2 as given in explained answer) are not present in given BST #) independent of comparison between n1 & n2. i.e. n1 > n2 or n1 < n2 or n1 = n2) Please correct me if I am wrong in following code. struct node* GetLeastCommonAncestorInBST(struct node* pNode, int iValue1, int iValue2) { if( !pNode ) return NULL; if( !pNode->left && !pNode->right ) return NULL; if( tValue1 < pNode->value && tValue2 < pNode->value ) return GetLeastCommonAncestorInBST(pNode->left, iValue1, iValue2); else if( tValue1 > pNode->value && tValue2 > pNode->value ) return GetLeastCommonAncestorInBST(pNode->right, iValue1, iValue2); else // ( val1 or val2 <= pNode->value && val1 or val2 >= pNode->value ) { //SearchInBST(pnode, val) … searches val in BST of starting from pnNode if( SearchInBST(pNode, tValue1) && SearchInBST(pNode, tValue2) ) return pNode; else return NULL; } } struct node* pLeastCommonAncestor = GetLeastCommonAncestorInBST(root, value1, value2); sam I think this will work. Used 2 global variable : 1. to store the value 2. to keep tab , as once the data is found no further operations will be done public static boolean lowestCommon(TreeNode head, int val1 ,int val2) { if(hasFound) { return true; } if(head.leftNode!=null &&head.rightNode!=null) { if(head.getProperty()>=val1 && head.getProperty()<=val2) { valueCommon = head.getProperty(); hasFound = true; } else { lowestCommon(head.leftNode,val1,val2); lowestCommon(head.rightNode, val1, val2); } } else if(head.leftNode==null &&head.rightNode!=null) { lowestCommon(head.rightNode, val1, val2); } else if(head.rightNode==null &&head.leftNode!=null) { lowestCommon(head.leftNode,val1,val2); } return hasFound; } Sunaina @sam ur code is working fine. Can u please also post the code for building the tree? I think if the root element is also in contention it works great. Can someone please verify! rahul23 what should be ancestor of 12 and 14………….it should be 12 or 14……………if 12 then for 20 and 22 also it is 20…if 12 ans 14 has ancestor as 8 then for 20 and 22 it is NULL. @all….plz give me clear one line definition in case if one node is parent of other then what is LCA rahul23 @GEEKSFORGEEKS..PLEASE COMMENT ON THIS TOPIC THAT WHY 20 CANT BE ANCESTOR IN CASE INPUT IS 20 AND 22… @ALL:- FOLLOWING IS SIMPLES CODE INSTEAD OF CHCKING 6 CONDITIONS…20 AND 22…IT WILL RETURN 20….please comment if anythng wrng. int leastCommanAncestor(struct node* root, int n1, int n2) { if(root==NULL) return -1; if(root->data>n1 && root->data>n2) return leastCommanAncestor(root->left,n1,n2); else if(root->datadata return leastCommanAncestor(root->right,n1,n2); return root->data; } http://coolsites.co.nf lolipop what if the input does not exist in the tree… like for 1, 44 your code out put 20 … dpk22dev if both “n1″ and “n2″ are greater than “n”; then shouldn’t “n” be the lowest common ancestor because in binary search tree it will be having lowest magnitude. Both “n1″, “n2″ lie on right branch of tree so all of their ancestors will be greater than “n”. dpk22dev if(root->data > n1 && root->data > n2) return root -> data; // <—-i think here it must be like this because in bst it will be lowest in value http://gagangupt16.wordpress.com Veer Why is 20 22 not valid input? abhishek08aug Ancestor should be better be NULL. Look at my code below it does it right. abhishek08aug Here is the C++ code extended from my post on: http://www.geeksforgeeks.org/given-a-binary-tree-print-out-all-of-its-root-to-leaf-paths-one-per-line/ Function tree::_lowest_common_ancestor() could be further optimized by keeping the results saved instead of making same function call to _find() many a times. Also in main() the return value should be checked for null-ness for all invocations as done for the last one.  
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+ 
+class tree_node {
+  private:
+    int data;
+    tree_node * left;
+    tree_node * right;
+  public:
+    tree_node() {
+      left=NULL;
+      right=NULL;
+    }
+    void set_data(int data) {
+      this->data=data;
+    }
+    int get_data() {
+      return this->data;
+    }
+    void set_left(tree_node * left) {
+      this->left=left;
+    }
+    tree_node * get_left() {
+      return this->left;
+    }
+    void set_right(tree_node * right) {
+      this->right=right;
+    }
+    tree_node * get_right() {
+      return this->right;
+    }
+    tree_node ** get_left_ref() {
+      return &(this->left);
+    }
+    tree_node ** get_right_ref() {
+      return &(this->right);
+    }
+};
+ 
+class tree {
+  private:
+    tree_node * root;
+    int size;
+    void _recursive_insert(tree_node ** root_ref, int value);
+    void _print_preorder(tree_node * root);
+    void _print_inorder(tree_node * root);
+    void _print_postorder(tree_node * root);
+    int _find_size(tree_node * root);
+    int _are_identical(tree_node * tn1, tree_node * tn2);
+    int _find_height(tree_node * root);
+    void _delete_tree(tree_node ** root);
+    void _mirror(tree_node * root);
+    void _print_paths(tree_node * root, int * path_nodes, int next_vacant_position);
+    void _print_array(int * array, int len);
+    tree_node * _lowest_common_ancestor(tree_node * parent, tree_node * root, int a, int b);
+    tree_node * _find_node(tree_node * root, int value);
+  public:
+    tree() {
+      root=NULL;
+      size=0;
+    }
+    void insert(int value);
+    void recursive_insert(int value);
+    void print_preorder();
+    void print_inorder();
+    void print_postorder();
+    int find_size();
+    int get_size() {
+      return this->size;
+    }
+    int are_identical(tree t);
+    int find_height();
+    void delete_tree();
+    void mirror();
+    void print_paths();
+    tree_node * lowest_common_ancestor(int a, int b);
+    tree_node * find_node(int value);
+};
+ 
+void tree::insert(int value) {
+  if(root==NULL) {
+    root=new tree_node;
+    root->set_data(value);
+  } else {
+    tree_node * parent=NULL;
+    tree_node * current=root;
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    while(current!=NULL) {
+      if(value<=current->get_data()) {
+        parent=current;
+        current=current->get_left();
+      } else {
+        parent=current;
+        current=current->get_right();
+      }
+    }
+    if(value<=parent->get_data() && parent->get_left()==NULL) {
+      parent->set_left(new_node);
+    } else if(value>parent->get_data() && parent->get_right()==NULL) {
+      parent->set_right(new_node);
+    }
+  }
+  size++;
+}
+ 
+void tree::recursive_insert(int value) {
+  _recursive_insert(&root, value);
+  size++;
+}
+ 
+void tree::_recursive_insert(tree_node ** root_ref, int value) {
+  if(*root_ref==NULL) {
+    tree_node * new_node=new tree_node;
+    new_node->set_data(value);
+    *root_ref=new_node;   
+  } else {
+    if(value<=(*root_ref)->get_data()) {
+      _recursive_insert((*root_ref)->get_left_ref(), value);
+    } else {
+      _recursive_insert((*root_ref)->get_right_ref(), value);
+    }
+  }
+}
+ 
+void tree::print_preorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_preorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_preorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  cout<<root->get_data()<<" ";
+  if(root->get_left()!=NULL)
+    _print_preorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_preorder(root->get_right());
+}
+ 
+void tree::print_inorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_inorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_inorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_inorder(root->get_left());
+  cout<<root->get_data()<<" ";
+  if(root->get_right()!=NULL)
+    _print_inorder(root->get_right());
+}
+ 
+void tree::print_postorder() {
+  if(root==NULL) {
+    return;
+  }
+  _print_postorder(root);
+  cout<<endl;
+}
+ 
+void tree::_print_postorder(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+  if(root->get_left()!=NULL)
+    _print_postorder(root->get_left());
+  if(root->get_right()!=NULL)
+    _print_postorder(root->get_right());
+  cout<<root->get_data()<<" ";
+}
+
+int tree::find_size() {
+  return _find_size(root);
+}
+
+int tree::_find_size(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  } else {
+    return 1+_find_size(root->get_left())+_find_size(root->get_right());
+  }
+}
+
+int tree::are_identical(tree t) {
+  return _are_identical(this->root, t.root);
+}
+
+int tree::_are_identical(tree_node * tn1, tree_node * tn2) {
+  if(tn1==NULL && tn2==NULL) {
+    return 1;
+  } else if((tn1==NULL && tn2!=NULL) || (tn1!=NULL && tn2==NULL) || (tn1->get_data()!=tn2->get_data())) {
+    return 0;
+  } else {
+    return _are_identical(tn1->get_left(), tn2->get_left()) && _are_identical(tn1->get_right(), tn2->get_right());
+  }
+}
+
+int tree::find_height() {
+  return _find_height(root);
+}
+
+int tree::_find_height(tree_node * root) {
+  if(root==NULL) {
+    return 0;
+  }
+  else {
+    return 1+max(_find_height(root->get_left()), _find_height(root->get_right()));
+  }
+}
+
+void tree::delete_tree() {
+  _delete_tree(&root);
+  size=0;
+}
+
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      _delete_tree((*root)->get_left_ref());
+    }
+    if((*root)->get_right()!=NULL) {
+      _delete_tree((*root)->get_right_ref());
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+
+/* alternate _delete_tree */
+/*
+void tree::_delete_tree(tree_node ** root) {
+  if(*root==NULL) {
+    return;
+  } else {
+    if((*root)->get_left()!=NULL) {
+      tree_node * left_ref=(*root)->get_left();
+      _delete_tree(&left_ref);
+    }
+    if((*root)->get_right()!=NULL) {
+      tree_node * right_ref=(*root)->get_right();
+      _delete_tree(&right_ref);
+    }
+    delete(*root);
+    *root=NULL;
+  }
+}
+*/
+
+void tree::mirror() {
+  _mirror(root);
+}
+
+void tree::_mirror(tree_node * root) {
+  if(root==NULL) {
+    return;
+  }
+
+  tree_node * temp=root->get_left();
+  root->set_left(root->get_right());
+  root->set_right(temp);
+  _mirror(root->get_left());
+  _mirror(root->get_right());
+}
+
+void tree::print_paths(){
+   int max_path_length=find_height();
+   int * path_nodes=(int *)calloc(sizeof(int), max_path_length);
+  _print_paths(root, path_nodes, 0);
+}
+
+void tree::_print_paths(tree_node * root, int * path_nodes, int next_vacant_position){
+  if(root==NULL) {
+    return;
+  } else if(root->get_left()==NULL && root->get_right()==NULL) {
+    *(path_nodes+next_vacant_position)=root->get_data();
+    _print_array(path_nodes, next_vacant_position);
+  } else {
+    *(path_nodes+next_vacant_position)=root->get_data();
+    _print_paths(root->get_left(), path_nodes, next_vacant_position+1);
+    _print_paths(root->get_right(), path_nodes, next_vacant_position+1);
+  }
+}
+
+void tree::_print_array(int * array, int len) {
+  int i;
+  for(i=0; i<=len; i++) {
+    cout<<*(array+i)<<" ";
+  }
+  cout<<endl;
+}
+
+tree_node * tree::find_node(int value) {
+  return _find_node(root, value);
+}
+
+tree_node * tree::_find_node(tree_node * root, int value) {
+  if(root==NULL || root->get_data()==value) {
+    return root;
+  } else if(value<=root->get_data()) {
+    _find_node(root->get_left(), value);
+  } else {
+    _find_node(root->get_right(), value);
+  }
+}
+
+tree_node * tree::lowest_common_ancestor(int a, int b) {
+  return _lowest_common_ancestor(NULL, root, a, b);
+}
+
+tree_node * tree::_lowest_common_ancestor(tree_node * parent, tree_node * root, int a, int b) {
+  if(root==NULL) {
+    return root;
+  } else if((root->get_data()==a && (root->get_left()->get_data()==b || root->get_right()->get_data()==b))
+             || (root->get_data()==b && (root->get_left()->get_data()==a || root->get_right()->get_data()==a))) {
+    return parent;
+  } else if((_find_node(root->get_left(), a)!=NULL && _find_node(root->get_right(), b)!=NULL)
+        || (_find_node(root->get_left(), b)!=NULL && _find_node(root->get_right(), a)!=NULL)) {
+    return root; 
+  } else if(_find_node(root->get_left(), a)!=NULL && _find_node(root->get_left(), b)!=NULL) {
+    return _lowest_common_ancestor(root, root->get_left(), a, b);
+  } else if(_find_node(root->get_right(), a)!=NULL && _find_node(root->get_right(), b)!=NULL) {
+    return _lowest_common_ancestor(root, root->get_right(), a, b);
+  } else {
+    return NULL;
+  }
+}
+
+int main() {
+  tree t1;
+
+  t1.recursive_insert(5);
+  t1.recursive_insert(3);
+  t1.insert(1);
+  t1.insert(7);
+  t1.recursive_insert(50);
+  t1.recursive_insert(6);
+
+  cout<<"Inorder Traversal"<<endl;
+  t1.print_inorder();
+  cout<<"Lowest common ancestor of 1 and 7 is: "<<(t1.lowest_common_ancestor(1, 7))->get_data()<<endl;
+  cout<<"Lowest common ancestor of 6 and 50 is: "<<(t1.lowest_common_ancestor(6, 50))->get_data()<<endl;
+  cout<<"Lowest common ancestor of 3 and 7 is: "<<(t1.lowest_common_ancestor(3, 7))->get_data()<<endl;
+  tree_node * tn1=t1.lowest_common_ancestor(5, 3);
+  if(tn1!=NULL) {
+    cout<<"Lowest common ancestor of 5 and 3 is: "<<tn1->get_data()<<endl;
+  } else {
+    cout<<"Lowest common ancestor of 5 and 3 is NULL"<<endl;
+  }
+
+  return 0;
+}
+ Inorder Traversal 1 3 5 6 7 50 Lowest common ancestor of 1 and 7 is: 5 Lowest common ancestor of 6 and 50 is: 7 Lowest common ancestor of 3 and 7 is: 5 Lowest common ancestor of 5 and 3 is NULL rahul Intelligent shailraj if(value1< root->data && value2data) shailraj if(value1< root->data && value2< root->data) i donot know why its changing my original line shailraj will it work ? int FindLowestCommonAncestor(node* root, int value1, int value){ if(root==NULL) return -1; if(value1< root->data && value2data) return FindLowestCommonAncestor(root->left,value1,value2); if(value1> root->data && value2>root->data){ FindLowestCommonAncestor(root->right,value1,value2); return root->data; } jugal I think shailraj code will work fine.Please comment. stupid  
+void findlowestCommanAncestor(struct node *root,int data1,int data2,int *an,int *flag){
+     if(root == NULL){
+             return;
+     }
+     if(root->data>data1 && root->data<data2){
+                         *flag = 0;
+                         printf("%d  ",root->data);
+                         return;
+     }
+     if(root->data>data1 && root->data>data2){
+                         *an = root->data;
+                         findlowestCommanAncestor(root->left,data1,data2,an,flag);
+     }
+     else if(root->data<data1 && root->data<data2){
+                         *an = root->data;     
+                         findlowestCommanAncestor(root->right,data1,data2,an,flag);
+     }
+}
+
+ Pal Slight modification to GeeksforGeeks code. As per the example tree, LCA of 20 and 22 must be 20 and LCA of 4 and 5 is 4. Please verify. /* Function to find least comman ancestor of n1 and n2 */ int leastCommanAncestor(struct node* root, int n1, int n2) { /* If we have reached a leaf node then LCA doesn’t exist If root->data is equal to any of the inputs then input is not valid. */ if(root == NULL) return -1; if (root->data == n1 || root->data == n2) return root->data; if(root->data > n1 && root->data < n2) return root->data; if(root->data > n1 && root->data > n2) return leastCommanAncestor(root->left, n1, n2); if(root->data < n1 && root->data < n2) return leastCommanAncestor(root->right, n1, n2); } rahul agree…right code  
+/* Paste your code here (You may delete these lines if not writing code) */
+ rohit this algo dont work for 12 and 15 when one elemnt exits and other dont… yelnatz It’s like you didn’t even read the thing. rohit ohhkk my fault it assumed that both elements exist but then what is point in checking root for null ..?? that is /* If we have reached a leaf node then LCA doesn’t exist */ Ankit Sablok This problem will be a hell lot easier if we can add a parent field to the node definition, so when we are given 2 nodes as input we can traverse their parent pointers to form a list of ancestors, sort the 2 ancestor lists obtained and check for the existence of their first elements in each others list, I think that reports the correct solution for the sake of this example as we are given as inputs 4 and 14, following their parent pointers gives us the following lists for the 2 nodes 4’s list 8->20 and 14’s list 12->8->20 the sorted lists look like the following 8->20 and 8->12->20 hence 8 is the least common ancestor.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Baahu Tried executing the program with the below tree and intetionally gave input as 4 and 6 (please note: 6 is not part of the tree), the output was 2…which is wrong. Some correction is needed.Perhaps we need to make sure that both the elements are indeed part of the tree.  
+/* 
+            2
+           / \
+         1   4
+             / \
+           3   5
+
+
+ */
+ GeeksforGeeks Please take a closer look at the problem. The post is about Binary Search Tree, not Binary Tree. Baahu Geeksforgeeks, The inputs that I gave was 4,6 and 6 is not part of the BST, but still the program’s output was 2…which is not correct. BackBencher Hi, Can we find LCA in binary tree. Prateek Sharma I don’t think ur code will handle duplicates in BST. Plz corrct me if I’m wrong  
+/* Paste your code here (You may delete these lines if not writing code) */
+ GeeksforGeeks Prateek, BSTs, by definition are not supposed to have duplicates. Please see http://en.wikipedia.org/wiki/Binary_Search_Tree moonlight it is assuming that both values are already in the tree  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kpd for the example tree given in the solution. if the query is (10,14) then the sample code produce answer = 12 .. but shouldn’t the answer be 8 … According to Hari Prasad Perabattula method: path to 10 not including 10 : 20 8 path to 14 not including 14 : 20 8 12 so value before first mismatch = 8 which seems to be correct Plz if someone could verify this. Thanks yelnatz LCA between two nodes means the first ancestor they have in common. So if you trace the ancestry of one node while also tracing the ancestry of the other, which node will they first meet/merge/connect? Given 10 and 14, going up their first ancestor (their parent) already satisfies this. It’s not 8 since 12 satisfies the requirements first, although 8 is also an ancestor to both. http://offshorecompany1.blogspot.com/ Offshore Company Amazing site! rahul I will not work if n1>n2 ..and if n1 is parent of n2 this will return false…but acc to wiki if n1 is parent of n2 then lca is n1..have a look at following code.. int leastCommanAncestor(struct node* root, int n1, int n2) { if(root==NULL) return -1; if(root->data>n1 && root->data>n2) return leastCommanAncestor(root->left,n1,n2); else if(root->datadataright,n1,n2); return root->data; } Ritesh To find the least common ancestor of a general binary tree  
+#include<iostream>
+#include<stdlib.h>
+using namespace std;
+#include "tree.h"
+
+bool check(node* record,int n)
+{
+if(record!=NULL)
+{
+if(record->info==n) 
+return true;
+
+return check(record->left,n) || check(record->right,n);
+}
+}
+
+node* leastcommonancestor(node *record,int n1,int n2)
+{
+
+if(record!=NULL)
+{
+
+if((check(record->left,n1)&&check(record->right,n2))||(check(record->right,n1)&&check(record->left,n2)))
+{
+return record;
+}
+
+node *temp1=NULL;
+temp1=leastcommonancestor(record->left,n1,n2);
+
+if(temp1!=NULL)
+return temp1;
+
+node *temp2=NULL;
+temp2=leastcommonancestor(record->right,n1,n2);
+
+if(temp2!=NULL)
+return temp2;
+}
+
+}
+
+int main()
+{
+
+node *root=NULL;
+root=(node *)malloc(sizeof(node));
+root->info=10;
+root->left=NULL;
+root->right=NULL;
+
+addnode(root,7);
+addnode(root,4);
+addnode(root,3);
+addnode(root,8);
+addnode(root,9);
+addnode(root,14);
+addnode(root,12);
+addnode(root,15);
+
+cout<<"\n\n";
+inorder(root);
+cout<<"\n\n";
+
+node* c= leastcommonancestor(root,8,15);
+cout<<"\n\nThe value is:"<<c->info<<"\n\n";
+
+}
+ Anonymous @Ritesh :Will this work in general for binary trees or only BST ? Rahul What would be the lca of node 4 and 5? 2, right? How’ll your solution find 2 as LCA as it is greter than 4 and 5 both?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Harshit I think there is a small problem in your algo. Say If the input nodes are 14 and 4 instead of 4 and 14, then your algo wont return 8 because you are only checking : 8>n1 and 8 < n2 In case of input 14 and 4: this condition will come out to be false and as a result 8 wont be returned ! /* Paste your code here (You may delete these lines if not writing code) */ Kartik It works fine for 14 and 4.  
+#include <stdio.h>
+#include <stdlib.h>
+
+/* A binary tree node has data, pointer to left child
+   and a pointer to right child */
+struct node
+{
+    int data;
+    struct node* left;
+    struct node* right;
+};
+
+struct node* newNode(int );
+
+/* Function to find least comman ancestor of n1 and n2 */
+int leastCommanAncestor(struct node* root, int n1, int n2)
+{
+  /* If we have reached a leaf node then LCA doesn't exist
+     If root->data is equal to any of the inputs then input is
+     not valid. For example 20, 22 in the given figure */
+  if(root == NULL || root->data == n1 || root->data == n2)
+    return -1;
+
+  /* If any of the input nodes is child of the current node
+     we have reached the LCA. For example, in the above figure
+     if we want to calculate LCA of 12 and 14, recursion should
+     terminate when we reach 8*/
+  if((root->right != NULL) &&
+    (root->right->data == n1 || root->right->data == n2))
+    return root->data;
+  if((root->left != NULL) &&
+    (root->left->data == n1 || root->left->data == n2))
+    return root->data;
+
+  if(root->data > n1 && root->data < n2)
+    return root->data;
+  if(root->data > n1 && root->data > n2)
+    return leastCommanAncestor(root->left, n1, n2);
+  if(root->data < n1 && root->data < n2)
+    return leastCommanAncestor(root->right, n1, n2);
+}
+
+/* Helper function that allocates a new node with the
+   given data and NULL left and right pointers. */
+struct node* newNode(int data)
+{
+  struct node* node = (struct node*)
+                       malloc(sizeof(struct node));
+  node->data  = data;
+  node->left  = NULL;
+  node->right = NULL;
+
+  return(node);
+}
+
+/* Driver program to test mirror() */
+int main()
+{
+  struct node *root  = newNode(20);
+  root->left         = newNode(8);
+  root->right        = newNode(22);
+  root->left->left  = newNode(4);
+  root->left->right = newNode(12);
+  root->left->right->left = newNode(10);
+  root->left->right->right = newNode(14);
+
+/* Constructed binary search tree is
+            2
+           / \
+         1   4
+             / \
+           3   5
+*/
+  printf("\n The Least Common Ancestor is \n");
+  printf("%d", leastCommanAncestor(root, 14, 4));
+
+  getchar();
+  return 0;
+}
+
+ seabird  
+#include<stdio.h>
+#include<stdlib.h>
+
+typedef struct node{
+    int data;
+    struct node *left;
+    struct node *right;
+} node;
+
+int lca(node *root,int a,int b)
+{
+    if(root)
+        if(root->data>a && root->data <b)return root->data;
+        else if(root->data>a && root->data >b)return lca(root->left,a,b);
+        else return lca(root->right,a,b);
+    else return -1;
+}
+
+node *make_tree(node *root,int num)
+{
+    if(root==NULL) {
+        node *newnode=malloc(sizeof(node));
+        newnode->data=num;
+        newnode->left=NULL;
+        newnode->right=NULL;
+        root=newnode;
+    } else {
+        if((root->data) <= num ) {
+            root->right=make_tree(root->right,num);
+        } else {
+            root->left=make_tree(root->left,num);
+        }
+    }
+    return root;
+}
+
+int main()
+{
+    int n;
+    scanf("%d",&n);
+    int i;
+    node *root=NULL;
+    int num;
+    for(i=0;i<n;i++) {
+        scanf("%d",&num);
+        root=make_tree(root,num);
+    }
+    int a,b;
+    scanf("%d%d",&a,&b);
+    int lc=lca(root,a,b);
+    printf("%d\n",lc);
+    return 0;
+}
+
+ seabird just 3 line function(lca). aman1234 what if a and b are not there in the tree ? :p  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Manab A better solution may be: template <class T> T Tree<T>::bst_leastCommanAncestor(pair<T, T> p) { vector<TreeNode *> path; TreeNode *t = root; while(t && t->data != p.first){ path.push_back(t); if(p.first < t->data) t = t->left; else t = t->right; } if(t == NULL){ cerr << "Value " << p.first << "not found!" << endl; return ~0; } for(typename vector<TreeNode *>::reverse_iterator i = path.rbegin(); i != path.rend(); ++i){ t = *i; while(t && t->data != p.second){ if(p.second < t->data) t = t->left; else t = t->right; } if(t && t->data == p.second) return (*i)->data; } cerr << endl << "Value " << p.second << " not found!" << endl; return ~0; } Aakash Srivastava Can anyone give me an example which would tell me that applying the condition “to check if next element is n1 or n2″ is necessary.I find it redundant.The condition which checks whether the data of that node lies within n1 and n2 seems sufficient to me.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Kanhaiya /* #include <iostream> using namespace std; typedef struct Node1 { int val; struct Node1 *left; struct Node1 *right; }*Node; Node root = NULL; Node fun(Node node, int first, int second) { if(!node) { return NULL; } if((node->val<=first && node->val>=second) || (node->val>=first && node->val<=second)) { return node; } else { if(node->left) { if(fun(node->left, first, second)) return node->left; } if(node->right) { if(fun(node->right,first, second)) return node->right; } } return NULL; } void construct_tree(int val) { Node node = new Node1; node->val=val; node->left = node->right = NULL; Node temp = root; if(temp == NULL) { root = node; } while(temp) { if(val <= temp->val) { if(temp->left) { temp=temp->left; } else { temp->left=node; break; } } else { if(temp->right) { temp=temp->right; } else { temp->right=node; break; } } } } void print_tree(Node node) { if(!node ) { //cout<<"returning"; return; } cout<<node->val<<endl; print_tree(node->left); print_tree(node->right); } int main() { construct_tree(7); construct_tree(15); construct_tree(5); construct_tree(2); construct_tree(10); print_tree(root); Node res = fun(root, 5, 10); cout<<" result " << res->val; return 0; } */ suvrakanti I think this is absolute solution because its taken from Stanford University notes http://cslibrary.stanford.edu/110/ Anonymous Can someone provide a Java version for this algorithm? mohitk Java Version :  
+/* -------------------------------------------------------------------------------
+	 * Purpose : To determine the LCS in a BST for the 2 given numbers.
+	 * -------------------------------------------------------------------------------
+	 */
+	public int LCS(int input1, int input2)
+	{
+		// Call the helper function with the root
+		return LCSUtil(this.root,input1, input2);
+	}
+	
+	/* -------------------------------------------------------------------------------
+	 * Purpose : Helper Utility to determine the LCS in a BST for the 2 given numbers.
+	 * -------------------------------------------------------------------------------
+	 */
+	public int LCSUtil(Node node, int input1, int input2)
+	{
+		// If the node null, return the LCS was not found.
+		if (node == null)
+			return Integer.MIN_VALUE;
+		
+		// If the node is not null,
+		else 
+		{		
+			// If node is greater than both inputs, the LCS lies on the left subtree.
+			if (node.value > input1 && node.value > input2)
+				return LCSUtil(node.left_child, input1, input2);
+			
+			// If node is less than both inputs, the LCS lies on the right subtree.
+			else if(node.value < input1 && node.value < input2)
+				return LCSUtil(node.right_child, input1, input2);
+				
+			// If the node value lies b/w the 2 inputs, return the node.
+			else
+				return node.value;
+		}
+	}
+ Avinash Kumar  
+ This code take care of all the condition ...
+ Easiest solution :
+
+int checkexist(binary *start,int n) {
+ 
+  if(start == NULL)
+   return 0;
+  if(start->data == n)
+    return 1; 
+  else if(start->data > n)
+    return checkexist(start->left ,n);
+  else
+    return checkexist(start->right ,n);      
+    
+}
+
+void findcommonanc(binary *start,int n1 ,int n2) {
+  
+	binary *commonnoe = start ;
+	
+	if(!checkexist(start,n1) && !checkexist(start,n2)){
+       printf("data not exist");
+       return ;
+    }
+	 
+
+	while(start) {
+	    if(start->data >= n1 && start->data >=n2) {
+			start =start->left ;
+			commonnoe = start ;
+                       if(start->data == n1 || start->data ==n2)
+                       break;
+	    }
+	    else if(start->data < n1 && start->data <n2) {
+			start =start->right ;			
+	    }
+	    else
+		   break ;
+
+	}
+		printf("Common parent :%d",commonnoe->data);
+}
+
+ hongping lin The posted solution seems to be too long and unnecessary complicated. Here is my version  
+  // assuming both i and j and in the tree
+  int FindLCA(Node* root, int i, int j)
+  {
+    while (root)
+    {
+      if (root->value > i && root->value>j)
+        root = root ->pLeft;
+      else if (root->value <i && root ->value<j)
+        root = root ->pLeft;
+      else
+        return root->value;
+    }
+    throw std::runtime_error("Impossible to reach to this statement");
+  }
+ hongping lin sorry for copy-paste error // assuming both i and j and in the tree int FindLCA(Node* root, int i, int j) { while (root) { if (root->value > i && root->value>j) root = root ->pLeft; else if (root->value valuepRight; else return root->value; } throw std::runtime_error(“Impossible to reach to this statement”); } kartik @hongping lin: The extra conditions given in solution are important. For example, your solution doesn’t seem to work for LCA of 12 and 14 in the given diagram. LCA of 12 and 14 is 8. Let me know your thoughts. stinky peterson How about this slight modification to the above program?  
+// assuming both i and j and in the tree
+int FindLCA(Node* root, int i, int j)
+{
+  while (root)
+  {
+    if (root->value > i && root->value>j)
+      root = root ->pLeft;
+    else
+      return root->value;
+  }
+  throw std::runtime_error("Impossible to reach to this statement");
+}
+ var  
+@hongping lin & @kartik- Doing slight modification to code should do the magic.
+Please have your say on below code.
+// assuming both i and j and in the tree
+int FindLCA(Node* root, int i, int j)
+{
+  int m,n;
+  while (root)
+  {
+    if (root->value > i && root->value>j)
+     {
+       m=root->pLeft->value;
+       if(m==i && m==j)
+       return root->value;
+       else
+       root = root ->pLeft;
+      }
+    else if (root->value <i && root ->value<j)
+     {
+       n=root->pRight->value;
+       if(n==i && n==j)
+       return root->value;
+       else
+       root = root ->pRight;
+      }
+    else
+      return root->value;
+  }
+  throw std::runtime_error("Impossible to reach to this statement");
+}
+ var  
+Sorry By mistake i have changed || to && in code .
+Please find correct code below:
+@hongping lin & @kartik- Doing slight modification to code should do the magic.
+Please have your say on below code.
+// assuming both i and j and in the tree
+int FindLCA(Node* root, int i, int j)
+{
+  int m,n;
+  while (root)
+  {
+    if (root->value > i && root->value>j)
+     {
+       m=root->pLeft->value;
+       if(m==i || m==j)
+       return root->value;
+       else
+       root = root ->pLeft;
+      }
+    else if (root->value <i && root ->value<j)
+     {
+       n=root->pRight->value;
+       if(n==i || n==j)
+       return root->value;
+       else
+       root = root ->pRight;
+      }
+    else
+      return root->value;
+  }
+  throw std::runtime_error("Impossible to reach to this statement");
+}
+ Abhinav Hi, The logic works well but only if the values exist in a btree. Actually, in the above logic we are finding the node which finds the node from where the path to the values MAY diverge. However, its not sure that the values will exist in the tree. This can be soved simply by: – get the node ptr using above algorithm – using this node, check if both the values are in the tree whose rot is calculated above. seeker7 time complexity for the given algo should be O(log n),only in worst case when the tree is skewed it is O(n). Anand http://anandtechblog.blogspot.com/2010/06/least-common-ancestor.html uzumaki_naruto well…checkout this code…  
+int LCA(node* root,int val1,int val2)
+{
+    if(!root) return 0;
+    node* curr = root;
+    node* par = root;
+    while(curr)
+    {
+       
+       if(curr->data < val1 && curr->data < val2)
+       {
+        par = curr; 
+        curr = curr->right;
+       }
+       else if(curr->data>val1 && curr->data>val2)
+       {
+        par = curr;
+        curr = curr->left;
+       }
+       else{
+             if(val1==curr->data || val2== curr->data) curr = par;
+             cout<<"\nLowest Common Ancestor of "<<val1<<" and "<<val2<<" is "<<curr->data;          
+             break;
+           }
+               
+    }
+    
+    
+}
+ mr Good one. this will be the non-recursive solution. I think one case is missing in if..else..  
+if(curr->data > val1 && curr->data < val2)
+{
+cout<<curr->data;
+break;
+}
+ uzumaki_naruto yeah…thanx rightly pointed…i guess the complete code will be as follows…  
+int LCA(node* root,int val1,int val2)
+{
+    if(!root) return 0;
+    node* curr = root;
+    node* par = root;
+    while(curr)
+    {
+ 
+       if(curr->data < val1 && curr->data < val2)
+       {
+        par = curr;
+        curr = curr->right;
+       }
+       else if(curr->data>val1 && curr->data>val2)
+       {
+        par = curr;
+        curr = curr->left;
+       }
+       else
+             if(val1==curr->data || val2== curr->data){ curr = par;
+             cout<<"\nLowest Common Ancestor of "<<val1<<" and "<<val2<<" is "<<curr->data;
+             break;
+           }
+ else if(curr->data > val1 && curr->data < val2)
+{
+cout<<curr->data;
+break;
+}
+    }
+ 
+}
+ Rajesh You can ommit the if condition in the last else if statement (its redundant). Change it to: else { cout<data; // or return curr->data break; } Also “node* par” is not required. uzumaki_naruto  That last else was reqd coz wat will happen if the root node is the lca...the left child is smaller and right chid is greater than the root! it was pointed out by someone earlier.
+and ya node * par is redundant...i was tracing the parent in my previous codesn forgot to remove it here...
+
+how about this one..
+
+int LCA(node* root,int val1,int val2)
+{
+    if(!root) return 0;
+    node* curr = root;
+    while(curr)
+    {
+ 
+       if(curr->data < val1 && curr->data < val2)
+       {
+        curr = curr->right;
+       }
+       else if(curr->data>val1 && curr->data>val2)
+       {
+        curr = curr->left;
+       }
+       else{
+             cout<<"\nLowest Common Ancestor of "<<val1<<" and "<<val2<<" is "<<curr->data;
+             break;
+           }
+ 
+    }
+ 
+} Rajesh These are the states which val1, val2 and curr->data can take (please correct me if i am worng): 1. Both Val1 and Val2 are greater than curr->data 2. Both Val1 and Val2 are less than curr->data 3. Either Val1 or Val2 is equal to curr->data 4. curr->data is between Val1 and Val2 The first 3 cases are taken care by the first three "if else" blocks. the 4th one can simply be taken care by an else block. uzumaki_naruto @Rajesh : yeah u r right and the cases 3 and 4 are the cases when the current node is the LCA…cases 1 and 2 are taken care of…cases 3 and 4 can be handled by only 1 else statement where we just print the current node which is the LCA(the first node encountered which is greater than curr->left->data and less than curr->right->data is the required LCA isnt it?) Rajesh Great, Your solution is perfect. uzumaki_naruto ^_^ sankalp  
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct node{
+int d;
+struct node* l;
+struct node* r;
+}tree;
+
+int lca(tree* r,int a,int b)
+{
+if(r==NULL)
+return -1;
+
+/* If the input are not to be considered as ancestors, then: */
+if(r->d==a||r->d==b)
+return -1;
+else if(r->d>b)
+lca(r->l,a,b);
+else if(r->d<a)
+lca(r->r,a,b);
+else return r->d;
+}
+
+tree* new(int n)
+{
+tree* t=malloc(sizeof(tree));
+t->d=n;
+t->l=NULL;
+t->r=NULL;
+}
+
+main()
+{
+tree* r=new(20);
+r->l=new(8);
+r->r=new(22);
+r->l->l=new(4);
+r->l->r=new(12);
+r->l->r->l=new(10);
+r->l->r->r=new(14);
+printf("%d\n",lca(r,10,20));
+return 0;
+}
+ http://wgpshashank.co.cc wgpshashank It is the Code to find LCA of two NOde in Binary Tree not In Binary Search Tree .Please Read Carefully  
+mynode *closestAncestor(mynode* root, mynode* p, mynode* q)
+{
+  mynode *l, *r, *tmp;
+ 
+  if(root == NULL)
+  {
+     return(NULL);
+  }
+ 
+  if(root->left==p || root->right==p || root->left==q ||    root->right==q)
+  {
+     return(root);
+  }
+  else
+  {
+     l = closestAncestor(root->left, p, q);
+     r = closestAncestor(root->right, p, q);  
+     
+     if(l!=NULL && r!=NULL)
+     {
+        return(root);
+     }  
+     else
+     {
+        tmp = (l!=NULL) ? l : r;
+        return(tmp)
+     } 
+  }
+}
+ Please Let Me know anything missing or wrong with this code abc if (root->left && root->left->data == p || root->left && root->left->data == q || root->right && root->right->data == p || root->right && root->right->data == q) http://ashutosh7s.blogspot.com/ WgpShashank I think it will be more better & clear , i hope i have covered all the cases in this..still if missing let me know node* lca_BT(root,p,q) { if(root==null || root==p || root==q) return null; Case 1. //when both p,q exist in different side if(root->left==p||root->left==q && root->right==p || root->right==q) return root;//True } case 2,3 covered here e.g. when p,q either exist on left or right & we also know if LCA exist then then its a subtree not more then height 2..isn’t it..?? As there can be more common ancestor of two node but we wants LCA that what i use grandparent,parent,child all in single if condition to make sure we are getting LCS while covering all the cases as well ?? //before it we can check left or right subtree exits or /not.its not the problem..its upto programming if(root->left==p && root->left->left==q || root->right==q && root->right->right==q) return root; //else or if check on both left as well right node fro each node if(root->left==p || root->left==q) { lca_BT(root->left,p,q); lca_BT(root->right,p,q); } //now check in right side for this node if(root->right==p || root->right==q) { lca_BT(root->left,p,q); lca_BT(root->right,p,q); } //else call recursively for left & right subtree as well return (lca_BT(root->left,p,q) || lca_BT(root->right,p,q)); } As you can see its not optimized & might contains condition which arr checking same test cases more then one so ..it will great if someone can find out that problem or anything wrong with algo or test case failure ..It will pleasure for me if this algo will work for general Binary Tree ?? sp how abt : i/p 10 and 14…..ur algo gives 12 as the ans but the ans should be 8 Sandeep Answer should be 12 only. Check the definition of LCA @ http://en.wikipedia.org/wiki/Lowest_common_ancestor abc If you add 2 and 9 now to the tree, and then try and find their common ancestor the ans returned would be 8 (the condition n1 < n < n2 will be true), whereas it should be 4 atul Dumb , Dont u know how to add elements to a BST . The guy is absolutely right in his approach . necase lemmi tel u 9 will be added to left of 10 , not below 4 dumbhead . abc Oops I was considering a different tree…(which was not even a BST).. Sorry for the oversight. But in any case I don’t think so you should be writing such defamatory comments. Maybe someone is new to DS and trees.!! Nikhil Sharma The program is fine . How about LCA of a tree that is not binary. i mean 2 nodes in a tree (with any no of children at any node) would still have an LCA . What would be the logic (only algorithm) to find that? raj can some one provide bioinformatics source code for protein classification Asit This won’t work if one node is present and another is not. If you search for 10,445 , it will return 20. But 445 is not in the tree at all. bala Please read the question properly. It clearly states “You may assume that both values already exist in the tree” Ashish Solution will work if n1 n2 because: if(root->data > n1 && root->data > n2) return leastCommanAncestor(root->left, n1, n2); works well if n1 < n2… Pramod  
+/**
+	 * Find the first common ancestor of two given nodes in a binay search tree.
+	 * 
+	 * @param args
+	 * @author Pramod Chandoria
+	 */
+	public static Node lowestCommonParent(Node parent, Node node, int a, int  b) {
+		if (node == null) {
+			return null;
+		}
+		if (a == node.data || b == node.data) {
+			return parent;
+		} else if (a  node.data) {
+			return node;
+		} else if (a < node.data){
+			return lowestCommonParent(node, node.left,a, b);
+		} else {
+			return lowestCommonParent(node, node.right,a, b);
+		}
+	}
+ Lahori How about finding the LCA for a binary tree (not BST). Thanks sourabh Finding LCA for a binary tree is the same problem as finding intersection of 2 joined linked lists. Find paths to the two nodes (as linked lists) and then use the algo for finding intersection of the two someUser http://geeksforgeeks.org/forum/topic/lca-of-two-nodes-in-a-binary-tree Jay Hi Guys… Real good work. Do we have a straight forward algo for finding the LCA of a binary tree(not BST) ? I searched a bit and only found the complicated ones (tarjan’s, Vishkin technique). These are complicated and require preprocessing. Any algo based on DFS of the tree or something. Ankit Gupta If there is a binary tree with unique nodes, then you can find the list of ancestors for the each node in O(n). With the two lists of nodes L1, L2, one can easily find the intersection point using a hash-table approach. Sandeep @Anonymous: When you add 16, it should be added as right child of 14 in BST, right? So 12 is the correct answer for LCA of 14 and 16. Anonymous This solution doesn’t work for all cases. Add a node with data 16. Find the LCA for 14 , 16. This gives 12, while 8 is the correct solution. http://techpuzzl.wordpress.com/ Ved What about LCA for the binary tree (not BST) ? geeksforgeeks @Hari Prasad Perabattula: Awesome!! the method given by you works but time and space complexities will be O(n) for skewed BST. Hari Prasad Perabattula If we are allowed to have extra space, we can follow the following alogorithm: 1). We can find the paths to the two elements. While finding the path to the first element, just store the intermediate nodes in a queue. 2). While traversing the second path, just dequeue until a mismatch is found. 3). The element dequeued just before the mismatch is the LCA. I think, this can be done in O(logN) time and O(logN) space. (Note: Works only for BST) VikasG Pretty clever geeksforgeeks @ben gordon: Thanks very much for pointing out this case. We have made changes to handle this. Program will now correctly find 20 for 22 and 23. ben gordon It would stop at 8 before it got to twelve, correctly returning 12. However, what if the tree is not balanced? If you add 23 to the tree, and give 22 and 23 as input, then I don’t think it will correctly find 20 geeksforgeeks @Hsin-yi Jiang: Thanks for writing to us. We have made corrections. http://www.cs.iastate.edu/~hsinyij Hsin-yi Jiang However, since the algorithm is from top to down, the algorithm doesn’t have any problem. It should say: the first time to satisfy the condition n1<n<n2. Thank you for sharing the solution. http://www.cs.iastate.edu/~hsinyij Hsin-yi Jiang Hi, I don’t think the n is the only one with the feature n1<n<n2. For instance, with your example, when the question is to find LCA for 4 and 14, 12 is also the one in between 4 and 14. But 12 is not LCA. hmmm  
+/*
+
+    20
+   / \
+  8  22
+ / \
+4  12
+   / \
+  10 14
+      \
+      16
+*/
+
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

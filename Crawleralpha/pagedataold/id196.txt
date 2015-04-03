@@ -1,0 +1,907 @@
+Minimum number of jumps to reach end - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Minimum number of jumps to reach end Given an array of integers where each element represents the max number of steps that can be made forward from that element. Write a function to return the minimum number of jumps to reach the end of the array (starting from the first element). If an element is 0, then cannot move through that element. Example: 
+Input: arr[] = {1, 3, 5, 8, 9, 2, 6, 7, 6, 8, 9}
+Output: 3 (1-> 3 -> 8 ->9)
+ First element is 1, so can only go to 3. Second element is 3, so can make at most 3 steps eg to 5 or 8 or 9. Method 1 (Naive Recursive Approach) A naive approach is to start from the first element and recursively call for all the elements reachable from first element. The minimum number of jumps to reach end from first can be calculated using minimum number of jumps needed to reach end from the elements reachable from first. minJumps(start, end) = Min ( minJumps(k, end) ) for all k reachable from start 
+#include <stdio.h>
+#include <limits.h>
+
+// Returns minimum number of jumps to reach arr[h] from arr[l]
+int minJumps(int arr[], int l, int h)
+{
+   // Base case: when source and destination are same
+   if (h == l)
+     return 0;
+
+   // When nothing is reachable from the given source
+   if (arr[l] == 0)
+     return INT_MAX;
+
+   // Traverse through all the points reachable from arr[l]. Recursively
+   // get the minimum number of jumps needed to reach arr[h] from these
+   // reachable points.
+   int min = INT_MAX;
+   for (int i = l+1; i <= h && i <= l + arr[l]; i++)
+   {
+       int jumps = minJumps(arr, i, h);
+       if(jumps != INT_MAX && jumps + 1 < min)
+           min = jumps + 1;
+   }
+
+   return min;
+}
+
+// Driver program to test above function
+int main()
+{
+  int arr[] = {1, 3, 6, 3, 2, 3, 6, 8, 9, 5};
+  int n = sizeof(arr)/sizeof(arr[0]);
+  printf("Minimum number of jumps to reach end is %d ", minJumps(arr, 0, n-1));
+  return 0;
+}
+ If we trace the execution of this method, we can see that there will be overlapping subproblems. For example, minJumps(3, 9) will be called two times as arr[3] is reachable from arr[1] and arr[2]. So this problem has both properties (optimal substructure and overlapping subproblems) of Dynamic Programming. Method 2 (Dynamic Programming) In this method, we build a jumps[] array from left to right such that jumps[i] indicates the minimum number of jumps needed to reach arr[i] from arr[0]. Finally, we return jumps[n-1]. 
+#include <stdio.h>
+#include <limits.h>
+
+int min(int x, int y) { return (x < y)? x: y; }
+
+// Returns minimum number of jumps to reach arr[n-1] from arr[0]
+int minJumps(int arr[], int n)
+{
+    int *jumps = new int[n];  // jumps[n-1] will hold the result
+    int i, j;
+
+    if (n == 0 || arr[0] == 0)
+        return INT_MAX;
+
+    jumps[0] = 0;
+
+    // Find the minimum number of jumps to reach arr[i]
+    // from arr[0], and assign this value to jumps[i]
+    for (i = 1; i < n; i++)
+    {
+        jumps[i] = INT_MAX;
+        for (j = 0; j < i; j++)
+        {
+            if (i <= j + arr[j] && jumps[j] != INT_MAX)
+            {
+                 jumps[i] = min(jumps[i], jumps[j] + 1);
+                 break;
+            }
+        }
+    }
+    return jumps[n-1];
+}
+
+// Driver program to test above function
+int main()
+{
+    int arr[] = {1, 3, 6, 1, 0, 9};
+    int size = sizeof(arr)/sizeof(int);
+    printf("Minimum number of jumps to reach end is %d ", minJumps(arr,size));
+    return 0;
+}
+ Output: Minimum number of jumps to reach end is 3 Thanks to paras for suggesting this method. Time Complexity: O(n^2) Method 3 (Dynamic Programming) In this method, we build jumps[] array from right to left such that jumps[i] indicates the minimum number of jumps needed to reach arr[n-1] from arr[i]. Finally, we return arr[0]. 
+int minJumps(int arr[], int n)
+{
+    int *jumps = new int[n];  // jumps[0] will hold the result
+    int min;
+
+    // Minimum number of jumps needed to reach last element
+    // from last elements itself is always 0
+    jumps[n-1] = 0;
+
+    int i, j;
+
+    // Start from the second element, move from right to left
+    // and construct the jumps[] array where jumps[i] represents
+    // minimum number of jumps needed to reach arr[m-1] from arr[i]
+    for (i = n-2; i >=0; i--)
+    {
+        // If arr[i] is 0 then arr[n-1] can't be reached from here
+        if (arr[i] == 0)
+            jumps[i] = INT_MAX;
+
+        // If we can direcly reach to the end point from here then
+        // jumps[i] is 1
+        else if (arr[i] >= n - i - 1)
+            jumps[i] = 1;
+
+        // Otherwise, to find out the minimum number of jumps needed
+        // to reach arr[n-1], check all the points reachable from here
+        // and jumps[] value for those points
+        else
+        {
+            min = INT_MAX;  // initialize min value
+
+            // following loop checks with all reachable points and
+            // takes the minimum
+            for (j = i+1; j < n && j <= arr[i] + i; j++)
+            {
+                if (min > jumps[j])
+                    min = jumps[j];
+            }      
+
+            // Handle overflow 
+            if (min != INT_MAX)
+              jumps[i] = min + 1;
+            else
+              jumps[i] = min; // or INT_MAX
+        }
+    }
+
+    return jumps[0];
+}
+ Time Complexity: O(n^2) in worst case. Thanks to Ashish for suggesting this solution. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tags: Dynamic Programming Tweet Writing code in comment? Please use ideone.com and share the link here. Faiz is this a possible solution? Starting from i = 0; Find farthest max number in range (i+1, i+array[i]) set i = index of max value; repeat until i + max >= n; with farthest max i mean this {1,5,6,3,2,6,4} here the max is 6 but there are two 6. So return the index 5 since that 6 is the farthest. Wellwisher Ready solution in C# http://onestopinterviewprep.blogspot.com/2014/03/traverse-array-in-shortest-number-of.html Wellwisher Ready solution in C# http://onestopinterviewprep.blogspot.com/2014/03/traverse-array-in-shortest-number-of.html Srikant Aggarwal There is one On solution: public int getMinJumps(int[] A) { int i = 0; int r = 0; int length = A.length; int[] J = new int[length]; while(r < length-1) { int num = A[i]; for (int j = 1; j <= num; ++j) { if (j+r < length) J[j+r] = J[i]+1; else break; } r += num; i++; } return J[length-1]; } Since each element is scanned at most 2 times, this is an On solution. Wellwisher http://onestopinterviewprep.blogspot.com/2014/03/traverse-array-in-shortest-number-of.html Array hopper problem. Dynamic programming method. Thanks. Shivam Goel in Method 2: it should be.. jumps[i] = min ( jump[i] , jumps[ j ] + 1 ); Shivam Goel in Method 2: it should be.. jumps[i] = min ( jump[i] , jumps[ j ] + 1 ); Vijay Apurva int minJumps(int arr[], int n) { int jumps[n]; // jumps[n-1] will hold the result int i,j,count=0; for(i=0;i<n;i++) jumps[i]=0; if(arr[0]==0) return 0; for(i=0;i<n-1;i++){ count=arr[i]; if(arr[i]==0) break ; for(j=i+1; j jumps[i] || jumps[j]==0 ) jumps[j]=jumps[i]+1; } } return jumps[n-1]; } Nemil Isnt a simple greedy solution enough here Why do we use DP here sourav rihansh // a bit more optimisation int JumpToEnd(int *A,int n){ if(!n||!A[0]) return -1; int result[n]; int i; rep(i,n) result[i]=-1; result[0]=0; int temp=1; for(int i=0;i<n;i++) { if(result[i]!=-1) { for(int j=temp;j<=i+A[i]&&j<n;j++) { if(result[j]==-1) result[j]=result[i]+1; } } temp=i+A[i]; } return result[n-1]; } rihansh int JumpToEnd(int *A,int n){ int result[n]; if(n==0||A[0]==0) return -1; int i; rep(i,n) result[i]=-1; result[0]=0;// no step to first element for(i=0;i<n;i++) { if(result[i]!=-1) for(int j=1;(j+i)<n&&j<=A[i];j++) if(result[i+j]==-1) result[i+j]=result[i]+1; else result[i+j]=minm(result[i+j],result[i]+1); } return result[n-1]; rihansh {{{int JumpToEnd(int *A,int n){ int result[n]; if(n==0||A[0]==0) return -1; int i; rep(i,n) result[i]=-1; result[0]=0;// no step to first element for(i=0;i<n;i++) { if(result[i]!=-1) for(int j=1;(j+i)<n&&j<=A[i];j++) if(result[i+j]==-1) result[i+j]=result[i]+1; else result[i+j]=minm(result[i+j],result[i]+1); } // if not reachable return -1 return result[n-1];}}} Harshit It can be solved in O(n). Please look at the following solution. int jump(int A[], int n) { int maxI = A[0]; int nMaxI = 0; int lastIndex = 0; vector jumps(n,0); jumps[0] = 0 ; for(int i=1 ; i<n ; i++) { if( maxI < i ) { maxI = nMaxI; lastIndex = i-1; } jumps[i] = jumps[lastIndex]+1; nMaxI = max(nMaxI, i+A[i]); } return jumps[n-1]; } Guest I don’t understand the question. Isn’t the path unique? Is it necessary to start from 1st element? If yes, then what is meant by positions ‘reachable from a particular position’ Abhi Does anyone have junit test cases for the method 3 implementation vikas Can we use the same concept for the snake and ladder problem , where we have find the minimum number of steps to reach the end , assuming the dice produce favorable results ? jv in Method 2 (Dynamic Programming) why is the min check missing jumps[i] = jumps[j] + 1; is updated direclty without checking some thing like jumps[i] > jumps[j] + 1; wu because if j < k < i and then jump[j] <= jump[k],so we don't have to make a min check. meh I don’t think the list is sorted if that’s what you’re assuming. meh Ah, it was the jump array, sorry about that! Anon15 Exactly! There should be a checking to check whether the current value that is being assigned is less than the already assigned value or not. max #include #include int min_steps(int *,int n); int maxi(int *arr,int,int); int main() { int arr[100]; int i,n,d; printf(“how many elements\n”); scanf(“%d”,&n); for(i=0;i<n;i++) { scanf("%d",&d); arr[i]=d; } int m; m=min_steps(arr,n); if(m==-1) printf("end of the array can't be reached\n"); else printf("minimum steps required to go last is\n%d",m); return 0; } int min_steps(int *arr,int n) { if(arr[0]==-1) return -1; int c=1,i; for(i=0;i=n-1) return ++c; else { c++; i=maxi(arr,arr[i],i); } } return c; } //this will give the position whose value is maximum which can be reached from the current location int maxi(int *arr,int cur,int i) { int j,m=INT_MIN; int index; for(j=1;jm) { m=arr[i+j]; index=i+j; } } return index; } Vinod In worst case time complexity O(n^2) Array set = {1,1,1,1,1,1} In best case time complexity O(n) Array set ={10,1,1,1,1,1} Solution would work for all cases like {1, 3, 6, 1, 0, 9}  
+#include<stdio.h>
+
+int min_steps(int a[],int size){
+    int i,j,step=0;
+    
+    // i -> it starts from end
+    // j -> it starts from end-1
+    // k is use to check whether there exist a path to reach a[k]
+    // If any path is exists then there has to be change in the value of i
+
+    for(i=size-1;i>0;)
+    {
+                          int k=i;
+               
+                          for(j=i-1;j>=0;j--)
+                          {
+                                             if((j+a[j]) >= k)
+                                             i=j;
+                          }
+                          
+                          if(i != k)
+                               step++;
+                          else{
+                              step=0;
+                              break;
+                          }                    
+    }
+
+    printf("Minimum steps required is %d\n", step);    
+}
+    
+int main(){
+    int a[]={1, 3, 6, 1, 0, 9};
+    int size=sizeof(a)/sizeof(a[0]);
+    min_steps(a,size);
+    
+    getchar();
+    return 0;   
+}
+ Raman  
+
+class Solver
+{
+    public int getMinJumps(int a[])
+    {
+        int MinFromHere []=new int[a.length];
+        for(int i=(a.length-1);i>=0;i--)
+        {
+            if(i==(a.length-1))
+                MinFromHere[i]=0;
+            else if(a[i]+i>=a.length-1)
+                MinFromHere[i]=1;
+            else if(a[i]==0)
+                MinFromHere[i]=Integer.MAX_VALUE;
+            else if(a[i]!=0) 
+                getMin(MinFromHere,i,a[i]);
+        }
+        return MinFromHere[0];
+    }
+    public void getMin(int b[],int start,int uptil)
+    {
+        b[start]=Integer.MAX_VALUE;
+        for(int i=start+1;i<start+uptil+1 && i< b.length;i++)
+        {
+            if(b[i]!=Integer.MAX_VALUE)
+                if((b[i]+1)<b[start])
+                    b[start]=b[i]+1;
+        }
+    }
+}
+public class Main 
+{
+    public static void main(String args[])
+    {
+        Solver ob1=new Solver();
+        int arr[]= {1, 3, 6, 1, 0, 9};
+        System.out.println(ob1.getMinJumps(arr));
+    }
+}
+
+ Shankar Farthest way logic wont work the jumps are not in ascending order so it is possible to get to end faster without going to the farthest node  
+/* Paste your code here (You may delete these lines if not writing code) */
+ jaskaran1 Thanks for pointing out the mistake.Here is the rectified code which also prints one of the paths with minimum jumps. //DPP.Min number of jumps.O(n^2) #include<iostream> #include<cstdio> #define inf 2000 using namespace std; int main() {int N; scanf("%d",&N);//Number of entries int a[N];//array of numbers int jumps[N];//jumps[i] number of jumps from i to N-1 or end int next[N];//to print the path with minimum number of jumps. //next[i] contains the index of the next node to which it jumps jumps[N-1]=0; next[N-1]=N;//nowhere to go from end for(int i=0;i<N;i++) scanf("%d",&a[i]); for(int j=N-2;j>=0;j–) {int k=j+a[j];//start moving from index of farthest node possible from jth node if(k>N-1)//this means it is directly reachable from current node {k=N-1; jumps[j]=1; next[j]=k;} else if(k==j)//No reachable node from j to end {jumps[j]=inf; next[j]=-1;} else {int min=inf; int pos; for(int i=k;i>j;i–) {if(min>jumps[i]) {min=jumps[i]; pos=i;}//pos records the index of the node having minimum number of jumps to end } if(min==inf)//ie can’t reach the end {jumps[j]=inf; next[j]=-1; } else {jumps[j]=min+1; next[j]=pos;} } } if(jumps[0]==inf) printf("Not reachable\n"); else {printf("%d\n",jumps[0]); printf("Path is \n"); printf("%d->",a[0]); int i=next[0]; while(i<N&&i!=-1) {printf("%d->",a[i]); i=next[i];} if(i==-1) printf("Not reachable\n"); else printf("end\n"); } return 0; } jaskaran1 This can be done in O(n).My solution is similar to the second one but no need to check for minimum because in the second solution.jumps[ i ] is number of jumps from i to end.So if a particular index j is the farthest reachable vertex from i then jumps[ i ]=jumps[ j ]+1. /* #include<iostream> #include<cstdio> #define inf 2000 using namespace std; int main() {int N; scanf("%d",&N);//Number of entries int a[N];//array of numbers int jumps[N];//jumps[i] number of jumps from i to N-1 or end int path[N]; jumps[N-1]=0; for(int i=0;i<N-1;i++) jumps[i]=inf;//initializing all distances to max ie not reachable for(int i=0;i<N;i++) scanf("%d",&a[i]); for(int j=N-2;j>=0;j–) {int k=j+a[j]; if(k>N-1) k=N-1; if(k==j) continue; jumps[j]=jumps[k]+1; } if(jumps[0]==inf) printf("Not reachable\n"); else printf("%d",jumps[0]); return 0; } */ jaskaran1 This can be done in O(n).My solution is similar to the second one but no need to check for minimum because in the second solution if i=jumps[j] where jumps[i] is number of jumps from i to end.So if a particular index j is the farthest reachable vertex from i then jumps[i]=jumps[j]+1. /*//DPP.Min number of jumps.O(n) #include #include #define inf 2000 using namespace std; int main() { int N; scanf(“%d”,&N);//Number of entries int a[N];//array of numbers int jumps[N];//jumps[i] number of jumps from i to N-1 or end int path[N]; jumps[N-1]=0; for(int i=0;i jumps[i]=inf;//initializing all distances to max ie not reachable for(int i=0;i scanf("%d",&a[i]); for(int j=N-2;j>=0;j–) { int k=j+a[j]; if(k>N-1) k=N-1; if(k==j) continue; jumps[j]=jumps[k]+1; } if(jumps[0]==inf) printf(“Not reachable\n”); else printf(“%d”,jumps[0]); return 0; }*/ ultimate_coder Modified method 1, no repeated calls. Let me know its complexity.  
+for (i = l+1; i <= h && i <= l + arr[l]; i++)
+   {
+       if(!htol[i][h])
+       {
+        htol[i][h] = minJumps(arr, i, h);
+       }
+       if(htol[i][h] != INT_MAX && htol[i][h] + 1 < min)
+           {htol[l][h]=htol[i][h] + 1;}
+   }
+
+   return htol[l][h];
+ Sam Hi, The complexity of this algorithm is O(n). @GeeksforGeeks Kindly please let me know if there is anything wrong with the approach. public class Jumping { public static int jump=0; public static void main(String args[]) { int arr[] = {1, 3, 6, 3, 2, 3, 6, 8, 9, 5}; int j=jump(arr,arr.length-1); System.out.println(“The min jump is “+ j); } public static int jump(int array[], int n) { int []jumpArray = new int[n+1]; if(n==0) { return 0; } else { jumpArray[0]=0; jumpArray[1]=array[0]; jump=1; } for(int i=1; i<n; i++) { if(jumpArray[jump]<=(array[i]+i)) { if(jumpArray[jump+1]<(array[i]+i)) { jumpArray[jump+1]=array[i]+i; } if(jumpArray[jump]==i){ jump++; } } } return jump; } } sakib arr[]= {1, 3, 6, 1, 0, 9} for this array the correct ans = 3 but ur code show ans = 2 so ur code have small mistake aspiring coder can the array elements contain negative integers?? where he negative integers imply backward jumps?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ abhishek08aug Intelligent  
+/* Paste your code here (You may delete these lines if not writing code) */
+ keshav  
+#include<stdio.h>
+#include<conio.h>
+
+int func(int *arr,int *next,int *jump,int n,int index);
+int main()
+{
+    int i,*arr,*next,*jump,n;
+    printf("enter number of elements to input\n");
+    scanf("%d",&n);
+    arr=(int *)(malloc(n*sizeof(int)));
+    next=(int *)(malloc(n*sizeof(int)));
+    jump=(int *)(malloc(n*sizeof(int)));
+    for(i=0;i<n;i++)
+    {
+        scanf("%d",&arr[i]);
+        next[i]=i;
+        jump[i]=0;
+    }
+    if(func(arr,next,jump,n,0)>=n)
+    printf("\n No successful jumps");
+    else
+    {
+        printf("\n Minimium number of Jumps: %d\n Jump in the below sequence\n",jump[0]);
+        n=jump[0];
+        i=0;
+        while(n>0)
+        {
+            printf("%d->",i);
+            n--;
+            i=next[i];      
+        }
+        printf("%d(last)",next[i]);
+     }
+    getch();
+    return 1;
+}
+
+int func(int *arr,int *next,int *jump,int n,int index)
+{
+    int min,count,x;
+    if(index==(n-1))
+    return 0;
+    if(arr[index]==0)
+    jump[index]=n;
+    else
+    {
+        min=n;
+        count=arr[index];
+        if(count>=(n-index-1))
+        {
+            jump[index]=1;
+            next[index]=n-1;
+        }
+        else
+        {
+            while(count>0)
+            {
+                x=func(arr,next,jump,n,index+count)+1;
+                if(x<min)
+                {
+                    min=x;
+                    next[index]=index+count;
+                }
+                count--;
+            }
+            jump[index]=min;
+        }
+    }
+    return jump[index];
+}
+
+
+
+
+ Sudhanshu Shekhar I am fairly new to Dynamic Programming. Can you please tell me if the code snippet below is correct for this question? for(i=0;i<n;i++)jumps[i]=INT_MAX; for(i=0;i<n;i++) { if(arr[i]==0)continue; for(j=i+1;j<=i+arr[i];j++) { if(jumps[j]>jumps[i]+1)jumps[j]=jumps[i]+1; } } gargsanjay We can do this question in O(n) time. let arr[k] has value l, so we examine arr[k+1] to arr[k+L] and chose max(arr[k+j]+j) as the next step whr j varies from 1 to L.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ st0le k varies from 1 – L, and for each k varies for 1 – L. That’s N^2.!  
+/* Paste your code here (You may delete these lines if not writing code) */
+ gargsanjay k does not vary it is the next step choosen.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Shredder That is correct. That is a Greedy strategy for solving the problem. I understand that when both Dynamic and Greedy are applicable to a problem, usually greedy outperforms the DP solution. This is an example of this. zyfo2 right. greedy algorithm is the one here naren596 Can anyone find probs in my code. I tried to improve it using previous index  
+public void find(int[] ary)
+{
+        int prevind=0;
+	int minjumps[]=new int[ary.length];
+	minjumps[0]=0;
+		
+	for(int i=1;i<ary.length;i++)
+	{
+		if(ary[i]==0) return;
+		if(i-prevind<=ary[prevind])
+		{
+			minjumps[i]=minjumps[prevind]+1;
+		}
+		else
+		{
+			int j=prevind+1;
+			while(j<ary.length &&  i-j>ary[j])
+			{
+				j++;
+			}	
+			prevind=j;
+			minjumps[i]=minjumps[prevind]+1;
+			}	
+		}
+		
+		System.out.print(minjumps[ary.length-1]+" ");
+	}
+
+ coderAce In method2-Inner for loop, the check for jump[j]!-INT_MAX is not required. j is always less than i at any point and only jump[i] can be equal to INT_MAX in every iteration. For any j Patrick Time Complexity O(n) Space Complexity O(1) please let me know if I am wrong.  
+/* Paste your code here (You may delete these lines if not writing code) */
+int minimumNoJumps(int * A, int len){
+	int current_jump,i=0,count=0;
+	while(i<len){
+		current_jump=A[i];
+		printf("%d->",current_jump);
+		if(i+current_jump>=(len-1))
+		 break;
+		int j=1,max=0,max_index;
+		while(j<=current_jump){
+  			if(A[i+j]>max){
+				max=A[i+j];
+				max_index=i+j;
+			}
+
+			j++;
+		}
+		i=max_index;
+		count++;
+	}
+	return count+1;
+}
+ coderAce In method2-Inner for loop, the check for jump[j]!-INT_MAX is not required. j is always less than i at any point and only jump[i] can be equal to INT_MAX in every iteration. For any j<i, jump[j] is pre-calculated. That's the whole point of DP. coderAce Sorry, my earlier comment was not targeted at your solution. But your code works and it’s an elegant solution. Thanks for sharing it. Patrick  
+/* Paste your code here (You may delete these lines if not writing code) */
+ cakester a = [2, 5, 10, 1, 1, 3, 0, 0, 2, 5, 1, 1, 1, 2, 0, 1, 1] doesnt work, but it suppose to have a solution shr  
+
+public int minJump(int[] A) {
+        
+        if(A.length<=1)
+             return 0;
+        int b[]=new int[A.length];
+        int max_index=0;
+        
+        for(int i=0;i<b.length;i++)
+        {
+        	b[i]=-1;
+        }
+        b[0]=0;
+        for(int i=0;i<A.length;i++)
+        {
+            int tempMax=Math.max(i+A[i],max_index);
+ 
+            if(tempMax>max_index){
+                for(int j=max_index+1;j<=tempMax && A.length;j++)
+                {   if(b[i]!=-1)
+                    b[j]=b[i]+1;
+        
+                }
+            max_index=tempMax;
+            }
+        
+        }
+        
+        
+        return b[A.length-1];
+    }
+
+ Time Complexity O(n) Space Complexity O(n) Time complexity is O(n) because the inner for loop runs for a “total” of n times and so does the outer for loop ~ O(2n) shr reasoning b[i] here stores the minimum number of steps it takes to reach ith element. example A[]: 1 5 1 1 1 4 1 0 0 b[]: 0 1 2 2 2 2 2 3 3 For an element we check the elements within its reach that have not been seen yet and increment their step by 1. for the above ex i=0 scope of A[i]=1 is b[1] b[1]==-1 so b[1]=b[i]+1; i=1 scope of A[i]=2,3,4,5,6 b[2]==-1 b[3]==-1 b[4]==-1 b[5]==-1 b[6]==-1 so b[2]=b[3]=b[4]=b[5]=b[6]=2 i=2 we already have seen it and all under its scope so skip similarly for i=3,4 now for i=5 in its scope lie 6,7,8,9 we have seen 6 before but not 7, 8 and 9 so we update the b[7], b[8] and b[9] to 3 this check is made possible by two variables max_index and tempMax max_index tells you the farthest you have visited in the array. tempMax is the scope of the corresponding ith element, if the scope is less than max_index skip else start of from max_index+1 till tempMax. set the new max_index as tempMax MJoySaha This problem can be solved in O(n) complexity and O(1) space. Concept: 1. From any given position i, we can jump to any position between i+1, i+2….a[i] 2. In order to reach the destination from start in minimum jumps, at any position we have to make maximum possible jump so that immediate next jump takes us to farthest away. Algorithm: 1. For each index, the value gives maximum jump possible. 2. Now starting from immediate next element till maximum jump, find out which one covers max distance.  
+public class MinJumpToReachEnd {
+	private void findJumps(int[] a) {
+		int n = a.length - 1;
+		int i = 0;
+		while (i < n) {
+			int maxJump = a[i];
+			System.out.print(maxJump + " ");
+			if (maxJump == 0)
+				break;
+			int j = 1;
+			int highestMove = 0;
+			int highestMovePosition = i;
+			while (j <= maxJump) {
+				if ((i + j) == n) {
+					highestMovePosition = i + j;
+					break;
+				}
+				int progress = a[i + j] - j;
+				if (progress > highestMove) {
+					highestMove = progress;
+					highestMovePosition = i + j;
+				}
+				j++;
+			}
+			if (highestMovePosition == i)
+				break;
+			i = highestMovePosition;
+		}
+		if (i + a[i] < n)
+			System.out.println("destination cannot be reached");
+		else
+			System.out.println(a[n] + " ");
+	}
+
+	public static void main(String[] args) {
+		MinJumpToReachEnd mj = new MinJumpToReachEnd();
+		mj.findJumps(new int[] { 1, 3, 5, 8, 9, 2, 6, 7, 6, 8, 9 });
+		mj.findJumps(new int[] { 1, 0, 0, 1, 1, 1 });
+		mj.findJumps(new int[] { 1, 3, 5, 8, 9, 2, 6, 7, 6, 8, 9 });
+	}
+}
+ Goral can be also done using greedy  
+#include <stdio.h>
+#include <limits.h>
+int main()
+{
+	int arr[] = {1,2,3,4,5,6,7,8,9};
+	int n = sizeof(arr)/sizeof(arr[0]);
+	int i,j,hops=0;
+	for(i=0;i<n;)
+	{
+		int max=INT_MIN;
+		int next_index;
+		for(j=1;j<=arr[i];j++)
+		{
+			int temp=arr[i+j]+(-arr[i]+j);
+			if(temp>max)
+			{
+				max=temp;
+				next_index=i+j;
+			}
+		}
+		hops++;
+		i=next_index;
+	}
+	printf("Minimum number of jumps to reach, end is %d\n",hops );
+	return 0;
+} Hitu  
+Hello friends,
+
+If you want to paste your code, please mention specialities of your code and why one should read your code.
+
+Otherwise no one will read all the codes only to find out that there is nothing to learn, and it is the same as above.
+
+Thank you.
+ Saurabh Jain /* Paste your code here (You may delete these lines if not writing code) */ import java.util.Scanner; /** * * @author saurabh */ public class MinNoOfJumpsToReachTheEndDPP { int a[]; public MinNoOfJumpsToReachTheEndDPP() { Scanner sc = new Scanner(System.in); int size = sc.nextInt(); a = new int[size]; for(int i=0; i<size; i++) { a[i] = sc.nextInt(); } System.out.println("Initial Array : "); this.printArray(); System.out.println("\nMinimum No. of Jumps to Reach The End is : "+this.numberOfJumps()); } private void printArray() { for(int i=0; i<a.length; i++) System.out.print(a[i]+" "); } private int numberOfJumps() { int jumps[] = new int[a.length]; jumps[0]=0; for(int i=1; i<a.length; i++) { int min=Integer.MAX_VALUE; for(int j=0; j<i; j++) { if(j+a[j]>=i && min>jumps[j]+1) min = jumps[j]+1; } jumps[i] = min; } return jumps[a.length-1]; } public static void main(String args[]) { MinNoOfJumpsToReachTheEndDPP mojtd = new MinNoOfJumpsToReachTheEndDPP(); } } Time Complexity: O(n^2) & Space Complexity : O(n). http://www.3dprintersprice.net/author/admin/ 3d printers for sale If you truly like to present your imagination as well as wow the buddies alongside high-tech wizardry subsequently consider shopping for a three-dimensional (3D) printer. Already well-established in advanced design studios, the price of a few fundamental 3D printers has dropped to under $5,000 starting them to home use. Aditya Goel  
+/* Paste your code here (You may delete these lines if not writing code) */
+cant it be solved by using graphs..??
+make each element of array a graph vertex and set corresponding outward edges from it.
+then we apply BFS to find shortest distance from vertex[1] to vertex[n].
+ lohith  
+
+public class MinimumJumps2 {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+     
+		int arr[] = {1, 3, 5, 8, 9, 2, 6, 7, 6, 8, 9};
+		
+		int ans =minumumJumps(arr,arr.length-1,arr[arr.length-1]);
+		System.out.println(ans);
+	}
+
+	private static int minumumJumps(int[] arr, int target, int stepsBackward) {
+		
+		if(target == 0){
+			return 0;
+		}
+		
+		int min = (target-stepsBackward) +1 > 0 ? (target-stepsBackward) +1  : 0 ;
+		
+		int minimum = Integer.MAX_VALUE;
+		
+		for(int i=min;i<target;i++){
+			if(arr[i]+i >= target ){
+				int temp = minumumJumps(arr,i,arr[i]);
+				if(temp < minimum){
+					minimum = temp;
+					break;
+				}
+					
+			}
+		}
+		return minimum+1;
+	}
+
+	
+}
+
+ lohith  
+import java.util.HashMap;
+
+
+public class MinimumJumps {
+
+	/**
+	 * @param args
+	 */
+	
+	private static HashMap<String,Integer> h = new HashMap<String,Integer>();
+	
+	
+	public static void main(String[] args) {
+		int arr[] = {1, 3, 5, 8, 9, 2, 6, 7, 6, 8, 9};
+		
+		int ans =minumumJumps(arr,0,arr[0]);
+		System.out.println(ans);
+
+	}
+
+	private static int minumumJumps(int[] arr, int low, int maxJump) {
+		
+		
+		
+		if(h.containsKey(low+maxJump+"")){
+			return h.get(low+maxJump+"");
+		}
+ 
+		if(low==arr.length){
+			
+			h.put(low+maxJump+"", 0);
+			return 0;
+		}
+
+		if(low > arr.length)
+		{
+			h.put(low+maxJump+"", Integer.MAX_VALUE);
+			return Integer.MAX_VALUE;
+		}
+	
+		int min=Integer.MAX_VALUE;
+		int pos=-1;
+		 for(int i=1;i<=maxJump;i++){
+			 int temp =  minumumJumps(arr,low+i,arr[i]);
+			if(min > temp){
+				min = temp;
+				pos=i;
+			}
+		 }
+
+		 
+		 h.put(low+maxJump+"", min+1);
+		return min+1;
+		
+	}
+
+}
+
+
+
+ gaurav There exists a O(n) time and O(1) space complexity greedy solution to this problem 1)Find the range of each jump 2)All the elements within the range of 1st jump can be reached in max of 1 jump. 3)Thus for all the elements belonging to the range of 1st jump, calculate the maximum element that can be reached in 1 jump. 4)All the elements after the range of 1st jump and till the maximum element calculated in previous step are reachable in 2 jumps. 5)Continue this till either n is covered or no point can be reached further. 6)The first range that covers n will be the answer Providing the code for a better understanding of the solution  
+int jump(int a[], int n) 
+{
+       int start=0,end=0,count=0,next=end;
+        if(n<=1)
+            return 0;
+        while(1)
+        {
+            count++;
+            for(int i=start;i<=end &&i<n;i++)
+            {
+                if(a[i]+i>next)
+                    next=a[i]+i;
+            }
+            if(next>=n-1)
+                return count;
+            if(next==end)
+                return -1;
+            start=end+1;
+            end=next;
+        }
+    }
+ sankarshan mridha  
+#include<stdio.h>
+#include<limits.h>
+
+void foo(int num[],int n)
+{
+        int i=0;
+        int temp;
+        temp=num[i];
+        if(temp==0)
+        {
+                   printf("\n~got 0 jumps");return;
+        }
+        printf("%3d",temp);
+        i=foo1(num,i+1,temp);
+        if(i==-1)
+        return;
+        temp=num[i];
+        while(i<n)
+        {
+                  if(temp==0)
+                  {
+                   printf("\n~got 0 jumps");return;
+                   }
+                   else
+                   printf("%3d",temp);
+                   
+                    i=foo1(num,i+1,temp,n);
+                    if(i==-1)
+                    return;
+                    temp=num[i];
+        }
+        return;
+}
+int foo1(int num[],int cur,int limit,int n)
+{
+    int max,maxind;
+    max=maxind=INT_MIN;
+    
+    int i=0;
+     if(cur+limit>n)
+     return -1;
+    for(i=cur;i<cur+limit;i++)
+    {
+                              if(num[i]>max)
+                              {
+                                            max=num[i];
+                                            maxind=i;
+                              }
+    }
+    return maxind;
+}
+int main(void)
+{
+    //int a[]={1, 1, 0, 1, 0, 1, 2, 7, 6, 8, 9};
+    int a[]={1, 3, 6, 1, 0, 9};
+    int size=sizeof(a)/sizeof(int);
+    foo(a,size);
+    getch();
+}    
+
+ Guddu sharma In the second method, One more check condition should be included if a path doesn’t exist from start to end. Consider the example: int arr[]= {1, 0, 0, 1,1,1}; here, the output:Minimum number of jumps to reach end is 2147483647 Thank you. Ankush In method 2,for each index i we always start checking it from 0 whether it is reachable from there in one jump or not.. I think this should be optimized because we know that if an index ‘i’ is not reachable from index ‘j’ in one jump,then for the next index ‘i’ i.e for i+1 it is sure that it is not reachable from ‘j’ in one jump.Hence it should not start checking it from ‘j’ again.. Therefore inner loop must not always star from 0,instead it should start from ‘pos’ variable which must keep the record that if an index i is not reachable from there in one jump then it should increment it for the next index i+1… Arnab Gives O(n^2)  
+int minJump(int a[],int n)
+{
+if(n==0||a[0]==0) return 0;
+int jump[n];
+jump[n-1]=0;
+for(i=0;i<(n-1);i++)
+jump[i]=infinite;
+for(i=(n-2);i>=0;i--)
+{
+
+for(j=1;j<=a[i];j++) 
+{
+if((jump[i+j]+1)<jump[i])
+jump[i]=jump[i+j]+1;
+}
+
+}
+
+
+return jump[0];
+}
+ nishant #include #include int a[]={1,3,5,8,9,2,6,7,6,8,9},*k; int findmax(int i,int x) { int j,max=INT_MIN; j=i; while(j<i+x) { if(max<a[j]) { max=a[j]; k=&j; } j++; } return max; } int main() { int i=0,max=0,count=0; //printf("%d",sizeof(a)); while((i+max)<(sizeof(a)/sizeof(int))) { count++; max=findmax(i,a[i]); i=*k; //printf("%d",i); } printf("%d",count+1); return 0; } http://chaitukt.blogspot.in/ chaitu What I understood in Solution 2 is, we are linearly travelling from i <- 0 to i <- n-1, and for every position i we are again traversing till i with variable j to calculate jump[i] as jump[j]+1, if that jump crosses ith position. Nice logic, and but I think we need to take least value of jumps possible. so we might need logic like: for (i = 1; i < n; i++) { jumps[i] = INT_MAX; for (j = 0; j < i; j++) { if (i <= j + arr[j] && jumps[j] != INT_MAX) { if(jumps[i]>jumps[j]+1) jumps[i] = jumps[j] + 1; //break; } } } bharat nishad http://www.leetcode.com/onlinejudge jump 2nd… O(n) time implementation.  
+
+
+int jump(int a[], int n) {
+int max=1,i,j,p,index=1,count=0;
+if(n==1) return 0;
+for(i=0;i<n;i=max)
+{
+count++;
+if(i+a[i]>=n-1)return count;
+p=i+1+a[i+1];
+if(a[i]==0)return INT_MAX;
+for(j=i+1;j<=i+a[i]&&j<n;j++)
+{
+if(p<=j+a[j])
+{
+p=j+a[j];
+index=j;
+} //3 4 3 2 5 4 3
+
+if(j+a[j]>=n-1){
+count++;
+return count;
+}
+}
+
+max=index;
+
+}
+return count;
+
+}
+ atul it is O(n^2) not O(n)  
+/* Paste your code here (You may delete these lines if not writing code) */
+ bharat nishad this is O(n) time implementation. even its never run n iteration.i submitted successfully it leetcode online judge. check i never run i whole. int jump(int a[], int n) { int max=1,i,j,p,index=1,count=0; if(n==1) return 0; for(i=0;i=n-1)return count; p=i+1+a[i+1]; if(a[i]==0)return INT_MAX; for(j=i+1;j<=i+a[i]&&j<n;j++) { if(p=n-1){ count++; return count; } } max=index; } return count; } bharat nishad why some of words are not printing in it.. like i did i=max in for loop.. andy  
+/* 
+
+//this function seems to work fine with O(n) time... is this code 
+//works for all possible inputs.....
+//logic : if we are at element i,check all the elements which 
+//are reachable and find the index of the element that provides 
+//maximum jump and then jump to that element.
+//returns 0 if only 1 element or no jump possible.
+
+int jumps(int a[],int len)
+{
+if(len==1||a[0]==0)
+return 0;
+
+int jmps=0,k,index,max,i;
+
+for(i=0;i<len;)
+{
+if(a[i]==0)
+return 0;
+
+if((i+a[i])>=(len-1))
+return jmps+1;
+
+else
+{
+index=i+1;
+max=(i+1)+a[i+1];
+
+for(k=index+1;k<=(i+a[i]);k++)
+if((k+a[k])>max)
+index=k;
+
+jmps++;
+i=index;
+}
+}
+return jmps;
+}
+
+*/
+ laddoo Method 2 looks as if following Greedy Programming Technique. e.g. for any value of i,it just looks for first value of j,from which it is reachable.It uses that value of j to set value jumps[i],never changes that value again.Isn’t it Greedy approach,not Dynamic? Please let me know,if I am wrong.. Ajinkya method 2 is best kartikaditya public class MinJumps { public static int getMinJumps(int a[]) { if (a == null || a.length == 0) { return -1; } for (int i = 0; i < a.length; ++i) { if (a[i] < 0) { return -1; } } int dp[] = new int[a.length]; dp[a.length – 1] = 0; for (int i = a.length – 2; i >= 0; –i) { int min = Integer.MAX_VALUE; for (int j = i + 1; j < a.length && j <= i + a[i]; ++j) { if (dp[j] != Integer.MAX_VALUE && 1 + dp[j] < min) { min = 1 + dp[j]; } } dp[i] = min; } System.out.println(dp[0]); return dp[0]; } public static void main(String args[]) { getMinJumps(new int[]{1, 3, 5, 8, 9, 2, 6, 7, 6, 8, 9}); getMinJumps(new int[]{1, 3, 6, 1, 0, 9}); getMinJumps(new int[]{1, 0, 1, 2}); } } candis why cant we select the maximum number in the range….plz tell me some examples where we cant follow this…..  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Neevan Can someone pls give some suggestions on how do u construct the shortest jump sequence in naive recursion solution GeeksforGeeks @Bazinga, @AK & @iCodeS: Thanks for suggesting new approaches. We will review these approaches and add to the original post. AK Range Minimum Queries can be done using linear space and each update/query in O(logn) time. Segment Tree or BIT can be used for this purpose. This would reduce the complexity of finding minimum_of_{ dp[i+1], dp[i+1], … dp[i+a[i]] } to O(log n) giving a overall O(n logn) solution. iCodeS Here is an O(n) solution without using space. Every time I am choosing that node for which i+ar[i] is maximum. Please do check.  
+int minjumps2(int arr[],int start,int final)
+{
+    int i=0,j=0,min=0,temp=0,max=0,k=0;
+    for(i=0;i<=final;)
+    {
+        temp=0;
+        max=0;
+        if(i+arr[i]>=final)
+        {
+            min++;
+            break;
+        }
+        for(j=i+1;j<=i+arr[i] && j<=final;j++)
+        {
+            temp=j+arr[j];
+            if(temp>max)
+            {
+                    max=temp;
+                    k=j;
+            }
+        }
+        i=k;
+        min++;
+    }
+return min;
+}
+ kartik @iCodeS: Could you please provide more details of the approach. An example or pseudo code will be really helpful. iCodeS Taking your first input case Input: arr[] = {1, 3, 5, 8, 9, 2, 6, 7, 6, 8, 9} jump=0; i=0; at first arr[i]=1,so can jump only 1 node,so no choice now i=1; jump++; from here we can jump atmost 3 nodes check if (i+arr[i]>=final) then we can reach from here in 1 jump else for 1jump= i+arr[i]=2+5=7 for 2jump= i+arr[i]=3+8=11 for 3jump= i+arr[i]=4+9=13 we will choose 3jump,since it gives maximum value now jump++; jump=2; from here we can reach within 1jump; so jump++; jump=3 <—-Answer kartik @iCodeS: Thanks for the explanation. The program doesn’t seem to work for some cases. Please see this comment. Also, could you please provide details about the time complexity being O(n) (There is a nested loop in the program).  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kv391 Begin from the end and for an index, look for the number fartherest away from it, that can reach it. For ex, arr[] = {1, 3, 5, 8, 9, 2, 6, 7, 6, 8, 9} Start from 9. 6 is the farthest from 9 that can reach it. So, 6 is included. From 6, we find 5. 5 to 3. 3 to 1. O(n) time.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik @kv391: Sorry, I sill don’t get it. 6 is not the farthest that can reach last 9, 8 is the farthest, right? Also, the above doesn’t work for {1, 0, 3}.  
+#include <stdio.h>
+#include <limits.h>
+
+int minjumps2(int arr[],int start,int final)
+{
+    int i=0,j=0,min=0,temp=0,max=0,k=0;
+    for(i=0; i<=final;)
+    {
+        temp=0;
+        max=0;
+        if(i+arr[i]>=final)
+        {
+            min++;
+            break;
+        }
+        for(j=i+1; j<=i+arr[i] && j<=final; j++)
+        {
+            temp=j+arr[j];
+            if(temp>max)
+            {
+                max=temp;
+                k=j;
+            }
+        }
+        i=k;
+        min++;
+    }
+    return min;
+}
+
+// Driver program to test above function
+int main()
+{
+    int arr[] = {1, 0, 3};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    printf("Minimum number of jumps to reach end is %d \n", minjumps2(arr, 0, n-1));
+    return 0;
+}
+ Kushagra Yes, you are right. Saw the flaw there. Its actually n-square time algorithm. :-/  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ashish in method 3 else if (arr[i] >= n – i – 1) jumps[i] = 1; looks wrong the arr is storing the index of the element where you can jump to so for example arr[0] = 1 implies that go to index 1. Hence for i=n-2, this check would say arr[n-2]>=1, which is true even if this arr[n-2] is jumping backwards to say index 6.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Ashish got it algoist While traversing the array n, selection of max element from all possible jumps from a[i] and jumping to that maximum element location is not sufficient? Which will have time complexity of O(n) and space O(1)..  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Sanju I think there is some problem in method 2 in the condition of inner for loop. Correct me if m wrong..  
+/* Paste your code here (You may delete these lines if not writing code) */
+ kartik The conditions look correct to me. Could you write the problem that you think is there, or some case for which it may not work. sandeep taking the same example given in code int arr[]= {1, 3, 6, 1, 0, 9}; for second method it will give INT_MAX in return because you are using for (j = 0; j < i && i <= j + arr[j]; j++) { if ((jumps[j] + 1) < jumps[i]) jumps[i] = jumps[j] + 1; } here "j < i && i <= j + arr[j]" will prevent it from updating value after first iteration as the condition will fail after j = 1 and eventually all jump[i] after i = 1 will remain INT_MAX. Here is my code for second method #include<stdio.h> #include<limits.h> #include<stdlib.h> int min_jump(int * arr,int size) { int i,j; int * jump = (int *)malloc(size * sizeof(int)); jump[0] = 0; if(arr[0] == 0) return -1; for(i = 1; i < size;i++) { jump[i] = INT_MAX; for( j = 0; j < i; j++) { if((arr[j] + j) >= i) { jump[i] = jump[j]+1; break; } } } for(i = 0; i < size;i++) printf("\n%d\n",jump[i]); return jump[size-1]; } int main() { int arr[]= {1, 3, 6, 1, 0, 9}; int size=sizeof(arr)/sizeof(int); int res = min_jump(arr,size); if(res > 0) printf("\nMinimum number of jumps to reach end is %d ",res); else printf("\nno minimum jump possible"); return 0; } please mention if any mistake found.Thanks. kartik @sandeep: Thanks for providing details. We have updated the code. kartik @Sandeep: We have also included the optimization in your code (breaking the loop). The only thing to change in your code is, add condition “jumps[j] != INT_MAX” before updating jumps[i] to jumps[j] + 1. For example your code will cause overflow for array {1, 0, 1, 2}. kenny one error in 3rd approach, here instead of  
+  else if (arr[i] >= n - i)
+            jumps[i] = 1;
+ it should be  
+  else if (arr[i] >= n - i - 1)
+            jumps[i] = 1;
+ secondly is there much of a difference between 2 and 3 ? GeeksforGeeks @kenny: Thanks for pointing this out. We have modified the condition. Keep it up!! Bazinga I hope I understood the question correctly. How about this ? For each index i , we want to find dp[i], the minimum jumps towards right we need to make to jump out. dp[i] = 1 + min{ dp[i+1], dp[i+1], …. dp[i+A[i]] } We fill in the dp[] array from right to left and all we want is, given a range [x…y], what is the minimum value among {dp[x], dp[x+1], … ,dp[y] }, which can be easily done using O(n) space and O(log n) query time and O(log n) update time using simple Range Minimum Query ( eg: range trees ). Finally the answer is the minimum of dp[i]. Overall complexity O( n logn ) time and O(n) space. GeeksforGeeks @Bazinga: Thanks for suggesting a new method. The method looks good. We will soon add it to the original post. Keep it up! Karthick In the second method, I think we have to first check if we can reach i from j before updating the value of jumps[i] in the inner loop. I am sorry, if I have missed something in the code.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Karthick Sorry,didnot see the condition given at the start of the loop.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ jaya Method 3 is the best, right? kartik yes, method 3 is the most efficient. i2infinity Why is method 3 efficient over method 2? totodile Isn’t method 2 and 3 following the same approach; meth2 – scanning frm left to right meth3 – scanning frm right to left but the operation it does after scanning is the same in both right , then how is one more efficient than the other? mohammad faizan ali Hey admin i think this method is good .It looks as if it is in O(n^2) but the inner loops never runs on pre-visited indexes, so the solution is in O(n). Starting from the first to the end we calculate the no. of hops required to reach the end. The key to solution is that hops to reach any index from index i is less than the hops to reach any index from j(after reaching j) if j>i. The array min_dist stores the no. of hops required to reach any index. initially all values of min_dist is 500(very large) except for the first index which is zero. We keep track of the index before which values of min_dist are updated/final using the variable tag. Variable temp stores the farthest index reachable from a given index. If we can reach end we need to break the loop.  
+/* Paste your code here (You may delete these lines if not writing code) 
+#include<stdio.h>
+int min_hops(int *arr,int x);
+int min(int,int);
+int main()
+{
+	
+	int x,i;
+	printf("Enter the  number\n");
+	scanf("%d",&x);
+	int arr[x];
+	for(i=0;i<x;i++)
+	scanf("%d",&arr[i]);
+	printf("\n%d",min_hops(arr,x));
+
+	scanf("\n%d",&x);
+	return 0;
+}
+
+int min_hops(int *arr,int x)
+{
+	int min_dist[x],i;
+	for(i=0;i<x;min_dist[i++]=999);
+	min_dist[0]=0;
+	int tag=1,temp;
+	for(i=0;i<x;i++)
+	{
+		if(tag>=x)
+		break;
+		temp=arr[i]+i;
+		if(temp>=x-1)
+		{
+			min_dist[x-1]=min(min_dist[x-1],min_dist[i]+1);
+			break;
+		}
+		int j,k=min(temp,x-1);
+		for(j=tag;j<=k;j++)
+		{
+			min_dist[j]=min(min_dist[j],min_dist[i]+1);
+		}
+		tag=k++;
+	}
+	return(min_dist[x-1]);
+}
+int min(int a,int b)
+{
+	return(a>b?b:a);
+
+
+}
+*/
+ Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

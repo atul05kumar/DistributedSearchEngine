@@ -1,0 +1,639 @@
+Merge two sorted linked lists - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Merge two sorted linked lists Write a SortedMerge() function that takes two lists, each of which is sorted in increasing order, and merges the two together into one list which is in increasing order. SortedMerge() should return the new list. The new list should be made by splicing together the nodes of the first two lists. For example if the first linked list a is 5->10->15 and the other linked list b is 2->3->20, then SortedMerge() should return a pointer to the head node of the merged list 2->3->5->10->15->20. There are many cases to deal with: either ‘a’ or ‘b’ may be empty, during processing either ‘a’ or ‘b’ may run out first, and finally there’s the problem of starting the result list empty, and building it up while going through ‘a’ and ‘b’. Method 1 (Using Dummy Nodes) The strategy here uses a temporary dummy node as the start of the result list. The pointer Tail always points to the last node in the result list, so appending new nodes is easy. The dummy node gives tail something to point to initially when the result list is empty. This dummy node is efficient, since it is only temporary, and it is allocated in the stack. The loop proceeds, removing one node from either ‘a’ or ‘b’, and adding it to tail. When we are done, the result is in dummy.next. 
+/*Program to alternatively split a linked list into two halves */
+#include<stdio.h>
+#include<stdlib.h>
+#include<assert.h>
+
+/* Link list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+
+/* pull off the front node of the source and put it in dest */
+void MoveNode(struct node** destRef, struct node** sourceRef);
+
+/* Takes two lists sorted in increasing order, and splices their nodes together to make one big sorted list which is returned.  */
+struct node* SortedMerge(struct node* a, struct node* b) 
+{
+   /* a dummy first node to hang the result on */    
+   struct node dummy;      
+   
+   /* tail points to the last result node  */ 
+   struct node* tail = &dummy;  
+
+   /* so tail->next is the place to add new nodes 
+     to the result. */
+   dummy.next = NULL;
+   while(1) 
+   {
+      if(a == NULL) 
+      { 
+         /* if either list runs out, use the other list */
+         tail->next = b;
+         break;
+      }
+      else if (b == NULL) 
+      {
+         tail->next = a;
+         break;
+      }
+      if (a->data <= b->data) 
+      {
+         MoveNode(&(tail->next), &a);
+      }
+      else 
+     {
+        MoveNode(&(tail->next), &b);
+     }
+     tail = tail->next;
+  }
+  return(dummy.next);
+}  
+
+
+/* UTILITY FUNCTIONS */
+/*MoveNode() function takes the node from the front of the source, and move it to the front of the dest.
+   It is an error to call this with the source list empty. 
+
+   Before calling MoveNode():
+   source == {1, 2, 3}
+   dest == {1, 2, 3}
+
+   Affter calling MoveNode():
+   source == {2, 3}
+   dest == {1, 1, 2, 3}
+*/
+void MoveNode(struct node** destRef, struct node** sourceRef)
+{
+  /* the front source node  */
+  struct node* newNode = *sourceRef;
+  assert(newNode != NULL);
+
+  /* Advance the source pointer */
+  *sourceRef = newNode->next;
+
+  /* Link the old dest off the new node */
+  newNode->next = *destRef; 
+
+  /* Move dest to point to the new node */
+  *destRef = newNode;
+}
+
+
+/* Function to insert a node at the beginging of the linked list */
+void push(struct node** head_ref, int new_data)
+{
+  /* allocate node */
+  struct node* new_node =
+            (struct node*) malloc(sizeof(struct node));
+
+  /* put in the data  */
+  new_node->data  = new_data;
+
+  /* link the old list off the new node */
+  new_node->next = (*head_ref);     
+
+  /* move the head to point to the new node */
+  (*head_ref)    = new_node;
+}
+
+/* Function to print nodes in a given linked list */
+void printList(struct node *node)
+{
+  while(node!=NULL)
+  {
+   printf("%d ", node->data);
+   node = node->next;
+  }
+} 
+
+/* Drier program to test above functions*/
+int main()
+{
+  /* Start with the empty list */
+  struct node* res = NULL;
+  struct node* a = NULL;
+  struct node* b = NULL;  
+
+  /* Let us create two sorted linked lists to test the functions
+   Created lists shall be a: 5->10->15,  b: 2->3->20 */
+  push(&a, 15);
+  push(&a, 10);
+  push(&a, 5);
+  
+  push(&b, 20);
+  push(&b, 3);
+  push(&b, 2);  
+
+  /* Remove duplicates from linked list */
+  res = SortedMerge(a, b); 
+
+  printf("\n Merged Linked List is: \n");
+  printList(res);            
+
+  getchar();
+  return 0;
+}
+ Method 2 (Using Local References) This solution is structurally very similar to the above, but it avoids using a dummy node. Instead, it maintains a struct node** pointer, lastPtrRef, that always points to the last pointer of the result list. This solves the same case that the dummy node did — dealing with the result list when it is empty. If you are trying to build up a list at its tail, either the dummy node or the struct node** “reference” strategy can be used (see Section 1 for details). 
+struct node* SortedMerge(struct node* a, struct node* b) 
+{
+  struct node* result = NULL;
+  
+  /* point to the last result pointer */
+  struct node** lastPtrRef = &result; 
+  
+  while(1) 
+  {
+    if (a == NULL) 
+    {
+      *lastPtrRef = b;
+       break;
+    }
+    else if (b==NULL) 
+    {
+       *lastPtrRef = a;
+       break;
+    }
+    if(a->data <= b->data) 
+    {
+      MoveNode(lastPtrRef, &a);
+    }
+    else 
+    {
+      MoveNode(lastPtrRef, &b);
+    }
+  
+    /* tricky: advance to point to the next ".next" field */
+    lastPtrRef = &((*lastPtrRef)->next); 
+  }
+  return(result);
+}
+ Method 3 (Using Recursion) Merge is one of those nice recursive problems where the recursive solution code is much cleaner than the iterative code. You probably wouldn’t want to use the recursive version for production code however, because it will use stack space which is proportional to the length of the lists. 
+struct node* SortedMerge(struct node* a, struct node* b) 
+{
+  struct node* result = NULL;
+
+  /* Base cases */
+  if (a == NULL) 
+     return(b);
+  else if (b==NULL) 
+     return(a);
+
+  /* Pick either a or b, and recur */
+  if (a->data <= b->data) 
+  {
+     result = a;
+     result->next = SortedMerge(a->next, b);
+  }
+  else 
+  {
+     result = b;
+     result->next = SortedMerge(a, b->next);
+  }
+  return(result);
+}
+ Source: http://cslibrary.stanford.edu/105/LinkedListProblems.pdf Please write comments if you find the above code/algorithm incorrect, or find better ways to solve the same problem.           Related Topics: Given a linked list, reverse alternate nodes and append at the end Pairwise swap elements of a given linked list by changing links Self Organizing List | Set 1 (Introduction) Merge a linked list into another linked list at alternate positions QuickSort on Singly Linked List Delete N nodes after M nodes of a linked list Design a stack with operations on middle element Swap Kth node from beginning with Kth node from end in a Linked List Tweet Writing code in comment? Please use ideone.com and share the link here. Himanshu Dagar For combined code we can refer to below Ideone link http://ideone.com/wzxhi1 Himanshu Dagar For combined code we can refer to below Ideone link http://ideone.com/wzxhi1 Himanshu Dagar For combined code we can refer to below Ideone link http://ideone.com/wzxhi1 Guest typedef struct node { int data; struct node* next; } Node; Node* mergeSortedLists(Node* l1, Node* l2) { if (l1->data > l2->data) { std::swap(l1, l2); } Node* c1 = l1; Node* c2 = l2; Node* p1 = NULL; Node* p2 = NULL; while (c1 && c2) { while (c1 && c1->data data) { p1 = c1; c1 = c1->next; } p1->next = c2; while (c2 && c2->data data) { p2 = c2; c2 = c2->next; } p2->next = c1; } return l1; } Marsha Donna how can i simplify the following code http://ideone.com/2naUy4 Deepak Is it possible to solve the problem when the two lists are in reverse order?? Deepak I am talking about complexity O(n) Lisper You can make the recursive version tail-recursive to make it as efficient as the iterative version. I will use DrRacket (a lisp dialect). (define (merge-sorted lst1 lst2) (merge lst1 lst2 empty)) (define (merge lst1 lst2 acc) (cond [ (empty? lst1) (append acc lst2)] [(empty? lst2) (append acc lst1)] [else (if (<= (first lst1) (first lst2)) (merge (rest lst1) lst2 (append acc (first lst1))) (merge lst1 (rest lst2) (append acc (first lst2))))])) vijay apurva struct node * mergelist(struct node *q ,struct node *w){ struct node *result,*temp ; temp= malloc(sizeof(struct node)); if(q==NULL){ return w; } if(w==NULL){ return q; } if(w->data data) { temp->data=w->data; temp->next=NULL; result=temp; result->next = mergelist(q,w->next); } else{ temp->data=q->data; temp->next=NULL; result=temp; result->next = mergelist(q->next,w); } return result; } in your recursice code after this function ,, your liked list value changed ,, so preserve that value this code is currect ;; pranjalgupta We can do inplace by the following function. this also implies that merge sort can be done on linked lists inplace. list* sortedmerge(list *head1, list *head2) { list *head,*tail; if(head1->data>head2->data) { head=head2; tail=head; head2=head2->next; } else { head=head1; tail=head; head1=head1->next; } while(head1!=NULL && head2!=NULL) { if(head1->datadata) { tail->next=head1; head1=head1->next; tail=tail->next; } else { tail->next=head2; head2=head2->next; tail=tail->next; } } while(head1!=NULL) { tail->next=head1; head1=head1->next; tail=tail->next; } while(head2!=NULL) { tail->next=head2; head2=head2->next; tail=tail->next; } return head; } Nitin Pallindrome GOOD solution dude…..nice inplace algo …. abhishek08aug Intelligent Will Super stuck on a homework question.  
+/* These are all nice and jazzy, but what if you need to write a recursive void function 
+that merges already sorted X-list & Y-list, into one sorted list (Z-list) without 
+creating new nodes? */
+void SortedMergeRecur(Node*& headX, Node*& headY, Node*& headZ)
+{
+     //  How do I do this?
+}
+
+ Will /* Note: Nevermind solved my own question. Problem I was having: I was changing headZ then passing it, when I should have been just passing the link without changing original pointer. Hope this helps anybody out there that might be stuck in same boat. Here is the working code… */ 
+void SortedMergeRecur(Node*& headX, Node*& headY, Node*& headZ)
+{ 
+    if (headX == 0 && headY == 0) return; // base case (both X&Y Empty)
+    
+    if(headX != 0 && headY != 0)  // if: X&Y Not Empty
+    {
+         if(headX->data <= headY->data)  // do sorting
+         {   
+             headZ = headX;
+             headX = headX->link;
+             headZ->link = 0;
+         }else 
+         {  
+             headZ = headY;
+             headY = headY->link;
+             headZ->link = 0;
+         }
+         SortedMergeRecur(headX, headY, headZ->link); // (recursive call sorts
+    }                                                 //  rest & APPENDS to Z)
+    
+        if (headY != 0 && headX == 0) // if: X empty Y Not
+        {
+            headZ = headY;
+            headY = 0;
+        }
+        if (headX != 0 && headY == 0) // if: Y empty X Not
+        {
+            headZ = headX;
+            headX = 0;
+        }
+    
+}
+ anonymous Here is a clean recursive solution using double pointers. Please verify this. void sorted_merge(struct node **head_ref,struct node *a,struct node* b) { if(a==NULL) { *head_ref=b; return; } if(b==NULL) { *head_ref=a; return; } if(a->data data) { *head_ref=a; sorted_merge(&(*head_ref)->next,a->next,b); } else { *head_ref=b; sorted_merge(&(*head_ref)->next,a,b->next); } } Kabeer  
+node *merge(node *a,node *b)
+{
+node *head,*tail;
+if(a==null && b==null)
+return null;
+else if(a==null)
+return b
+else if(b==null)
+return a
+else
+{
+if(a->data<=b->data)
+{
+head=a;
+tail=a;
+a=a->next;
+}
+else
+{
+head=b;
+tail=b;
+b=b->next;
+}
+while(a!=null && b!=null)
+{
+if(a->data<=b->data)
+{
+tail->next=a;
+tail=tail->next;
+a=a->next;
+}
+else
+{
+tail->next=b;
+tail=tail->next;
+b=b->next;
+}
+}
+if(a==NULL)
+{
+while(b!=null)
+{
+tail->next=b;
+tail=tail->next;
+b=b->next;
+}
+}
+if(b==null)
+{
+while(a!=null)
+{
+tail->next=a;
+tail=tail->next;
+a=a->next;
+}
+}
+return head;
+}
+ aygul Iterative c# implementation. AdvanceSmallHead advances smaller head until it becomes grater than the grater head. then sets previous ones next to the greater one. In MergeTwoSortedList whichever the list contains the smaller first element, is returned. Any Comments ?  
+public static LNode MergeTwoSortedList(LNode head1, LNode head2)
+{
+    if (head1 == null) return head2;
+    if (head2 == null) return head1;
+
+    LNode retHead = head1.Data < head2.Data ? head1 : head2;
+
+    while (head1 != null && head2 != null)
+        if (head1.Data <= head2.Data)
+            AdvanceSmallHead(ref head1, ref head2);
+        else
+            AdvanceSmallHead(ref head2, ref head1);
+
+    return retHead;
+}
+private static void AdvanceSmallHead(ref LNode smallHead, ref LNode largeHead)
+{
+    LNode prev = null;
+    //assume both heads are not null !!
+    do
+    {
+        prev = smallHead;
+        smallHead = smallHead.Next;
+    }
+    while (smallHead != null && smallHead.Data <= largeHead.Data);
+    prev.Next = largeHead;
+}
+
+ http://www.geeksforgeeks.org/archives/3622 deep i am not getting the use of dummy node in 1st method. sud not be it declare as struct node *dummy,  
+/* Paste your code here (You may delete these lines if not writing code) */
+ All Thanks jayesh Here is the cleaner iterative solution using only 1 function  
+LNode* mergeList(LNode* a, LNode* b){
+    printf("mergelist\n");
+    LNode dummy;
+    LNode* tail = &dummy;
+    while(true){
+        if(a == NULL){
+            tail->next = b;
+            break;
+        }
+        if(b == NULL){
+            tail->next = a;
+            break;
+        }
+        if(a->info <= b->info){
+            tail->next = a;
+            tail = tail->next;
+            a = a->next;
+        }else{
+            tail->next = b;
+            tail = tail->next;
+            b = b->next;
+        }
+    }
+    return dummy.next;
+}
+ rk_roy @jayesh thnx a lot…urs code is awsm rakitic clean code  
+/* Paste your code here (You may delete these lines if not writing code) */
+ wat3r3scap3 thanks a lot ! very informative ! Dudu Is there anybody can help me to check if this approach is correct? thanks!  
+node *mymerge(node *a, node *b){
+  if(a == NULL) return b;
+  if(b == NULL) return a;
+  node *tail = a;
+  node *res = (struct node*)malloc(sizeof(struct node*));
+  if(a->data > b->data)
+          tail = b;
+  res = tail;
+  while(1){
+          node *temp = NULL;
+          if(a == NULL){
+             tail->next = b;
+                 break;
+          }
+          else if(b == NULL){
+             tail->next = a;
+                 break;
+          }
+          else if(a ->data <b>data){
+             temp = a->next;
+                 tail->next = a;
+                 tail = tail->next;
+                 a = temp;
+          }
+          else{
+             temp = b->next;
+                 tail->next = b;
+                 tail = tail->next;
+                 b = temp;
+          }
+  }
+  return res;
+}
+ http://www.linkedin.com/in/ramanawithu Venki Return res->next and prior to return delete the res node. kunalgupta1991 There is no need of using temp variable; for example there is no need to store a->next in temp; we are not changing a->next at that place.  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://linuxatul.blogspot.com Atul  
+#include<stdio.h>
+#include<stdlib.h>
+ 
+/* Link list node */
+struct node
+{
+    int data;
+    struct node* next;
+};
+
+struct node * SortedMerge(struct node *a, struct node * b)
+{
+    struct node * head=NULL;
+    if(a->data <b>data)
+    {
+        head=a;
+        struct node *prev=NULL;
+        struct node * temp=NULL,*bnext=NULL;
+        while(a&& b)
+        {
+            if (a->data <b>data)        
+            {
+                prev=a;
+                a=a->next;
+             }
+            else
+                {
+                temp=prev->next;
+                prev->next=b;
+                bnext=b->next;
+                b->next=temp;
+                b=bnext;
+                prev=prev->next;
+                }
+        }    
+     }
+     return head;
+        
+}
+
+void printList(struct node *node)
+{
+  while(node!=NULL)
+  {
+   printf("%d ", node->data);
+   node = node->next;
+  }
+} 
+void push(struct node** head_ref, int new_data)
+{
+  /* allocate node */
+  struct node* new_node =
+            (struct node*) malloc(sizeof(struct node));
+ 
+  /* put in the data  */
+  new_node->data  = new_data;
+ 
+  /* link the old list off the new node */
+  new_node->next = (*head_ref);     
+ 
+  /* move the head to point to the new node */
+  (*head_ref)    = new_node;
+}
+ 
+int main()
+{
+  /* Start with the empty list */
+  struct node* res = NULL;
+  struct node* a = NULL;
+  struct node* b = NULL;  
+ 
+  /* Let us create two sorted linked lists to test the functions
+   Created lists shall be a: 5->10->15,  b: 2->3->20 */
+  push(&a, 15);
+  push(&a, 10);
+  push(&a, 5);
+ 
+  push(&b, 20);
+  push(&b, 3);
+  push(&b, 2);  
+ 
+  /* Remove duplicates from linked list */
+  res = SortedMerge(b, a); 
+ 
+  printf("\n Merged Linked List is: \n");
+  printList(res);            
+ 
+  getchar();
+  return 0;
+}
+ ankur Hi Atul Suppose we have link list as A – 5->10->15 B – 2->3->7->12->20 struct node *prev=NULL; struct node * temp=NULL,*bnext=NULL; while(a&& b) { if (a->data data) { prev=a; a=a->next; } else { temp=prev->next; prev->next=b; bnext=b->next; b->next=temp; b=bnext; prev=prev->next; } it can be said temp =prev->next prev is null So what will this statement return ?? marysa what if we wanna insert numbers of two groups, and make it a sorted liked list, and merge them together? what will be the coding?i’m so confused coz i’m new to these.. sowdri The below post is the solution for your question. Here is the definition for struct node:  
+typedef struct {
+   int info;
+   node *left,*right;
+}node; sowdri Another solution: In this algorithm, we pick nodes from list q and insert in the right position in the list p. step 1: foreach node in p (t always follows p, one step behind) step 2: compare p->info with q->info step 3: if qnext, t=q step 4: else take next node from p and repeat step 2  
+// takes two linked list and returns pointer to new list
+node* merge_sorted_linked_list(node *p, node *q) {
+
+    node *list = p, *temp, *t = null; /* t always trails p */
+    
+    if( p == NULL )
+        return q;
+    
+    if ( q == NULL )
+        return p;
+    
+    // store the head of resulting list
+    if( q->info <= p->info ) 
+        list = q; 
+        
+    while( p && q ) {    
+            
+        if( q->info <= p->info ) {
+            
+            // q->next will be changed now
+            temp = q->next;
+            
+            // stuff q between t and p
+            if( t != NULL )    t->next = q; 
+            q->next = p;
+            
+            // advance t, now q is a part of the first list
+            t = q;    
+            
+            // q++
+            q = temp;            
+        } else {
+            // advance p, consequently t also
+            t = p;
+            p = p->next; 
+        }    
+    }
+
+    if( p == NULL )
+        t->next = q;
+        
+    return list; 
+} bunty There is a method, in which we can create a new list with all the nodes of N1 and N2, without modifying the input lists. May be used at some place. At least better for understanding:  
+struct node* SortedMerge(struct node* a, struct node* b)
+{
+  result = (struct node*)(malloc(sizeof(struct node));
+  // Ignoring the error checking of malloc
+
+  /* Base cases */
+  if ((a == NULL)&&(b==NULL))
+    {
+     free(result);
+     return NULL;
+    }
+
+  /* Pick either a or b, and recur */
+  /* The if condtion is necessary, since there are the possibllity
+   that at one point of time, it could have accessed data of NULL, 
+  which is undefined  */ 
+  if (((a!=NULL)&&(b!=NULL)&&(a->data data))||(b==NULL))
+  {
+     result->data = a->data;
+     result->next = SortedMerge(a->next, b);
+  }
+ else if(((a!=NULL)&&(b!=NULL)&&(a->data>b->data))||(a==NULL))
+  {
+     result->data = b->data;
+     result->next = SortedMerge(a, b->next);
+  }
+
+  return(result);
+}
+ Please do let me know, if this can be optimized. Techiee Another approach to do the same:  
+Node *merge (Node *a, Node *b) 
+{
+    Node *head = null;
+    Node *prev = null;
+
+    while (a && b) {
+        if ((a && a->data <= b->data)) {
+            while (a && a->data <= b->data) {
+                if (!head) head = a;
+                prev = a;
+                a = a->next;
+            }
+            prev->next = b;
+        }
+        if ((b && b->data <= a->data)) {
+            while (b && b->data <= a->data) {
+                if (!head) head = b;
+                prev = b;
+                b = b->next;
+            }
+            prev->next = a;
+        }
+    }
+    if (!head) // means either a or b was null.
+        head = a?a:b;
+    return head;
+} gauravs In the recursive solution , within the statement (a -> data data){ //it should be result = a -> data; instead of result = a; } please correct me if i am wrong kartik I think the post is correct. result and a both are of type struct node * Manan  
+/*Just a function to merge two sorted linked lists*/
+
+struct node *merge (struct node *p, struct node *q)
+{
+    struct node *r=NULL,*temp;
+    if (p == NULL)
+         r = q;
+    else
+      if(q == NULL)
+         r = p;
+      else
+      {
+          if (p->data <q>data )
+          {
+              r = p;
+              temp = p;
+              p = p->link;
+              temp->link = NULL;
+          }
+          else
+          {
+              r = q;
+              temp =q;
+              q =q->link;
+              temp->link = NULL;
+          }
+          while((p!= NULL) && (q != NULL))
+          {
+              if (p->data <q>data)
+              {
+                  temp->link =p;
+                  p = p->link;
+                  temp =temp->link;
+                  temp->link =NULL;
+              }
+              else
+              {
+                  temp->link =q;
+                  q = q->link;
+                  temp =temp->link;
+                  temp->link =NULL;
+              }
+          }
+          if (p!= NULL)
+             temp->link = p;
+          if (q != NULL)
+             temp->link = q;
+      }
+    return( r) ;
+}
+ Source: C & Data Structures book by Kakde Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

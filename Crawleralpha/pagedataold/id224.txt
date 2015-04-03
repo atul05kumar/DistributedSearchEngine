@@ -1,0 +1,150 @@
+Searching for Patterns | Set 1 (Naive Pattern Searching) - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Searching for Patterns | Set 1 (Naive Pattern Searching) Given a text txt[0..n-1] and a pattern pat[0..m-1], write a function search(char pat[], char txt[]) that prints all occurrences of pat[] in txt[]. You may assume that n > m. Examples: 1) Input: 
+  txt[] =  "THIS IS A TEST TEXT"
+  pat[] = "TEST"
+ Output: Pattern found at index 10 2) Input: 
+  txt[] =  "AABAACAADAABAAABAA"
+  pat[] = "AABA"
+ Output: 
+   Pattern found at index 0
+   Pattern found at index 9
+   Pattern found at index 13
+ Pattern searching is an important problem in computer science. When we do search for a string in notepad/word file or browser or database, pattern searching algorithms are used to show the search results. Naive Pattern Searching: Slide the pattern over text one by one and check for a match. If a match is found, then slides by 1 again to check for subsequent matches. #include<stdio.h>
+#include<string.h>
+void search(char *pat, char *txt)
+{
+    int M = strlen(pat);
+    int N = strlen(txt);
+ 
+    /* A loop to slide pat[] one by one */
+    for (int i = 0; i <= N - M; i++)
+    {
+        int j;
+ 
+        /* For current index i, check for pattern match */
+        for (j = 0; j < M; j++)
+        {
+            if (txt[i+j] != pat[j])
+                break;
+        }
+        if (j == M)  // if pat[0...M-1] = txt[i, i+1, ...i+M-1]
+        {
+           printf("Pattern found at index %d \n", i);
+        }
+    }
+}
+ 
+/* Driver program to test above function */
+int main()
+{
+   char *txt = "AABAACAADAABAAABAA";
+   char *pat = "AABA";
+   search(pat, txt);
+   getchar();
+   return 0;
+}
+ What is the best case? The best case occurs when the first character of the pattern is not present in text at all.   txt[]  = "AABCCAADDEE"
+  pat[] = "FAA" The number of comparisons in best case is O(n). What is the worst case ? The worst case of Naive Pattern Searching occurs in following scenarios. 1) When all characters of the text and pattern are same.   txt[] = "AAAAAAAAAAAAAAAAAA"
+  pat[] = "AAAAA". 2) Worst case also occurs when only the last character is different.   txt[] = "AAAAAAAAAAAAAAAAAB"
+  pat[] = "AAAAB" Number of comparisons in worst case is O(m*(n-m+1)). Although strings which have repeated characters are not likely to appear in English text, they may well occur in other applications (for example, in binary texts). The KMP matching algorithm improves the worst case to O(n). We will be covering KMP in the next post. Also, we will be writing more posts to cover all pattern searching algorithms and data structures. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Suffix Tree Application 5 – Longest Common Substring Generalized Suffix Tree 1 Suffix Tree Application 4 – Build Linear Time Suffix Array Suffix Tree Application 3 – Longest Repeated Substring Suffix Tree Application 2 – Searching All Patterns Suffix Tree Application 1 – Substring Check Ukkonen’s Suffix Tree Construction – Part 6 Ukkonen’s Suffix Tree Construction – Part 5 Tags: Pattern Searching Tweet Writing code in comment? Please use ideone.com and share the link here. nani what could be the average case complexity of this algorithm pappu thanks for the code… one doubt:: In the “WHAT IS THE WORST CASE?” section, how is the first example a worst case? Dynamite In the first example, you are doing comparison of (n-m+1) substrings in the text with the pattern. Each comparison continues for m characters in the pattern, hence it is the worst case. Consider the case when the pattern was BBBBB instead of AAAAA, in that case you would have rejected all of n-m+1 subtrings in the text in the very first comparison with the pattern, as compared to m comparisons in case of AAAAA. Hence the first example is worst case manshi The given code has a flaw: Try to find the pattern “ch” in string “aaaaaaaach” Output: pattern doesn’t exist Correction: /* instead of N-M, allow the loop till end of string */ for (int i = 0; i <= N ; i++) { int j; /* For current index i, check for pattern match */ for (j = 0; j < M; j++) { if (txt[i+j] != pat[j]) break; } if (j == M) // if pat[0…M-1] = txt[i, i+1, …i+M-1] { printf("Pattern found at index %d \n", i); } } Please correct me if I am wrong Shiwakant Bharti My adaptation of the given code in Java actually works. Please check your logic. Consider this scenario: i = N, j= 1, txt[i+j] will actually lead to ArrayIndexOutOfBoundsException in Java and uncertain behavior in C/C++. Chirag Patel it works k!!The original explained program works k with yr input!! gautam public HashSet<Integer> naivePatternSearch(String pattern, String string) { HashSet<Integer> index = new HashSet<Integer>(); for (int j = 0; j < string.length(); j++) { for (int i = 0; i < pattern.length(); i++) { if (pattern.charAt(i) == string.charAt(j+i)) { if(i==pattern.length()-1){ index.add(j); } } else { break; } } } return index; } abhishek08aug  
+#include<stdio.h>
+#include<string.h>
+
+void search_pattern(char * str, char * pattern) {
+  int str_len=strlen(str);
+  int pattern_len=strlen(pattern);
+  int i, j;
+  for(i=0; i<str_len-pattern_len; i++) {
+    for(j=0; j<pattern_len; j++) {
+      if(*(str+i+j)!=*(pattern+j)) {
+        break;
+      }
+    }
+    if(j==pattern_len) {
+      printf("Pattern found at index: %d\n", i);
+    }
+  }
+}
+
+int main() {
+  char * str="AABAACAADAABAAABAA";
+  char * pattern="AABA";
+  search_pattern(str, pattern);
+  return 0;
+}
+ Pattern found at index: 0 Pattern found at index: 9 Pattern found at index: 13 meap4aa A similar Approach through Recursion:  
+#include <stdio.h>
+#include <string.h>
+
+int my_cmp(char* a,char* b,int i,int n);
+
+int my_cmp(char* a,char* b,int i,int n)
+{
+		if(*(a+i)==*(b+(strlen(b)-n)))
+		{
+			//printf("\nChecking i = %d ",i);
+			//printf("\nNow n = %d ",n);
+		if(n==1)
+		return 1;
+		my_cmp(a,b,++i,--n);
+		}
+		else
+		{
+		//printf("\n Gone at i = %d",i);
+		
+		/* This Occurs When A Mismatch is Found */
+		return 0;
+		}
+}
+
+int main()
+{
+	char str[]="AABAACAADAABAAABAA";
+	char test[]="AABA";
+	int chk,i=0,x=0,count=0;
+	
+	chk=strlen(str);
+	//printf("\nLen: %d",chk);
+	
+	for(i=0;i<chk;i++)
+	{
+		//printf("\n\n New Started: with i = %d",i);
+		x=my_cmp(str,test,i,strlen(test));
+		if(x==1)
+		{
+			count++;
+			printf("\n %d. Found at Index : %d ",count,i);
+		}
+		//printf("\n Value of X is = %d",x);
+	}
+		
+	printf("\n\n\nCount = %d\n",count);
+	return 0;
+}
+
+ alien 1 more approach could be as below: bool isSubstring(char* src, char* pattern) { int i=0,j=0, flag=0; int lenp, lens; for(i=0;*src+!=”;i++); lens = –i; for(i=0;*pattern+i!=”;i++); lenp = –i; i=0; while((*(src+i)) ! = ”) { if(*(src+i) == *(pattern+j)) { j++; flag++; if( flag == lenp) { break; } } else { flag =0; j=0; } i++; } if(flag == lenp) { return 1; } else return 0; }  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Yatendra Goel The above algo is very similar to previous “Naive Pattern Search” algo but as this one uses ‘while’ loop while the previous one uses ‘for’ loop, so novice programmers might have to spend few extra minutes to realize that this is the same algo as previous EXCEPT FEW LINES. So I have written the above algo again using ‘for’ loop which is same as previous algo (previous “Naive Pattern Search” algo) except two lines (added comment on those two lines) so that it’s very easy to see the difference between two.  
+private void printPatternIndices(char[] text, char[] pattern) {
+
+		for (int i = 0; i < text.length - pattern.length + 1; i++) {
+
+			int j;
+			for (j = 0; j < pattern.length; j++) {
+				if (text[i + j] != pattern[j]) {
+					break;
+				}
+			}
+
+			if (j == pattern.length)
+				System.out.println("Pattern found at index " + i);
+
+			/**
+			 * below two lines are the extra lines added to our original NaivePatternSearch algorithm
+			 */
+			if (j!=0)
+				i += j-1;
+			
+		}
+	}
+
+ raman @geeksforgeeks plz post KMP, rabin karp string searching algorithm ASAP , i am looking forward ..Plese Keep in Posting Such Vinay 1,1,2,3,4,5,6,2,2,2,5,3,3,2,2,1,5,5,5,5,4,4,4,1,2,2,2,2,6,6,2,2,1,1,2,2 Can anyone help me to find out how many times a sequence number (like twice 2,2 or thrice 2,2,2 or four times 2,2,2,2) are repeated in any programming language? Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

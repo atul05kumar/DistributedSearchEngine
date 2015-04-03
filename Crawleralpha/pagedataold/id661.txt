@@ -1,0 +1,144 @@
+Ternary Search Tree - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Ternary Search Tree A ternary search tree is a special trie data structure where the child nodes of a standard trie are ordered as a binary search tree. Representation of ternary search trees: Unlike trie(standard) data structure where each node contains 26 pointers for its children, each node in a ternary search tree contains only 3 pointers: 1. The left pointer points to the node whose value is less than the value in the current node. 2. The equal pointer points to the node whose value is equal to the value in the current node. 3. The right pointer points to the node whose value is greater than the value in the current node. Apart from above three pointers, each node has a field to indicate data(character in case of dictionary) and another field to mark end of a string. So, more or less it is similar to BST which stores data based on some order. However, data in a ternary search tree is distributed over the nodes. e.g. It needs 4 nodes to store the word “Geek”. Below figure shows how exactly the words in a ternary search tree are stored? One of the advantage of using ternary search trees over tries is that ternary search trees are a more space efficient (involve only three pointers per node as compared to 26 in standard tries). Further, ternary search trees can be used any time a hashtable would be used to store strings. Tries are suitable when there is a proper distribution of words over the alphabets so that spaces are utilized most efficiently. Otherwise ternary search trees are better. Ternary search trees are efficient to use(in terms of space) when the strings to be stored share a common prefix. Applications of ternary search trees: 1. Ternary search trees are efficient for queries like “Given a word, find the next word in dictionary(near-neighbor lookups)” or “Find all telephone numbers starting with 9342 or “typing few starting characters in a web browser displays all website names with this prefix”(Auto complete feature)”. 2. Used in spell checks: Ternary search trees can be used as a dictionary to store all the words. Once the word is typed in an editor, the word can be parallely searched in the ternary search tree to check for correct spelling. Implementation: Following is C implementation of ternary search tree. The operations implemented are, search, insert and traversal. 
+// C program to demonstrate Ternary Search Tree (TST) insert, travese 
+// and search operations
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX 50
+
+// A node of ternary search tree
+struct Node
+{
+    char data;
+
+    // True if this character is last character of one of the words
+    unsigned isEndOfString: 1;
+
+    struct Node *left, *eq, *right;
+};
+
+// A utility function to create a new ternary search tree node
+struct Node* newNode(char data)
+{
+    struct Node* temp = (struct Node*) malloc(sizeof( struct Node ));
+    temp->data = data;
+    temp->isEndOfString = 0;
+    temp->left = temp->eq = temp->right = NULL;
+    return temp;
+}
+
+// Function to insert a new word in a Ternary Search Tree
+void insert(struct Node** root, char *word)
+{
+    // Base Case: Tree is empty
+    if (!(*root))
+        *root = newNode(*word);
+
+    // If current character of word is smaller than root's character,
+    // then insert this word in left subtree of root
+    if ((*word) < (*root)->data)
+        insert(&( (*root)->left ), word);
+
+    // If current character of word is greate than root's character,
+    // then insert this word in right subtree of root
+    else if ((*word) > (*root)->data)
+        insert(&( (*root)->right ), word);
+
+    // If current character of word is same as root's character,
+    else
+    {
+        if (*(word+1))
+            insert(&( (*root)->eq ), word+1);
+
+        // the last character of the word
+        else
+            (*root)->isEndOfString = 1;
+    }
+}
+
+// A recursive function to traverse Ternary Search Tree
+void traverseTSTUtil(struct Node* root, char* buffer, int depth)
+{
+    if (root)
+    {
+        // First traverse the left subtree
+        traverseTSTUtil(root->left, buffer, depth);
+
+        // Store the character of this node
+        buffer[depth] = root->data;
+        if (root->isEndOfString)
+        {
+            buffer[depth+1] = '\0';
+            printf( "%s\n", buffer);
+        }
+
+        // Traverse the subtree using equal pointer (middle subtree)
+        traverseTSTUtil(root->eq, buffer, depth + 1);
+
+        // Finally Traverse the right subtree
+        traverseTSTUtil(root->right, buffer, depth);
+    }
+}
+
+// The main function to traverse a Ternary Search Tree.
+// It mainly uses traverseTSTUtil()
+void traverseTST(struct Node* root)
+{
+    char buffer[MAX];
+    traverseTSTUtil(root, buffer, 0);
+}
+
+// Function to search a given word in TST
+int searchTST(struct Node *root, char *word)
+{
+    if (!root)
+        return 0;
+
+    if (*word < (root)->data)
+        return searchTST(root->left, word);
+
+    else if (*word > (root)->data)
+        return searchTST(root->right, word);
+
+    else
+    {
+        if (*(word+1) == '\0')
+            return root->isEndOfString;
+
+        return searchTST(root->eq, word+1);
+    }
+}
+
+// Driver program to test above functions
+int main()
+{
+    struct Node *root = NULL;
+
+    insert(&root, "cat");
+    insert(&root, "cats");
+    insert(&root, "up");
+    insert(&root, "bug");
+
+    printf("Following is traversal of ternary search tree\n");
+    traverseTST(root);
+
+    printf("\nFollowing are search results for cats, bu and cat respectively\n");
+    searchTST(root, "cats")? printf("Found\n"): printf("Not Found\n");
+    searchTST(root, "bu")?   printf("Found\n"): printf("Not Found\n");
+    searchTST(root, "cat")?  printf("Found\n"): printf("Not Found\n");
+
+    return 0;
+}
+ Output: Following is traversal of ternary search tree
+bug
+cat
+cats
+up
+
+Following are search results for cats, bu and cat respectively
+Found
+Not Found
+Found Time Complexity: The time complexity of the ternary search tree operations is similar to that of binary search tree. i.e. the insertion, deletion and search operations take time proportional to the height of the ternary search tree. The space is proportional to the length of the string to be stored. Reference: http://en.wikipedia.org/wiki/Ternary_search_tree This article is compiled by Aashish Barnwal and reviewed by GeeksforGeeks team. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Perfect Binary Tree Specific Level Order Traversal Print Nodes in Top View of Binary Tree K Dimensional Tree Convert a Binary Tree to Threaded binary tree Serialize and Deserialize an N-ary Tree Serialize and Deserialize a Binary Tree Print nodes between two given level numbers of a binary tree Find Height of Binary Tree represented by Parent array Tags: Advance Data Structures, Advanced Data Structures Tweet Writing code in comment? Please use ideone.com and share the link here. 1234 please explain me the traverse function.suppose string stored in cat,the a will be on left off c and after traversal string would become act,please explaim m confused yzzzd could you share how to delete node in ternary search tree? cooldude Java implementation http://ideone.com/NxFOT4 Amit Bgl wow code atiqwhiz I tried on the input BOAT BOATS BOA BOSS BOOM BOOK MAN and search BOA… output was “NOT FOUND”. I tried it differently you can see on my blog. http://atiqwhiz.blogspot.in/search/label/String  
+/* Paste your code here (You may delete these lines if not writing code) */
+ atiqwhiz sorry it’s working …..great work bateesh Can anybody explain me the complexity for inserting and searching in TST? bateesh @GeeksforGeeks In the Search function When we have reached the end of string and the current node is not leaf node,then it will call for root->eq with current word as NULL.I think you can modify it to return root->isEndOfString instead of 1.Here is the modified version //when word finishes,then return whether current node is leaf or not if (*(word+1) == ‘\0′ return root->isEndOfString; return searchTST(root->eq, word+1); GeeksforGeeks @bateesh: Thanks for your inputs. We have updated the code. Keep it up! lizard In the insert function you are inserting in the equal subtree when the node value is equal to the corresponding value of word…. but in the figure shown above you have shown C | A Please clarify….I have a bit confusion in this part. http://www.facebook.com/barnwal.aashish Aashish Lets say we want to insert word CAT in the TST. We match the character C with the root node data(C), then deepen into the the equal pointer to insert the remaining suffix AT. abhishek08aug Intelligent code_ignitor When the word “CUP” is searched the search returns 1 though the word was inserted.. is this correct?? Do help me …  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://www.facebook.com/barnwal.aashish Aashish Please take a closer look at the search part. When the word “CUP” is searched, it will return false. Its because, when the character ‘C’ is referenced, it will deepen into the equal pointer where the subString “UP” will be searched. Observe the subTree with root node ‘A’. Searching “UP” onwards return false. code_ignitor yeah Got it Great Thank you apsc Keep up the good work. Thanks for this. Please keep them coming especially tries, suffix trees, suffix array etc. anandhakumar.P great explanation man . Thanks for it . can u answer this question “which data structure is the best for implementing telephone directory ” –> with time complexity http://www.facebook.com/barnwal.aashish Aashish If time is at its premium, TRIE is more efficient. The time complexity will be proportional to the length of telephone number to be searched. anonymous What happens when you add BBC after you add the above words ? anonymous Works perfectly… Carefully see the traversal monika Nice article. Can u please specify the applications where ternary search tree is better than Trie data-structure and vice-versa ? http://www.facebook.com/barnwal.aashish Aashish Ternary search tree is applicable to all those applications where TRIE data structure is applicable. The choice depends on the type of operation and the density of data(determines space and time) i.e. how much the data is distributed over the alphabets(can be digits or other characters). The rule of thumb is: If time is at its premium, go for TRIE. If space is at its premium, go for Ternary search tree. http://www.realinstagramfollowers.biz Riya Chowdhury wow! really nice way to make things clear. good job. http:/theinternetbuzzer.com Ravi Nice Approach. Are you posting Everything about Data Structures? Aashish We are posting important aspects of data structures. Rahul can you give the diagram, how the tree is created after every string added ? Aashish I encourage you to draw the tree yourself on paper. Please note that the tree formed differs if the order in which words are inserted in changed. e.g. Try to generate the tree with BUG, CATS, UP and CAT. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,342 @@
+Find the smallest missing number - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find the smallest missing number Given a sorted array of n integers where each integer is in the range from 0 to m-1 and m > n. Find the smallest number that is missing from the array. Examples Input: {0, 1, 2, 6, 9}, n = 5, m = 10 Output: 3 Input: {4, 5, 10, 11}, n = 4, m = 12 Output: 0 Input: {0, 1, 2, 3}, n = 4, m = 5 Output: 4 Input: {0, 1, 2, 3, 4, 5, 6, 7, 10}, n = 9, m = 11 Output: 8 Thanks to Ravichandra for suggesting following two methods. Method 1 (Use Binary Search) For i = 0 to m-1, do binary search for i in the array. If i is not present in the array then return i. Time Complexity: O(m log n) Method 2 (Linear Search) If arr[0] is not 0, return 0. Otherwise traverse the input array starting from index 1, and for each pair of elements a[i] and a[i+1], find the difference between them. if the difference is greater than 1 then a[i]+1 is the missing number. Time Complexity: O(n) Method 3 (Use Modified Binary Search) Thanks to yasein and Jams for suggesting this method. In the standard Binary Search process, the element to be searched is compared with the middle element and on the basis of comparison result, we decide whether to search is over or to go to left half or right half. In this method, we modify the standard Binary Search algorithm to compare the middle element with its index and make decision on the basis of this comparison. …1) If the first element is not same as its index then return first index …2) Else get the middle index say mid …………a) If arr[mid] greater than mid then the required element lies in left half. …………b) Else the required element lies in right half. 
+#include<stdio.h>
+
+int findFirstMissing(int array[], int start, int end) {
+
+    if(start  > end)
+      return end + 1;
+
+    if (start != array[start])
+      return start;
+
+    int mid = (start + end) / 2;
+
+    if (array[mid] > mid)
+      return findFirstMissing(array, start, mid);
+    else
+      return findFirstMissing(array, mid + 1, end);
+}
+
+// driver program to test above function
+int main()
+{
+  int arr[] = {0, 1, 2, 3, 4, 5, 6, 7, 10};
+  int n = sizeof(arr)/sizeof(arr[0]);
+  printf(" First missing element is %d",
+           findFirstMissing(arr, 0, n-1));
+  getchar();
+  return 0;
+}
+ Note: This method doesn’t work if there are duplicate elements in the array. Time Complexity: O(Logn) Source: http://geeksforgeeks.org/forum/topic/commvault-interview-question-for-software-engineerdeveloper-2-5-years-about-algorithms Please write comments if you find the above codes/algorithms incorrect, or find other ways to solve the same problem.           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. Marsha Donna @jams can u pls explain how u gt the condition if(start > end) return end + 1; bani u can understand this by taking array elements as 0,1,2,3,4. apply the above algo on this input array..u ll eventually understand the case. Marsha Donna also in method 3 should’nt the condition be like if (array[mid] > mid) return findFirstMissing(array, start, MID-1); bani both the cases would work … take input as 0,1,3,4,5….make use of both the conditions it will give correct result since this condition if(start > end) return end + 1; makes up for everything Marsha Donna @bef33b2217708f3a0807940c9de88fbd:disqus method 2 wont work for input {0,2,3,4}where m=5 the input array must be traversed from index 0 itself Guest can u pls validate the follwing code void smalmis(int arr[],int n,int m) { int i; for(i=0;i<m;i++) { if(arr[i]!=i)break; } printf("the smalest misin no is %dn",i); } Guest @bef33b2217708f3a0807940c9de88fbd:disqus can u pls validate the following code with linear complexity void smalmis(int arr[],int n,int m) { int i; for(i=0;i<m;i++) { if(arr[i]!=i)break; } printf("the smalest misin no is %dn",i); } Guest toperform linear search easir method would be for(i=0;i<m;i++) {if( nehamahajan Another way is to use hashmap:- http://mahajanneha.blogspot.com/2013/09/to-find-smallest-missing-number-in-array.html Complexity: O(m+n) abhishek08aug O(n) solution:  
+#include<stdio.h>
+ 
+int findFirstMissing(int array[], int n, int m) {
+  int i;
+  for(i=0; i<m-1; i++) {
+    if(i<=n-1) {
+      if(array[i] != i) {
+        return i;
+      }
+    }
+    else {
+      return i;
+    }
+  }
+}
+
+int main()
+{
+  int arr[] = {0, 1, 2, 3, 4, 5, 6, 7, 10};
+  int n = sizeof(arr)/sizeof(arr[0]);
+  int m = 20;
+  printf(" First missing element is %d", findFirstMissing(arr, n, m));
+  return 0;
+}
+ will smith intelligent Guest @abhishek08aug according to exampl 3 given above u should not check if(i<=n-1)….also the loop must run as for(i=0;i<m;i++) and in else part it should not return i rather it should display that no number is missin Marsha Donna @abhishek08aug according to exampl 3 given above u should not check if(i<=n-1)….also the loop must run as for(i=0;i<m;i++) Ganesh You can find java code here: /** * Given a sorted array of n integers where each integer is in the range from 0 to m-1 and m > n. * Find the smallest number that is missing from the array. * Example: Input: {0, 1, 2, 6, 9}, n = 5, m = 10 Output: 3 * @author GAPIITD * */ public class FindTheSmallestMissingNumber { public static void main(String[] args) { int arr[] = {0, 1, 2, 3, 4, 5, 6, 7, 10}; System.out.println(findSmallestMissingNo(arr)); } private static int findSmallestMissingNo(int[] arr) { int start = 0, end = arr.length – 1; if (arr[start] != start) return start; while (start != end) { int mid = (start + end)/2; if (arr[mid] > mid) end = mid; else start = mid + 1; } if (start == end && arr[start] != start) return start; return start + 1; // no missing number exist } } Ganesh You can find java code here: /** * Given a sorted array of n integers where each integer is in the range from 0 to m-1 and m > n. * Find the smallest number that is missing from the array. * Example: Input: {0, 1, 2, 6, 9}, n = 5, m = 10 Output: 3 * @author GAPIITD * */ public class FindTheSmallestMissingNumber { public static void main(String[] args) { int arr[] = {0, 1, 2, 3, 4, 5, 6, 7, 10}; System.out.println(findSmallestMissingNo(arr)); } private static int findSmallestMissingNo(int[] arr) { int start = 0, end = arr.length – 1; if (arr[start] != start) return start; while (start != end) { int mid = (start + end)/2; if (arr[mid] > mid) end = mid; else start = mid + 1; } if (start == end && arr[start] != start) return start; return start + 1; // no missing number exist } } Steve For better understanding in solution 3 we can make a small change in the function int findFirstMissing(int array[], int start, int end) { int mid; if(start>end) return end+1; if(start!=a[start]) return start; mid=(start+end)/2; if(a[mid]==mid) //If element in array equal to index then missing elemt is in right return bin(a,mid+1,end); else return bin(a,start,mid); } divya package Array; //assume duplicate elements in the array are not present public class Sift { public static void main(String args[]) { int arr[]={6,2,1,11,5,7}; int p1=0,p2=arr.length-1,temp; while(p1<arr.length) { if(p1==p2) break; if(arr[p1]==p1+1) { p1++; continue; } if(arr[p1]arr[p2]) { temp=arr[p1]; arr[p1]=arr[p2]; arr[p2]=temp; p2–; } else { while(arr[p2]>arr[p1]) p2–; if(p1==p2) break; temp=arr[p1]; arr[p1]=arr[p2]; arr[p2]=temp; } } } boolean flag=false; int i; for(i=0;i<arr.length;i++) { if(arr[i]!=i+1) { flag=true; System.out.println("Missing element: "+(i+1)); break; } } if(!flag) { System.out.println("Missing element: "+(i+1)); } } } algobard There’s a flaw in the 2nd method. It’ll not work for inputs similar to: 2,3,4,5,6 (m=7, n=5) Correct me if I’m wrong GeeksforGeeks Thanks for pointing this out. We have added a line for cases like this. algobard Can’t we do something like this: Traverse the array-> If arr[index]!=index return index; else index++; return sizeof(arr); // If no such element exists (we’ve reached the end of our array) Again…this would be O(n)…but I just want to know if there’s a flaw in this approach. harsh jain  
+
+   I try to solve this problem in linear time
+   #include<stdio.h>
+
+
+int main()
+{
+    int n , m;
+    scanf("%d %d" , &n  , &m );
+    
+    int arr[n];
+    int store[n];
+    int i , k;
+    for (  i = 0; i < n; i++ ) {
+        scanf("%d" , &k );
+        arr[i] = k;    
+        store[i] = k;    
+    }
+    
+    
+    
+    for ( i = 0; i < n; i++ )  {
+        if( arr[i] < n ) {
+            store[ arr[i] ] = store[ arr[i] ] + m;
+        }
+    }
+    
+    int ans;
+    
+    for( i = 0; i < n; i++ ) {
+         if( store[i] < m ) {
+             ans = i;
+             break;
+         }
+    }
+    
+    if( i == n )
+        ans = n;
+        
+    printf("%d" , ans );
+    return 0;
+}
+
+
+ 
+ harsh jain  
+
+#include<stdio.h>
+
+
+int main()
+{
+    int n , m;
+    scanf("%d %d" , &n  , &m );
+    
+    int arr[n];
+    int store[n];
+    int i , k;
+    for (  i = 0; i < n; i++ ) {
+        scanf("%d" , &k );
+        arr[i] = k;    
+        store[i] = k;    
+    }
+    
+    
+    
+    for ( i = 0; i < n; i++ )  {
+        if( arr[i] < n ) {
+            store[ arr[i] ] = store[ arr[i] ] + m;
+        }
+    }
+    
+    int ans;
+    
+    for( i = 0; i < n; i++ ) {
+         if( store[i] < m ) {
+             ans = i;
+             break;
+         }
+    }
+    
+    if( i == n )
+        ans = n;
+        
+    printf("%d" , ans );
+    return 0;
+}
+
+
+ sanki  
+#include<stdio.h>
+int main()
+{
+int i,n,m;
+scanf("%d %d",&n,&m);
+int a[n];
+for(i=0;i<n;i++)
+scanf("%d",&a[i]);
+for(i=0;i<m;i++)
+{
+if(a[i]==i)
+continue;
+else
+{
+printf("%d\n",i);
+break;
+}
+return 0;
+}
+ 
+}
+ radhakrishna my solution : works irrespective of array is sorted or not maintain bit array : 0 to m-1 bits. populate status of integer in that corresponding bit. status would be computed as follows if number falls in range – 1 outside range – 0 after that scan array to find first zero. giri this solution also works and it is simplem, but the time complexity is O(n) and extra O(n) space is needed. Method 3 is Log(n). radhakrishna time complexity is O(n). but space complexity is not O(n) as generally it means n elements storage. n* 2/4 bytes based on type of storage. but here we are maintaining less than one element storage in terms of bits. i would say O(1).  
+/* Paste your code here (You may delete these lines if not writing code) */
+ http://www.geeksforgeeks.org/archives/12012 sanki #include<stdio.h> int main() { int i,n,m; scanf("%d %d",&n,&m); int a[n]; for(i=0;i<n;i++) scanf("%d",&a[i]); for(i=0;i<m;i++) { if(a[i]==i) continue; else { printf("%d\n",i); break; } return 0; } } Abhijeet Sinha @radhakrishna – As far as my understanding goes, you might be thinking of something like this. int checker=0 (4 bytes or 32 bits) and now as the you scan the array you will be doing checker|=(1<<(31-a[i])), to set the a[i]th character from left to 1. My question is what if the range goes beyond 32 or even 64 (in case its a 64 bit system). Please correct me if I am wrong and provide me with a code snippet to clarify the things. tr4n2uil An int represents 32 bits (on 32 bit systems). So in case you need more bits, just make an array of integers and use (base + offset) method to set bits. Say you implement 256 bitvector as follows :  
+#define SIZE 8
+#define MAXBIT 32
+
+int bits[SIZE];
+
+void set(int bits[], N){
+    int base = N/SIZE;
+    int offset = N % MAXBIT;
+    bits[base] |= (1 << offset);
+}
+
+int check(int bits[], int N){
+    int base = N/SIZE;
+    int offset = N % MAXBIT;
+    return bits[base] & (1 << offset);
+}
+ Abhijeet Sinha Thanks Vibhaj. I understood the concept Anant Upadhyay @R.Srinivasan – The no of comaprisons can be reduced by using a break statement in the else part of if. R.Srinivasan //The following 0(n) algo works for duplicates and m is unused. int findFirstMissing(int arr[],int m,int n) { int i,missing=0; for(i=0;i<n;i++) if(arr[i]==missing) missing++; return missing; } int main() { int arr[] = {0, 0,0,2,2,2}; int n = sizeof(arr)/sizeof(arr[0]); printf("First missing element is %d",findFirstMissing(arr,0, n)); getchar(); return 0; } asd Are the no.s distinct ? ddfd They need not be distinct. But it they are distinct,then the modified binary search algorithm works fine R.Srinivasan The modified binary search algo works for only distinct numbers where as the above algo works for distinct numbers as well as duplicates. But the advantage of modified binary search algo is, it runs in 0(logn) whereas the above algo runs in 0(n) time. Jin This problem can be extended to finding the kth missing number. Binary search still works. Satyam I think it may work for repititive values also. Correct me if I am wrong. int missingNumber(int a[],int n) { int start=0,mid,end=n-1,rep=0,ans; while(start<=end) { mid=(start+end)/2; if(a[mid]<(mid-rep)){rep=mid-a[mid];start=mid+1;} else if(a[mid]==(mid-rep))start=mid+1; else end=mid-1; } if(mid==0)ans=0; else if(start==mid+1)ans=a[mid]+1; else ans=a[mid-1]+1; return ans; } R.Srinivasan For the input {0,0,0,2,2,2}, Your program gives the first missing number is “3” where as the correct answer is “1”. Satyam the code gives the answer as 1 in this test case. here n is the length of the array that we are passing to the function. Satyam the modification that needs to be done is:- if(a[mid]<(mid-rep)){rep=mid-a[mid]+1;start=mid+1;} foobar I d use XOR. Iterate through the array and stop at the first test where XOR fails. radhe What is the benefit of this? You would use extra space and yet do linear search. Correct me if I am wrong. Thanks. Gopal Not found accurate solution for O(n) implementation, so thought to post one.  
+public static int usingLinearSearch(int[] array){
+	int index = 0;
+	for(int i=0;i<array.length;i++){
+		if(array[i] > index){
+			return index;
+		}
+		
+		if(i == 0 || array[i-1] != array[i]){
+			index++;
+		}
+	}
+	return array.length;
+}
+ Gopal Though Binary Search not work for duplicates, but elegant solution. Prakash The binary search algorithm won’t work if duplicates are allowed. GeeksforGeeks @Jams: Thanks for suggesting a simpler implementation for method 3, we have updated the post with this implementation. Keep it up!! @Hima: thanks for pointing this out, we have added not for the same. http://geeksforgeeks.org/?p=12012 Hima The algo described in Method 3 doesn’t seem to wrok if there are duplicate elements in the arrray Eg: 1,1,2,3,5,7,8 kartik @Hima: Valid point. I think the post should be updated with this note. Algoseekar @kartik i m not gettin why o/p is 0 in this case acc to me 1st missing number is 6 isn’t it..please reply asap. Input: {4, 5, 10, 11}, Output: 0 Here n = 4, m = 12 & so o/p should b 6 1st missing number whats wrong ..?? Miz “sorted array of n integers where each integer is in the range from 0 to m-1 and m > n.” The output is 0 since it’s the first expected element in the array given. http://abhijeetkash.blogspot.com Abhijeet Kashnia I think the time complexity of Method 1 is mn*log(n), and not m*log(n). kartik Why do you say mn*Logn. It is a simple m*logn algorithm as m elements are being binary searched in a sorted array of size n. Abhijeet Kashnia Oops, sorry about that… you’re right.. GeeksforGeeks @Ash: Your code looks iterative implementation of method 3 given in the post. @wael and @vaibhavpanghal: Thanks for suggesting the new approaches. These approaches work fine, but the time complexity of these approaches is O(n) which is more than the time complexity of method 3. google actually , i can’t understand why a[mid+1] and a[mid-1] are compared to mid+1 and mid-1. if we compare a[mid] with mid and decide whether 2 go left or right … even then code will work fine…. kartik To understand the mid-1, mid+1, take some examples and trace the given code/algo. If you still feel that we can achieve this by comparing mid only then please provide the complete algo/code. http://ashutosh7s.blogspot.com/ WgpShashank @kartik…2rd Algo should be modified..as seems little complicated..i tried same program for different & getting correct output .i mean their no need to check a[mid+1]==mid+1…e.g. if we know that a[mid]==mid the its correct because array is sorted in increasing order so obviously we have to got in right side & vice-versa..correct me if i am wrong..or might have missed some test cases..?? you can check the running code here https://ideone.com/oPf3x vaibhavpanghal The smallest number that can be there at any particular position a[i] is i itself! So if a[i] > i then i is the correst answer !  
+int findSmallestPossibleInteger(int arr[], int n)
+{
+    for(int i=0; i < n; i++)
+      {
+          if(arr[i] > i)
+           return i;
+      }
+}
+ What say ? Correct me if I am wrong. sun.wael i think the second example would break it , since it start with 4 , arr[0] = 4 and i = 0 ?? vaibhavpanghal It would not break. Since at i=0, arr[0] > i, so it would return i, the correct answer ! swetha hw it works for the 3rd example…it doesnt return 4…!! Gopal Duplicates ? Ex: 0,1,2,2,2,2,2,4 Should return 3. swetha @vaibhavpanghal..ur code needs a slight modification inorder to make it work for the 3rd example.. int miss_no(int a[30],int n) { int flag=0; for(int i=0;i<n;i++) { if(a[i]!=i) { flag=1; return i; break; } } if(flag==0) return a[n-1]+1; } Ash  
+int firstMissingNumber(int arr[], int start, int end)
+
+{
+
+	int mid;
+
+	while (start < end) {
+
+		mid=(start+end)/2;	
+
+		if (arr[mid]==mid)
+			if (arr[mid+1]==mid+1)
+
+				start = mid+1;
+			else
+				if (mid+1 == end)
+					break;
+				else
+					start = mid;	
+
+		else
+
+			end=mid-1;
+
+	}
+	mid = (start+end)/2;
+
+	if (arr[mid] == mid)
+
+		return mid+1;
+
+	else
+
+		return 0;		
+
+}
+ wael how about :  
+int firstelm = a[0];
+for(int i =0;i< a.length ;i++)
+{
+   if(i+firstelm != a[i])
+     return i;
+}
+ Prashanth simple and effective levelzero I think the above algo willnot work as expected for the Input={2,3,4,5,6}…. Correct me if am wrong anywhere… Jams  
+
+public class BinarySearchMissingNumber {
+
+  public int binarySearch(int array[], int start, int end) {
+
+    if(start >end)
+    return -1;
+
+    System.out.println("start ="+start+", end="+end);
+    if (start != array[start]) {
+      return start;
+    }
+
+    int mid = (start + end) / 2;
+
+    if (array[mid] > mid) {
+      return binarySearch(array, start, mid - 1);
+    } else {
+      return binarySearch(array, mid + 1, end);
+    }
+
+
+  }
+
+  public static void main(String ar[]) {
+
+    int[] array = {0,1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    BinarySearchMissingNumber search = new BinarySearchMissingNumber();
+
+    System.out.println(search.binarySearch(array, 0, array.length-1));
+
+
+  }
+
+
+}
+
+ kartik It doesn’t work for array {0, 2, 3, 4} I tried the following C version.  int binarySearch(int array[], int start, int end) {
+ 
+    if(start >end)
+    return -1;
+ 
+//    System.out.println("start ="+start+", end="+end);
+    if (start != array[start]) {
+      return start;
+    }
+ 
+    int mid = (start + end) / 2;
+ 
+    if (array[mid] > mid) {
+      return binarySearch(array, start, mid - 1);
+    } else {
+      return binarySearch(array, mid + 1, end);
+    }
+ 
+}
+ 
+// driver program to test above function
+int main()
+{
+  int arr[] = {0, 2, 3, 4};
+  int n = sizeof(arr)/sizeof(arr[0]);
+  printf(" First missing element is %d",
+           binarySearch(arr, 0, n-1));
+  getchar();
+  return 0;
+}
+ Jams small correction in the recursive call..  
+ if (array[mid] > mid) {
+      return binarySearch(array, start, mid);
+    }
+ kartik @Jams: Thanks, it works fine now for the above case, but it doesn’t work for the arrays like {0, 1, 2, 3} the desired output is 4, but it returns -1. I think, following modified version handles all the cases.  
+int binarySearch(int array[], int start, int end) {
+ 
+    if(start  > end)
+      return end+1; // Changed from -1 to end+1
+ 
+    if (start != array[start]) {
+      return start;
+    }
+ 
+    int mid = (start + end) / 2;
+ 
+    if (array[mid] > mid) {
+      return binarySearch(array, start, mid);
+    } else {
+      return binarySearch(array, mid + 1, end);
+    } 
+} Algoseekar @kartik so what modification need to so that it can work for duplicates also..reply..?? vdraceil In that case, I guess we’ll have to stick to the O(n) method..binary search wont help us there. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

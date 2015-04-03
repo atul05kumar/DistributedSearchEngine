@@ -1,0 +1,161 @@
+Count all distinct pairs with difference equal to k - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Count all distinct pairs with difference equal to k Given an integer array and a positive integer k, count all distinct pairs with difference equal to k. Examples: 
+Input: arr[] = {1, 5, 3, 4, 2}, k = 3
+Output: 2
+There are 2 pairs with difference 3, the pairs are {1, 4} and {5, 2} 
+
+Input: arr[] = {8, 12, 16, 4, 0, 20}, k = 4
+Output: 5
+There are 5 pairs with difference 4, the pairs are {0, 4}, {4, 8}, 
+{8, 12}, {12, 16} and {16, 20} 
+ Method 1 (Simple) A simple solution is to consider all pairs one by one and check difference between every pair. Following program implements the simple solution. We run two loops: the outer loop picks the first element of pair, the inner loop looks for the other element. This solution doesn’t work if there are duplicates in array as the requirement is to count only distinct pairs. 
+/* A simple program to count pairs with difference k*/
+#include<iostream>
+using namespace std;
+
+int countPairsWithDiffK(int arr[], int n, int k)
+{
+    int count = 0;
+    
+    // Pick all elements one by one
+    for (int i = 0; i < n; i++)
+    {       
+        // See if there is a pair of this picked element
+        for (int j = i+1; j < n; j++)
+            if (arr[i] - arr[j] == k || arr[j] - arr[i] == k )
+                  count++;
+    }
+    return count;
+}
+
+// Driver program to test above function
+int main()
+{
+    int arr[] =  {1, 5, 3, 4, 2};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    int k = 3;
+    cout << "Count of pairs with given diff is "
+         << countPairsWithDiffK(arr, n, k);
+    return 0;
+}
+ Output: Count of pairs with given diff is 2 Time Complexity of O(n2) Method 2 (Use Sorting) We can find the count in O(nLogn) time using a O(nLogn) sorting algorithm like Merge Sort, Heap Sort, etc. Following are the detailed steps. 
+1) Initialize count as 0
+2) Sort all numbers in increasing order.
+3) Remove duplicates from array.
+4) Do following for each element arr[i]
+   a) Binary Search for arr[i] + k in subarray from i+1 to n-1.
+   b) If arr[i] + k found, increment count. 
+5) Return count. 
+/* A sorting based program to count pairs with difference k*/
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+/* Standard binary search function */
+int binarySearch(int arr[], int low, int high, int x)
+{
+    if (high >= low)
+    {
+        int mid = low + (high - low)/2;
+        if (x == arr[mid])
+            return mid;
+        if (x > arr[mid])
+            return binarySearch(arr, (mid + 1), high, x);
+        else
+            return binarySearch(arr, low, (mid -1), x);
+    }
+    return -1;
+}
+
+/* Returns count of pairs with difference k in arr[] of size n. */
+int countPairsWithDiffK(int arr[], int n, int k)
+{
+    int count = 0, i;
+    sort(arr, arr+n);  // Sort array elements
+
+    /* code to remove duplicates from arr[] */
+  
+    // Pick a first element point
+    for (i = 0; i < n-1; i++)
+        if (binarySearch(arr, i+1, n-1, arr[i] + k) != -1)
+            count++;
+
+    return count;
+}
+ Output: Count of pairs with given diff is 2 Time complexity: The first step (sorting) takes O(nLogn) time. The second step runs binary search n times, so the time complexity of second step is also O(nLogn). Therefore, overall time complexity is O(nLogn). The second step can be optimized to O(n), see this. Method 3 (Use Self-balancing BST) We can also a self-balancing BST like AVL tree or Red Black tree to solve this problem. Following is detailed algorithm. 1) Initialize count as 0.
+2) Insert all elements of arr[] in an AVL tree. While inserting, 
+   ignore an element if already present in AVL tree.
+3) Do following for each element arr[i].
+   a) Search for arr[i] + k in AVL tree, if found then increment count.
+   b) Search for arr[i] - k in AVL tree, if found then increment count.
+   c) Remove arr[i] from AVL tree. Time complexity of above solution is also O(nLogn) as search and delete operations take O(Logn) time for a self-balancing binary search tree. Method 4 (Use Hashing) We can also use hashing to achieve the average time complexity as O(n) for many cases. 1) Initialize count as 0.
+2) Insert all distinct elements of arr[] in a hash map.  While inserting, 
+   ignore an element if already present in the hash map.
+3) Do following for each element arr[i].
+   a) Look for arr[i] + k in the hash map, if found then increment count.
+   b) Look for arr[i] - k in the hash map, if found then increment count.
+   c) Remove arr[i] from hash table. A very simple case where hashing works in O(n) time is the case where range of values is very small. For example, in the following implementation, range of numbers is assumed to be 0 to 99999. A simple hashing technique to use values as index can be used. 
+/* An efficient program to count pairs with difference k when the range
+   numbers is small */
+#define MAX 100000
+int countPairsWithDiffK(int arr[], int n, int k)
+{
+    int count = 0;  // Initialize count
+
+    // Initialize empty hashmap.
+    bool hashmap[MAX] = {false};
+
+    // Insert array elements to hashmap
+    for (int i = 0; i < n; i++)
+        hashmap[arr[i]] = true;
+
+    for (int i = 0; i < n; i++)
+    {
+        int x = arr[i];
+        if (x - k >= 0 && hashmap[x - k])
+            count++;
+        if (x + k < MAX && hashmap[x + k])
+            count++;
+        hashmap[x] = false;
+    }
+    return count;
+} Method 5 (Use Sorting) Sort the array arr Take two pointers, l and r, both pointing to 1st element Take the difference arr[r] – arr[l] If value diff is K, increment count and move both pointers to next element if value diff > k, move l to next element if value diff < k, move r to next element return count 
+/* A sorting based program to count pairs with difference k*/
+#include <iostream>
+#include <algorithm>
+using namespace std;
+ 
+/* Returns count of pairs with difference k in arr[] of size n. */
+int countPairsWithDiffK(int arr[], int n, int k)
+{
+    int count = 0;
+    sort(arr, arr+n);  // Sort array elements
+
+	int l = 0;
+    int r = 0;
+    while(r < n)
+    {
+         if(arr[r] - arr[l] == k)
+		{
+              count++;
+			  l++;
+			  r++;
+		}
+         else if(arr[r] - arr[l] > k)
+              l++;
+         else // arr[r] - arr[l] < sum
+              r++;
+    }   
+    return count;
+}
+
+// Driver program to test above function
+int main()
+{
+    int arr[] =  {1, 5, 3, 4, 2};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    int k = 3;
+    cout << "Count of pairs with given diff is "
+         << countPairsWithDiffK(arr, n, k);
+    return 0;
+}
+ Output: Count of pairs with given diff is 2 Time Complexity: O(nlogn) Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above           Related Topics: K’th Smallest/Largest Element in Unsorted Array | Set 2 (Expected Linear Time) K’th Smallest/Largest Element in Unsorted Array | Set 1 Time complexity of insertion sort when there are O(n) inversions? How to check if two given sets are disjoint? Minimum Number of Platforms Required for a Railway/Bus Station Find the closest pair from two sorted arrays Print all elements in sorted order from row and column wise sorted matrix Length of the largest subarray with contiguous elements | Set 1 Tweet Writing code in comment? Please use ideone.com and share the link here. zzer in hashing method, we can optimize the process. for element arr[i], we put arr[i] in hash table, and check if arr[i]-k and arr[i]+k has already been in hash table, if there exist in hash table we increment the count, other wise do nothing. By this way only one pass is needed. neelabhsingh @geeksforgeeks:disqus , In method -4 (hash map ) 2) Insert all distinct elements of arr[] in a hash map. While inserting, ignore an element if already present in AVL tree. What is use of AVL tree in hashmap sethi It’s a typo . It should be “…if already present in Hashmap…” sethi It’s a typo . It should be “…if already present in Hashmap…” Kartik Thanks for pointing this out. We have corrected the typo. vijay kumar #include #include int count[256]; int main() { int n=5,i,j=0,k=3; int arr[10]={1,4,3,0,2,5,7,8,9,6}; for(i=0;i<10;i++) { count[arr[i]]++; } for(i=0;i0) { printf(“Pair : (%d %d)”,arr[i],arr[i]+k); printf(“n”); j++; } } printf(“Total Count is : %d “,j); getch(); return 0; } Using Hashmap Time Complexity : O(n) space complexity : O(constant) http://twitter.com/gkns gkns in method 2, Can’t we search for arr[i]+k and arr[i]-k and invalidate such an element found, that way it will be O(log n/2)? gourav pathak In Method 2 how can we reduce the complexity of 2nd step to O(N)…..(In the link mentioned we have to find only a single pair having difference k) rocker 2nd Method can be made more efficient. There is a slight modification in 4th step. 1) Initialize count as 0 2) Sort all numbers in increasing order. 3) Remove duplicates from array. 4) Do following for each element arr[i] a) Binary Search for arr[i] + k in subarray from Low to n-1 (where Low = i+1 for the first iteration) b) If arr[i] + k found, increment count. Also update Low with the index of the element (arr[i] + k) 5) Return count. gourav pathak One more optimization could be done….if the number arr[i]+k is not found then Low contains the index of the FLOOR(arr[i]+k) Deendayal GeeksforGeeks 2nd point of method-4 says 2) Insert all distinct elements of arr[] in a hash map. While inserting, ignore an element if already present in AVL tree. it should be 2) Insert all distinct elements of arr[] in a hash map. While inserting, ignore an element if already present in Hash map. thanks… Ish How about this solution(simple type) with a provision for ignoring duplicate pairs ? #include int check(int* arr,int n, int num ){ int i = 0 ; for(i;i<n;i++){ if(arr[i]==num) return 1; } return 0; } int dpairs(int* arr , int n , int k ){ int count =0, checked[n] , i =0 , j,m=0 ; for(i=0 ; i<n-1 ;i++){ if(check(checked, m, arr[i] )==0){ checked[m]=arr[i]; m++; for(j=i+1 ; j<n ; j++){ if(abs(arr[i]-arr[j])==k) count++ ; } } } return count ; } int main(void) { int arr[] = {8, 12, 16, 4, 0, 20}; int size = sizeof(arr)/sizeof(int); printf("%d",dpairs(arr,size,4)); return 0; } groomnestle The post is similar to http://www.geeksforgeeks.org/write-a-c-program-that-given-a-set-a-of-n-numbers-and-another-number-x-determines-whether-or-not-there-exist-two-elements-in-s-whose-sum-is-exactly-x/ (Given an array A[] and a number x, check for pair in A[] with sum as x), using hashtable (or map in STL) is a tidy solution. Added some code to output the pairs: int countPairsWithDiffK(int arr[], int n, int k) { int hashmap[20] = {0}; // assume number of elements are small int count = 0; int i; for(i=0;i0) { if(hashmap[arr[i]-k]) { cout<<arr[i]-k<<" "<<arr[i]<<endl; count++; } else hashmap[arr[i]] = 1; } if(hashmap[arr[i]+k]) { cout<<arr[i]+k<<" "<<arr[i]<<endl; count++; } else { hashmap[arr[i]]=1; } } return count; } ) Guest For hashing it your code wont work if the list of given integer numbers are not unique .. It should be like :: #define MAX 100000 int countPairsWithDiffK(int arr[], int n, int k) { int count = 0; // Initialize count // Initialize empty hashmap. int hashmap[MAX] = {0}; // Insert array elements to hashmap for (int i = 0; i < n; i++) hashmap[ arr[i] ]++; for (int i = 0; i = 0 && hashmap[x – k]) count++; if (x + k < MAX && hashmap[x + k]) count++; hashmap[x]–; } return count; } GeeksforGeeks Rezwan: Thanks for sharing your thoughts. The solution seems to be working fine as we need to count unique pairs. Pratik Sahoo But the hashing technique would only be applicable if all elements are >=0….. in case of -ve elements sorting seems to a btr idea….and to remove duplicate after sorting… since we cant apply hashing technique…we can compare with the previous element and modify the array…it can be done in O(n) time & O(1) space. Kartik As mentioned in the post, the given hashing technique works only if numbers are in range from 0 to some max. For all other cases we can use a general hashing technique provided by programming languages. smith for (int i = 0; i < n; i++) if(hashmap[arr[i]]==0)hashmap[ arr[i] ]++; it will handle duplicate count alse….. Pratik Sahoo We hav to check if the pairs are distinct or not..so in sorting case…. after sorting we hav to check if any element is present more than once by comparing with its previous element …if same we have to search for the higher element just once….. GeeksforGeeks Pratik, thanks for pointing this out. We have added a step to remove duplicates from the sorted array. Once the array is sorted, we can remove duplicates in O(n) time. We have also added a note in method 1(Simple) that it won’t work for cases when array contains duplicates. smith In first method also,there is no criteria for handling duplicate pair……can somebody suggest any method to fix this?? Pratik Sahoo Yes we can do…. u can take a hash array and keep a count of elements …we can do this int arr[100]; //original array int count[100] = {0};//hash array int i,size; int count1=0; for(i=0;i=0) smith thanks pratik i got it….. Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

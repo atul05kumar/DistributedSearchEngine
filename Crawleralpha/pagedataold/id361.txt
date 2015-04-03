@@ -1,0 +1,183 @@
+Find the element that appears once - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Find the element that appears once Given an array where every element occurs three times, except one element which occurs only once. Find the element that occurs once. Expected time complexity is O(n) and O(1) extra space. Examples: 
+Input: arr[] = {12, 1, 12, 3, 12, 1, 1, 2, 3, 3}
+Output: 2 We can use sorting to do it in O(nLogn) time. We can also use hashing, but the worst case time complexity of hashing may be more than O(n) and hashing requires extra space. The idea is to use bitwise operators for a solution that is O(n) time and uses O(1) extra space. The solution is not easy like other XOR based solutions, because all elements appear odd number of times here. The idea is taken from here. Run a loop for all elements in array. At the end of every iteration, maintain following two values. ones: The bits that have appeared 1st time or 4th time or 7th time .. etc. twos: The bits that have appeared 2nd time or 5th time or 8th time .. etc. Finally, we return the value of ‘ones’ How to maintain the values of ‘ones’ and ‘twos’? ‘ones’ and ‘twos’ are initialized as 0. For every new element in array, find out the common set bits in the new element and previous value of ‘ones’. These common set bits are actually the bits that should be added to ‘twos’. So do bitwise OR of the common set bits with ‘twos’. ‘twos’ also gets some extra bits that appear third time. These extra bits are removed later. Update ‘ones’ by doing XOR of new element with previous value of ‘ones’. There may be some bits which appear 3rd time. These extra bits are also removed later. Both ‘ones’ and ‘twos’ contain those extra bits which appear 3rd time. Remove these extra bits by finding out common set bits in ‘ones’ and ‘twos’. 
+#include <stdio.h>
+
+int getSingle(int arr[], int n)
+{
+    int ones = 0, twos = 0 ;
+
+    int common_bit_mask;
+
+    // Let us take the example of {3, 3, 2, 3} to understand this
+    for( int i=0; i< n; i++ )
+    {
+        /* The expression "one & arr[i]" gives the bits that are
+           there in both 'ones' and new element from arr[].  We
+           add these bits to 'twos' using bitwise OR
+
+           Value of 'twos' will be set as 0, 3, 3 and 1 after 1st,
+           2nd, 3rd and 4th iterations respectively */
+        twos  = twos | (ones & arr[i]);
+
+
+        /* XOR the new bits with previous 'ones' to get all bits
+           appearing odd number of times
+
+           Value of 'ones' will be set as 3, 0, 2 and 3 after 1st,
+           2nd, 3rd and 4th iterations respectively */
+        ones  = ones ^ arr[i];
+
+
+        /* The common bits are those bits which appear third time
+           So these bits should not be there in both 'ones' and 'twos'.
+           common_bit_mask contains all these bits as 0, so that the bits can 
+           be removed from 'ones' and 'twos'   
+
+           Value of 'common_bit_mask' will be set as 00, 00, 01 and 10
+           after 1st, 2nd, 3rd and 4th iterations respectively */
+        common_bit_mask = ~(ones & twos);
+
+
+        /* Remove common bits (the bits that appear third time) from 'ones'
+            
+           Value of 'ones' will be set as 3, 0, 0 and 2 after 1st,
+           2nd, 3rd and 4th iterations respectively */
+        ones &= common_bit_mask;
+
+
+        /* Remove common bits (the bits that appear third time) from 'twos'
+
+           Value of 'twos' will be set as 0, 3, 1 and 0 after 1st,
+           2nd, 3rd and 4th itearations respectively */
+        twos &= common_bit_mask;
+
+        // uncomment this code to see intermediate values
+        //printf (" %d %d \n", ones, twos);
+    }
+
+    return ones;
+}
+
+int main()
+{
+    int arr[] = {3, 3, 2, 3};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    printf("The element with single occurrence is %d ",
+            getSingle(arr, n));
+    return 0;
+}
+ Output: 2 Time Complexity: O(n) Auxiliary Space: O(1) Following is another O(n) time complexity and O(1) extra space method suggested by aj. We can sum the bits in same positions for all the numbers and take modulo with 3. The bits for which sum is not multiple of 3, are the bits of number with single occurrence. Let us consider the example array {5, 5, 5, 8}. The 101, 101, 101, 1000 Sum of first bits%3 = (1 + 1 + 1 + 0)%3 = 0; Sum of second bits%3 = (0 + 0 + 0 + 0)%0 = 0; Sum of third bits%3 = (1 + 1 + 1 + 0)%3 = 0; Sum of fourth bits%3 = (1)%3 = 1; Hence number which appears once is 1000 
+#include <stdio.h>
+#define INT_SIZE 32
+
+int getSingle(int arr[], int n)
+{
+    // Initialize result
+    int result = 0;
+
+    int x, sum;
+
+    // Iterate through every bit
+    for (int i = 0; i < INT_SIZE; i++)
+    {
+      // Find sum of set bits at ith position in all
+      // array elements
+      sum = 0;
+      x = (1 << i);
+      for (int j=0; j< n; j++ )
+      {
+          if (arr[j] & x)
+            sum++;
+      }
+
+      // The bits with sum not multiple of 3, are the
+      // bits of element with single occurrence.
+      if (sum % 3)
+        result |= x;
+    }
+
+    return result;
+}
+
+// Driver program to test above function
+int main()
+{
+    int arr[] = {12, 1, 12, 3, 12, 1, 1, 2, 3, 2, 2, 3, 7};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    printf("The element with single occurrence is %d ",
+            getSingle(arr, n));
+    return 0;
+}
+ 7 This article is compiled by Sumit Jain and reviewed by GeeksforGeeks team. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Check if binary representation of a number is palindrome Swap two nibbles in a byte How to turn off a particular bit in a number? Check if a number is multiple of 9 using bitwise operators How to swap two numbers without using a temporary variable? Divide and Conquer | Set 4 (Karatsuba algorithm for fast multiplication) Find position of the only set bit Swap all odd and even bits Tweet Writing code in comment? Please use ideone.com and share the link here. sarathy can u explain the logic behind 2nd solution? Naveen Second implementation is incorrect, it will pass only when non-unique elements occurs in multiple of 3. Failure Case: 1. input[] = { 5, 5, 1} Sum of first bits = { 1 + 1 + 1}%3 = 0 Sum of second bits = { 0 + 0 + 0)%3 = 0 Sum of third bits = {1 + 1 + 0}%3 = 2 ans = 4; lallu but the compleity is not O(n) it is O(nlog(MAXelement in the array)) am i right or correct me if i am wrong Guest if in first method ,in given example suppose there is no occurence of 4th integer (3), then ones will provide ans 0 not 2 ….. correct me rihansh int allsum,allXOR; for i<-0 to n allsum+=arr[i]'; allxor^=arr[i]; then result =(3*allxor-allsum)/2; hope everybody got it if i am wrong then correct me and if anyone is having any doubt then ask me rihansh hey kindl look at the following solution this one is intersting one hope every body will like it rihansh this can be done n the following manner in o(n) take the sum of all numbers and allso XOR of all number the multiply the xor by 3 and subtract the sum divided by 2 will give the answer Rajesh Pal /*beauty of map (stl container) ,easily can be solved in o(n) time. :P*/ #include #include #include #include #include #include #include using namespace std; int main() { map mymap; vector myvector; int n; cin>>n; for(int i=0;i>a; myvector.push_back(a); } vector :: iterator it1=myvector.begin(); for(;it1!=myvector.end();it1++) { mymap[*it1]++; } map :: iterator it2=mymap.begin(); for(;it2!=mymap.end();it2++) { if(it2->second==1) { cout<first<<endl; return 0; } } cout<<"there is no element that comes one time"<<endl; return 0; } Castle Age O(1) space though. Castle Age O(1) space though. Jing Conan Wang There is better way to understand the first method. Ones and twos are two masks. (1) If the digit i of ones is 1, the total number of 1s appeared on digit i % 3 == 1 (2) If the digit i of twos is 1, the total number of 1s appeared on digit i %3 == 2. ones stores the bits which have appeared once. arr[i] store the bits that will appear in the current data. As a result, ones & arr[i] stores the bits that become to satisfies (2). As a result, the update rule for twos twos = twos | (ones & arr[i]); From this analysis, we can conclude that the two methods are equivalent. The first method uses an implicit yet more efficient way to calculate the mod. groomnestle 2nd answer is more straightforward and clear. Srinivas difference of all numbers in the array gives the answer Guest #include int partition(int *a, int s, int e); void q_sort(int *arr, int s, int e) { int q; if(s<e) { q = partition(arr, s, e); q_sort(arr, s, q-1); q_sort(arr, q+1, e); } } int partition(int *a, int s, int e) { int x; x = a[e]; int j=s, temp; int i = j-1; while(j < e) { if(a[j]<x) { i=i+1; temp = a[j]; a[j] = a[i]; a[i] = temp; } j =j+1; } temp = a[i+1]; a[i+1] = a[e]; a[e] = temp; return i+1; } int find(int *a, int n) { int i, count =0; q_sort(a, 0, n-1); for(i = 0; i<n;i++) printf("t%d",a[i]); printf("n"); for(i=1;i<n;i++) { if(a[i]==a[i-1]) count++; else if(count==0) break; else count =0; } return a[i-1]; } int main() { int i; int arr[] = {3, 3, 2, 3}; int n = sizeof(arr) / sizeof(arr[0]); printf("The element with single occurrence is %d n",find(arr, n)); return 0; } Guest void q_sort(int *arr, int s, int e) { int q; if(s<e) { q = partition(arr, s, e); q_sort(arr, s, q-1); q_sort(arr, q+1, e); } } int partition(int *a, int s, int e) { int x; x = a[e]; int j=s, temp; int i = j-1; while(j < e) { if(a[j]<x) { i=i+1; temp = a[j]; a[j] = a[i]; a[i] = temp; } j =j+1; } temp = a[i+1]; a[i+1] = a[e]; a[e] = temp; return i+1; } int find(int *a, int n) { int i, count =0; q_sort(a, 0, n-1); for(i = 0; i<n;i++) printf("t%d",a[i]); printf("n"); for(i=1;i<n;i++) { if(a[i]==a[i-1]) count++; else if(count==0) break; else count =0; } return a[i-1]; } int main() { int i; int arr[] = {3, 3, 2, 3}; int n = sizeof(arr) / sizeof(arr[0]); printf("The element with single occurrence is %d n",find(arr, n)); return 0; } gargsanjay the last method is n log(no. of bits)  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Hanish Can we also write twos = twos ^ (ones & arr[i]); instead of | Will it affect the code in any way ?? Since, it is never possible that a bit is set in both ones and twos Lokesh  
+/* Paste your code here (You may delete these lines if not writing code) */
+int getSingle(int arr[], int n)
+{
+    int f = 0, s = 0, t = 0; 
+    for(int i=0;i<n;i++)
+    {
+            int tempf;
+            
+            tempf = ( t & arr[i]) ;
+            t = t & (t ^ arr[i]);
+            
+            t = t | ( s & arr[i]);
+            s = s & (s ^ arr[i]);
+            
+            s = s | (f & arr[i]);
+            f = f & (f ^ arr[i]);
+            
+            f = tempf | f;
+            
+            f = f | (arr[i] & (arr[i] ^ (s | t)));
+    }   
+    
+    return f;
+}
+ swati can’t we just sum numbers and take modulo by 3. Is it necessary to consider it bitwise?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Kartik This approach has been discussed earlier and doesn’t work. Please see below comments. HLS The approach doesn’t work. e.g. 1,1,1,3 sum=6 sum%3=0 what next?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Angel If you are referring to the second approach, then that’s not how it works: You add the corresponding bits from each number, sum the first bits, sum the second bits, sum the third bits: 1 1 1 3 result | | | | | v v v v v 0+0+0+0=0%3=0 0+0+0+1=1%3=1 1+1+1+1=4%3=1 when we put together the results 011 we get the 3 see? Parminder Would fail if the number we are looking for has 3 as factor  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Sandy I doubt the values of common_bit_mask during the iterations. I think it should be -1,-1,-3,-2 Can you explain me a bit? Sumit Only the values of last two bits are mentioned in comments. When you print common_bit_mask using %d, you get negative value because the sign bit is inverted when ~ operator is used. aj Infact there is another approach. You can take the sum of bits in same positions for all the numbers and take modulo with 3. The number you get is the number that appears only once. e.g. 101, 101, 101, 1000 sum of first bits%3 = (1+1+1+0)%3 = 0; sum of second bits%3 = (0+0+0+0)%0=0; sum of third bits%3 = (1+1+1+0)%3 = 0; sum of fourth bits%3 = (1)%3 = 1; hence number which appears once is 1000 Kartik @aj: This solutions looks good to be added to the original post. Could you please provide code? aj I will try to write down the code today if possible…But I have a assignment deadline coming up…  
+/* Paste your code here (You may delete these lines if not writing code) */
+ Kartik @aj: I have implemented your approach and it seems to be working fine.  
+#include <stdio.h>
+#define INT_SIZE 32
+int getSingle(int arr[], int n)
+{
+    int x = 1;
+    int result = 0;
+
+    // Let us take the example of {3, 3, 2, 3} to understand this
+    for (int i = 0; i < INT_SIZE; i++)
+    {
+      int count = 0;
+      for (int j=0; j< n; j++ )
+      {
+          x = (1 << i);
+          if (arr[j] & x)
+            count++;
+      }
+      if (count % 3)
+        result |= x;
+    }
+    return result;
+}
+
+int main()
+{
+    int arr[] = {12, 1, 12, 3, 12, 1, 1, 2, 3, 3};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    printf("The element with single occurrence is %d ",
+            getSingle(arr, n));
+    return 0;
+}
+ The time complexity is O(n) because the value of INT_SIZE is constant for a machine. rohit gud code but consider array of size =o(n^2) Kartik @rohit: I could not understand your point, please elaborate. rohit @kartik-site error,nly half comment came. i was saying consider array of size =O(n^2) rohit again same thing, consider array of size less than and equal to 32 Kartik Thanks for replying rohit. When we talk about time complexity, we always talk about large values of n (See this ). So it is valid to say the time complexity of the algo is O(n). The character for less than operator is considered as a html tag, that caused a2 This approach will not work if the numerals have the digits 3 and above … Will it ? Kartik I think it works for any input. If you have counter example, then please provide it to save everybody’s time. a2 Sry , I was mistaken .. had got confused !! angel sum of array of integers will always be in form of 3(a+b+c)+d so sum%3 always return the number which is occuring only once,as per my understanding.correct me,if i am wrong  
+/* Paste your code here (You may delete these lines if not writing code) */
+ aj what if d is divisible by 3?? Kartik @angel: Thanks for sharing your thoughts. I think this will give the required number modulo 3, not the actual required number Please correct me if I am wrong. angel yaa you r right  
+/* Paste your code here (You may delete these lines if not writing code) */
+ rohit 1.add bitwise xor of all elements of the array to a variable 2.do step 1 3 times 3.value of the variable is our answer correct me if i m wrong Kartik @rohit: Thanks for sharing your thoughts. Could you please provide the code or some sample run for the same. rohit @kartik- i was working on d code, i am wrong, thinking of a different solution now Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team

@@ -1,0 +1,236 @@
+Pascal's Triangle  - GeeksforGeeks GeeksforGeeks A computer science portal for geeks GeeksQuiz Login Home Algorithms DS GATE Interview Corner Q&A C C++ Java Books Contribute Ask a Q About Array Bit Magic C/C++ Articles GFacts Linked List MCQ Misc Output String Tree Graph Pascal’s Triangle Pascal’s triangle is a triangular array of the binomial coefficients. Write a function that takes an integer value n as input and prints first n lines of the Pascal’s triangle. Following are the first 6 rows of Pascal’s Triangle. 
+1  
+1 1 
+1 2 1 
+1 3 3 1 
+1 4 6 4 1 
+1 5 10 10 5 1 Method 1 ( O(n^3) time complexity ) Number of entries in every line is equal to line number. For example, the first line has “1”, the second line has “1 1″, the third line has “1 2 1″,.. and so on. Every entry in a line is value of a Binomial Coefficient. The value of ith entry in line number line is C(line, i). The value can be calculated using following formula. 
+C(line, i)   = line! / ( (line-i)! * i! ) A simple method is to run two loops and calculate the value of Binomial Coefficient in inner loop. 
+// A simple O(n^3) program for Pascal's Triangle
+#include <stdio.h>
+
+// See http://www.geeksforgeeks.org/archives/25621 for details of this function
+int binomialCoeff(int n, int k);
+
+// Function to print first n lines of Pascal's Triangle
+void printPascal(int n)
+{
+  // Iterate through every line and print entries in it
+  for (int line = 0; line < n; line++)
+  {
+    // Every line has number of integers equal to line number
+    for (int i = 0; i <= line; i++)
+      printf("%d ", binomialCoeff(line, i));
+    printf("\n");
+  }
+}
+
+// See http://www.geeksforgeeks.org/archives/25621 for details of this function
+int binomialCoeff(int n, int k)
+{
+    int res = 1;
+    if (k > n - k)
+       k = n - k;
+    for (int i = 0; i < k; ++i)
+    {
+        res *= (n - i);
+        res /= (i + 1);
+    }
+    return res;
+}
+
+// Driver program to test above function
+int main()
+{
+  int n = 7;
+  printPascal(n);
+  return 0;
+}
+ Time complexity of this method is O(n^3). Following are optimized methods. Method 2( O(n^2) time and O(n^2) extra space ) If we take a closer at the triangle, we observe that every entry is sum of the two values above it. So we can create a 2D array that stores previously generated values. To generate a value in a line, we can use the previously stored values from array. 
+// A O(n^2) time and O(n^2) extra space method for Pascal's Triangle
+void printPascal(int n)
+{
+  int arr[n][n]; // An auxiliary array to store generated pscal triangle values
+
+  // Iterate through every line and print integer(s) in it
+  for (int line = 0; line < n; line++)
+  {
+    // Every line has number of integers equal to line number
+    for (int i = 0; i <= line; i++)
+    {
+      // First and last values in every row are 1
+      if (line == i || i == 0)
+           arr[line][i] = 1;
+      else // Other values are sum of values just above and left of above
+           arr[line][i] = arr[line-1][i-1] + arr[line-1][i];
+      printf("%d ", arr[line][i]);
+    }
+    printf("\n");
+  }
+}
+ This method can be optimized to use O(n) extra space as we need values only from previous row. So we can create an auxiliary array of size n and overwrite values. Following is another method uses only O(1) extra space. Method 3 ( O(n^2) time and O(1) extra space ) This method is based on method 1. We know that ith entry in a line number line is Binomial Coefficient C(line, i) and all lines start with value 1. The idea is to calculate C(line, i) using C(line, i-1). It can be calculated in O(1) time using the following. 
+C(line, i)   = line! / ( (line-i)! * i! )
+C(line, i-1) = line! / ( (line - i + 1)! * (i-1)! )
+We can derive following expression from above two expressions.
+C(line, i) = C(line, i-1) * (line - i + 1) / i
+
+So C(line, i) can be calculated from C(line, i-1) in O(1) time
+ 
+// A O(n^2) time and O(1) extra space function for Pascal's Triangle
+void printPascal(int n)
+{
+  for (int line = 1; line <= n; line++)
+  {
+    int C = 1;  // used to represent C(line, i)
+    for (int i = 1; i <= line; i++)  
+    {
+      printf("%d ", C);  // The first value in a line is always 1
+      C = C * (line - i) / i;  
+    }
+    printf("\n");
+  }
+}
+ So method 3 is the best method among all, but it may cause integer overflow for large values of n as it multiplies two integers to obtain values. This article is compiled by Rahul and reviewed by GeeksforGeeks team. Please write comments if you find anything incorrect, or you want to share more information about the topic discussed above.           Related Topics: Job Sequencing Problem | Set 1 (Greedy Algorithm) Multiply two polynomials Algorithm Practice Question for Beginners | Set 1 Count Distinct Non-Negative Integer Pairs (x, y) that Satisfy the Inequality x*x + y*y < n Binomial Heap Print all increasing sequences of length k from first n natural numbers Find n’th number in a number system with only 3 and 4 Minimum Cost Polygon Triangulation Tags: MathematicalAlgo Tweet Writing code in comment? Please use ideone.com and share the link here. http://solmeyvn.com/#!/page_splash GREAT ANDY #include long factorial(int); int main() { int i,n, c; printf(“ENTER THE NUMBER OF ROWS YOU WISH TO SEE IN PASCAL TRIANGLEn”); scanf(“%d”,&n); for(i=0;i<n;i++) { for(c=0;c<=(n-i-2);c++) printf(" "); for(c=0;c<=i;c++) printf("%ld",factorial(i)/(factorial(c)*factorial(i-c))); printf("n"); } return 0; } long factorial(int n) { int c; long result=1; for(c=1;c<=n;c++) result=result*c; return(result); } Subrahmanyan Sankar // PascalsTriangleRecursive.cpp : Defines the entry point for the console //application. #include "stdafx.h" #include using namespace std; void PascalsTriangle(int a[], int size, int levels) { if (levels > size) return; if (levels == 0) return; else { for (int i = 0; i 0) std::cout << "[" << a[i] << "]"; } std::cout < 0; j--) { if (a[j] >= 0 || j <= levels) { a[j] = a[j] + a[j - 1]; } } PascalsTriangle(a, 10, levels - 1); } } int _tmain(int argc, _TCHAR* argv[]) { int pascalarray[10] = { 1, 0, 0, 0, 0,0,0,0,0,0 }; PascalsTriangle(pascalarray, 10, 10); return 0; } preethi Please explain why C = C * (line – i) / i is working but not C = C * (line – i+1) / i. Thanks. raghson Can anybody explain me that in the third code why we multiply C by (line – i) and not by (line – i + 1) ? Anand Vemprala None of the codes work for very large integers! What should one do in case of large numbers?  
+/* Paste your code here (You may delete these lines if not writing code) */
+ pratheba  
+#include<iostream>
+#include<queue>
+#include<stack>
+#include <limits.h>
+
+
+void pascalTriangle(int n)
+{
+	if (n == 0)
+		return;
+
+	if(n == 1)
+	{
+		std::cout<< "1" << std::endl;
+		return;
+	}
+
+	if(n == 2)
+	{
+		std::cout << "1" << std::endl;
+		std::cout << "1 1" << std::endl;
+	}
+	if(n > 2)
+	{
+		std::queue<int> Q;
+		int sum = 0;
+
+		Q.push(1);
+	
+		int line = 1;
+		while(!Q.empty() && line < n)
+		{
+			std::cout << "1" << "\t";
+			sum = 1+ Q.front();
+			std::cout << sum << "\t";
+			Q.push(sum);
+			sum = 0;
+
+			while(Q.front() != 1 )
+			{
+				sum += Q.front();
+				Q.pop();
+				if(!Q.empty())
+					sum += Q.front();
+
+				std::cout << sum << "\t";
+				Q.push(sum);
+				line++;
+				sum = 0;
+				
+			}
+
+			std::cout << "1" << std::endl;
+			Q.push(1);
+			Q.pop();
+		}
+	}
+}
+
+int main()
+{
+	pascalTriangle(5);
+}
+ bartender  
+#include<stdio.h>
+
+int main()
+{
+   int* a = malloc(100*sizeof(int)); // we can use n instead of                     // 100 in malloc
+   int* b = malloc(100*sizeof(int));
+   int* temp;           //used to swap a and b
+   int i=7,k,j;         // i is the number of levels of pascal //tree
+   a[1]=1;              //we use arrays starting from 1, ignore //0th index
+   printf("1\n");        //print 1 statically
+   for(k=2;k<=i;k++)     // loop through the levels
+   {
+     b[1]=1;             //first and last at each level are  //always 1
+     for(j=2;j<=k-1;j++)
+      { 
+         b[j] = a[j-1] + a[j];  // previous level in a
+       }
+     b[j]=1;                    //ending value at each level is //1
+     printf("\n");
+     for(j=1;j<=k;j++)
+        printf("%d  ",b[j]);
+     temp = a;
+     a=(int* )b;
+     b=temp;
+   }
+   return 0;
+}
+ Nikhil #include<iostream> using namespace std; long fact(int n) { if(n==1) return 1; else return (n*fact(n-1)); } int main() { int n; cout<<"no of lines of code?"; cin>>n; for(int i=0;i<n;i++) { for(int j=0;j<n-i-1;j++) { cout<<" "; } for(int j=0;j<=i;j++) { int k=fact(i)/((fact(j)*fact(i-j)); cout<<k<<" "; } } return 0; } GeeksFollower In Method 3: formula should be: (line-i+1) // not (line-i) so it is: C(line, i) = C(line, i-1) * (line – i+1) / i Kartik Thanks for pointing this out. We have updated the post. a2 Is the Method 1 code correct ? The algo is correct but I think the code is slightly wrong .. The correct code is –  
+void printPascal(int n)
+{
+  // Iterate through every line and print entries in it
+  for (int line = 0; line < n; line++)
+  {
+    // Every line has number of integers equal to line number
+    for (int i = line; i >= 0; i--)
+      printf("%d ", binomialCoeff(line, i));
+    printf("\n");
+  }
+}
+ Kartik The code given in post and your code, both are correct. C(n, r) = C(n, n-r) a2 But I do not get the correct output from the code given aishs8 You may try to initialize line=0 and i=0 in the above code. This will produce the output what you expect.  
+void printPascal(int n)
+{
+  // Iterate through every line and print entries in it
+for (int line = 0; line < n; line++)
+  {
+    // Every line has number of integers equal to line number
+
+  for (int i = 0; i <= line; i++)
+      printf("%d ", binomialCoeff(line, i));
+    printf("\n");
+  }
+}
+
+ a2 Thanks !!! siva   /* Paste your code here (You may delete these lines if not writing code) */ public void printpascal(int n) { int[] a=new int[n]; a[0]=1; int k=1; while(k<n) a[k++]=0; for(int i=0;i=1;j–) a[j]+=a[j-1]; k=0; while(k<n){ if(a[k]!=0) System.out.print(" "+a[k]); k++; } System.out.println(); } } sreeram code for second method .. /*void printPascal(int n) { int arr[n]; // An auxiliary array to store generated pscal triangle values // Iterate through every line and print integer(s) in it for (int line = 0; line = 0; i–) { // First and last values in every row are 1 if (line == i || i == 0) arr[i] = 1; else // Other values are sum of values just above and left of above arr[i] = arr[i-1] + arr[i]; printf(“%d “, arr[i]); } printf(“\n”); } } */ rogueh This will not work because you are overwriting the previous values. So when you add the values from previous line then arr[i] will have correct value but arr[i-1] will have the wrong value so you cant add them. Here is a way to do it :  
+void printPascal(int n)
+{
+  int arr[n]; // An auxiliary array to store generated pscal triangle values
+  int tmp1,tmp2;
+  // Iterate through every line and print integer(s) in it
+  for (int line = 0; line < n; line++)
+  {
+    // Every line has number of integers equal to line number
+    for (int i = 0; i <= line; i++)
+    {
+	  tmp2=arr[i];
+      // First and last values in every row are 1
+      if (line == i || i == 0)
+           arr[i] = 1;
+      else
+           arr[i] = tmp1 + arr[i];
+      tmp1=tmp2;
+      printf("%d ", arr[i]);
+    }
+    printf("\n");
+  }
+}
+ suresh   /* Paste your code here (You may delete these lines if not writing code) */ [/sourcecod #include long factorial(int k); long comb(int n,int r) { long c; c=factorial(n)/(factorial(r)*factorial(n-r)); return c; } long factorial(int k) { long fact = 1; while(k>0) { fact*=k; k–; } return fact; } int main() { int i,j,k; printf(“enter number of rows for pascal’s triangle”); scanf(“%d”,&k); for(i=0;i<k;i++) { for(j=0;j<=i;j++) printf("%5ld",comb(i,j)); printf("\n"); } } Interview Experiences Advanced Data Structures Dynamic Programming Greedy Algorithms Backtracking Pattern Searching Divide & Conquer Mathematical Algorithms Recursion Geometric Algorithms Popular Posts All permutations of a given string Memory Layout of C Programs Understanding “extern” keyword in C Median of two sorted arrays Tree traversal without recursion and without stack! Structure Member Alignment, Padding and Data Packing Intersection point of two Linked Lists Lowest Common Ancestor in a BST. Check if a binary tree is BST or not Sorted Linked List to Balanced BST Follow @GeeksforGeeks Subscribe Recent Comments @geeksforgeeks, Some rights reserved        Contact Us! Powered by WordPress & MooTools, customized by geeksforgeeks team
